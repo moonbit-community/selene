@@ -28,7 +28,7 @@ pub fn TouchControlStyle::TouchControlStyle(
   knob_color? : @render.Color = rgba(236U, 242U, 255U, 0.58),
   label_color? : @render.Color = rgba(255U, 255U, 255U, 0.84),
 ) -> TouchControlStyle {
-  { base_color, active_color, knob_color, label_color }
+  { base_color, active_color, knob_color, label_color, }
 }
 
 ///|
@@ -54,7 +54,7 @@ pub fn VirtualStick::VirtualStick(
   mode? : StickMode = Floating,
   style? : TouchControlStyle = TouchControlStyle(),
 ) -> VirtualStick {
-  { id, axis_x, axis_y, placement, radius, dead_zone, mode, style }
+  { id, axis_x, axis_y, placement, radius, dead_zone, mode, style, }
 }
 
 ///|
@@ -76,7 +76,7 @@ pub fn VirtualButtonControl::VirtualButtonControl(
   label? : String = "",
   style? : TouchControlStyle = TouchControlStyle(),
 ) -> VirtualButtonControl {
-  { id, button, placement, radius, label, style }
+  { id, button, placement, radius, label, style, }
 }
 
 ///|

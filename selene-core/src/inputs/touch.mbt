@@ -250,7 +250,7 @@ fn touch_phase_to_pointer_phase(phase : TouchPhase) -> PointerPhase {
 ///|
 pub fn pointer_event_from_touch(event : TouchEvent) -> PointerEvent {
   {
-    id: { source: event.source, value: event.id.value },
+    id: { source: event.source, value: event.id.value, },
     source: event.source,
     phase: touch_phase_to_pointer_phase(event.phase),
     position: event.position,
@@ -262,7 +262,7 @@ pub fn pointer_event_from_touch(event : TouchEvent) -> PointerEvent {
 
 ///|
 pub fn pointer_id_from_touch(touch : TouchPoint) -> PointerId {
-  { source: touch.source, value: touch.id.value }
+  { source: touch.source, value: touch.id.value, }
 }
 
 ///|
@@ -314,7 +314,7 @@ pub fn advanced_pointer_system(_delta : Double) -> Unit {
     return
   }
 
-  let id : PointerId = { source: PointerMouse, value: 0 }
+  let id : PointerId = { source: PointerMouse, value: 0, }
   if is_mouse_just_pressed(Left) {
     push_pointer_change({
       id,

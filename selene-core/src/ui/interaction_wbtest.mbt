@@ -511,7 +511,7 @@ test "ui input capture preserves pen identity" {
       size: Vec2(80.0, 40.0),
     })
     let id = @inputs.TouchId(21)
-    let pointer : @inputs.PointerId = { source: PointerPen, value: id.value() }
+    let pointer : @inputs.PointerId = { source: PointerPen, value: id.value(), }
     let press = @math.Vec2(120.0, 70.0)
 
     apply_ui_touch_frame(Some(touch_point(id, press, source=PointerPen)), [
@@ -571,7 +571,7 @@ test "ui input capture consumes non-button scroll panels" {
   with_ui_interaction_test_world(fn() raise {
     reset_interaction_test_state()
     let entity = spawn_interaction_test_node(
-      { position: Vec2(0.0, 0.0), size: Vec2(100.0, 100.0) },
+      { position: Vec2(0.0, 0.0), size: Vec2(100.0, 100.0), },
       interactive=false,
       overflow_y=Scroll,
     )
@@ -626,7 +626,7 @@ test "ui relative cursor positions keep normalized values outside calculated cli
   global_ui_nodes().set(entity, interaction_test_global_node(rect))
   calculated_clips().set(
     entity,
-    CalculatedClip({ position: Vec2(100.0, 50.0), size: Vec2(10.0, 20.0) }),
+    CalculatedClip({ position: Vec2(100.0, 50.0), size: Vec2(10.0, 20.0), }),
   )
   relative_cursor_positions().set(entity, RelativeCursorPosition())
   @inputs.mouse.pos = Vec2(130.0, 60.0)

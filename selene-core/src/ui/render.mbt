@@ -59,7 +59,7 @@ fn scale_alpha(color : @render.Color, factor : Double) -> @render.Color {
   } else {
     color.a * factor
   }
-  { ..color, a: alpha }
+  { ..color, a: alpha, }
 }
 
 ///|
@@ -159,7 +159,7 @@ fn inflate_rect(rect : @math.Rect, amount : Double) -> @math.Rect {
 
 ///|
 fn offset_rect(rect : @math.Rect, offset : @math.Vec2) -> @math.Rect {
-  { position: rect.position + offset, size: rect.size }
+  { position: rect.position + offset, size: rect.size, }
 }
 
 ///|
@@ -263,28 +263,28 @@ fn push_rounded_rect(
     camera_entity_id~,
   )
   push_quarter_circle(
-    { position: Vec2(x, y), size: Vec2(tl, tl) },
+    { position: Vec2(x, y), size: Vec2(tl, tl), },
     Vec2(x + tl, y + tl),
     tl,
     color,
     camera_entity_id~,
   )
   push_quarter_circle(
-    { position: Vec2(x + w - tr, y), size: Vec2(tr, tr) },
+    { position: Vec2(x + w - tr, y), size: Vec2(tr, tr), },
     Vec2(x + w - tr, y + tr),
     tr,
     color,
     camera_entity_id~,
   )
   push_quarter_circle(
-    { position: Vec2(x + w - br, y + h - br), size: Vec2(br, br) },
+    { position: Vec2(x + w - br, y + h - br), size: Vec2(br, br), },
     Vec2(x + w - br, y + h - br),
     br,
     color,
     camera_entity_id~,
   )
   push_quarter_circle(
-    { position: Vec2(x, y + h - bl), size: Vec2(bl, bl) },
+    { position: Vec2(x, y + h - bl), size: Vec2(bl, bl), },
     Vec2(x + bl, y + h - bl),
     bl,
     color,
@@ -369,7 +369,7 @@ fn scaled_text_style(
 ) -> @render2d_types.TextStyle2D {
   match get_ui_scale_mode() {
     Screen => style
-    Viewport => { ..style, size: @system.scale_value(style.size) }
+    Viewport => { ..style, size: @system.scale_value(style.size), }
   }
 }
 
@@ -514,7 +514,7 @@ fn push_border(
   }
   if border.top > 0.0 {
     push_ui_rect_fill(
-      { position: rect.position, size: Vec2(rect.size[X], border.top) },
+      { position: rect.position, size: Vec2(rect.size[X], border.top), },
       border_color.color,
       camera_entity_id~,
     )
@@ -642,7 +642,7 @@ fn push_outline(
 fn fitted_image_rect(container : @math.Rect, image : UiImage) -> @math.Rect {
   match image.fit {
     Stretch => container
-    None => { position: container.position, size: image.size }
+    None => { position: container.position, size: image.size, }
     Contain => {
       let scale = @cmp.minimum(
         if image.size[X] <= 0.0 {
@@ -824,7 +824,7 @@ fn push_text(entity : @entity.Entity, camera_entity_id? : UInt? = None) -> Unit 
     }
     // `x`/`y` are already fully resolved in UI layout space.
     // Force renderer-local alignment to top-left to avoid applying alignment twice.
-    let style_for_draw = { ..style, align: Left, baseline: Top }
+    let style_for_draw = { ..style, align: Left, baseline: Top, }
     @render2d.push_ui_text_to_camera(camera_entity_id, {
       text: line,
       position: Vec2(x, start_y + index.to_double() * line_height),

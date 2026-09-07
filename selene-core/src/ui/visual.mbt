@@ -40,7 +40,12 @@ pub(all) struct BorderRadius {
 
 ///|
 pub fn BorderRadius::all(value : Val) -> BorderRadius {
-  { top_left: value, top_right: value, bottom_right: value, bottom_left: value }
+  {
+    top_left: value,
+    top_right: value,
+    bottom_right: value,
+    bottom_left: value,
+  }
 }
 
 ///|
@@ -50,7 +55,7 @@ pub fn BorderRadius::BorderRadius(
   bottom_right? : Val = top_left,
   bottom_left? : Val = bottom_right,
 ) -> BorderRadius {
-  { top_left, top_right, bottom_right, bottom_left }
+  { top_left, top_right, bottom_right, bottom_left, }
 }
 
 ///|
@@ -66,7 +71,7 @@ pub fn Outline::Outline(
   color : @render.Color,
   offset? : Val = Val::px(0.0),
 ) -> Outline {
-  { width, offset, color }
+  { width, offset, color, }
 }
 
 ///|
@@ -86,7 +91,7 @@ pub fn ShadowStyle::ShadowStyle(
   spread_radius? : Val = Val::px(0.0),
   blur_radius? : Val = Val::px(0.0),
 ) -> ShadowStyle {
-  { color, x_offset, y_offset, spread_radius, blur_radius }
+  { color, x_offset, y_offset, spread_radius, blur_radius, }
 }
 
 ///|
@@ -135,7 +140,7 @@ pub fn UiImage::from_image(
   tint? : @render.Color = rgba(255, 255, 255, 1.0),
   fit? : ImageFit = Stretch,
 ) -> UiImage {
-  { size, image, tint, fit }
+  { size, image, tint, fit, }
 }
 
 ///|
@@ -172,7 +177,7 @@ pub fn UiGradient::UiGradient(
   color_start : @render.Color,
   color_end : @render.Color,
 ) -> UiGradient {
-  { color_start, color_end }
+  { color_start, color_end, }
 }
 
 ///|
@@ -192,7 +197,7 @@ pub fn UiMaterialContext::UiMaterialContext(
   border_radius? : BorderRadius = BorderRadius::all(Val::px(0.0)),
   target_camera_entity_id? : UInt? = None,
 ) -> UiMaterialContext {
-  { entity, rect, content_rect, border_radius, target_camera_entity_id }
+  { entity, rect, content_rect, border_radius, target_camera_entity_id, }
 }
 
 ///|
@@ -274,7 +279,7 @@ pub fn TextFont::TextFont(
   family? : String = "Arial",
   size? : Double = 16.0,
 ) -> TextFont {
-  { family, size, font_handle: @asset.font_by_family(family) }
+  { family, size, font_handle: @asset.font_by_family(family), }
 }
 
 ///|
@@ -283,7 +288,7 @@ pub fn TextFont::from_font(
   size? : Double = 16.0,
 ) -> TextFont {
   let family = @asset.font_family(font).unwrap_or("Arial")
-  { family, size, font_handle: Some(font) }
+  { family, size, font_handle: Some(font), }
 }
 
 ///|
@@ -366,7 +371,7 @@ pub fn TextLayout::TextLayout(
   wrap? : TextWrap = NoWrap,
   overflow? : TextOverflow = Clip,
 ) -> TextLayout {
-  { align, baseline, line_height, wrap, overflow }
+  { align, baseline, line_height, wrap, overflow, }
 }
 
 ///|

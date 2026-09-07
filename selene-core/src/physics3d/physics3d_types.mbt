@@ -79,7 +79,7 @@ pub(all) struct Sensor {} derive(Eq, Debug)
 ///|
 #warnings("-unnecessary_annotation-unused_value")
 fn Sensor::Sensor() -> Sensor {
-  Sensor::{  }
+  Sensor::{ }
 }
 
 ///|

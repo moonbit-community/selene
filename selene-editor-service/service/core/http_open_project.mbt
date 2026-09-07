@@ -34,7 +34,7 @@ async fn EditorService::open_project(
   }
   let snapshot = snapshot_project_files(root, manifest)
   let workspace = load_workspace_document(root)
-  self.current_project = Some({ root, manifest, snapshot })
+  self.current_project = Some({ root, manifest, snapshot, })
   self.add_recent_project(root)
   self.broadcast(
     @shared.event_envelope(@shared.editor_event_project_opened(root, manifest)),

@@ -14,7 +14,7 @@
 
 ///|
 fn rgba(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
-  { r, g, b, a }
+  { r, g, b, a, }
 }
 
 ///|
@@ -167,7 +167,7 @@ fn to_screen_rect(
         acc
       }
     })
-    { position: Vec2(min_x, min_y), size: Vec2(max_x - min_x, max_y - min_y) }
+    { position: Vec2(min_x, min_y), size: Vec2(max_x - min_x, max_y - min_y), }
   }
 }
 

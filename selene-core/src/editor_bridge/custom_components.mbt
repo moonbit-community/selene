@@ -39,7 +39,7 @@ pub fn validate_custom_component_object_payload(
 ) -> Array[ValidationError] {
   match component.data {
     Object(_) => []
-    _ => [{ path, message: "Custom component payload must be a JSON object" }]
+    _ => [{ path, message: "Custom component payload must be a JSON object", }]
   }
 }
 
@@ -50,7 +50,7 @@ pub fn[T : @json.FromJson] validate_custom_component_payload(
   invalid_message : String,
 ) -> T raise ComponentPayloadValidationError {
   let value : T = @json.from_json(component.data) catch {
-    _ => raise ComponentPayloadInvalid([{ path, message: invalid_message }])
+    _ => raise ComponentPayloadInvalid([{ path, message: invalid_message, }])
   }
   match validate_custom_component_object_payload(component, path) {
     [] => value
@@ -73,7 +73,7 @@ pub fn custom_component_handler(
   validate? : CustomComponentValidator = validate_custom_component_object_payload,
   apply? : CustomComponentApplier = ignore_custom_component,
 ) -> CustomComponentHandler {
-  { default_data, validate, apply }
+  { default_data, validate, apply, }
 }
 
 ///|

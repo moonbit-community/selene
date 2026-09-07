@@ -3,7 +3,7 @@ name = "Milky2018/selene-examples"
 version = "0.21.2"
 
 import {
-  "Milky2018/selene@0.37.1",
+  "Milky2018/selene@0.37.2",
   "Milky2018/moon_rapier@0.5.1",
   "moonbitlang/x@0.5.1",
 }

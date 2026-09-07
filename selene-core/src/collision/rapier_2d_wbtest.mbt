@@ -255,8 +255,11 @@ test "spatial queries resolve hits, overlaps, and body filters" {
     content="true",
   )
 
-  let dynamic_filter = { ..SpatialQueryFilter::default(), body_filter: Dynamic }
-  let fixed_filter = { ..SpatialQueryFilter::default(), body_filter: Fixed }
+  let dynamic_filter = {
+    ..SpatialQueryFilter::default(),
+    body_filter: Dynamic,
+  }
+  let fixed_filter = { ..SpatialQueryFilter::default(), body_filter: Fixed, }
   let kinematic_filter = {
     ..SpatialQueryFilter::default(),
     body_filter: Kinematic,
@@ -301,7 +304,7 @@ test "rigid body setters and getters work before insertion" {
   set_test_translation(entity, @math.Vec2::zero())
   shapes().set(entity, collision_test_shape())
   colliders().set(entity, Collider(collision_test_filter()))
-  rigid_bodies().set(entity, { ..RigidBody::dynamic(), lock_rotation: false })
+  rigid_bodies().set(entity, { ..RigidBody::dynamic(), lock_rotation: false, })
 
   set_rigid_body_translation(entity, Vec2(32.0, 12.0))
   set_rigid_body_rotation(entity, 0.25)
@@ -359,7 +362,7 @@ test "force and impulse helpers apply before and after body creation" {
   set_test_translation(entity, @math.Vec2::zero())
   shapes().set(entity, collision_test_shape())
   colliders().set(entity, Collider(collision_test_filter()))
-  rigid_bodies().set(entity, { ..RigidBody::dynamic(), lock_rotation: false })
+  rigid_bodies().set(entity, { ..RigidBody::dynamic(), lock_rotation: false, })
 
   apply_impulse(entity, Vec2(200.0, 0.0))
   apply_torque_impulse(entity, 1.0)
@@ -412,7 +415,7 @@ test "impulse joints insert and accept all supported joint kinds" {
   set_test_translation(body_b, Vec2(32.0, 0.0))
   shapes().set(body_b, collision_test_shape())
   colliders().set(body_b, Collider(collision_test_filter()))
-  rigid_bodies().set(body_b, { ..RigidBody::dynamic(), lock_rotation: false })
+  rigid_bodies().set(body_b, { ..RigidBody::dynamic(), lock_rotation: false, })
 
   joints().set(joint_entity, Joint::fixed(body_a, body_b))
   rapier_fixed_step(0.016)
@@ -531,7 +534,10 @@ test "multibody joints insert, expose handles, and rebuild chains" {
     set_test_translation(entry.0, entry.1)
     shapes().set(entry.0, collision_test_shape())
     colliders().set(entry.0, Collider(collision_test_filter()))
-    rigid_bodies().set(entry.0, { ..RigidBody::dynamic(), lock_rotation: false })
+    rigid_bodies().set(entry.0, {
+      ..RigidBody::dynamic(),
+      lock_rotation: false,
+    })
   }
 
   multibody_joints().set(

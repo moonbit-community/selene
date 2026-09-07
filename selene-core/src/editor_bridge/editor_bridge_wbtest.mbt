@@ -233,7 +233,7 @@ test "scene document round trip" {
         name: "Hero",
         parent: None,
         components: [
-          transform2d_component(translation={ x: 8.0, y: 16.0 }, scale={
+          transform2d_component(translation={ x: 8.0, y: 16.0, }, scale={
             x: 2.0,
             y: 2.0,
           }),
@@ -267,7 +267,7 @@ test "scene sdf round trip and canonical encoding are stable" {
         name: "Hero",
         parent: None,
         components: [
-          transform2d_component(translation={ x: 16.0, y: 8.0 }),
+          transform2d_component(translation={ x: 16.0, y: 8.0, }),
           sprite_component(image_path=Some("assets/images/hero.png")),
         ],
       },
@@ -290,8 +290,8 @@ test "scene patch applies in document space" {
         name: "Crate",
         parent: None,
         components: [
-          transform2d_component(translation={ x: 32.0, y: 24.0 }),
-          sprite_component(color={ r: 255, g: 0, b: 0, a: 255 }),
+          transform2d_component(translation={ x: 32.0, y: 24.0, }),
+          sprite_component(color={ r: 255, g: 0, b: 0, a: 255, }),
         ],
       }),
       PutComponent(entity_id="camera", component=text2d_component("Editor")),
@@ -315,7 +315,7 @@ test "validation rejects unsupported scene version missing parent and invalid cu
         id: "child",
         name: "Child",
         parent: Some("missing"),
-        components: [{ kind: "UnknownKind", data: Json::null() }],
+        components: [{ kind: "UnknownKind", data: Json::null(), }],
       },
     ],
   }
@@ -520,7 +520,7 @@ test "custom component registry wires defaults validation and apply" {
         components: [
           component_document(
             custom_kind,
-            ToJson::to_json(RegisteredCustomComponentTestPayload::{ label: "" }),
+            ToJson::to_json(RegisteredCustomComponentTestPayload::{ label: "", }),
           ),
         ],
       },
@@ -583,7 +583,7 @@ test "scene runtime instantiates camera and mesh entities" {
         name: "Shape",
         parent: None,
         components: [
-          transform2d_component(translation={ x: 24.0, y: 12.0 }),
+          transform2d_component(translation={ x: 24.0, y: 12.0, }),
           mesh2d_component("rectangle", size=Some(vec2_doc(40.0, 20.0))),
           color_material_component(color=color_doc(255, 0, 0)),
         ],

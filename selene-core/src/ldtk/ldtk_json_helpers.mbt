@@ -68,9 +68,9 @@ fn resolve_external_ldtk_levels(project : LdtkProject) -> LdtkProject {
         resolve_external_ldtk_level(project, level, cache),
       )
     }
-    resolved_worlds.push({ ..world, levels: resolved_world_levels })
+    resolved_worlds.push({ ..world, levels: resolved_world_levels, })
   }
-  { ..project, levels: resolved_levels, worlds: resolved_worlds }
+  { ..project, levels: resolved_levels, worlds: resolved_worlds, }
 }
 
 ///|
@@ -247,7 +247,7 @@ fn json_entity_reference(value : Json) -> LdtkEntityReference? {
     if iid.length() == 0 {
       return None
     }
-    return Some({ ..empty_ldtk_entity_reference(), entity_iid: Some(iid) })
+    return Some({ ..empty_ldtk_entity_reference(), entity_iid: Some(iid), })
   }
   guard json_object(value) is Some(object) else { return None }
   Some({

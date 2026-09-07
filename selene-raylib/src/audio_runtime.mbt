@@ -173,7 +173,7 @@ fn rasterize_with_cosmic(
       }
     }
   }
-  Some({ width, height, pixels })
+  Some({ width, height, pixels, })
 }
 
 ///|
@@ -193,7 +193,7 @@ fn texture_from_cosmic_raster(raster : CosmicRasterImage) -> CosmicTextTexture? 
     ),
   )
   @raylib.set_texture_filter(texture, configured_filter())
-  Some({ texture, width: raster.width, height: raster.height })
+  Some({ texture, width: raster.width, height: raster.height, })
 }
 
 ///|

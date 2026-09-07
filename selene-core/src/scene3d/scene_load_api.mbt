@@ -52,7 +52,7 @@ let scene_paths : Map[@render3d.SceneHandle, String] = Map([])
 
 ///|
 fn empty_scene_template() -> SceneTemplate {
-  { roots: [], nodes: [], skins: [], animations: Map([]) }
+  { roots: [], nodes: [], skins: [], animations: Map([]), }
 }
 
 ///|
@@ -103,7 +103,7 @@ pub fn instantiate_scene_instance(
   @name.names().set(root, Name("scene_root"))
   let parts : Map[String, @entity.Entity] = Map([])
   guard scene_templates.get(scene) is Some(template) else {
-    return { root, parts, animations: Map([]) }
+    return { root, parts, animations: Map([]), }
   }
   let node_entities : Map[Int, @entity.Entity] = Map([])
   let pending_skin_bindings : Array[PendingSkinBinding] = []
@@ -133,7 +133,7 @@ pub fn instantiate_scene_instance(
     @animation.animation_players().set(root, AnimationPlayer())
     @animation.animation_transitions().set(root, AnimationTransitions())
   }
-  { root, parts, animations: animation_nodes }
+  { root, parts, animations: animation_nodes, }
 }
 
 ///|

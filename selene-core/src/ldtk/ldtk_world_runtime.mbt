@@ -101,7 +101,7 @@ pub fn set_ldtk_level_set(
     return
   }
   instance.level_set = level_set
-  instance.settings = { ..instance.settings, follow_level_selection: false }
+  instance.settings = { ..instance.settings, follow_level_selection: false, }
 }
 
 ///|
@@ -112,7 +112,7 @@ pub fn set_ldtk_world_follow_level_selection(
   guard ldtk_world_instances().get(world_entity) is Some(instance) else {
     return
   }
-  instance.settings = { ..instance.settings, follow_level_selection: follow }
+  instance.settings = { ..instance.settings, follow_level_selection: follow, }
 }
 
 ///|
@@ -222,7 +222,7 @@ fn spawn_ldtk_world_root(
     level_set,
     spawned_levels: Map([]),
   })
-  let world_event = { world_entity, project }
+  let world_event = { world_entity, project, }
   ldtk_world_spawned_event_bus.trigger(world_event, Some(world_entity))
   if settings.world_hook is Some(world_hook) {
     world_hook(world_event)
@@ -277,7 +277,7 @@ fn ldtk_spawn_level_entity(
     indices: indexed.indices,
     level: indexed.level,
   })
-  ldtk_level_iids().set(level_entity, { iid: indexed.level.iid })
+  ldtk_level_iids().set(level_entity, { iid: indexed.level.iid, })
   let level_event = {
     world_entity,
     level_entity,
@@ -365,8 +365,8 @@ fn ldtk_spawn_level_background(
       background_entity,
       Sprite(
         image=Some(image),
-        rect=Some({ position: image_offset, size: image_size }),
-        color={ r: 255U, g: 255U, b: 255U, a: 1.0 },
+        rect=Some({ position: image_offset, size: image_size, }),
+        color={ r: 255U, g: 255U, b: 255U, a: 1.0, },
         custom_size=Some(scaled_size),
         anchor=Anchor(Vec2(-0.5, 0.5)),
       ),
@@ -530,8 +530,8 @@ fn ldtk_spawn_layer_tiles(
       tile_entity,
       Sprite(
         image=Some(image),
-        rect=Some({ position: tile_src, size: Vec2(tile_size, tile_size) }),
-        color={ r: 255U, g: 255U, b: 255U, a: render_alpha },
+        rect=Some({ position: tile_src, size: Vec2(tile_size, tile_size), }),
+        color={ r: 255U, g: 255U, b: 255U, a: render_alpha, },
         custom_size=Some(Vec2(tile_size, tile_size)),
         anchor=Anchor(Vec2(-0.5, 0.5)),
         flip_x=tile.flip_x,
@@ -583,7 +583,7 @@ fn ldtk_spawn_int_grid_cells(
       Vec2(grid_x.to_double() * grid_size, grid_y.to_double() * grid_size),
     )
     set_entity_depth(cell_entity, zindex)
-    ldtk_grid_coords().set(cell_entity, { x: grid_x, y: grid_y })
+    ldtk_grid_coords().set(cell_entity, { x: grid_x, y: grid_y, })
     ldtk_int_grid_cells().set(cell_entity, { value, })
     let runtime : LdtkSpawnedIntGridCell = {
       world_entity,
@@ -711,7 +711,7 @@ fn ldtk_spawn_layer_entities(
       x: entity_instance.grid[X].to_int(),
       y: entity_instance.grid[Y].to_int(),
     })
-    ldtk_entity_iids().set(entity, { iid: entity_instance.iid })
+    ldtk_entity_iids().set(entity, { iid: entity_instance.iid, })
     if is_worldly {
       ldtk_worldly_entities().set(entity, {
         world_entity,

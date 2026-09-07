@@ -56,11 +56,11 @@ fn update_animation_editor(
           )
           (
             sync_preview_effects_with_scene(next),
-            { ..next, status: "Added Clip node to animation graph" },
+            { ..next, status: "Added Clip node to animation graph", },
           )
         }
         None => {
-          let next = { ..model, status: "Create an animation clip first" }
+          let next = { ..model, status: "Create an animation clip first", }
           (sync_preview_effects(next), next)
         }
       }
@@ -71,7 +71,7 @@ fn update_animation_editor(
       )
       (
         sync_preview_effects_with_scene(next),
-        { ..next, status: "Added Blend node to animation graph" },
+        { ..next, status: "Added Blend node to animation graph", },
       )
     }
     AddSelectedAnimationGraphAdditiveBlendNode => {
@@ -81,7 +81,7 @@ fn update_animation_editor(
       )
       (
         sync_preview_effects_with_scene(next),
-        { ..next, status: "Added Additive Blend node to animation graph" },
+        { ..next, status: "Added Additive Blend node to animation graph", },
       )
     }
     RemoveSelectedAnimationGraphNode(id) => {
@@ -110,7 +110,7 @@ fn update_animation_editor(
       let next = with_selected_animation_graph_edge_added(model, node_id)
       (
         sync_preview_effects_with_scene(next),
-        { ..next, status: "Added edge for node: \{node_id}" },
+        { ..next, status: "Added edge for node: \{node_id}", },
       )
     }
     RemoveSelectedAnimationGraphEdge(node_id, edge_index) => {
@@ -152,7 +152,7 @@ fn update_animation_editor(
           let (changed_model, changed) = with_selected_animation_graph_edge_added_to_target(
             model, source_node_id, target_node_id,
           )
-          let next = { ..changed_model, graph_edge_connect_source_node: None }
+          let next = { ..changed_model, graph_edge_connect_source_node: None, }
           let status = if source_node_id == target_node_id {
             "Edge connect canceled"
           } else if changed {
@@ -199,7 +199,7 @@ fn update_animation_editor(
           })
           (
             sync_preview_effects_with_scene(next),
-            { ..next, status: "Moved graph node: \{node_id}" },
+            { ..next, status: "Moved graph node: \{node_id}", },
           )
         }
         None => ([], model)
@@ -231,7 +231,7 @@ fn update_animation_editor(
       )
     }
     UpdateAnimationPreviewSeekInput(value) =>
-      ([], { ..model, animation_preview_seek_input: value })
+      ([], { ..model, animation_preview_seek_input: value, })
     ApplyAnimationPreviewSeek => {
       let seek_seconds = parse_double_or(
         0.0,
@@ -253,7 +253,7 @@ fn update_animation_editor(
         Some((path, clip)) =>
           (
             [rpc_effect(RpcAnimationClipSave(path, clip))],
-            { ..model, status: "Saving animation clip..." },
+            { ..model, status: "Saving animation clip...", },
           )
         None => ([], model)
       }
@@ -262,7 +262,7 @@ fn update_animation_editor(
         Some((path, graph)) =>
           (
             [rpc_effect(RpcAnimationGraphSave(path, graph))],
-            { ..model, status: "Saving animation graph..." },
+            { ..model, status: "Saving animation graph...", },
           )
         None => ([], model)
       }

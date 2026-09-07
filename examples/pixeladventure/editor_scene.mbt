@@ -443,7 +443,7 @@ fn load_level_scene_with_source(
     .unwrap_or_else(fn() { panic() })
   let world_size = scene_world_size(scene)
   build_terrain_colliders_from_scene(scene)
-  { player_entity, camera_entity, world_size }
+  { player_entity, camera_entity, world_size, }
 }
 
 ///|

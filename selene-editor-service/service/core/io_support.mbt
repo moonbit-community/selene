@@ -58,9 +58,9 @@ async fn scene_disk_state(
   relative_path : String,
 ) -> SceneDiskState {
   let path = scene_path(root, relative_path)
-  guard @fs.exists(path) else { return { hash: "", revision: 0 } }
+  guard @fs.exists(path) else { return { hash: "", revision: 0, } }
   let content = @fs.read_file(path).text()
-  { hash: scene_hash(content), revision: scene_hash_int(content) }
+  { hash: scene_hash(content), revision: scene_hash_int(content), }
 }
 
 ///|

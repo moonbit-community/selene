@@ -1,6 +1,6 @@
 ///|
 fn full_screen_viewport() -> @math.Rect {
-  { position: @math.Vec2::zero(), size: @system.get_screen_size() }
+  { position: @math.Vec2::zero(), size: @system.get_screen_size(), }
 }
 
 ///|
@@ -101,12 +101,12 @@ fn build_draw_batches(
 
 ///|
 fn offscreen_local_viewport(viewport : @math.Rect) -> @math.Rect {
-  { position: @math.Vec2::zero(), size: viewport.size }
+  { position: @math.Vec2::zero(), size: viewport.size, }
 }
 
 ///|
 fn offset_rect(rect : @math.Rect, offset : @math.Vec2) -> @math.Rect {
-  { position: rect.position - offset, size: rect.size }
+  { position: rect.position - offset, size: rect.size, }
 }
 
 ///|
@@ -116,13 +116,13 @@ fn normalize_draw_command_for_offscreen(
 ) -> @render2d_types.DrawCommand2D {
   match command {
     Image(image) =>
-      Image({ ..image, destination: offset_rect(image.destination, offset) })
-    Text(text) => Text({ ..text, position: text.position - offset })
-    Rect(rect) => Rect({ ..rect, rect: offset_rect(rect.rect, offset) })
-    Circle(circle) => Circle({ ..circle, center: circle.center - offset })
+      Image({ ..image, destination: offset_rect(image.destination, offset), })
+    Text(text) => Text({ ..text, position: text.position - offset, })
+    Rect(rect) => Rect({ ..rect, rect: offset_rect(rect.rect, offset), })
+    Circle(circle) => Circle({ ..circle, center: circle.center - offset, })
     GradientRect(command) =>
-      GradientRect({ ..command, rect: offset_rect(command.rect, offset) })
-    PushClip(clip) => PushClip({ rect: offset_rect(clip.rect, offset) })
+      GradientRect({ ..command, rect: offset_rect(command.rect, offset), })
+    PushClip(clip) => PushClip({ rect: offset_rect(clip.rect, offset), })
     PopClip => PopClip
   }
 }
@@ -179,7 +179,7 @@ fn build_frame2d(
         pass_target,
         camera_view.viewport,
       )
-      world_commands_with_depth.push({ ..command, command: normalized_command })
+      world_commands_with_depth.push({ ..command, command: normalized_command, })
       world_commands.push(normalized_command)
       normalized_command
     })
@@ -226,7 +226,7 @@ fn build_frame2d(
       order: screen_pass_order(camera_views),
       viewport: full_screen_viewport(),
       load_op: Load,
-      clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0 },
+      clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0, },
       target: Screen,
       world_commands: screen_world_commands,
       ui_commands: screen_ui_commands,
@@ -235,7 +235,7 @@ fn build_frame2d(
     })
   }
 
-  ({ passes, world_commands, ui_commands }, world_commands_with_depth)
+  ({ passes, world_commands, ui_commands, }, world_commands_with_depth)
 }
 
 ///|

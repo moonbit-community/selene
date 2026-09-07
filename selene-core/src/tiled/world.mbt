@@ -111,7 +111,7 @@ pub fn tiled_world_map_instances() -> Map[@entity.Entity, TiledWorldMapInstance]
 
 ///|
 pub fn empty_tiled_world() -> TiledWorld {
-  { only_show_adjacent_maps: false, maps: [], patterns: [], source_path: None }
+  { only_show_adjacent_maps: false, maps: [], patterns: [], source_path: None, }
 }
 
 ///|
@@ -217,7 +217,7 @@ fn spawn_tiled_world_root(
     loaded_maps,
     spawned_maps,
   })
-  let world_event = { world_entity, world }
+  let world_event = { world_entity, world, }
   tiled_world_spawned_event_bus.trigger(world_event, Some(world_entity))
   if settings.world_hook is Some(world_hook) {
     world_hook(world_event)
@@ -619,7 +619,7 @@ fn tiled_world_compile_pattern_regex(
   if next_index != chars.length() {
     return None
   }
-  Some({ tokens, capture_count })
+  Some({ tokens, capture_count, })
 }
 
 ///|
@@ -661,7 +661,7 @@ fn tiled_world_parse_pattern_tokens(
     } else {
       index = atom_end
     }
-    tokens.push({ atom, quantifier })
+    tokens.push({ atom, quantifier, })
   }
   if stop_char is Some(_) {
     None
@@ -1073,7 +1073,7 @@ fn tiled_world_load_maps(world : TiledWorld) -> Array[LoadedTiledWorldMap] {
   for world_map in tiled_world_collect_maps(world) {
     let resolved_map_path = world.resolve_map_path(world_map.file_name)
     let map = load_tiled_map(resolved_map_path)
-    loaded_maps.push({ world_map, resolved_map_path, map })
+    loaded_maps.push({ world_map, resolved_map_path, map, })
   }
   loaded_maps
 }

@@ -102,7 +102,7 @@ pub fn Camera2dView::world_origin(self : Camera2dView) -> @math.Vec2 {
 ///|
 fn rect_from_points(points : Array[@math.Vec2]) -> @math.Rect {
   if points.is_empty() {
-    return { position: @math.Vec2::zero(), size: @math.Vec2::zero() }
+    return { position: @math.Vec2::zero(), size: @math.Vec2::zero(), }
   }
   let mut min_x = points[0][X]
   let mut min_y = points[0][Y]
@@ -114,7 +114,7 @@ fn rect_from_points(points : Array[@math.Vec2]) -> @math.Rect {
     max_x = @cmp.maximum(max_x, point[X])
     max_y = @cmp.maximum(max_y, point[Y])
   }
-  { position: Vec2(min_x, min_y), size: Vec2(max_x - min_x, max_y - min_y) }
+  { position: Vec2(min_x, min_y), size: Vec2(max_x - min_x, max_y - min_y), }
 }
 
 ///|

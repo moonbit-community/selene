@@ -368,7 +368,7 @@ fn apply_character_controller_translation(
   }
   let transform = current_world_transform(entity).unwrap_or_default()
   let target = transform.translation + translation
-  let target_world_transform = { ..transform, translation: target }
+  let target_world_transform = { ..transform, translation: target, }
   set_entity_world_transform(entity, target_world_transform)
   match rigid_bodies().get(entity) {
     Some(KinematicPositionBased) =>

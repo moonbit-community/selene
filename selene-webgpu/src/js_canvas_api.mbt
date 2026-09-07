@@ -180,7 +180,7 @@ extern "js" fn webgpu_now_ms() -> Double = "() => performance.now()"
 
 ///|
 pub fn webgpu_last_frame_timing() -> WebGpuFrameTimingSnapshot {
-  { ..last_frame_timing.val }
+  { ..last_frame_timing.val, }
 }
 
 ///|

@@ -1,6 +1,6 @@
 ///|
 fn rgba(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
-  { r, g, b, a }
+  { r, g, b, a, }
 }
 
 ///|

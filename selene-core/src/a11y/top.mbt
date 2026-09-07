@@ -83,7 +83,7 @@ let a11y_world_stores : Map[UInt, A11yWorldStore] = Map([])
 ///|
 fn a11y_world_store() -> A11yWorldStore {
   let world_id = @ecs.require_current_world().id()
-  a11y_world_stores.get_or_init(world_id, () => { a11ys: Map([]) })
+  a11y_world_stores.get_or_init(world_id, () => { a11ys: Map([]), })
 }
 
 ///|
@@ -95,7 +95,7 @@ pub fn a11ys() -> Map[@entity.Entity, A11y] {
 let a11y_tree_id : @moon_accesskit.TreeId = @moon_accesskit.TreeId::root()
 
 ///|
-let latest_tree_update_ref : Ref[@moon_accesskit.TreeUpdate?] = { val: None }
+let latest_tree_update_ref : Ref[@moon_accesskit.TreeUpdate?] = { val: None, }
 
 ///|
 let pending_action_requests : Array[@moon_accesskit.ActionRequest] = []
@@ -107,7 +107,7 @@ let entity_node_ids : Map[@entity.Entity, UInt64] = Map([])
 let current_node_entities : Map[@moon_accesskit.NodeId, @entity.Entity] = Map([])
 
 ///|
-let next_node_id : Ref[UInt64] = { val: 1UL }
+let next_node_id : Ref[UInt64] = { val: 1UL, }
 
 ///|
 pub fn tree_id() -> @moon_accesskit.TreeId {
@@ -408,7 +408,7 @@ fn build_tree_update(
     node.set_children(child_ids)
     update.push_node(id, node)
   }
-  update.set_tree(Tree(@moon_accesskit.NodeId::root()))
+  update.set_tree(@moon_accesskit.TreeInfo(@moon_accesskit.NodeId::root()))
   update
 }
 
@@ -438,7 +438,7 @@ fn dispatch_action(
     Focus => @ui.focus(entity)
     Blur => @ui.blur()
     Click => {
-      @ui.click_event_bus.send({ entity, button: Left })
+      @ui.click_event_bus.send({ entity, button: Left, })
       invoke_action_callbacks(entity, action, data)
     }
     _ => invoke_action_callbacks(entity, action, data)

@@ -23,12 +23,12 @@ pub fn LdtkLevelIndices::in_world(
   world_index : Int,
   level_index : Int,
 ) -> LdtkLevelIndices {
-  { world: Some(world_index), level: level_index }
+  { world: Some(world_index), level: level_index, }
 }
 
 ///|
 pub fn LdtkLevelIndices::in_root(index : Int) -> LdtkLevelIndices {
-  { world: None, level: index }
+  { world: None, level: index, }
 }
 
 ///|
@@ -101,7 +101,7 @@ pub struct LdtkSpawnExclusions {
 
 ///|
 pub fn default_ldtk_spawn_exclusions() -> LdtkSpawnExclusions {
-  { layer_identifiers: [] }
+  { layer_identifiers: [], }
 }
 
 ///|
@@ -178,7 +178,7 @@ pub fn ldtk_level_spawn_behavior_world_translation(
 }
 
 ///|
-pub let ldtk_settings : Ref[LdtkSettings] = { val: default_ldtk_settings() }
+pub let ldtk_settings : Ref[LdtkSettings] = { val: default_ldtk_settings(), }
 
 ///|
 pub let ldtk_int_grid_physics_settings : Ref[LdtkIntGridPhysicsSettings] = {
@@ -214,12 +214,12 @@ pub struct LdtkLevelSet {
 
 ///|
 pub fn empty_ldtk_level_set() -> LdtkLevelSet {
-  { iids: [] }
+  { iids: [], }
 }
 
 ///|
 pub fn ldtk_level_set_from_iids(iids : Array[String]) -> LdtkLevelSet {
-  { iids: unique_ldtk_iids(iids) }
+  { iids: unique_ldtk_iids(iids), }
 }
 
 ///|

@@ -5,7 +5,7 @@ fn test_rect(
   width : Double,
   height : Double,
 ) -> @math.Rect {
-  { position: Vec2(x, y), size: Vec2(width, height) }
+  { position: Vec2(x, y), size: Vec2(width, height), }
 }
 
 ///|

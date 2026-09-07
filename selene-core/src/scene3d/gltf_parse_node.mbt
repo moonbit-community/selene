@@ -57,7 +57,7 @@ fn parse_matrix_transform(values : Array[Json]) -> @transform.Transform? {
   let r21 = m21 / scale_y
   let r22 = m22 / scale_z
   let rotation = quat_from_matrix3(r00, r01, r02, r10, r11, r12, r20, r21, r22)
-  Some({ translation, rotation, scale: Vec3(scale_x, scale_y, scale_z) })
+  Some({ translation, rotation, scale: Vec3(scale_x, scale_y, scale_z), })
 }
 
 ///|
@@ -189,7 +189,7 @@ fn color_from_factor4(values : Array[Double]) -> @render.Color {
   let g = factor_to_u8(values.get(1).unwrap_or(1.0))
   let b = factor_to_u8(values.get(2).unwrap_or(1.0))
   let a = clamp01(values.get(3).unwrap_or(1.0))
-  { r, g, b, a }
+  { r, g, b, a, }
 }
 
 ///|

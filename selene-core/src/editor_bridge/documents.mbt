@@ -370,7 +370,7 @@ pub struct AssetDocument {
 
 ///|
 pub fn vec2_doc(x : Double, y : Double) -> Vec2Doc {
-  { x, y }
+  { x, y, }
 }
 
 ///|
@@ -380,12 +380,12 @@ pub fn rect_doc(
   width : Double,
   height : Double,
 ) -> RectDoc {
-  { x, y, width, height }
+  { x, y, width, height, }
 }
 
 ///|
 pub fn color_doc(r : Int, g : Int, b : Int, a? : Int = 255) -> ColorDoc {
-  { r, g, b, a }
+  { r, g, b, a, }
 }
 
 ///|
@@ -419,7 +419,7 @@ pub fn transform2d_value(
   rotation? : Double = 0.0,
   scale? : Vec2Doc = vec2_doc(1.0, 1.0),
 ) -> Transform2dComponent {
-  { translation, rotation, scale }
+  { translation, rotation, scale, }
 }
 
 ///|
@@ -458,7 +458,7 @@ pub fn Text2dComponent::with_content(
 pub fn VisibilityComponent::toggled(
   self : VisibilityComponent,
 ) -> VisibilityComponent {
-  { visible: !self.visible }
+  { visible: !self.visible, }
 }
 
 ///|
@@ -473,7 +473,7 @@ pub fn AnimationPlayerComponent::with_repeat_mode_doc(
   self : AnimationPlayerComponent,
   repeat_mode : AnimationRepeatModeDoc,
 ) -> AnimationPlayerComponent {
-  { ..self, repeat_mode: animation_repeat_mode_doc_to_string(repeat_mode) }
+  { ..self, repeat_mode: animation_repeat_mode_doc_to_string(repeat_mode), }
 }
 
 ///|
@@ -647,7 +647,7 @@ pub fn ProjectManifest::with_indexes(
 
 ///|
 pub fn SceneDocument::empty(name? : String = "Main") -> SceneDocument {
-  { version: scene_schema_version, name, entities: [] }
+  { version: scene_schema_version, name, entities: [], }
 }
 
 ///|
@@ -660,7 +660,7 @@ pub fn SceneDocument::with_name(
 
 ///|
 pub fn PrefabDocument::empty(name : String) -> PrefabDocument {
-  { version: prefab_schema_version, name, entities: [] }
+  { version: prefab_schema_version, name, entities: [], }
 }
 
 ///|
@@ -668,7 +668,7 @@ pub fn prefab_document(
   name : String,
   entities : Array[EntityDocument],
 ) -> PrefabDocument {
-  { version: prefab_schema_version, name, entities }
+  { version: prefab_schema_version, name, entities, }
 }
 
 ///|
@@ -698,7 +698,7 @@ pub fn WorkspaceDocument::with_last_scene(
   self : WorkspaceDocument,
   path : String?,
 ) -> WorkspaceDocument {
-  { ..self, last_scene: path }
+  { ..self, last_scene: path, }
 }
 
 ///|
@@ -706,7 +706,7 @@ pub fn WorkspaceDocument::with_selected_entity_id(
   self : WorkspaceDocument,
   id : String?,
 ) -> WorkspaceDocument {
-  { ..self, selected_entity_id: id }
+  { ..self, selected_entity_id: id, }
 }
 
 ///|
@@ -714,7 +714,7 @@ pub fn WorkspaceDocument::with_move_snap_enabled(
   self : WorkspaceDocument,
   enabled : Bool,
 ) -> WorkspaceDocument {
-  { ..self, move_snap_enabled: Some(enabled) }
+  { ..self, move_snap_enabled: Some(enabled), }
 }
 
 ///|
@@ -722,7 +722,7 @@ pub fn WorkspaceDocument::with_move_snap_step(
   self : WorkspaceDocument,
   step : Double,
 ) -> WorkspaceDocument {
-  { ..self, move_snap_step: Some(step) }
+  { ..self, move_snap_step: Some(step), }
 }
 
 ///|
@@ -747,7 +747,7 @@ pub fn WorkspaceDocument::with_sidebar_scene_ratio(
   self : WorkspaceDocument,
   ratio : Double,
 ) -> WorkspaceDocument {
-  { ..self, sidebar_scene_ratio: Some(ratio) }
+  { ..self, sidebar_scene_ratio: Some(ratio), }
 }
 
 ///|
@@ -755,7 +755,7 @@ pub fn WorkspaceDocument::with_sidebar_assets_ratio(
   self : WorkspaceDocument,
   ratio : Double,
 ) -> WorkspaceDocument {
-  { ..self, sidebar_assets_ratio: Some(ratio) }
+  { ..self, sidebar_assets_ratio: Some(ratio), }
 }
 
 ///|
@@ -783,7 +783,7 @@ pub fn WorkspaceDocument::with_asset_scope(
   self : WorkspaceDocument,
   scope : String,
 ) -> WorkspaceDocument {
-  { ..self, asset_scope: Some(scope) }
+  { ..self, asset_scope: Some(scope), }
 }
 
 ///|
@@ -883,7 +883,7 @@ pub fn animation_graph_edge_document(
   to : String,
   weight? : Double = 1.0,
 ) -> AnimationGraphEdgeDocument {
-  { to, weight }
+  { to, weight, }
 }
 
 ///|
@@ -911,7 +911,7 @@ pub fn animation_graph_node_document(
   position? : Vec2Doc = vec2_doc(0.0, 0.0),
   edges? : Array[AnimationGraphEdgeDocument] = [],
 ) -> AnimationGraphNodeDocument {
-  { id, kind, mask_groups, position, edges }
+  { id, kind, mask_groups, position, edges, }
 }
 
 ///|
@@ -920,7 +920,7 @@ pub fn animation_graph_asset_document(
   nodes : Array[AnimationGraphNodeDocument],
   default_node : String?,
 ) -> AnimationGraphAssetDocument {
-  { version: animation_graph_asset_schema_version, name, nodes, default_node }
+  { version: animation_graph_asset_schema_version, name, nodes, default_node, }
 }
 
 ///|
@@ -1035,7 +1035,7 @@ pub fn AtlasAssetDocument::default(
     margin: vec2_doc(0.0, 0.0),
     default_anchor: vec2_doc(0.5, 0.5),
     regions: [
-      { name: "frame_0", index: 0, rect: rect_doc(0.0, 0.0, 32.0, 32.0) },
+      { name: "frame_0", index: 0, rect: rect_doc(0.0, 0.0, 32.0, 32.0), },
     ],
   }
 }
@@ -1121,11 +1121,11 @@ pub fn animation_graph_asset_document_from_clip(
 pub fn SceneDocument::default_main() -> SceneDocument {
   let camera = entity_document("camera", "Camera2d", components=[
     name_component("Camera2d"),
-    transform2d_component(translation={ x: 0.0, y: 0.0 }),
+    transform2d_component(translation={ x: 0.0, y: 0.0, }),
     camera2d_component(),
     visibility_component(),
   ])
-  { version: scene_schema_version, name: "Main", entities: [camera] }
+  { version: scene_schema_version, name: "Main", entities: [camera], }
 }
 
 ///|
@@ -1148,12 +1148,12 @@ pub fn entity_document(
   parent? : String? = None,
   components? : Array[ComponentDocument] = [],
 ) -> EntityDocument {
-  { id, name, parent, components }
+  { id, name, parent, components, }
 }
 
 ///|
 pub fn component_document(kind : String, data : Json) -> ComponentDocument {
-  { kind, data }
+  { kind, data, }
 }
 
 ///|
@@ -1393,29 +1393,29 @@ pub fn default_component_document(
 
 ///|
 pub fn default_color() -> ColorDoc {
-  { r: 255, g: 255, b: 255, a: 255 }
+  { r: 255, g: 255, b: 255, a: 255, }
 }
 
 ///|
 pub fn name_component(value : String) -> ComponentDocument {
-  { kind: "Name", data: NameComponent::{ value, }.to_json() }
+  { kind: "Name", data: NameComponent::{ value, }.to_json(), }
 }
 
 ///|
 pub fn transform2d_component(
-  translation? : Vec2Doc = { x: 0.0, y: 0.0 },
+  translation? : Vec2Doc = { x: 0.0, y: 0.0, },
   rotation? : Double = 0.0,
-  scale? : Vec2Doc = { x: 1.0, y: 1.0 },
+  scale? : Vec2Doc = { x: 1.0, y: 1.0, },
 ) -> ComponentDocument {
   {
     kind: "Transform2d",
-    data: Transform2dComponent::{ translation, rotation, scale }.to_json(),
+    data: Transform2dComponent::{ translation, rotation, scale, }.to_json(),
   }
 }
 
 ///|
 pub fn visibility_component(visible? : Bool = true) -> ComponentDocument {
-  { kind: "Visibility", data: VisibilityComponent::{ visible, }.to_json() }
+  { kind: "Visibility", data: VisibilityComponent::{ visible, }.to_json(), }
 }
 
 ///|
@@ -1423,7 +1423,7 @@ pub fn sprite_component(
   image_path? : String? = None,
   color? : ColorDoc = default_color(),
   custom_size? : Vec2Doc? = None,
-  anchor? : Vec2Doc = { x: 0.5, y: 0.5 },
+  anchor? : Vec2Doc = { x: 0.5, y: 0.5, },
   flip_x? : Bool = false,
   flip_y? : Bool = false,
   rect? : RectDoc? = None,
@@ -1483,7 +1483,7 @@ pub fn autotile_mask_rule_document(
   region_name : String,
   atlas_index? : Int = 0,
 ) -> AutoTileMaskRuleDocument {
-  { mask, region_name, atlas_index }
+  { mask, region_name, atlas_index, }
 }
 
 ///|
@@ -1495,7 +1495,7 @@ pub fn autotile_wang_rule_document(
   region_name : String,
   atlas_index? : Int = 0,
 ) -> AutoTileWangRuleDocument {
-  { north, east, south, west, region_name, atlas_index }
+  { north, east, south, west, region_name, atlas_index, }
 }
 
 ///|
@@ -1523,7 +1523,7 @@ pub fn autotile_cell_document(
   y : Int,
   terrain : Int,
 ) -> AutoTileCellDocument {
-  { x, y, terrain }
+  { x, y, terrain, }
 }
 
 ///|
@@ -1563,7 +1563,7 @@ pub fn text2d_component(
   font_size? : Double = 16.0,
   color? : ColorDoc = default_color(),
   bounds? : Vec2Doc? = None,
-  anchor? : Vec2Doc = { x: 0.5, y: 0.5 },
+  anchor? : Vec2Doc = { x: 0.5, y: 0.5, },
 ) -> ComponentDocument {
   {
     kind: "Text2d",
@@ -1586,7 +1586,7 @@ pub fn mesh2d_component(
 ) -> ComponentDocument {
   {
     kind: "Mesh2d",
-    data: Mesh2dComponent::{ primitive, size, radius }.to_json(),
+    data: Mesh2dComponent::{ primitive, size, radius, }.to_json(),
   }
 }
 
@@ -1594,7 +1594,7 @@ pub fn mesh2d_component(
 pub fn color_material_component(
   color? : ColorDoc = default_color(),
 ) -> ComponentDocument {
-  { kind: "ColorMaterial", data: ColorMaterialComponent::{ color, }.to_json() }
+  { kind: "ColorMaterial", data: ColorMaterialComponent::{ color, }.to_json(), }
 }
 
 ///|
@@ -1606,14 +1606,14 @@ pub fn camera2d_component(
 ) -> ComponentDocument {
   {
     kind: "Camera2d",
-    data: Camera2dComponent::{ is_active, order, scale, viewport }.to_json(),
+    data: Camera2dComponent::{ is_active, order, scale, viewport, }.to_json(),
   }
 }
 
 ///|
 pub fn physics_body2d_component(
   body_type? : String = "dynamic",
-  linear_velocity? : Vec2Doc = { x: 0.0, y: 0.0 },
+  linear_velocity? : Vec2Doc = { x: 0.0, y: 0.0, },
   angular_velocity? : Double = 0.0,
   gravity_scale? : Double = 1.0,
   linear_damping? : Double = 0.0,
@@ -1760,7 +1760,7 @@ pub fn atlas_region_document(
   index : Int,
   rect : RectDoc,
 ) -> AtlasRegionDocument {
-  { name, index, rect }
+  { name, index, rect, }
 }
 
 ///|
@@ -1769,5 +1769,5 @@ pub fn asset_document(
   kind : AssetKind,
   meta_path? : String? = None,
 ) -> AssetDocument {
-  { path, kind, meta_path }
+  { path, kind, meta_path, }
 }

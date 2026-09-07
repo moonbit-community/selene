@@ -40,7 +40,7 @@ pub fn Sorting2d::Sorting2d(
   order? : Int = 0,
   mode? : SortMode2D = Depth,
 ) -> Sorting2d {
-  { layer, group, order, mode }
+  { layer, group, order, mode, }
 }
 
 ///|
@@ -80,7 +80,7 @@ fn frame2d() -> RenderFrameState2D {
 ///|
 fn sorting2d_store() -> Sorting2dWorldStore {
   let world_id = @ecs.require_current_world().id()
-  sorting2d_by_world.get_or_init(world_id, fn() { { sorting2ds: Map([]) } })
+  sorting2d_by_world.get_or_init(world_id, fn() { { sorting2ds: Map([]), } })
 }
 
 ///|

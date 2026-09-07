@@ -36,7 +36,7 @@ pub fn TextureAtlasLayout::TextureAtlasLayout(
   size : @math.Vec2,
   rects : Array[@math.Rect],
 ) -> TextureAtlasLayout {
-  { size, rects }
+  { size, rects, }
 }
 
 ///|
@@ -56,7 +56,7 @@ pub fn TextureAtlasLayout::from_grid(
         offset[X] + column.to_double() * (tile_size[X] + padding[X]),
         offset[Y] + row.to_double() * (tile_size[Y] + padding[Y]),
       )
-      rects.push({ position, size: tile_size })
+      rects.push({ position, size: tile_size, })
     }
   }
   let size = @math.Vec2(
@@ -67,7 +67,7 @@ pub fn TextureAtlasLayout::from_grid(
     rows.to_double() * tile_size[Y] +
     @cmp.maximum(0.0, (rows - 1).to_double()) * padding[Y],
   )
-  { size, rects }
+  { size, rects, }
 }
 
 ///|
@@ -75,7 +75,7 @@ pub fn TextureAtlas::TextureAtlas(
   layout : TextureAtlasLayoutHandle,
   index? : Int = 0,
 ) -> TextureAtlas {
-  { layout, index }
+  { layout, index, }
 }
 
 ///|

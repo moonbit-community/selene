@@ -158,22 +158,22 @@ pub fn AudioPlayer::from_path(path : String) -> AudioPlayer {
 
 ///|
 pub fn PlaybackSettings::once() -> PlaybackSettings {
-  { mode: Once, volume: 1.0, speed: 1.0, paused: false, muted: false }
+  { mode: Once, volume: 1.0, speed: 1.0, paused: false, muted: false, }
 }
 
 ///|
 pub fn PlaybackSettings::looped() -> PlaybackSettings {
-  { ..PlaybackSettings::once(), mode: Loop }
+  { ..PlaybackSettings::once(), mode: Loop, }
 }
 
 ///|
 pub fn PlaybackSettings::remove() -> PlaybackSettings {
-  { ..PlaybackSettings::once(), mode: Remove }
+  { ..PlaybackSettings::once(), mode: Remove, }
 }
 
 ///|
 pub fn PlaybackSettings::despawn() -> PlaybackSettings {
-  { ..PlaybackSettings::once(), mode: Despawn }
+  { ..PlaybackSettings::once(), mode: Despawn, }
 }
 
 ///|
@@ -189,7 +189,7 @@ pub fn PlaybackSettings::with_volume(
   self : PlaybackSettings,
   volume : Double,
 ) -> PlaybackSettings {
-  { ..self, volume: sanitize_volume(volume) }
+  { ..self, volume: sanitize_volume(volume), }
 }
 
 ///|
@@ -197,7 +197,7 @@ pub fn PlaybackSettings::with_speed(
   self : PlaybackSettings,
   speed : Double,
 ) -> PlaybackSettings {
-  { ..self, speed: sanitize_speed(speed) }
+  { ..self, speed: sanitize_speed(speed), }
 }
 
 ///|
@@ -327,7 +327,7 @@ pub fn send_audio_event(
   settings? : PlaybackSettings = PlaybackSettings::once(),
   target? : @entity.Entity,
 ) -> Unit {
-  audio_event_bus.send({ source, settings, target })
+  audio_event_bus.send({ source, settings, target, })
 }
 
 ///|

@@ -67,7 +67,7 @@ pub fn[T] State::get(self : State[T]) -> T {
 
 ///|
 pub fn[T] State::next(self : State[T]) -> NextState[T] {
-  { state: self }
+  { state: self, }
 }
 
 ///|

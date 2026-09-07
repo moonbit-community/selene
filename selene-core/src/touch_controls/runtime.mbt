@@ -61,7 +61,7 @@ pub fn add_virtual_button_control(button : VirtualButtonControl) -> Unit {
   runtime.buttons.set(button.id, button)
   ignore(
     runtime.button_runtimes.get_or_init(button.id, fn() {
-      { touch_id: None, pressed: false }
+      { touch_id: None, pressed: false, }
     }),
   )
 }

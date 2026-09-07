@@ -88,7 +88,7 @@ let default_editor_viewport_height = 540.0
 
 ///|
 #cfg(target="js")
-extern "js" fn canvas_client_size() -> Array[Double] =
+extern "js" fn canvas_client_size() -> FixedArray[Double] =
   #| () => {
   #|   const canvas = document.getElementById("canvas");
   #|   if (!canvas) return [960, 540];
@@ -113,7 +113,7 @@ extern "js" fn sync_canvas_backing_size(width : Double, height : Double) =
 
 ///|
 #cfg(not(target="js"))
-fn canvas_client_size() -> Array[Double] {
+fn canvas_client_size() -> FixedArray[Double] {
   [preview_state.viewport_width, preview_state.viewport_height]
 }
 
@@ -883,7 +883,7 @@ fn world_to_autotile_cell(
   }
   let x = @cmath.floor((world_point[X] - layer.origin.x) / tile_width).to_int()
   let y = @cmath.floor((world_point[Y] - layer.origin.y) / tile_height).to_int()
-  { x, y }
+  { x, y, }
 }
 
 ///|
@@ -1003,10 +1003,10 @@ fn apply_autotile_fill_edit(
           }
           affected.set(key, coord)
           let neighbors = [
-            { x: coord.x, y: coord.y - 1 },
-            { x: coord.x + 1, y: coord.y },
-            { x: coord.x, y: coord.y + 1 },
-            { x: coord.x - 1, y: coord.y },
+            { x: coord.x, y: coord.y - 1, },
+            { x: coord.x + 1, y: coord.y, },
+            { x: coord.x, y: coord.y + 1, },
+            { x: coord.x - 1, y: coord.y, },
           ]
           for neighbor in neighbors {
             let neighbor_key = autotile_cell_key(neighbor.x, neighbor.y)
@@ -1387,12 +1387,12 @@ fn apply_selection_overlay() -> Unit {
   match overlay_bounds() {
     Some((position, size)) => {
       let color = if preview_state.tool_drag is Some(_) {
-        @render.Color::{ r: 92U, g: 196U, b: 255U, a: 0.24 }
+        @render.Color::{ r: 92U, g: 196U, b: 255U, a: 0.24, }
       } else if preview_state.hovered_entity_id is Some(hovered_id) &&
         selected_ids.contains(hovered_id) {
-        { r: 255U, g: 220U, b: 64U, a: 0.28 }
+        { r: 255U, g: 220U, b: 64U, a: 0.28, }
       } else {
-        { r: 255U, g: 220U, b: 64U, a: 0.18 }
+        { r: 255U, g: 220U, b: 64U, a: 0.18, }
       }
       @visibility.visibilities().set(overlay, Visible)
       @transform.transforms().set(
@@ -1418,9 +1418,9 @@ fn apply_pivot_overlay() -> Unit {
   match selected_pivot_world() {
     Some(position) => {
       let color = if preview_state.tool_drag is Some(_) {
-        @render.Color::{ r: 120U, g: 255U, b: 198U, a: 0.95 }
+        @render.Color::{ r: 120U, g: 255U, b: 198U, a: 0.95, }
       } else {
-        { r: 96U, g: 220U, b: 255U, a: 0.9 }
+        { r: 96U, g: 220U, b: 255U, a: 0.9, }
       }
       @visibility.visibilities().set(overlay, Visible)
       @transform.transforms().set(
@@ -1491,7 +1491,7 @@ fn apply_selection_rect_overlay(world_point : @math.Vec2?) -> Unit {
   @sprite.sprites().set(
     overlay,
     @sprite.Sprite::from_color(
-      { r: 96U, g: 220U, b: 255U, a: 0.22 },
+      { r: 96U, g: 220U, b: 255U, a: 0.22, },
       Vec2(1.0, 1.0),
     ),
   )
@@ -1765,7 +1765,7 @@ fn preview_startup_system(_world : @ecs.World) -> Unit {
   @sprite.sprites().set(
     overlay,
     @sprite.Sprite::from_color(
-      { r: 255U, g: 220U, b: 64U, a: 0.18 },
+      { r: 255U, g: 220U, b: 64U, a: 0.18, },
       Vec2(1.0, 1.0),
     ),
   )
@@ -1779,7 +1779,7 @@ fn preview_startup_system(_world : @ecs.World) -> Unit {
   @sprite.sprites().set(
     pivot_overlay,
     @sprite.Sprite::from_color(
-      { r: 96U, g: 220U, b: 255U, a: 0.9 },
+      { r: 96U, g: 220U, b: 255U, a: 0.9, },
       Vec2(1.0, 1.0),
     ),
   )
@@ -1793,7 +1793,7 @@ fn preview_startup_system(_world : @ecs.World) -> Unit {
   @sprite.sprites().set(
     selection_rect_overlay,
     @sprite.Sprite::from_color(
-      { r: 96U, g: 220U, b: 255U, a: 0.22 },
+      { r: 96U, g: 220U, b: 255U, a: 0.22, },
       Vec2(1.0, 1.0),
     ),
   )

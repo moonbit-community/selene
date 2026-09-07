@@ -72,7 +72,7 @@ pub fn poll_input() -> @inputs.InputSnapshot {
       middle_button: snapshot.mouse.middle_button,
     },
     mouse_relative_delta: mouse_relative_delta.val,
-    mouse_wheel: { delta: snapshot.mouse_wheel.delta },
+    mouse_wheel: { delta: snapshot.mouse_wheel.delta, },
     touches: copy_map(snapshot.touches),
     touch_changes: copy_array(snapshot.touch_changes),
     connected_gamepads: copy_set(snapshot.connected_gamepads),

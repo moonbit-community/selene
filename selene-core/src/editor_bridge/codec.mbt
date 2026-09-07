@@ -101,7 +101,7 @@ fn decode_envelope_data(
 
 ///|
 fn encode_envelope(schema : String, data : Json) -> String {
-  { schema, version: document_envelope_version, data }
+  { schema, version: document_envelope_version, data, }
   .to_json()
   .stringify(indent=2) +
   "\n"

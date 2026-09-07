@@ -50,8 +50,8 @@ test "classify bird contact treats a downward landing as stomp" {
   inspect(
     bird_contact_outcome_name(
       classify_bird_contact(
-        { position: Vec2(32.0, -12.0), size: Vec2(24.0, 32.0) },
-        { position: Vec2(32.0, 0.0), size: Vec2(24.0, 32.0) },
+        { position: Vec2(32.0, -12.0), size: Vec2(24.0, 32.0), },
+        { position: Vec2(32.0, 0.0), size: Vec2(24.0, 32.0), },
         bird_rect,
         bird_rect,
         720.0,
@@ -88,8 +88,8 @@ test "classify bird contact ignores separated sweeps" {
   inspect(
     bird_contact_outcome_name(
       classify_bird_contact(
-        { position: Vec2(0.0, 0.0), size: Vec2(24.0, 32.0) },
-        { position: Vec2(8.0, 0.0), size: Vec2(24.0, 32.0) },
+        { position: Vec2(0.0, 0.0), size: Vec2(24.0, 32.0), },
+        { position: Vec2(8.0, 0.0), size: Vec2(24.0, 32.0), },
         bird_rect,
         bird_rect,
         480.0,

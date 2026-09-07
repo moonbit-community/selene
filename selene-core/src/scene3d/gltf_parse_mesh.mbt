@@ -202,7 +202,7 @@ fn parse_triangle_morph_targets(
   let output : Array[MorphTargetTemplate] = []
   for target_json in targets_json {
     guard json_object(target_json) is Some(target_object) else {
-      output.push({ position_deltas: None, normal_deltas: None })
+      output.push({ position_deltas: None, normal_deltas: None, })
       continue
     }
     let position_deltas = match field_int(target_object, "POSITION") {
@@ -225,7 +225,7 @@ fn parse_triangle_morph_targets(
         )
       None => None
     }
-    output.push({ position_deltas, normal_deltas })
+    output.push({ position_deltas, normal_deltas, })
   }
   output
 }

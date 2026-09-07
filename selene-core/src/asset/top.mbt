@@ -149,16 +149,16 @@ pub fn load_image(path : String) -> ImageHandle {
     return handle
   }
   if state is None {
-    image_asset_events.send({ handle, kind: Added })
+    image_asset_events.send({ handle, kind: Added, })
   }
   image_states.set(handle, Loading)
   if read_bytes(path) is Some(_) {
     image_states.set(handle, Loaded)
-    image_asset_events.send({ handle, kind: Loaded })
+    image_asset_events.send({ handle, kind: Loaded, })
   } else {
     let reason = "Missing image asset: \{path}"
     image_states.set(handle, Failed(reason))
-    image_asset_events.send({ handle, kind: Failed(reason) })
+    image_asset_events.send({ handle, kind: Failed(reason), })
   }
   handle
 }
@@ -176,17 +176,17 @@ pub fn load_audio(path : String) -> AudioHandle {
     return handle
   }
   if state is None {
-    audio_asset_events.send({ handle, kind: Added })
+    audio_asset_events.send({ handle, kind: Added, })
   }
   audio_states.set(handle, Loading)
   if read_bytes(path) is Some(_) {
     @platform_audio.preload(path)
     audio_states.set(handle, Loaded)
-    audio_asset_events.send({ handle, kind: Loaded })
+    audio_asset_events.send({ handle, kind: Loaded, })
   } else {
     let reason = "Missing audio asset: \{path}"
     audio_states.set(handle, Failed(reason))
-    audio_asset_events.send({ handle, kind: Failed(reason) })
+    audio_asset_events.send({ handle, kind: Failed(reason), })
   }
   handle
 }
@@ -205,16 +205,16 @@ pub fn load_font(path : String, family? : String) -> FontHandle {
     return handle
   }
   if state is None {
-    font_asset_events.send({ handle, kind: Added })
+    font_asset_events.send({ handle, kind: Added, })
   }
   font_states.set(handle, Loading)
   if read_bytes(path) is Some(_) {
     font_states.set(handle, Loaded)
-    font_asset_events.send({ handle, kind: Loaded })
+    font_asset_events.send({ handle, kind: Loaded, })
   } else {
     let reason = "Missing font asset: \{path}"
     font_states.set(handle, Failed(reason))
-    font_asset_events.send({ handle, kind: Failed(reason) })
+    font_asset_events.send({ handle, kind: Failed(reason), })
   }
   handle
 }
@@ -256,11 +256,11 @@ pub fn reload_image(handle : ImageHandle) -> Unit {
       image_states.set(handle, Loading)
       if read_bytes(path) is Some(_) {
         image_states.set(handle, Loaded)
-        image_asset_events.send({ handle, kind: Modified })
+        image_asset_events.send({ handle, kind: Modified, })
       } else {
         let reason = "Reload image failed: \{path}"
         image_states.set(handle, Failed(reason))
-        image_asset_events.send({ handle, kind: Failed(reason) })
+        image_asset_events.send({ handle, kind: Failed(reason), })
       }
     }
     None => ()
@@ -275,11 +275,11 @@ pub fn reload_audio(handle : AudioHandle) -> Unit {
       if read_bytes(path) is Some(_) {
         @platform_audio.preload(path)
         audio_states.set(handle, Loaded)
-        audio_asset_events.send({ handle, kind: Modified })
+        audio_asset_events.send({ handle, kind: Modified, })
       } else {
         let reason = "Reload audio failed: \{path}"
         audio_states.set(handle, Failed(reason))
-        audio_asset_events.send({ handle, kind: Failed(reason) })
+        audio_asset_events.send({ handle, kind: Failed(reason), })
       }
     }
     None => ()
@@ -293,11 +293,11 @@ pub fn reload_font(handle : FontHandle) -> Unit {
       font_states.set(handle, Loading)
       if read_bytes(path) is Some(_) {
         font_states.set(handle, Loaded)
-        font_asset_events.send({ handle, kind: Modified })
+        font_asset_events.send({ handle, kind: Modified, })
       } else {
         let reason = "Reload font failed: \{path}"
         font_states.set(handle, Failed(reason))
-        font_asset_events.send({ handle, kind: Failed(reason) })
+        font_asset_events.send({ handle, kind: Failed(reason), })
       }
     }
     None => ()
@@ -308,7 +308,7 @@ pub fn reload_font(handle : FontHandle) -> Unit {
 pub fn remove_image(handle : ImageHandle) -> Unit {
   if image_states.get(handle) is Some(_) {
     image_states.remove(handle)
-    image_asset_events.send({ handle, kind: Removed })
+    image_asset_events.send({ handle, kind: Removed, })
   }
 }
 
@@ -316,7 +316,7 @@ pub fn remove_image(handle : ImageHandle) -> Unit {
 pub fn remove_audio(handle : AudioHandle) -> Unit {
   if audio_states.get(handle) is Some(_) {
     audio_states.remove(handle)
-    audio_asset_events.send({ handle, kind: Removed })
+    audio_asset_events.send({ handle, kind: Removed, })
   }
 }
 
@@ -324,6 +324,6 @@ pub fn remove_audio(handle : AudioHandle) -> Unit {
 pub fn remove_font(handle : FontHandle) -> Unit {
   if font_states.get(handle) is Some(_) {
     font_states.remove(handle)
-    font_asset_events.send({ handle, kind: Removed })
+    font_asset_events.send({ handle, kind: Removed, })
   }
 }

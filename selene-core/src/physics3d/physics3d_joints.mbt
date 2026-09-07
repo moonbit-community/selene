@@ -77,7 +77,7 @@ pub fn set_rigid_body_linear_velocity(
   linear_velocity : @math.Vec3,
 ) -> Unit {
   let velocity = velocities().get(entity).unwrap_or(Velocity::zero())
-  velocities().set(entity, { ..velocity, linvel: linear_velocity })
+  velocities().set(entity, { ..velocity, linvel: linear_velocity, })
   match body_handles().get(entity) {
     Some(handle) =>
       match physics3d_world().bodies.get_mut(handle) {
@@ -105,7 +105,7 @@ pub fn set_rigid_body_angular_velocity(
   angular_velocity : @math.Vec3,
 ) -> Unit {
   let velocity = velocities().get(entity).unwrap_or(Velocity::zero())
-  velocities().set(entity, { ..velocity, angvel: angular_velocity })
+  velocities().set(entity, { ..velocity, angvel: angular_velocity, })
   match body_handles().get(entity) {
     Some(handle) =>
       match physics3d_world().bodies.get_mut(handle) {

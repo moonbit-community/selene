@@ -8,7 +8,7 @@ fn sparse_test_buffer_view(
   buffer : Int,
   byte_length : Int,
 ) -> BufferViewTemplate {
-  { buffer, byte_offset: 0, byte_length, byte_stride: None }
+  { buffer, byte_offset: 0, byte_length, byte_stride: None, }
 }
 
 ///|
@@ -78,19 +78,19 @@ fn scene3d_test_texture_sources() -> (
 ) {
   let sampler = @render3d.default_texture_sampler3d()
   let handles = [
-    @render3d.register_image_asset({ path: "wbtest://image0" }),
-    @render3d.register_image_asset({ path: "wbtest://image1" }),
-    @render3d.register_image_asset({ path: "wbtest://image2" }),
-    @render3d.register_image_asset({ path: "wbtest://image3" }),
-    @render3d.register_image_asset({ path: "wbtest://image4" }),
+    @render3d.register_image_asset({ path: "wbtest://image0", }),
+    @render3d.register_image_asset({ path: "wbtest://image1", }),
+    @render3d.register_image_asset({ path: "wbtest://image2", }),
+    @render3d.register_image_asset({ path: "wbtest://image3", }),
+    @render3d.register_image_asset({ path: "wbtest://image4", }),
   ]
   (
     [
-      Some({ image: Some(handles[0]), sampler }),
-      Some({ image: Some(handles[1]), sampler }),
-      Some({ image: Some(handles[2]), sampler }),
-      Some({ image: Some(handles[3]), sampler }),
-      Some({ image: Some(handles[4]), sampler }),
+      Some({ image: Some(handles[0]), sampler, }),
+      Some({ image: Some(handles[1]), sampler, }),
+      Some({ image: Some(handles[2]), sampler, }),
+      Some({ image: Some(handles[3]), sampler, }),
+      Some({ image: Some(handles[4]), sampler, }),
     ],
     handles,
   )
@@ -130,8 +130,8 @@ test "read_accessor_scalar supports sparse-only accessors" {
       normalized: false,
       sparse: Some({
         count: 2,
-        indices: { buffer_view: 0, byte_offset: 0, component_type: 5121 },
-        values: { buffer_view: 1, byte_offset: 0 },
+        indices: { buffer_view: 0, byte_offset: 0, component_type: 5121, },
+        values: { buffer_view: 1, byte_offset: 0, },
       }),
     }),
   ]
@@ -171,8 +171,8 @@ test "read_accessor_vec3 applies sparse overrides over base data" {
       normalized: false,
       sparse: Some({
         count: 1,
-        indices: { buffer_view: 1, byte_offset: 0, component_type: 5121 },
-        values: { buffer_view: 2, byte_offset: 0 },
+        indices: { buffer_view: 1, byte_offset: 0, component_type: 5121, },
+        values: { buffer_view: 2, byte_offset: 0, },
       }),
     }),
   ]
@@ -335,11 +335,11 @@ test "parse_material_asset preserves glTF material factors, bindings, and textur
   inspect(material.double_sided, content="true")
   inspect(material.unlit, content="true")
   inspect(
-    material.base_color == { r: 25, g: 51, b: 76, a: 0.5 },
+    material.base_color == { r: 25, g: 51, b: 76, a: 0.5, },
     content="true",
   )
   inspect(
-    material.emissive_color == { r: 51, g: 102, b: 153, a: 1.0 },
+    material.emissive_color == { r: 51, g: 102, b: 153, a: 1.0, },
     content="true",
   )
   inspect(

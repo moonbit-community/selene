@@ -21,7 +21,7 @@ fn push_version_error(
 
 ///|
 pub fn validation_error(path : String, message : String) -> ValidationError {
-  { path, message }
+  { path, message, }
 }
 
 ///|
@@ -920,7 +920,7 @@ pub fn validate_project_manifest(
     project_schema_version,
   )
   if manifest.name == "" {
-    errors.push({ path: "name", message: "Project name must not be empty" })
+    errors.push({ path: "name", message: "Project name must not be empty", })
   }
   if manifest.startup_scene == "" {
     errors.push({
@@ -978,7 +978,7 @@ pub fn validate_scene_document(scene : SceneDocument) -> Array[ValidationError] 
   let errors : Array[ValidationError] = []
   push_version_error(errors, "version", scene.version, scene_schema_version)
   if scene.name == "" {
-    errors.push({ path: "name", message: "Scene name must not be empty" })
+    errors.push({ path: "name", message: "Scene name must not be empty", })
   }
   errors + validate_entity_documents(scene.entities, "entities")
 }
@@ -990,7 +990,7 @@ pub fn validate_prefab_document(
   let errors : Array[ValidationError] = []
   push_version_error(errors, "version", prefab.version, prefab_schema_version)
   if prefab.name == "" {
-    errors.push({ path: "name", message: "Prefab name must not be empty" })
+    errors.push({ path: "name", message: "Prefab name must not be empty", })
   }
   errors + validate_entity_documents(prefab.entities, "entities")
 }
@@ -1007,7 +1007,7 @@ pub fn validate_atlas_asset_document(
     atlas_asset_schema_version,
   )
   if atlas.name == "" {
-    errors.push({ path: "name", message: "Atlas name must not be empty" })
+    errors.push({ path: "name", message: "Atlas name must not be empty", })
   }
   if atlas.source_image == "" {
     errors.push({
@@ -1077,7 +1077,7 @@ pub fn validate_animation_clip_asset_document(
     })
   }
   if clip.fps <= 0.0 {
-    errors.push({ path: "fps", message: "Animation clip fps must be positive" })
+    errors.push({ path: "fps", message: "Animation clip fps must be positive", })
   }
   if clip.frames.is_empty() {
     errors.push({

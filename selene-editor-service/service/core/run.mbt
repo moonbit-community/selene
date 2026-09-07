@@ -48,7 +48,7 @@ fn parse_cli_options(args : Array[String]) -> CliOptions raise {
       }
     }
   }
-  { port, project_root }
+  { port, project_root, }
 }
 
 ///|

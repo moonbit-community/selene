@@ -23,7 +23,7 @@ pub let scene_instance_ready_events : @event.Events[SceneInstanceReadyEvent] = E
 
 ///|
 pub fn spawner() -> SceneSpawner {
-  { _tag: () }
+  { _tag: (), }
 }
 
 ///|
@@ -38,7 +38,7 @@ pub fn instantiate_scene(
 ) -> SceneInstance {
   let instance = @scene3d.instantiate_scene_instance(scene, root_transform)
   scene_instances.set(instance.root, scene)
-  scene_instance_ready_events.send({ scene, root: instance.root })
+  scene_instance_ready_events.send({ scene, root: instance.root, })
   instance
 }
 

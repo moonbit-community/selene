@@ -44,7 +44,7 @@ fn parse_animation_channels(
       "CUBICSPLINE" => CubicSpline
       _ => Linear
     }
-    samplers.push(Some({ times, output_accessor, interpolation }))
+    samplers.push(Some({ times, output_accessor, interpolation, }))
   }
 
   let output : Array[ParsedAnimationChannel] = []
@@ -278,7 +278,7 @@ fn parse_image_handles(
         continue
       }
       let resolved = resolve_relative_asset_path(scene_path, uri)
-      handles.push(Some(@render3d.register_image_asset({ path: resolved })))
+      handles.push(Some(@render3d.register_image_asset({ path: resolved, })))
       continue
     }
     guard field_int(image_object, "bufferView") is Some(buffer_view_index) else {
@@ -294,7 +294,7 @@ fn parse_image_handles(
       continue
     }
     let data_uri = "data:\{mime_type};base64,\{@base64.encode(image_bytes[:])}"
-    handles.push(Some(@render3d.register_image_asset({ path: data_uri })))
+    handles.push(Some(@render3d.register_image_asset({ path: data_uri, })))
   }
   handles
 }
@@ -324,7 +324,7 @@ fn parse_texture_sources(
         .unwrap_or(@render3d.default_texture_sampler3d())
       None => @render3d.default_texture_sampler3d()
     }
-    sources.push(Some({ image: image_handle, sampler }))
+    sources.push(Some({ image: image_handle, sampler, }))
   }
   sources
 }
@@ -443,7 +443,7 @@ fn parse_material_asset(
     None => material
   }
   if material_has_unlit_extension(material_object) {
-    material = { ..material, unlit: true }
+    material = { ..material, unlit: true, }
   }
   material = match field_array(material_object, "emissiveFactor") {
     Some(values) =>
@@ -451,7 +451,7 @@ fn parse_material_asset(
         let r = json_number(values[0]).unwrap_or(0.0)
         let g = json_number(values[1]).unwrap_or(0.0)
         let b = json_number(values[2]).unwrap_or(0.0)
-        { ..material, emissive_color: color_from_factor4([r, g, b, 1.0]) }
+        { ..material, emissive_color: color_from_factor4([r, g, b, 1.0]), }
       } else {
         material
       }
@@ -465,7 +465,7 @@ fn parse_material_asset(
           texture_sources,
           texture_transform=true,
         ) {
-        Some(binding) => { ..material, emissive_texture: Some(binding) }
+        Some(binding) => { ..material, emissive_texture: Some(binding), }
         None => material
       }
     None => material
@@ -564,7 +564,7 @@ fn parse_pbr_material(
           texture_sources,
           texture_transform=true,
         ) {
-        Some(binding) => { ..output, base_color_texture: Some(binding) }
+        Some(binding) => { ..output, base_color_texture: Some(binding), }
         None => output
       }
     None => output
@@ -577,7 +577,8 @@ fn parse_pbr_material(
           texture_sources,
           texture_transform=true,
         ) {
-        Some(binding) => { ..output, metallic_roughness_texture: Some(binding) }
+        Some(binding) =>
+          { ..output, metallic_roughness_texture: Some(binding), }
         None => output
       }
     None => output

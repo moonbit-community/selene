@@ -120,9 +120,9 @@ test "step scalar sampling switches at an interior keyframe boundary" {
   inspect(
     sample_scalar(
       [
-        { time: 0.0, value: 0.0, in_tangent: None, out_tangent: None },
-        { time: 1.0, value: 1.0, in_tangent: None, out_tangent: None },
-        { time: 2.0, value: 2.0, in_tangent: None, out_tangent: None },
+        { time: 0.0, value: 0.0, in_tangent: None, out_tangent: None, },
+        { time: 1.0, value: 1.0, in_tangent: None, out_tangent: None, },
+        { time: 2.0, value: 2.0, in_tangent: None, out_tangent: None, },
       ],
       1.0,
       Step,

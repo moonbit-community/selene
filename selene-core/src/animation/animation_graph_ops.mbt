@@ -41,25 +41,25 @@ fn mask_from_groups(groups : Array[Int]) -> UInt {
 
 ///|
 pub fn AnimationClip::AnimationClip(name : String) -> AnimationClip {
-  { name, duration: 0.0, curves: Map([]), events: [] }
+  { name, duration: 0.0, curves: Map([]), events: [], }
 }
 
 ///|
 pub fn AnimationGraph::AnimationGraph() -> AnimationGraph {
   let root = AnimationNodeIndex(0U)
   let nodes : Map[AnimationNodeIndex, AnimationGraphNode] = Map([])
-  nodes.set(root, { node_type: Blend, mask: 0U, children: [] })
-  { root, nodes, mask_groups: Map([]), next_node: 1U }
+  nodes.set(root, { node_type: Blend, mask: 0U, children: [], })
+  { root, nodes, mask_groups: Map([]), next_node: 1U, }
 }
 
 ///|
 pub fn AnimationPlayer::AnimationPlayer() -> AnimationPlayer {
-  { active_animations: Map([]) }
+  { active_animations: Map([]), }
 }
 
 ///|
 pub fn AnimationTransitions::AnimationTransitions() -> AnimationTransitions {
-  { main: None, fading: Map([]) }
+  { main: None, fading: Map([]), }
 }
 
 ///|
@@ -106,7 +106,7 @@ pub fn register_animation_clip_asset(
   next_clip_id.val += 1U
   animation_clips.set(handle, clip)
   dirty_animation_clip_assets.set(handle, clip)
-  animation_clip_asset_events.send({ handle, kind: Added })
+  animation_clip_asset_events.send({ handle, kind: Added, })
   handle
 }
 
@@ -117,7 +117,7 @@ pub fn update_animation_clip_asset(
 ) -> Unit {
   animation_clips.set(handle, clip)
   dirty_animation_clip_assets.set(handle, clip)
-  animation_clip_asset_events.send({ handle, kind: Modified })
+  animation_clip_asset_events.send({ handle, kind: Modified, })
 }
 
 ///|
@@ -125,7 +125,7 @@ pub fn release_animation_clip_asset(handle : AnimationClipHandle) -> Unit {
   animation_clips.remove(handle)
   dirty_animation_clip_assets.remove(handle)
   released_animation_clip_assets.push(handle)
-  animation_clip_asset_events.send({ handle, kind: Removed })
+  animation_clip_asset_events.send({ handle, kind: Removed, })
 }
 
 ///|
@@ -152,7 +152,7 @@ pub fn register_animation_graph_asset(
   next_graph_id.val += 1U
   animation_graphs.set(handle, graph)
   dirty_animation_graph_assets.set(handle, graph)
-  animation_graph_asset_events.send({ handle, kind: Added })
+  animation_graph_asset_events.send({ handle, kind: Added, })
   handle
 }
 
@@ -163,7 +163,7 @@ pub fn update_animation_graph_asset(
 ) -> Unit {
   animation_graphs.set(handle, graph)
   dirty_animation_graph_assets.set(handle, graph)
-  animation_graph_asset_events.send({ handle, kind: Modified })
+  animation_graph_asset_events.send({ handle, kind: Modified, })
 }
 
 ///|
@@ -171,7 +171,7 @@ pub fn release_animation_graph_asset(handle : AnimationGraphHandle) -> Unit {
   animation_graphs.remove(handle)
   dirty_animation_graph_assets.remove(handle)
   released_animation_graph_assets.push(handle)
-  animation_graph_asset_events.send({ handle, kind: Removed })
+  animation_graph_asset_events.send({ handle, kind: Removed, })
 }
 
 ///|

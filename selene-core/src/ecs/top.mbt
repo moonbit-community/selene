@@ -8,7 +8,7 @@ pub(all) struct World {
 
 ///|
 fn make_world(id : UInt) -> World {
-  { id, pending_commands: [], frame_index: 0, fixed_step_index: 0 }
+  { id, pending_commands: [], frame_index: 0, fixed_step_index: 0, }
 }
 
 ///|

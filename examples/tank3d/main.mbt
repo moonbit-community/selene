@@ -29,7 +29,7 @@ let tank_root : Ref[@entity.Entity?] = Ref(None)
 
 ///|
 fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
-  { r, g, b, a }
+  { r, g, b, a, }
 }
 
 ///|
@@ -108,7 +108,7 @@ fn setup_camera() -> Unit {
 ///|
 fn setup_lighting() -> Unit {
   @render3d.set_ambient_light3d(
-    Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.12 }),
+    Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.12, }),
   )
   let light = @entity.Entity()
   @render3d.directional_lights3d().set(light, {

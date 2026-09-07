@@ -22,7 +22,7 @@ fn button_runtime_for(
   button : VirtualButtonControl,
 ) -> ButtonRuntime {
   runtime.button_runtimes.get_or_init(button.id, fn() {
-    { touch_id: None, pressed: false }
+    { touch_id: None, pressed: false, }
   })
 }
 

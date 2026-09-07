@@ -41,7 +41,7 @@ extern "js" fn webgpu_font_bytes_status(font : String) -> Int =
   #| }
 
 ///|
-extern "js" fn webgpu_take_font_bytes(font : String) -> Array[Int] =
+extern "js" fn webgpu_take_font_bytes_ffi(font : String) -> FixedArray[Int] =
   #| (font) => {
   #|   const states = globalThis.__selene_font_bytes_states;
   #|   if (!states) return [];
@@ -75,7 +75,9 @@ extern "js" fn resolve_asset_path(path : String) -> String =
   #| }
 
 ///|
-extern "js" fn webgpu_load_file_bytes_sync(path : String) -> Array[Int] =
+extern "js" fn webgpu_load_file_bytes_sync_ffi(
+  path : String,
+) -> FixedArray[Int] =
   #| (path) => {
   #|   globalThis.__selene_webgpu_last_file_load_error = '';
   #|   try {
@@ -160,3 +162,13 @@ extern "js" fn webgpu_gamepad_axis_value(index : Int, axis : Int) -> Double =
   #|   if (v > 1) return 1;
   #|   return v;
   #| }
+
+///|
+fn webgpu_take_font_bytes(font : String) -> Array[Int] {
+  Array::from_fixed_array(webgpu_take_font_bytes_ffi(font))
+}
+
+///|
+fn webgpu_load_file_bytes_sync(path : String) -> Array[Int] {
+  Array::from_fixed_array(webgpu_load_file_bytes_sync_ffi(path))
+}

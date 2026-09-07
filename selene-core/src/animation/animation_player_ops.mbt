@@ -29,7 +29,7 @@ fn allocate_node(
 ) -> AnimationNodeIndex {
   let node = AnimationNodeIndex(graph.next_node)
   graph.next_node += 1U
-  graph.nodes.set(node, { node_type, mask, children: [] })
+  graph.nodes.set(node, { node_type, mask, children: [], })
   node
 }
 
@@ -41,7 +41,7 @@ pub fn AnimationGraph::add_edge(
   weight? : Double = 1.0,
 ) -> Unit {
   guard self.nodes.get(parent) is Some(node) else { return }
-  node.children.push({ child, weight })
+  node.children.push({ child, weight, })
 }
 
 ///|
@@ -184,9 +184,9 @@ pub fn AnimationClip::add_event(
   self : AnimationClip,
   time : Double,
   descriptor : AnimationEventDescriptorHandle,
-  dispatch? : AnimationClipEventDispatch = { target: None },
+  dispatch? : AnimationClipEventDispatch = { target: None, },
 ) -> Unit {
-  self.events.push({ time, descriptor, dispatch })
+  self.events.push({ time, descriptor, dispatch, })
   if time > self.duration {
     self.duration = time
   }

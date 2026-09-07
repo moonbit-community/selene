@@ -170,7 +170,7 @@ pub fn ldtk_entity_tile_sprite(
         position: Vec2(tile.x.to_double(), tile.y.to_double()),
         size: Vec2(source_width, source_height),
       }),
-      color={ r: 255U, g: 255U, b: 255U, a: 1.0 },
+      color={ r: 255U, g: 255U, b: 255U, a: 1.0, },
       custom_size=Some(target_size),
       anchor=ldtk_sprite_anchor_for_pixel_offset(pivot_offset, target_size),
     ),

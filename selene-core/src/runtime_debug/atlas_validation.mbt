@@ -130,7 +130,7 @@ pub fn validate_texture_atlas_layout_for_image(
     }
   }
   validate_atlas_transparency(image_path, rects, issues)
-  { total_rects: rects.length(), issues }
+  { total_rects: rects.length(), issues, }
 }
 
 ///|

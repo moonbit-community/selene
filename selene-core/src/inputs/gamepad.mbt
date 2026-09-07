@@ -99,7 +99,7 @@ pub fn GamepadButtonInput::GamepadButtonInput(
   gamepad : Gamepad,
   button : GamepadButton,
 ) -> GamepadButtonInput {
-  { gamepad, button }
+  { gamepad, button, }
 }
 
 ///|
@@ -113,7 +113,7 @@ pub fn GamepadAxisInput::GamepadAxisInput(
   gamepad : Gamepad,
   axis : GamepadAxis,
 ) -> GamepadAxisInput {
-  { gamepad, axis }
+  { gamepad, axis, }
 }
 
 ///|
@@ -294,13 +294,13 @@ pub fn advanced_gamepad_system(_delta : Double) -> Unit {
   just_connected_gamepads().clear()
   for gamepad in connected_gamepads().difference(last_connected_gamepads()) {
     just_connected_gamepads().add(gamepad)
-    gamepad_connection_event_bus.send({ gamepad, connected: true })
+    gamepad_connection_event_bus.send({ gamepad, connected: true, })
   }
 
   just_disconnected_gamepads().clear()
   for gamepad in last_connected_gamepads().difference(connected_gamepads()) {
     just_disconnected_gamepads().add(gamepad)
-    gamepad_connection_event_bus.send({ gamepad, connected: false })
+    gamepad_connection_event_bus.send({ gamepad, connected: false, })
   }
 
   just_pressed_gamepad_buttons().clear()
@@ -309,7 +309,7 @@ pub fn advanced_gamepad_system(_delta : Double) -> Unit {
       last_pressed_gamepad_buttons(),
     ) {
     just_pressed_gamepad_buttons().add(input)
-    gamepad_button_event_bus.send({ input, state: Pressed })
+    gamepad_button_event_bus.send({ input, state: Pressed, })
   }
 
   just_released_gamepad_buttons().clear()
@@ -318,7 +318,7 @@ pub fn advanced_gamepad_system(_delta : Double) -> Unit {
       pressed_gamepad_buttons(),
     ) {
     just_released_gamepad_buttons().add(input)
-    gamepad_button_event_bus.send({ input, state: Released })
+    gamepad_button_event_bus.send({ input, state: Released, })
   }
 
   let stale_axes : Array[GamepadAxisInput] = []
@@ -336,7 +336,7 @@ pub fn advanced_gamepad_system(_delta : Double) -> Unit {
     let previous = last_gamepad_axis_values().get(axis_input).unwrap_or(0.0)
     let delta = value - previous
     if delta.abs() > 0.00001 {
-      gamepad_axis_event_bus.send({ input: axis_input, value, delta })
+      gamepad_axis_event_bus.send({ input: axis_input, value, delta, })
     }
     last_gamepad_axis_values().set(axis_input, value)
   }

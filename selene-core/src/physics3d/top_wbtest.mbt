@@ -311,7 +311,7 @@ test "cast_shape respects exclude_sensors and exclude_solids in 3d" {
         Collider::ball(0.25),
         @math.Vec3::zero(),
         direction=@math.Vec3::x_axis(),
-        query_filter={ ..QueryFilter::all(), exclude_sensors: true },
+        query_filter={ ..QueryFilter::all(), exclude_sensors: true, },
       )
       .unwrap()
     inspect(no_sensor_hit.entity == solid_entity, content="true")
@@ -321,7 +321,7 @@ test "cast_shape respects exclude_sensors and exclude_solids in 3d" {
         Collider::ball(0.25),
         @math.Vec3::zero(),
         direction=@math.Vec3::x_axis(),
-        query_filter={ ..QueryFilter::all(), exclude_solids: true },
+        query_filter={ ..QueryFilter::all(), exclude_solids: true, },
       )
       .unwrap()
     inspect(no_solid_hit.entity == sensor_entity, content="true")

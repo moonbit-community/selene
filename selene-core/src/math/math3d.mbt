@@ -21,17 +21,17 @@ pub(all) struct Vec3 {
 
 ///|
 pub fn Vec3::Vec3(x : Double, y : Double, z : Double) -> Vec3 {
-  { x, y, z }
+  { x, y, z, }
 }
 
 ///|
 pub fn Vec3::zero() -> Vec3 {
-  { x: 0.0, y: 0.0, z: 0.0 }
+  { x: 0.0, y: 0.0, z: 0.0, }
 }
 
 ///|
 pub fn Vec3::one() -> Vec3 {
-  { x: 1.0, y: 1.0, z: 1.0 }
+  { x: 1.0, y: 1.0, z: 1.0, }
 }
 
 ///|
@@ -147,7 +147,7 @@ pub(all) struct Quat {
 
 ///|
 pub fn Quat::Quat(x : Double, y : Double, z : Double, w : Double) -> Quat {
-  { x, y, z, w }
+  { x, y, z, w, }
 }
 
 ///|
@@ -561,5 +561,5 @@ pub fn Affine3::inverse(self : Affine3) -> Affine3? {
     z_axis: Vec3(c02 * inv_det, c12 * inv_det, c22 * inv_det),
     translation: Vec3::zero(),
   }
-  Some({ ..inverse, translation: inverse.transform_vector3(-self.translation) })
+  Some({ ..inverse, translation: inverse.transform_vector3(-self.translation), })
 }

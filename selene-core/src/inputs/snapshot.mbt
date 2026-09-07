@@ -22,7 +22,7 @@ pub fn empty_input_snapshot() -> InputSnapshot {
       middle_button: false,
     },
     mouse_relative_delta: None,
-    mouse_wheel: { delta: @math.Vec2::zero() },
+    mouse_wheel: { delta: @math.Vec2::zero(), },
     touches: Map([]),
     touch_changes: [],
     connected_gamepads: Set([]),

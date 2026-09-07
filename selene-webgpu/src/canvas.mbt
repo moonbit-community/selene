@@ -1,10 +1,10 @@
 ///|
-extern "js" fn webgpu_initialize(
+extern "js" fn webgpu_initialize_ffi(
   canvas : @dom.HTMLCanvasElement,
   width : Double,
   height : Double,
   image_smooth : Bool,
-  shader_sources : Array[String],
+  shader_sources : FixedArray[String],
 ) -> Unit =
   #| (canvas, width, height, imageSmooth, shaderSources) => {
   #|   const g = globalThis;
@@ -1914,3 +1914,20 @@ extern "js" fn webgpu_initialize(
   #|     });
   #|   }
   #| }
+
+///|
+fn webgpu_initialize(
+  canvas : @dom.HTMLCanvasElement,
+  width : Double,
+  height : Double,
+  image_smooth : Bool,
+  shader_sources : Array[String],
+) -> Unit {
+  webgpu_initialize_ffi(
+    canvas,
+    width,
+    height,
+    image_smooth,
+    FixedArray::from_array(shader_sources[:]),
+  )
+}

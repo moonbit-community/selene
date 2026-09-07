@@ -81,12 +81,12 @@ pub fn App::with_image_smooth(self : App, image_smooth : Bool) -> App {
 
 ///|
 pub fn App::with_viewport_height(self : App, height : Double) -> App {
-  { ..self, viewport_height: height }
+  { ..self, viewport_height: height, }
 }
 
 ///|
 pub fn App::with_viewport_width(self : App, width : Double) -> App {
-  { ..self, viewport_width: width }
+  { ..self, viewport_width: width, }
 }
 
 ///|
@@ -101,7 +101,7 @@ pub fn App::with_fixed_hz(self : App, fixed_hz : UInt) -> App {
 
 ///|
 pub fn App::with_max_fixed_steps_per_frame(self : App, steps : UInt) -> App {
-  { ..self, max_fixed_steps_per_frame: steps }
+  { ..self, max_fixed_steps_per_frame: steps, }
 }
 
 ///|
@@ -127,7 +127,7 @@ pub fn App::add_plugins(self : App, plugins : Array[Plugin]) -> App {
 pub fn[T] App::add_message(self : App, events : @event.Events[T]) -> App {
   let registrations = self.event_registrations
   registrations.push(fn(world) { events.register_to_world(world) })
-  { ..self, event_registrations: registrations }
+  { ..self, event_registrations: registrations, }
 }
 
 ///|
@@ -170,7 +170,7 @@ pub fn App::add_systems(
   let systems = self.systems
   for system in systems_to_add {
     let name = "unnamed_system\{systems.length()}"
-    systems.push({ system, schedule, name, in_set, before, after, run_if })
+    systems.push({ system, schedule, name, in_set, before, after, run_if, })
   }
   { ..self, systems, }
 }
@@ -654,7 +654,7 @@ fn run_headless_frame(
 pub fn App::run(self : App) -> Unit {
   setup_runtime_world(self)
   let plan = build_runtime_plan(self)
-  let accumulator : Ref[Double] = { val: 0.0 }
+  let accumulator : Ref[Double] = { val: 0.0, }
   let screen_width = self.viewport_width * self.zoom
   let screen_height = self.viewport_height * self.zoom
 
@@ -683,7 +683,7 @@ pub fn App::run(self : App) -> Unit {
       fps: self.fps,
       image_smooth: self.image_smooth,
     },
-    { startup, service_frame, render_loop, game_loop },
+    { startup, service_frame, render_loop, game_loop, },
   )
   run_game()
 }
@@ -701,7 +701,7 @@ pub fn App::run_frames(
   setup_runtime_world(self)
   let plan = build_runtime_plan(self, fixed_delta_override~)
   startup_runtime(plan)
-  let accumulator : Ref[Double] = { val: 0.0 }
+  let accumulator : Ref[Double] = { val: 0.0, }
   let default_delta = 1.0 / self.fps.to_double()
   let used_delta = if raw_delta > 0.0 { raw_delta } else { default_delta }
   for _ in 0..<frames {
@@ -753,7 +753,7 @@ fn App::run_frames_capture_with(
   setup_runtime_world(self)
   let plan = build_runtime_plan(self, fixed_delta_override~)
   startup_runtime(plan)
-  let accumulator : Ref[Double] = { val: 0.0 }
+  let accumulator : Ref[Double] = { val: 0.0, }
   let default_delta = 1.0 / self.fps.to_double()
   let used_delta = if raw_delta > 0.0 { raw_delta } else { default_delta }
   for frame_index in 0..<frames {

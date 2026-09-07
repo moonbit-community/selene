@@ -61,10 +61,10 @@ test "app: add_message registers buses to final world" {
 ///|
 test "app: run_frames advances startup/update/fixed/render schedules deterministically" {
   let world = @ecs.World()
-  let startup_count : Ref[Int] = { val: 0 }
-  let update_count : Ref[Int] = { val: 0 }
-  let fixed_count : Ref[Int] = { val: 0 }
-  let render_count : Ref[Int] = { val: 0 }
+  let startup_count : Ref[Int] = { val: 0, }
+  let update_count : Ref[Int] = { val: 0, }
+  let fixed_count : Ref[Int] = { val: 0, }
+  let render_count : Ref[Int] = { val: 0, }
 
   let app = App()
     .with_world(world)
@@ -84,7 +84,7 @@ test "app: run_frames advances startup/update/fixed/render schedules determinist
 ///|
 test "app: headless frames service platform maintenance around game and render" {
   let world = @ecs.World()
-  let trace : Ref[String] = { val: "" }
+  let trace : Ref[String] = { val: "", }
   let app = App()
     .with_world(world)
     .add_system(
@@ -100,7 +100,7 @@ test "app: headless frames service platform maintenance around game and render" 
   setup_runtime_world(app)
   let plan = build_runtime_plan(app)
   startup_runtime(plan)
-  let accumulator : Ref[Double] = { val: 0.0 }
+  let accumulator : Ref[Double] = { val: 0.0, }
 
   run_headless_frame(plan, accumulator, 1.0 / 60.0, None, fn() {
     trace.val = trace.val + "s"
@@ -112,9 +112,9 @@ test "app: headless frames service platform maintenance around game and render" 
 ///|
 test "app: step_fixed advances only fixed schedule after startup" {
   let world = @ecs.World()
-  let startup_count : Ref[Int] = { val: 0 }
-  let update_count : Ref[Int] = { val: 0 }
-  let fixed_count : Ref[Int] = { val: 0 }
+  let startup_count : Ref[Int] = { val: 0, }
+  let update_count : Ref[Int] = { val: 0, }
+  let fixed_count : Ref[Int] = { val: 0, }
 
   let app = App()
     .with_world(world)
@@ -138,7 +138,7 @@ test "app: deterministic ordering sorts systems by name when enabled" {
     frame_delta_override: None,
     deterministic_ordering: true,
   })
-  let order : Ref[String] = { val: "" }
+  let order : Ref[String] = { val: "", }
   let app = App()
     .with_world(world)
     .add_system(
@@ -165,7 +165,7 @@ test "app: deterministic ordering keeps insertion order when disabled" {
     frame_delta_override: None,
     deterministic_ordering: false,
   })
-  let order : Ref[String] = { val: "" }
+  let order : Ref[String] = { val: "", }
   let app = App()
     .with_world(world)
     .add_system(
@@ -225,7 +225,7 @@ test "app: run_frames_capture accepts selected frame indexes" {
 ///|
 test "app: render frame does not perform platform service work implicitly" {
   let world = @ecs.World()
-  let trace : Ref[String] = { val: "" }
+  let trace : Ref[String] = { val: "", }
   let app = App()
     .with_world(world)
     .add_system(

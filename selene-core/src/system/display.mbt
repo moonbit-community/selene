@@ -107,7 +107,7 @@ pub fn unscale_vec2(vec : @math.Vec2) -> @math.Vec2 {
 pub fn scale_transform_translation(
   transform : @math.Transform,
 ) -> @math.Transform {
-  { ..transform, tx: scale_value(transform.tx), ty: scale_value(transform.ty) }
+  { ..transform, tx: scale_value(transform.tx), ty: scale_value(transform.ty), }
 }
 
 ///|

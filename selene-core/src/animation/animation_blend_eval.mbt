@@ -77,7 +77,7 @@ fn push_sample(
   if weight <= 0.0 {
     return
   }
-  let buffer = buffers.get_or_init(key, fn() { { normal: [], additive: [] } })
+  let buffer = buffers.get_or_init(key, fn() { { normal: [], additive: [], } })
   if additive {
     buffer.additive.push((value, weight))
   } else {
@@ -436,7 +436,7 @@ fn evaluate_graph_node(
           }
           for curve in curves {
             let (field, value) = sample_curve(curve, time)
-            push_sample(buffers, { entity, field }, value, weight, additive)
+            push_sample(buffers, { entity, field, }, value, weight, additive)
           }
         }
       }
@@ -496,7 +496,7 @@ fn emit_clip_events_between(
       continue
     }
     (descriptor.dispatch)(
-      { clip: clip_handle, player: player_entity, target, time: event.time },
+      { clip: clip_handle, player: player_entity, target, time: event.time, },
       observer_target,
     )
   }

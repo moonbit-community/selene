@@ -282,9 +282,9 @@ fn ldtk_grid_coords_from_px(
   cell_size : Double,
 ) -> LdtkGridCoords {
   if cell_size <= 0.0 {
-    return { x: 0, y: 0 }
+    return { x: 0, y: 0, }
   }
-  { x: (px[X] / cell_size).to_int(), y: (px[Y] / cell_size).to_int() }
+  { x: (px[X] / cell_size).to_int(), y: (px[Y] / cell_size).to_int(), }
 }
 
 ///|
@@ -322,7 +322,7 @@ fn ldtk_apply_int_grid_physics(
     )
   }
   @physics2d.shapes().set(cell_entity, shape)
-  let collider = { sensor: physics_settings.as_sensor }
+  let collider = { sensor: physics_settings.as_sensor, }
   ldtk_int_grid_colliders().set(cell_entity, collider)
   Some(collider)
 }

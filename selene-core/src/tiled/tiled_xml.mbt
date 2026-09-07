@@ -59,10 +59,15 @@ fn read_tiled_xml_root(
   reader : @xml.Reader,
 ) -> TiledXmlNode? raise @xml.XmlError {
   while true {
-    match reader.read_event() {
+    match reader.read_event().kind {
       Start(element) => return Some(read_tiled_xml_node(reader, element))
       Empty(element) =>
-        return Some(tiled_xml_node(element.name, element.attributes))
+        return Some(
+          tiled_xml_node(
+            element.name,
+            element.attributes.map(a => (a.name, a.value)),
+          ),
+        )
       Text(_) => continue
       CData(_) => continue
       Comment(_) => continue
@@ -82,12 +87,17 @@ fn read_tiled_xml_node(
   element : @xml.XmlElement,
 ) -> TiledXmlNode raise @xml.XmlError {
   let children : Array[TiledXmlNode] = []
-  let text = StringBuilder::new()
+  let text = StringBuilder()
   while true {
-    match reader.read_event() {
+    match reader.read_event().kind {
       Start(child) => children.push(read_tiled_xml_node(reader, child))
       Empty(child) =>
-        children.push(tiled_xml_node(child.name, child.attributes))
+        children.push(
+          tiled_xml_node(
+            child.name,
+            child.attributes.map(a => (a.name, a.value)),
+          ),
+        )
       Text(content) => text.write_string(content)
       CData(content) => text.write_string(content)
       Comment(_) => ()
@@ -97,14 +107,14 @@ fn read_tiled_xml_node(
       End(_) =>
         return {
           name: element.name,
-          attributes: element.attributes,
+          attributes: element.attributes.map(a => (a.name, a.value)),
           children,
           text: text.to_string(),
         }
       Eof =>
         return tiled_xml_node(
           element.name,
-          element.attributes,
+          element.attributes.map(a => (a.name, a.value)),
           children~,
           text=text.to_string(),
         )
@@ -120,7 +130,7 @@ fn tiled_xml_node(
   children? : Array[TiledXmlNode] = [],
   text? : String = "",
 ) -> TiledXmlNode {
-  { name, attributes, children, text }
+  { name, attributes, children, text, }
 }
 
 ///|
@@ -254,7 +264,7 @@ fn parse_tiled_xml_gid_data(data_node : TiledXmlNode) -> Array[TiledGid] {
 ///|
 fn parse_tiled_xml_gid_text(text : String) -> Array[TiledGid] {
   let gids : Array[TiledGid] = []
-  let mut token = StringBuilder::new()
+  let mut token = StringBuilder()
   for ch in text.to_array() {
     if ch == ',' || is_tiled_xml_whitespace(ch) {
       let token_string = token.to_string()
@@ -262,7 +272,7 @@ fn parse_tiled_xml_gid_text(text : String) -> Array[TiledGid] {
         gids.push(
           decode_tiled_gid(parse_xml_int_text(token_string).unwrap_or(0)),
         )
-        token = StringBuilder::new()
+        token = StringBuilder()
       }
       continue
     }
@@ -449,7 +459,7 @@ fn parse_tiled_xml_property(node : TiledXmlNode) -> TiledProperty {
     Some(_) => String(raw_value)
     None => infer_tiled_xml_property_value(raw_value)
   }
-  { name, value }
+  { name, value, }
 }
 
 ///|

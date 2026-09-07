@@ -56,27 +56,27 @@ fn debug_collider_enabled(entity : @entity.Entity) -> Bool {
 
 ///|
 fn debug_disabled_color() -> @render.Color {
-  { r: 140U, g: 145U, b: 150U, a: 0.75 }
+  { r: 140U, g: 145U, b: 150U, a: 0.75, }
 }
 
 ///|
 fn debug_dynamic_color() -> @render.Color {
-  { r: 80U, g: 220U, b: 120U, a: 0.95 }
+  { r: 80U, g: 220U, b: 120U, a: 0.95, }
 }
 
 ///|
 fn debug_fixed_color() -> @render.Color {
-  { r: 90U, g: 160U, b: 255U, a: 0.95 }
+  { r: 90U, g: 160U, b: 255U, a: 0.95, }
 }
 
 ///|
 fn debug_kinematic_color() -> @render.Color {
-  { r: 255U, g: 210U, b: 80U, a: 0.95 }
+  { r: 255U, g: 210U, b: 80U, a: 0.95, }
 }
 
 ///|
 fn debug_sensor_color() -> @render.Color {
-  { r: 210U, g: 120U, b: 255U, a: 0.95 }
+  { r: 210U, g: 120U, b: 255U, a: 0.95, }
 }
 
 ///|
@@ -418,7 +418,7 @@ fn axis_point(axis : Int, value : Double) -> @math.Vec3 {
 
 ///|
 fn wire_segment(start : @math.Vec3, end : @math.Vec3) -> ColliderWireSegment3D {
-  { start, end }
+  { start, end, }
 }
 
 ///|

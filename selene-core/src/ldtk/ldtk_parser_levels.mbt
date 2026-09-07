@@ -234,7 +234,7 @@ fn ldtk_project_raw_view(project : LdtkProject) -> LdtkProject {
       guard load_ldtk_text_document(source_path) is Some(source) else {
         return project
       }
-      { ..parse_ldtk_project_source(source), source_path: Some(source_path) }
+      { ..parse_ldtk_project_source(source), source_path: Some(source_path), }
     }
     None => project
   }

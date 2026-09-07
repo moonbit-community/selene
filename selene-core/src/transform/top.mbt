@@ -90,7 +90,7 @@ pub fn Transform::compute_affine(self : Transform) -> @math.Affine3 {
 
 ///|
 pub fn GlobalTransform::identity() -> GlobalTransform {
-  { affine: @math.Affine3::identity() }
+  { affine: @math.Affine3::identity(), }
 }
 
 ///|
@@ -102,7 +102,7 @@ pub impl Default for GlobalTransform with fn default() -> GlobalTransform {
 pub fn GlobalTransform::from_transform(
   transform : Transform,
 ) -> GlobalTransform {
-  { affine: transform.compute_affine() }
+  { affine: transform.compute_affine(), }
 }
 
 ///|
@@ -156,7 +156,7 @@ pub fn GlobalTransform::reparented_to(
 ) -> Transform {
   match parent.affine.inverse() {
     Some(inverse_parent) =>
-      GlobalTransform::{ affine: inverse_parent * self.affine }.compute_transform()
+      GlobalTransform::{ affine: inverse_parent * self.affine, }.compute_transform()
     None => self.compute_transform()
   }
 }
@@ -199,7 +199,7 @@ pub fn compute_global_transform(entity : @entity.Entity) -> GlobalTransform? {
     Some(parent) if parent.is_alive() =>
       match compute_global_transform(parent) {
         Some(parent_global) =>
-          Some({ affine: parent_global.affine * local_global.affine })
+          Some({ affine: parent_global.affine * local_global.affine, })
         None => Some(local_global)
       }
     _ => Some(local_global)

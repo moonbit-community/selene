@@ -263,7 +263,7 @@ fn skin_tangent(
   } else {
     Vec3(1.0, 0.0, 0.0)
   }
-  { x: normalized.x, y: normalized.y, z: normalized.z, w: tangent.w }
+  { x: normalized.x, y: normalized.y, z: normalized.z, w: tangent.w, }
 }
 
 ///|

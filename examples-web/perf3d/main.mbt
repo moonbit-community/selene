@@ -58,7 +58,7 @@ let perf_state : Ref[PerfState?] = Ref(None)
 
 ///|
 fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
-  { r, g, b, a }
+  { r, g, b, a, }
 }
 
 ///|
@@ -168,7 +168,7 @@ fn setup_camera(config : PerfConfig) -> Unit {
 ///|
 fn setup_lights(config : PerfConfig) -> Unit {
   @render3d.set_ambient_light3d(
-    Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.08 }),
+    Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.08, }),
   )
   let dir_light = @entity.Entity()
   @render3d.directional_lights3d().set(dir_light, {
@@ -343,7 +343,7 @@ fn update_perf3d_stats(_world : @ecs.World) -> Unit {
       stats.draw_commands,
       stats.uploaded_vertex_bytes,
     )
-    let hud_text = StringBuilder::new()
+    let hud_text = StringBuilder()
     hud_text.write_string(
       "perf3d case=\{state.config.case_name} count=\{state.config.count} mode=\{state.config.mode}",
     )

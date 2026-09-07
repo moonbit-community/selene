@@ -532,7 +532,7 @@ fn triangle_mesh_local_bounds(
     min = vec3_min(min, position)
     max = vec3_max(max, position)
   }
-  Some({ min, max })
+  Some({ min, max, })
 }
 
 ///|
@@ -546,14 +546,14 @@ fn primitive_local_bounding_sphere(
         size.y.abs() * 0.5,
         size.z.abs() * 0.5,
       )
-      Some({ center: @smath.Vec3::zero(), radius: half_extents.length() })
+      Some({ center: @smath.Vec3::zero(), radius: half_extents.length(), })
     }
     Sphere(radius) =>
-      Some({ center: @smath.Vec3::zero(), radius: radius.abs() })
+      Some({ center: @smath.Vec3::zero(), radius: radius.abs(), })
     Cylinder(radius_top, radius_bottom, height, _slices) => {
       let max_radius = @cmp.maximum(radius_top.abs(), radius_bottom.abs())
       let half_extents = @smath.Vec3(max_radius, height.abs() * 0.5, max_radius)
-      Some({ center: @smath.Vec3::zero(), radius: half_extents.length() })
+      Some({ center: @smath.Vec3::zero(), radius: half_extents.length(), })
     }
     Plane(size) => {
       let thickness = if size.y.abs() < 0.0001 { 0.02 } else { size.y.abs() }
@@ -562,12 +562,12 @@ fn primitive_local_bounding_sphere(
         thickness * 0.5,
         size.z.abs() * 0.5,
       )
-      Some({ center: @smath.Vec3::zero(), radius: half_extents.length() })
+      Some({ center: @smath.Vec3::zero(), radius: half_extents.length(), })
     }
     Triangles(mesh) =>
       triangle_mesh_local_bounds(mesh).map(fn(bounds) {
         let center = vec3_midpoint(bounds.min, bounds.max)
-        { center, radius: (bounds.max - center).length() }
+        { center, radius: (bounds.max - center).length(), }
       })
   }
 }

@@ -67,7 +67,7 @@ priv struct RegisteredBus {
 let registered_buses_by_world : Map[UInt, Array[RegisteredBus]] = Map([])
 
 ///|
-let next_event_bus_id : Ref[UInt] = { val: 1U }
+let next_event_bus_id : Ref[UInt] = { val: 1U, }
 
 ///|
 fn allocate_event_bus_id() -> UInt {
@@ -96,7 +96,7 @@ fn[T] world_store(events : Events[T]) -> EventWorldStore[T] {
 
 ///|
 pub fn[T] EventReader::EventReader() -> EventReader[T] {
-  { last_seen_by_world: Map([]), marker: None }
+  { last_seen_by_world: Map([]), marker: None, }
 }
 
 ///|
@@ -146,7 +146,7 @@ pub fn[T] EventWriter::trigger(
 
 ///|
 pub fn[T] Events::Events(domain? : EventDomain = Frame) -> Events[T] {
-  { id: allocate_event_bus_id(), domain, stores: Map([]), marker: None }
+  { id: allocate_event_bus_id(), domain, stores: Map([]), marker: None, }
 }
 
 ///|
@@ -185,7 +185,7 @@ pub fn[T] Events::send(self : Events[T], event : T) -> Unit {
   let store = world_store(self)
   let id = store.next_event_id
   store.next_event_id += 1
-  store.newer.push({ id, event })
+  store.newer.push({ id, event, })
 }
 
 ///|
@@ -196,7 +196,7 @@ pub fn[T] Events::trigger(
 ) -> Unit {
   let store = world_store(self)
   self.send(event)
-  store.observer_queue.push({ event, target })
+  store.observer_queue.push({ event, target, })
 }
 
 ///|
@@ -207,7 +207,7 @@ pub fn[T] Events::observe_global(
   let store = world_store(self)
   let handle = ObserverHandle(store.next_observer_id)
   store.next_observer_id += 1
-  store.observers.set(handle, { target: None, callback })
+  store.observers.set(handle, { target: None, callback, })
   handle
 }
 
@@ -220,7 +220,7 @@ pub fn[T] Events::observe_entity(
   let store = world_store(self)
   let handle = ObserverHandle(store.next_observer_id)
   store.next_observer_id += 1
-  store.observers.set(handle, { target: Some(entity), callback })
+  store.observers.set(handle, { target: Some(entity), callback, })
   handle
 }
 

@@ -239,7 +239,7 @@ pub fn scene_bundle_atlas_entry(
   path : String,
   atlas : @editor_bridge.AtlasAssetDocument,
 ) -> SceneBundleAtlasEntry {
-  { path, atlas }
+  { path, atlas, }
 }
 
 ///|
@@ -247,7 +247,7 @@ pub fn scene_bundle_animation_clip_entry(
   path : String,
   clip : @editor_bridge.AnimationClipAssetDocument,
 ) -> SceneBundleAnimationClipEntry {
-  { path, clip }
+  { path, clip, }
 }
 
 ///|
@@ -255,7 +255,7 @@ pub fn scene_bundle_animation_graph_entry(
   path : String,
   graph : @editor_bridge.AnimationGraphAssetDocument,
 ) -> SceneBundleAnimationGraphEntry {
-  { path, graph }
+  { path, graph, }
 }
 
 ///|
@@ -282,7 +282,7 @@ pub fn scene_save_result(
   disk_hash : String,
   disk_revision : Int,
 ) -> SceneSaveResult {
-  { path, disk_hash, disk_revision }
+  { path, disk_hash, disk_revision, }
 }
 
 ///|
@@ -293,7 +293,7 @@ pub fn rpc_conflict_document(
   base_revision : Int,
   current_revision : Int,
 ) -> RpcConflictDocument {
-  { path, base_hash, current_hash, base_revision, current_revision }
+  { path, base_hash, current_hash, base_revision, current_revision, }
 }
 
 ///|
@@ -303,7 +303,7 @@ pub fn SceneBundleResponse::with_assets(
   animation_clip_assets : Array[SceneBundleAnimationClipEntry],
   animation_graph_assets : Array[SceneBundleAnimationGraphEntry],
 ) -> SceneBundleResponse {
-  { ..self, atlas_assets, animation_clip_assets, animation_graph_assets }
+  { ..self, atlas_assets, animation_clip_assets, animation_graph_assets, }
 }
 
 ///|
@@ -325,7 +325,7 @@ pub fn scene_list_response(
   scenes : Array[@editor_bridge.SceneRef],
   startup_scene : String,
 ) -> SceneListResponse {
-  { scenes, startup_scene }
+  { scenes, startup_scene, }
 }
 
 ///|
@@ -340,7 +340,7 @@ pub fn prefab_load_response(
   path : String,
   prefab : @editor_bridge.PrefabDocument,
 ) -> PrefabLoadResponse {
-  { path, prefab }
+  { path, prefab, }
 }
 
 ///|
@@ -348,7 +348,7 @@ pub fn atlas_load_response(
   path : String,
   atlas : @editor_bridge.AtlasAssetDocument,
 ) -> AtlasLoadResponse {
-  { path, atlas }
+  { path, atlas, }
 }
 
 ///|
@@ -356,7 +356,7 @@ pub fn animation_clip_load_response(
   path : String,
   clip : @editor_bridge.AnimationClipAssetDocument,
 ) -> AnimationClipLoadResponse {
-  { path, clip }
+  { path, clip, }
 }
 
 ///|
@@ -364,7 +364,7 @@ pub fn animation_graph_load_response(
   path : String,
   graph : @editor_bridge.AnimationGraphAssetDocument,
 ) -> AnimationGraphLoadResponse {
-  { path, graph }
+  { path, graph, }
 }
 
 ///|
@@ -551,7 +551,7 @@ pub fn rpc_request_envelope(
   id : Int,
   request : RpcRequest,
 ) -> RpcRequestEnvelope {
-  { id, request }
+  { id, request, }
 }
 
 ///|
@@ -559,7 +559,7 @@ pub fn rpc_response_envelope(
   id : Int,
   response : RpcResponse,
 ) -> RpcResponseEnvelope {
-  { id, response }
+  { id, response, }
 }
 
 ///|
@@ -649,7 +649,7 @@ pub fn rpc_error_response(
   message : String,
   details? : Json = Json::null(),
 ) -> RpcResponseEnvelope {
-  rpc_response_envelope(id, Error(error={ code, message, details }))
+  rpc_response_envelope(id, Error(error={ code, message, details, }))
 }
 
 ///|

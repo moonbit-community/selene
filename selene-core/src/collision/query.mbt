@@ -44,17 +44,17 @@ pub fn SpatialQueryFilter::default() -> SpatialQueryFilter {
 
 ///|
 pub fn SpatialQueryFilter::only_dynamic() -> SpatialQueryFilter {
-  { ..SpatialQueryFilter::default(), body_filter: Dynamic }
+  { ..SpatialQueryFilter::default(), body_filter: Dynamic, }
 }
 
 ///|
 pub fn SpatialQueryFilter::only_fixed() -> SpatialQueryFilter {
-  { ..SpatialQueryFilter::default(), body_filter: Fixed }
+  { ..SpatialQueryFilter::default(), body_filter: Fixed, }
 }
 
 ///|
 pub fn SpatialQueryFilter::only_kinematic() -> SpatialQueryFilter {
-  { ..SpatialQueryFilter::default(), body_filter: Kinematic }
+  { ..SpatialQueryFilter::default(), body_filter: Kinematic, }
 }
 
 ///|

@@ -20,7 +20,7 @@ fn read_accessor_color(
   }
   let output : Array[@render.Color] = []
   for _ in 0..<accessor.count {
-    output.push({ r: 0U, g: 0U, b: 0U, a: 0.0 })
+    output.push({ r: 0U, g: 0U, b: 0U, a: 0.0, })
   }
   if resolve_accessor_bytes(accessor, buffers, buffer_views)
     is Some((bytes, base_offset, stride, view_end)) {

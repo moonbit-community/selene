@@ -13,7 +13,7 @@ fn text2d_test_style() -> @render2d_types.TextStyle2D {
     font: None,
     family: "Sans",
     size: 16.0,
-    color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+    color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
     align: Left,
     baseline: Top,
   }

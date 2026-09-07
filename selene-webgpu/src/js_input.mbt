@@ -1,9 +1,9 @@
 ///|
-extern "js" fn webgpu_measure_text(
+extern "js" fn webgpu_measure_text_ffi(
   text : String,
   family : String,
   size : Double,
-) -> Array[Double] =
+) -> FixedArray[Double] =
   #| (text, family, size) => {
   #|   const cvs = document.createElement('canvas');
   #|   const ctx = cvs.getContext('2d');
@@ -42,7 +42,7 @@ extern "js" fn webgpu_end_frame() -> Unit =
   #| }
 
 ///|
-extern "js" fn webgpu_capture_frame_png_bytes() -> Array[Int] =
+extern "js" fn webgpu_capture_frame_png_bytes_ffi() -> FixedArray[Int] =
   #| () => {
   #|   try {
   #|     const rt = globalThis.__selene_webgpu_runtime;
@@ -114,3 +114,17 @@ extern "js" fn webgpu_push_clip_rect(
   #|     rt.pushClip2d(x, y, width, height);
   #|   }
   #| }
+
+///|
+fn webgpu_measure_text(
+  text : String,
+  family : String,
+  size : Double,
+) -> Array[Double] {
+  Array::from_fixed_array(webgpu_measure_text_ffi(text, family, size))
+}
+
+///|
+fn webgpu_capture_frame_png_bytes() -> Array[Int] {
+  Array::from_fixed_array(webgpu_capture_frame_png_bytes_ffi())
+}

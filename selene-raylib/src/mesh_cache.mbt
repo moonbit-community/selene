@@ -449,7 +449,7 @@ fn get_lighting_shader_state() -> LightingShaderState {
 
 ///|
 fn white_render_color() -> @render.Color {
-  { r: 255U, g: 255U, b: 255U, a: 1.0 }
+  { r: 255U, g: 255U, b: 255U, a: 1.0, }
 }
 
 ///|

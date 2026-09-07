@@ -323,7 +323,7 @@ pub fn default_texture_sampler3d() -> TextureSampler3D {
 
 ///|
 pub fn default_texture_transform3d() -> TextureTransform3D {
-  { offset: @math.Vec2::zero(), scale: Vec2(1.0, 1.0), rotation: 0.0 }
+  { offset: @math.Vec2::zero(), scale: Vec2(1.0, 1.0), rotation: 0.0, }
 }
 
 ///|
@@ -347,7 +347,7 @@ pub fn texture_binding3d(
   sampler? : TextureSampler3D = default_texture_sampler3d(),
   transform? : TextureTransform3D = default_texture_transform3d(),
 ) -> TextureBinding3D {
-  { image, sampler, texcoord_set, transform }
+  { image, sampler, texcoord_set, transform, }
 }
 
 ///|
@@ -359,7 +359,7 @@ pub fn cubemap_faces3d(
   positive_z : ImageHandle,
   negative_z : ImageHandle,
 ) -> CubemapFaces3D {
-  { positive_x, negative_x, positive_y, negative_y, positive_z, negative_z }
+  { positive_x, negative_x, positive_y, negative_y, positive_z, negative_z, }
 }
 
 ///|
@@ -388,7 +388,7 @@ pub fn skybox3d(
 pub fn empty_render_frame3d() -> RenderFrame3D {
   {
     camera: None,
-    clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0 },
+    clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0, },
     skybox: None,
     items: [],
     lines: [],
@@ -403,12 +403,12 @@ pub fn empty_render_frame3d() -> RenderFrame3D {
 
 ///|
 pub fn default_directional_light_shadow_map3d() -> DirectionalLightShadowMap3D {
-  { size: 2048 }
+  { size: 2048, }
 }
 
 ///|
 pub fn default_point_light_shadow_map3d() -> PointLightShadowMap3D {
-  { size: 1024 }
+  { size: 1024, }
 }
 
 ///|
@@ -469,7 +469,7 @@ pub fn build_cascade_shadow_config3d(
       bounds.push(first_cascade_far_bound * @cmath.pow(base, index.to_double()))
     }
   }
-  { bounds, minimum_distance, overlap_proportion }
+  { bounds, minimum_distance, overlap_proportion, }
 }
 
 ///|
@@ -481,7 +481,7 @@ pub fn default_cascade_shadow_config3d() -> CascadeShadowConfig3D {
 pub fn default_directional_light3d() -> DirectionalLight3D {
   {
     direction: Vec3(0.0, 0.0, -1.0),
-    color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+    color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
     intensity: 1.0,
     shadows: false,
     // Match Bevy's current defaults for directional shadow bias tuning.
@@ -494,7 +494,7 @@ pub fn default_directional_light3d() -> DirectionalLight3D {
 ///|
 pub fn default_point_light3d() -> PointLight3D {
   {
-    color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+    color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
     intensity: 1.0,
     range: 0.0,
     shadows: false,
@@ -509,7 +509,7 @@ pub fn default_point_light3d() -> PointLight3D {
 pub fn default_spot_light3d() -> SpotLight3D {
   {
     direction: Vec3(0.0, 0.0, -1.0),
-    color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+    color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
     intensity: 1.0,
     range: 0.0,
     shadows: false,
@@ -525,12 +525,12 @@ pub fn default_spot_light3d() -> SpotLight3D {
 ///|
 pub fn default_standard_material3d() -> StandardMaterial3D {
   {
-    base_color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+    base_color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
     base_color_texture: None,
     normal_texture: None,
     normal_scale: 1.0,
     emissive_texture: None,
-    emissive_color: { r: 0U, g: 0U, b: 0U, a: 1.0 },
+    emissive_color: { r: 0U, g: 0U, b: 0U, a: 1.0, },
     metallic_roughness_texture: None,
     occlusion_texture: None,
     occlusion_strength: 1.0,

@@ -43,7 +43,7 @@ fn model_scene(model : Model) -> @editor_bridge.SceneDocument? {
 
 ///|
 fn with_scene_session(model : Model, session : SceneSession?) -> Model {
-  { ..model, scene_session: session }
+  { ..model, scene_session: session, }
 }
 
 ///|
@@ -149,10 +149,10 @@ fn with_recorded_scene_change(previous : Model, next : Model) -> Model {
 fn with_started_scene_edit_transaction(model : Model, label : String) -> Model {
   match model.scene_session {
     Some(session) if session.active_scene_edit_transaction is None => {
-      let transaction : SceneEditTransaction = { label, before: session.scene }
+      let transaction : SceneEditTransaction = { label, before: session.scene, }
       with_scene_session(
         model,
-        Some({ ..session, active_scene_edit_transaction: Some(transaction) }),
+        Some({ ..session, active_scene_edit_transaction: Some(transaction), }),
       )
     }
     _ => model
@@ -183,7 +183,7 @@ fn with_committed_scene_edit_transaction(model : Model) -> Model {
         Some(_) =>
           with_scene_session(
             model,
-            Some({ ..session, active_scene_edit_transaction: None }),
+            Some({ ..session, active_scene_edit_transaction: None, }),
           )
         None => model
       }
@@ -199,7 +199,7 @@ fn with_scene_document_updated(
   match model.scene_session {
     Some(session) => {
       let next_scene = updater(session.scene)
-      with_scene_session(model, Some({ ..session, scene: next_scene }))
+      with_scene_session(model, Some({ ..session, scene: next_scene, }))
     }
     _ => model
   }

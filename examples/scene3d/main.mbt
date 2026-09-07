@@ -55,7 +55,7 @@ let last_contact_force : Ref[Double] = Ref(0.0)
 
 ///|
 fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
-  { r, g, b, a }
+  { r, g, b, a, }
 }
 
 ///|
@@ -81,7 +81,7 @@ fn vec3(x : Double, y : Double, z : Double) -> @math.Vec3 {
 ///|
 #warnings("-unnecessary_annotation")
 fn ccd_marker() -> @physics3d.Ccd {
-  @physics3d.Ccd::{  }
+  @physics3d.Ccd::{ }
 }
 
 ///|
@@ -525,7 +525,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     shadow_normal_bias: 0.15,
   })
   @render3d.set_ambient_light3d(
-    Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.03 }),
+    Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.03, }),
   )
 
   let label = @entity.Entity()

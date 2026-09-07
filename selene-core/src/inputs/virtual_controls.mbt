@@ -80,10 +80,10 @@ pub fn set_virtual_button_pressed(
   }
   if pressed {
     pressed_virtual_buttons.add(button)
-    virtual_button_event_bus.send({ button, state: Pressed })
+    virtual_button_event_bus.send({ button, state: Pressed, })
   } else {
     pressed_virtual_buttons.remove(button)
-    virtual_button_event_bus.send({ button, state: Released })
+    virtual_button_event_bus.send({ button, state: Released, })
   }
 }
 
@@ -99,7 +99,7 @@ pub fn set_virtual_axis_value(axis : VirtualAxis, value : Double) -> Unit {
   } else {
     virtual_axis_values.set(axis, value)
   }
-  virtual_axis_event_bus.send({ axis, value, delta })
+  virtual_axis_event_bus.send({ axis, value, delta, })
 }
 
 ///|

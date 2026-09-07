@@ -18,8 +18,8 @@ test "render3d extract preserves mesh shadow toggles" {
     scale: @math.Vec3::one(),
   })
   @visibility.visibilities().set(entity, Visible)
-  @visibility.inherited_visibilities().set(entity, { visible: true })
-  @visibility.view_visibilities().set(entity, { visible: true })
+  @visibility.inherited_visibilities().set(entity, { visible: true, })
+  @visibility.view_visibilities().set(entity, { visible: true, })
   @transform.transform_propagate_system(0.0)
 
   render3d_extract_system(0.0)
@@ -52,7 +52,7 @@ test "render3d camera culling context reuses frame constants" {
     orthographic_size: None,
     near: 0.1,
     far: 100.0,
-    clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0 },
+    clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0, },
   }
   let mesh = cube_mesh(Vec3(1.0, 1.0, 1.0))
   let visible_transform : @transform.Transform = {
@@ -122,8 +122,8 @@ test "render3d directional defaults include Bevy-aligned cascade config" {
 
 ///|
 test "render3d extract preserves shadow map size resources" {
-  set_directional_light_shadow_map3d({ size: 1536 })
-  set_point_light_shadow_map3d({ size: 768 })
+  set_directional_light_shadow_map3d({ size: 1536, })
+  set_point_light_shadow_map3d({ size: 768, })
 
   render3d_extract_system(0.0)
 
@@ -138,12 +138,12 @@ test "render3d extract preserves shadow map size resources" {
 
 ///|
 test "render3d cubemap assets participate in dirty and release sync" {
-  let px = register_image_asset({ path: "sky/px.png" })
-  let nx = register_image_asset({ path: "sky/nx.png" })
-  let py = register_image_asset({ path: "sky/py.png" })
-  let ny = register_image_asset({ path: "sky/ny.png" })
-  let pz = register_image_asset({ path: "sky/pz.png" })
-  let nz = register_image_asset({ path: "sky/nz.png" })
+  let px = register_image_asset({ path: "sky/px.png", })
+  let nx = register_image_asset({ path: "sky/nx.png", })
+  let py = register_image_asset({ path: "sky/py.png", })
+  let ny = register_image_asset({ path: "sky/ny.png", })
+  let pz = register_image_asset({ path: "sky/pz.png", })
+  let nz = register_image_asset({ path: "sky/nz.png", })
   ignore(take_dirty_image_assets())
 
   let cubemap = register_cubemap_asset(
@@ -174,12 +174,12 @@ test "render3d cubemap assets participate in dirty and release sync" {
 ///|
 test "render3d extracts skybox from active camera" {
   let camera_entity = @entity.Entity()
-  let px = register_image_asset({ path: "sky/px.png" })
-  let nx = register_image_asset({ path: "sky/nx.png" })
-  let py = register_image_asset({ path: "sky/py.png" })
-  let ny = register_image_asset({ path: "sky/ny.png" })
-  let pz = register_image_asset({ path: "sky/pz.png" })
-  let nz = register_image_asset({ path: "sky/nz.png" })
+  let px = register_image_asset({ path: "sky/px.png", })
+  let nx = register_image_asset({ path: "sky/nx.png", })
+  let py = register_image_asset({ path: "sky/py.png", })
+  let ny = register_image_asset({ path: "sky/ny.png", })
+  let pz = register_image_asset({ path: "sky/pz.png", })
+  let nz = register_image_asset({ path: "sky/nz.png", })
   let cubemap = register_cubemap_asset(
     cubemap_asset_six_faces(cubemap_faces3d(px, nx, py, ny, pz, nz)),
   )
@@ -197,7 +197,7 @@ test "render3d extracts skybox from active camera" {
         orthographic_size: None,
         near: 0.1,
         far: 100.0,
-        clear_color: { r: 8U, g: 9U, b: 10U, a: 1.0 },
+        clear_color: { r: 8U, g: 9U, b: 10U, a: 1.0, },
       },
     }),
   )

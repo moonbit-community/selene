@@ -32,7 +32,7 @@ let material2d_world_stores : Map[UInt, Material2dWorldStore] = Map([])
 fn material2d_world_store() -> Material2dWorldStore {
   let world_id = @ecs.require_current_world().id()
   material2d_world_stores.get_or_init(world_id, fn() {
-    { mesh_material2ds: Map([]) }
+    { mesh_material2ds: Map([]), }
   })
 }
 
@@ -49,7 +49,7 @@ let next_color_material_id : Ref[UInt] = Ref(0U)
 
 ///|
 fn default_material_color() -> @render.Color {
-  { r: 255U, g: 255U, b: 255U, a: 1.0 }
+  { r: 255U, g: 255U, b: 255U, a: 1.0, }
 }
 
 ///|
@@ -60,7 +60,7 @@ pub fn ColorMaterial::ColorMaterial(
   alpha_mode? : @render.AlphaMode2D = Blend,
   blend_mode? : @render.BlendMode2D = Alpha,
 ) -> ColorMaterial {
-  { color, texture, uv_transform, alpha_mode, blend_mode }
+  { color, texture, uv_transform, alpha_mode, blend_mode, }
 }
 
 ///|

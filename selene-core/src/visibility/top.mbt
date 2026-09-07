@@ -63,15 +63,15 @@ pub fn render_layers() -> Map[@entity.Entity, RenderLayers] {
 
 ///|
 pub fn default_render_layers() -> RenderLayers {
-  { mask: 1U }
+  { mask: 1U, }
 }
 
 ///|
 pub fn layer(index : UInt) -> RenderLayers {
   if index >= 63U {
-    { mask: 0U }
+    { mask: 0U, }
   } else {
-    { mask: 1U << index.reinterpret_as_int() }
+    { mask: 1U << index.reinterpret_as_int(), }
   }
 }
 

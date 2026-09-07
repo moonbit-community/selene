@@ -219,7 +219,7 @@ pub struct LdtkIndexedLevel {
 
 ///|
 pub fn empty_ldtk_project_definitions() -> LdtkProjectDefinitions {
-  { tilesets: [], layers: [], entities: [], enums: [], external_enums: [] }
+  { tilesets: [], layers: [], entities: [], enums: [], external_enums: [], }
 }
 
 ///|
@@ -268,7 +268,7 @@ pub fn load_ldtk_project_raw(path : String) -> LdtkProject {
   guard load_ldtk_text_document(path) is Some(source) else {
     return empty_ldtk_project()
   }
-  { ..parse_ldtk_project_source(source), source_path: Some(path) }
+  { ..parse_ldtk_project_source(source), source_path: Some(path), }
 }
 
 ///|

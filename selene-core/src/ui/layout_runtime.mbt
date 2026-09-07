@@ -537,7 +537,7 @@ fn project_layout(
     guard runtime.roots.get(root) is Some(root_runtime) else { continue }
     let snapshot = root_runtime.snapshot
     let layout_space = UiLayoutSpace(
-      { position: snapshot.viewport_position, size: snapshot.viewport_size },
+      { position: snapshot.viewport_position, size: snapshot.viewport_size, },
       target_camera=snapshot.target_camera,
     )
     apply_layout_recursive(

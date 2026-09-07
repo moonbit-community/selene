@@ -224,7 +224,7 @@ fn create_uploaded_triangle_mesh(
     {
       let defaults : Array[@render3d_types.Tangent3D] = []
       for _ in 0..<vertex_count {
-        defaults.push({ x: 1.0, y: 0.0, z: 0.0, w: 1.0 })
+        defaults.push({ x: 1.0, y: 0.0, z: 0.0, w: 1.0, })
       }
       to_fixed_tangent_array(defaults)
     },
@@ -234,7 +234,7 @@ fn create_uploaded_triangle_mesh(
       } else {
         let defaults : Array[@render3d_types.Tangent3D] = []
         for _ in 0..<vertex_count {
-          defaults.push({ x: 1.0, y: 0.0, z: 0.0, w: 1.0 })
+          defaults.push({ x: 1.0, y: 0.0, z: 0.0, w: 1.0, })
         }
         to_fixed_tangent_array(defaults)
       }
@@ -443,7 +443,7 @@ fn ensure_offscreen_target_2d(
     return None
   }
   @raylib.set_texture_filter(render_texture.texture(), configured_filter())
-  let created = { render_texture, width, height }
+  let created = { render_texture, width, height, }
   backend.offscreen_targets_2d.set(name, created)
   Some(created)
 }

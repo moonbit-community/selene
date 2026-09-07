@@ -38,7 +38,7 @@ pub struct JointLimits {
 
 ///|
 pub fn JointLimits::JointLimits(min : Double, max : Double) -> JointLimits {
-  { min, max }
+  { min, max, }
 }
 
 ///|
@@ -53,7 +53,7 @@ pub fn JointSoftness::JointSoftness(
   damping_ratio : Double,
   natural_frequency : Double,
 ) -> JointSoftness {
-  { damping_ratio, natural_frequency }
+  { damping_ratio, natural_frequency, }
 }
 
 ///|

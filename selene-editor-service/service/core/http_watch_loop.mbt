@@ -73,7 +73,7 @@ pub async fn EditorService::watch_loop(self : EditorService) -> Unit {
         }
         for path in sort_unique_paths(scene_paths) {
           let state = scene_disk_state(project.root, path) catch {
-            _ => { hash: "", revision: 0 }
+            _ => { hash: "", revision: 0, }
           }
           self.broadcast(
             @shared.event_envelope(

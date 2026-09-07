@@ -472,7 +472,7 @@ fn read_accessor_tangent(
   }
   let output : Array[@render3d.Tangent3D] = []
   for _ in 0..<accessor.count {
-    output.push({ x: 1.0, y: 0.0, z: 0.0, w: 1.0 })
+    output.push({ x: 1.0, y: 0.0, z: 0.0, w: 1.0, })
   }
   if resolve_accessor_bytes(accessor, buffers, buffer_views)
     is Some((bytes, base_offset, stride, view_end)) {
@@ -519,7 +519,7 @@ fn read_accessor_tangent(
       guard (x, y, z, w) is (Some(px), Some(py), Some(pz), Some(pw)) else {
         return None
       }
-      output[idx] = { x: px, y: py, z: pz, w: pw }
+      output[idx] = { x: px, y: py, z: pz, w: pw, }
     }
   }
   if accessor.sparse is Some(sparse) {
@@ -580,7 +580,7 @@ fn read_accessor_tangent(
       guard (x, y, z, w) is (Some(px), Some(py), Some(pz), Some(pw)) else {
         return None
       }
-      output[target_index] = { x: px, y: py, z: pz, w: pw }
+      output[target_index] = { x: px, y: py, z: pz, w: pw, }
     }
   }
   Some(output)

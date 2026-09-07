@@ -20,7 +20,7 @@ fn test_loaded_model(
     Some(session) => session
     None => empty_scene_session("scenes/main.scene.json")
   }
-  { ..loaded, scene_session: Some({ ..session, dirty, }) }
+  { ..loaded, scene_session: Some({ ..session, dirty, }), }
 }
 
 ///|
@@ -110,7 +110,7 @@ test "project load restores workspace sidebar layout and asset scope" {
 
 ///|
 test "committing sidebar layout persists workspace once" {
-  let base = { ..new_model(), current_root: Some("/tmp/demo") }
+  let base = { ..new_model(), current_root: Some("/tmp/demo"), }
   let (_drag_effects, dragged) = update(
     msg_set_sidebar_layout(0.31, 0.43),
     base,
@@ -133,7 +133,7 @@ test "committing sidebar layout persists workspace once" {
 
 ///|
 test "setting asset scope persists workspace and updates model scope" {
-  let base = { ..new_model(), current_root: Some("/tmp/demo") }
+  let base = { ..new_model(), current_root: Some("/tmp/demo"), }
   let (effects, next) = update(msg_set_asset_scope(Atlases), base)
   inspect(next.workspace.asset_scope_or_default(), content="atlases")
   inspect(

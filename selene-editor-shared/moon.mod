@@ -1,9 +1,9 @@
 name = "Milky2018/selene_editor_shared"
 
-version = "0.37.1"
+version = "0.37.2"
 
 import {
-  "Milky2018/selene@0.37.1",
+  "Milky2018/selene@0.37.2",
 }
 
 readme = "README.md"

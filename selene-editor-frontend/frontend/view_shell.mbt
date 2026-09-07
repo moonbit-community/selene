@@ -662,12 +662,24 @@ fn view(
 ///|
 #warnings("-alert_unstable")
 pub fn start() -> Unit {
-  let (dispatch, root) = @rabbita.cell_with_emit(
-    model=@app.new_model(),
-    update~,
-    view~,
-  )
-  let app = @rabbita.new(root)
-  app.with_init(dispatch(@app.msg_initialize()))
-  app.mount("app")
+  let root = () => {
+    let (model, dispatch) = @rabbita.create_state_with_init(
+      init=emit => (EditorState(@app.new_model()), emit(@app.msg_initialize())),
+      update=(state, msg, emit) => {
+        let (cmd, model) = update(emit, msg, state.0)
+        (EditorState(model), cmd)
+      },
+    )
+    model.map(state => view(dispatch, state.0))
+  }
+  @rabbita.new(root).mount("app")
+}
+
+///|
+// Preserve the previous cell's render-on-every-update behavior for mutable models.
+priv struct EditorState(@app.Model)
+
+///|
+impl Eq for EditorState with fn equal(_, _) {
+  false
 }

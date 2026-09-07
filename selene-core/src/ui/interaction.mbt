@@ -134,7 +134,7 @@ fn pointer_id_for_touch(id : @inputs.TouchId) -> @inputs.PointerId {
           return @inputs.pointer_event_from_touch(event).id
         }
       }
-      { source: PointerTouch, value: id.value() }
+      { source: PointerTouch, value: id.value(), }
     }
   }
 }
@@ -200,7 +200,7 @@ pub fn focus(entity : @entity.Entity) -> Unit {
   }
   if runtime.focused_entity is Some(current) {
     clear_focus_marker(current)
-    focus_out_event_bus.send({ entity: current })
+    focus_out_event_bus.send({ entity: current, })
   }
   runtime.focused_entity = Some(entity)
   set_focus_marker(entity)
@@ -212,7 +212,7 @@ pub fn blur() -> Unit {
   let runtime = ui_interaction_runtime()
   if runtime.focused_entity is Some(current) {
     clear_focus_marker(current)
-    focus_out_event_bus.send({ entity: current })
+    focus_out_event_bus.send({ entity: current, })
   }
   runtime.focused_entity = None
 }
@@ -683,10 +683,10 @@ fn update_hover_from_mouse(position : @math.Vec2) -> @entity.Entity? {
   let hovered = resolve_pointer_target(position)
   if runtime.hovered_entity != hovered {
     if runtime.hovered_entity is Some(previous) {
-      pointer_leave_event_bus.send({ entity: previous })
+      pointer_leave_event_bus.send({ entity: previous, })
     }
     if hovered is Some(current) {
-      pointer_enter_event_bus.send({ entity: current })
+      pointer_enter_event_bus.send({ entity: current, })
     }
     runtime.hovered_entity = hovered
   }
@@ -697,7 +697,7 @@ fn update_hover_from_mouse(position : @math.Vec2) -> @entity.Entity? {
 fn clear_touch_hover() -> Unit {
   let runtime = ui_interaction_runtime()
   if runtime.hovered_entity is Some(previous) {
-    pointer_leave_event_bus.send({ entity: previous })
+    pointer_leave_event_bus.send({ entity: previous, })
   }
   runtime.hovered_entity = None
 }
@@ -759,7 +759,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
       target_at_release is Some(target) &&
       target == pressed &&
       is_interactive(pressed) {
-      click_event_bus.send({ entity: pressed, button: Left })
+      click_event_bus.send({ entity: pressed, button: Left, })
     }
     runtime.pressed_entity = None
     runtime.pressed_pointer = None
@@ -795,7 +795,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
   if @inputs.is_just_pressed(ArrowUp) ||
     @inputs.is_gamepad_button_just_pressed(Gamepad(0), DPadUp) {
     move_focus(Up)
-    navigation_event_bus.send({ entity: runtime.focused_entity, direction: Up })
+    navigation_event_bus.send({ entity: runtime.focused_entity, direction: Up, })
   }
   if @inputs.is_just_pressed(ArrowDown) ||
     @inputs.is_gamepad_button_just_pressed(Gamepad(0), DPadDown) {
@@ -819,8 +819,8 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
     ) &&
     runtime.focused_entity is Some(target) &&
     is_interactive(target) {
-    click_event_bus.send({ entity: target, button: Left })
-    navigation_event_bus.send({ entity: Some(target), direction: Activate })
+    click_event_bus.send({ entity: target, button: Left, })
+    navigation_event_bus.send({ entity: Some(target), direction: Activate, })
   }
 
   for entity, _button in buttons() {

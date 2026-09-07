@@ -22,7 +22,7 @@ pub(all) struct Area {
 
 ///|
 pub fn Area::Area(filter : CollisionFilter) -> Area {
-  { active: true, filter, contains: Set([]) }
+  { active: true, filter, contains: Set([]), }
 }
 
 ///|
@@ -36,7 +36,7 @@ let area_world_stores : Map[UInt, AreaWorldStore] = Map([])
 ///|
 fn area_world_store() -> AreaWorldStore {
   let world_id = @ecs.require_current_world().id()
-  area_world_stores.get_or_init(world_id, () => { areas: Map([]) })
+  area_world_stores.get_or_init(world_id, () => { areas: Map([]), })
 }
 
 ///|

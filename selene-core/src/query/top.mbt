@@ -38,12 +38,12 @@ pub fn[T] query(
   world : @ecs.World,
   storage : Map[@entity.Entity, T],
 ) -> Query[T] {
-  { world, storage }
+  { world, storage, }
 }
 
 ///|
 pub fn[T] QueryReader::QueryReader() -> QueryReader[T] {
-  { entities: Set([]), entries: Map([]), initialized: false }
+  { entities: Set([]), entries: Map([]), initialized: false, }
 }
 
 ///|
@@ -55,7 +55,7 @@ pub fn[T] QueryReader::reset(self : QueryReader[T]) -> Unit {
 
 ///|
 pub fn[T] QueryDelta::empty() -> QueryDelta[T] {
-  { added: [], removed: [], changed: [] }
+  { added: [], removed: [], changed: [], }
 }
 
 ///|
@@ -100,7 +100,7 @@ pub fn[T : Eq] QueryReader::read(
     }
   }
 
-  { added, removed, changed }
+  { added, removed, changed, }
 }
 
 ///|
@@ -123,12 +123,12 @@ pub fn EntityFilter::passes(
 
 ///|
 pub fn[T] With::to_filter(self : With[T]) -> EntityFilter {
-  { predicate: fn(entity) { self.storage.contains(entity) } }
+  { predicate: fn(entity) { self.storage.contains(entity) }, }
 }
 
 ///|
 pub fn[T] Without::to_filter(self : Without[T]) -> EntityFilter {
-  { predicate: fn(entity) { !self.storage.contains(entity) } }
+  { predicate: fn(entity) { !self.storage.contains(entity) }, }
 }
 
 ///|

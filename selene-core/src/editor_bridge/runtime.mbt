@@ -77,7 +77,7 @@ fn color_of(doc : ColorDoc) -> @render.Color {
 
 ///|
 fn rect_of(doc : RectDoc) -> @math.Rect {
-  { position: Vec2(doc.x, doc.y), size: Vec2(doc.width, doc.height) }
+  { position: Vec2(doc.x, doc.y), size: Vec2(doc.width, doc.height), }
 }
 
 ///|

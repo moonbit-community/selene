@@ -59,7 +59,7 @@ pub fn atlas_overlay_enabled() -> Bool {
 pub fn set_rng_seed(seed : UInt) -> Unit {
   let world_id = current_world_id()
   let mode = deterministic_mode()
-  deterministic_mode_by_world.set(world_id, { ..mode, rng_seed: seed })
+  deterministic_mode_by_world.set(world_id, { ..mode, rng_seed: seed, })
   rng_state_by_world.set(world_id, seed)
 }
 
@@ -128,7 +128,7 @@ fn copy_snapshot(snapshot : @inputs.InputSnapshot) -> @inputs.InputSnapshot {
       middle_button: snapshot.mouse.middle_button,
     },
     mouse_relative_delta: snapshot.mouse_relative_delta,
-    mouse_wheel: { delta: snapshot.mouse_wheel.delta },
+    mouse_wheel: { delta: snapshot.mouse_wheel.delta, },
     touches: copy_map(snapshot.touches),
     touch_changes: copy_array(snapshot.touch_changes),
     connected_gamepads: copy_set(snapshot.connected_gamepads),

@@ -170,7 +170,7 @@ pub(all) struct Physics3DConfig {
 }
 
 ///|
-pub let config : Physics3DConfig = { gravity: Vec3(0.0, -9.81, 0.0) }
+pub let config : Physics3DConfig = { gravity: Vec3(0.0, -9.81, 0.0), }
 
 ///|
 priv struct RigidBodyDesc {
@@ -201,12 +201,12 @@ priv struct ColliderDesc {
 
 ///|
 pub fn Velocity::zero() -> Velocity {
-  { linvel: @math.Vec3::zero(), angvel: @math.Vec3::zero() }
+  { linvel: @math.Vec3::zero(), angvel: @math.Vec3::zero(), }
 }
 
 ///|
 pub fn Damping::default() -> Damping {
-  { linear_damping: 0.0, angular_damping: 0.0 }
+  { linear_damping: 0.0, angular_damping: 0.0, }
 }
 
 ///|

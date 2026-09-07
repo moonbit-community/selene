@@ -15,7 +15,7 @@ pub struct ScenePatch {
 
 ///|
 pub fn ScenePatch::empty() -> ScenePatch {
-  { ops: [] }
+  { ops: [], }
 }
 
 ///|

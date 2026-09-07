@@ -20,7 +20,7 @@ pub(all) struct Pickable {
 
 ///|
 pub fn Pickable::Pickable() -> Pickable {
-  { active: true }
+  { active: true, }
 }
 
 ///|
@@ -34,7 +34,7 @@ let pickable_world_stores : Map[UInt, PickableWorldStore] = Map([])
 ///|
 fn pickable_world_store() -> PickableWorldStore {
   let world_id = @ecs.require_current_world().id()
-  pickable_world_stores.get_or_init(world_id, () => { pickables: Map([]) })
+  pickable_world_stores.get_or_init(world_id, () => { pickables: Map([]), })
 }
 
 ///|
@@ -69,7 +69,7 @@ fn push_pointer_event(
   button : @inputs.MouseButton,
   phase : PointerPhase,
 ) -> Unit {
-  pointer_event_bus.send({ entity, button, phase })
+  pointer_event_bus.send({ entity, button, phase, })
 }
 
 ///|

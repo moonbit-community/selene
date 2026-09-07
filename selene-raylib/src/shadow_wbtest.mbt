@@ -46,11 +46,11 @@ test "raylib directional shadow helper picks enabled lights in frame order" {
 test "raylib directional shadow helper keeps enabled light order within the shader limit" {
   let frame = @render3d_types.empty_render_frame3d()
   frame.directional_lights = [
-    { ..@render3d_types.default_directional_light3d(), shadows: false },
-    { ..@render3d_types.default_directional_light3d(), shadows: true },
-    { ..@render3d_types.default_directional_light3d(), shadows: true },
-    { ..@render3d_types.default_directional_light3d(), shadows: false },
-    { ..@render3d_types.default_directional_light3d(), shadows: true },
+    { ..@render3d_types.default_directional_light3d(), shadows: false, },
+    { ..@render3d_types.default_directional_light3d(), shadows: true, },
+    { ..@render3d_types.default_directional_light3d(), shadows: true, },
+    { ..@render3d_types.default_directional_light3d(), shadows: false, },
+    { ..@render3d_types.default_directional_light3d(), shadows: true, },
   ]
   let indices = shadowed_directional_light_indices(frame)
   inspect(indices.length(), content="2")
@@ -72,7 +72,10 @@ test "raylib directional shadow helper clamps negative bias values" {
 
 ///|
 test "raylib directional shadow helper builds Bevy-aligned cascade bounds" {
-  let light = { ..@render3d_types.default_directional_light3d(), shadows: true }
+  let light = {
+    ..@render3d_types.default_directional_light3d(),
+    shadows: true,
+  }
   let camera : @render3d_types.FrameCamera3D = {
     position: Vec3(0.0, 2.0, 8.0),
     target: Vec3(0.0, 1.0, 0.0),

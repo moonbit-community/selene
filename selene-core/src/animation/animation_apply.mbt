@@ -257,7 +257,7 @@ pub fn texture_atlas_index_field() -> AnimatedFieldHandle {
           guard @sprite.sprites().get(entity) is Some(sprite) else { return }
           guard sprite.texture_atlas is Some(texture_atlas) else { return }
           let next_index = if frame < 0.0 { 0 } else { frame.round().to_int() }
-          let updated_atlas = { ..texture_atlas, index: next_index }
+          let updated_atlas = { ..texture_atlas, index: next_index, }
           @sprite.sprites().set(entity, {
             ..sprite,
             texture_atlas: Some(updated_atlas),

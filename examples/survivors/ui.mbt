@@ -73,13 +73,13 @@ let levelup_buttons : Array[@entity.Entity] = []
 let levelup_button_icons : Array[@entity.Entity] = []
 
 ///|
-let levelup_title_ref : Ref[@entity.Entity?] = { val: None }
+let levelup_title_ref : Ref[@entity.Entity?] = { val: None, }
 
 ///|
-let game_over_title_ref : Ref[@entity.Entity?] = { val: None }
+let game_over_title_ref : Ref[@entity.Entity?] = { val: None, }
 
 ///|
-let restart_button_ref : Ref[@entity.Entity?] = { val: None }
+let restart_button_ref : Ref[@entity.Entity?] = { val: None, }
 
 ///|
 let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = EventReader()

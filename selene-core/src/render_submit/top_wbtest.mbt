@@ -12,11 +12,11 @@ fn test_rect_command(
   position : @math.Vec2,
 ) -> @render2d_types.RectDrawCommand2D {
   {
-    rect: { position, size: Vec2(8.0, 8.0) },
+    rect: { position, size: Vec2(8.0, 8.0), },
     transform: @math.Transform::identity(),
     alpha_mode: Opaque,
     blend_mode: Alpha,
-    fill_color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+    fill_color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
     stroke_color: None,
   }
 }
@@ -90,7 +90,7 @@ test "build_frame2d normalizes offscreen viewport and command coordinates" {
         viewport=Some(CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0))),
         pass=CameraPass2D(
           load_op=Clear,
-          clear_color={ r: 0U, g: 0U, b: 0U, a: 1.0 },
+          clear_color={ r: 0U, g: 0U, b: 0U, a: 1.0, },
           target=Offscreen("minimap"),
         ),
       ),
@@ -146,7 +146,7 @@ test "build_frame2d batches camera ui commands with clip barriers" {
     )
 
     @render2d.push_ui_clip_for_camera(
-      { position: Vec2(0.0, 0.0), size: Vec2(20.0, 20.0) },
+      { position: Vec2(0.0, 0.0), size: Vec2(20.0, 20.0), },
       Some(camera_entity.id()),
     )
     @render2d.push_ui_rect_to_camera(
@@ -183,7 +183,7 @@ test "build_frame2d maps camera offscreen pass target" {
       Camera(
         pass=CameraPass2D(
           load_op=Clear,
-          clear_color={ r: 0U, g: 0U, b: 0U, a: 1.0 },
+          clear_color={ r: 0U, g: 0U, b: 0U, a: 1.0, },
           target=Offscreen("minimap"),
         ),
       ),

@@ -109,12 +109,12 @@ pub fn CollisionGroups::CollisionGroups(
   memberships : Int,
   filters : Int,
 ) -> CollisionGroups {
-  { memberships, filters }
+  { memberships, filters, }
 }
 
 ///|
 pub fn CollisionGroups::all() -> CollisionGroups {
-  { memberships: 0xFFFF_FFFF, filters: 0xFFFF_FFFF }
+  { memberships: 0xFFFF_FFFF, filters: 0xFFFF_FFFF, }
 }
 
 ///|
@@ -122,12 +122,12 @@ pub fn SolverGroups::SolverGroups(
   memberships : Int,
   filters : Int,
 ) -> SolverGroups {
-  { memberships, filters }
+  { memberships, filters, }
 }
 
 ///|
 pub fn SolverGroups::all() -> SolverGroups {
-  { memberships: 0xFFFF_FFFF, filters: 0xFFFF_FFFF }
+  { memberships: 0xFFFF_FFFF, filters: 0xFFFF_FFFF, }
 }
 
 ///|
@@ -162,5 +162,5 @@ pub fn QueryFilter::all() -> QueryFilter {
 
 ///|
 pub fn QueryFilter::only_dynamic() -> QueryFilter {
-  { ..QueryFilter::default(), body_filter: Dynamic }
+  { ..QueryFilter::default(), body_filter: Dynamic, }
 }

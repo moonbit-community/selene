@@ -165,7 +165,7 @@ fn grass_sprite() -> @sprite.Sprite {
   static_region_sprite(
     "assets/survivors/tilesets/decor_16x16.png",
     Vec2(16.0, 16.0),
-    rect=Some({ position: Vec2(0.0, 0.0), size: Vec2(16.0, 16.0) }),
+    rect=Some({ position: Vec2(0.0, 0.0), size: Vec2(16.0, 16.0), }),
     anchor=Anchor(Vec2(-0.5, 0.5)),
   )
 }

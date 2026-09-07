@@ -56,17 +56,17 @@ pub fn RigidBody::dynamic() -> RigidBody {
 
 ///|
 pub fn RigidBody::fixed() -> RigidBody {
-  { ..RigidBody::dynamic(), body_type: Fixed }
+  { ..RigidBody::dynamic(), body_type: Fixed, }
 }
 
 ///|
 pub fn RigidBody::kinematic_position_based() -> RigidBody {
-  { ..RigidBody::dynamic(), body_type: KinematicPositionBased }
+  { ..RigidBody::dynamic(), body_type: KinematicPositionBased, }
 }
 
 ///|
 pub fn RigidBody::kinematic_velocity_based() -> RigidBody {
-  { ..RigidBody::dynamic(), body_type: KinematicVelocityBased }
+  { ..RigidBody::dynamic(), body_type: KinematicVelocityBased, }
 }
 
 ///|
@@ -80,7 +80,7 @@ let rigid_body_world_stores : Map[UInt, RigidBodyWorldStore] = Map([])
 ///|
 fn rigid_body_world_store() -> RigidBodyWorldStore {
   let world_id = @ecs.require_current_world().id()
-  rigid_body_world_stores.get_or_init(world_id, () => { rigid_bodies: Map([]) })
+  rigid_body_world_stores.get_or_init(world_id, () => { rigid_bodies: Map([]), })
 }
 
 ///|

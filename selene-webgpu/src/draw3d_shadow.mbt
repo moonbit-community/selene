@@ -267,7 +267,7 @@ fn directional_shadow_bounds3d(
     }
     previous_far = far_bound
     if far_bound > near_bound {
-      bounds.push({ near_bound, far_bound })
+      bounds.push({ near_bound, far_bound, })
       if far_bound >= far {
         return bounds
       }
@@ -388,7 +388,7 @@ fn camera_basis3d(camera : @render3d_types.FrameCamera3D) -> CameraBasis3D {
   let up = normalize_or3d(camera.up, Vec3(0.0, 1.0, 0.0))
   let right = normalize_or3d(forward.cross(up), Vec3(1.0, 0.0, 0.0))
   let corrected_up = normalize_or3d(right.cross(forward), Vec3(0.0, 1.0, 0.0))
-  { forward, right, up: corrected_up }
+  { forward, right, up: corrected_up, }
 }
 
 ///|

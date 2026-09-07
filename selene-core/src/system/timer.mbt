@@ -20,7 +20,7 @@ priv struct Timer {
 }
 
 ///|
-let timers : Array[Timer] = Array::new()
+let timers : Array[Timer] = Array()
 
 ///|
 /// Schedules a callback function to be executed after a specified time delay.
@@ -50,7 +50,7 @@ pub fn timeout(
   callback : () -> Unit,
   pausible? : Bool = true,
 ) -> Unit {
-  timers.push({ rest: time, pausible, callback })
+  timers.push({ rest: time, pausible, callback, })
 }
 
 ///|

@@ -89,7 +89,7 @@ pub fn migration_field_change(
   reason : String,
   migrated_value : String,
 ) -> MigrationFieldChange {
-  { path, reason, migrated_value }
+  { path, reason, migrated_value, }
 }
 
 ///|
@@ -98,7 +98,7 @@ pub fn project_manifest_migration_preview(
   manifest : ProjectManifest,
   changes : Array[MigrationFieldChange],
 ) -> ProjectManifestMigrationPreview {
-  { path, manifest, changes }
+  { path, manifest, changes, }
 }
 
 ///|
@@ -107,7 +107,7 @@ pub fn scene_migration_preview(
   scene : SceneDocument,
   changes : Array[MigrationFieldChange],
 ) -> SceneMigrationPreview {
-  { path, scene, changes }
+  { path, scene, changes, }
 }
 
 ///|
@@ -116,7 +116,7 @@ pub fn prefab_migration_preview(
   prefab : PrefabDocument,
   changes : Array[MigrationFieldChange],
 ) -> PrefabMigrationPreview {
-  { path, prefab, changes }
+  { path, prefab, changes, }
 }
 
 ///|
@@ -125,7 +125,7 @@ pub fn atlas_asset_migration_preview(
   atlas : AtlasAssetDocument,
   changes : Array[MigrationFieldChange],
 ) -> AtlasAssetMigrationPreview {
-  { path, atlas, changes }
+  { path, atlas, changes, }
 }
 
 ///|
@@ -134,7 +134,7 @@ pub fn animation_clip_asset_migration_preview(
   clip : AnimationClipAssetDocument,
   changes : Array[MigrationFieldChange],
 ) -> AnimationClipAssetMigrationPreview {
-  { path, clip, changes }
+  { path, clip, changes, }
 }
 
 ///|
@@ -143,5 +143,5 @@ pub fn animation_graph_asset_migration_preview(
   graph : AnimationGraphAssetDocument,
   changes : Array[MigrationFieldChange],
 ) -> AnimationGraphAssetMigrationPreview {
-  { path, graph, changes }
+  { path, graph, changes, }
 }

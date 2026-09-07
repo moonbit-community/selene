@@ -30,7 +30,7 @@ fn hex_nibble(char : Char) -> Int? {
 
 ///|
 fn percent_decode_path(path : String) -> String raise {
-  let decoded = StringBuilder::new()
+  let decoded = StringBuilder()
   let chars = path.to_array()
   let mut index = 0
   while index < chars.length() {

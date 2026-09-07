@@ -51,7 +51,7 @@ pub(all) struct UiRectValues {
 ///|
 pub fn UiRectValues::all(value : Double) -> UiRectValues {
   let px = Val::px(value)
-  { left: px, right: px, top: px, bottom: px }
+  { left: px, right: px, top: px, bottom: px, }
 }
 
 ///|
@@ -61,7 +61,7 @@ pub fn UiRectValues::UiRectValues(
   top? : Val = Auto,
   bottom? : Val = Auto,
 ) -> UiRectValues {
-  { left, right, top, bottom }
+  { left, right, top, bottom, }
 }
 
 ///|
@@ -71,7 +71,7 @@ pub fn UiRectValues::px(
   top? : Double = left,
   bottom? : Double = top,
 ) -> UiRectValues {
-  { left: Px(left), right: Px(right), top: Px(top), bottom: Px(bottom) }
+  { left: Px(left), right: Px(right), top: Px(top), bottom: Px(bottom), }
 }
 
 ///|
@@ -84,7 +84,7 @@ pub(all) struct UiInsets {
 
 ///|
 pub fn UiInsets::zero() -> UiInsets {
-  { left: 0.0, right: 0.0, top: 0.0, bottom: 0.0 }
+  { left: 0.0, right: 0.0, top: 0.0, bottom: 0.0, }
 }
 
 ///|
@@ -179,7 +179,7 @@ pub fn GridLine::GridLine(
   start? : GridPlacement = Auto,
   end? : GridPlacement = Auto,
 ) -> GridLine {
-  { start, end }
+  { start, end, }
 }
 
 ///|
@@ -383,17 +383,17 @@ pub(all) struct OverflowClipMargin {
 
 ///|
 pub fn OverflowClipMargin::content_box() -> OverflowClipMargin {
-  { visual_box: ContentBox, margin: 0.0 }
+  { visual_box: ContentBox, margin: 0.0, }
 }
 
 ///|
 pub fn OverflowClipMargin::padding_box() -> OverflowClipMargin {
-  { visual_box: PaddingBox, margin: 0.0 }
+  { visual_box: PaddingBox, margin: 0.0, }
 }
 
 ///|
 pub fn OverflowClipMargin::border_box() -> OverflowClipMargin {
-  { visual_box: BorderBox, margin: 0.0 }
+  { visual_box: BorderBox, margin: 0.0, }
 }
 
 ///|
@@ -401,7 +401,7 @@ pub fn OverflowClipMargin::with_margin(
   self : OverflowClipMargin,
   margin : Double,
 ) -> OverflowClipMargin {
-  { ..self, margin: @cmp.maximum(0.0, margin) }
+  { ..self, margin: @cmp.maximum(0.0, margin), }
 }
 
 ///|
@@ -630,7 +630,7 @@ pub fn UiLayoutSpace::UiLayoutSpace(
   viewport : @math.Rect,
   target_camera? : @entity.Entity? = None,
 ) -> UiLayoutSpace {
-  { target_camera, viewport }
+  { target_camera, viewport, }
 }
 
 ///|
@@ -685,7 +685,7 @@ pub(all) struct ScrollPosition {
 
 ///|
 pub fn ScrollPosition::zero() -> ScrollPosition {
-  { x: 0.0, y: 0.0 }
+  { x: 0.0, y: 0.0, }
 }
 
 ///|
@@ -711,7 +711,7 @@ pub(all) struct Focused {
 
 ///|
 pub fn Focused::Focused() -> Focused {
-  { _tag: () }
+  { _tag: (), }
 }
 
 ///|
@@ -721,7 +721,7 @@ pub(all) struct Focusable {
 
 ///|
 pub fn Focusable::Focusable() -> Focusable {
-  { _tag: () }
+  { _tag: (), }
 }
 
 ///|
@@ -731,7 +731,7 @@ pub(all) struct OverrideClip {
 
 ///|
 pub fn OverrideClip::OverrideClip() -> OverrideClip {
-  { _tag: () }
+  { _tag: (), }
 }
 
 ///|
@@ -742,7 +742,7 @@ pub(all) struct RelativeCursorPosition {
 
 ///|
 pub fn RelativeCursorPosition::RelativeCursorPosition() -> RelativeCursorPosition {
-  { normalized: None, cursor_over: false }
+  { normalized: None, cursor_over: false, }
 }
 
 ///|
@@ -921,7 +921,7 @@ pub fn is_ui_entity(entity : @entity.Entity) -> Bool {
 
 ///|
 fn full_screen_ui_viewport() -> @math.Rect {
-  { position: @math.Vec2::zero(), size: @system.get_screen_size() }
+  { position: @math.Vec2::zero(), size: @system.get_screen_size(), }
 }
 
 ///|

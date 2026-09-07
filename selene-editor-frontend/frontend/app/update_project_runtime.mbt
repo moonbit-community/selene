@@ -18,7 +18,7 @@ fn update_project_runtime(
     OpenProject =>
       (
         [rpc_effect(RpcProjectPickDirectory("Open a Selene project"))],
-        { ..model, status: "Choose a project folder..." },
+        { ..model, status: "Choose a project folder...", },
       )
     ProjectRootPicked(result) => handle_project_root_picked(result, model)
     ProjectLoaded(result) => handle_project_loaded(result, model)
@@ -28,7 +28,7 @@ fn update_project_runtime(
         Some(preview) =>
           (
             [rpc_effect(RpcSceneMigrate(preview.path))],
-            { ..model, status: "Migrating " + preview.path + "..." },
+            { ..model, status: "Migrating " + preview.path + "...", },
           )
         None => ([], model)
       }
@@ -61,7 +61,7 @@ fn update_project_runtime(
       if model.animation_migration_in_progress {
         ([], model)
       } else if model.pending_animation_migration_paths.is_empty() {
-        ([], { ..model, status: "No legacy animation files to migrate" })
+        ([], { ..model, status: "No legacy animation files to migrate", })
       } else {
         let scene_path = model.pending_animation_migration_scene_path.unwrap_or(
           model_scene_path(model),
@@ -194,14 +194,14 @@ fn update_project_runtime(
             manifest,
             scene_refs: response.scenes,
             scene_session: model.scene_session.map(fn(session) {
-              { ..session, path: next_scene_path }
+              { ..session, path: next_scene_path, }
             }),
           }
           ([], next)
         }
         AsyncErr(message) => {
           let next = push_log(model, "Scene list failed: " + message)
-          ([], { ..next, status: "Scene list failed: " + message })
+          ([], { ..next, status: "Scene list failed: " + message, })
         }
       }
     AssetsLoaded(result) =>
@@ -209,7 +209,7 @@ fn update_project_runtime(
         AsyncOk(response) => {
           let selected_resource = match model.selected_resource {
             Some(selection) if resource_exists(
-                { ..model, assets: response.assets },
+                { ..model, assets: response.assets, },
                 selection,
               ) => Some(selection)
             _ => None
@@ -229,7 +229,7 @@ fn update_project_runtime(
         }
         AsyncErr(message) => {
           let next = push_log(model, "Assets load failed: " + message)
-          ([], { ..next, status: "Assets load failed: " + message })
+          ([], { ..next, status: "Assets load failed: " + message, })
         }
       }
     PrefabLoaded(result) =>
@@ -241,7 +241,7 @@ fn update_project_runtime(
         }
         AsyncErr(message) => {
           let next = push_log(model, "Prefab load failed: " + message)
-          ([], { ..next, status: "Prefab load failed: " + message })
+          ([], { ..next, status: "Prefab load failed: " + message, })
         }
       }
     AtlasLoaded(result) =>
@@ -254,7 +254,7 @@ fn update_project_runtime(
         }
         AsyncErr(message) => {
           let next = push_log(model, "Atlas load failed: " + message)
-          ([], { ..next, status: "Atlas load failed: " + message })
+          ([], { ..next, status: "Atlas load failed: " + message, })
         }
       }
     AnimationClipLoaded(result) =>
@@ -267,7 +267,7 @@ fn update_project_runtime(
         }
         AsyncErr(message) => {
           let next = push_log(model, "Animation clip load failed: " + message)
-          ([], { ..next, status: "Animation clip load failed: " + message })
+          ([], { ..next, status: "Animation clip load failed: " + message, })
         }
       }
     AnimationGraphLoaded(result) =>
@@ -280,7 +280,7 @@ fn update_project_runtime(
         }
         AsyncErr(message) => {
           let next = push_log(model, "Animation graph load failed: " + message)
-          ([], { ..next, status: "Animation graph load failed: " + message })
+          ([], { ..next, status: "Animation graph load failed: " + message, })
         }
       }
     AssetSizeResolved(path, width, height) =>
@@ -289,7 +289,7 @@ fn update_project_runtime(
         asset_sizes.set(path, @editor_bridge.vec2_doc(width, height))
         let failed_image_assets = model.failed_image_assets
         failed_image_assets.remove(path) |> ignore
-        ([], { ..model, asset_sizes, failed_image_assets })
+        ([], { ..model, asset_sizes, failed_image_assets, })
       } else {
         ([], model)
       }
@@ -302,7 +302,7 @@ fn update_project_runtime(
       let trimmed = value.trim().to_owned()
       let next_selected_resource = match model.selected_resource {
         Some(selection) => {
-          let preview_model = { ..model, asset_query: value }
+          let preview_model = { ..model, asset_query: value, }
           let visible = visible_resources_in_order(preview_model)
           if resource_index(visible, selection) is Some(_) {
             Some(selection)
@@ -337,7 +337,7 @@ fn update_project_runtime(
             [],
             {
               ..model,
-              scene_session: Some({ ..session, conflict_state: NoConflict }),
+              scene_session: Some({ ..session, conflict_state: NoConflict, }),
               status: "Keeping local scene edits",
             },
           )
@@ -350,7 +350,7 @@ fn update_project_runtime(
             [rpc_effect(RpcSceneLoad(session.path))],
             {
               ..model,
-              scene_session: Some({ ..session, conflict_state: NoConflict }),
+              scene_session: Some({ ..session, conflict_state: NoConflict, }),
               status: "Reloading scene from disk...",
             },
           )
@@ -362,7 +362,7 @@ fn update_project_runtime(
           let trimmed = path.trim().to_owned()
           if trimmed == "" {
             let next = push_log(model, "Save As path is required")
-            ([], { ..next, status: "Save As path is required" })
+            ([], { ..next, status: "Save As path is required", })
           } else {
             let save_path = if trimmed.has_suffix(".scene.json") {
               trimmed
@@ -408,7 +408,7 @@ fn update_project_runtime(
         AsyncOk(_) => ([], model)
         AsyncErr(message) => {
           let next = push_log(model, "Request failed: " + message)
-          ([], { ..next, status: "Request failed: " + message })
+          ([], { ..next, status: "Request failed: " + message, })
         }
       }
     ServiceEvent(result) => handle_service_event(result, model)

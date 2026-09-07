@@ -350,9 +350,9 @@ fn parse_mesh_asset(
     return parsed_triangle_mesh
   }
   if parse_mesh_asset_from_extras(mesh_object, primitive_object) is Some(asset) {
-    return { mesh: asset, skinned: None }
+    return { mesh: asset, skinned: None, }
   }
-  { mesh: @render3d.cube_mesh(@math.Vec3::one()), skinned: None }
+  { mesh: @render3d.cube_mesh(@math.Vec3::one()), skinned: None, }
 }
 
 ///|

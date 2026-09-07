@@ -143,7 +143,7 @@ fn pack_image_vertices2d_raw(
   push_tex_vertex2d(vertices, p0x, p0y, tu0, tv0, r, g, b, a)
   push_tex_vertex2d(vertices, p2x, p2y, tu1b, tv1, r, g, b, a)
   push_tex_vertex2d(vertices, p3x, p3y, tu0b, tv1b, r, g, b, a)
-  { vertices, sampler_code }
+  { vertices, sampler_code, }
 }
 
 ///|
@@ -165,7 +165,7 @@ fn pack_text_vertices2d(
     Top => ()
   }
   pack_text_vertices2d_raw(
-    { position: Vec2(x, y), size: Vec2(texture_width, texture_height) },
+    { position: Vec2(x, y), size: Vec2(texture_width, texture_height), },
     command.transform,
   )
 }

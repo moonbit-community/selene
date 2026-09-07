@@ -25,7 +25,7 @@ pub fn CameraViewport::CameraViewport(
 ) -> CameraViewport {
   let width = if size[X] < 0.0 { 0.0 } else { size[X] }
   let height = if size[Y] < 0.0 { 0.0 } else { size[Y] }
-  { position, size: Vec2(width, height) }
+  { position, size: Vec2(width, height), }
 }
 
 ///|
@@ -35,7 +35,7 @@ pub fn CameraViewport::from_rect(rect : @math.Rect) -> CameraViewport {
 
 ///|
 pub fn CameraViewport::rect(self : CameraViewport) -> @math.Rect {
-  { position: self.position, size: self.size }
+  { position: self.position, size: self.size, }
 }
 
 ///|
@@ -59,7 +59,7 @@ pub(all) struct CameraPass2D {
 
 ///|
 fn default_camera_clear_color() -> @render.Color {
-  { r: 0U, g: 0U, b: 0U, a: 1.0 }
+  { r: 0U, g: 0U, b: 0U, a: 1.0, }
 }
 
 ///|
@@ -68,7 +68,7 @@ pub fn CameraPass2D::CameraPass2D(
   clear_color? : @render.Color = default_camera_clear_color(),
   target? : CameraPassTarget2D = Screen,
 ) -> CameraPass2D {
-  { load_op, clear_color, target }
+  { load_op, clear_color, target, }
 }
 
 ///|
@@ -86,7 +86,7 @@ pub fn Camera::Camera(
   viewport? : CameraViewport? = None,
   pass? : CameraPass2D = CameraPass2D(),
 ) -> Camera {
-  { is_active, order, viewport, pass }
+  { is_active, order, viewport, pass, }
 }
 
 ///|
@@ -100,7 +100,7 @@ pub(all) struct Camera2d {} derive(Eq, Debug)
 ///|
 #warnings("-unnecessary_annotation")
 pub fn Camera2d::Camera2d() -> Camera2d {
-  Camera2d::{  }
+  Camera2d::{ }
 }
 
 ///|
@@ -121,7 +121,7 @@ pub fn OrthographicProjection::OrthographicProjection(
   near? : Double = -1000.0,
   far? : Double = 1000.0,
 ) -> OrthographicProjection {
-  { near, far, scale: projection_scale(scale) }
+  { near, far, scale: projection_scale(scale), }
 }
 
 ///|
@@ -175,7 +175,7 @@ fn projection_scale(scale : Double) -> Double {
 
 ///|
 fn full_screen_viewport_rect() -> @math.Rect {
-  { position: @math.Vec2::zero(), size: @system.get_screen_size() }
+  { position: @math.Vec2::zero(), size: @system.get_screen_size(), }
 }
 
 ///|

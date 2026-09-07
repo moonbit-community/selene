@@ -93,7 +93,7 @@ fn update_inspector_components(
         },
       )
     SetComponentSearchQuery(value) =>
-      ([], { ..model, component_search_query: value })
+      ([], { ..model, component_search_query: value, })
     ToggleComponentCollapsed(kind) =>
       match model.selected_entity_id {
         Some(entity_id) =>
@@ -147,11 +147,11 @@ fn update_inspector_components(
       } catch {
         ComponentEditFailed(message) => {
           let next = push_log(model, message)
-          ([], { ..next, status: message, open_component_menu_kind: None })
+          ([], { ..next, status: message, open_component_menu_kind: None, })
         }
       }
     UpdateAddCustomComponentKind(value) =>
-      ([], { ..model, add_custom_component_kind: value })
+      ([], { ..model, add_custom_component_kind: value, })
     AddCustomComponent(raw_kind) =>
       match model.selected_entity() {
         Some(entity) => {
@@ -160,7 +160,11 @@ fn update_inspector_components(
               let next = push_log(model, message)
               return (
                 [],
-                { ..next, status: message, add_custom_component_kind: raw_kind },
+                {
+                  ..next,
+                  status: message,
+                  add_custom_component_kind: raw_kind,
+                },
               )
             }
           }
@@ -255,7 +259,7 @@ fn update_inspector_components(
                   custom_component_json_errors.set(key, message)
                   (
                     [],
-                    { ..model, custom_component_json_errors, status: message },
+                    { ..model, custom_component_json_errors, status: message, },
                   )
                 }
               }
@@ -265,7 +269,7 @@ fn update_inspector_components(
                 model,
                 kind + " does not exist on this entity",
               )
-              ([], { ..next, status: kind + " does not exist on this entity" })
+              ([], { ..next, status: kind + " does not exist on this entity", })
             }
           }
         None => ([], model)
@@ -281,7 +285,7 @@ fn update_inspector_components(
         Some((path, prefab)) =>
           (
             [rpc_effect(RpcPrefabSave(path, prefab))],
-            { ..model, status: "Saving prefab..." },
+            { ..model, status: "Saving prefab...", },
           )
         None => ([], model)
       }
@@ -396,7 +400,7 @@ fn update_inspector_components(
         Some((path, atlas)) =>
           (
             [rpc_effect(RpcAtlasSave(path, atlas))],
-            { ..model, status: "Saving atlas..." },
+            { ..model, status: "Saving atlas...", },
           )
         None => ([], model)
       }
@@ -627,7 +631,7 @@ fn update_inspector_components(
       let rule_set = autotile_rule_set_from_string(value) catch {
         InvalidInspectorInput(message) => {
           let next = push_log(model, message)
-          return ([], { ..next, status: message })
+          return ([], { ..next, status: message, })
         }
       }
       let staged = with_started_scene_edit_transaction(

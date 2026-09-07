@@ -32,14 +32,14 @@ pub struct CollisionFilter {
 } derive(Eq)
 
 ///|
-let collision_group_generator : Ref[UInt] = { val: 0 }
+let collision_group_generator : Ref[UInt] = { val: 0, }
 
 ///|
 /// Creates a new collision group with a unique identifier.
 pub fn CollisionGroup::CollisionGroup() -> CollisionGroup {
   let group = collision_group_generator.val
   collision_group_generator.val += 1
-  { value: group }
+  { value: group, }
 }
 
 ///|
@@ -49,19 +49,19 @@ pub fn CollisionFilter::CollisionFilter(
   group : CollisionGroup,
   mask : Array[CollisionGroup],
 ) -> CollisionFilter {
-  { group, mask, match_all: false }
+  { group, mask, match_all: false, }
 }
 
 ///|
 /// Creates a collision filter that cannot interact with any group.
 pub fn CollisionFilter::empty(group : CollisionGroup) -> CollisionFilter {
-  { group, mask: [], match_all: false }
+  { group, mask: [], match_all: false, }
 }
 
 ///|
 /// Creates a collision filter that can interact with every group.
 pub fn CollisionFilter::all(group : CollisionGroup) -> CollisionFilter {
-  { group, mask: [], match_all: true }
+  { group, mask: [], match_all: true, }
 }
 
 ///|

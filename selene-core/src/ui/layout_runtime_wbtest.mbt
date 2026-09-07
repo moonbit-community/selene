@@ -71,7 +71,7 @@ test "retained UI stacking changes do not reproject or relayout" {
   assert_eq(runtime.projection_revision, projection_revision)
   assert_eq(runtime.stacking_revision, stacking_revision + 1U)
 
-  @visibility.view_visibilities().set(entity, { visible: false })
+  @visibility.view_visibilities().set(entity, { visible: false, })
   ui_layout_system(0.0)
   assert_eq(runtime.layout_revision, layout_revision)
   assert_eq(runtime.projection_revision, projection_revision)
@@ -114,7 +114,7 @@ test "retained UI projection changes do not rebuild layout or stacking" {
   let projection_revision = runtime.projection_revision
   let stacking_revision = runtime.stacking_revision
 
-  scroll_positions().set(root, { x: 10.0, y: 0.0 })
+  scroll_positions().set(root, { x: 10.0, y: 0.0, })
   ui_layout_system(0.0)
   assert_eq(runtime.layout_revision, layout_revision)
   assert_eq(runtime.projection_revision, projection_revision + 1U)
@@ -167,7 +167,7 @@ test "retained UI compares normalized Chicle styles" {
   let stacking_revision = runtime.stacking_revision
 
   let node = nodes().get(entity).unwrap()
-  nodes().set(entity, { ..node, margin: UiRectValues::all(-8.0) })
+  nodes().set(entity, { ..node, margin: UiRectValues::all(-8.0), })
   ui_layout_system(0.0)
   assert_eq(runtime.layout_revision, layout_revision)
   assert_eq(runtime.projection_revision, projection_revision)
@@ -175,7 +175,7 @@ test "retained UI compares normalized Chicle styles" {
   assert_false(runtime.tree.dirty(root.node_id))
 
   let node = nodes().get(entity).unwrap()
-  nodes().set(entity, { ..node, width: Val::px(120.0) })
+  nodes().set(entity, { ..node, width: Val::px(120.0), })
   ui_layout_system(0.0)
   assert_eq(runtime.layout_revision, layout_revision + 1U)
   assert_eq(runtime.projection_revision, projection_revision + 1U)

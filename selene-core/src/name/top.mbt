@@ -14,7 +14,7 @@ let name_world_stores : Map[UInt, NameWorldStore] = Map([])
 ///|
 fn name_world_store() -> NameWorldStore {
   let world_id = @ecs.require_current_world().id()
-  name_world_stores.get_or_init(world_id, () => { names: Map([]) })
+  name_world_stores.get_or_init(world_id, () => { names: Map([]), })
 }
 
 ///|

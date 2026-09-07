@@ -15,6 +15,14 @@
 
 ### Removed
 
+## [0.37.2] - 2026-09-07
+
+### Changed
+
+- Updated dependencies and migrated deprecated MoonBit syntax and trait method promotion.
+- Adapted XML events, AccessKit tree construction, and browser pointer coordinates to current APIs.
+- Used FixedArray at JavaScript FFI boundaries and migrated editor initialization to Rabbita state components.
+
 ## [0.37.1] - 2026-07-27
 
 ### Added

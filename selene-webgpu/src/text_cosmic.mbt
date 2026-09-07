@@ -244,7 +244,7 @@ fn rasterize_with_cosmic(
     pixels[idx + 2] = b
     pixels[idx + 3] = a
   }
-  Some({ width, height, pixels })
+  Some({ width, height, pixels, })
 }
 
 ///|
@@ -268,7 +268,7 @@ fn draw_text_with_cosmic(command : @render2d_types.TextDrawCommand2D) -> Bool {
           ) {
           return false
         }
-        cosmic_text_cache.set(key, { width: image.width, height: image.height })
+        cosmic_text_cache.set(key, { width: image.width, height: image.height, })
       }
       None => return false
     }

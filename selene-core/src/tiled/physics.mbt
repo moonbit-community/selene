@@ -670,7 +670,7 @@ fn tiled_merge_rect_spec(
     ) =>
       match
         tiled_merge_rects(left_offset, left_size, right_offset, right_size) {
-        Some((offset, size)) => Some({ ..left, shape: Rect(size~, offset~) })
+        Some((offset, size)) => Some({ ..left, shape: Rect(size~, offset~), })
         None => None
       }
     _ => None
@@ -782,7 +782,7 @@ fn tiled_physics_body(
   if angular_damping is Some(angular_damping) {
     body = { ..body, angular_damping, }
   }
-  body = { ..body, ccd_enabled, lock_rotation }
+  body = { ..body, ccd_enabled, lock_rotation, }
   Some(body)
 }
 

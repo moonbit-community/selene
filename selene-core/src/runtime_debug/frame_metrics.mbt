@@ -73,7 +73,7 @@ pub fn note_render(
   }
   frame_metrics_by_world.set(world_id, next_metrics)
   let history = frame_metrics_history_by_world.get_or_init(world_id, () => [])
-  history.push({ ..next_metrics })
+  history.push({ ..next_metrics, })
   let max_samples = 120
   if history.length() > max_samples {
     let retained = history.copy()
@@ -87,7 +87,7 @@ pub fn note_render(
 
 ///|
 pub fn latest_metrics() -> FramePerformanceMetrics {
-  { ..ensure_metrics() }
+  { ..ensure_metrics(), }
 }
 
 ///|

@@ -29,7 +29,7 @@ let sprite_world_stores : Map[UInt, SpriteWorldStore] = Map([])
 ///|
 fn sprite_world_store() -> SpriteWorldStore {
   let world_id = @ecs.require_current_world().id()
-  sprite_world_stores.get_or_init(world_id, fn() { { sprites: Map([]) } })
+  sprite_world_stores.get_or_init(world_id, fn() { { sprites: Map([]), } })
 }
 
 ///|
@@ -138,7 +138,7 @@ pub fn render_sprite_system(delta : Double) -> Unit {
     )
     let world_bounds = @camera.transformed_rect_bounds(
       world_pos,
-      { position: @math.Vec2::zero(), size },
+      { position: @math.Vec2::zero(), size, },
       @camera.world_transform_2d(global_transform) * local_transform,
     )
     let camera_views_for_entity = camera_extract.camera_views_for_bounds(
@@ -165,7 +165,7 @@ pub fn render_sprite_system(delta : Double) -> Unit {
       )
       let bounds = @camera.transformed_rect_bounds(
         screen_position,
-        { position: @math.Vec2::zero(), size },
+        { position: @math.Vec2::zero(), size, },
         screen_transform,
       )
       guard camera_view.intersects_screen_rect(bounds) else { continue }
@@ -198,7 +198,7 @@ fn push_sprite_draw_command(
     Some(image) => {
       let command : @render2d_types.ImageDrawCommand2D = {
         image,
-        destination: { position: snapped_pos, size },
+        destination: { position: snapped_pos, size, },
         source: sprite_image_region(sprite),
         transform,
         uv_transform: @math.Transform::identity(),
@@ -227,7 +227,7 @@ fn push_sprite_draw_command(
     }
     None => {
       let command : @render2d_types.RectDrawCommand2D = {
-        rect: { position: snapped_pos, size },
+        rect: { position: snapped_pos, size, },
         transform,
         alpha_mode: sprite_alpha_mode(sprite),
         blend_mode: sprite_blend_mode(sprite),
@@ -284,10 +284,10 @@ fn sprite_image_region(sprite : Sprite) -> @render2d_types.ImageRegion2D? {
   match sprite.texture_atlas {
     Some(texture_atlas) =>
       texture_atlas_rect(texture_atlas).map(fn(rect) {
-        { position: rect.position, size: rect.size }
+        { position: rect.position, size: rect.size, }
       })
     None =>
-      sprite.rect.map(fn(rect) { { position: rect.position, size: rect.size } })
+      sprite.rect.map(fn(rect) { { position: rect.position, size: rect.size, } })
   }
 }
 

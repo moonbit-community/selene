@@ -159,7 +159,7 @@ fn instantiate_scene_node(
         target_entity: entity,
         mesh: renderer.mesh,
         skin_index,
-        skinned: { ..skinned, morph_weights: node.morph_weights.copy() },
+        skinned: { ..skinned, morph_weights: node.morph_weights.copy(), },
       })
     } else if template_renderer.skinned is Some(skinned) &&
       skinned.morph_targets.length() > 0 {
@@ -197,7 +197,7 @@ fn instantiate_scene_node(
           target_entity: entity,
           mesh: renderer.mesh,
           skin_index,
-          skinned: { ..skinned, morph_weights: node.morph_weights.copy() },
+          skinned: { ..skinned, morph_weights: node.morph_weights.copy(), },
         })
       } else if template_renderer.skinned is Some(skinned) &&
         skinned.morph_targets.length() > 0 {
@@ -305,7 +305,7 @@ fn parse_glb_source(bytes : Bytes) -> GltfSource? {
     offset = chunk_end
   }
   match json_document {
-    Some(document) => Some({ document, glb_buffers })
+    Some(document) => Some({ document, glb_buffers, })
     None => None
   }
 }
@@ -332,7 +332,7 @@ fn parse_gltf_source(bytes : Bytes) -> GltfSource? {
   }
   let source = @utf8.decode(bytes) catch { _ => return None }
   let document = @json.parse(source) catch { _ => return None }
-  Some({ document, glb_buffers: [] })
+  Some({ document, glb_buffers: [], })
 }
 
 ///|
@@ -363,7 +363,7 @@ fn parse_scene_template(path : String, source : GltfSource) -> SceneTemplate {
   let animations = parse_animation_clips(
     root_object, buffers, buffer_views, accessors, nodes, roots,
   )
-  { roots, nodes, skins, animations }
+  { roots, nodes, skins, animations, }
 }
 
 ///|
@@ -378,7 +378,7 @@ fn parse_skin_templates(
   let output : Array[SkinTemplate] = []
   for skin_json in skins {
     guard json_object(skin_json) is Some(skin_object) else {
-      output.push({ joints: [], inverse_bind_matrices: [] })
+      output.push({ joints: [], inverse_bind_matrices: [], })
       continue
     }
     let joints = match field_array(skin_object, "joints") {
@@ -404,7 +404,7 @@ fn parse_skin_templates(
     while matrices.length() < joints.length() {
       matrices.push(@math.Mat4::identity())
     }
-    output.push({ joints, inverse_bind_matrices: matrices })
+    output.push({ joints, inverse_bind_matrices: matrices, })
   }
   output
 }

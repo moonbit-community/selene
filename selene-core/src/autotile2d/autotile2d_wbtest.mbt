@@ -1,6 +1,6 @@
 ///|
 fn mask_rule(mask : Int, name : String) -> AutoTileMaskRule {
-  { mask, region_name: name, atlas_index: mask }
+  { mask, region_name: name, atlas_index: mask, }
 }
 
 ///|
@@ -12,7 +12,7 @@ fn wang_rule(
   name : String,
   index : Int,
 ) -> AutoTileWangRule {
-  { north, east, south, west, region_name: name, atlas_index: index }
+  { north, east, south, west, region_name: name, atlas_index: index, }
 }
 
 ///|
@@ -74,18 +74,18 @@ test "bitmask4 solves all neighbor directions deterministically" {
     },
   ]
   for mask = 0; mask < 16; mask = mask + 1 {
-    let cells : Array[AutoTileCell] = [{ x: 0, y: 0, terrain: 1 }]
+    let cells : Array[AutoTileCell] = [{ x: 0, y: 0, terrain: 1, }]
     if (mask & 1) != 0 {
-      cells.push({ x: 0, y: -1, terrain: 1 })
+      cells.push({ x: 0, y: -1, terrain: 1, })
     }
     if (mask & 2) != 0 {
-      cells.push({ x: 1, y: 0, terrain: 1 })
+      cells.push({ x: 1, y: 0, terrain: 1, })
     }
     if (mask & 4) != 0 {
-      cells.push({ x: 0, y: 1, terrain: 1 })
+      cells.push({ x: 0, y: 1, terrain: 1, })
     }
     if (mask & 8) != 0 {
-      cells.push({ x: -1, y: 0, terrain: 1 })
+      cells.push({ x: -1, y: 0, terrain: 1, })
     }
     let source = test_source(Bitmask4, palette, cells)
     let solved = solve_autotile_layer(source)
@@ -110,10 +110,10 @@ test "bitmask8 supports corner-aware diagonal masking" {
     },
   ]
   let source = test_source(Bitmask8, palette, [
-    { x: 0, y: 0, terrain: 2 },
-    { x: 0, y: -1, terrain: 2 },
-    { x: 1, y: 0, terrain: 2 },
-    { x: 1, y: -1, terrain: 2 },
+    { x: 0, y: 0, terrain: 2, },
+    { x: 0, y: -1, terrain: 2, },
+    { x: 1, y: 0, terrain: 2, },
+    { x: 1, y: -1, terrain: 2, },
   ])
   let solved = solve_autotile_layer(source)
   inspect(solved_name_at(solved, 0, 0), content="m7")
@@ -185,9 +185,9 @@ test "wang rules are matched by cardinal neighbor terrains" {
     },
   ]
   let source = test_source(Wang, palette, [
-    { x: 0, y: 0, terrain: 5 },
-    { x: 1, y: 0, terrain: 3 },
-    { x: -1, y: 0, terrain: 4 },
+    { x: 0, y: 0, terrain: 5, },
+    { x: 1, y: 0, terrain: 3, },
+    { x: -1, y: 0, terrain: 4, },
   ])
   let solved = solve_autotile_layer(source)
   inspect(solved_name_at(solved, 0, 0), content="wang-0-3-0-4")
@@ -226,8 +226,8 @@ test "update_cell_and_resolve_diff only changes local neighborhood" {
     },
   ]
   let source = test_source(Bitmask4, palette, [
-    { x: 0, y: 0, terrain: 1 },
-    { x: 1, y: 0, terrain: 1 },
+    { x: 0, y: 0, terrain: 1, },
+    { x: 1, y: 0, terrain: 1, },
   ])
   let diff = update_cell_and_resolve_diff(source, 2, 0, Some(1))
   inspect(diff.source.cells.length(), content="3")

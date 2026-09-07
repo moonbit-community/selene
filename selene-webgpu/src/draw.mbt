@@ -282,7 +282,7 @@ pub fn render3d_last_submission_stats() -> Render3DSubmissionStatsSnapshot {
 
 ///|
 pub fn webgpu_last_render3d_timing() -> WebGpuRender3DTimingSnapshot {
-  { ..last_render3d_timing.val }
+  { ..last_render3d_timing.val, }
 }
 
 ///|
@@ -364,7 +364,7 @@ pub fn render2d_begin_pass(
   if load_op is Clear {
     let clear_viewport = match target {
       Screen => viewport
-      Offscreen(_) => { position: @smath.Vec2::zero(), size: viewport.size }
+      Offscreen(_) => { position: @smath.Vec2::zero(), size: viewport.size, }
     }
     webgpu_push_color_vertices_2d(
       pack_rect_fill_vertices2d(clear_viewport, Transform(), clear_color),
@@ -1326,7 +1326,7 @@ fn begin_webgpu_resource_frame() -> Unit {
 
 ///|
 fn new_lit_primitive_mesh_batch_accumulator() -> LitPrimitiveMeshBatchAccumulator {
-  { order: [], indices: Map([]), entries: [] }
+  { order: [], indices: Map([]), entries: [], }
 }
 
 ///|
@@ -2373,7 +2373,7 @@ fn rotate_tangents3d(
     } else {
       rotated
     }
-    transformed.push({ x: safe.x, y: safe.y, z: safe.z, w: tangent.w })
+    transformed.push({ x: safe.x, y: safe.y, z: safe.z, w: tangent.w, })
   }
   transformed
 }
@@ -2858,7 +2858,7 @@ fn resolve_mesh_tangents(
     _ => {
       let tangents : Array[@render3d_types.Tangent3D] = []
       for _ in 0..<mesh.positions.length() {
-        tangents.push({ x: 1.0, y: 0.0, z: 0.0, w: 1.0 })
+        tangents.push({ x: 1.0, y: 0.0, z: 0.0, w: 1.0, })
       }
       tangents
     }
@@ -3009,9 +3009,9 @@ fn resolve_material_texture_input(
             ),
             sampler_code: source.sampler_code,
           }
-        _ => { path: "", uvs: fallback_uvs, sampler_code: 0 }
+        _ => { path: "", uvs: fallback_uvs, sampler_code: 0, }
       }
-    None => { path: "", uvs: fallback_uvs, sampler_code: 0 }
+    None => { path: "", uvs: fallback_uvs, sampler_code: 0, }
   }
 }
 
@@ -3067,7 +3067,7 @@ fn effective_material_color(
   material : @render3d_types.StandardMaterial3D,
 ) -> @render.Color {
   match material.alpha_mode {
-    Opaque => { ..material.base_color, a: 1.0 }
+    Opaque => { ..material.base_color, a: 1.0, }
     _ => material.base_color
   }
 }

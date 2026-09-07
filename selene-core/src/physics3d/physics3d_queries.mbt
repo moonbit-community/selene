@@ -1,11 +1,11 @@
 ///|
 pub fn QueryFilter::only_fixed() -> QueryFilter {
-  { ..QueryFilter::default(), body_filter: Fixed }
+  { ..QueryFilter::default(), body_filter: Fixed, }
 }
 
 ///|
 pub fn QueryFilter::only_kinematic() -> QueryFilter {
-  { ..QueryFilter::default(), body_filter: Kinematic }
+  { ..QueryFilter::default(), body_filter: Kinematic, }
 }
 
 ///|
@@ -97,7 +97,7 @@ pub fn KinematicCharacterController::default() -> KinematicCharacterController {
 
 ///|
 pub fn KinematicCharacterControllerCollisions::empty() -> KinematicCharacterControllerCollisions {
-  { collisions: [] }
+  { collisions: [], }
 }
 
 ///|

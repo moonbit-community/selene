@@ -90,15 +90,9 @@ pub fn register_mouse_events(
 ) -> Unit {
   window.add_event_listener("mousemove", event => {
     let mouse_event = event.to_mouse_event().unwrap()
-    mouse.pos = Vec2(
-      mouse_event.get_offset_x().to_double(),
-      mouse_event.get_offset_y().to_double(),
-    )
+    mouse.pos = Vec2(mouse_event.get_offset_x(), mouse_event.get_offset_y())
     mouse_relative_delta.val = Some(
-      Vec2(
-        mouse_event.get_movement_x().to_double(),
-        mouse_event.get_movement_y().to_double(),
-      ),
+      Vec2(mouse_event.get_movement_x(), mouse_event.get_movement_y()),
     )
   })
   window.add_event_listener("mousedown", event => {
@@ -205,7 +199,7 @@ pub fn register_touch_events(
     let previous_position = previous_touch.position
     let primary = previous_touch.primary
     let delta = position - previous_position
-    touches.set(id, { id, source, position, previous_position, delta, primary })
+    touches.set(id, { id, source, position, previous_position, delta, primary, })
     if delta[X] != 0.0 || delta[Y] != 0.0 {
       push_touch_change(
         changes,

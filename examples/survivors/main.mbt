@@ -188,7 +188,7 @@ let game_state : GameState = {
   pending_level_ups: [],
   score_blink_timer: 0.0,
   score_is_red: false,
-  game_over_panel: { panel_entity: create_game_over_panel_entity() },
+  game_over_panel: { panel_entity: create_game_over_panel_entity(), },
 }
 
 ///|

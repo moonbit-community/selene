@@ -19,18 +19,18 @@ fn update_scene_lifecycle(
       let trimmed = name.trim().to_owned()
       if trimmed == "" {
         let next = push_log(model, "Scene name is required")
-        ([], { ..next, status: "Scene name is required" })
+        ([], { ..next, status: "Scene name is required", })
       } else {
         (
           [rpc_effect(RpcSceneCreate(trimmed)), rpc_effect(RpcSceneList)],
-          { ..model, status: "Creating scene..." },
+          { ..model, status: "Creating scene...", },
         )
       }
     }
     DeleteCurrentScene =>
       if model.scene_refs.length() <= 1 {
         let next = push_log(model, "Cannot delete the last scene")
-        ([], { ..next, status: "Cannot delete the last scene" })
+        ([], { ..next, status: "Cannot delete the last scene", })
       } else {
         let fallback = fallback_scene_path(model)
         let current_scene_path = model_scene_path(model)
@@ -46,7 +46,7 @@ fn update_scene_lifecycle(
             rpc_effect(RpcSceneList),
             rpc_effect(RpcSceneLoad(next_scene_path)),
           ],
-          { ..model, status: "Deleting scene..." },
+          { ..model, status: "Deleting scene...", },
         )
       }
     SetCurrentSceneAsStartup =>
@@ -55,7 +55,7 @@ fn update_scene_lifecycle(
           rpc_effect(RpcProjectSetStartupScene(model_scene_path(model))),
           rpc_effect(RpcSceneList),
         ],
-        { ..model, status: "Updating startup scene..." },
+        { ..model, status: "Updating startup scene...", },
       )
     RenameCurrentScene(value) =>
       match model_scene(model) {
@@ -63,11 +63,11 @@ fn update_scene_lifecycle(
           let trimmed = value.trim().to_owned()
           if trimmed == "" {
             let next = push_log(model, "Scene name is required")
-            ([], { ..next, status: "Scene name is required" })
+            ([], { ..next, status: "Scene name is required", })
           } else {
             let next_scene = scene.with_name(trimmed)
             let next = with_scene_document_updated(
-              { ..model, status: "Renaming scene..." },
+              { ..model, status: "Renaming scene...", },
               fn(_current_scene) { next_scene },
             )
             let with_history = with_recorded_scene_change(model, next)
@@ -107,7 +107,7 @@ fn update_scene_lifecycle(
                 ),
               ),
             ],
-            { ..model, status: "Saving scene..." },
+            { ..model, status: "Saving scene...", },
           )
         None => ([], model)
       }
@@ -182,7 +182,7 @@ fn update_scene_lifecycle(
             let next = {
               ..with_entity_selection(model, None, []),
               scene_session: model.scene_session.map(fn(session) {
-                { ..session, scene: next_scene }
+                { ..session, scene: next_scene, }
               }),
               add_component_panel_open: false,
               component_search_query: "",

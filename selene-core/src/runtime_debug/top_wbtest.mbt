@@ -66,8 +66,14 @@ test "frame metrics track fixed update and render phases" {
 ///|
 test "atlas validation reports overlaps and out-of-bounds regions" {
   with_runtime_debug_world(fn() raise {
-    let rect_a : @math.Rect = { position: Vec2(0.0, 0.0), size: Vec2(8.0, 8.0) }
-    let rect_b : @math.Rect = { position: Vec2(4.0, 4.0), size: Vec2(8.0, 8.0) }
+    let rect_a : @math.Rect = {
+      position: Vec2(0.0, 0.0),
+      size: Vec2(8.0, 8.0),
+    }
+    let rect_b : @math.Rect = {
+      position: Vec2(4.0, 4.0),
+      size: Vec2(8.0, 8.0),
+    }
     let rect_c : @math.Rect = {
       position: Vec2(14.0, 14.0),
       size: Vec2(4.0, 4.0),
@@ -101,16 +107,16 @@ test "render submission keeps entity ids and exposes offscreen capture API" {
       camera_entity_id: None,
       entity_id: Some(42U),
       command: Rect({
-        rect: { position: Vec2(0.0, 0.0), size: Vec2(2.0, 2.0) },
+        rect: { position: Vec2(0.0, 0.0), size: Vec2(2.0, 2.0), },
         transform: @math.Transform::identity(),
         alpha_mode: Opaque,
         blend_mode: Alpha,
-        fill_color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+        fill_color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
         stroke_color: None,
       }),
     }
     let frame : @render_pipeline.RenderFrame = {
-      frame2d: { passes: [], world_commands: [], ui_commands: [] },
+      frame2d: { passes: [], world_commands: [], ui_commands: [], },
       frame3d: @render3d_types.empty_render_frame3d(),
       assets3d: @render_pipeline.empty_asset_sync3d(),
     }
@@ -165,14 +171,14 @@ test "atlas overlay decoration appends highlight rects when enabled" {
     let image = @asset.load_image("assets/debug/atlas.png")
     let draw_image : @render2d_types.ImageDrawCommand2D = {
       image,
-      destination: { position: Vec2(10.0, 20.0), size: Vec2(30.0, 40.0) },
-      source: Some({ position: Vec2(1.0, 2.0), size: Vec2(3.0, 4.0) }),
+      destination: { position: Vec2(10.0, 20.0), size: Vec2(30.0, 40.0), },
+      source: Some({ position: Vec2(1.0, 2.0), size: Vec2(3.0, 4.0), }),
       transform: @math.Transform::identity(),
       uv_transform: @math.Transform::identity(),
       repeat: NoRepeat,
       alpha_mode: Blend,
       blend_mode: Alpha,
-      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
     }
     let world_command : @render2d.DrawCommandWithDepth2D = {
       depth: 1.0,
@@ -205,14 +211,14 @@ test "frame metadata export includes draw commands and atlas overlay entries" {
     let image = @asset.load_image("assets/debug/metadata.png")
     let draw_image : @render2d_types.ImageDrawCommand2D = {
       image,
-      destination: { position: Vec2(0.0, 0.0), size: Vec2(16.0, 16.0) },
-      source: Some({ position: Vec2(4.0, 5.0), size: Vec2(6.0, 7.0) }),
+      destination: { position: Vec2(0.0, 0.0), size: Vec2(16.0, 16.0), },
+      source: Some({ position: Vec2(4.0, 5.0), size: Vec2(6.0, 7.0), }),
       transform: @math.Transform::identity(),
       uv_transform: @math.Transform::identity(),
       repeat: NoRepeat,
       alpha_mode: Blend,
       blend_mode: Alpha,
-      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
     }
     let world_command : @render2d.DrawCommandWithDepth2D = {
       depth: 2.0,
@@ -256,9 +262,9 @@ test "export sprite inspector regions only processes entries with image and sour
         entity_name: Some("No Image"),
         visible: true,
         image_path: None,
-        source_rect: Some({ x: 0.0, y: 0.0, width: 8.0, height: 8.0 }),
+        source_rect: Some({ x: 0.0, y: 0.0, width: 8.0, height: 8.0, }),
         destination_size: None,
-        anchor: { x: 0.0, y: 0.0 },
+        anchor: { x: 0.0, y: 0.0, },
         flip_x: false,
         flip_y: false,
         local_translation: None,
@@ -271,7 +277,7 @@ test "export sprite inspector regions only processes entries with image and sour
         image_path: Some("assets/debug/export.png"),
         source_rect: None,
         destination_size: None,
-        anchor: { x: 0.0, y: 0.0 },
+        anchor: { x: 0.0, y: 0.0, },
         flip_x: false,
         flip_y: false,
         local_translation: None,
@@ -282,9 +288,9 @@ test "export sprite inspector regions only processes entries with image and sour
         entity_name: Some("Valid"),
         visible: true,
         image_path: Some("assets/debug/export.png"),
-        source_rect: Some({ x: 1.0, y: 2.0, width: 4.0, height: 5.0 }),
+        source_rect: Some({ x: 1.0, y: 2.0, width: 4.0, height: 5.0, }),
         destination_size: None,
-        anchor: { x: 0.0, y: 0.0 },
+        anchor: { x: 0.0, y: 0.0, },
         flip_x: false,
         flip_y: false,
         local_translation: None,
@@ -309,7 +315,7 @@ test "export texture region png returns false for missing image path" {
     inspect(
       export_texture_region_png(
         "/tmp/selene_runtime_debug_missing.png",
-        { position: Vec2(0.0, 0.0), size: Vec2(1.0, 1.0) },
+        { position: Vec2(0.0, 0.0), size: Vec2(1.0, 1.0), },
         "/tmp/selene_runtime_debug_missing_out.png",
       ),
       content="false",

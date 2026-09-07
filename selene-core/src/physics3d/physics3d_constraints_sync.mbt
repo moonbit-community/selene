@@ -164,7 +164,7 @@ fn sync_character_controllers(delta : Double) -> Unit {
       )
       continue
     }
-    let query_filter = { ..QueryFilter::all(), exclude_entity: Some(entity) }
+    let query_filter = { ..QueryFilter::all(), exclude_entity: Some(entity), }
     let query = make_query_pipeline(query_filter~)
     let rapier_controller = controller_to_rapier(controller)
     let transform = current_world_transform(entity).unwrap_or_default()

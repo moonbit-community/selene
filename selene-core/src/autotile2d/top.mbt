@@ -29,7 +29,7 @@ pub struct AutoTileCell {
 
 ///|
 pub fn autotile_cell(x : Int, y : Int, terrain : Int) -> AutoTileCell {
-  { x, y, terrain }
+  { x, y, terrain, }
 }
 
 ///|
@@ -45,7 +45,7 @@ pub fn autotile_mask_rule(
   region_name : String,
   atlas_index? : Int = 0,
 ) -> AutoTileMaskRule {
-  { mask, region_name, atlas_index }
+  { mask, region_name, atlas_index, }
 }
 
 ///|
@@ -67,7 +67,7 @@ pub fn autotile_wang_rule(
   region_name : String,
   atlas_index? : Int = 0,
 ) -> AutoTileWangRule {
-  { north, east, south, west, region_name, atlas_index }
+  { north, east, south, west, region_name, atlas_index, }
 }
 
 ///|
@@ -149,7 +149,7 @@ pub fn autotile_solved_tile(
   region_name : String,
   atlas_index? : Int = 0,
 ) -> AutoTileSolvedTile {
-  { x, y, region_name, atlas_index }
+  { x, y, region_name, atlas_index, }
 }
 
 ///|
@@ -160,7 +160,7 @@ pub struct AutoTileGridPos {
 
 ///|
 pub fn autotile_grid_pos(x : Int, y : Int) -> AutoTileGridPos {
-  { x, y }
+  { x, y, }
 }
 
 ///|
@@ -176,7 +176,7 @@ pub fn autotile_diff(
   changed_tiles? : Array[AutoTileSolvedTile] = [],
   removed_tiles? : Array[AutoTileGridPos] = [],
 ) -> AutoTileDiff {
-  { source, changed_tiles, removed_tiles }
+  { source, changed_tiles, removed_tiles, }
 }
 
 ///|
@@ -194,7 +194,7 @@ pub fn autotile_visual(
   custom_size? : @math.Vec2? = None,
   anchor? : @sprite.Anchor = @sprite.default_anchor(),
 ) -> AutoTileVisual {
-  { image_path, rect, custom_size, anchor }
+  { image_path, rect, custom_size, anchor, }
 }
 
 ///|
@@ -211,7 +211,7 @@ pub fn autotile_runtime_context(
   visual_resolver? : AutoTileVisualResolver? = None,
   z? : Double = 0.0,
 ) -> AutoTileRuntimeContext {
-  { visual_resolver, z }
+  { visual_resolver, z, }
 }
 
 ///|
@@ -223,11 +223,11 @@ fn cell_key(x : Int, y : Int) -> String {
 fn pos_of_key(key : String) -> AutoTileGridPos {
   let comma = key.find(",").unwrap_or(-1)
   if comma <= 0 || comma + 1 >= key.length() {
-    return { x: 0, y: 0 }
+    return { x: 0, y: 0, }
   }
   let x = @string.parse_int(key[:comma], base=10) catch { _ => 0 }
   let y = @string.parse_int(key[comma + 1:], base=10) catch { _ => 0 }
-  { x, y }
+  { x, y, }
 }
 
 ///|
@@ -308,7 +308,7 @@ fn solved_tile_for(
   y : Int,
   terrain : Int,
 ) -> AutoTileSolvedTile {
-  let fallback = { x, y, region_name: "", atlas_index: 0 }
+  let fallback = { x, y, region_name: "", atlas_index: 0, }
   let palette = match palette_for_terrain(source, terrain) {
     Some(entry) => entry
     None => return fallback
@@ -398,7 +398,7 @@ fn cells_array_of(map : Map[String, Int]) -> Array[AutoTileCell] {
   for key in sorted_cell_keys(map) {
     let pos = pos_of_key(key)
     let terrain = map.get(key).unwrap_or(0)
-    cells.push({ x: pos.x, y: pos.y, terrain })
+    cells.push({ x: pos.x, y: pos.y, terrain, })
   }
   cells
 }
@@ -491,7 +491,7 @@ pub fn update_cell_and_resolve_diff(
     Some(value) => after_cells.set(target_key, value)
     None => ignore(after_cells.remove(target_key))
   }
-  let source_after = { ..source, cells: cells_array_of(after_cells) }
+  let source_after = { ..source, cells: cells_array_of(after_cells), }
   let keys = affected_keys(x, y)
   let before_solved = solved_map_of(source, before_cells, keys)
   let after_solved = solved_map_of(source_after, after_cells, keys)
@@ -515,7 +515,7 @@ pub fn update_cell_and_resolve_diff(
   }
   sort_solved_tiles(changed)
   sort_grid_positions(removed)
-  { source: source_after, changed_tiles: changed, removed_tiles: removed }
+  { source: source_after, changed_tiles: changed, removed_tiles: removed, }
 }
 
 ///|
@@ -536,7 +536,7 @@ let autotile_world_stores : Map[UInt, AutoTileWorldStore] = Map([])
 ///|
 fn autotile_world_store() -> AutoTileWorldStore {
   let world_id = @ecs.require_current_world().id()
-  autotile_world_stores.get_or_init(world_id, fn() { { layers: Map([]) } })
+  autotile_world_stores.get_or_init(world_id, fn() { { layers: Map([]), } })
 }
 
 ///|
@@ -596,7 +596,7 @@ pub fn register_runtime_layer(
     destroy_layer_tiles(previous)
     ignore(store.layers.remove(layer_entity))
   }
-  let state : RuntimeLayerState = { source, tile_entities: Map([]), context }
+  let state : RuntimeLayerState = { source, tile_entities: Map([]), context, }
   for solved in solve_autotile_layer(source) {
     let key = cell_key(solved.x, solved.y)
     if apply_tile_visual(layer_entity, source, solved, context)
@@ -635,7 +635,7 @@ fn apply_diff_to_runtime(
       tile_entities.set(key, entity_)
     }
   }
-  { source: diff.source, tile_entities, context: state.context }
+  { source: diff.source, tile_entities, context: state.context, }
 }
 
 ///|

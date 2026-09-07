@@ -63,12 +63,12 @@ pub fn world_snapshot() -> WorldSnapshot {
 
 ///|
 fn debug_vec2(value : @math.Vec2) -> DebugVec2 {
-  { x: value[X], y: value[Y] }
+  { x: value[X], y: value[Y], }
 }
 
 ///|
 fn debug_vec3(value : @math.Vec3) -> DebugVec3 {
-  { x: value.x, y: value.y, z: value.z }
+  { x: value.x, y: value.y, z: value.z, }
 }
 
 ///|
@@ -83,7 +83,7 @@ fn debug_rect(value : @math.Rect) -> DebugRect {
 
 ///|
 fn debug_color(value : @render.Color) -> DebugColor {
-  { r: value.r, g: value.g, b: value.b, a: value.a }
+  { r: value.r, g: value.g, b: value.b, a: value.a, }
 }
 
 ///|
@@ -168,12 +168,12 @@ pub fn atlas_overlay_entries() -> Array[AtlasOverlayEntry] {
 
 ///|
 fn atlas_overlay_fill_color() -> @render.Color {
-  { r: 255U, g: 64U, b: 160U, a: 0.08 }
+  { r: 255U, g: 64U, b: 160U, a: 0.08, }
 }
 
 ///|
 fn atlas_overlay_stroke_color() -> @render.Color {
-  { r: 255U, g: 64U, b: 160U, a: 0.95 }
+  { r: 255U, g: 64U, b: 160U, a: 0.95, }
 }
 
 ///|
@@ -233,5 +233,5 @@ pub fn decorate_frame_for_debug(
       pass.ui_commands.push(overlay)
     }
   }
-  { ..frame, frame2d: { ..frame.frame2d, passes, ui_commands } }
+  { ..frame, frame2d: { ..frame.frame2d, passes, ui_commands, }, }
 }

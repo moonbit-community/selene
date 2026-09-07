@@ -151,18 +151,18 @@ fn resolved_audio_source(path : String, refresh? : Bool = false) -> String {
           bytes,
           browser_audio_mime_type(path),
         )
-        cached_audio_sources.set(path, { src: blob_url, blob_owned: true })
+        cached_audio_sources.set(path, { src: blob_url, blob_owned: true, })
         blob_url
       }
       None => {
         let resolved = resolve_asset_path(path)
-        cached_audio_sources.set(path, { src: resolved, blob_owned: false })
+        cached_audio_sources.set(path, { src: resolved, blob_owned: false, })
         resolved
       }
     }
   } else {
     let resolved = resolve_asset_path(path)
-    cached_audio_sources.set(path, { src: resolved, blob_owned: false })
+    cached_audio_sources.set(path, { src: resolved, blob_owned: false, })
     resolved
   }
   src
@@ -209,7 +209,7 @@ fn create_audio_instance(path : String) -> (AudioInstance, AudioPlayback) {
   let audio = template.clone_audio()
   (
     id,
-    { audio, requested_paused: false, last_play_attempt_activation_epoch: -1 },
+    { audio, requested_paused: false, last_play_attempt_activation_epoch: -1, },
   )
 }
 

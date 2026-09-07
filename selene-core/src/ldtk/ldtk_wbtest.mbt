@@ -811,7 +811,7 @@ test "spawn_ldtk_world spawns layer tiles entities and intgrid cells" {
             identifier: "Collision",
             layer_type: Some("IntGrid"),
             int_grid_values: [
-              { value: 1, color: Some("#00ff00"), identifier: Some("Solid") },
+              { value: 1, color: Some("#00ff00"), identifier: Some("Solid"), },
             ],
           },
         ],
@@ -908,7 +908,7 @@ test "ldtk entity tile sprite registration inserts placeholder sprite from __til
           grid: Vec2(1.0, 1.0),
           pivot: Vec2(0.5, 1.0),
           smart_color: None,
-          tile: Some({ tileset_uid: Some(1), x: 16, y: 24, w: 16, h: 8 }),
+          tile: Some({ tileset_uid: Some(1), x: 16, y: 24, w: 16, h: 8, }),
           tags: [],
           field_instances: [],
         },
@@ -1188,10 +1188,10 @@ test "ldtk tileset custom data and enum tags resolve by tile id" {
           px_hei: 32,
           spacing: 0,
           padding: 0,
-          custom_data: [{ data: "spawn", tile_id: 4 }],
+          custom_data: [{ data: "spawn", tile_id: 4, }],
           enum_tags: [
-            { enum_value_id: "Solid", tile_ids: [4, 7] },
-            { enum_value_id: "Danger", tile_ids: [7] },
+            { enum_value_id: "Solid", tile_ids: [4, 7], },
+            { enum_value_id: "Danger", tile_ids: [7], },
           ],
           tags: [],
           tags_source_enum_uid: None,
@@ -1238,8 +1238,8 @@ test "ldtk spawned tile metadata includes custom data and enum tags" {
             px_hei: 32,
             spacing: 0,
             padding: 0,
-            custom_data: [{ data: "spawn", tile_id: 4 }],
-            enum_tags: [{ enum_value_id: "Solid", tile_ids: [4] }],
+            custom_data: [{ data: "spawn", tile_id: 4, }],
+            enum_tags: [{ enum_value_id: "Solid", tile_ids: [4], }],
             tags: [],
             tags_source_enum_uid: None,
           },
@@ -1344,7 +1344,7 @@ test "ldtk entity spawn hook applies by identifier" {
     ]),
   ])
   register_ldtk_entity_spawn_hook("Enemy", fn(event) {
-    ldtk_respawns().set(event.entity, { requested: true })
+    ldtk_respawns().set(event.entity, { requested: true, })
   })
 
   set_ldtk_settings(default_ldtk_settings())
@@ -1701,10 +1701,10 @@ test "ldtk intgrid spawn hooks apply by layer and cell value" {
     test_int_grid_layer("Collision", 2, 1, [1, 2]),
   ])
   register_ldtk_int_grid_layer_spawn_hook("Collision", fn(event) {
-    ldtk_int_grid_colliders().set(event.cell_entity, { sensor: false })
+    ldtk_int_grid_colliders().set(event.cell_entity, { sensor: false, })
   })
   register_ldtk_int_grid_cell_spawn_hook("Collision", 2, fn(event) {
-    ldtk_int_grid_colliders().set(event.cell_entity, { sensor: true })
+    ldtk_int_grid_colliders().set(event.cell_entity, { sensor: true, })
   })
 
   set_ldtk_settings(default_ldtk_settings())
@@ -2018,7 +2018,7 @@ test "ldtk intgrid with tileset skips colorful fallback sprites" {
             identifier: "Collision",
             layer_type: Some("IntGrid"),
             int_grid_values: [
-              { value: 1, color: Some("#00ff00"), identifier: Some("Solid") },
+              { value: 1, color: Some("#00ff00"), identifier: Some("Solid"), },
             ],
           },
         ],
@@ -2143,7 +2143,7 @@ test "ldtk settings intgrid invisible and layer exclusion apply at spawn" {
             identifier: "Collision",
             layer_type: Some("IntGrid"),
             int_grid_values: [
-              { value: 1, color: Some("#00ff00"), identifier: Some("Solid") },
+              { value: 1, color: Some("#00ff00"), identifier: Some("Solid"), },
             ],
           },
         ],
@@ -2231,7 +2231,7 @@ test "ldtk settings intgrid invisible and layer exclusion apply at spawn" {
     set_ldtk_settings({
       level_spawn_behavior: UseZeroTranslation,
       int_grid_rendering: Invisible,
-      spawn_exclusions: { layer_identifiers: ["Entities"] },
+      spawn_exclusions: { layer_identifiers: ["Entities"], },
     })
     set_ldtk_level_selection(ldtk_level_selection_index(0))
     let world = spawn_ldtk_world(project)

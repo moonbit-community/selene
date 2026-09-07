@@ -83,7 +83,7 @@ pub fn Text2d::Text2d(blend_mode? : @render.BlendMode2D = Alpha) -> Text2d {
 
 ///|
 pub fn TextBounds::TextBounds(width : Double, height : Double) -> TextBounds {
-  { width: @cmp.maximum(0.0, width), height: @cmp.maximum(0.0, height) }
+  { width: @cmp.maximum(0.0, width), height: @cmp.maximum(0.0, height), }
 }
 
 ///|
@@ -267,7 +267,7 @@ fn cached_text_layout(
       let max_line_width = lines.fold(init=0.0, fn(acc, line) {
         @cmp.maximum(acc, measure_text_fragment(style, line)[X])
       })
-      let cached = { key, lines, max_line_width, line_height, block_height }
+      let cached = { key, lines, max_line_width, line_height, block_height, }
       text_layout_caches().set(entity, cached)
       cached
     }
@@ -360,7 +360,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
     )
     let world_bounds = @camera.transformed_rect_bounds(
       world_pos + anchor_origin(anchor, layout_size),
-      { position: @math.Vec2::zero(), size: layout_size },
+      { position: @math.Vec2::zero(), size: layout_size, },
       @camera.world_transform_2d(global_transform),
     )
     let camera_views_for_entity = camera_extract.camera_views_for_bounds(
@@ -387,7 +387,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
       let layout_origin = screen_pos + anchor_origin(anchor, layout_size)
       let layout_bounds = @camera.transformed_rect_bounds(
         layout_origin,
-        { position: @math.Vec2::zero(), size: layout_size },
+        { position: @math.Vec2::zero(), size: layout_size, },
         screen_transform,
       )
       guard camera_view.intersects_screen_rect(layout_bounds) else { continue }
@@ -436,7 +436,7 @@ fn push_text2d_lines(
     Center => origin[Y] + (bounds_height - block_height) / 2.0
     Bottom => origin[Y] + bounds_height - block_height
   }
-  let style_for_draw = { ..style, align: Left, baseline: Top }
+  let style_for_draw = { ..style, align: Left, baseline: Top, }
   for index, line in lines {
     let measured = measure_text_fragment(style, line)
     let x = match layout.align {

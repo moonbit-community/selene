@@ -361,12 +361,12 @@ pub fn skybox3d(
 
 ///|
 pub fn cube_mesh(size : @math.Vec3) -> MeshAsset {
-  { primitive: Cube(size) }
+  { primitive: Cube(size), }
 }
 
 ///|
 pub fn sphere_mesh(radius : Double) -> MeshAsset {
-  { primitive: Sphere(radius) }
+  { primitive: Sphere(radius), }
 }
 
 ///|
@@ -376,12 +376,12 @@ pub fn cylinder_mesh(
   height : Double,
   slices? : Int = 24,
 ) -> MeshAsset {
-  { primitive: Cylinder(radius_top, radius_bottom, height, slices) }
+  { primitive: Cylinder(radius_top, radius_bottom, height, slices), }
 }
 
 ///|
 pub fn plane_mesh(size : @math.Vec3) -> MeshAsset {
-  { primitive: Plane(size) }
+  { primitive: Plane(size), }
 }
 
 ///|

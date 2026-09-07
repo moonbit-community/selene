@@ -39,7 +39,7 @@ pub fn Camera3DComponent::default() -> Camera3DComponent {
     far: 2000.0,
     fov_y: 45.0,
     order: 0,
-    clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0 },
+    clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0, },
     enabled: true,
   }
 }
@@ -55,7 +55,7 @@ let camera3d_world_stores : Map[UInt, Camera3DWorldStore] = Map([])
 ///|
 fn camera3d_world_store() -> Camera3DWorldStore {
   let world_id = @ecs.require_current_world().id()
-  camera3d_world_stores.get_or_init(world_id, () => { cameras3d: Map([]) })
+  camera3d_world_stores.get_or_init(world_id, () => { cameras3d: Map([]), })
 }
 
 ///|

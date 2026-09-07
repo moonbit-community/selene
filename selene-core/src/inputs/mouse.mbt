@@ -161,10 +161,10 @@ pub(all) struct MouseWheel {
 /// @inputs.mouse_movement.movement = @math.Vec2(10.0, -5.0)
 /// ```
 ///
-pub let mouse_movement : MouseMovement = { movement: Vec2(0.0, 0.0) }
+pub let mouse_movement : MouseMovement = { movement: Vec2(0.0, 0.0), }
 
 ///|
-pub let mouse_wheel : MouseWheel = { delta: Vec2(0.0, 0.0) }
+pub let mouse_wheel : MouseWheel = { delta: Vec2(0.0, 0.0), }
 
 ///|
 let pending_mouse_relative_delta : Ref[@math.Vec2?] = Ref(None)
@@ -286,11 +286,11 @@ pub fn advanced_mouse_system(_delta : Double) -> Unit {
   mouse_movement.movement = delta
   pending_mouse_relative_delta.val = None
   if delta[X] != 0.0 || delta[Y] != 0.0 {
-    mouse_motion_event_bus.send({ position: mouse.pos, delta })
+    mouse_motion_event_bus.send({ position: mouse.pos, delta, })
   }
   let wheel_delta = mouse_wheel.delta
   if wheel_delta[X] != 0.0 || wheel_delta[Y] != 0.0 {
-    mouse_wheel_event_bus.send({ delta: wheel_delta })
+    mouse_wheel_event_bus.send({ delta: wheel_delta, })
   }
 
   // Just pressed

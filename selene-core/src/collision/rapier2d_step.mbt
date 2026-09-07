@@ -353,7 +353,7 @@ fn process_contact_events() -> Unit {
     guard collider1.active && collider2.active else { continue }
     let direction = estimate_direction(entity1, entity2)
     let started = event.started()
-    push_contact_event({ entity: entity1, other: entity2, started, direction })
+    push_contact_event({ entity: entity1, other: entity2, started, direction, })
     push_contact_event({
       entity: entity2,
       other: entity1,
@@ -380,11 +380,11 @@ fn update_area_contains(
   if intersecting {
     if !area.contains.contains(other) {
       area.contains.add(other)
-      push_trigger_event({ area: area_entity, other, entered: true })
+      push_trigger_event({ area: area_entity, other, entered: true, })
     }
   } else if area.contains.contains(other) {
     area.contains.remove(other)
-    push_trigger_event({ area: area_entity, other, entered: false })
+    push_trigger_event({ area: area_entity, other, entered: false, })
   }
 }
 
@@ -419,7 +419,7 @@ fn clear_area_contains(area_entity : @entity.Entity, area : Area) -> Unit {
   }
   area.contains.clear()
   for other in exiting {
-    push_trigger_event({ area: area_entity, other, entered: false })
+    push_trigger_event({ area: area_entity, other, entered: false, })
   }
 }
 

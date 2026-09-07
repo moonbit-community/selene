@@ -8,7 +8,7 @@ fn draw2d_info(
   match command {
     Image(image) => {
       let uv_rect = image.source.map(fn(region) {
-        @math.Rect::{ position: region.position, size: region.size }
+        @math.Rect::{ position: region.position, size: region.size, }
       })
       {
         entity_id,

@@ -361,7 +361,7 @@ fn rect_intersection(lhs : @math.Rect, rhs : @math.Rect) -> @math.Rect? {
   if right <= left || bottom <= top {
     None
   } else {
-    Some({ position: Vec2(left, top), size: Vec2(right - left, bottom - top) })
+    Some({ position: Vec2(left, top), size: Vec2(right - left, bottom - top), })
   }
 }
 
@@ -602,7 +602,7 @@ fn apply_layout_recursive(
   let logical_pos = parent_layout_origin +
     Vec2(layout.location.x, layout.location.y)
   let logical_size = @math.Vec2(layout.size.width, layout.size.height)
-  let logical_rect = @math.Rect::{ position: logical_pos, size: logical_size }
+  let logical_rect = @math.Rect::{ position: logical_pos, size: logical_size, }
 
   let border = resolve_insets(node.border, logical_size)
   let padding = resolve_insets(node.padding, logical_size)

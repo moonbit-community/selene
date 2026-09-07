@@ -34,7 +34,7 @@ let parallax2d_world_stores : Map[UInt, Parallax2dWorldStore] = Map([])
 fn parallax2d_world_store() -> Parallax2dWorldStore {
   let world_id = @ecs.require_current_world().id()
   parallax2d_world_stores.get_or_init(world_id, fn() {
-    { parallax2ds: Map([]) }
+    { parallax2ds: Map([]), }
   })
 }
 
@@ -60,7 +60,7 @@ pub fn Parallax2d::Parallax2d(
   factor? : @math.Vec2 = Vec2(1.0, 1.0),
   reference? : Parallax2dReference = ViewOrigin,
 ) -> Parallax2d {
-  { base_offset, factor: clamped_parallax_factor(factor), reference }
+  { base_offset, factor: clamped_parallax_factor(factor), reference, }
 }
 
 ///|

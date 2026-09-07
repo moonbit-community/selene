@@ -265,7 +265,7 @@ let flag_idle_frame_size : @math.Vec2 = Vec2(64.0, 64.0)
 
 ///|
 fn flag_idle_frame_rect() -> @math.Rect {
-  { position: @math.Vec2::zero(), size: flag_idle_frame_size }
+  { position: @math.Vec2::zero(), size: flag_idle_frame_size, }
 }
 
 ///|

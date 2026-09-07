@@ -32,7 +32,7 @@ fn webgpu_test_camera() -> @render3d_types.FrameCamera3D {
     orthographic_size: None,
     near: 0.1,
     far: 100.0,
-    clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0 },
+    clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0, },
   }
 }
 
@@ -93,7 +93,7 @@ fn triangle_winding_dot(
 
 ///|
 test "lit primitive mesh resource keys are owned by MoonBit" {
-  let color : @render.Color = { r: 255U, g: 128U, b: 0U, a: 0.5 }
+  let color : @render.Color = { r: 255U, g: 128U, b: 0U, a: 0.5, }
   inspect(
     lit_primitive_mesh_resource_key(
       "lit-cube",
@@ -169,7 +169,7 @@ test "MoonBit forms lit primitive instance batches before WebGPU FFI" {
 
 ///|
 test "MoonBit packs WebGPU 2D rect and circle vertices before FFI" {
-  let rect : @smath.Rect = { position: Vec2(10.0, 20.0), size: Vec2(2.0, 4.0) }
+  let rect : @smath.Rect = { position: Vec2(10.0, 20.0), size: Vec2(2.0, 4.0), }
   let transform = @smath.Transform(a=2.0, d=3.0, tx=5.0, ty=7.0)
   let fill = pack_rect_fill_vertices2d(rect, transform, {
     r: 255U,
@@ -202,8 +202,8 @@ test "MoonBit packs WebGPU 2D rect and circle vertices before FFI" {
   let gradient = pack_gradient_rect_vertices2d(
     rect,
     Transform(),
-    { r: 255U, g: 0U, b: 0U, a: 1.0 },
-    { r: 0U, g: 0U, b: 255U, a: 0.5 },
+    { r: 255U, g: 0U, b: 0U, a: 1.0, },
+    { r: 0U, g: 0U, b: 255U, a: 0.5, },
   )
   inspect(gradient.length(), content="36")
   inspect(gradient[2], content="1")
@@ -236,7 +236,7 @@ test "MoonBit packs WebGPU 2D image vertices before FFI" {
     None,
     Transform(),
     Repeat,
-    { r: 128U, g: 255U, b: 0U, a: 0.5 },
+    { r: 128U, g: 255U, b: 0U, a: 0.5, },
     32.0,
     16.0,
   )
@@ -255,10 +255,10 @@ test "MoonBit packs WebGPU 2D image vertices before FFI" {
   let sourced = pack_image_vertices2d_raw(
     destination,
     Transform(tx=1.0, ty=2.0),
-    Some({ position: Vec2(8.0, 4.0), size: Vec2(16.0, 8.0) }),
+    Some({ position: Vec2(8.0, 4.0), size: Vec2(16.0, 8.0), }),
     Transform(a=2.0, d=3.0),
     Repeat,
-    { r: 255U, g: 255U, b: 255U, a: 1.0 },
+    { r: 255U, g: 255U, b: 255U, a: 1.0, },
     32.0,
     16.0,
   )
@@ -283,7 +283,7 @@ test "MoonBit packs WebGPU 2D fallback text vertices before FFI" {
         font: None,
         family: "sans",
         size: 16.0,
-        color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+        color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
         align: Center,
         baseline: Bottom,
       },
@@ -348,7 +348,7 @@ test "MoonBit packs WebGPU 3D camera view projection before FFI" {
 test "render3d submission stats record repeated primitive pressure" {
   let mesh = webgpu_test_mesh_handle(9100)
   let material = webgpu_test_material_handle(9101)
-  sync_mesh_asset(mesh, { primitive: Cube(Vec3(1.0, 1.0, 1.0)) })
+  sync_mesh_asset(mesh, { primitive: Cube(Vec3(1.0, 1.0, 1.0)), })
   sync_material_asset(material, @render3d_types.default_standard_material3d())
   let frame = @render3d_types.empty_render_frame3d()
   frame.camera = Some(webgpu_test_camera())
@@ -381,7 +381,7 @@ test "render3d submission stats record repeated primitive pressure" {
 test "render3d submission stats reuse retained static primitive instances" {
   let mesh = webgpu_test_mesh_handle(9120)
   let material = webgpu_test_material_handle(9121)
-  sync_mesh_asset(mesh, { primitive: Cube(Vec3(1.0, 1.0, 1.0)) })
+  sync_mesh_asset(mesh, { primitive: Cube(Vec3(1.0, 1.0, 1.0)), })
   sync_material_asset(material, @render3d_types.default_standard_material3d())
   let frame = @render3d_types.empty_render_frame3d()
   frame.camera = Some(webgpu_test_camera())
@@ -405,7 +405,7 @@ test "render3d submission stats keep textured primitives unbatched" {
   let mesh = webgpu_test_mesh_handle(9111)
   let material = webgpu_test_material_handle(9112)
   webgpu_test_sync_image(image, "wbtest://base")
-  sync_mesh_asset(mesh, { primitive: Cube(Vec3(1.0, 1.0, 1.0)) })
+  sync_mesh_asset(mesh, { primitive: Cube(Vec3(1.0, 1.0, 1.0)), })
   sync_material_asset(material, {
     ..@render3d_types.default_standard_material3d(),
     base_color_texture: Some(@render3d_types.texture_binding3d(image)),
@@ -451,7 +451,7 @@ test "pack directional shadow cascades in MoonBit" {
   frame.directional_lights = [
     {
       direction: Vec3(0.0, -2.0, 0.0),
-      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
       intensity: 1.0,
       shadows: true,
       shadow_depth_bias: 0.0,
@@ -503,7 +503,7 @@ test "pack WebGPU shadow runtime metadata in MoonBit" {
   frame.directional_lights = [
     {
       direction: Vec3(0.0, -1.0, 0.0),
-      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
       intensity: 1.0,
       shadows: true,
       shadow_depth_bias: -0.25,
@@ -518,7 +518,7 @@ test "pack WebGPU shadow runtime metadata in MoonBit" {
   frame.point_lights = [
     {
       position: Vec3(0.0, 1.0, 2.0),
-      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
       intensity: 1.0,
       range: 4.0,
       shadows: false,
@@ -531,7 +531,7 @@ test "pack WebGPU shadow runtime metadata in MoonBit" {
     {
       position: Vec3(0.0, 1.0, 2.0),
       direction: Vec3(0.0, -1.0, 0.0),
-      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
       intensity: 1.0,
       range: 4.0,
       shadows: true,
@@ -570,7 +570,7 @@ test "pack spot and point shadow view projections in MoonBit" {
   frame.point_lights = [
     {
       position: Vec3(1.0, 2.0, 3.0),
-      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
       intensity: 1.0,
       range: 12.5,
       shadows: true,
@@ -583,7 +583,7 @@ test "pack spot and point shadow view projections in MoonBit" {
     {
       position: Vec3(4.0, 5.0, 6.0),
       direction: Vec3(0.0, -2.0, 0.0),
-      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
       intensity: 1.0,
       range: 16.0,
       shadows: true,
@@ -636,7 +636,7 @@ test "render3d lighting modes filter light packets in MoonBit" {
   frame.directional_lights = [
     {
       direction: Vec3(0.0, -1.0, 0.0),
-      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
       intensity: 1.0,
       shadows: false,
       shadow_depth_bias: 0.0,
@@ -649,7 +649,7 @@ test "render3d lighting modes filter light packets in MoonBit" {
     },
     {
       direction: Vec3(1.0, -1.0, 0.0),
-      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
       intensity: 0.5,
       shadows: false,
       shadow_depth_bias: 0.0,
@@ -664,7 +664,7 @@ test "render3d lighting modes filter light packets in MoonBit" {
   frame.point_lights = [
     {
       position: Vec3(1.0, 2.0, 3.0),
-      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
       intensity: 1.0,
       range: 8.0,
       shadows: false,
@@ -677,7 +677,7 @@ test "render3d lighting modes filter light packets in MoonBit" {
     {
       position: Vec3(1.0, 2.0, 3.0),
       direction: Vec3(0.0, -1.0, 0.0),
-      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
       intensity: 1.0,
       range: 8.0,
       shadows: false,
@@ -723,7 +723,7 @@ test "pack_light_uniform_data owns shader light layout in MoonBit" {
   frame.directional_lights = [
     {
       direction: Vec3(0.0, -2.0, 0.0),
-      color: { r: 64U, g: 128U, b: 255U, a: 1.0 },
+      color: { r: 64U, g: 128U, b: 255U, a: 1.0, },
       intensity: 1.5,
       shadows: false,
       shadow_depth_bias: 0.0,
@@ -738,7 +738,7 @@ test "pack_light_uniform_data owns shader light layout in MoonBit" {
   frame.point_lights = [
     {
       position: Vec3(1.0, 2.0, 3.0),
-      color: { r: 255U, g: 64U, b: 32U, a: 1.0 },
+      color: { r: 255U, g: 64U, b: 32U, a: 1.0, },
       intensity: 2.0,
       range: 0.0,
       shadows: false,
@@ -751,7 +751,7 @@ test "pack_light_uniform_data owns shader light layout in MoonBit" {
     {
       position: Vec3(4.0, 5.0, 6.0),
       direction: Vec3(0.0, -2.0, 0.0),
-      color: { r: 32U, g: 160U, b: 255U, a: 1.0 },
+      color: { r: 32U, g: 160U, b: 255U, a: 1.0, },
       intensity: 3.0,
       range: 16.0,
       shadows: false,
@@ -893,7 +893,7 @@ test "resolve_material_texture_input applies bound texture transforms and falls 
   let fallback_uvs = mesh.uv_sets[0]
   let transformed_input = resolve_material_texture_input(
     mesh,
-    Some({ path: "wbtest://emissive", texcoord_set: 1, sampler_code: 3 }),
+    Some({ path: "wbtest://emissive", texcoord_set: 1, sampler_code: 3, }),
     fallback_uvs,
     transform_binding=Some({
       ..@render3d_types.texture_binding3d(
@@ -913,7 +913,7 @@ test "resolve_material_texture_input applies bound texture transforms and falls 
   inspect(transformed_input.uvs[0][Y], content="1")
   let fallback_input = resolve_material_texture_input(
     mesh,
-    Some({ path: "wbtest://missing", texcoord_set: 4, sampler_code: 3 }),
+    Some({ path: "wbtest://missing", texcoord_set: 4, sampler_code: 3, }),
     fallback_uvs,
   )
   inspect(fallback_input.path, content="")
@@ -943,7 +943,7 @@ test "flatten_colored_vertices3d packs unlit material metadata" {
       alpha_cutoff: 0.25,
       unlit: true,
     },
-    { r: 255U, g: 128U, b: 64U, a: 0.75 },
+    { r: 255U, g: 128U, b: 64U, a: 0.75, },
     true,
   )
   inspect(values.length(), content="51")
@@ -972,9 +972,9 @@ test "flatten_textured_vertices3d packs unlit surface metadata" {
     mesh.uv_sets[0],
     [Vec3(0.0, 0.0, 1.0), Vec3(0.0, 0.0, 1.0), Vec3(0.0, 0.0, 1.0)],
     [
-      { x: 1.0, y: 0.0, z: 0.0, w: 1.0 },
-      { x: 1.0, y: 0.0, z: 0.0, w: 1.0 },
-      { x: 1.0, y: 0.0, z: 0.0, w: 1.0 },
+      { x: 1.0, y: 0.0, z: 0.0, w: 1.0, },
+      { x: 1.0, y: 0.0, z: 0.0, w: 1.0, },
+      { x: 1.0, y: 0.0, z: 0.0, w: 1.0, },
     ],
     None,
     Vec3(1.0, 1.0, 1.0),
@@ -984,7 +984,7 @@ test "flatten_textured_vertices3d packs unlit surface metadata" {
       normal_scale: 0.75,
       unlit: true,
     },
-    { r: 255U, g: 255U, b: 255U, a: 1.0 },
+    { r: 255U, g: 255U, b: 255U, a: 1.0, },
     false,
   )
   inspect(values.length(), content="105")
@@ -1035,7 +1035,7 @@ test "resolve_triangle_indices supports strip and fan topology" {
     content="Some([0, 1, 2, 2, 1, 3])",
   )
   debug_inspect(
-    resolve_triangle_indices({ ..mesh, topology: TriangleFan }),
+    resolve_triangle_indices({ ..mesh, topology: TriangleFan, }),
     content="Some([0, 1, 2, 0, 2, 3])",
   )
 }

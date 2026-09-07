@@ -72,7 +72,7 @@ fn clip_rect_intersection(lhs : @smath.Rect, rhs : @smath.Rect) -> @smath.Rect? 
   if right <= left || bottom <= top {
     None
   } else {
-    Some({ position: Vec2(left, top), size: Vec2(right - left, bottom - top) })
+    Some({ position: Vec2(left, top), size: Vec2(right - left, bottom - top), })
   }
 }
 

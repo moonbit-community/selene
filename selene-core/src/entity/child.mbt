@@ -108,7 +108,7 @@ fn detach_parent_link(child : Entity) -> Unit {
   }
   match parents.get(child) {
     Some(parent_record) =>
-      parents.set(child, { ..parent_record, is_root: true })
+      parents.set(child, { ..parent_record, is_root: true, })
     None => ()
   }
 }
@@ -127,12 +127,12 @@ fn attach_parent_link(child : Entity, parent : Entity) -> Unit {
       updated_children.push(entity)
     }
     updated_children.push(child)
-    parents.set(parent, { ..parent_record, children: updated_children })
+    parents.set(parent, { ..parent_record, children: updated_children, })
   }
   children.set(child, { parent, })
   match parents.get(child) {
     Some(child_parent_record) =>
-      parents.set(child, { ..child_parent_record, is_root: false })
+      parents.set(child, { ..child_parent_record, is_root: false, })
     None => ()
   }
 }

@@ -23,7 +23,7 @@ pub(all) struct Collider {
 
 ///|
 pub fn Collider::Collider(filter : CollisionFilter) -> Collider {
-  { active: true, filter, friction: 0.5, restitution: 0.0 }
+  { active: true, filter, friction: 0.5, restitution: 0.0, }
 }
 
 ///|
@@ -33,7 +33,7 @@ pub fn Collider::with_material(
   restitution? : Double = 0.0,
   active? : Bool = true,
 ) -> Collider {
-  { active, filter, friction, restitution }
+  { active, filter, friction, restitution, }
 }
 
 ///|

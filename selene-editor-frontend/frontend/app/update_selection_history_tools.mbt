@@ -49,7 +49,7 @@ fn update_selection_history_tools(
   model : Model,
 ) -> (Array[Effect], Model) {
   match msg {
-    SetHoverHint(hint) => ([], { ..model, hover_hint: hint })
+    SetHoverHint(hint) => ([], { ..model, hover_hint: hint, })
     ToggleAssetTreeFolder(key) => {
       let asset_tree_expanded = model.asset_tree_expanded
       let next_value = !model.asset_tree_folder_expanded(key)
@@ -72,14 +72,14 @@ fn update_selection_history_tools(
       }
       (
         [],
-        { ..model, asset_tree_expanded, status: "Collapsed all asset folders" },
+        { ..model, asset_tree_expanded, status: "Collapsed all asset folders", },
       )
     }
     SetAssetScope(scope) =>
       if model.asset_scope == scope {
         ([], model)
       } else {
-        let next_scope_model = { ..model, asset_scope: scope }
+        let next_scope_model = { ..model, asset_scope: scope, }
         let visible = visible_resources_in_order(next_scope_model)
         let selected_resource = match model.selected_resource {
           Some(selection) if resource_index(visible, selection) is Some(_) =>
@@ -201,7 +201,7 @@ fn update_selection_history_tools(
         }
         _ => {
           let next = push_log(model, "Nothing to undo")
-          ([], { ..next, status: "Nothing to undo" })
+          ([], { ..next, status: "Nothing to undo", })
         }
       }
     RedoScene =>
@@ -239,7 +239,7 @@ fn update_selection_history_tools(
         }
         _ => {
           let next = push_log(model, "Nothing to redo")
-          ([], { ..next, status: "Nothing to redo" })
+          ([], { ..next, status: "Nothing to redo", })
         }
       }
     ClearSelection =>

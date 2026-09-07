@@ -132,7 +132,7 @@ fn entity_joint_config_key(
   body1 : @rapier_dynamics.RigidBodyHandle,
   body2 : @rapier_dynamics.RigidBodyHandle,
 ) -> EntityJointConfigKey {
-  { joint, body1: body_handle_parts(body1), body2: body_handle_parts(body2) }
+  { joint, body1: body_handle_parts(body1), body2: body_handle_parts(body2), }
 }
 
 ///|
@@ -269,7 +269,7 @@ fn entity_multibody_joint_config_key(
   child : @rapier_dynamics.RigidBodyHandle,
 ) -> EntityMultibodyJointConfigKey {
   entity |> ignore
-  { joint, parent: body_handle_parts(parent), child: body_handle_parts(child) }
+  { joint, parent: body_handle_parts(parent), child: body_handle_parts(child), }
 }
 
 ///|

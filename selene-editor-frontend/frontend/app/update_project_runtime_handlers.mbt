@@ -10,15 +10,15 @@ fn handle_project_root_picked(
           let root = normalized_project_root(path)
           (
             [rpc_effect(RpcProjectOpen(root))],
-            { ..model, project_root_input: root, status: "Opening project..." },
+            { ..model, project_root_input: root, status: "Opening project...", },
           )
         }
-        None => ([], { ..model, status: "Open a project to begin" })
+        None => ([], { ..model, status: "Open a project to begin", })
       }
     AsyncErr(message) => {
       ignore(message)
       let next = push_log(model, folder_picker_failed_message())
-      ([], { ..next, status: folder_picker_failed_message() })
+      ([], { ..next, status: folder_picker_failed_message(), })
     }
   }
 }
@@ -90,7 +90,7 @@ fn handle_project_loaded(
         component_search_query: "",
         open_component_menu_kind: None,
         scene_session: model.scene_session.map(fn(session) {
-          { ..session, path: scene_path }
+          { ..session, path: scene_path, }
         }),
         status,
         move_snap_enabled,
@@ -106,7 +106,7 @@ fn handle_project_loaded(
     AsyncErr(message) => {
       ignore(message)
       let next = push_log(model, project_open_failed_message())
-      ([], { ..next, status: project_open_failed_message() })
+      ([], { ..next, status: project_open_failed_message(), })
     }
   }
 }
@@ -233,13 +233,13 @@ fn handle_scene_loaded(
         .with_selected_entity_id(None)
       (
         [Preview(@bridge.preview_command_clear_scene())],
-        { ..next, workspace: cleared },
+        { ..next, workspace: cleared, },
       )
     }
     AsyncErr(message) => {
       ignore(message)
       let next = push_log(model, scene_load_failed_message())
-      ([], { ..next, status: scene_load_failed_message() })
+      ([], { ..next, status: scene_load_failed_message(), })
     }
   }
 }
@@ -266,7 +266,7 @@ fn handle_scene_saved(
           }
         None => model
       }
-      ([], { ..next, status: save_success_status(next) })
+      ([], { ..next, status: save_success_status(next), })
     }
     AsyncOk(Conflict(conflict)) => {
       let next = match model.scene_session {
@@ -301,7 +301,7 @@ fn handle_scene_saved(
     }
     AsyncErr(message) => {
       let next = push_log(model, "Save failed: " + message)
-      ([], { ..next, status: "Save failed: " + message })
+      ([], { ..next, status: "Save failed: " + message, })
     }
   }
 }
@@ -319,11 +319,11 @@ fn handle_service_event(
         ProjectDelta(delta~) =>
           match delta {
             WorkspaceChanged =>
-              ([], { ..model, status: "Workspace settings updated" })
+              ([], { ..model, status: "Workspace settings updated", })
             ManifestChanged =>
               (
                 [rpc_effect(RpcSceneList)],
-                { ..model, status: "Project manifest changed" },
+                { ..model, status: "Project manifest changed", },
               )
             AssetFileChanged(_) => ([rpc_effect(RpcAssetsList)], model)
             SceneFileChanged(path~, disk_hash~, disk_revision~) =>
@@ -346,7 +346,7 @@ fn handle_service_event(
                 Some(session) if session.path == path =>
                   (
                     [rpc_effect(RpcSceneLoad(path))],
-                    { ..model, status: "Reloading changed scene..." },
+                    { ..model, status: "Reloading changed scene...", },
                   )
                 _ => ([rpc_effect(RpcSceneList)], model)
               }
@@ -360,7 +360,7 @@ fn handle_service_event(
       }
     AsyncErr(message) => {
       let next = push_log(model, "SSE error: " + message)
-      ([], { ..next, status: "SSE error" })
+      ([], { ..next, status: "SSE error", })
     }
   }
 }
@@ -393,7 +393,7 @@ fn handle_preview_event(
         with_single_entity_selection(model, Some(id))
       }
       let next = with_started_scene_edit_transaction(
-        { ..next_selection, selected_resource: None },
+        { ..next_selection, selected_resource: None, },
         "Transform",
       )
       ([], next)

@@ -10,14 +10,14 @@ fn resolve_font_family(style : @render2d_types.TextStyle2D) -> String {
 fn resolve_text_style(
   style : @render2d_types.TextStyle2D,
 ) -> @render2d_types.TextStyle2D {
-  { ..style, family: resolve_font_family(style) }
+  { ..style, family: resolve_font_family(style), }
 }
 
 ///|
 fn resolve_text_command(
   command : @render2d_types.TextDrawCommand2D,
 ) -> @render2d_types.TextDrawCommand2D {
-  { ..command, style: resolve_text_style(command.style) }
+  { ..command, style: resolve_text_style(command.style), }
 }
 
 ///|

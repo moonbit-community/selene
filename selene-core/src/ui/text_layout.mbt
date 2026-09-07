@@ -57,5 +57,5 @@ fn prepare_text_layout(
     width = @cmp.maximum(width, measure_text_fragment(style, line)[X])
   }
   let line_height = style.size * @cmp.maximum(1.0, layout.line_height)
-  { lines, width, height: line_height * lines.length().to_double() }
+  { lines, width, height: line_height * lines.length().to_double(), }
 }

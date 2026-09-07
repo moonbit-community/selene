@@ -303,7 +303,7 @@ pub fn load_tiled_map(path : String) -> TiledMap {
     return empty_tiled_map()
   }
   let map = parse_tiled_map_source(source)
-  resolve_external_tiled_tilesets({ ..map, source_path: Some(path) })
+  resolve_external_tiled_tilesets({ ..map, source_path: Some(path), })
 }
 
 ///|
@@ -542,7 +542,7 @@ pub fn TiledTileLayer::tile_cells(self : TiledTileLayer) -> Array[TiledCell] {
       for index, gid in chunk.data {
         let local_x = index % chunk.width
         let local_y = index / chunk.width
-        cells.push({ x: chunk.x + local_x, y: chunk.y + local_y, gid })
+        cells.push({ x: chunk.x + local_x, y: chunk.y + local_y, gid, })
       }
     }
     return cells
@@ -555,7 +555,7 @@ pub fn TiledTileLayer::tile_cells(self : TiledTileLayer) -> Array[TiledCell] {
   for index, gid in self.data {
     let local_x = index % self.width
     let local_y = index / self.width
-    cells.push({ x: origin_x + local_x, y: origin_y + local_y, gid })
+    cells.push({ x: origin_x + local_x, y: origin_y + local_y, gid, })
   }
   cells
 }
@@ -617,7 +617,7 @@ fn parse_tiled_json_tileset_source(
   let document = @json.parse(source.view()) catch { _ => return None }
   guard json_object(document) is Some(tileset_object) else { return None }
   let external_tileset = parse_tileset(tileset_object)
-  Some({ ..external_tileset, first_gid, source: Some(source_path) })
+  Some({ ..external_tileset, first_gid, source: Some(source_path), })
 }
 
 ///|
@@ -629,7 +629,7 @@ fn resolve_external_tiled_tilesets(map : TiledMap) -> TiledMap {
   for tileset in map.tilesets {
     resolved_tilesets.push(resolve_external_tiled_tileset(map, tileset))
   }
-  { ..map, tilesets: resolved_tilesets }
+  { ..map, tilesets: resolved_tilesets, }
 }
 
 ///|
@@ -884,7 +884,7 @@ fn parse_tiled_gid_bytes(bytes : Bytes) -> Array[TiledGid] {
 ///|
 fn parse_tiled_gid_csv(source : String) -> Array[TiledGid] {
   let gids : Array[TiledGid] = []
-  let mut token = StringBuilder::new()
+  let mut token = StringBuilder()
   for ch in source.to_array() {
     if ch == ',' || is_tiled_source_whitespace(ch) {
       let token_string = token.to_string()
@@ -892,12 +892,12 @@ fn parse_tiled_gid_csv(source : String) -> Array[TiledGid] {
         let raw = @string.parse_int(token_string[:]) catch {
           _ => {
             gids.push(empty_tiled_gid())
-            token = StringBuilder::new()
+            token = StringBuilder()
             continue
           }
         }
         gids.push(decode_tiled_gid(raw))
-        token = StringBuilder::new()
+        token = StringBuilder()
       }
       continue
     }
@@ -918,7 +918,7 @@ fn parse_tiled_gid_csv(source : String) -> Array[TiledGid] {
 
 ///|
 fn strip_tiled_base64_whitespace(source : String) -> String {
-  let cleaned = StringBuilder::new()
+  let cleaned = StringBuilder()
   for ch in source.to_array() {
     if is_tiled_source_whitespace(ch) {
       continue

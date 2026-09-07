@@ -33,7 +33,7 @@ let mesh2d_world_stores : Map[UInt, Mesh2dWorldStore] = Map([])
 ///|
 fn mesh2d_world_store() -> Mesh2dWorldStore {
   let world_id = @ecs.require_current_world().id()
-  mesh2d_world_stores.get_or_init(world_id, fn() { { mesh2ds: Map([]) } })
+  mesh2d_world_stores.get_or_init(world_id, fn() { { mesh2ds: Map([]), } })
 }
 
 ///|
@@ -42,7 +42,7 @@ pub fn mesh2ds() -> Map[@entity.Entity, Mesh2d] {
 }
 
 ///|
-let mesh_storage : Mesh2dStorage = { meshes: Map([]) }
+let mesh_storage : Mesh2dStorage = { meshes: Map([]), }
 
 ///|
 let next_mesh2d_id : Ref[UInt] = Ref(0U)
@@ -54,12 +54,12 @@ pub fn mesh2d_storage() -> Mesh2dStorage {
 
 ///|
 pub fn Mesh2dAsset::rectangle(size : @math.Vec2) -> Mesh2dAsset {
-  { primitive: Rectangle(size) }
+  { primitive: Rectangle(size), }
 }
 
 ///|
 pub fn Mesh2dAsset::circle(radius : Double) -> Mesh2dAsset {
-  { primitive: Circle(radius) }
+  { primitive: Circle(radius), }
 }
 
 ///|
@@ -212,7 +212,7 @@ fn push_mesh2d_draw_command(
         Some(image) => {
           let command : @render2d_types.ImageDrawCommand2D = {
             image,
-            destination: { position: snapped_pos, size },
+            destination: { position: snapped_pos, size, },
             source: None,
             transform: external_transform,
             uv_transform: material.uv_transform,
@@ -241,7 +241,7 @@ fn push_mesh2d_draw_command(
         }
         None => {
           let command : @render2d_types.RectDrawCommand2D = {
-            rect: { position: snapped_pos, size },
+            rect: { position: snapped_pos, size, },
             transform: external_transform,
             alpha_mode: material.alpha_mode,
             blend_mode: material.blend_mode,
@@ -309,7 +309,7 @@ fn mesh2d_bounds(
     Rectangle(size) =>
       @camera.transformed_rect_bounds(
         snapped_pos,
-        { position: @math.Vec2::zero(), size },
+        { position: @math.Vec2::zero(), size, },
         screen_transform * centered_quad_transform(size),
       )
     Circle(radius) =>

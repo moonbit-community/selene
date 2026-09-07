@@ -316,12 +316,12 @@ pub fn advanced_key_system(_delta : Double) -> Unit {
   just_pressed_keys.clear()
   for code in pressed_keys.difference(last_pressed_keys) {
     just_pressed_keys.add(code)
-    key_input_event_bus.send({ key: code, state: Pressed })
+    key_input_event_bus.send({ key: code, state: Pressed, })
   }
   just_release_keys.clear()
   for code in last_pressed_keys.difference(pressed_keys) {
     just_release_keys.add(code)
-    key_input_event_bus.send({ key: code, state: Released })
+    key_input_event_bus.send({ key: code, state: Released, })
   }
   last_pressed_keys.clear()
   for code in pressed_keys {

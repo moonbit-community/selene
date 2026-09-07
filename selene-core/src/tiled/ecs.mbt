@@ -240,7 +240,7 @@ pub struct TiledParallaxLayer {
 
 ///|
 pub fn empty_tiled_map_storage() -> TiledMapStorage {
-  { layers: Map([]), objects: Map([]), tiles: Map([]) }
+  { layers: Map([]), objects: Map([]), tiles: Map([]), }
 }
 
 ///|
@@ -405,7 +405,7 @@ fn spawn_tiled_map_root(
   tiled_map_instances().set(root, { map, })
   tiled_map_storages().set(root, empty_tiled_map_storage())
   tiled_set_properties(root, map.properties)
-  let map_event = { map_entity: root, map }
+  let map_event = { map_entity: root, map, }
   tiled_map_spawned_event_bus.trigger(map_event, Some(root))
   if settings.map_hook is Some(map_hook) {
     map_hook(map_event)
@@ -669,7 +669,7 @@ fn spawn_tiled_image_layer(
     Sprite(
       image=Some(load_tiled_image(image_path)),
       custom_size=Some(custom_size),
-      color={ r: 255U, g: 255U, b: 255U, a: layer.opacity },
+      color={ r: 255U, g: 255U, b: 255U, a: layer.opacity, },
       anchor=Anchor(Vec2(-0.5, 0.5)),
       image_mode=Tiled(repeat),
     ),
@@ -708,7 +708,7 @@ fn build_tiled_tile_animation(
         }),
         fps,
         loop_: true,
-        color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+        color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
         custom_size: Some(tile_size),
         anchor: Anchor(Vec2(-0.5, 0.5)),
       })
@@ -729,7 +729,7 @@ fn build_tiled_tile_animation(
     }),
     fps: 0.0,
     loop_: false,
-    color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+    color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
     custom_size: Some(tile_size),
     anchor: Anchor(Vec2(-0.5, 0.5)),
   })
@@ -835,7 +835,7 @@ fn tiled_visual_regions_for_local_tile(
       return [
         (
           load_tiled_image(resolved_path),
-          { position: @math.Vec2::zero(), size: frame_size },
+          { position: @math.Vec2::zero(), size: frame_size, },
         ),
       ]
     }
@@ -849,7 +849,7 @@ fn tiled_visual_regions_for_local_tile(
   [
     (
       load_tiled_image(resolved_path),
-      { position: source_offset, size: frame_size },
+      { position: source_offset, size: frame_size, },
     ),
   ]
 }

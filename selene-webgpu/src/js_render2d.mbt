@@ -1,6 +1,6 @@
 ///|
-extern "js" fn webgpu_begin_3d(
-  view_projection : Array[Double],
+extern "js" fn webgpu_begin_3d_ffi(
+  view_projection : FixedArray[Double],
   position_x : Double,
   position_y : Double,
   position_z : Double,
@@ -25,7 +25,7 @@ extern "js" fn webgpu_begin_3d(
   #| }
 
 ///|
-extern "js" fn webgpu_canvas_size() -> Array[Double] =
+extern "js" fn webgpu_canvas_size_ffi() -> FixedArray[Double] =
   #| () => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (!rt?.canvas) return [1, 1];
@@ -45,11 +45,11 @@ extern "js" fn webgpu_end_3d() -> Unit =
   #| }
 
 ///|
-extern "js" fn webgpu_set_lighting_3d(
-  light_uniform : Array[Double],
-  directional_shadow_data : Array[Double],
-  point_shadow_data : Array[Double],
-  spot_shadow_data : Array[Double],
+extern "js" fn webgpu_set_lighting_3d_ffi(
+  light_uniform : FixedArray[Double],
+  directional_shadow_data : FixedArray[Double],
+  point_shadow_data : FixedArray[Double],
+  spot_shadow_data : FixedArray[Double],
   directional_shadow_map_size : Double,
   point_shadow_map_size : Double,
 ) -> Unit =
@@ -70,10 +70,10 @@ extern "js" fn webgpu_set_lighting_3d(
   #| }
 
 ///|
-extern "js" fn webgpu_set_shadow_view_projection_3d(
-  directional_cascades : Array[Double],
-  spot_matrices : Array[Double],
-  point_matrices : Array[Double],
+extern "js" fn webgpu_set_shadow_view_projection_3d_ffi(
+  directional_cascades : FixedArray[Double],
+  spot_matrices : FixedArray[Double],
+  point_matrices : FixedArray[Double],
 ) -> Unit =
   #| (directionalCascades, spotMatrices, pointMatrices) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
@@ -86,9 +86,9 @@ extern "js" fn webgpu_set_shadow_view_projection_3d(
   #| }
 
 ///|
-extern "js" fn webgpu_upload_lit_primitive_mesh_resource(
+extern "js" fn webgpu_upload_lit_primitive_mesh_resource_ffi(
   cache_key : String,
-  vertices : Array[Double],
+  vertices : FixedArray[Double],
 ) -> Unit =
   #| (cacheKey, vertices) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
@@ -98,10 +98,10 @@ extern "js" fn webgpu_upload_lit_primitive_mesh_resource(
   #| }
 
 ///|
-extern "js" fn webgpu_draw_lit_primitive_mesh_batch_3d(
+extern "js" fn webgpu_draw_lit_primitive_mesh_batch_3d_ffi(
   cache_key : String,
   retained_key : String,
-  instances : Array[Double],
+  instances : FixedArray[Double],
   double_sided : Bool,
   cast_shadows : Bool,
 ) -> Unit =
@@ -135,8 +135,8 @@ extern "js" fn webgpu_release_retained_instance_buffer_3d(
   #| }
 
 ///|
-extern "js" fn webgpu_draw_colored_triangles_3d(
-  vertices : Array[Double],
+extern "js" fn webgpu_draw_colored_triangles_3d_ffi(
+  vertices : FixedArray[Double],
   double_sided : Bool,
   cast_shadows : Bool,
 ) -> Unit =
@@ -148,7 +148,7 @@ extern "js" fn webgpu_draw_colored_triangles_3d(
   #| }
 
 ///|
-extern "js" fn webgpu_draw_lines_3d(vertices : Array[Double]) -> Unit =
+extern "js" fn webgpu_draw_lines_3d_ffi(vertices : FixedArray[Double]) -> Unit =
   #| (vertices) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
@@ -157,7 +157,7 @@ extern "js" fn webgpu_draw_lines_3d(vertices : Array[Double]) -> Unit =
   #| }
 
 ///|
-extern "js" fn webgpu_draw_textured_triangles_3d(
+extern "js" fn webgpu_draw_textured_triangles_3d_ffi(
   base_path : String,
   emissive_path : String,
   metallic_roughness_path : String,
@@ -168,7 +168,7 @@ extern "js" fn webgpu_draw_textured_triangles_3d(
   metallic_roughness_sampler_code : Int,
   occlusion_sampler_code : Int,
   normal_sampler_code : Int,
-  vertices : Array[Double],
+  vertices : FixedArray[Double],
   double_sided : Bool,
   cast_shadows : Bool,
 ) -> Unit =
@@ -180,9 +180,9 @@ extern "js" fn webgpu_draw_textured_triangles_3d(
   #| }
 
 ///|
-extern "js" fn webgpu_draw_skybox_textured_triangles_3d(
+extern "js" fn webgpu_draw_skybox_textured_triangles_3d_ffi(
   base_path : String,
-  vertices : Array[Double],
+  vertices : FixedArray[Double],
 ) -> Unit =
   #| (basePath, vertices) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
@@ -219,3 +219,169 @@ pub extern "js" fn Audio::new(path : String) -> Audio =
   #|   );
   #|   return init(new Audio(path));
   #| }
+
+///|
+fn webgpu_begin_3d(
+  view_projection : Array[Double],
+  position_x : Double,
+  position_y : Double,
+  position_z : Double,
+  target_x : Double,
+  target_y : Double,
+  target_z : Double,
+  up_x : Double,
+  up_y : Double,
+  up_z : Double,
+  fovy : Double,
+  near_z : Double,
+  far_z : Double,
+  orthographic : Double,
+  orthographic_width : Double,
+  orthographic_height : Double,
+) -> Unit {
+  webgpu_begin_3d_ffi(
+    FixedArray::from_array(view_projection[:]),
+    position_x,
+    position_y,
+    position_z,
+    target_x,
+    target_y,
+    target_z,
+    up_x,
+    up_y,
+    up_z,
+    fovy,
+    near_z,
+    far_z,
+    orthographic,
+    orthographic_width,
+    orthographic_height,
+  )
+}
+
+///|
+fn webgpu_canvas_size() -> Array[Double] {
+  Array::from_fixed_array(webgpu_canvas_size_ffi())
+}
+
+///|
+fn webgpu_set_lighting_3d(
+  light_uniform : Array[Double],
+  directional_shadow_data : Array[Double],
+  point_shadow_data : Array[Double],
+  spot_shadow_data : Array[Double],
+  directional_shadow_map_size : Double,
+  point_shadow_map_size : Double,
+) -> Unit {
+  webgpu_set_lighting_3d_ffi(
+    FixedArray::from_array(light_uniform[:]),
+    FixedArray::from_array(directional_shadow_data[:]),
+    FixedArray::from_array(point_shadow_data[:]),
+    FixedArray::from_array(spot_shadow_data[:]),
+    directional_shadow_map_size,
+    point_shadow_map_size,
+  )
+}
+
+///|
+fn webgpu_set_shadow_view_projection_3d(
+  directional_cascades : Array[Double],
+  spot_matrices : Array[Double],
+  point_matrices : Array[Double],
+) -> Unit {
+  webgpu_set_shadow_view_projection_3d_ffi(
+    FixedArray::from_array(directional_cascades[:]),
+    FixedArray::from_array(spot_matrices[:]),
+    FixedArray::from_array(point_matrices[:]),
+  )
+}
+
+///|
+fn webgpu_upload_lit_primitive_mesh_resource(
+  cache_key : String,
+  vertices : Array[Double],
+) -> Unit {
+  webgpu_upload_lit_primitive_mesh_resource_ffi(
+    cache_key,
+    FixedArray::from_array(vertices[:]),
+  )
+}
+
+///|
+fn webgpu_draw_lit_primitive_mesh_batch_3d(
+  cache_key : String,
+  retained_key : String,
+  instances : Array[Double],
+  double_sided : Bool,
+  cast_shadows : Bool,
+) -> Unit {
+  webgpu_draw_lit_primitive_mesh_batch_3d_ffi(
+    cache_key,
+    retained_key,
+    FixedArray::from_array(instances[:]),
+    double_sided,
+    cast_shadows,
+  )
+}
+
+///|
+fn webgpu_draw_colored_triangles_3d(
+  vertices : Array[Double],
+  double_sided : Bool,
+  cast_shadows : Bool,
+) -> Unit {
+  webgpu_draw_colored_triangles_3d_ffi(
+    FixedArray::from_array(vertices[:]),
+    double_sided,
+    cast_shadows,
+  )
+}
+
+///|
+fn webgpu_draw_lines_3d(vertices : Array[Double]) -> Unit {
+  webgpu_draw_lines_3d_ffi(FixedArray::from_array(vertices[:]))
+}
+
+///|
+fn webgpu_draw_textured_triangles_3d(
+  base_path : String,
+  emissive_path : String,
+  metallic_roughness_path : String,
+  occlusion_path : String,
+  normal_path : String,
+  base_sampler_code : Int,
+  emissive_sampler_code : Int,
+  metallic_roughness_sampler_code : Int,
+  occlusion_sampler_code : Int,
+  normal_sampler_code : Int,
+  vertices : Array[Double],
+  double_sided : Bool,
+  cast_shadows : Bool,
+) -> Unit {
+  webgpu_draw_textured_triangles_3d_ffi(
+    base_path,
+    emissive_path,
+    metallic_roughness_path,
+    occlusion_path,
+    normal_path,
+    base_sampler_code,
+    emissive_sampler_code,
+    metallic_roughness_sampler_code,
+    occlusion_sampler_code,
+    normal_sampler_code,
+    FixedArray::from_array(vertices[:]),
+    double_sided,
+    cast_shadows,
+  )
+}
+
+///|
+fn webgpu_draw_skybox_textured_triangles_3d(
+  base_path : String,
+  vertices : Array[Double],
+) -> Unit {
+  webgpu_draw_skybox_textured_triangles_3d_ffi(
+    base_path,
+    FixedArray::from_array(vertices[:]),
+  )
+}

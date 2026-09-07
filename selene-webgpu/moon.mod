@@ -1,12 +1,12 @@
 name = "Milky2018/selene_webgpu"
 
-version = "0.37.1"
+version = "0.37.2"
 
 import {
-  "Milky2018/selene@0.37.1",
-  "Milky2018/moon_cosmic@0.3.3",
+  "Milky2018/selene@0.37.2",
+  "Milky2018/moon_cosmic@0.3.4",
   "moonbit-community/js-ffi@0.4.2",
-  "moonbit-community/rabbita@0.12.4",
+  "moonbit-community/rabbita@0.15.6",
 }
 
 readme = "README.md"

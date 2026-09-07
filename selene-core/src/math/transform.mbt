@@ -38,14 +38,14 @@ pub(all) struct Transform {
 /// Returns a new `Transform` instance with identical matrix values.
 ///
 pub fn Transform::clone(self : Transform) -> Transform {
-  { a: self.a, b: self.b, c: self.c, d: self.d, tx: self.tx, ty: self.ty }
+  { a: self.a, b: self.b, c: self.c, d: self.d, tx: self.tx, ty: self.ty, }
 }
 
 ///|
 /// Create identity transform
 /// 
 pub fn Transform::identity() -> Transform {
-  { a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0 }
+  { a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0, }
 }
 
 ///|
@@ -64,21 +64,21 @@ pub fn Transform::Transform(
   tx? : Double = 0.0,
   ty? : Double = 0.0,
 ) -> Transform {
-  { a, b, c, d, tx, ty }
+  { a, b, c, d, tx, ty, }
 }
 
 ///|
 /// Create translation transform
 /// 
 pub fn Transform::from_translation(tx : Double, ty : Double) -> Transform {
-  { a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx, ty }
+  { a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx, ty, }
 }
 
 ///|
 /// Create scale transform
 /// 
 pub fn Transform::from_scale(sx : Double, sy : Double) -> Transform {
-  { a: sx, b: 0.0, c: 0.0, d: sy, tx: 0.0, ty: 0.0 }
+  { a: sx, b: 0.0, c: 0.0, d: sy, tx: 0.0, ty: 0.0, }
 }
 
 ///|
@@ -94,14 +94,14 @@ pub fn Transform::from_rotation_deg(deg : Double) -> Transform {
 pub fn Transform::from_rotation_rad(rad : Double) -> Transform {
   let cos_r = @cmath.cos(rad)
   let sin_r = @cmath.sin(rad)
-  { a: cos_r, b: sin_r, c: -sin_r, d: cos_r, tx: 0.0, ty: 0.0 }
+  { a: cos_r, b: sin_r, c: -sin_r, d: cos_r, tx: 0.0, ty: 0.0, }
 }
 
 ///|
 /// Create skew transform
 /// 
 pub fn Transform::from_skew(kx : Double, ky : Double) -> Transform {
-  { a: 1.0, b: ky, c: kx, d: 1.0, tx: 0.0, ty: 0.0 }
+  { a: 1.0, b: ky, c: kx, d: 1.0, tx: 0.0, ty: 0.0, }
 }
 
 ///|
@@ -174,7 +174,7 @@ pub fn Transform::with_translation(
   tx : Double,
   ty : Double,
 ) -> Transform {
-  { ..self, tx, ty }
+  { ..self, tx, ty, }
 }
 
 ///|

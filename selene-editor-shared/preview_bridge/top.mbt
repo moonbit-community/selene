@@ -30,7 +30,7 @@ pub fn atlas_asset_entry(
   path : String,
   atlas : @editor_bridge.AtlasAssetDocument,
 ) -> AtlasAssetEntry {
-  { path, atlas }
+  { path, atlas, }
 }
 
 ///|
@@ -38,7 +38,7 @@ pub fn animation_clip_asset_entry(
   path : String,
   clip : @editor_bridge.AnimationClipAssetDocument,
 ) -> AnimationClipAssetEntry {
-  { path, clip }
+  { path, clip, }
 }
 
 ///|
@@ -46,7 +46,7 @@ pub fn animation_graph_asset_entry(
   path : String,
   graph : @editor_bridge.AnimationGraphAssetDocument,
 ) -> AnimationGraphAssetEntry {
-  { path, graph }
+  { path, graph, }
 }
 
 ///|
@@ -57,7 +57,7 @@ pub fn preview_scene_payload(
   animation_clips : Array[AnimationClipAssetEntry],
   animation_graphs : Array[AnimationGraphAssetEntry],
 ) -> PreviewScenePayload {
-  { scene_path, scene, atlases, animation_clips, animation_graphs }
+  { scene_path, scene, atlases, animation_clips, animation_graphs, }
 }
 
 ///|

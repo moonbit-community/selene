@@ -71,7 +71,7 @@ pub fn Entity::is_alive(e : Entity) -> Bool {
 ///|
 pub fn Entity::Entity() -> Entity {
   let store = entity_store()
-  let entity = { value: store.entity_generator }
+  let entity = { value: store.entity_generator, }
   store.entity_generator += 1U
   store.all_entities.add(entity)
   store.alive_count += 1
@@ -89,7 +89,7 @@ pub fn Entity::id(self : Entity) -> UInt {
 /// This matches deferred-spawn semantics used by commands.
 pub fn Entity::reserve_spawn() -> Entity {
   let store = entity_store()
-  let entity = { value: store.entity_generator }
+  let entity = { value: store.entity_generator, }
   store.entity_generator += 1U
   store.lifecycle_states.set(entity, PendingSpawn)
   store.pending_state_changes.add(entity)

@@ -309,7 +309,7 @@ fn current_dragged_asset() -> String? {
 #cfg(target="js")
 extern "js" fn drag_event_canvas_metrics(
   event : @dom.DragEvent,
-) -> Array[Double] =
+) -> FixedArray[Double] =
   #| (event) => {
   #|   const rect = event.currentTarget.getBoundingClientRect();
   #|   return [

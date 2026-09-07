@@ -150,7 +150,7 @@ pub let contact_force_event_bus : @event.Events[ContactForceEvent] = Events()
 ///|
 #warnings("-unnecessary_annotation")
 pub fn context() -> RapierContext {
-  RapierContext::{  }
+  RapierContext::{ }
 }
 
 ///|

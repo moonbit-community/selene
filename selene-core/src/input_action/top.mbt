@@ -187,15 +187,15 @@ pub fn input_action_system(_delta : Double) -> Unit {
     }
     action_states.set(action, next_state)
     if just_pressed {
-      input_action_event_bus.send({ action, kind: Pressed, value })
+      input_action_event_bus.send({ action, kind: Pressed, value, })
     }
     if just_released {
-      input_action_event_bus.send({ action, kind: Released, value })
+      input_action_event_bus.send({ action, kind: Released, value, })
     }
     let delta = value - previous.value
     let absolute_delta = if delta < 0.0 { -delta } else { delta }
     if absolute_delta > 0.000001 {
-      input_action_event_bus.send({ action, kind: ValueChanged, value })
+      input_action_event_bus.send({ action, kind: ValueChanged, value, })
     }
   }
 }

@@ -298,7 +298,7 @@ fn entity_rect(entity : @entity.Entity) -> @math.Rect? {
   guard @physics2d.shapes().get(entity) is Some(shape) else { return None }
   let position = @math.Vec2(transform.translation.x, transform.translation.y)
   match shape {
-    Rect(size~, offset~) => Some({ position: position + offset, size })
+    Rect(size~, offset~) => Some({ position: position + offset, size, })
     _ => None
   }
 }
@@ -329,7 +329,7 @@ fn sweep_rect(from : @math.Rect, to : @math.Rect) -> @math.Rect {
   let bottom_from = from.position[Y] + from.size[Y]
   let bottom_to = to.position[Y] + to.size[Y]
   let bottom = if bottom_from > bottom_to { bottom_from } else { bottom_to }
-  { position: Vec2(left, top), size: Vec2(right - left, bottom - top) }
+  { position: Vec2(left, top), size: Vec2(right - left, bottom - top), }
 }
 
 ///|

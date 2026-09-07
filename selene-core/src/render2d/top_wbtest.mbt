@@ -4,11 +4,11 @@ fn test_rect_command(
   alpha : Double,
 ) -> @render2d_types.RectDrawCommand2D {
   {
-    rect: { position: @math.Vec2::zero(), size: Vec2(8.0, 8.0) },
+    rect: { position: @math.Vec2::zero(), size: Vec2(8.0, 8.0), },
     transform: @math.Transform::identity(),
     alpha_mode,
     blend_mode: Alpha,
-    fill_color: { r: 255U, g: 255U, b: 255U, a: alpha },
+    fill_color: { r: 255U, g: 255U, b: 255U, a: alpha, },
     stroke_color: None,
   }
 }

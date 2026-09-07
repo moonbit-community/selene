@@ -118,7 +118,7 @@ test "pickable click supports ball shapes" {
     @system.configure_display(100.0, 100.0, 1.0)
     ignore(
       spawn_pickable_camera(
-        { position: @math.Vec2::zero(), size: Vec2(100.0, 100.0) },
+        { position: @math.Vec2::zero(), size: Vec2(100.0, 100.0), },
         0,
         @visibility.layer(0U),
       ),
