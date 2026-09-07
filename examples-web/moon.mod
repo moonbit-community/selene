@@ -3,8 +3,8 @@ name = "Milky2018/selene-examples-web"
 version = "0.21.2"
 
 import {
-  "Milky2018/selene@0.37.2",
-  "Milky2018/selene_webgpu@0.37.2",
+  "Milky2018/selene@0.37.3",
+  "Milky2018/selene_webgpu@0.37.3",
   "Milky2018/selene-examples@0.21.2",
 }
 

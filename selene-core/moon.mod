@@ -1,6 +1,6 @@
 name = "Milky2018/selene"
 
-version = "0.37.2"
+version = "0.37.3"
 
 import {
   "Milky2018/moon_rapier@0.5.1",

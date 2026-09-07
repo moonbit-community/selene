@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/string",
   "Milky2018/selene/editor_bridge",
   "Milky2018/selene_editor_frontend/frontend/app",
   "Milky2018/selene_editor_shared/preview_bridge" @bridge,
@@ -10,7 +11,6 @@ import {
   "moonbit-community/rabbita/html",
   "moonbit-community/rabbita/http",
   "moonbitlang/core/json",
-  "moonbitlang/core/strconv",
 }
 
 supported_targets = "js"

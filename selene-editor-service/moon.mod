@@ -1,10 +1,10 @@
 name = "Milky2018/selene_editor_service"
 
-version = "0.37.2"
+version = "0.37.3"
 
 import {
-  "Milky2018/selene@0.37.2",
-  "Milky2018/selene_editor_shared@0.37.2",
+  "Milky2018/selene@0.37.3",
+  "Milky2018/selene_editor_shared@0.37.3",
   "moonbitlang/async@0.21.2",
   "moonbitlang/x@0.5.1",
 }

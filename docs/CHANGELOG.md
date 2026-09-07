@@ -15,6 +15,12 @@
 
 ### Removed
 
+## [0.37.3] - 2026-09-07
+
+### Fixed
+
+- Replaced the removed core/strconv package with core/string for nightly toolchains.
+
 ## [0.37.2] - 2026-09-07
 
 ### Changed
