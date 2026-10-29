@@ -4,6 +4,16 @@
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.38.0] - 2026-10-29
+
+### Added
+
 - Added WebGPU unit tests and shared example tests to the existing CI checks.
 
 ### Changed
