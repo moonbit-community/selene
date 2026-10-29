@@ -148,7 +148,7 @@ fn ldtk_find_registered_entity_hook(
 ///|
 fn ldtk_find_registered_int_cell_hook(
   layer_identifier : String,
-  value : Int,
+  value : Int32,
 ) -> ((LdtkIntGridCellSpawnedEvent) -> Unit)? {
   if ldtk_int_cell_typed_registrations().get(
       ldtk_int_cell_typed_registration_key(Some(layer_identifier), Some(value)),
@@ -195,7 +195,7 @@ fn ldtk_append_entity_typed_registration(
 ///|
 fn ldtk_append_int_cell_typed_registration(
   layer_identifier : String?,
-  value : Int?,
+  value : Int32?,
   hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
 ) -> Unit {
   let key = ldtk_int_cell_typed_registration_key(layer_identifier, value)
@@ -212,13 +212,13 @@ fn ldtk_append_int_cell_typed_registration(
 ///|
 fn ldtk_int_grid_cell_spawn_hook_key(
   layer_identifier : String,
-  value : Int,
+  value : Int32,
 ) -> String {
   "\{layer_identifier}#\{value}"
 }
 
 ///|
-fn ldtk_int_grid_value_spawn_hook_key(value : Int) -> String {
+fn ldtk_int_grid_value_spawn_hook_key(value : Int32) -> String {
   value.to_string()
 }
 
@@ -241,7 +241,7 @@ fn ldtk_entity_typed_registration_key(
 ///|
 fn ldtk_int_cell_typed_registration_key(
   layer_identifier : String?,
-  value : Int?,
+  value : Int32?,
 ) -> String {
   "L(\{ldtk_optional_string_registration_key(layer_identifier)})|V(\{ldtk_optional_int_registration_key(value)})"
 }
@@ -255,7 +255,7 @@ fn ldtk_optional_string_registration_key(value : String?) -> String {
 }
 
 ///|
-fn ldtk_optional_int_registration_key(value : Int?) -> String {
+fn ldtk_optional_int_registration_key(value : Int32?) -> String {
   match value {
     Some(number) => "I\{number}"
     None => "N"
@@ -344,7 +344,7 @@ fn ldtk_rgba_color_with_alpha(color : String, alpha : Double) -> String? {
 }
 
 ///|
-fn ldtk_parse_color_channel(source : StringView) -> Int? {
+fn ldtk_parse_color_channel(source : StringView) -> Int32? {
   let trimmed = source.trim()
   let value = @string.parse_int(trimmed, base=10) catch { _ => return None }
   Some(if value < 0 { 0 } else if value > 255 { 255 } else { value })
@@ -358,7 +358,7 @@ fn ldtk_parse_alpha_channel(source : StringView) -> Double? {
 }
 
 ///|
-fn ldtk_hex_pair_to_int(hex : String, index : Int) -> Int? {
+fn ldtk_hex_pair_to_int(hex : String, index : Int32) -> Int32? {
   if index < 0 || index + 2 > hex.length() {
     return None
   }

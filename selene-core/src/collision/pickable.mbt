@@ -29,7 +29,7 @@ priv struct PickableWorldStore {
 }
 
 ///|
-let pickable_world_stores : Map[UInt, PickableWorldStore] = Map([])
+let pickable_world_stores : Map[UInt32, PickableWorldStore] = Map([])
 
 ///|
 fn pickable_world_store() -> PickableWorldStore {
@@ -75,7 +75,7 @@ fn push_pointer_event(
 ///|
 pub fn emit_pickable_just_pressed(
   entity : @entity.Entity,
-  button? : @inputs.MouseButton = Left,
+  button~ : @inputs.MouseButton = Left,
 ) -> Unit {
   push_pointer_event(entity, button, JustPressed)
 }

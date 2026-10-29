@@ -38,7 +38,7 @@ pub fn collision_filter(@Milky2018/selene/collision.CollisionGroup, Array[@Milky
 
 pub fn collision_group() -> @Milky2018/selene/collision.CollisionGroup
 
-pub fn configure_physics(gravity? : @math.Vec2, pixels_per_meter? : Double, max_ccd_substeps? : Int) -> Unit
+pub fn configure_physics(gravity? : @math.Vec2, pixels_per_meter? : Double, max_ccd_substeps? : Int32) -> Unit
 
 pub let contact_event_bus : @event.Events[@Milky2018/selene/collision.ContactEvent]
 

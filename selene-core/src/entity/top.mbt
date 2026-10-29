@@ -14,7 +14,7 @@
 
 ///|
 struct Entity {
-  value : UInt
+  value : UInt32
 } derive(Eq, Debug, Hash)
 
 ///|
@@ -28,15 +28,15 @@ enum EntityLifecycleState {
 
 ///|
 priv struct EntityWorldStore {
-  mut entity_generator : UInt
-  mut alive_count : Int
+  mut entity_generator : UInt32
+  mut alive_count : Int32
   all_entities : @set.Set[Entity]
   lifecycle_states : Map[Entity, EntityLifecycleState]
   pending_state_changes : @set.Set[Entity]
 }
 
 ///|
-let entity_world_stores : Map[UInt, EntityWorldStore] = Map([])
+let entity_world_stores : Map[UInt32, EntityWorldStore] = Map([])
 
 ///|
 fn entity_store() -> EntityWorldStore {
@@ -56,7 +56,7 @@ pub fn iter_entities() -> Iter[Entity] {
 }
 
 ///|
-pub fn alive_entity_count() -> Int {
+pub fn alive_entity_count() -> Int32 {
   entity_store().alive_count
 }
 
@@ -80,7 +80,7 @@ pub fn Entity::Entity() -> Entity {
 }
 
 ///|
-pub fn Entity::id(self : Entity) -> UInt {
+pub fn Entity::id(self : Entity) -> UInt32 {
   self.value
 }
 

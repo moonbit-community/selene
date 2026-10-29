@@ -143,7 +143,7 @@ pub fn register_font(family : String, path : String) -> Unit {
 
 ///|
 /// Exposes backend font readiness transitions to retained layout caches.
-pub fn font_metrics_revision(family : String) -> UInt {
+pub fn font_metrics_revision(family : String) -> UInt32 {
   @impl.font_metrics_revision(family)
 }
 
@@ -188,8 +188,8 @@ pub fn capture_frame_png_to_file(path : String) -> Bool {
 ///|
 pub fn render_offscreen_png(
   frame : @render_pipeline.RenderFrame,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Bytes? {
   ignore(frame)
   ignore(width)

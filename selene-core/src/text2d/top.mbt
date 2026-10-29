@@ -15,7 +15,7 @@ priv struct TextLayoutCacheKey {
   font : @asset.FontHandle?
   family : String
   size : Double
-  font_metrics_revision : UInt
+  font_metrics_revision : UInt32
   line_height : Double
   wrap : @ui.TextWrap
   overflow : @ui.TextOverflow
@@ -41,7 +41,7 @@ priv struct Text2dWorldStore {
 }
 
 ///|
-let text2d_world_stores : Map[UInt, Text2dWorldStore] = Map([])
+let text2d_world_stores : Map[UInt32, Text2dWorldStore] = Map([])
 
 ///|
 fn text2d_world_store() -> Text2dWorldStore {
@@ -77,7 +77,7 @@ fn text_layout_caches() -> Map[@entity.Entity, CachedTextLayout2d] {
 }
 
 ///|
-pub fn Text2d::Text2d(blend_mode? : @render.BlendMode2D = Alpha) -> Text2d {
+pub fn Text2d::Text2d(blend_mode~ : @render.BlendMode2D = Alpha) -> Text2d {
   { blend_mode, }
 }
 

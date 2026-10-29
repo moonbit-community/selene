@@ -75,7 +75,7 @@ priv struct RigidBodyWorldStore {
 }
 
 ///|
-let rigid_body_world_stores : Map[UInt, RigidBodyWorldStore] = Map([])
+let rigid_body_world_stores : Map[UInt32, RigidBodyWorldStore] = Map([])
 
 ///|
 fn rigid_body_world_store() -> RigidBodyWorldStore {

@@ -69,7 +69,7 @@ First install MoonBit CLI. If you use VS Code, install the MoonBit extension for
 
 After creating a new project with `moon new`, use a structure similar to `examples/pixeladventure`:
 
-- `pixeladventure`: shared gameplay package, scene/runtime bridge, and asset references
+- `pixeladventure`: shared gameplay package, level setup, and asset references
 - `pixeladventure/web`: web wrapper package (selects webgpu backend by overrides)
 
 ### Asset Preparation
@@ -81,10 +81,7 @@ The image and audio assets can be downloaded from:
 
 Place assets under paths such as `assets/pixeladventure/...`.
 
-The current example also keeps a Selene project manifest and startup scene beside gameplay code:
-
-- `selene.project.json`: project entry and asset indexes
-- `scenes/main.scene.json`: startup scene document
+The level is defined in `level.mbt` and `level_data.mbt` beside the gameplay code.
 
 ### Engine Dependency Installation
 
@@ -109,7 +106,6 @@ import {
   "Milky2018/selene/animation",
   "Milky2018/selene/asset",
   "Milky2018/selene/audio",
-  "Milky2018/selene/editor_bridge",
   "Milky2018/selene/ecs",
   "Milky2018/selene/entity",
   "Milky2018/selene/event",
@@ -338,26 +334,9 @@ let player_collision_group = @physics2d.collision_group()
 
 Only allowed collision-filter pairs will interact.
 
-### Scene Documents and Level Loading
+### Level Loading
 
-Writing full maps directly in code is inconvenient. The current example uses a Selene project manifest plus a startup scene document, then instantiates it at runtime.
-
-The loading flow in `editor_scene.mbt` looks like this:
-
-```moonbit
-let bundle = load_pixeladventure_project_bundle_with_source(source)
-let scene = bundle.scene
-let context = @editor_bridge.asset_instantiation_context(
-  atlas_assets=bundle.atlas_assets,
-  animation_clip_assets=bundle.animation_clip_assets,
-  animation_graph_assets=bundle.animation_graph_assets,
-  custom_component_handlers=pixeladventure_custom_component_handlers(),
-)
-let runtime = @editor_bridge.instantiate_scene_document_with_context(
-  scene,
-  context,
-)
-```
+`level.mbt` spawns the player, apples, flag, and camera directly. Tile coordinates in `level_data.mbt` supply terrain sprites and merged row colliders.
 
 ### Camera
 

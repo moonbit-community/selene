@@ -1,6 +1,6 @@
 ///|
 fn read_accessor_color(
-  accessor_index : Int,
+  accessor_index : Int32,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
@@ -138,7 +138,7 @@ fn read_accessor_color(
 
 ///|
 fn read_accessor_mat4(
-  accessor_index : Int,
+  accessor_index : Int32,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
@@ -214,11 +214,11 @@ fn read_accessor_mat4(
 
 ///|
 fn read_accessor_joint4(
-  accessor_index : Int,
+  accessor_index : Int32,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
-) -> Array[(Int, Int, Int, Int)]? {
+) -> Array[(Int32, Int32, Int32, Int32)]? {
   guard accessor_index >= 0 else { return None }
   guard accessors.get(accessor_index) is Some(Some(accessor)) else {
     return None
@@ -235,7 +235,7 @@ fn read_accessor_joint4(
   if component_size == 0 {
     return None
   }
-  let output : Array[(Int, Int, Int, Int)] = []
+  let output : Array[(Int32, Int32, Int32, Int32)] = []
   for _ in 0..<accessor.count {
     output.push((0, 0, 0, 0))
   }

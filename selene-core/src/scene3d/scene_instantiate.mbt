@@ -1,7 +1,7 @@
 ///|
 fn resolve_scene_skin_bindings(
   template : SceneTemplate,
-  node_entities : Map[Int, @entity.Entity],
+  node_entities : Map[Int32, @entity.Entity],
   pending_skin_bindings : Array[PendingSkinBinding],
 ) -> Unit {
   for pending in pending_skin_bindings {
@@ -95,14 +95,14 @@ fn bind_instantiated_morph_mesh(
 ///|
 fn instantiate_scene_node(
   template : SceneTemplate,
-  node_index : Int,
+  node_index : Int32,
   parent : @entity.Entity,
   root_entity : @entity.Entity,
-  node_entities : Map[Int, @entity.Entity],
+  node_entities : Map[Int32, @entity.Entity],
   pending_skin_bindings : Array[PendingSkinBinding],
   parts : Map[String, @entity.Entity],
   parent_path : String,
-  depth : Int,
+  depth : Int32,
 ) -> Unit {
   if depth > 512 {
     return
@@ -227,22 +227,22 @@ fn instantiate_scene_node(
 }
 
 ///|
-const GLB_MAGIC_G : Int = 103
+const GLB_MAGIC_G : Int32 = 103
 
 ///|
-const GLB_MAGIC_L : Int = 108
+const GLB_MAGIC_L : Int32 = 108
 
 ///|
-const GLB_MAGIC_T : Int = 84
+const GLB_MAGIC_T : Int32 = 84
 
 ///|
-const GLB_MAGIC_F : Int = 70
+const GLB_MAGIC_F : Int32 = 70
 
 ///|
-const GLB_CHUNK_TYPE_JSON : Int = 1313821514
+const GLB_CHUNK_TYPE_JSON : Int32 = 1313821514
 
 ///|
-const GLB_CHUNK_TYPE_BIN : Int = 5130562
+const GLB_CHUNK_TYPE_BIN : Int32 = 5130562
 
 ///|
 let reported_scene_load_failures : Set[String] = Set([])
@@ -383,7 +383,7 @@ fn parse_skin_templates(
     }
     let joints = match field_array(skin_object, "joints") {
       Some(joints_json) => {
-        let values : Array[Int] = []
+        let values : Array[Int32] = []
         for value in joints_json {
           if json_int(value) is Some(index) {
             values.push(index)
@@ -412,11 +412,11 @@ fn parse_skin_templates(
 ///|
 fn assign_scene_node_target_ids(
   nodes : Array[SceneNodeTemplate],
-  node_index : Int,
+  node_index : Int32,
   parent_path : String,
   seen_paths : Set[String],
-  output : Map[Int, @animation.AnimationTargetId],
-  depth : Int,
+  output : Map[Int32, @animation.AnimationTargetId],
+  depth : Int32,
 ) -> Unit {
   if depth > 512 || node_index < 0 || node_index >= nodes.length() {
     return
@@ -446,9 +446,9 @@ fn assign_scene_node_target_ids(
 ///|
 fn compute_scene_node_target_ids(
   nodes : Array[SceneNodeTemplate],
-  roots : Array[Int],
-) -> Map[Int, @animation.AnimationTargetId] {
-  let output : Map[Int, @animation.AnimationTargetId] = Map([])
+  roots : Array[Int32],
+) -> Map[Int32, @animation.AnimationTargetId] {
+  let output : Map[Int32, @animation.AnimationTargetId] = Map([])
   let seen_paths : Set[String] = Set([])
   for root_order, node_index in roots {
     assign_scene_node_target_ids(
@@ -470,7 +470,7 @@ fn parse_animation_clips(
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
   nodes : Array[SceneNodeTemplate],
-  roots : Array[Int],
+  roots : Array[Int32],
 ) -> Map[String, @animation.AnimationClipHandle] {
   let animations : Map[String, @animation.AnimationClipHandle] = Map([])
   guard root_object.get("animations") is Some(animations_json) else {

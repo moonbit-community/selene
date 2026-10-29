@@ -105,7 +105,9 @@ fn joint_softness_to_rapier(
 }
 
 ///|
-fn body_handle_parts(handle : @rapier_dynamics.RigidBodyHandle) -> (Int, Int) {
+fn body_handle_parts(
+  handle : @rapier_dynamics.RigidBodyHandle,
+) -> (Int32, Int32) {
   handle.into_raw_parts()
 }
 

@@ -179,9 +179,9 @@ test "animation graph mask groups exclude masked targets during apply" {
 ///|
 test "animation event descriptors dispatch typed events to readers and observers" {
   with_animation_test_world(fn() raise {
-    let events : @event.Events[Int] = Events()
-    let reader : @event.EventReader[Int] = EventReader()
-    let observed : Array[Int] = []
+    let events : @event.Events[Int32] = Events()
+    let reader : @event.EventReader[Int32] = EventReader()
+    let observed : Array[Int32] = []
     let player_entity = @entity.Entity()
     events.observe_entity(player_entity, fn(trigger) {
       observed.push(trigger.event)

@@ -1,9 +1,9 @@
 ///|
 fn read_component_int(
   bytes : Bytes,
-  offset : Int,
-  component_type : Int,
-) -> Int? {
+  offset : Int32,
+  component_type : Int32,
+) -> Int32? {
   match component_type {
     5121 =>
       if offset < 0 || offset >= bytes.length() {
@@ -20,8 +20,8 @@ fn read_component_int(
 ///|
 fn read_component_double(
   bytes : Bytes,
-  offset : Int,
-  component_type : Int,
+  offset : Int32,
+  component_type : Int32,
   normalized : Bool,
 ) -> Double? {
   match component_type {
@@ -79,8 +79,8 @@ fn read_component_double(
 ///|
 fn read_component_color_factor(
   bytes : Bytes,
-  offset : Int,
-  component_type : Int,
+  offset : Int32,
+  component_type : Int32,
 ) -> Double? {
   match component_type {
     5126 => read_f32_le(bytes, offset).map(fn(value) { clamp01(value) })
@@ -92,8 +92,8 @@ fn read_component_color_factor(
 }
 
 ///|
-fn default_mesh_indices(vertex_count : Int) -> Array[Int] {
-  let indices : Array[Int] = []
+fn default_mesh_indices(vertex_count : Int32) -> Array[Int32] {
+  let indices : Array[Int32] = []
   for index in 0..<vertex_count {
     indices.push(index)
   }
@@ -102,7 +102,7 @@ fn default_mesh_indices(vertex_count : Int) -> Array[Int] {
 
 ///|
 fn triangle_topology_from_gltf_mode(
-  mode : Int,
+  mode : Int32,
 ) -> @render3d.TriangleTopology3D? {
   match mode {
     4 => Some(TriangleList)
@@ -113,7 +113,7 @@ fn triangle_topology_from_gltf_mode(
 }
 
 ///|
-fn indices_in_bounds(indices : Array[Int], vertex_count : Int) -> Bool {
+fn indices_in_bounds(indices : Array[Int32], vertex_count : Int32) -> Bool {
   if indices.length() == 0 {
     return false
   }
@@ -127,11 +127,11 @@ fn indices_in_bounds(indices : Array[Int], vertex_count : Int) -> Bool {
 
 ///|
 fn triangulate_triangle_indices(
-  indices : Array[Int],
+  indices : Array[Int32],
   topology : @render3d.TriangleTopology3D,
-) -> Array[Int] {
-  let triangle_indices : Array[Int] = []
-  let push_index = fn(index : Int) { triangle_indices.push(index) }
+) -> Array[Int32] {
+  let triangle_indices : Array[Int32] = []
+  let push_index = fn(index : Int32) { triangle_indices.push(index) }
   match topology {
     TriangleList => {
       let tri_count = indices.length() / 3
@@ -172,7 +172,7 @@ fn triangulate_triangle_indices(
 ///|
 fn compute_vertex_normals(
   positions : Array[@math.Vec3],
-  indices : Array[Int],
+  indices : Array[Int32],
   topology : @render3d.TriangleTopology3D,
 ) -> Array[@math.Vec3] {
   let normals : Array[@math.Vec3] = []

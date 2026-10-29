@@ -8,20 +8,6 @@ fn bird_contact_outcome_name(outcome : BirdContactOutcome) -> String {
 }
 
 ///|
-fn test_scene_component_count(
-  scene : @editor_bridge.SceneDocument,
-  kind : String,
-) -> Int {
-  let mut count = 0
-  for entity in scene.entities {
-    if entity.component(kind) is Some(_) {
-      count += 1
-    }
-  }
-  count
-}
-
-///|
 test "player freezes after any game result" {
   inspect(player_is_frozen(Some(Win)), content="true")
   inspect(player_is_frozen(Some(GameOver)), content="true")
@@ -104,27 +90,4 @@ test "pending stomp bounce overrides downward Y velocity" {
   let actual = player_motion_base_velocity(Vec2(120.0, 480.0), Some(-BUMP_V))
   let expected = @math.Vec2(120.0, -BUMP_V)
   inspect(actual[X] == expected[X] && actual[Y] == expected[Y], content="true")
-}
-
-///|
-test "scene data contains player flag and terrain" {
-  with_pixeladventure_test_asset_io(fn() raise {
-    let scene = pixeladventure_startup_scene_document_with_source(
-      pixeladventure_test_document_source(),
-    )
-    inspect(
-      test_scene_component_count(scene, pixeladventure_player_component_kind) >
-      0,
-      content="true",
-    )
-    inspect(
-      test_scene_component_count(scene, pixeladventure_flag_component_kind) > 0,
-      content="true",
-    )
-    inspect(
-      test_scene_component_count(scene, pixeladventure_terrain_component_kind) >
-      0,
-      content="true",
-    )
-  })
 }

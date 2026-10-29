@@ -28,7 +28,7 @@ const TANK_SCALE : Double = 1.35
 let tank_root : Ref[@entity.Entity?] = Ref(None)
 
 ///|
-fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
+fn color(r : UInt32, g : UInt32, b : UInt32, a : Double) -> @render.Color {
   { r, g, b, a, }
 }
 

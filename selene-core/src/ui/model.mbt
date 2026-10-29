@@ -5,7 +5,7 @@ pub(all) enum UiScaleMode {
 } derive(Eq, Debug)
 
 ///|
-let ui_scale_modes : Map[UInt, UiScaleMode] = Map([])
+let ui_scale_modes : Map[UInt32, UiScaleMode] = Map([])
 
 ///|
 fn ui_scale_mode() -> UiScaleMode {
@@ -56,20 +56,20 @@ pub fn UiRectValues::all(value : Double) -> UiRectValues {
 
 ///|
 pub fn UiRectValues::UiRectValues(
-  left? : Val = Auto,
-  right? : Val = Auto,
-  top? : Val = Auto,
-  bottom? : Val = Auto,
+  left~ : Val = Auto,
+  right~ : Val = Auto,
+  top~ : Val = Auto,
+  bottom~ : Val = Auto,
 ) -> UiRectValues {
   { left, right, top, bottom, }
 }
 
 ///|
 pub fn UiRectValues::px(
-  left? : Double = 0.0,
-  right? : Double = left,
-  top? : Double = left,
-  bottom? : Double = top,
+  left~ : Double = 0.0,
+  right~ : Double = left,
+  top~ : Double = left,
+  bottom~ : Double = top,
 ) -> UiRectValues {
   { left: Px(left), right: Px(right), top: Px(top), bottom: Px(bottom), }
 }
@@ -164,8 +164,8 @@ pub(all) enum GridAutoFlow {
 ///|
 pub(all) enum GridPlacement {
   Auto
-  Line(Int)
-  Span(Int)
+  Line(Int32)
+  Span(Int32)
 } derive(Eq, Debug)
 
 ///|
@@ -176,15 +176,15 @@ pub(all) struct GridLine {
 
 ///|
 pub fn GridLine::GridLine(
-  start? : GridPlacement = Auto,
-  end? : GridPlacement = Auto,
+  start~ : GridPlacement = Auto,
+  end~ : GridPlacement = Auto,
 ) -> GridLine {
   { start, end, }
 }
 
 ///|
 pub(all) enum GridTrackRepetition {
-  Count(Int)
+  Count(Int32)
   AutoFill
   AutoFit
 } derive(Eq, Debug)
@@ -303,7 +303,7 @@ pub fn grid_minmax(min : GridTrack, max : GridTrack) -> GridTrack {
 }
 
 ///|
-pub fn grid_repeat_count(value : Int) -> GridTrackRepetition {
+pub fn grid_repeat_count(value : Int32) -> GridTrackRepetition {
   Count(value)
 }
 
@@ -331,12 +331,12 @@ pub fn grid_place_auto() -> GridPlacement {
 }
 
 ///|
-pub fn grid_line_index(value : Int) -> GridPlacement {
+pub fn grid_line_index(value : Int32) -> GridPlacement {
   Line(value)
 }
 
 ///|
-pub fn grid_span(value : Int) -> GridPlacement {
+pub fn grid_span(value : Int32) -> GridPlacement {
   Span(value)
 }
 
@@ -456,47 +456,47 @@ pub(all) struct Node {
 
 ///|
 pub fn Node::Node(
-  width? : Val = Auto,
-  height? : Val = Auto,
-  min_width? : Val = Auto,
-  min_height? : Val = Auto,
-  max_width? : Val = Auto,
-  max_height? : Val = Auto,
-  left? : Val = Auto,
-  right? : Val = Auto,
-  top? : Val = Auto,
-  bottom? : Val = Auto,
-  margin? : UiRectValues = UiRectValues::all(0.0),
-  padding? : UiRectValues = UiRectValues::all(0.0),
-  border? : UiRectValues = UiRectValues::all(0.0),
-  display? : Display = Flex,
-  position_type? : PositionType = Relative,
-  flex_direction? : FlexDirection = Column,
-  justify_content? : JustifyContent = Start,
-  align_items? : AlignItems = Stretch,
-  row_gap? : Double = 0.0,
-  column_gap? : Double = 0.0,
-  overflow_x? : Overflow = Visible,
-  overflow_y? : Overflow = Visible,
-  overflow_clip_margin? : OverflowClipMargin = default_overflow_clip_margin(),
-  flex_grow? : Double = 0.0,
-  flex_shrink? : Double = 1.0,
-  active? : Bool = true,
-  align_content? : AlignContent? = None,
-  align_self? : AlignItems? = None,
-  justify_items? : AlignItems? = None,
-  justify_self? : AlignItems? = None,
-  flex_wrap? : FlexWrap = NoWrap,
-  flex_basis? : Val = Auto,
-  aspect_ratio? : Double? = None,
-  scrollbar_width? : Double = 0.0,
-  grid_template_rows? : Array[GridTrack] = [],
-  grid_template_columns? : Array[GridTrack] = [],
-  grid_auto_rows? : Array[GridTrack] = [],
-  grid_auto_columns? : Array[GridTrack] = [],
-  grid_auto_flow? : GridAutoFlow = Row,
-  grid_row? : GridLine = GridLine(),
-  grid_column? : GridLine = GridLine(),
+  width~ : Val = Auto,
+  height~ : Val = Auto,
+  min_width~ : Val = Auto,
+  min_height~ : Val = Auto,
+  max_width~ : Val = Auto,
+  max_height~ : Val = Auto,
+  left~ : Val = Auto,
+  right~ : Val = Auto,
+  top~ : Val = Auto,
+  bottom~ : Val = Auto,
+  margin~ : UiRectValues = UiRectValues::all(0.0),
+  padding~ : UiRectValues = UiRectValues::all(0.0),
+  border~ : UiRectValues = UiRectValues::all(0.0),
+  display~ : Display = Flex,
+  position_type~ : PositionType = Relative,
+  flex_direction~ : FlexDirection = Column,
+  justify_content~ : JustifyContent = Start,
+  align_items~ : AlignItems = Stretch,
+  row_gap~ : Double = 0.0,
+  column_gap~ : Double = 0.0,
+  overflow_x~ : Overflow = Visible,
+  overflow_y~ : Overflow = Visible,
+  overflow_clip_margin~ : OverflowClipMargin = default_overflow_clip_margin(),
+  flex_grow~ : Double = 0.0,
+  flex_shrink~ : Double = 1.0,
+  active~ : Bool = true,
+  align_content~ : AlignContent? = None,
+  align_self~ : AlignItems? = None,
+  justify_items~ : AlignItems? = None,
+  justify_self~ : AlignItems? = None,
+  flex_wrap~ : FlexWrap = NoWrap,
+  flex_basis~ : Val = Auto,
+  aspect_ratio~ : Double? = None,
+  scrollbar_width~ : Double = 0.0,
+  grid_template_rows~ : Array[GridTrack] = [],
+  grid_template_columns~ : Array[GridTrack] = [],
+  grid_auto_rows~ : Array[GridTrack] = [],
+  grid_auto_columns~ : Array[GridTrack] = [],
+  grid_auto_flow~ : GridAutoFlow = Row,
+  grid_row~ : GridLine = GridLine(),
+  grid_column~ : GridLine = GridLine(),
 ) -> Node {
   {
     width,
@@ -546,19 +546,19 @@ pub fn Node::Node(
 ///|
 pub fn Node::absolute(
   offset : @math.Vec2,
-  size? : @math.Vec2 = Vec2(-1.0, -1.0),
-  padding? : UiRectValues = UiRectValues::all(0.0),
-  border? : UiRectValues = UiRectValues::all(0.0),
-  display? : Display = Flex,
-  flex_direction? : FlexDirection = Column,
-  justify_content? : JustifyContent = Start,
-  align_items? : AlignItems = Stretch,
-  row_gap? : Double = 0.0,
-  column_gap? : Double = 0.0,
-  overflow_x? : Overflow = Visible,
-  overflow_y? : Overflow = Visible,
-  overflow_clip_margin? : OverflowClipMargin = default_overflow_clip_margin(),
-  active? : Bool = true,
+  size~ : @math.Vec2 = Vec2(-1.0, -1.0),
+  padding~ : UiRectValues = UiRectValues::all(0.0),
+  border~ : UiRectValues = UiRectValues::all(0.0),
+  display~ : Display = Flex,
+  flex_direction~ : FlexDirection = Column,
+  justify_content~ : JustifyContent = Start,
+  align_items~ : AlignItems = Stretch,
+  row_gap~ : Double = 0.0,
+  column_gap~ : Double = 0.0,
+  overflow_x~ : Overflow = Visible,
+  overflow_y~ : Overflow = Visible,
+  overflow_clip_margin~ : OverflowClipMargin = default_overflow_clip_margin(),
+  active~ : Bool = true,
 ) -> Node {
   let (width, height) = if size[X] >= 0.0 && size[Y] >= 0.0 {
     (Val::Px(size[X]), Val::Px(size[Y]))
@@ -628,7 +628,7 @@ pub(all) struct UiLayoutSpace {
 ///|
 pub fn UiLayoutSpace::UiLayoutSpace(
   viewport : @math.Rect,
-  target_camera? : @entity.Entity? = None,
+  target_camera~ : @entity.Entity? = None,
 ) -> UiLayoutSpace {
   { target_camera, viewport, }
 }
@@ -649,7 +649,7 @@ pub(all) struct LayoutConfig {
 } derive(Eq, Debug)
 
 ///|
-pub fn LayoutConfig::LayoutConfig(use_rounding? : Bool = true) -> LayoutConfig {
+pub fn LayoutConfig::LayoutConfig(use_rounding~ : Bool = true) -> LayoutConfig {
   { use_rounding, }
 }
 
@@ -657,11 +657,11 @@ pub fn LayoutConfig::LayoutConfig(use_rounding? : Bool = true) -> LayoutConfig {
 /// Orders sibling UI nodes while keeping each sibling's ordinary descendant
 /// subtree contiguous in the final UI stack.
 pub(all) struct ZIndex {
-  value : Int
+  value : Int32
 } derive(Eq, Debug)
 
 ///|
-pub fn ZIndex::ZIndex(value : Int) -> ZIndex {
+pub fn ZIndex::ZIndex(value : Int32) -> ZIndex {
   { value, }
 }
 
@@ -669,11 +669,11 @@ pub fn ZIndex::ZIndex(value : Int) -> ZIndex {
 /// Lifts a UI node and its ordinary descendants into the global UI root order.
 /// A descendant with its own `GlobalZIndex` becomes another global root.
 pub(all) struct GlobalZIndex {
-  value : Int
+  value : Int32
 } derive(Eq, Debug)
 
 ///|
-pub fn GlobalZIndex::GlobalZIndex(value : Int) -> GlobalZIndex {
+pub fn GlobalZIndex::GlobalZIndex(value : Int32) -> GlobalZIndex {
   { value, }
 }
 
@@ -690,11 +690,11 @@ pub fn ScrollPosition::zero() -> ScrollPosition {
 
 ///|
 pub(all) struct TabIndex {
-  value : Int
+  value : Int32
 } derive(Eq, Debug)
 
 ///|
-pub fn TabIndex::TabIndex(value : Int) -> TabIndex {
+pub fn TabIndex::TabIndex(value : Int32) -> TabIndex {
   { value, }
 }
 
@@ -769,12 +769,12 @@ priv struct UiModelWorldStore {
   focuseds : Map[@entity.Entity, Focused]
   override_clips : Map[@entity.Entity, OverrideClip]
   relative_cursor_positions : Map[@entity.Entity, RelativeCursorPosition]
-  tree_orders : Map[@entity.Entity, Int]
+  tree_orders : Map[@entity.Entity, Int32]
   ui_stack_entities : Array[@entity.Entity]
 }
 
 ///|
-let ui_model_world_stores : Map[UInt, UiModelWorldStore] = Map([])
+let ui_model_world_stores : Map[UInt32, UiModelWorldStore] = Map([])
 
 ///|
 fn ui_model_world_store() -> UiModelWorldStore {
@@ -879,7 +879,7 @@ pub fn relative_cursor_positions() -> Map[
 }
 
 ///|
-fn tree_orders() -> Map[@entity.Entity, Int] {
+fn tree_orders() -> Map[@entity.Entity, Int32] {
   ui_model_world_store().tree_orders
 }
 
@@ -889,17 +889,17 @@ fn ui_stack() -> Array[@entity.Entity] {
 }
 
 ///|
-fn global_zindex_value(entity : @entity.Entity) -> Int {
+fn global_zindex_value(entity : @entity.Entity) -> Int32 {
   global_zindexes().get(entity).map(fn(value) { value.value }).unwrap_or(0)
 }
 
 ///|
-fn zindex_value(entity : @entity.Entity) -> Int {
+fn zindex_value(entity : @entity.Entity) -> Int32 {
   z_indexes().get(entity).map(fn(value) { value.value }).unwrap_or(0)
 }
 
 ///|
-fn compare_ui_root_order(lhs : @entity.Entity, rhs : @entity.Entity) -> Int {
+fn compare_ui_root_order(lhs : @entity.Entity, rhs : @entity.Entity) -> Int32 {
   let lg = global_zindex_value(lhs)
   let rg = global_zindex_value(rhs)
   if lg != rg {
@@ -1017,7 +1017,7 @@ fn is_stacked_ui_entity(entity : @entity.Entity) -> Bool {
 }
 
 ///|
-fn compare_ui_stack_root(lhs : @entity.Entity, rhs : @entity.Entity) -> Int {
+fn compare_ui_stack_root(lhs : @entity.Entity, rhs : @entity.Entity) -> Int32 {
   let global_order = global_zindex_value(lhs).compare(global_zindex_value(rhs))
   if global_order != 0 {
     return global_order
@@ -1038,7 +1038,10 @@ fn compare_ui_stack_root(lhs : @entity.Entity, rhs : @entity.Entity) -> Int {
 }
 
 ///|
-fn compare_ui_stack_sibling(lhs : @entity.Entity, rhs : @entity.Entity) -> Int {
+fn compare_ui_stack_sibling(
+  lhs : @entity.Entity,
+  rhs : @entity.Entity,
+) -> Int32 {
   let local_order = zindex_value(lhs).compare(zindex_value(rhs))
   if local_order != 0 {
     return local_order

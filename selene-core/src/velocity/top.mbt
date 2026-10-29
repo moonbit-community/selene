@@ -34,7 +34,7 @@ priv struct VelocityWorldStore {
 }
 
 ///|
-let velocity_world_stores : Map[UInt, VelocityWorldStore] = Map([])
+let velocity_world_stores : Map[UInt32, VelocityWorldStore] = Map([])
 
 ///|
 fn velocity_world_store() -> VelocityWorldStore {

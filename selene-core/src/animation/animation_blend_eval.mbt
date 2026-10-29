@@ -389,7 +389,7 @@ fn evaluate_graph_node(
   node_index : AnimationNodeIndex,
   time : Double,
   weight : Double,
-  inherited_mask : UInt,
+  inherited_mask : UInt32,
   additive : Bool,
   targets : Map[AnimationTargetId, @entity.Entity],
   buffers : Map[AnimationPropertyKey, AnimationSampleBuffer],

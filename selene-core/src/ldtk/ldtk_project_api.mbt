@@ -31,22 +31,22 @@ pub fn LdtkFieldInstance::tile_array_value(
 
 ///|
 pub struct LdtkTileInstance {
-  tile_id : Int
+  tile_id : Int32
   src : @math.Vec2
   px : @math.Vec2
   flip_x : Bool
   flip_y : Bool
   alpha : Double
-  data : Array[Int]
+  data : Array[Int32]
 }
 
 ///|
 pub struct LdtkEntityInstance {
   iid : String
   identifier : String
-  def_uid : Int
-  width : Int
-  height : Int
+  def_uid : Int32
+  width : Int32
+  height : Int32
   px : @math.Vec2
   grid : @math.Vec2
   pivot : @math.Vec2
@@ -76,7 +76,7 @@ pub fn LdtkEntityInstance::field_bool(
 pub fn LdtkEntityInstance::field_int(
   self : LdtkEntityInstance,
   identifier : String,
-) -> Int? {
+) -> Int32? {
   ldtk_field_int(self.field_instances, identifier)
 }
 
@@ -132,7 +132,7 @@ pub fn LdtkEntityInstance::field_vec2(
 pub fn LdtkEntityInstance::field_int_array(
   self : LdtkEntityInstance,
   identifier : String,
-) -> Array[Int]? {
+) -> Array[Int32]? {
   ldtk_field_int_array(self.field_instances, identifier)
 }
 
@@ -258,23 +258,23 @@ pub struct LdtkLayerInstance {
   iid : String
   identifier : String
   layer_type : String
-  level_id : Int
-  layer_def_uid : Int
-  c_wid : Int
-  c_hei : Int
-  grid_size : Int
+  level_id : Int32
+  layer_def_uid : Int32
+  c_wid : Int32
+  c_hei : Int32
+  grid_size : Int32
   opacity : Double
   visible : Bool
-  optional_rules : Array[Int]
-  override_tileset_uid : Int?
-  px_offset_x : Int
-  px_offset_y : Int
-  px_total_offset_x : Int
-  px_total_offset_y : Int
-  seed : Int
-  tileset_def_uid : Int?
+  optional_rules : Array[Int32]
+  override_tileset_uid : Int32?
+  px_offset_x : Int32
+  px_offset_y : Int32
+  px_total_offset_x : Int32
+  px_total_offset_y : Int32
+  seed : Int32
+  tileset_def_uid : Int32?
   tileset_rel_path : String?
-  int_grid_csv : Array[Int]
+  int_grid_csv : Array[Int32]
   auto_layer_tiles : Array[LdtkTileInstance]
   grid_tiles : Array[LdtkTileInstance]
   entity_instances : Array[LdtkEntityInstance]
@@ -294,11 +294,11 @@ pub struct LdtkLevelBackgroundPosition {
 pub struct LdtkLevel {
   identifier : String
   iid : String
-  uid : Int
-  world_x : Int
-  world_y : Int
-  px_wid : Int
-  px_hei : Int
+  uid : Int32
+  world_x : Int32
+  world_y : Int32
+  px_wid : Int32
+  px_hei : Int32
   bg_color : String?
   bg_pos : LdtkLevelBackgroundPosition?
   bg_rel_path : String?
@@ -322,7 +322,7 @@ pub fn LdtkLevel::field_bool(self : LdtkLevel, identifier : String) -> Bool? {
 }
 
 ///|
-pub fn LdtkLevel::field_int(self : LdtkLevel, identifier : String) -> Int? {
+pub fn LdtkLevel::field_int(self : LdtkLevel, identifier : String) -> Int32? {
   ldtk_field_int(self.field_instances, identifier)
 }
 
@@ -372,6 +372,6 @@ pub fn LdtkLevel::field_vec2(
 pub fn LdtkLevel::field_int_array(
   self : LdtkLevel,
   identifier : String,
-) -> Array[Int]? {
+) -> Array[Int32]? {
   ldtk_field_int_array(self.field_instances, identifier)
 }

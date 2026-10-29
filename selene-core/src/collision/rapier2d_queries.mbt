@@ -98,7 +98,7 @@ pub fn set_rigid_body_angular_velocity(
 pub fn add_force(
   entity : @entity.Entity,
   force : @math.Vec2,
-  wake_up? : Bool = true,
+  wake_up~ : Bool = true,
 ) -> Unit {
   if vec2_length_squared(force) <= EPSILON {
     return
@@ -113,7 +113,7 @@ pub fn add_force_at_point(
   entity : @entity.Entity,
   force : @math.Vec2,
   point : @math.Vec2,
-  wake_up? : Bool = true,
+  wake_up~ : Bool = true,
 ) -> Unit {
   if vec2_length_squared(force) <= EPSILON {
     return
@@ -131,7 +131,7 @@ pub fn add_force_at_point(
 pub fn add_torque(
   entity : @entity.Entity,
   torque : Double,
-  wake_up? : Bool = true,
+  wake_up~ : Bool = true,
 ) -> Unit {
   if torque.abs() <= EPSILON {
     return
@@ -145,7 +145,7 @@ pub fn add_torque(
 pub fn apply_impulse(
   entity : @entity.Entity,
   impulse : @math.Vec2,
-  wake_up? : Bool = true,
+  wake_up~ : Bool = true,
 ) -> Unit {
   if vec2_length_squared(impulse) <= EPSILON {
     return
@@ -160,7 +160,7 @@ pub fn apply_impulse_at_point(
   entity : @entity.Entity,
   impulse : @math.Vec2,
   point : @math.Vec2,
-  wake_up? : Bool = true,
+  wake_up~ : Bool = true,
 ) -> Unit {
   if vec2_length_squared(impulse) <= EPSILON {
     return
@@ -178,7 +178,7 @@ pub fn apply_impulse_at_point(
 pub fn apply_torque_impulse(
   entity : @entity.Entity,
   impulse : Double,
-  wake_up? : Bool = true,
+  wake_up~ : Bool = true,
 ) -> Unit {
   if impulse.abs() <= EPSILON {
     return
@@ -189,7 +189,7 @@ pub fn apply_torque_impulse(
 }
 
 ///|
-pub fn reset_forces(entity : @entity.Entity, wake_up? : Bool = true) -> Unit {
+pub fn reset_forces(entity : @entity.Entity, wake_up~ : Bool = true) -> Unit {
   pending_body_forces().remove(entity)
   pending_body_force_points().remove(entity)
   if world().entity_bodies.get(entity) is Some(handle) &&
@@ -199,7 +199,7 @@ pub fn reset_forces(entity : @entity.Entity, wake_up? : Bool = true) -> Unit {
 }
 
 ///|
-pub fn reset_torques(entity : @entity.Entity, wake_up? : Bool = true) -> Unit {
+pub fn reset_torques(entity : @entity.Entity, wake_up~ : Bool = true) -> Unit {
   pending_body_torques().remove(entity)
   pending_body_torque_impulses().remove(entity)
   if world().entity_bodies.get(entity) is Some(handle) &&

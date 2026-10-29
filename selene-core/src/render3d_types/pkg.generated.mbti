@@ -40,7 +40,7 @@ pub fn empty_render_frame3d() -> RenderFrame3D
 
 pub fn skybox3d(CubemapHandle, brightness? : Double, rotation? : @math.Quat) -> Skybox3D
 
-pub fn texture_binding3d(ImageHandle, texcoord_set? : Int, sampler? : TextureSampler3D, transform? : TextureTransform3D) -> TextureBinding3D
+pub fn texture_binding3d(ImageHandle, texcoord_set? : Int32, sampler? : TextureSampler3D, transform? : TextureTransform3D) -> TextureBinding3D
 
 // Errors
 
@@ -75,7 +75,7 @@ pub(all) struct CascadeShadowConfig3D {
 pub fn CascadeShadowConfig3D::to_repr(Self) -> @debug.Repr
 
 pub(all) struct CascadeShadowConfigBuilder3D {
-  num_cascades : Int
+  num_cascades : Int32
   minimum_distance : Double
   maximum_distance : Double
   first_cascade_far_bound : Double
@@ -104,9 +104,9 @@ pub fn CubemapFaces3D::equal(Self, Self) -> Bool
 pub fn CubemapFaces3D::not_equal(Self, Self) -> Bool
 pub fn CubemapFaces3D::to_repr(Self) -> @debug.Repr
 
-pub(all) struct CubemapHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub(all) struct CubemapHandle(UInt32) derive(Eq, Hash, @debug.Debug)
 pub fn CubemapHandle::equal(Self, Self) -> Bool
-pub fn CubemapHandle::hash(Self) -> Int
+pub fn CubemapHandle::hash(Self) -> Int32
 pub fn CubemapHandle::hash_combine(Self, Hasher) -> Unit
 pub fn CubemapHandle::not_equal(Self, Self) -> Bool
 pub fn CubemapHandle::to_repr(Self) -> @debug.Repr
@@ -122,7 +122,7 @@ pub(all) struct DirectionalLight3D {
 }
 
 pub(all) struct DirectionalLightShadowMap3D {
-  size : Int
+  size : Int32
 } derive(Eq, @debug.Debug)
 pub fn DirectionalLightShadowMap3D::equal(Self, Self) -> Bool
 pub fn DirectionalLightShadowMap3D::not_equal(Self, Self) -> Bool
@@ -181,16 +181,16 @@ pub fn ImageAsset::equal(Self, Self) -> Bool
 pub fn ImageAsset::not_equal(Self, Self) -> Bool
 pub fn ImageAsset::to_repr(Self) -> @debug.Repr
 
-pub(all) struct ImageHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub(all) struct ImageHandle(UInt32) derive(Eq, Hash, @debug.Debug)
 pub fn ImageHandle::equal(Self, Self) -> Bool
-pub fn ImageHandle::hash(Self) -> Int
+pub fn ImageHandle::hash(Self) -> Int32
 pub fn ImageHandle::hash_combine(Self, Hasher) -> Unit
 pub fn ImageHandle::not_equal(Self, Self) -> Bool
 pub fn ImageHandle::to_repr(Self) -> @debug.Repr
 
-pub(all) struct MaterialHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub(all) struct MaterialHandle(UInt32) derive(Eq, Hash, @debug.Debug)
 pub fn MaterialHandle::equal(Self, Self) -> Bool
-pub fn MaterialHandle::hash(Self) -> Int
+pub fn MaterialHandle::hash(Self) -> Int32
 pub fn MaterialHandle::hash_combine(Self, Hasher) -> Unit
 pub fn MaterialHandle::not_equal(Self, Self) -> Bool
 pub fn MaterialHandle::to_repr(Self) -> @debug.Repr
@@ -202,9 +202,9 @@ pub fn MeshAsset::equal(Self, Self) -> Bool
 pub fn MeshAsset::not_equal(Self, Self) -> Bool
 pub fn MeshAsset::to_repr(Self) -> @debug.Repr
 
-pub(all) struct MeshHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub(all) struct MeshHandle(UInt32) derive(Eq, Hash, @debug.Debug)
 pub fn MeshHandle::equal(Self, Self) -> Bool
-pub fn MeshHandle::hash(Self) -> Int
+pub fn MeshHandle::hash(Self) -> Int32
 pub fn MeshHandle::hash_combine(Self, Hasher) -> Unit
 pub fn MeshHandle::not_equal(Self, Self) -> Bool
 pub fn MeshHandle::to_repr(Self) -> @debug.Repr
@@ -212,7 +212,7 @@ pub fn MeshHandle::to_repr(Self) -> @debug.Repr
 pub(all) enum MeshPrimitive3D {
   Cube(@math.Vec3)
   Sphere(Double)
-  Cylinder(Double, Double, Double, Int)
+  Cylinder(Double, Double, Double, Int32)
   Plane(@math.Vec3)
   Triangles(TriangleMesh3D)
 } derive(Eq, @debug.Debug)
@@ -231,7 +231,7 @@ pub(all) struct PointLight3D {
 }
 
 pub(all) struct PointLightShadowMap3D {
-  size : Int
+  size : Int32
 } derive(Eq, @debug.Debug)
 pub fn PointLightShadowMap3D::equal(Self, Self) -> Bool
 pub fn PointLightShadowMap3D::not_equal(Self, Self) -> Bool
@@ -247,12 +247,12 @@ pub(all) struct RenderFrame3D {
   mut point_lights : Array[FramePointLight3D]
   mut spot_lights : Array[FrameSpotLight3D]
   mut ambient_light : AmbientLight3D?
-  mut directional_shadow_map_size : Int
-  mut point_shadow_map_size : Int
+  mut directional_shadow_map_size : Int32
+  mut point_shadow_map_size : Int32
 }
 
 pub(all) struct RenderItem3D {
-  entity_id : UInt?
+  entity_id : UInt32?
   transform : FrameTransform3D
   mesh : MeshHandle
   material : MaterialHandle
@@ -269,9 +269,9 @@ pub fn RenderLine3D::equal(Self, Self) -> Bool
 pub fn RenderLine3D::not_equal(Self, Self) -> Bool
 pub fn RenderLine3D::to_repr(Self) -> @debug.Repr
 
-pub(all) struct SceneHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub(all) struct SceneHandle(UInt32) derive(Eq, Hash, @debug.Debug)
 pub fn SceneHandle::equal(Self, Self) -> Bool
-pub fn SceneHandle::hash(Self) -> Int
+pub fn SceneHandle::hash(Self) -> Int32
 pub fn SceneHandle::hash_combine(Self, Hasher) -> Unit
 pub fn SceneHandle::not_equal(Self, Self) -> Bool
 pub fn SceneHandle::to_repr(Self) -> @debug.Repr
@@ -329,7 +329,7 @@ pub fn Tangent3D::to_repr(Self) -> @debug.Repr
 pub(all) struct TextureBinding3D {
   image : ImageHandle
   sampler : TextureSampler3D
-  texcoord_set : Int
+  texcoord_set : Int32
   transform : TextureTransform3D
 } derive(Eq, @debug.Debug)
 pub fn TextureBinding3D::equal(Self, Self) -> Bool
@@ -375,7 +375,7 @@ pub fn TextureWrap3D::to_repr(Self) -> @debug.Repr
 
 pub(all) struct TriangleMesh3D {
   positions : Array[@math.Vec3]
-  indices : Array[Int]?
+  indices : Array[Int32]?
   topology : TriangleTopology3D
   uv_sets : Array[Array[@math.Vec2]]
   normals : Array[@math.Vec3]?

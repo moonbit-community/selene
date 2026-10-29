@@ -31,7 +31,7 @@ priv struct AreaWorldStore {
 }
 
 ///|
-let area_world_stores : Map[UInt, AreaWorldStore] = Map([])
+let area_world_stores : Map[UInt32, AreaWorldStore] = Map([])
 
 ///|
 fn area_world_store() -> AreaWorldStore {

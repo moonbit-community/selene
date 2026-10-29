@@ -1,5 +1,5 @@
 ///|
-fn rgba(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
+fn rgba(r : UInt32, g : UInt32, b : UInt32, a : Double) -> @render.Color {
   { r, g, b, a, }
 }
 

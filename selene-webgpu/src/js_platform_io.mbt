@@ -31,7 +31,7 @@ extern "js" fn webgpu_preload_font_bytes(
   #| }
 
 ///|
-extern "js" fn webgpu_font_bytes_status(font : String) -> Int =
+extern "js" fn webgpu_font_bytes_status(font : String) -> Int32 =
   #| (font) => {
   #|   const states = globalThis.__selene_font_bytes_states;
   #|   if (!states) return -1;
@@ -41,7 +41,7 @@ extern "js" fn webgpu_font_bytes_status(font : String) -> Int =
   #| }
 
 ///|
-extern "js" fn webgpu_take_font_bytes_ffi(font : String) -> FixedArray[Int] =
+extern "js" fn webgpu_take_font_bytes_ffi(font : String) -> FixedArray[Int32] =
   #| (font) => {
   #|   const states = globalThis.__selene_font_bytes_states;
   #|   if (!states) return [];
@@ -77,7 +77,7 @@ extern "js" fn resolve_asset_path(path : String) -> String =
 ///|
 extern "js" fn webgpu_load_file_bytes_sync_ffi(
   path : String,
-) -> FixedArray[Int] =
+) -> FixedArray[Int32] =
   #| (path) => {
   #|   globalThis.__selene_webgpu_last_file_load_error = '';
   #|   try {
@@ -111,14 +111,14 @@ extern "js" fn webgpu_last_file_load_error() -> String =
   #| () => String(globalThis.__selene_webgpu_last_file_load_error || '')
 
 ///|
-extern "js" fn webgpu_gamepad_count() -> Int =
+extern "js" fn webgpu_gamepad_count() -> Int32 =
   #| () => {
   #|   const pads = globalThis.navigator?.getGamepads?.();
   #|   return pads ? (pads.length | 0) : 0;
   #| }
 
 ///|
-extern "js" fn webgpu_gamepad_connected(index : Int) -> Bool =
+extern "js" fn webgpu_gamepad_connected(index : Int32) -> Bool =
   #| (index) => {
   #|   const pads = globalThis.navigator?.getGamepads?.();
   #|   if (!pads || index < 0 || index >= pads.length) return false;
@@ -127,7 +127,10 @@ extern "js" fn webgpu_gamepad_connected(index : Int) -> Bool =
   #| }
 
 ///|
-extern "js" fn webgpu_gamepad_button_pressed(index : Int, button : Int) -> Bool =
+extern "js" fn webgpu_gamepad_button_pressed(
+  index : Int32,
+  button : Int32,
+) -> Bool =
   #| (index, button) => {
   #|   const pads = globalThis.navigator?.getGamepads?.();
   #|   const pad = pads?.[index];
@@ -136,7 +139,10 @@ extern "js" fn webgpu_gamepad_button_pressed(index : Int, button : Int) -> Bool 
   #| }
 
 ///|
-extern "js" fn webgpu_gamepad_button_value(index : Int, button : Int) -> Double =
+extern "js" fn webgpu_gamepad_button_value(
+  index : Int32,
+  button : Int32,
+) -> Double =
   #| (index, button) => {
   #|   const pads = globalThis.navigator?.getGamepads?.();
   #|   const pad = pads?.[index];
@@ -150,7 +156,7 @@ extern "js" fn webgpu_gamepad_button_value(index : Int, button : Int) -> Double 
   #| }
 
 ///|
-extern "js" fn webgpu_gamepad_axis_value(index : Int, axis : Int) -> Double =
+extern "js" fn webgpu_gamepad_axis_value(index : Int32, axis : Int32) -> Double =
   #| (index, axis) => {
   #|   const pads = globalThis.navigator?.getGamepads?.();
   #|   const pad = pads?.[index];
@@ -164,11 +170,11 @@ extern "js" fn webgpu_gamepad_axis_value(index : Int, axis : Int) -> Double =
   #| }
 
 ///|
-fn webgpu_take_font_bytes(font : String) -> Array[Int] {
+fn webgpu_take_font_bytes(font : String) -> Array[Int32] {
   Array::from_fixed_array(webgpu_take_font_bytes_ffi(font))
 }
 
 ///|
-fn webgpu_load_file_bytes_sync(path : String) -> Array[Int] {
+fn webgpu_load_file_bytes_sync(path : String) -> Array[Int32] {
   Array::from_fixed_array(webgpu_load_file_bytes_sync_ffi(path))
 }

@@ -287,7 +287,7 @@ fn implicit_root_style(size : @math.Vec2) -> @style.Style {
 fn measure_node(
   known_dimensions : @geometry.Size[Double?],
   available : @geometry.Size[@geometry.AvailableSpace],
-  _node_id : Int,
+  _node_id : Int32,
   entity : @entity.Entity?,
   style : @style.Style,
 ) -> @geometry.Size[Double] {
@@ -580,7 +580,7 @@ fn cleanup_dead_ui_state() -> Unit {
 fn apply_layout_recursive(
   entity : @entity.Entity,
   chicle : @tree.ChicleTree[@entity.Entity],
-  entity_to_node_id : Map[@entity.Entity, Int],
+  entity_to_node_id : Map[@entity.Entity, Int32],
   parent_layout_origin : @math.Vec2,
   parent_clip : @math.Rect?,
   inherited_use_rounding : Bool,

@@ -5,8 +5,8 @@ fn sparse_test_bytes(values : Array[Byte]) -> Bytes {
 
 ///|
 fn sparse_test_buffer_view(
-  buffer : Int,
-  byte_length : Int,
+  buffer : Int32,
+  byte_length : Int32,
 ) -> BufferViewTemplate {
   { buffer, byte_offset: 0, byte_length, byte_stride: None, }
 }
@@ -35,7 +35,7 @@ fn sparse_test_append_vec3_le(
 }
 
 ///|
-fn scene3d_test_append_u32_le(out : Array[Byte], value : Int) -> Unit {
+fn scene3d_test_append_u32_le(out : Array[Byte], value : Int32) -> Unit {
   let bits = value.reinterpret_as_uint()
   out.push(bits.to_byte())
   out.push((bits >> 8).to_byte())

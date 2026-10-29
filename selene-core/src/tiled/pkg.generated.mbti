@@ -11,7 +11,7 @@ import {
 // Values
 pub fn clear_tiled_children(@entity.Entity) -> Unit
 
-pub fn decode_tiled_gid(Int) -> TiledGid
+pub fn decode_tiled_gid(Int32) -> TiledGid
 
 pub fn default_tiled_physics_settings() -> TiledPhysicsSettings
 
@@ -29,7 +29,7 @@ pub fn empty_tiled_map_storage() -> TiledMapStorage
 
 pub fn empty_tiled_world() -> TiledWorld
 
-pub fn encode_tiled_gid(TiledGid) -> Int
+pub fn encode_tiled_gid(TiledGid) -> Int32
 
 pub fn load_and_spawn_tiled_map(String, settings? : TiledSpawnSettings) -> @entity.Entity
 
@@ -99,21 +99,21 @@ pub let tiled_world_spawned_event_bus : @event.Events[TiledWorldSpawnedEvent]
 
 // Types and methods
 pub struct TiledAnimationFrame {
-  tile_id : Int
-  duration_ms : Int
+  tile_id : Int32
+  duration_ms : Int32
 }
 
 pub struct TiledCell {
-  x : Int
-  y : Int
+  x : Int32
+  y : Int32
   gid : TiledGid
 }
 
 pub struct TiledChunk {
-  x : Int
-  y : Int
-  width : Int
-  height : Int
+  x : Int32
+  y : Int32
+  width : Int32
+  height : Int32
   data : Array[TiledGid]
 }
 
@@ -146,8 +146,8 @@ pub struct TiledColliders {
 pub fn TiledColliders::alive_entities(Self) -> Array[@entity.Entity]
 
 pub struct TiledGid {
-  raw : Int
-  tile_id : Int
+  raw : Int32
+  tile_id : Int32
   flipped_horizontally : Bool
   flipped_vertically : Bool
   flipped_diagonally : Bool
@@ -157,8 +157,8 @@ pub fn TiledGid::is_empty(Self) -> Bool
 pub struct TiledImageLayer {
   image : String?
   transparent_color : String?
-  image_width : Int?
-  image_height : Int?
+  image_width : Int32?
+  image_height : Int32?
   repeat_x : Bool
   repeat_y : Bool
 }
@@ -179,7 +179,7 @@ pub struct TiledImageLayerSpawnedEvent {
 }
 
 pub struct TiledLayer {
-  id : Int
+  id : Int32
   name : String
   layer_type : String
   class_name : String?
@@ -199,7 +199,7 @@ pub struct TiledLayerInstance {
   map_entity : @entity.Entity
   layer : TiledLayer
   effective_visible : Bool
-  zindex : Int
+  zindex : Int32
 }
 
 pub enum TiledLayerKind {
@@ -215,25 +215,25 @@ pub struct TiledLayerSpawnedEvent {
   layer_entity : @entity.Entity
   layer : TiledLayer
   effective_visible : Bool
-  zindex : Int
+  zindex : Int32
 }
 
 pub struct TiledMap {
-  width : Int
-  height : Int
-  tile_width : Int
-  tile_height : Int
+  width : Int32
+  height : Int32
+  tile_width : Int32
+  tile_height : Int32
   parallax_origin_x : Double
   parallax_origin_y : Double
-  hex_side_length : Int?
+  hex_side_length : Int32?
   stagger_axis : String?
   stagger_index : String?
   infinite : Bool
   orientation : String
   render_order : String
   background_color : String?
-  next_layer_id : Int
-  next_object_id : Int
+  next_layer_id : Int32
+  next_object_id : Int32
   source_path : String?
   layers : Array[TiledLayer]
   tilesets : Array[TiledTileset]
@@ -242,13 +242,13 @@ pub struct TiledMap {
 pub fn TiledMap::from_tiled_json(Json) -> Self
 pub fn TiledMap::from_tiled_xml(String) -> Self
 pub fn TiledMap::layer(Self, String) -> TiledLayer?
-pub fn TiledMap::layer_by_id(Self, Int) -> TiledLayer?
+pub fn TiledMap::layer_by_id(Self, Int32) -> TiledLayer?
 pub fn TiledMap::object_layer(Self, String) -> TiledObjectLayer?
 pub fn TiledMap::property(Self, String) -> TiledPropertyValue?
 pub fn TiledMap::resolve_path(Self, String) -> String
 pub fn TiledMap::resolve_tileset_asset_path(Self, TiledTileset, String) -> String
 pub fn TiledMap::tile_layer(Self, String) -> TiledTileLayer?
-pub fn TiledMap::tileset_for_gid(Self, Int) -> TiledTileset?
+pub fn TiledMap::tileset_for_gid(Self, Int32) -> TiledTileset?
 
 pub struct TiledMapInstance {
   map : TiledMap
@@ -260,13 +260,13 @@ pub struct TiledMapSpawnedEvent {
 }
 
 pub struct TiledMapStorage {
-  layers : Map[Int, @entity.Entity]
-  objects : Map[Int, @entity.Entity]
-  tiles : Map[Int, Array[@entity.Entity]]
+  layers : Map[Int32, @entity.Entity]
+  objects : Map[Int32, @entity.Entity]
+  tiles : Map[Int32, Array[@entity.Entity]]
 }
-pub fn TiledMapStorage::layer_entity(Self, Int) -> @entity.Entity?
-pub fn TiledMapStorage::object_entity(Self, Int) -> @entity.Entity?
-pub fn TiledMapStorage::tile_entities(Self, Int) -> Array[@entity.Entity]
+pub fn TiledMapStorage::layer_entity(Self, Int32) -> @entity.Entity?
+pub fn TiledMapStorage::object_entity(Self, Int32) -> @entity.Entity?
+pub fn TiledMapStorage::tile_entities(Self, Int32) -> Array[@entity.Entity]
 
 pub enum TiledNameFilter {
   All
@@ -278,7 +278,7 @@ pub fn TiledNameFilter::names(Array[String]) -> Self
 pub fn TiledNameFilter::none() -> Self
 
 pub struct TiledObject {
-  id : Int
+  id : Int32
   name : String
   object_type : String
   class_name : String?
@@ -331,7 +331,7 @@ pub(all) struct TiledPhysicsSettings {
   collision_filter : @collision.CollisionFilter
   sensor_filter : @collision.CollisionFilter
   point_radius : Double
-  ellipse_segments : Int
+  ellipse_segments : Int32
   merge_tile_rects : Bool
   collider_hook : ((TiledColliderSpawnedEvent) -> Unit)?
 }
@@ -354,19 +354,19 @@ pub struct TiledProperty {
 pub enum TiledPropertyValue {
   None
   String(String)
-  Int(Int)
+  Int(Int32)
   Float(Double)
   Bool(Bool)
   Color(String)
   File(String)
-  Object(Int)
+  Object(Int32)
   Custom(Json)
 }
 
 pub(all) struct TiledSpawnSettings {
   position : @math.Vec2
-  zindex : Int
-  layer_z_step : Int
+  zindex : Int32
+  layer_z_step : Int32
   spawn_hidden_layers : Bool
   physics_settings : TiledPhysicsSettings?
   map_hook : ((TiledMapSpawnedEvent) -> Unit)?
@@ -385,14 +385,14 @@ pub struct TiledText {
   underline : Bool
   strikeout : Bool
   kerning : Bool
-  pixel_size : Int?
+  pixel_size : Int32?
   font_family : String?
   horizontal_align : String?
   vertical_align : String?
 }
 
 pub struct TiledTileDefinition {
-  id : Int
+  id : Int32
   object_type : String?
   class_name : String?
   image : String?
@@ -411,19 +411,19 @@ pub struct TiledTileInstance {
 }
 
 pub struct TiledTileLayer {
-  width : Int
-  height : Int
-  x : Int
-  y : Int
-  start_x : Int
-  start_y : Int
+  width : Int32
+  height : Int32
+  x : Int32
+  y : Int32
+  start_x : Int32
+  start_y : Int32
   encoding : String?
   compression : String?
   data : Array[TiledGid]
   chunks : Array[TiledChunk]
 }
 pub fn TiledTileLayer::tile_cells(Self) -> Array[TiledCell]
-pub fn TiledTileLayer::tile_gid_at(Self, Int, Int) -> TiledGid
+pub fn TiledTileLayer::tile_gid_at(Self, Int32, Int32) -> TiledGid
 
 pub struct TiledTileSpawnedEvent {
   map_entity : @entity.Entity
@@ -436,24 +436,24 @@ pub struct TiledTileSpawnedEvent {
 }
 
 pub struct TiledTileset {
-  first_gid : Int
+  first_gid : Int32
   source : String?
   name : String?
   class_name : String?
-  tile_width : Int?
-  tile_height : Int?
-  tile_count : Int?
-  columns : Int?
-  spacing : Int
-  margin : Int
+  tile_width : Int32?
+  tile_height : Int32?
+  tile_count : Int32?
+  columns : Int32?
+  spacing : Int32
+  margin : Int32
   image : String?
-  image_width : Int?
-  image_height : Int?
+  image_width : Int32?
+  image_height : Int32?
   properties : Array[TiledProperty]
   tiles : Array[TiledTileDefinition]
 }
 pub fn TiledTileset::property(Self, String) -> TiledPropertyValue?
-pub fn TiledTileset::tile_definition(Self, Int) -> TiledTileDefinition?
+pub fn TiledTileset::tile_definition(Self, Int32) -> TiledTileDefinition?
 
 pub struct TiledWorld {
   only_show_adjacent_maps : Bool
@@ -468,11 +468,11 @@ pub struct TiledWorldInstance {
   world : TiledWorld
   settings : TiledWorldSpawnSettings
   loaded_maps : Array[TiledWorldLoadedMap]
-  spawned_maps : Map[Int, @entity.Entity]
+  spawned_maps : Map[Int32, @entity.Entity]
 }
 
 pub struct TiledWorldLoadedMap {
-  index : Int
+  index : Int32
   world_map : TiledWorldMap
   resolved_map_path : String
   map : TiledMap
@@ -481,10 +481,10 @@ pub struct TiledWorldLoadedMap {
 
 pub struct TiledWorldMap {
   file_name : String
-  x : Int
-  y : Int
-  width : Int?
-  height : Int?
+  x : Int32
+  y : Int32
+  width : Int32?
+  height : Int32?
 }
 
 pub struct TiledWorldMapInstance {
@@ -504,17 +504,17 @@ pub struct TiledWorldMapSpawnedEvent {
 
 pub struct TiledWorldPattern {
   regexp : String
-  multiplier_x : Int
-  multiplier_y : Int
-  offset_x : Int
-  offset_y : Int
-  map_width : Int
-  map_height : Int
+  multiplier_x : Int32
+  multiplier_y : Int32
+  offset_x : Int32
+  offset_y : Int32
+  map_width : Int32
+  map_height : Int32
 }
 
 pub(all) struct TiledWorldSpawnSettings {
   position : @math.Vec2
-  map_z_step : Int
+  map_z_step : Int32
   map_settings : TiledSpawnSettings
   focus_map_path : String?
   chunking : @math.Vec2?

@@ -37,7 +37,7 @@ pub(all) struct TiledPhysicsSettings {
   collision_filter : @physics2d.CollisionFilter
   sensor_filter : @physics2d.CollisionFilter
   point_radius : Double
-  ellipse_segments : Int
+  ellipse_segments : Int32
   merge_tile_rects : Bool
   collider_hook : ((TiledColliderSpawnedEvent) -> Unit)?
 }
@@ -79,7 +79,7 @@ priv struct TiledPhysicsWorldStore {
 }
 
 ///|
-let tiled_physics_world_stores : Map[UInt, TiledPhysicsWorldStore] = Map([])
+let tiled_physics_world_stores : Map[UInt32, TiledPhysicsWorldStore] = Map([])
 
 ///|
 fn tiled_physics_world_store() -> TiledPhysicsWorldStore {
@@ -366,7 +366,7 @@ fn tiled_physics_specs_from_shape_object(
   transform : @math.Transform,
   inherited_properties : Array[TiledProperty],
   settings : TiledPhysicsSettings,
-  size_override? : @math.Vec2? = None,
+  size_override~ : @math.Vec2? = None,
 ) -> Array[TiledPhysicsSpawnSpec] {
   let properties = tiled_merge_properties(
     inherited_properties,
@@ -601,7 +601,10 @@ fn tiled_axis_aligned_rect(
 }
 
 ///|
-fn tiled_ellipse_points(size : @math.Vec2, segments : Int) -> Array[@math.Vec2] {
+fn tiled_ellipse_points(
+  size : @math.Vec2,
+  segments : Int32,
+) -> Array[@math.Vec2] {
   let count = if segments < 8 { 8 } else { segments }
   let center = size.scalar_mul(0.5)
   let points : Array[@math.Vec2] = []

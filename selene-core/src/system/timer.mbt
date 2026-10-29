@@ -48,7 +48,7 @@ let timers : Array[Timer] = Array()
 pub fn timeout(
   time : Double,
   callback : () -> Unit,
-  pausible? : Bool = true,
+  pausible~ : Bool = true,
 ) -> Unit {
   timers.push({ rest: time, pausible, callback, })
 }

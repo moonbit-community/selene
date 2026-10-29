@@ -159,7 +159,7 @@ fn draw_textured_quad(
   transform : @smath.Transform,
   uv_transform : @smath.Transform,
   tint : @render.Color,
-  flip_y? : Bool = false,
+  flip_y~ : Bool = false,
 ) -> Unit {
   let base_u0 = src_x0 / texture_width
   let base_v0_raw = src_y0 / texture_height
@@ -192,7 +192,7 @@ fn draw_textured_quad(
 fn draw_image_repeat_transform(
   texture : @raylib.Texture,
   command : @render2d_types.ImageDrawCommand2D,
-  flip_y? : Bool = false,
+  flip_y~ : Bool = false,
 ) -> Unit {
   let texture_width = @raylib.get_texture_width(texture).to_double()
   let texture_height = @raylib.get_texture_height(texture).to_double()

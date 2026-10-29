@@ -4,9 +4,9 @@ version = "0.37.3"
 
 import {
   "Milky2018/selene@0.37.3",
-  "Milky2018/moon_cosmic@0.3.4",
-  "moonbit-community/js-ffi@0.4.2",
-  "moonbit-community/rabbita@0.15.6",
+  "Milky2018/moon_cosmic@0.3.8",
+  "moonbit-community/js-ffi@0.4.3",
+  "moonbit-community/rabbita@0.17.0",
 }
 
 readme = "README.md"

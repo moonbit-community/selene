@@ -19,7 +19,7 @@ const VIEWPORT_WIDTH : Double = 960.0
 const VIEWPORT_HEIGHT : Double = 640.0
 
 ///|
-const DEFAULT_COUNT : Int = 1000
+const DEFAULT_COUNT : Int32 = 1000
 
 ///|
 const DEFAULT_DURATION : Double = 10.0
@@ -28,7 +28,7 @@ const DEFAULT_DURATION : Double = 10.0
 priv struct PerfConfig {
   case_name : String
   mode : String
-  count : Int
+  count : Int32
   duration : Double
 }
 
@@ -46,7 +46,7 @@ priv struct PerfState {
   start_ms : Double
   mut last_ms : Double
   mut last_live_ms : Double
-  mut frames : Int
+  mut frames : Int32
   mut max_frame_ms : Double
   mut max_work_ms : Double
   mut finished : Bool
@@ -57,7 +57,7 @@ priv struct PerfState {
 let perf_state : Ref[PerfState?] = Ref(None)
 
 ///|
-fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
+fn color(r : UInt32, g : UInt32, b : UInt32, a : Double) -> @render.Color {
   { r, g, b, a, }
 }
 
@@ -265,7 +265,7 @@ fn spawn_grid(
 }
 
 ///|
-fn ceil_sqrt(value : Int) -> Int {
+fn ceil_sqrt(value : Int32) -> Int32 {
   let mut side = 1
   while side * side < value {
     side += 1

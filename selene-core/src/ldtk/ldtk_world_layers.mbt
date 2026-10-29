@@ -128,7 +128,7 @@ pub fn[T] add_default_ldtk_entity_component(
 ///|
 pub fn ldtk_entity_tile_sprite(
   event : LdtkEntitySpawnedEvent,
-  zindex? : Int = event.zindex,
+  zindex~ : Int32 = event.zindex,
 ) -> @sprite.Sprite? {
   guard event.instance.tile is Some(tile) else { return None }
   guard ldtk_entity_tile_image(event, tile) is Some(image) else { return None }
@@ -180,7 +180,7 @@ pub fn ldtk_entity_tile_sprite(
 ///|
 pub fn insert_ldtk_entity_tile_sprite(
   event : LdtkEntitySpawnedEvent,
-  zindex? : Int = event.zindex,
+  zindex~ : Int32 = event.zindex,
 ) -> Bool {
   guard ldtk_entity_tile_sprite(event, zindex~) is Some(sprite) else {
     return false
@@ -194,7 +194,7 @@ pub fn insert_ldtk_entity_tile_sprite(
 pub fn register_ldtk_entity_tile_sprite_for_layer_optional(
   layer_identifier : String?,
   entity_identifier : String?,
-  zindex_offset? : Int = 0,
+  zindex_offset~ : Int32 = 0,
 ) -> Unit {
   register_ldtk_entity_for_layer_optional(layer_identifier, entity_identifier, fn(
     event,
@@ -209,7 +209,7 @@ pub fn register_ldtk_entity_tile_sprite_for_layer_optional(
 pub fn register_ldtk_entity_tile_sprite_for_layer(
   layer_identifier : String,
   entity_identifier : String,
-  zindex_offset? : Int = 0,
+  zindex_offset~ : Int32 = 0,
 ) -> Unit {
   register_ldtk_entity_tile_sprite_for_layer_optional(
     Some(layer_identifier),
@@ -221,7 +221,7 @@ pub fn register_ldtk_entity_tile_sprite_for_layer(
 ///|
 pub fn register_ldtk_entity_tile_sprite(
   entity_identifier : String,
-  zindex_offset? : Int = 0,
+  zindex_offset~ : Int32 = 0,
 ) -> Unit {
   register_ldtk_entity_tile_sprite_for_layer_optional(
     None,
@@ -233,7 +233,7 @@ pub fn register_ldtk_entity_tile_sprite(
 ///|
 pub fn register_default_ldtk_entity_tile_sprite_for_layer(
   layer_identifier : String,
-  zindex_offset? : Int = 0,
+  zindex_offset~ : Int32 = 0,
 ) -> Unit {
   register_ldtk_entity_tile_sprite_for_layer_optional(
     Some(layer_identifier),
@@ -244,7 +244,7 @@ pub fn register_default_ldtk_entity_tile_sprite_for_layer(
 
 ///|
 pub fn register_default_ldtk_entity_tile_sprite(
-  zindex_offset? : Int = 0,
+  zindex_offset~ : Int32 = 0,
 ) -> Unit {
   register_ldtk_entity_tile_sprite_for_layer_optional(
     None,
@@ -257,7 +257,7 @@ pub fn register_default_ldtk_entity_tile_sprite(
 pub fn add_ldtk_entity_tile_sprite_for_layer_optional(
   layer_identifier : String?,
   entity_identifier : String?,
-  zindex_offset? : Int = 0,
+  zindex_offset~ : Int32 = 0,
 ) -> Unit {
   add_ldtk_entity_registration_for_layer_optional(
     layer_identifier,
@@ -277,7 +277,7 @@ pub fn add_ldtk_entity_tile_sprite_for_layer_optional(
 pub fn add_ldtk_entity_tile_sprite_for_layer(
   layer_identifier : String,
   entity_identifier : String,
-  zindex_offset? : Int = 0,
+  zindex_offset~ : Int32 = 0,
 ) -> Unit {
   add_ldtk_entity_tile_sprite_for_layer_optional(
     Some(layer_identifier),
@@ -289,7 +289,7 @@ pub fn add_ldtk_entity_tile_sprite_for_layer(
 ///|
 pub fn add_ldtk_entity_tile_sprite(
   entity_identifier : String,
-  zindex_offset? : Int = 0,
+  zindex_offset~ : Int32 = 0,
 ) -> Unit {
   add_ldtk_entity_tile_sprite_for_layer_optional(
     None,
@@ -301,7 +301,7 @@ pub fn add_ldtk_entity_tile_sprite(
 ///|
 pub fn add_default_ldtk_entity_tile_sprite_for_layer(
   layer_identifier : String,
-  zindex_offset? : Int = 0,
+  zindex_offset~ : Int32 = 0,
 ) -> Unit {
   add_ldtk_entity_tile_sprite_for_layer_optional(
     Some(layer_identifier),
@@ -311,14 +311,14 @@ pub fn add_default_ldtk_entity_tile_sprite_for_layer(
 }
 
 ///|
-pub fn add_default_ldtk_entity_tile_sprite(zindex_offset? : Int = 0) -> Unit {
+pub fn add_default_ldtk_entity_tile_sprite(zindex_offset~ : Int32 = 0) -> Unit {
   add_ldtk_entity_tile_sprite_for_layer_optional(None, None, zindex_offset~)
 }
 
 ///|
 pub fn add_ldtk_int_cell_registration_for_layer_optional(
   layer_identifier : String?,
-  value : Int?,
+  value : Int32?,
   hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
 ) -> Unit {
   ldtk_append_int_cell_typed_registration(layer_identifier, value, hook)
@@ -327,7 +327,7 @@ pub fn add_ldtk_int_cell_registration_for_layer_optional(
 ///|
 pub fn add_ldtk_int_cell_registration_for_layer(
   layer_identifier : String,
-  value : Int,
+  value : Int32,
   hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
 ) -> Unit {
   add_ldtk_int_cell_registration_for_layer_optional(

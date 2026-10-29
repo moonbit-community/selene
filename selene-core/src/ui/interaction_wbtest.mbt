@@ -82,8 +82,8 @@ fn interaction_test_global_node(rect : @math.Rect) -> GlobalUiNode {
 ///|
 fn spawn_interaction_test_node(
   rect : @math.Rect,
-  interactive? : Bool = true,
-  overflow_y? : Overflow = Visible,
+  interactive~ : Bool = true,
+  overflow_y~ : Overflow = Visible,
 ) -> @entity.Entity {
   let entity = @entity.Entity()
   nodes().set(entity, Node(overflow_y~))
@@ -99,8 +99,8 @@ fn spawn_interaction_test_node(
 fn touch_point(
   id : @inputs.TouchId,
   position : @math.Vec2,
-  previous_position? : @math.Vec2 = position,
-  source? : @inputs.PointerSource = PointerTouch,
+  previous_position~ : @math.Vec2 = position,
+  source~ : @inputs.PointerSource = PointerTouch,
 ) -> @inputs.TouchPoint {
   {
     id,
@@ -117,8 +117,8 @@ fn touch_event(
   id : @inputs.TouchId,
   phase : @inputs.TouchPhase,
   position : @math.Vec2,
-  previous_position? : @math.Vec2 = position,
-  source? : @inputs.PointerSource = PointerTouch,
+  previous_position~ : @math.Vec2 = position,
+  source~ : @inputs.PointerSource = PointerTouch,
 ) -> @inputs.TouchEvent {
   {
     id,

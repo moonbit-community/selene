@@ -9,7 +9,7 @@ priv struct NameWorldStore {
 }
 
 ///|
-let name_world_stores : Map[UInt, NameWorldStore] = Map([])
+let name_world_stores : Map[UInt32, NameWorldStore] = Map([])
 
 ///|
 fn name_world_store() -> NameWorldStore {

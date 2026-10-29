@@ -5,13 +5,13 @@ const DEFAULT_VIEWPORT_HEIGHT = 256.0
 const DEFAULT_VIEWPORT_WIDTH = 512.0
 
 ///|
-const DEFAULT_FPS : UInt = 60
+const DEFAULT_FPS : UInt32 = 60
 
 ///|
-const DEFAULT_FIXED_HZ : UInt = 64
+const DEFAULT_FIXED_HZ : UInt32 = 64
 
 ///|
-const DEFAULT_MAX_FIXED_STEPS_PER_FRAME : UInt = 8
+const DEFAULT_MAX_FIXED_STEPS_PER_FRAME : UInt32 = 8
 
 ///|
 pub type System = (@ecs.World) -> Unit
@@ -39,9 +39,9 @@ pub(all) struct App {
   viewport_width : Double
   zoom : Double
   image_smooth : Bool
-  fps : UInt
-  fixed_hz : UInt
-  max_fixed_steps_per_frame : UInt
+  fps : UInt32
+  fixed_hz : UInt32
+  max_fixed_steps_per_frame : UInt32
   world : @ecs.World
   event_registrations : Array[(@ecs.World) -> Unit]
   systems : Array[RegisteredSystem]
@@ -90,17 +90,17 @@ pub fn App::with_viewport_width(self : App, width : Double) -> App {
 }
 
 ///|
-pub fn App::with_fps(self : App, fps : UInt) -> App {
+pub fn App::with_fps(self : App, fps : UInt32) -> App {
   { ..self, fps, }
 }
 
 ///|
-pub fn App::with_fixed_hz(self : App, fixed_hz : UInt) -> App {
+pub fn App::with_fixed_hz(self : App, fixed_hz : UInt32) -> App {
   { ..self, fixed_hz, }
 }
 
 ///|
-pub fn App::with_max_fixed_steps_per_frame(self : App, steps : UInt) -> App {
+pub fn App::with_max_fixed_steps_per_frame(self : App, steps : UInt32) -> App {
   { ..self, max_fixed_steps_per_frame: steps, }
 }
 
@@ -137,8 +137,8 @@ pub fn App::add_system(
   system : System,
   system_name? : String,
   in_set? : @system_set.SystemSet,
-  before? : Array[@system_set.SystemSet] = [],
-  after? : Array[@system_set.SystemSet] = [],
+  before~ : Array[@system_set.SystemSet] = [],
+  after~ : Array[@system_set.SystemSet] = [],
   run_if? : RunCondition,
 ) -> App {
   let system_name = system_name.unwrap_or(
@@ -163,8 +163,8 @@ pub fn App::add_systems(
   schedule : @system.Schedule,
   systems_to_add : Array[System],
   in_set? : @system_set.SystemSet,
-  before? : Array[@system_set.SystemSet] = [],
-  after? : Array[@system_set.SystemSet] = [],
+  before~ : Array[@system_set.SystemSet] = [],
+  after~ : Array[@system_set.SystemSet] = [],
   run_if? : RunCondition,
 ) -> App {
   let systems = self.systems
@@ -178,7 +178,7 @@ pub fn App::add_systems(
 ///|
 fn set_key(
   system : RegisteredSystem,
-  index : Int,
+  index : Int32,
   deterministic_ordering : Bool,
 ) -> String {
   match system.in_set {
@@ -202,7 +202,7 @@ fn sort_systems_by_set(
   }
 
   let group_members : Map[String, Array[RegisteredSystem]] = Map([])
-  let group_order : Map[String, Int] = Map([])
+  let group_order : Map[String, Int32] = Map([])
   let group_keys : Array[String] = []
 
   for index, system in systems {
@@ -218,7 +218,7 @@ fn sort_systems_by_set(
   }
 
   let outgoing : Map[String, @set.Set[String]] = Map([])
-  let indegree : Map[String, Int] = Map([])
+  let indegree : Map[String, Int32] = Map([])
   for key in group_keys {
     outgoing.set(key, Set([]))
     indegree.set(key, 0)
@@ -228,7 +228,7 @@ fn sort_systems_by_set(
     from : String,
     to : String,
     outgoing : Map[String, @set.Set[String]],
-    indegree : Map[String, Int],
+    indegree : Map[String, Int32],
   ) -> Unit {
     if from == to {
       return
@@ -367,7 +367,7 @@ fn run_stage(systems : Array[RegisteredSystem], world : @ecs.World) -> Unit {
 pub(all) struct RuntimePlan {
   world : @ecs.World
   fixed_dt : Double
-  max_fixed_steps : Int
+  max_fixed_steps : Int32
   startup_systems : Array[RegisteredSystem]
   frame_first : Array[RegisteredSystem]
   frame_pre : Array[RegisteredSystem]
@@ -412,7 +412,7 @@ fn resolve_fixed_dt(app : App, fixed_delta_override : Double?) -> Double {
 ///|
 fn build_runtime_plan(
   app : App,
-  fixed_delta_override? : Double? = None,
+  fixed_delta_override~ : Double? = None,
 ) -> RuntimePlan {
   if app.zoom <= 0.0 {
     abort("App::with_zoom must be a positive number")
@@ -691,9 +691,9 @@ pub fn App::run(self : App) -> Unit {
 ///|
 pub fn App::run_frames(
   self : App,
-  frames : Int,
-  raw_delta? : Double = 1.0 / DEFAULT_FPS.to_double(),
-  fixed_delta_override? : Double? = None,
+  frames : Int32,
+  raw_delta~ : Double = 1.0 / DEFAULT_FPS.to_double(),
+  fixed_delta_override~ : Double? = None,
 ) -> Unit {
   if frames <= 0 {
     return
@@ -716,7 +716,10 @@ pub fn App::run_frames(
 }
 
 ///|
-fn resolved_capture_dimension(override_value : Int, fallback : Double) -> Int {
+fn resolved_capture_dimension(
+  override_value : Int32,
+  fallback : Double,
+) -> Int32 {
   if override_value > 0 {
     return override_value
   }
@@ -731,11 +734,11 @@ fn resolved_capture_dimension(override_value : Int, fallback : Double) -> Int {
 ///|
 fn App::run_frames_capture_with(
   self : App,
-  frames : Int,
+  frames : Int32,
   raw_delta : Double,
   fixed_delta_override : Double?,
-  capture_frame_indexes : Array[Int]?,
-  capture_frame : (Int) -> @runtime_debug.FrameCaptureArtifact?,
+  capture_frame_indexes : Array[Int32]?,
+  capture_frame : (Int32) -> @runtime_debug.FrameCaptureArtifact?,
 ) -> Array[@runtime_debug.FrameCaptureArtifact] {
   let captures : Array[@runtime_debug.FrameCaptureArtifact] = []
   if frames <= 0 {
@@ -796,13 +799,13 @@ fn App::run_frames_capture_with(
 ///|
 pub fn App::run_frames_capture(
   self : App,
-  frames : Int,
-  capture_width? : Int = 0,
-  capture_height? : Int = 0,
-  raw_delta? : Double = 1.0 / DEFAULT_FPS.to_double(),
-  fixed_delta_override? : Double? = None,
-  metadata_indent? : Int = 2,
-  capture_frame_indexes? : Array[Int]? = None,
+  frames : Int32,
+  capture_width~ : Int32 = 0,
+  capture_height~ : Int32 = 0,
+  raw_delta~ : Double = 1.0 / DEFAULT_FPS.to_double(),
+  fixed_delta_override~ : Double? = None,
+  metadata_indent~ : Int32 = 2,
+  capture_frame_indexes~ : Array[Int32]? = None,
 ) -> Array[@runtime_debug.FrameCaptureArtifact] {
   let resolved_width = resolved_capture_dimension(
     capture_width,
@@ -830,8 +833,8 @@ pub fn App::run_frames_capture(
 ///|
 pub fn App::step_fixed(
   self : App,
-  steps : Int,
-  fixed_delta_override? : Double? = None,
+  steps : Int32,
+  fixed_delta_override~ : Double? = None,
 ) -> Unit {
   if steps <= 0 {
     return

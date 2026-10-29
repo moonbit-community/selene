@@ -28,15 +28,15 @@ priv struct SpriteAnimationDef {
 ///|
 fn atlas_animation(
   path : String,
-  frame_count : Int,
+  frame_count : Int32,
   size : @math.Vec2,
-  offset? : @math.Vec2 = @math.Vec2::zero(),
-  space_x? : Double = 0.0,
-  fps? : Double = 12.0,
-  loop_? : Bool = true,
-  anchor? : @sprite.Anchor = Anchor(Vec2(0.0, 0.0)),
-  flip_x? : Bool = false,
-  flip_y? : Bool = false,
+  offset~ : @math.Vec2 = @math.Vec2::zero(),
+  space_x~ : Double = 0.0,
+  fps~ : Double = 12.0,
+  loop_~ : Bool = true,
+  anchor~ : @sprite.Anchor = Anchor(Vec2(0.0, 0.0)),
+  flip_x~ : Bool = false,
+  flip_y~ : Bool = false,
 ) -> SpriteAnimationDef {
   {
     name: path,
@@ -75,8 +75,8 @@ fn sprite_animation_sprite(animation : SpriteAnimationDef) -> @sprite.Sprite {
 fn static_region_sprite(
   path : String,
   size : @math.Vec2,
-  rect? : @math.Rect? = None,
-  anchor? : @sprite.Anchor = Anchor(Vec2(0.0, 0.0)),
+  rect~ : @math.Rect? = None,
+  anchor~ : @sprite.Anchor = Anchor(Vec2(0.0, 0.0)),
 ) -> @sprite.Sprite {
   Sprite(
     image=Some(@asset.load_image(path)),

@@ -330,9 +330,9 @@ pub fn multibody_link(entity : @entity.Entity) -> MultibodyLinkId? {
 pub fn raycast(
   origin : @math.Vec2,
   direction : @math.Vec2,
-  max_toi? : Double = 1000.0,
-  solid? : Bool = true,
-  query_filter? : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
+  max_toi~ : Double = 1000.0,
+  solid~ : Bool = true,
+  query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
 ) -> RaycastHit? {
   @collision.raycast(origin, direction, max_toi~, solid~, query_filter~)
 }
@@ -341,11 +341,11 @@ pub fn raycast(
 pub fn shape_cast(
   shape : CollisionShape,
   origin : @math.Vec2,
-  rotation? : Double = 0.0,
-  direction? : @math.Vec2 = Vec2(0.0, -1.0),
-  max_toi? : Double = 1000.0,
-  stop_at_penetration? : Bool = false,
-  query_filter? : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
+  rotation~ : Double = 0.0,
+  direction~ : @math.Vec2 = Vec2(0.0, -1.0),
+  max_toi~ : Double = 1000.0,
+  stop_at_penetration~ : Bool = false,
+  query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
 ) -> ShapeCastHit? {
   @collision.shape_cast(
     shape,
@@ -361,7 +361,7 @@ pub fn shape_cast(
 ///|
 pub fn intersect_point(
   point : @math.Vec2,
-  query_filter? : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
+  query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
 ) -> Array[@entity.Entity] {
   @collision.intersect_point(point, query_filter~)
 }
@@ -370,8 +370,8 @@ pub fn intersect_point(
 pub fn intersect_shape(
   shape : CollisionShape,
   origin : @math.Vec2,
-  rotation? : Double = 0.0,
-  query_filter? : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
+  rotation~ : Double = 0.0,
+  query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
 ) -> Array[@entity.Entity] {
   @collision.intersect_shape(shape, origin, rotation~, query_filter~)
 }
@@ -432,7 +432,7 @@ pub fn set_rigid_body_angular_velocity(
 pub fn add_force(
   entity : @entity.Entity,
   force : @math.Vec2,
-  wake_up? : Bool = true,
+  wake_up~ : Bool = true,
 ) -> Unit {
   @collision.add_force(entity, force, wake_up~)
 }
@@ -442,7 +442,7 @@ pub fn add_force_at_point(
   entity : @entity.Entity,
   force : @math.Vec2,
   point : @math.Vec2,
-  wake_up? : Bool = true,
+  wake_up~ : Bool = true,
 ) -> Unit {
   @collision.add_force_at_point(entity, force, point, wake_up~)
 }
@@ -451,7 +451,7 @@ pub fn add_force_at_point(
 pub fn add_torque(
   entity : @entity.Entity,
   torque : Double,
-  wake_up? : Bool = true,
+  wake_up~ : Bool = true,
 ) -> Unit {
   @collision.add_torque(entity, torque, wake_up~)
 }
@@ -460,7 +460,7 @@ pub fn add_torque(
 pub fn apply_impulse(
   entity : @entity.Entity,
   impulse : @math.Vec2,
-  wake_up? : Bool = true,
+  wake_up~ : Bool = true,
 ) -> Unit {
   @collision.apply_impulse(entity, impulse, wake_up~)
 }
@@ -470,7 +470,7 @@ pub fn apply_impulse_at_point(
   entity : @entity.Entity,
   impulse : @math.Vec2,
   point : @math.Vec2,
-  wake_up? : Bool = true,
+  wake_up~ : Bool = true,
 ) -> Unit {
   @collision.apply_impulse_at_point(entity, impulse, point, wake_up~)
 }
@@ -479,18 +479,18 @@ pub fn apply_impulse_at_point(
 pub fn apply_torque_impulse(
   entity : @entity.Entity,
   impulse : Double,
-  wake_up? : Bool = true,
+  wake_up~ : Bool = true,
 ) -> Unit {
   @collision.apply_torque_impulse(entity, impulse, wake_up~)
 }
 
 ///|
-pub fn reset_forces(entity : @entity.Entity, wake_up? : Bool = true) -> Unit {
+pub fn reset_forces(entity : @entity.Entity, wake_up~ : Bool = true) -> Unit {
   @collision.reset_forces(entity, wake_up~)
 }
 
 ///|
-pub fn reset_torques(entity : @entity.Entity, wake_up? : Bool = true) -> Unit {
+pub fn reset_torques(entity : @entity.Entity, wake_up~ : Bool = true) -> Unit {
   @collision.reset_torques(entity, wake_up~)
 }
 
@@ -508,7 +508,7 @@ pub fn move_system(delta : Double) -> Unit {
 pub fn configure_physics(
   gravity? : @math.Vec2,
   pixels_per_meter? : Double,
-  max_ccd_substeps? : Int,
+  max_ccd_substeps? : Int32,
 ) -> Unit {
   if gravity is Some(gravity) {
     @collision.configure_physics(gravity~)
@@ -534,7 +534,7 @@ pub fn get_contains(area : @entity.Entity) -> @set.Set[@entity.Entity] {
 ///|
 pub fn emit_pickable_just_pressed(
   entity : @entity.Entity,
-  button? : @inputs.MouseButton = Left,
+  button~ : @inputs.MouseButton = Left,
 ) -> Unit {
   @collision.emit_pickable_just_pressed(entity, button~)
 }

@@ -28,7 +28,7 @@ extern "js" fn configure_canvas_touch_input(
   #| }
 
 ///|
-extern "js" fn pointer_event_id(event : @dom.Event) -> Int =
+extern "js" fn pointer_event_id(event : @dom.Event) -> Int32 =
   #| (event) => Number(event.pointerId ?? 0) | 0
 
 ///|
@@ -64,7 +64,7 @@ extern "js" fn prevent_pointer_default(event : @dom.Event) -> Unit =
 ///|
 extern "js" fn capture_pointer(
   canvas : @dom.HTMLCanvasElement,
-  pointer_id : Int,
+  pointer_id : Int32,
 ) -> Unit =
   #| (canvas, pointerId) => {
   #|   try { canvas.setPointerCapture?.(pointerId); } catch (_err) {}
@@ -73,7 +73,7 @@ extern "js" fn capture_pointer(
 ///|
 extern "js" fn release_pointer(
   canvas : @dom.HTMLCanvasElement,
-  pointer_id : Int,
+  pointer_id : Int32,
 ) -> Unit =
   #| (canvas, pointerId) => {
   #|   try { canvas.releasePointerCapture?.(pointerId); } catch (_err) {}

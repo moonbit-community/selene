@@ -14,20 +14,20 @@
 
 ///|
 pub struct LdtkLevelIndices {
-  world : Int?
-  level : Int
+  world : Int32?
+  level : Int32
 }
 
 ///|
 pub fn LdtkLevelIndices::in_world(
-  world_index : Int,
-  level_index : Int,
+  world_index : Int32,
+  level_index : Int32,
 ) -> LdtkLevelIndices {
   { world: Some(world_index), level: level_index, }
 }
 
 ///|
-pub fn LdtkLevelIndices::in_root(index : Int) -> LdtkLevelIndices {
+pub fn LdtkLevelIndices::in_root(index : Int32) -> LdtkLevelIndices {
   { world: None, level: index, }
 }
 
@@ -44,7 +44,7 @@ pub enum LdtkLevelSelection {
   Identifier(String)
   Indices(LdtkLevelIndices)
   Iid(String)
-  Uid(Int)
+  Uid(Int32)
 }
 
 ///|
@@ -65,20 +65,20 @@ pub fn ldtk_level_selection_identifier(
 }
 
 ///|
-pub fn ldtk_level_selection_index(level_index : Int) -> LdtkLevelSelection {
+pub fn ldtk_level_selection_index(level_index : Int32) -> LdtkLevelSelection {
   Indices(LdtkLevelIndices::in_root(level_index))
 }
 
 ///|
 pub fn ldtk_level_selection_indices(
-  world_index : Int,
-  level_index : Int,
+  world_index : Int32,
+  level_index : Int32,
 ) -> LdtkLevelSelection {
   Indices(LdtkLevelIndices::in_world(world_index, level_index))
 }
 
 ///|
-pub fn ldtk_level_selection_uid(uid : Int) -> LdtkLevelSelection {
+pub fn ldtk_level_selection_uid(uid : Int32) -> LdtkLevelSelection {
   Uid(uid)
 }
 
@@ -116,7 +116,7 @@ pub fn LdtkSpawnExclusions::excludes_layer(
 pub struct LdtkIntGridPhysicsSettings {
   enabled : Bool
   layer_identifiers : Array[String]
-  values : Array[Int]
+  values : Array[Int32]
   as_sensor : Bool
   collision_filter : @physics2d.CollisionFilter
   sensor_filter : @physics2d.CollisionFilter
@@ -139,7 +139,7 @@ pub fn default_ldtk_int_grid_physics_settings() -> LdtkIntGridPhysicsSettings {
 pub fn LdtkIntGridPhysicsSettings::matches(
   self : LdtkIntGridPhysicsSettings,
   layer_identifier : String,
-  value : Int,
+  value : Int32,
 ) -> Bool {
   if !self.enabled {
     return false
@@ -259,7 +259,7 @@ pub fn ldtk_field_bool(
 pub fn ldtk_field_int(
   field_instances : Array[LdtkFieldInstance],
   identifier : String,
-) -> Int? {
+) -> Int32? {
   ldtk_field_instance(field_instances, identifier).bind(field_instance => {
     field_instance.int_value()
   })

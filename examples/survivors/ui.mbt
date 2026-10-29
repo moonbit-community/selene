@@ -13,13 +13,13 @@
 // limitations under the License.
 
 ///|
-const HUD_LAYER_ZINDEX : Int = HUD_ZINDEX + 1
+const HUD_LAYER_ZINDEX : Int32 = HUD_ZINDEX + 1
 
 ///|
-const PANEL_LAYER_ZINDEX : Int = HUD_ZINDEX + 2
+const PANEL_LAYER_ZINDEX : Int32 = HUD_ZINDEX + 2
 
 ///|
-const PANEL_TEXT_ZINDEX : Int = HUD_ZINDEX + 3
+const PANEL_TEXT_ZINDEX : Int32 = HUD_ZINDEX + 3
 
 ///|
 const LEVELUP_PANEL_TITLE_OFFSET_Y = 20.0
@@ -102,10 +102,10 @@ fn configure_text_entity(
   content : String,
   color : String,
   font : String,
-  size? : @math.Vec2 = Vec2(-1.0, -1.0),
-  align? : @math.HAlign = Left,
-  baseline? : @math.VAlign = Top,
-  zindex? : Int = HUD_LAYER_ZINDEX,
+  size~ : @math.Vec2 = Vec2(-1.0, -1.0),
+  align~ : @math.HAlign = Left,
+  baseline~ : @math.VAlign = Top,
+  zindex~ : Int32 = HUD_LAYER_ZINDEX,
 ) -> Unit {
   @ui.nodes().set(
     entity,
@@ -144,7 +144,7 @@ fn configure_panel_button(
   background : String,
   border : String,
   label : String,
-  tab_index : Int,
+  tab_index : Int32,
 ) -> Unit {
   @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
   @ui.z_indexes().set(entity, ZIndex(PANEL_TEXT_ZINDEX))
@@ -342,7 +342,7 @@ fn setup_level_up_ui() -> Unit {
 }
 
 ///|
-fn level_up(level : Int) -> Unit {
+fn level_up(level : Int32) -> Unit {
   @time.set_scale(0.0)
   let panel = game_state.level_up_panel
 
@@ -385,7 +385,7 @@ fn update_selection_display(
 }
 
 ///|
-fn select_powerup(index : Int) -> Unit {
+fn select_powerup(index : Int32) -> Unit {
   let panel = game_state.level_up_panel
   if index < panel.available_selections.length() {
     let selection = panel.available_selections[index]

@@ -1,6 +1,6 @@
 ///|
 fn read_accessor_weight4(
-  accessor_index : Int,
+  accessor_index : Int32,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
@@ -134,11 +134,11 @@ fn read_accessor_weight4(
 
 ///|
 fn read_accessor_indices(
-  accessor_index : Int,
+  accessor_index : Int32,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
-) -> Array[Int]? {
+) -> Array[Int32]? {
   guard accessor_index >= 0 else { return None }
   guard accessors.get(accessor_index) is Some(Some(accessor)) else {
     return None
@@ -152,7 +152,7 @@ fn read_accessor_indices(
     5125 => 4
     _ => return None
   }
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for _ in 0..<accessor.count {
     indices.push(0)
   }
@@ -232,7 +232,7 @@ fn resolve_accessor_bytes(
   accessor : AccessorTemplate,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
-) -> (Bytes, Int, Int, Int)? {
+) -> (Bytes, Int32, Int32, Int32)? {
   match accessor.buffer_view {
     Some(buffer_view_index) =>
       resolve_buffer_region(
@@ -250,7 +250,7 @@ fn resolve_sparse_values_bytes(
   sparse : SparseAccessorTemplate,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
-) -> (Bytes, Int, Int, Int)? {
+) -> (Bytes, Int32, Int32, Int32)? {
   resolve_buffer_region(
     sparse.values.buffer_view,
     sparse.values.byte_offset,
@@ -261,11 +261,11 @@ fn resolve_sparse_values_bytes(
 
 ///|
 fn resolve_buffer_region(
-  buffer_view_index : Int,
-  extra_offset : Int,
+  buffer_view_index : Int32,
+  extra_offset : Int32,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
-) -> (Bytes, Int, Int, Int)? {
+) -> (Bytes, Int32, Int32, Int32)? {
   guard buffer_view_index >= 0 else { return None }
   guard buffer_views.get(buffer_view_index) is Some(Some(view)) else {
     return None
@@ -291,7 +291,7 @@ fn read_sparse_indices(
   sparse : SparseAccessorTemplate,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
-) -> Array[Int]? {
+) -> Array[Int32]? {
   let component_size = match sparse.indices.component_type {
     5121 => 1
     5123 => 2
@@ -319,7 +319,7 @@ fn read_sparse_indices(
     (required_end > view_end || required_end > bytes.length()) {
     return None
   }
-  let output : Array[Int] = []
+  let output : Array[Int32] = []
   for idx in 0..<sparse.count {
     let pos = base_offset + idx * step
     let value = match sparse.indices.component_type {
@@ -335,7 +335,7 @@ fn read_sparse_indices(
 }
 
 ///|
-fn accessor_component_size(component_type : Int) -> Int {
+fn accessor_component_size(component_type : Int32) -> Int32 {
   match component_type {
     5120 => 1
     5121 => 1
@@ -348,7 +348,7 @@ fn accessor_component_size(component_type : Int) -> Int {
 }
 
 ///|
-fn read_f32_le(bytes : Bytes, offset : Int) -> Double? {
+fn read_f32_le(bytes : Bytes, offset : Int32) -> Double? {
   if offset < 0 || offset + 3 >= bytes.length() {
     return None
   }
@@ -373,7 +373,7 @@ fn quat_from_components(
 }
 
 ///|
-fn read_mat4_value(bytes : Bytes, offset : Int) -> @math.Mat4? {
+fn read_mat4_value(bytes : Bytes, offset : Int32) -> @math.Mat4? {
   let values : Array[Double] = []
   for index in 0..<16 {
     guard read_f32_le(bytes, offset + index * 4) is Some(value) else {
@@ -402,7 +402,7 @@ fn read_mat4_value(bytes : Bytes, offset : Int) -> @math.Mat4? {
 }
 
 ///|
-fn read_u16_le(bytes : Bytes, offset : Int) -> Int? {
+fn read_u16_le(bytes : Bytes, offset : Int32) -> Int32? {
   if offset < 0 || offset + 1 >= bytes.length() {
     return None
   }
@@ -410,7 +410,7 @@ fn read_u16_le(bytes : Bytes, offset : Int) -> Int? {
 }
 
 ///|
-fn read_i8(bytes : Bytes, offset : Int) -> Int? {
+fn read_i8(bytes : Bytes, offset : Int32) -> Int32? {
   if offset < 0 || offset >= bytes.length() {
     return None
   }
@@ -423,7 +423,7 @@ fn read_i8(bytes : Bytes, offset : Int) -> Int? {
 }
 
 ///|
-fn read_i16_le(bytes : Bytes, offset : Int) -> Int? {
+fn read_i16_le(bytes : Bytes, offset : Int32) -> Int32? {
   match read_u16_le(bytes, offset) {
     Some(value) =>
       if value >= 32768 {
@@ -436,7 +436,7 @@ fn read_i16_le(bytes : Bytes, offset : Int) -> Int? {
 }
 
 ///|
-fn read_u32_le(bytes : Bytes, offset : Int) -> Int? {
+fn read_u32_le(bytes : Bytes, offset : Int32) -> Int32? {
   if offset < 0 || offset + 3 >= bytes.length() {
     return None
   }

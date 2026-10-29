@@ -17,7 +17,7 @@
 ///
 /// Groups are used by `CollisionFilter` to decide which entities can interact.
 pub struct CollisionGroup {
-  value : UInt
+  value : UInt32
 } derive(Eq)
 
 ///|
@@ -32,7 +32,7 @@ pub struct CollisionFilter {
 } derive(Eq)
 
 ///|
-let collision_group_generator : Ref[UInt] = { val: 0, }
+let collision_group_generator : Ref[UInt32] = { val: 0, }
 
 ///|
 /// Creates a new collision group with a unique identifier.

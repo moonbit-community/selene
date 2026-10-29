@@ -16,20 +16,20 @@
 priv struct EnemyData {
   health : Double
   speed : Double
-  points : Int
+  points : Int32
   right_animation : SpriteAnimationDef
   left_animation : SpriteAnimationDef
 }
 
 ///|
 priv struct WaveSpawnPlan {
-  creeper_count : Int
-  icecream_count : Int
-  orc_count : Int
-  skull_count : Int
-  teleman_count : Int
-  devil_count : Int
-  pirate_count : Int
+  creeper_count : Int32
+  icecream_count : Int32
+  orc_count : Int32
+  skull_count : Int32
+  teleman_count : Int32
+  devil_count : Int32
+  pirate_count : Int32
   spawn_interval : Double // Time in seconds between spawns
 }
 
@@ -149,13 +149,13 @@ let wave_spawn_plans : Array[WaveSpawnPlan] = [
 
 ///|
 priv struct WaveState {
-  mut creeper_spawned : Int
-  mut icecream_spawned : Int
-  mut orc_spawned : Int
-  mut skull_spawned : Int
-  mut teleman_spawned : Int
-  mut devil_spawned : Int
-  mut pirate_spawned : Int
+  mut creeper_spawned : Int32
+  mut icecream_spawned : Int32
+  mut orc_spawned : Int32
+  mut skull_spawned : Int32
+  mut teleman_spawned : Int32
+  mut devil_spawned : Int32
+  mut pirate_spawned : Int32
 }
 
 ///|

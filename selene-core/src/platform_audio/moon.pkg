@@ -4,6 +4,4 @@ import {
 
 warnings = "-reserved_keyword"
 
-options(
-  "virtual": { "has-default": true },
-)
+virtual(has_default: true)

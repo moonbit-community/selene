@@ -19,7 +19,7 @@ const EPSILON = 0.000000001
 pub(all) struct PhysicsConfig {
   mut gravity : @math.Vec2
   mut pixels_per_meter : Double
-  mut max_ccd_substeps : Int
+  mut max_ccd_substeps : Int32
 }
 
 ///|
@@ -33,7 +33,7 @@ pub let physics_config : PhysicsConfig = {
 pub fn configure_physics(
   gravity? : @math.Vec2,
   pixels_per_meter? : Double,
-  max_ccd_substeps? : Int,
+  max_ccd_substeps? : Int32,
 ) -> Unit {
   if gravity is Some(gravity) {
     physics_config.gravity = gravity
@@ -61,7 +61,7 @@ priv struct PhysicsWorld {
   event_handler : @rapier_pipeline.EventHandler
   entity_bodies : Map[@entity.Entity, @rapier_dynamics.RigidBodyHandle]
   entity_colliders : Map[@entity.Entity, @rapier_collision.ColliderHandle]
-  collider_entities : Map[Int, @entity.Entity]
+  collider_entities : Map[Int32, @entity.Entity]
   entity_joints : Map[@entity.Entity, JointHandle]
   entity_multibody_joints : Map[@entity.Entity, MultibodyJointHandle]
 }
@@ -93,7 +93,7 @@ priv struct PhysicsWorldRuntime {
 }
 
 ///|
-let physics_world_runtimes : Map[UInt, PhysicsWorldRuntime] = Map([])
+let physics_world_runtimes : Map[UInt32, PhysicsWorldRuntime] = Map([])
 
 ///|
 fn physics_world_runtime() -> PhysicsWorldRuntime {

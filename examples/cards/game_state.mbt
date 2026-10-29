@@ -20,10 +20,10 @@ const VIEWPORT_WIDTH : Double = 480.0
 const VIEWPORT_HEIGHT : Double = 320.0
 
 ///|
-const SMALL_BLIND : Int = 10
+const SMALL_BLIND : Int32 = 10
 
 ///|
-const BIG_BLIND : Int = 20
+const BIG_BLIND : Int32 = 20
 
 ///|
 /// Game phases
@@ -39,9 +39,9 @@ enum GamePhase {
 ///|
 /// Player information
 priv struct Player {
-  mut chips : Int
+  mut chips : Int32
   hole_cards : Array[Card]
-  mut current_bet : Int
+  mut current_bet : Int32
   mut has_folded : Bool
   position : @math.Vec2 // Position for display
 }
@@ -53,14 +53,14 @@ priv struct GameState {
   mut deck : Array[Card]
   player : Player // Single player
   mut phase : GamePhase
-  mut current_bet : Int // Current bet to match
+  mut current_bet : Int32 // Current bet to match
   community_cards : Array[Card]
-  mut hand_number : Int
-  mut small_blind : Int
-  mut big_blind : Int
-  mut turns_remaining : Int // 10 turns total
-  starting_chips : Int // Track starting amount
-  mut magnification : Int // Payout multiplier, starts at 1, increases with raises
+  mut hand_number : Int32
+  mut small_blind : Int32
+  mut big_blind : Int32
+  mut turns_remaining : Int32 // 10 turns total
+  starting_chips : Int32 // Track starting amount
+  mut magnification : Int32 // Payout multiplier, starts at 1, increases with raises
   // UI elements
   blind_label : @entity.Entity // Display current blind
   chips_label : @entity.Entity
@@ -83,7 +83,7 @@ priv struct GameState {
 ///|
 /// Global game state
 let game_state : GameState = {
-  rand: @random.Rand::new(),
+  rand: @random.Rand(),
   deck: [],
   player: {
     chips: 1000,

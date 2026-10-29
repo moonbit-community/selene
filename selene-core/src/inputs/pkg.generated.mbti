@@ -195,19 +195,19 @@ pub(all) enum Code {
 } derive(Eq, Hash, @debug.Debug)
 pub fn Code::equal(Self, Self) -> Bool
 pub fn Code::from_string(String) -> Self?
-pub fn Code::hash(Self) -> Int
+pub fn Code::hash(Self) -> Int32
 pub fn Code::hash_combine(Self, Hasher) -> Unit
 pub fn Code::not_equal(Self, Self) -> Bool
 pub fn Code::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Gamepad {
-  id : Int
+  id : Int32
 } derive(Eq, Hash, @debug.Debug)
-pub fn Gamepad::Gamepad(Int) -> Self
+pub fn Gamepad::Gamepad(Int32) -> Self
 pub fn Gamepad::equal(Self, Self) -> Bool
-pub fn Gamepad::hash(Self) -> Int
+pub fn Gamepad::hash(Self) -> Int32
 pub fn Gamepad::hash_combine(Self, Hasher) -> Unit
-pub fn Gamepad::id(Self) -> Int
+pub fn Gamepad::id(Self) -> Int32
 pub fn Gamepad::not_equal(Self, Self) -> Bool
 pub fn Gamepad::to_repr(Self) -> @debug.Repr
 
@@ -220,7 +220,7 @@ pub(all) enum GamepadAxis {
   RightZ
 } derive(Eq, Hash, @debug.Debug)
 pub fn GamepadAxis::equal(Self, Self) -> Bool
-pub fn GamepadAxis::hash(Self) -> Int
+pub fn GamepadAxis::hash(Self) -> Int32
 pub fn GamepadAxis::hash_combine(Self, Hasher) -> Unit
 pub fn GamepadAxis::not_equal(Self, Self) -> Bool
 pub fn GamepadAxis::to_repr(Self) -> @debug.Repr
@@ -237,7 +237,7 @@ pub(all) struct GamepadAxisInput {
 } derive(Eq, Hash, @debug.Debug)
 pub fn GamepadAxisInput::GamepadAxisInput(Gamepad, GamepadAxis) -> Self
 pub fn GamepadAxisInput::equal(Self, Self) -> Bool
-pub fn GamepadAxisInput::hash(Self) -> Int
+pub fn GamepadAxisInput::hash(Self) -> Int32
 pub fn GamepadAxisInput::hash_combine(Self, Hasher) -> Unit
 pub fn GamepadAxisInput::not_equal(Self, Self) -> Bool
 pub fn GamepadAxisInput::to_repr(Self) -> @debug.Repr
@@ -264,7 +264,7 @@ pub(all) enum GamepadButton {
   DPadRight
 } derive(Eq, Hash, @debug.Debug)
 pub fn GamepadButton::equal(Self, Self) -> Bool
-pub fn GamepadButton::hash(Self) -> Int
+pub fn GamepadButton::hash(Self) -> Int32
 pub fn GamepadButton::hash_combine(Self, Hasher) -> Unit
 pub fn GamepadButton::not_equal(Self, Self) -> Bool
 pub fn GamepadButton::to_repr(Self) -> @debug.Repr
@@ -280,7 +280,7 @@ pub(all) struct GamepadButtonInput {
 } derive(Eq, Hash, @debug.Debug)
 pub fn GamepadButtonInput::GamepadButtonInput(Gamepad, GamepadButton) -> Self
 pub fn GamepadButtonInput::equal(Self, Self) -> Bool
-pub fn GamepadButtonInput::hash(Self) -> Int
+pub fn GamepadButtonInput::hash(Self) -> Int32
 pub fn GamepadButtonInput::hash_combine(Self, Hasher) -> Unit
 pub fn GamepadButtonInput::not_equal(Self, Self) -> Bool
 pub fn GamepadButtonInput::to_repr(Self) -> @debug.Repr
@@ -382,10 +382,10 @@ pub(all) struct PointerEvent {
 
 pub(all) struct PointerId {
   source : PointerSource
-  value : Int
+  value : Int32
 } derive(Eq, Hash, @debug.Debug)
 pub fn PointerId::equal(Self, Self) -> Bool
-pub fn PointerId::hash(Self) -> Int
+pub fn PointerId::hash(Self) -> Int32
 pub fn PointerId::hash_combine(Self, Hasher) -> Unit
 pub fn PointerId::not_equal(Self, Self) -> Bool
 pub fn PointerId::to_repr(Self) -> @debug.Repr
@@ -406,7 +406,7 @@ pub(all) enum PointerSource {
   PointerPen
 } derive(Eq, Hash, @debug.Debug)
 pub fn PointerSource::equal(Self, Self) -> Bool
-pub fn PointerSource::hash(Self) -> Int
+pub fn PointerSource::hash(Self) -> Int32
 pub fn PointerSource::hash_combine(Self, Hasher) -> Unit
 pub fn PointerSource::not_equal(Self, Self) -> Bool
 pub fn PointerSource::to_repr(Self) -> @debug.Repr
@@ -449,15 +449,15 @@ pub fn TouchGestureKind::not_equal(Self, Self) -> Bool
 pub fn TouchGestureKind::to_repr(Self) -> @debug.Repr
 
 pub(all) struct TouchId {
-  value : Int
+  value : Int32
 } derive(Eq, Hash, @debug.Debug)
-pub fn TouchId::TouchId(Int) -> Self
+pub fn TouchId::TouchId(Int32) -> Self
 pub fn TouchId::equal(Self, Self) -> Bool
-pub fn TouchId::hash(Self) -> Int
+pub fn TouchId::hash(Self) -> Int32
 pub fn TouchId::hash_combine(Self, Hasher) -> Unit
 pub fn TouchId::not_equal(Self, Self) -> Bool
 pub fn TouchId::to_repr(Self) -> @debug.Repr
-pub fn TouchId::value(Self) -> Int
+pub fn TouchId::value(Self) -> Int32
 
 pub(all) enum TouchPhase {
   Started
@@ -483,7 +483,7 @@ pub(all) struct VirtualAxis {
 } derive(Eq, Hash, @debug.Debug)
 pub fn VirtualAxis::VirtualAxis(String) -> Self
 pub fn VirtualAxis::equal(Self, Self) -> Bool
-pub fn VirtualAxis::hash(Self) -> Int
+pub fn VirtualAxis::hash(Self) -> Int32
 pub fn VirtualAxis::hash_combine(Self, Hasher) -> Unit
 pub fn VirtualAxis::name(Self) -> String
 pub fn VirtualAxis::not_equal(Self, Self) -> Bool
@@ -500,7 +500,7 @@ pub(all) struct VirtualButton {
 } derive(Eq, Hash, @debug.Debug)
 pub fn VirtualButton::VirtualButton(String) -> Self
 pub fn VirtualButton::equal(Self, Self) -> Bool
-pub fn VirtualButton::hash(Self) -> Int
+pub fn VirtualButton::hash(Self) -> Int32
 pub fn VirtualButton::hash_combine(Self, Hasher) -> Unit
 pub fn VirtualButton::name(Self) -> String
 pub fn VirtualButton::not_equal(Self, Self) -> Bool

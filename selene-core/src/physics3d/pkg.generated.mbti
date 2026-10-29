@@ -128,8 +128,8 @@ pub(all) enum Collider {
   RoundCylinder(Double, Double, Double)
   Halfspace(@math.Vec3)
   ConvexHull(Array[@math.Vec3])
-  TriMesh(Array[@math.Vec3], Array[(Int, Int, Int)])
-  Heightfield(Array[Double], Int, Int, @math.Vec3)
+  TriMesh(Array[@math.Vec3], Array[(Int32, Int32, Int32)])
+  Heightfield(Array[Double], Int32, Int32, @math.Vec3)
 } derive(Eq, @debug.Debug)
 pub fn Collider::ball(Double) -> Self
 pub fn Collider::capsule_x(Double, Double) -> Self
@@ -141,11 +141,11 @@ pub fn Collider::cuboid(@math.Vec3) -> Self
 pub fn Collider::cylinder(Double, Double) -> Self
 pub fn Collider::equal(Self, Self) -> Bool
 pub fn Collider::halfspace(@math.Vec3) -> Self
-pub fn Collider::heightfield(Array[Double], Int, Int, @math.Vec3) -> Self
+pub fn Collider::heightfield(Array[Double], Int32, Int32, @math.Vec3) -> Self
 pub fn Collider::not_equal(Self, Self) -> Bool
 pub fn Collider::round_cylinder(Double, Double, Double) -> Self
 pub fn Collider::to_repr(Self) -> @debug.Repr
-pub fn Collider::trimesh(Array[@math.Vec3], Array[(Int, Int, Int)]) -> Self
+pub fn Collider::trimesh(Array[@math.Vec3], Array[(Int32, Int32, Int32)]) -> Self
 
 pub(all) enum ColliderMassProperties {
   Density(Double)
@@ -168,10 +168,10 @@ pub fn CollisionEvent::not_equal(Self, Self) -> Bool
 pub fn CollisionEvent::to_repr(Self) -> @debug.Repr
 
 pub(all) struct CollisionGroups {
-  memberships : Int
-  filters : Int
+  memberships : Int32
+  filters : Int32
 } derive(Eq, @debug.Debug)
-pub fn CollisionGroups::CollisionGroups(Int, Int) -> Self
+pub fn CollisionGroups::CollisionGroups(Int32, Int32) -> Self
 pub fn CollisionGroups::all() -> Self
 pub fn CollisionGroups::equal(Self, Self) -> Bool
 pub fn CollisionGroups::not_equal(Self, Self) -> Bool
@@ -204,7 +204,7 @@ pub fn Damping::equal(Self, Self) -> Bool
 pub fn Damping::not_equal(Self, Self) -> Bool
 pub fn Damping::to_repr(Self) -> @debug.Repr
 
-pub(all) struct Dominance(Int) derive(Eq, @debug.Debug)
+pub(all) struct Dominance(Int32) derive(Eq, @debug.Debug)
 pub fn Dominance::equal(Self, Self) -> Bool
 pub fn Dominance::not_equal(Self, Self) -> Bool
 pub fn Dominance::to_repr(Self) -> @debug.Repr
@@ -442,10 +442,10 @@ pub fn ShapeCastHit::not_equal(Self, Self) -> Bool
 pub fn ShapeCastHit::to_repr(Self) -> @debug.Repr
 
 pub(all) struct SolverGroups {
-  memberships : Int
-  filters : Int
+  memberships : Int32
+  filters : Int32
 } derive(Eq, @debug.Debug)
-pub fn SolverGroups::SolverGroups(Int, Int) -> Self
+pub fn SolverGroups::SolverGroups(Int32, Int32) -> Self
 pub fn SolverGroups::all() -> Self
 pub fn SolverGroups::equal(Self, Self) -> Bool
 pub fn SolverGroups::not_equal(Self, Self) -> Bool

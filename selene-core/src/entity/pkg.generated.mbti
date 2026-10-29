@@ -6,7 +6,7 @@ import {
 }
 
 // Values
-pub fn alive_entity_count() -> Int
+pub fn alive_entity_count() -> Int32
 
 pub fn entity_flush_system(Double) -> Unit
 
@@ -23,9 +23,9 @@ pub fn Entity::destroy(Self) -> Unit
 pub fn Entity::equal(Self, Self) -> Bool
 pub fn Entity::get_children(Self) -> Array[Self]
 pub fn Entity::get_parent(Self) -> Self?
-pub fn Entity::hash(Self) -> Int
+pub fn Entity::hash(Self) -> Int32
 pub fn Entity::hash_combine(Self, Hasher) -> Unit
-pub fn Entity::id(Self) -> UInt
+pub fn Entity::id(Self) -> UInt32
 pub fn Entity::is_alive(Self) -> Bool
 pub fn Entity::is_child(Self) -> Bool
 pub fn Entity::not_equal(Self, Self) -> Bool

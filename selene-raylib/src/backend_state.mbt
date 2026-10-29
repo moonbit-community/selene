@@ -15,75 +15,75 @@
 ///|
 priv struct LightingShaderState {
   shader : @raylib.Shader
-  ambient_light_loc : Int
-  view_position_loc : Int
-  view_forward_loc : Int
-  directional_count_loc : Int
-  directional_directions_loc : Int
-  directional_colors_loc : Int
-  point_count_loc : Int
-  point_positions_loc : Int
-  point_colors_loc : Int
-  point_ranges_loc : Int
-  spot_count_loc : Int
-  spot_positions_loc : Int
-  spot_directions_loc : Int
-  spot_colors_loc : Int
-  spot_params_loc : Int
-  material_base_color_loc : Int
-  material_emissive_color_loc : Int
-  material_normal_scale_loc : Int
-  material_occlusion_strength_loc : Int
-  material_metallic_loc : Int
-  material_roughness_loc : Int
-  material_alpha_mode_loc : Int
-  material_alpha_cutoff_loc : Int
-  material_has_base_texture_loc : Int
-  material_has_emissive_texture_loc : Int
-  material_has_metallic_roughness_texture_loc : Int
-  material_has_occlusion_texture_loc : Int
-  material_has_normal_texture_loc : Int
-  material_has_tangents_loc : Int
-  material_unlit_loc : Int
-  material_receive_shadows_loc : Int
-  shadow_enabled_locs : Array[Int]
-  shadow_cascade_count_locs : Array[Int]
-  shadow_matrix_locs : Array[Int]
-  shadow_rect_locs : Array[Int]
-  shadow_bound_locs : Array[Int]
-  shadow_depth_bias_locs : Array[Int]
-  shadow_normal_bias_locs : Array[Int]
-  shadow_sampler_locs : Array[Int]
-  directional_shadow_texel_size_loc : Int
-  spot_shadow_enabled_locs : Array[Int]
-  spot_shadow_matrix_locs : Array[Int]
-  spot_shadow_rect_locs : Array[Int]
-  spot_shadow_depth_bias_locs : Array[Int]
-  spot_shadow_normal_bias_locs : Array[Int]
-  spot_shadow_sampler_loc : Int
-  spot_shadow_texel_size_loc : Int
-  point_shadow_enabled_locs : Array[Int]
-  point_shadow_depth_bias_locs : Array[Int]
-  point_shadow_normal_bias_locs : Array[Int]
-  point_shadow_matrix_locs : Array[Int]
-  point_shadow_rect_locs : Array[Int]
-  point_shadow_sampler_loc : Int
-  point_shadow_texel_size_loc : Int
-  base_uv_offset_scale_loc : Int
-  base_uv_rotation_loc : Int
-  base_uv_set_loc : Int
-  metallic_roughness_uv_offset_scale_loc : Int
-  metallic_roughness_uv_rotation_loc : Int
-  metallic_roughness_uv_set_loc : Int
-  normal_uv_offset_scale_loc : Int
-  normal_uv_rotation_loc : Int
-  normal_uv_set_loc : Int
-  occlusion_uv_offset_scale_loc : Int
-  occlusion_uv_rotation_loc : Int
-  occlusion_uv_set_loc : Int
-  emissive_uv_offset_scale_loc : Int
-  emissive_uv_rotation_loc : Int
-  emissive_uv_set_loc : Int
+  ambient_light_loc : Int32
+  view_position_loc : Int32
+  view_forward_loc : Int32
+  directional_count_loc : Int32
+  directional_directions_loc : Int32
+  directional_colors_loc : Int32
+  point_count_loc : Int32
+  point_positions_loc : Int32
+  point_colors_loc : Int32
+  point_ranges_loc : Int32
+  spot_count_loc : Int32
+  spot_positions_loc : Int32
+  spot_directions_loc : Int32
+  spot_colors_loc : Int32
+  spot_params_loc : Int32
+  material_base_color_loc : Int32
+  material_emissive_color_loc : Int32
+  material_normal_scale_loc : Int32
+  material_occlusion_strength_loc : Int32
+  material_metallic_loc : Int32
+  material_roughness_loc : Int32
+  material_alpha_mode_loc : Int32
+  material_alpha_cutoff_loc : Int32
+  material_has_base_texture_loc : Int32
+  material_has_emissive_texture_loc : Int32
+  material_has_metallic_roughness_texture_loc : Int32
+  material_has_occlusion_texture_loc : Int32
+  material_has_normal_texture_loc : Int32
+  material_has_tangents_loc : Int32
+  material_unlit_loc : Int32
+  material_receive_shadows_loc : Int32
+  shadow_enabled_locs : Array[Int32]
+  shadow_cascade_count_locs : Array[Int32]
+  shadow_matrix_locs : Array[Int32]
+  shadow_rect_locs : Array[Int32]
+  shadow_bound_locs : Array[Int32]
+  shadow_depth_bias_locs : Array[Int32]
+  shadow_normal_bias_locs : Array[Int32]
+  shadow_sampler_locs : Array[Int32]
+  directional_shadow_texel_size_loc : Int32
+  spot_shadow_enabled_locs : Array[Int32]
+  spot_shadow_matrix_locs : Array[Int32]
+  spot_shadow_rect_locs : Array[Int32]
+  spot_shadow_depth_bias_locs : Array[Int32]
+  spot_shadow_normal_bias_locs : Array[Int32]
+  spot_shadow_sampler_loc : Int32
+  spot_shadow_texel_size_loc : Int32
+  point_shadow_enabled_locs : Array[Int32]
+  point_shadow_depth_bias_locs : Array[Int32]
+  point_shadow_normal_bias_locs : Array[Int32]
+  point_shadow_matrix_locs : Array[Int32]
+  point_shadow_rect_locs : Array[Int32]
+  point_shadow_sampler_loc : Int32
+  point_shadow_texel_size_loc : Int32
+  base_uv_offset_scale_loc : Int32
+  base_uv_rotation_loc : Int32
+  base_uv_set_loc : Int32
+  metallic_roughness_uv_offset_scale_loc : Int32
+  metallic_roughness_uv_rotation_loc : Int32
+  metallic_roughness_uv_set_loc : Int32
+  normal_uv_offset_scale_loc : Int32
+  normal_uv_rotation_loc : Int32
+  normal_uv_set_loc : Int32
+  occlusion_uv_offset_scale_loc : Int32
+  occlusion_uv_rotation_loc : Int32
+  occlusion_uv_set_loc : Int32
+  emissive_uv_offset_scale_loc : Int32
+  emissive_uv_rotation_loc : Int32
+  emissive_uv_set_loc : Int32
 }
 
 ///|
@@ -103,47 +103,47 @@ priv struct MaterialTextureBundle3D {
   metallic_roughness_transform : @render3d_types.TextureTransform3D
   occlusion_transform : @render3d_types.TextureTransform3D
   normal_transform : @render3d_types.TextureTransform3D
-  base_texcoord_set : Int
-  emissive_texcoord_set : Int
-  metallic_roughness_texcoord_set : Int
-  occlusion_texcoord_set : Int
-  normal_texcoord_set : Int
+  base_texcoord_set : Int32
+  emissive_texcoord_set : Int32
+  metallic_roughness_texcoord_set : Int32
+  occlusion_texcoord_set : Int32
+  normal_texcoord_set : Int32
 }
 
 ///|
 priv struct MaterialTextureSource3D {
   texture : @raylib.Texture
-  texcoord_set : Int
+  texcoord_set : Int32
   transform : @render3d_types.TextureTransform3D
 }
 
 ///|
 priv struct MaterialTextureSlotBinding {
-  shader_loc : Int
+  shader_loc : Int32
   uniform_name : String
-  slot : Int
-  material_map : Int
+  slot : Int32
+  material_map : Int32
 }
 
 ///|
 priv struct CosmicRasterImage {
-  width : Int
-  height : Int
-  pixels : Array[Int]
+  width : Int32
+  height : Int32
+  pixels : Array[Int32]
 }
 
 ///|
 priv struct CosmicTextTexture {
   texture : @raylib.Texture
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
 }
 
 ///|
 priv struct OffscreenTarget2D {
   render_texture : @raylib.RenderTexture
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
 }
 
 ///|
@@ -169,7 +169,7 @@ priv struct RaylibBackend {
   textures : Map[String, @raylib.Texture]
   sounds : Map[String, @raylib.Sound]
   audio_instances : Map[AudioInstance, AudioPlayback]
-  mut next_audio_instance : UInt
+  mut next_audio_instance : UInt32
   font_alias : Map[String, String]
   fonts_by_path : Map[String, @raylib.Font]
   cosmic_loaded_families : Set[String]
@@ -195,20 +195,20 @@ priv struct RaylibBackend {
   mut shadow_shader : ShadowShaderState?
   mut shadow_material : @raylib.Material?
   shadow_render_textures : Array[@raylib.RenderTexture]
-  directional_shadow_tile_sizes : Array[Int]
-  directional_shadow_atlas_columns : Array[Int]
-  directional_shadow_atlas_rows : Array[Int]
+  directional_shadow_tile_sizes : Array[Int32]
+  directional_shadow_atlas_columns : Array[Int32]
+  directional_shadow_atlas_rows : Array[Int32]
   mut spot_shadow_render_texture : @raylib.RenderTexture?
-  mut spot_shadow_map_size : Int
+  mut spot_shadow_map_size : Int32
   mut point_shadow_render_texture : @raylib.RenderTexture?
-  mut point_shadow_map_size : Int
+  mut point_shadow_map_size : Int32
   texture_warning_keys : Set[String]
   asset_io_warning_keys : Set[String]
   last_touches : Map[@inputs.TouchId, @inputs.TouchPoint]
 }
 
 ///|
-pub type AudioInstance = Int
+pub type AudioInstance = Int32
 
 ///|
 priv enum AudioPlaybackKind {
@@ -294,16 +294,16 @@ let cosmic_swash_cache : Ref[@cosmic.SwashCache] = Ref(
 )
 
 ///|
-const MAX_DIRECTIONAL_LIGHTS : Int = 4
+const MAX_DIRECTIONAL_LIGHTS : Int32 = 4
 
 ///|
-const MAX_DIRECTIONAL_CASCADES : Int = 4
+const MAX_DIRECTIONAL_CASCADES : Int32 = 4
 
 ///|
-const MAX_POINT_LIGHTS : Int = 8
+const MAX_POINT_LIGHTS : Int32 = 8
 
 ///|
-const MAX_SPOT_LIGHTS : Int = 4
+const MAX_SPOT_LIGHTS : Int32 = 4
 
 ///|
 let raylib_lighting_vertex_shader : String =
@@ -697,8 +697,8 @@ let raylib_lighting_fragment_shader : String =
   #|
 
 ///|
-fn default_font_codepoints() -> Array[Int] {
-  let codepoints : Array[Int] = []
+fn default_font_codepoints() -> Array[Int32] {
+  let codepoints : Array[Int32] = []
   // Basic printable ASCII.
   for cp in 32..<127 {
     codepoints.push(cp)

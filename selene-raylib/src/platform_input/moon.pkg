@@ -6,6 +6,4 @@ import {
 
 supported_targets = "native"
 
-options(
-  implement: "Milky2018/selene/platform_input",
-)
+virtual(implement: "Milky2018/selene/platform_input")

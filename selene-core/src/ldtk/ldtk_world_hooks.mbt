@@ -113,7 +113,7 @@ fn ldtk_layer_grid_size(
 }
 
 ///|
-fn ldtk_layer_tileset_uid(layer : LdtkLayerInstance) -> Int? {
+fn ldtk_layer_tileset_uid(layer : LdtkLayerInstance) -> Int32? {
   if layer.override_tileset_uid is Some(uid) {
     return Some(uid)
   }
@@ -298,7 +298,7 @@ fn ldtk_entity_is_worldly(entity_instance : LdtkEntityInstance) -> Bool {
 fn ldtk_apply_int_grid_physics(
   cell_entity : @entity.Entity,
   layer_identifier : String,
-  value : Int,
+  value : Int32,
   grid_size : Double,
 ) -> LdtkIntGridCollider? {
   let physics_settings = ldtk_int_grid_physics_settings.val
@@ -343,7 +343,7 @@ fn ldtk_level_offset(
 fn ldtk_level_zindex(
   level_entity : @entity.Entity,
   settings : LdtkWorldSpawnSettings,
-) -> Int {
+) -> Int32 {
   guard ldtk_level_instances().get(level_entity) is Some(level_instance) else {
     return settings.zindex
   }
@@ -352,7 +352,7 @@ fn ldtk_level_zindex(
 }
 
 ///|
-fn ldtk_level_order_key(indices : LdtkLevelIndices) -> Int {
+fn ldtk_level_order_key(indices : LdtkLevelIndices) -> Int32 {
   match indices.world {
     Some(world_index) => world_index * 100000 + indices.level
     None => indices.level

@@ -30,7 +30,7 @@ extern "js" fn webgpu_clear_text_textures() -> Unit =
 ///|
 extern "js" fn webgpu_push_color_vertices_2d_ffi(
   vertices : FixedArray[Double],
-  pipeline_code : Int,
+  pipeline_code : Int32,
 ) -> Unit =
   #| (vertices, pipelineCode) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
@@ -52,9 +52,9 @@ extern "js" fn webgpu_image_dimensions_ffi(path : String) -> FixedArray[Double] 
 ///|
 extern "js" fn webgpu_push_texture_vertices_2d_ffi(
   path : String,
-  sampler_code : Int,
+  sampler_code : Int32,
   vertices : FixedArray[Double],
-  pipeline_code : Int,
+  pipeline_code : Int32,
 ) -> Unit =
   #| (path, samplerCode, vertices, pipelineCode) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
@@ -92,7 +92,7 @@ extern "js" fn webgpu_push_text_vertices_2d_ffi(
   color_b : Double,
   color_a : Double,
   vertices : FixedArray[Double],
-  pipeline_code : Int,
+  pipeline_code : Int32,
 ) -> Unit =
   #| (text, family, size, r, g, bcol, alpha, vertices, pipelineCode) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
@@ -105,9 +105,9 @@ extern "js" fn webgpu_push_text_vertices_2d_ffi(
 ///|
 extern "js" fn webgpu_upload_text_texture_ffi(
   key : String,
-  width : Int,
-  height : Int,
-  pixels : FixedArray[Int],
+  width : Int32,
+  height : Int32,
+  pixels : FixedArray[Int32],
 ) -> Bool =
   #| (key, width, height, pixels) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
@@ -123,7 +123,7 @@ extern "js" fn webgpu_upload_text_texture_ffi(
 extern "js" fn webgpu_push_cached_text_vertices_2d_ffi(
   key : String,
   vertices : FixedArray[Double],
-  pipeline_code : Int,
+  pipeline_code : Int32,
 ) -> Unit =
   #| (key, vertices, pipelineCode) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
@@ -136,7 +136,7 @@ extern "js" fn webgpu_push_cached_text_vertices_2d_ffi(
 ///|
 fn webgpu_push_color_vertices_2d(
   vertices : Array[Double],
-  pipeline_code : Int,
+  pipeline_code : Int32,
 ) -> Unit {
   webgpu_push_color_vertices_2d_ffi(
     FixedArray::from_array(vertices[:]),
@@ -152,9 +152,9 @@ fn webgpu_image_dimensions(path : String) -> Array[Double] {
 ///|
 fn webgpu_push_texture_vertices_2d(
   path : String,
-  sampler_code : Int,
+  sampler_code : Int32,
   vertices : Array[Double],
-  pipeline_code : Int,
+  pipeline_code : Int32,
 ) -> Unit {
   webgpu_push_texture_vertices_2d_ffi(
     path,
@@ -191,7 +191,7 @@ fn webgpu_push_text_vertices_2d(
   color_b : Double,
   color_a : Double,
   vertices : Array[Double],
-  pipeline_code : Int,
+  pipeline_code : Int32,
 ) -> Unit {
   webgpu_push_text_vertices_2d_ffi(
     text,
@@ -209,9 +209,9 @@ fn webgpu_push_text_vertices_2d(
 ///|
 fn webgpu_upload_text_texture(
   key : String,
-  width : Int,
-  height : Int,
-  pixels : Array[Int],
+  width : Int32,
+  height : Int32,
+  pixels : Array[Int32],
 ) -> Bool {
   webgpu_upload_text_texture_ffi(
     key,
@@ -225,7 +225,7 @@ fn webgpu_upload_text_texture(
 fn webgpu_push_cached_text_vertices_2d(
   key : String,
   vertices : Array[Double],
-  pipeline_code : Int,
+  pipeline_code : Int32,
 ) -> Unit {
   webgpu_push_cached_text_vertices_2d_ffi(
     key,

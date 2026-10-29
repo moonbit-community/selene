@@ -1,20 +1,20 @@
 ///|
 pub(all) struct SpatialGridEntry2d {
-  id : UInt
+  id : UInt32
   bounds : @math.Rect
 }
 
 ///|
 pub(all) struct SpatialGrid2d {
   cell_size : Double
-  buckets : Map[String, Array[UInt]]
+  buckets : Map[String, Array[UInt32]]
 }
 
 ///|
 pub(all) struct CameraExtract2dContext {
   camera_views : Array[@camera.Camera2dView]
-  all_camera_ids : Array[UInt]
-  camera_views_by_id : Map[UInt, @camera.Camera2dView]
+  all_camera_ids : Array[UInt32]
+  camera_views_by_id : Map[UInt32, @camera.Camera2dView]
   camera_grid : SpatialGrid2d
 }
 
@@ -25,7 +25,7 @@ pub fn build_camera_extract2d_context(
   let all_camera_ids = camera_views.map(fn(camera_view) {
     camera_view.entity.id()
   })
-  let camera_views_by_id : Map[UInt, @camera.Camera2dView] = Map([])
+  let camera_views_by_id : Map[UInt32, @camera.Camera2dView] = Map([])
   let camera_grid_entries : Array[SpatialGridEntry2d] = []
   for camera_view in camera_views {
     camera_views_by_id.set(camera_view.entity.id(), camera_view)
@@ -83,7 +83,7 @@ fn effective_cell_size(cell_size : Double) -> Double {
 }
 
 ///|
-fn cell_index(value : Double, cell_size : Double) -> Int {
+fn cell_index(value : Double, cell_size : Double) -> Int32 {
   (value / cell_size).floor().to_int()
 }
 
@@ -91,7 +91,7 @@ fn cell_index(value : Double, cell_size : Double) -> Int {
 fn rect_cell_bounds(
   rect : @math.Rect,
   cell_size : Double,
-) -> (Int, Int, Int, Int) {
+) -> (Int32, Int32, Int32, Int32) {
   let min_x = cell_index(rect.position[X], cell_size)
   let min_y = cell_index(rect.position[Y], cell_size)
   let max_x = cell_index(rect.position[X] + rect.size[X], cell_size)
@@ -100,17 +100,17 @@ fn rect_cell_bounds(
 }
 
 ///|
-fn bucket_key(x : Int, y : Int) -> String {
+fn bucket_key(x : Int32, y : Int32) -> String {
   x.to_string() + ":" + y.to_string()
 }
 
 ///|
 pub fn build_spatial_grid2d(
   entries : Array[SpatialGridEntry2d],
-  cell_size? : Double = 256.0,
+  cell_size~ : Double = 256.0,
 ) -> SpatialGrid2d {
   let effective_size = effective_cell_size(cell_size)
-  let buckets : Map[String, Array[UInt]] = Map([])
+  let buckets : Map[String, Array[UInt32]] = Map([])
   for entry in entries {
     let bounds = entry.bounds
     guard bounds.size[X] > 0.0 && bounds.size[Y] > 0.0 else { continue }
@@ -128,11 +128,11 @@ pub fn build_spatial_grid2d(
 pub fn SpatialGrid2d::query(
   self : SpatialGrid2d,
   region : @math.Rect,
-) -> Array[UInt] {
+) -> Array[UInt32] {
   if region.size[X] <= 0.0 || region.size[Y] <= 0.0 {
     return []
   }
-  let unique : @set.Set[UInt] = Set([])
+  let unique : @set.Set[UInt32] = Set([])
   let (min_x, min_y, max_x, max_y) = rect_cell_bounds(region, self.cell_size)
   for x in min_x..<(max_x + 1) {
     for y in min_y..<(max_y + 1) {

@@ -15,7 +15,7 @@ extern "js" fn revoke_object_url(url : String) -> Unit =
 ///|
 extern "js" fn request_audio_play(
   audio : Audio,
-  activation_epoch : Int,
+  activation_epoch : Int32,
 ) -> Unit =
   #| (audio, activationEpoch) => {
   #|   audio.__selenePlayAttemptEpoch = activationEpoch | 0;
@@ -42,7 +42,7 @@ extern "js" fn request_audio_play(
   #| }
 
 ///|
-extern "js" fn audio_play_state(audio : Audio) -> Int =
+extern "js" fn audio_play_state(audio : Audio) -> Int32 =
   #| (audio) => {
   #|   if (audio.error) {
   #|     return 3;

@@ -34,7 +34,7 @@ pub fn TiledMap::from_tiled_xml(source : String) -> TiledMap {
 ///|
 fn parse_tiled_xml_tileset_document(
   source : String,
-  first_gid : Int,
+  first_gid : Int32,
   source_path : String,
 ) -> TiledTileset? {
   guard parse_tiled_xml_root(source) is Some(root) else { return None }
@@ -127,8 +127,8 @@ fn read_tiled_xml_node(
 fn tiled_xml_node(
   name : String,
   attributes : Array[(String, String)],
-  children? : Array[TiledXmlNode] = [],
-  text? : String = "",
+  children~ : Array[TiledXmlNode] = [],
+  text~ : String = "",
 ) -> TiledXmlNode {
   { name, attributes, children, text, }
 }
@@ -379,7 +379,7 @@ fn parse_tiled_xml_tilesets(root : TiledXmlNode) -> Array[TiledTileset] {
 ///|
 fn parse_tiled_xml_tileset(
   node : TiledXmlNode,
-  first_gid? : Int = 1,
+  first_gid~ : Int32 = 1,
   source_override? : String?,
 ) -> TiledTileset {
   let image = xml_child(node, "image")
@@ -510,7 +510,7 @@ fn xml_text(node : TiledXmlNode) -> String {
 }
 
 ///|
-fn xml_int_attr(node : TiledXmlNode, key : String) -> Int? {
+fn xml_int_attr(node : TiledXmlNode, key : String) -> Int32? {
   xml_attr(node, key).bind(parse_xml_int_text)
 }
 
@@ -525,7 +525,7 @@ fn xml_bool_attr(node : TiledXmlNode, key : String) -> Bool? {
 }
 
 ///|
-fn parse_xml_int_text(text : String) -> Int? {
+fn parse_xml_int_text(text : String) -> Int32? {
   Some(@string.parse_int(text.trim())) catch {
     _ => None
   }

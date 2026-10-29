@@ -19,10 +19,10 @@ const FONT_FAMILY : String = "ThaleahFat"
 const FONT_PATH : String = "assets/pixeladventure/Fonts/ThaleahFat.ttf"
 
 ///|
-const HUD_ZINDEX : Int = 100
+const HUD_ZINDEX : Int32 = 100
 
 ///|
-const BUTTON_ZINDEX : Int = 110
+const BUTTON_ZINDEX : Int32 = 110
 
 ///|
 const PLAYFIELD_LEFT_INSET : Double = 48.0
@@ -149,8 +149,8 @@ priv struct GameSession {
   score_box : @entity.Entity
   health_box : @entity.Entity
   volume_button : @entity.Entity
-  mut score : Int
-  mut health : Int
+  mut score : Int32
+  mut health : Int32
   mut volume_on : Bool
   mut result : GameResult?
   world_size : @math.Vec2
@@ -185,7 +185,7 @@ priv struct PixelAdventureWorldStore {
 }
 
 ///|
-let pixeladventure_world_stores : Map[UInt, PixelAdventureWorldStore] = Map([])
+let pixeladventure_world_stores : Map[UInt32, PixelAdventureWorldStore] = Map([])
 
 ///|
 fn pixeladventure_world_store() -> PixelAdventureWorldStore {
@@ -249,12 +249,12 @@ fn active_session_entity() -> @entity.Entity? {
 ///|
 fn sprite_clip(
   path : String,
-  frame_count : Int,
-  loop_? : Bool = true,
-  fps? : Double = 12.0,
-  flip_x? : Bool = false,
-  size? : @math.Vec2 = Vec2(32.0, 32.0),
-  anchor? : @sprite.Anchor = Anchor(Vec2(-0.5, 0.5)),
+  frame_count : Int32,
+  loop_~ : Bool = true,
+  fps~ : Double = 12.0,
+  flip_x~ : Bool = false,
+  size~ : @math.Vec2 = Vec2(32.0, 32.0),
+  anchor~ : @sprite.Anchor = Anchor(Vec2(-0.5, 0.5)),
 ) -> SpriteAnimationDef {
   {
     name: path,

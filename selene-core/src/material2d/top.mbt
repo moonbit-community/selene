@@ -8,7 +8,7 @@ pub(all) struct ColorMaterial {
 }
 
 ///|
-pub(all) struct ColorMaterialHandle(UInt) derive(Eq, Debug, Hash)
+pub(all) struct ColorMaterialHandle(UInt32) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) enum Material2dHandle {
@@ -26,7 +26,7 @@ priv struct Material2dWorldStore {
 }
 
 ///|
-let material2d_world_stores : Map[UInt, Material2dWorldStore] = Map([])
+let material2d_world_stores : Map[UInt32, Material2dWorldStore] = Map([])
 
 ///|
 fn material2d_world_store() -> Material2dWorldStore {
@@ -45,7 +45,7 @@ pub fn mesh_material2ds() -> Map[@entity.Entity, MeshMaterial2d] {
 let color_materials : Map[ColorMaterialHandle, ColorMaterial] = Map([])
 
 ///|
-let next_color_material_id : Ref[UInt] = Ref(0U)
+let next_color_material_id : Ref[UInt32] = Ref(0U)
 
 ///|
 fn default_material_color() -> @render.Color {
@@ -54,11 +54,11 @@ fn default_material_color() -> @render.Color {
 
 ///|
 pub fn ColorMaterial::ColorMaterial(
-  color? : @render.Color = default_material_color(),
-  texture? : @asset.ImageHandle? = None,
-  uv_transform? : @math.Transform = @math.Transform::identity(),
-  alpha_mode? : @render.AlphaMode2D = Blend,
-  blend_mode? : @render.BlendMode2D = Alpha,
+  color~ : @render.Color = default_material_color(),
+  texture~ : @asset.ImageHandle? = None,
+  uv_transform~ : @math.Transform = @math.Transform::identity(),
+  alpha_mode~ : @render.AlphaMode2D = Blend,
+  blend_mode~ : @render.BlendMode2D = Alpha,
 ) -> ColorMaterial {
   { color, texture, uv_transform, alpha_mode, blend_mode, }
 }

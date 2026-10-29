@@ -28,7 +28,7 @@ priv struct Parallax2dWorldStore {
 }
 
 ///|
-let parallax2d_world_stores : Map[UInt, Parallax2dWorldStore] = Map([])
+let parallax2d_world_stores : Map[UInt32, Parallax2dWorldStore] = Map([])
 
 ///|
 fn parallax2d_world_store() -> Parallax2dWorldStore {
@@ -56,9 +56,9 @@ fn clamped_parallax_factor(factor : @math.Vec2) -> @math.Vec2 {
 
 ///|
 pub fn Parallax2d::Parallax2d(
-  base_offset? : @math.Vec2 = @math.Vec2::zero(),
-  factor? : @math.Vec2 = Vec2(1.0, 1.0),
-  reference? : Parallax2dReference = ViewOrigin,
+  base_offset~ : @math.Vec2 = @math.Vec2::zero(),
+  factor~ : @math.Vec2 = Vec2(1.0, 1.0),
+  reference~ : Parallax2dReference = ViewOrigin,
 ) -> Parallax2d {
   { base_offset, factor: clamped_parallax_factor(factor), reference, }
 }

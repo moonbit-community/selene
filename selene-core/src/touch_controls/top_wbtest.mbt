@@ -11,7 +11,7 @@ fn with_touch_controls_test_world(action : () -> Unit raise) -> Unit raise {
 fn touch_point(
   id : @inputs.TouchId,
   position : @math.Vec2,
-  previous_position? : @math.Vec2 = position,
+  previous_position~ : @math.Vec2 = position,
 ) -> @inputs.TouchPoint {
   {
     id,
@@ -28,7 +28,7 @@ fn touch_event(
   id : @inputs.TouchId,
   phase : @inputs.TouchPhase,
   position : @math.Vec2,
-  previous_position? : @math.Vec2 = position,
+  previous_position~ : @math.Vec2 = position,
 ) -> @inputs.TouchEvent {
   {
     id,

@@ -97,8 +97,8 @@ pub(all) enum RenderPassTarget2D {
 
 ///|
 pub(all) struct RenderPass2D {
-  camera_entity_id : UInt?
-  order : Int
+  camera_entity_id : UInt32?
+  order : Int32
   viewport : @math.Rect
   load_op : RenderPassLoadOp2D
   clear_color : @render.Color

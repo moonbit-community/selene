@@ -5,12 +5,12 @@ pub(all) struct TextureAtlasLayout {
 }
 
 ///|
-pub(all) struct TextureAtlasLayoutHandle(UInt) derive(Eq, Debug, Hash)
+pub(all) struct TextureAtlasLayoutHandle(UInt32) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) struct TextureAtlas {
   layout : TextureAtlasLayoutHandle
-  mut index : Int
+  mut index : Int32
 } derive(Eq, Debug)
 
 ///|
@@ -20,7 +20,7 @@ let texture_atlas_layouts_by_handle : Map[
 ] = Map([])
 
 ///|
-let next_texture_atlas_layout_id : Ref[UInt] = Ref(0U)
+let next_texture_atlas_layout_id : Ref[UInt32] = Ref(0U)
 
 ///|
 let dirty_texture_atlas_layouts : Map[
@@ -42,10 +42,10 @@ pub fn TextureAtlasLayout::TextureAtlasLayout(
 ///|
 pub fn TextureAtlasLayout::from_grid(
   tile_size : @math.Vec2,
-  columns : Int,
-  rows : Int,
-  padding? : @math.Vec2? = None,
-  offset? : @math.Vec2? = None,
+  columns : Int32,
+  rows : Int32,
+  padding~ : @math.Vec2? = None,
+  offset~ : @math.Vec2? = None,
 ) -> TextureAtlasLayout {
   let rects : Array[@math.Rect] = []
   let padding = padding.unwrap_or(@math.Vec2::zero())
@@ -73,7 +73,7 @@ pub fn TextureAtlasLayout::from_grid(
 ///|
 pub fn TextureAtlas::TextureAtlas(
   layout : TextureAtlasLayoutHandle,
-  index? : Int = 0,
+  index~ : Int32 = 0,
 ) -> TextureAtlas {
   { layout, index, }
 }

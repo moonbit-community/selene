@@ -12,7 +12,7 @@ pub fn ldtk_field_vec2(
 pub fn ldtk_field_int_array(
   field_instances : Array[LdtkFieldInstance],
   identifier : String,
-) -> Array[Int]? {
+) -> Array[Int32]? {
   ldtk_field_instance(field_instances, identifier).bind(field_instance => {
     field_instance.int_array_value()
   })
@@ -182,11 +182,11 @@ pub fn empty_ldtk_entity_reference() -> LdtkEntityReference {
 
 ///|
 pub struct LdtkTilesetRect {
-  tileset_uid : Int?
-  x : Int
-  y : Int
-  w : Int
-  h : Int
+  tileset_uid : Int32?
+  x : Int32
+  y : Int32
+  w : Int32
+  h : Int32
 }
 
 ///|
@@ -199,7 +199,7 @@ pub struct LdtkFieldInstance {
   identifier : String
   value_type : String
   value : Json?
-  def_uid : Int?
+  def_uid : Int32?
 }
 
 ///|
@@ -228,7 +228,7 @@ pub fn LdtkFieldInstance::bool_value(self : LdtkFieldInstance) -> Bool? {
 }
 
 ///|
-pub fn LdtkFieldInstance::int_value(self : LdtkFieldInstance) -> Int? {
+pub fn LdtkFieldInstance::int_value(self : LdtkFieldInstance) -> Int32? {
   match self.value {
     Some(json_value) => {
       if json_int(json_value) is Some(int_value) {
@@ -293,7 +293,7 @@ pub fn LdtkFieldInstance::vec2_value(self : LdtkFieldInstance) -> @math.Vec2? {
 ///|
 pub fn LdtkFieldInstance::int_array_value(
   self : LdtkFieldInstance,
-) -> Array[Int]? {
+) -> Array[Int32]? {
   match self.value {
     Some(json_value) => json_int_array(json_value)
     None => None

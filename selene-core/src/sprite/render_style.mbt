@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-fn clamp_channel(value : Int) -> UInt {
+fn clamp_channel(value : Int32) -> UInt32 {
   if value < 0 {
     0
   } else if value > 255 {
@@ -35,7 +35,7 @@ fn clamp_alpha(alpha : Double) -> Double {
 }
 
 ///|
-fn rgba(r : Int, g : Int, b : Int, a : Double) -> @render.Color {
+fn rgba(r : Int32, g : Int32, b : Int32, a : Double) -> @render.Color {
   {
     r: clamp_channel(r),
     g: clamp_channel(g),
@@ -45,14 +45,14 @@ fn rgba(r : Int, g : Int, b : Int, a : Double) -> @render.Color {
 }
 
 ///|
-fn parse_uint(text : StringView, base : Int) -> UInt? {
+fn parse_uint(text : StringView, base : Int32) -> UInt32? {
   Some(@string.parse_uint(text, base~)) catch {
     _ => None
   }
 }
 
 ///|
-fn parse_int(text : StringView) -> Int? {
+fn parse_int(text : StringView) -> Int32? {
   Some(@string.parse_int(text)) catch {
     _ => None
   }
@@ -66,7 +66,7 @@ fn parse_double(text : StringView) -> Double? {
 }
 
 ///|
-fn parse_hex_byte(text : String) -> UInt? {
+fn parse_hex_byte(text : String) -> UInt32? {
   parse_uint(text.to_string_view(), 16)
 }
 

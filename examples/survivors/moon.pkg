@@ -18,5 +18,4 @@ import {
   "Milky2018/selene/ui",
   "Milky2018/selene/event",
   "moonbitlang/core/random",
-  "moonbitlang/core/set",
 }

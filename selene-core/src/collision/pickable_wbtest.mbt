@@ -25,7 +25,7 @@ fn reset_pickable_test_input() -> Unit {
 ///|
 fn spawn_pickable_camera(
   viewport : @math.Rect,
-  order : Int,
+  order : Int32,
   layers : @visibility.RenderLayers,
 ) -> @entity.Entity {
   let camera_entity = @entity.Entity()
@@ -48,7 +48,7 @@ fn spawn_pickable_camera(
 fn spawn_pickable_shape(
   position : @math.Vec2,
   shape : CollisionShape,
-  layers? : @visibility.RenderLayers = @visibility.default_render_layers(),
+  layers~ : @visibility.RenderLayers = @visibility.default_render_layers(),
 ) -> @entity.Entity {
   let entity = @entity.Entity()
   pickables().set(entity, Pickable())

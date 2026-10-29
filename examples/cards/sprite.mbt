@@ -65,7 +65,7 @@ fn CardNum::to_string(self : CardNum) -> String {
 }
 
 ///|
-fn CardNum::to_int(self : CardNum) -> Int {
+fn CardNum::to_int(self : CardNum) -> Int32 {
   match self {
     A => 14
     N2 => 2

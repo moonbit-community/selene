@@ -14,9 +14,9 @@
 
 ///|
 pub(all) struct Color {
-  r : UInt
-  g : UInt
-  b : UInt
+  r : UInt32
+  g : UInt32
+  b : UInt32
   a : Double
 } derive(Eq, Debug)
 

@@ -103,7 +103,7 @@ pub fn grid_fit_content(GridTrack) -> GridTrack
 
 pub fn grid_fr(Double) -> GridTrack
 
-pub fn grid_line_index(Int) -> GridPlacement
+pub fn grid_line_index(Int32) -> GridPlacement
 
 pub fn grid_max_content() -> GridTrack
 
@@ -123,9 +123,9 @@ pub fn grid_repeat_auto_fill() -> GridTrackRepetition
 
 pub fn grid_repeat_auto_fit() -> GridTrackRepetition
 
-pub fn grid_repeat_count(Int) -> GridTrackRepetition
+pub fn grid_repeat_count(Int32) -> GridTrackRepetition
 
-pub fn grid_span(Int) -> GridPlacement
+pub fn grid_span(Int32) -> GridPlacement
 
 pub fn hovered_entity() -> @entity.Entity?
 
@@ -169,7 +169,7 @@ pub fn relative_cursor_positions() -> Map[@entity.Entity, RelativeCursorPosition
 
 pub fn release_ui_material_asset(UiMaterialHandle) -> Unit
 
-pub fn rgba(Int, Int, Int, Double) -> @render.Color
+pub fn rgba(Int32, Int32, Int32, Double) -> @render.Color
 
 pub fn scroll_positions() -> Map[@entity.Entity, ScrollPosition]
 
@@ -363,9 +363,9 @@ pub(all) struct GlobalUiNode {
 }
 
 pub(all) struct GlobalZIndex {
-  value : Int
+  value : Int32
 } derive(Eq, @debug.Debug)
-pub fn GlobalZIndex::GlobalZIndex(Int) -> Self
+pub fn GlobalZIndex::GlobalZIndex(Int32) -> Self
 pub fn GlobalZIndex::equal(Self, Self) -> Bool
 pub fn GlobalZIndex::not_equal(Self, Self) -> Bool
 pub fn GlobalZIndex::to_repr(Self) -> @debug.Repr
@@ -391,8 +391,8 @@ pub fn GridLine::to_repr(Self) -> @debug.Repr
 
 pub(all) enum GridPlacement {
   Auto
-  Line(Int)
-  Span(Int)
+  Line(Int32)
+  Span(Int32)
 } derive(Eq, @debug.Debug)
 pub fn GridPlacement::equal(Self, Self) -> Bool
 pub fn GridPlacement::not_equal(Self, Self) -> Bool
@@ -414,7 +414,7 @@ pub fn GridTrack::not_equal(Self, Self) -> Bool
 pub fn GridTrack::to_repr(Self) -> @debug.Repr
 
 pub(all) enum GridTrackRepetition {
-  Count(Int)
+  Count(Int32)
   AutoFill
   AutoFit
 } derive(Eq, @debug.Debug)
@@ -607,9 +607,9 @@ pub fn ShadowStyle::not_equal(Self, Self) -> Bool
 pub fn ShadowStyle::to_repr(Self) -> @debug.Repr
 
 pub(all) struct TabIndex {
-  value : Int
+  value : Int32
 } derive(Eq, @debug.Debug)
-pub fn TabIndex::TabIndex(Int) -> Self
+pub fn TabIndex::TabIndex(Int32) -> Self
 pub fn TabIndex::equal(Self, Self) -> Bool
 pub fn TabIndex::not_equal(Self, Self) -> Bool
 pub fn TabIndex::to_repr(Self) -> @debug.Repr
@@ -725,13 +725,13 @@ pub(all) struct UiMaterialContext {
   rect : @math.Rect
   content_rect : @math.Rect
   border_radius : BorderRadius
-  target_camera_entity_id : UInt?
+  target_camera_entity_id : UInt32?
 }
-pub fn UiMaterialContext::UiMaterialContext(@entity.Entity, @math.Rect, content_rect? : @math.Rect, border_radius? : BorderRadius, target_camera_entity_id? : UInt?) -> Self
+pub fn UiMaterialContext::UiMaterialContext(@entity.Entity, @math.Rect, content_rect? : @math.Rect, border_radius? : BorderRadius, target_camera_entity_id? : UInt32?) -> Self
 
-pub(all) struct UiMaterialHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub(all) struct UiMaterialHandle(UInt32) derive(Eq, Hash, @debug.Debug)
 pub fn UiMaterialHandle::equal(Self, Self) -> Bool
-pub fn UiMaterialHandle::hash(Self) -> Int
+pub fn UiMaterialHandle::hash(Self) -> Int32
 pub fn UiMaterialHandle::hash_combine(Self, Hasher) -> Unit
 pub fn UiMaterialHandle::not_equal(Self, Self) -> Bool
 pub fn UiMaterialHandle::to_repr(Self) -> @debug.Repr
@@ -814,9 +814,9 @@ pub fn Val::px(Double) -> Self
 pub fn Val::to_repr(Self) -> @debug.Repr
 
 pub(all) struct ZIndex {
-  value : Int
+  value : Int32
 } derive(Eq, @debug.Debug)
-pub fn ZIndex::ZIndex(Int) -> Self
+pub fn ZIndex::ZIndex(Int32) -> Self
 pub fn ZIndex::equal(Self, Self) -> Bool
 pub fn ZIndex::not_equal(Self, Self) -> Bool
 pub fn ZIndex::to_repr(Self) -> @debug.Repr

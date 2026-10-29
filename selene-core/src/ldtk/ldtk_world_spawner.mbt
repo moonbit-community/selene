@@ -129,7 +129,7 @@ pub fn clear_ldtk_entity_registrations() -> Unit {
 ///|
 pub fn register_ldtk_int_cell_for_layer_optional(
   layer_identifier : String?,
-  value : Int?,
+  value : Int32?,
   hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
 ) -> Unit {
   ldtk_int_cell_typed_registrations().set(
@@ -141,7 +141,7 @@ pub fn register_ldtk_int_cell_for_layer_optional(
 ///|
 pub fn register_ldtk_int_cell_for_layer(
   layer_identifier : String,
-  value : Int,
+  value : Int32,
   hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
 ) -> Unit {
   register_ldtk_int_cell_for_layer_optional(
@@ -153,7 +153,7 @@ pub fn register_ldtk_int_cell_for_layer(
 
 ///|
 pub fn register_ldtk_int_cell(
-  value : Int,
+  value : Int32,
   hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
 ) -> Unit {
   register_ldtk_int_cell_for_layer_optional(None, Some(value), hook)
@@ -177,7 +177,7 @@ pub fn register_default_ldtk_int_cell(
 ///|
 pub fn unregister_ldtk_int_cell_for_layer_optional(
   layer_identifier : String?,
-  value : Int?,
+  value : Int32?,
 ) -> Unit {
   ldtk_int_cell_typed_registrations().remove(
     ldtk_int_cell_typed_registration_key(layer_identifier, value),
@@ -187,7 +187,7 @@ pub fn unregister_ldtk_int_cell_for_layer_optional(
 ///|
 pub fn unregister_ldtk_int_cell_for_layer(
   layer_identifier : String,
-  value : Int,
+  value : Int32,
 ) -> Unit {
   unregister_ldtk_int_cell_for_layer_optional(
     Some(layer_identifier),
@@ -196,7 +196,7 @@ pub fn unregister_ldtk_int_cell_for_layer(
 }
 
 ///|
-pub fn unregister_ldtk_int_cell(value : Int) -> Unit {
+pub fn unregister_ldtk_int_cell(value : Int32) -> Unit {
   unregister_ldtk_int_cell_for_layer_optional(None, Some(value))
 }
 

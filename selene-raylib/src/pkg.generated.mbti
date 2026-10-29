@@ -35,7 +35,7 @@ pub fn get_time_scale() -> Double
 
 pub fn initialize(@platform_runtime.WindowConfig, @platform_runtime.RunnerCallbacks) -> () -> Unit
 
-pub fn is_finished(instance~ : Int) -> Bool
+pub fn is_finished(instance~ : Int32) -> Bool
 
 pub fn load_font(String, String) -> Unit
 
@@ -43,7 +43,7 @@ pub fn lock_mouse(@ref.Ref[Bool]) -> Unit
 
 pub fn measure_text(@render2d_types.TextStyle2D, String) -> @math.Vec2
 
-pub fn play_audio(audio_path~ : String, volume~ : Double, speed~ : Double, loop_~ : Bool, paused~ : Bool) -> Int
+pub fn play_audio(audio_path~ : String, volume~ : Double, speed~ : Double, loop_~ : Bool, paused~ : Bool) -> Int32
 
 pub fn pop_clip_rect() -> Unit
 
@@ -81,17 +81,17 @@ pub fn reset_clip_stack() -> Unit
 
 pub fn set_embedded_assets((String) -> Bytes?) -> Unit
 
-pub fn set_loop(instance~ : Int, loop_~ : Bool) -> Unit
+pub fn set_loop(instance~ : Int32, loop_~ : Bool) -> Unit
 
-pub fn set_paused(instance~ : Int, paused~ : Bool) -> Unit
+pub fn set_paused(instance~ : Int32, paused~ : Bool) -> Unit
 
-pub fn set_speed(instance~ : Int, speed~ : Double) -> Unit
+pub fn set_speed(instance~ : Int32, speed~ : Double) -> Unit
 
 pub fn set_time_scale(Double) -> Unit
 
-pub fn set_volume(instance~ : Int, volume~ : Double) -> Unit
+pub fn set_volume(instance~ : Int32, volume~ : Double) -> Unit
 
-pub fn stop(instance~ : Int) -> Unit
+pub fn stop(instance~ : Int32) -> Unit
 
 pub fn sync_cubemap_asset(@render3d_types.CubemapHandle, @render3d_types.CubemapAsset3D) -> Unit
 
@@ -108,6 +108,6 @@ pub fn tick_audio() -> Unit
 // Types and methods
 
 // Type aliases
-pub type AudioInstance = Int
+pub type AudioInstance = Int32
 
 // Traits

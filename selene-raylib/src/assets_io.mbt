@@ -1,8 +1,8 @@
 ///|
 fn upload_texture_transform_uniforms(
   shader : @raylib.Shader,
-  offset_scale_loc : Int,
-  rotation_loc : Int,
+  offset_scale_loc : Int32,
+  rotation_loc : Int32,
   transform : @render3d_types.TextureTransform3D,
 ) -> Unit {
   set_shader_uniform(
@@ -504,7 +504,7 @@ fn upload_lighting_uniforms(
 }
 
 ///|
-fn alpha_mode_to_int(mode : @render3d_types.AlphaMode3D) -> Int {
+fn alpha_mode_to_int(mode : @render3d_types.AlphaMode3D) -> Int32 {
   match mode {
     Opaque => 0
     Mask => 1
@@ -533,7 +533,7 @@ fn to_ray_camera3d(camera : @render3d_types.FrameCamera3D) -> @raylib.Camera3D {
 }
 
 ///|
-fn configured_filter() -> Int {
+fn configured_filter() -> Int32 {
   if backend.image_smooth {
     @raylib.TextureFilterBilinear
   } else {
@@ -716,8 +716,8 @@ fn to_fixed_tangent_array(
 }
 
 ///|
-fn default_mesh_indices(vertex_count : Int) -> Array[Int] {
-  let indices : Array[Int] = []
+fn default_mesh_indices(vertex_count : Int32) -> Array[Int32] {
+  let indices : Array[Int32] = []
   for index in 0..<vertex_count {
     indices.push(index)
   }
@@ -726,11 +726,11 @@ fn default_mesh_indices(vertex_count : Int) -> Array[Int] {
 
 ///|
 fn triangulate_triangle_indices(
-  indices : Array[Int],
+  indices : Array[Int32],
   topology : @render3d_types.TriangleTopology3D,
-) -> Array[Int] {
-  let triangle_indices : Array[Int] = []
-  let push_index = fn(index : Int) { triangle_indices.push(index) }
+) -> Array[Int32] {
+  let triangle_indices : Array[Int32] = []
+  let push_index = fn(index : Int32) { triangle_indices.push(index) }
   match topology {
     TriangleList => {
       let tri_count = indices.length() / 3
@@ -772,7 +772,7 @@ fn triangulate_triangle_indices(
 fn resolve_triangle_indices(
   mesh_handle : @render3d_types.MeshHandle,
   mesh : @render3d_types.TriangleMesh3D,
-) -> Array[Int]? {
+) -> Array[Int32]? {
   let base_indices = mesh.indices.unwrap_or(
     default_mesh_indices(mesh.positions.length()),
   )

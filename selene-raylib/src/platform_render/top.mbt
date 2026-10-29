@@ -154,7 +154,7 @@ pub fn register_font(family : String, path : String) -> Unit {
 ///|
 /// Raylib installs fonts synchronously, so no deferred metrics transition
 /// exists after registration.
-pub fn font_metrics_revision(family : String) -> UInt {
+pub fn font_metrics_revision(family : String) -> UInt32 {
   ignore(family)
   0U
 }
@@ -206,8 +206,8 @@ pub fn capture_frame_png_to_file(path : String) -> Bool {
 ///|
 pub fn render_offscreen_png(
   frame : @render_pipeline.RenderFrame,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Bytes? {
   if width <= 0 || height <= 0 {
     return None

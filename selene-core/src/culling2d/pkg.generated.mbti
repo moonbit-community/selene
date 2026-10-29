@@ -17,20 +17,20 @@ pub fn build_spatial_grid2d(Array[SpatialGridEntry2d], cell_size? : Double) -> S
 // Types and methods
 pub(all) struct CameraExtract2dContext {
   camera_views : Array[@camera.Camera2dView]
-  all_camera_ids : Array[UInt]
-  camera_views_by_id : Map[UInt, @camera.Camera2dView]
+  all_camera_ids : Array[UInt32]
+  camera_views_by_id : Map[UInt32, @camera.Camera2dView]
   camera_grid : SpatialGrid2d
 }
 pub fn CameraExtract2dContext::camera_views_for_bounds(Self, @math.Rect, @visibility.RenderLayers, Bool) -> Array[@camera.Camera2dView]
 
 pub(all) struct SpatialGrid2d {
   cell_size : Double
-  buckets : Map[String, Array[UInt]]
+  buckets : Map[String, Array[UInt32]]
 }
-pub fn SpatialGrid2d::query(Self, @math.Rect) -> Array[UInt]
+pub fn SpatialGrid2d::query(Self, @math.Rect) -> Array[UInt32]
 
 pub(all) struct SpatialGridEntry2d {
-  id : UInt
+  id : UInt32
   bounds : @math.Rect
 }
 

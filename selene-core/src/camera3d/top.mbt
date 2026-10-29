@@ -19,7 +19,7 @@ pub(all) struct Camera3DComponent {
   near : Double
   far : Double
   fov_y : Double
-  order : Int
+  order : Int32
   clear_color : @render.Color
   mut enabled : Bool
 }
@@ -50,7 +50,7 @@ priv struct Camera3DWorldStore {
 }
 
 ///|
-let camera3d_world_stores : Map[UInt, Camera3DWorldStore] = Map([])
+let camera3d_world_stores : Map[UInt32, Camera3DWorldStore] = Map([])
 
 ///|
 fn camera3d_world_store() -> Camera3DWorldStore {
@@ -64,10 +64,10 @@ pub fn cameras3d() -> Map[@entity.Entity, Camera3DComponent] {
 }
 
 ///|
-let active_cameras3d_by_world : Map[UInt, ActiveCamera3D?] = Map([])
+let active_cameras3d_by_world : Map[UInt32, ActiveCamera3D?] = Map([])
 
 ///|
-fn current_world_id() -> UInt {
+fn current_world_id() -> UInt32 {
   @ecs.require_current_world().id()
 }
 

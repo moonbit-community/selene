@@ -204,20 +204,6 @@ def copy_game_files(game_name: str):
     else:
         print(f"⚠ Warning: index.html not found for {game_name}")
 
-    project_manifest = game_src_dir / "selene.project.json"
-    if project_manifest.exists():
-        shutil.copy2(project_manifest, game_page_dir / "selene.project.json")
-        print(f"✓ Copied {game_name}/selene.project.json")
-
-    scenes_src = game_src_dir / "scenes"
-    if scenes_src.exists() and scenes_src.is_dir():
-        scenes_dst = game_page_dir / "scenes"
-        if scenes_dst.exists():
-            shutil.rmtree(scenes_dst)
-        shutil.copytree(scenes_src, scenes_dst)
-        scene_count = len(list(scenes_dst.rglob("*.scene.json")))
-        print(f"✓ Copied {game_name}/scenes/ ({scene_count} scene files)")
-
     assets_src = game_src_dir / "assets"
     if assets_src.exists() and assets_src.is_dir():
         assets_dst = game_page_dir / "assets"

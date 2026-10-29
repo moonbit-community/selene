@@ -13,27 +13,27 @@
 // limitations under the License.
 
 ///|
-let tiled_gid_flip_horizontal_flag : Int = 0x80000000
+let tiled_gid_flip_horizontal_flag : Int32 = 0x80000000
 
 ///|
-let tiled_gid_flip_vertical_flag : Int = 0x40000000
+let tiled_gid_flip_vertical_flag : Int32 = 0x40000000
 
 ///|
-let tiled_gid_flip_diagonal_flag : Int = 0x20000000
+let tiled_gid_flip_diagonal_flag : Int32 = 0x20000000
 
 ///|
-let tiled_gid_mask : Int = 0x1fffffff
+let tiled_gid_mask : Int32 = 0x1fffffff
 
 ///|
 pub enum TiledPropertyValue {
   None
   String(String)
-  Int(Int)
+  Int(Int32)
   Float(Double)
   Bool(Bool)
   Color(String)
   File(String)
-  Object(Int)
+  Object(Int32)
   Custom(Json)
 }
 
@@ -45,8 +45,8 @@ pub struct TiledProperty {
 
 ///|
 pub struct TiledGid {
-  raw : Int
-  tile_id : Int
+  raw : Int32
+  tile_id : Int32
   flipped_horizontally : Bool
   flipped_vertically : Bool
   flipped_diagonally : Bool
@@ -54,28 +54,28 @@ pub struct TiledGid {
 
 ///|
 pub struct TiledChunk {
-  x : Int
-  y : Int
-  width : Int
-  height : Int
+  x : Int32
+  y : Int32
+  width : Int32
+  height : Int32
   data : Array[TiledGid]
 }
 
 ///|
 pub struct TiledCell {
-  x : Int
-  y : Int
+  x : Int32
+  y : Int32
   gid : TiledGid
 }
 
 ///|
 pub struct TiledTileLayer {
-  width : Int
-  height : Int
-  x : Int
-  y : Int
-  start_x : Int
-  start_y : Int
+  width : Int32
+  height : Int32
+  x : Int32
+  y : Int32
+  start_x : Int32
+  start_y : Int32
   encoding : String?
   compression : String?
   data : Array[TiledGid]
@@ -98,7 +98,7 @@ pub struct TiledText {
   underline : Bool
   strikeout : Bool
   kerning : Bool
-  pixel_size : Int?
+  pixel_size : Int32?
   font_family : String?
   horizontal_align : String?
   vertical_align : String?
@@ -106,7 +106,7 @@ pub struct TiledText {
 
 ///|
 pub struct TiledObject {
-  id : Int
+  id : Int32
   name : String
   object_type : String
   class_name : String?
@@ -135,21 +135,21 @@ pub struct TiledObjectLayer {
 pub struct TiledImageLayer {
   image : String?
   transparent_color : String?
-  image_width : Int?
-  image_height : Int?
+  image_width : Int32?
+  image_height : Int32?
   repeat_x : Bool
   repeat_y : Bool
 }
 
 ///|
 pub struct TiledAnimationFrame {
-  tile_id : Int
-  duration_ms : Int
+  tile_id : Int32
+  duration_ms : Int32
 }
 
 ///|
 pub struct TiledTileDefinition {
-  id : Int
+  id : Int32
   object_type : String?
   class_name : String?
   image : String?
@@ -161,19 +161,19 @@ pub struct TiledTileDefinition {
 
 ///|
 pub struct TiledTileset {
-  first_gid : Int
+  first_gid : Int32
   source : String?
   name : String?
   class_name : String?
-  tile_width : Int?
-  tile_height : Int?
-  tile_count : Int?
-  columns : Int?
-  spacing : Int
-  margin : Int
+  tile_width : Int32?
+  tile_height : Int32?
+  tile_count : Int32?
+  columns : Int32?
+  spacing : Int32
+  margin : Int32
   image : String?
-  image_width : Int?
-  image_height : Int?
+  image_width : Int32?
+  image_height : Int32?
   properties : Array[TiledProperty]
   tiles : Array[TiledTileDefinition]
 }
@@ -189,7 +189,7 @@ pub enum TiledLayerKind {
 
 ///|
 pub struct TiledLayer {
-  id : Int
+  id : Int32
   name : String
   layer_type : String
   class_name : String?
@@ -206,21 +206,21 @@ pub struct TiledLayer {
 
 ///|
 pub struct TiledMap {
-  width : Int
-  height : Int
-  tile_width : Int
-  tile_height : Int
+  width : Int32
+  height : Int32
+  tile_width : Int32
+  tile_height : Int32
   parallax_origin_x : Double
   parallax_origin_y : Double
-  hex_side_length : Int?
+  hex_side_length : Int32?
   stagger_axis : String?
   stagger_index : String?
   infinite : Bool
   orientation : String
   render_order : String
   background_color : String?
-  next_layer_id : Int
-  next_object_id : Int
+  next_layer_id : Int32
+  next_object_id : Int32
   source_path : String?
   layers : Array[TiledLayer]
   tilesets : Array[TiledTileset]
@@ -239,7 +239,7 @@ pub fn empty_tiled_gid() -> TiledGid {
 }
 
 ///|
-pub fn decode_tiled_gid(raw : Int) -> TiledGid {
+pub fn decode_tiled_gid(raw : Int32) -> TiledGid {
   if raw <= 0 {
     return empty_tiled_gid()
   }
@@ -253,7 +253,7 @@ pub fn decode_tiled_gid(raw : Int) -> TiledGid {
 }
 
 ///|
-pub fn encode_tiled_gid(gid : TiledGid) -> Int {
+pub fn encode_tiled_gid(gid : TiledGid) -> Int32 {
   let mut raw = gid.tile_id & tiled_gid_mask
   if gid.flipped_horizontally {
     raw = raw | tiled_gid_flip_horizontal_flag
@@ -382,7 +382,7 @@ pub fn TiledMap::layer(self : TiledMap, name : String) -> TiledLayer? {
 }
 
 ///|
-pub fn TiledMap::layer_by_id(self : TiledMap, id : Int) -> TiledLayer? {
+pub fn TiledMap::layer_by_id(self : TiledMap, id : Int32) -> TiledLayer? {
   for layer in self.layers {
     if layer.id == id {
       return Some(layer)
@@ -415,7 +415,7 @@ pub fn TiledMap::object_layer(
 ///|
 pub fn TiledMap::tileset_for_gid(
   self : TiledMap,
-  global_gid : Int,
+  global_gid : Int32,
 ) -> TiledTileset? {
   if global_gid <= 0 {
     return None
@@ -443,7 +443,7 @@ pub fn TiledMap::property(
 ///|
 pub fn TiledTileset::tile_definition(
   self : TiledTileset,
-  local_id : Int,
+  local_id : Int32,
 ) -> TiledTileDefinition? {
   for tile in self.tiles {
     if tile.id == local_id {
@@ -493,8 +493,8 @@ pub fn TiledObjectLayer::object(
 ///|
 pub fn TiledTileLayer::tile_gid_at(
   self : TiledTileLayer,
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
 ) -> TiledGid {
   if self.chunks.length() > 0 {
     for chunk in self.chunks {
@@ -590,7 +590,7 @@ fn parse_tiled_map_source(source : String) -> TiledMap {
 ///|
 fn parse_tiled_tileset_source(
   source : String,
-  first_gid : Int,
+  first_gid : Int32,
   source_path : String,
 ) -> TiledTileset? {
   if tiled_source_is_xml(source) {
@@ -611,7 +611,7 @@ fn parse_tiled_json_map_source(source : String) -> TiledMap {
 ///|
 fn parse_tiled_json_tileset_source(
   source : String,
-  first_gid : Int,
+  first_gid : Int32,
   source_path : String,
 ) -> TiledTileset? {
   let document = @json.parse(source.view()) catch { _ => return None }
@@ -790,7 +790,7 @@ fn tiled_gid_data_is_uncompressed(compression : String?) -> Bool {
 ///|
 fn parse_tiled_base64_gids(
   source : String,
-  compression? : String? = None,
+  compression~ : String? = None,
 ) -> Array[TiledGid] {
   let cleaned = strip_tiled_base64_whitespace(source)
   if cleaned.length() == 0 {
@@ -1252,7 +1252,7 @@ fn json_number(value : Json) -> Double? {
 }
 
 ///|
-fn json_int(value : Json) -> Int? {
+fn json_int(value : Json) -> Int32? {
   json_decode(value)
 }
 
@@ -1301,7 +1301,7 @@ fn field_number(object : Map[String, Json], key : String) -> Double? {
 }
 
 ///|
-fn field_int(object : Map[String, Json], key : String) -> Int? {
+fn field_int(object : Map[String, Json], key : String) -> Int32? {
   if field_json(object, key) is Some(value) {
     json_int(value)
   } else {

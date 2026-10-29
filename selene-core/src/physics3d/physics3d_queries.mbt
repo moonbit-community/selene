@@ -141,7 +141,7 @@ priv struct Physics3DComponentWorldStore {
 }
 
 ///|
-let physics3d_component_world_stores : Map[UInt, Physics3DComponentWorldStore] = Map([],
+let physics3d_component_world_stores : Map[UInt32, Physics3DComponentWorldStore] = Map([],
 )
 
 ///|

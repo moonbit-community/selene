@@ -24,8 +24,8 @@ fn pending_body_torque_impulses() -> Map[@entity.Entity, Double] {
 ///|
 priv struct EntityJointConfigKey {
   joint : Joint
-  body1 : (Int, Int)
-  body2 : (Int, Int)
+  body1 : (Int32, Int32)
+  body2 : (Int32, Int32)
 } derive(Eq)
 
 ///|
@@ -36,8 +36,8 @@ fn entity_joint_config_keys() -> Map[@entity.Entity, EntityJointConfigKey] {
 ///|
 priv struct EntityMultibodyJointConfigKey {
   joint : MultibodyJoint
-  parent : (Int, Int)
-  child : (Int, Int)
+  parent : (Int32, Int32)
+  child : (Int32, Int32)
 } derive(Eq)
 
 ///|
@@ -78,9 +78,9 @@ pub fn multibody_link(entity : @entity.Entity) -> MultibodyLinkId? {
 pub fn raycast(
   origin : @math.Vec2,
   direction : @math.Vec2,
-  max_toi? : Double = 1000.0,
-  solid? : Bool = true,
-  query_filter? : SpatialQueryFilter = SpatialQueryFilter::default(),
+  max_toi~ : Double = 1000.0,
+  solid~ : Bool = true,
+  query_filter~ : SpatialQueryFilter = SpatialQueryFilter::default(),
 ) -> RaycastHit? {
   if vec2_length_squared(direction) <= EPSILON {
     return None
@@ -121,11 +121,11 @@ pub fn raycast(
 pub fn shape_cast(
   shape : CollisionShape,
   origin : @math.Vec2,
-  rotation? : Double = 0.0,
-  direction? : @math.Vec2 = Vec2(0.0, -1.0),
-  max_toi? : Double = 1000.0,
-  stop_at_penetration? : Bool = false,
-  query_filter? : SpatialQueryFilter = SpatialQueryFilter::default(),
+  rotation~ : Double = 0.0,
+  direction~ : @math.Vec2 = Vec2(0.0, -1.0),
+  max_toi~ : Double = 1000.0,
+  stop_at_penetration~ : Bool = false,
+  query_filter~ : SpatialQueryFilter = SpatialQueryFilter::default(),
 ) -> ShapeCastHit? {
   if vec2_length_squared(direction) <= EPSILON {
     return None
@@ -165,7 +165,7 @@ pub fn shape_cast(
 ///|
 pub fn intersect_point(
   point : @math.Vec2,
-  query_filter? : SpatialQueryFilter = SpatialQueryFilter::default(),
+  query_filter~ : SpatialQueryFilter = SpatialQueryFilter::default(),
 ) -> Array[@entity.Entity] {
   refresh_query_world()
   let query = make_query_pipeline(query_filter)
@@ -182,8 +182,8 @@ pub fn intersect_point(
 pub fn intersect_shape(
   shape : CollisionShape,
   origin : @math.Vec2,
-  rotation? : Double = 0.0,
-  query_filter? : SpatialQueryFilter = SpatialQueryFilter::default(),
+  rotation~ : Double = 0.0,
+  query_filter~ : SpatialQueryFilter = SpatialQueryFilter::default(),
 ) -> Array[@entity.Entity] {
   guard collision_shape_to_rapier_shape(shape)
     is Some((rapier_shape, translation)) else {

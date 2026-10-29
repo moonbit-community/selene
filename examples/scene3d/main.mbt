@@ -54,7 +54,7 @@ let contact_force_reader : Ref[@event.EventReader[@physics3d.ContactForceEvent]]
 let last_contact_force : Ref[Double] = Ref(0.0)
 
 ///|
-fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
+fn color(r : UInt32, g : UInt32, b : UInt32, a : Double) -> @render.Color {
   { r, g, b, a, }
 }
 

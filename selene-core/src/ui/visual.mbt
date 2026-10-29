@@ -50,10 +50,10 @@ pub fn BorderRadius::all(value : Val) -> BorderRadius {
 
 ///|
 pub fn BorderRadius::BorderRadius(
-  top_left? : Val = Val::px(0.0),
-  top_right? : Val = top_left,
-  bottom_right? : Val = top_left,
-  bottom_left? : Val = bottom_right,
+  top_left~ : Val = Val::px(0.0),
+  top_right~ : Val = top_left,
+  bottom_right~ : Val = top_left,
+  bottom_left~ : Val = bottom_right,
 ) -> BorderRadius {
   { top_left, top_right, bottom_right, bottom_left, }
 }
@@ -69,7 +69,7 @@ pub(all) struct Outline {
 pub fn Outline::Outline(
   width : Val,
   color : @render.Color,
-  offset? : Val = Val::px(0.0),
+  offset~ : Val = Val::px(0.0),
 ) -> Outline {
   { width, offset, color, }
 }
@@ -86,10 +86,10 @@ pub(all) struct ShadowStyle {
 ///|
 pub fn ShadowStyle::ShadowStyle(
   color : @render.Color,
-  x_offset? : Val = Val::px(0.0),
-  y_offset? : Val = Val::px(0.0),
-  spread_radius? : Val = Val::px(0.0),
-  blur_radius? : Val = Val::px(0.0),
+  x_offset~ : Val = Val::px(0.0),
+  y_offset~ : Val = Val::px(0.0),
+  spread_radius~ : Val = Val::px(0.0),
+  blur_radius~ : Val = Val::px(0.0),
 ) -> ShadowStyle {
   { color, x_offset, y_offset, spread_radius, blur_radius, }
 }
@@ -107,10 +107,10 @@ pub fn BoxShadow::BoxShadow(layers : Array[ShadowStyle]) -> BoxShadow {
 ///|
 pub fn BoxShadow::single(
   color : @render.Color,
-  x_offset? : Val = Val::px(0.0),
-  y_offset? : Val = Val::px(0.0),
-  spread_radius? : Val = Val::px(0.0),
-  blur_radius? : Val = Val::px(0.0),
+  x_offset~ : Val = Val::px(0.0),
+  y_offset~ : Val = Val::px(0.0),
+  spread_radius~ : Val = Val::px(0.0),
+  blur_radius~ : Val = Val::px(0.0),
 ) -> BoxShadow {
   BoxShadow([
     ShadowStyle(color, x_offset~, y_offset~, spread_radius~, blur_radius~),
@@ -137,8 +137,8 @@ pub(all) struct UiImage {
 pub fn UiImage::from_image(
   size : @math.Vec2,
   image : @asset.ImageHandle,
-  tint? : @render.Color = rgba(255, 255, 255, 1.0),
-  fit? : ImageFit = Stretch,
+  tint~ : @render.Color = rgba(255, 255, 255, 1.0),
+  fit~ : ImageFit = Stretch,
 ) -> UiImage {
   { size, image, tint, fit, }
 }
@@ -147,14 +147,14 @@ pub fn UiImage::from_image(
 pub fn UiImage::UiImage(
   size : @math.Vec2,
   path : String,
-  tint? : @render.Color = rgba(255, 255, 255, 1.0),
-  fit? : ImageFit = Stretch,
+  tint~ : @render.Color = rgba(255, 255, 255, 1.0),
+  fit~ : ImageFit = Stretch,
 ) -> UiImage {
   UiImage::from_image(size, @asset.load_image(path), tint~, fit~)
 }
 
 ///|
-pub(all) struct UiMaterialHandle(UInt) derive(Eq, Debug, Hash)
+pub(all) struct UiMaterialHandle(UInt32) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) struct MaterialNode {
@@ -186,16 +186,16 @@ pub(all) struct UiMaterialContext {
   rect : @math.Rect
   content_rect : @math.Rect
   border_radius : BorderRadius
-  target_camera_entity_id : UInt?
+  target_camera_entity_id : UInt32?
 }
 
 ///|
 pub fn UiMaterialContext::UiMaterialContext(
   entity : @entity.Entity,
   rect : @math.Rect,
-  content_rect? : @math.Rect = rect,
-  border_radius? : BorderRadius = BorderRadius::all(Val::px(0.0)),
-  target_camera_entity_id? : UInt? = None,
+  content_rect~ : @math.Rect = rect,
+  border_radius~ : BorderRadius = BorderRadius::all(Val::px(0.0)),
+  target_camera_entity_id~ : UInt32? = None,
 ) -> UiMaterialContext {
   { entity, rect, content_rect, border_radius, target_camera_entity_id, }
 }
@@ -241,8 +241,8 @@ pub fn UiMaterialAsset::from_ui_image(image : UiImage) -> UiMaterialAsset {
 pub fn UiMaterialAsset::from_image(
   size : @math.Vec2,
   image : @asset.ImageHandle,
-  tint? : @render.Color = rgba(255, 255, 255, 1.0),
-  fit? : ImageFit = Stretch,
+  tint~ : @render.Color = rgba(255, 255, 255, 1.0),
+  fit~ : ImageFit = Stretch,
 ) -> UiMaterialAsset {
   UiMaterialAsset::from_ui_image(UiImage::from_image(size, image, tint~, fit~))
 }
@@ -251,8 +251,8 @@ pub fn UiMaterialAsset::from_image(
 pub fn UiMaterialAsset::UiMaterialAsset(
   size : @math.Vec2,
   path : String,
-  tint? : @render.Color = rgba(255, 255, 255, 1.0),
-  fit? : ImageFit = Stretch,
+  tint~ : @render.Color = rgba(255, 255, 255, 1.0),
+  fit~ : ImageFit = Stretch,
 ) -> UiMaterialAsset {
   UiMaterialAsset::from_ui_image(UiImage(size, path, tint~, fit~))
 }
@@ -276,8 +276,8 @@ pub(all) struct TextFont {
 
 ///|
 pub fn TextFont::TextFont(
-  family? : String = "Arial",
-  size? : Double = 16.0,
+  family~ : String = "Arial",
+  size~ : Double = 16.0,
 ) -> TextFont {
   { family, size, font_handle: @asset.font_by_family(family), }
 }
@@ -285,7 +285,7 @@ pub fn TextFont::TextFont(
 ///|
 pub fn TextFont::from_font(
   font : @asset.FontHandle,
-  size? : Double = 16.0,
+  size~ : Double = 16.0,
 ) -> TextFont {
   let family = @asset.font_family(font).unwrap_or("Arial")
   { family, size, font_handle: Some(font), }
@@ -365,11 +365,11 @@ pub(all) struct TextLayout {
 
 ///|
 pub fn TextLayout::TextLayout(
-  align? : @math.HAlign = Left,
-  baseline? : @math.VAlign = Top,
-  line_height? : Double = 1.0,
-  wrap? : TextWrap = NoWrap,
-  overflow? : TextOverflow = Clip,
+  align~ : @math.HAlign = Left,
+  baseline~ : @math.VAlign = Top,
+  line_height~ : Double = 1.0,
+  wrap~ : TextWrap = NoWrap,
+  overflow~ : TextOverflow = Clip,
 ) -> TextLayout {
   { align, baseline, line_height, wrap, overflow, }
 }
@@ -380,7 +380,7 @@ pub(all) struct Button {
 } derive(Eq, Debug)
 
 ///|
-pub fn Button::Button(enabled? : Bool = true) -> Button {
+pub fn Button::Button(enabled~ : Bool = true) -> Button {
   { enabled, }
 }
 
@@ -409,7 +409,7 @@ priv struct UiVisualWorldStore {
 }
 
 ///|
-let ui_visual_world_stores : Map[UInt, UiVisualWorldStore] = Map([])
+let ui_visual_world_stores : Map[UInt32, UiVisualWorldStore] = Map([])
 
 ///|
 fn ui_visual_world_store() -> UiVisualWorldStore {
@@ -470,7 +470,7 @@ pub fn material_nodes() -> Map[@entity.Entity, MaterialNode] {
 let ui_material_assets : Map[UiMaterialHandle, UiMaterialAsset] = Map([])
 
 ///|
-let next_ui_material_id : Ref[UInt] = Ref(0)
+let next_ui_material_id : Ref[UInt32] = Ref(0)
 
 ///|
 pub fn texts() -> Map[@entity.Entity, Text] {

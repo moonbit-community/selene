@@ -1,6 +1,5 @@
 import {
   "Milky2018/selene/camera",
-  "Milky2018/selene/entity",
   "Milky2018/selene/math",
   "Milky2018/selene/platform_render",
   "Milky2018/selene/render",
@@ -15,5 +14,6 @@ import {
 
 import {
   "Milky2018/selene/ecs",
+  "Milky2018/selene/entity",
   "Milky2018/selene/transform",
 } for "wbtest"

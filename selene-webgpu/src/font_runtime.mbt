@@ -1,9 +1,9 @@
 ///|
 priv struct WebFontRuntime {
-  mut generation : UInt
-  mut metrics_revision : UInt
-  mut dom_ready_generation : UInt?
-  mut bytes_ready_generation : UInt?
+  mut generation : UInt32
+  mut metrics_revision : UInt32
+  mut dom_ready_generation : UInt32?
+  mut bytes_ready_generation : UInt32?
 }
 
 ///|
@@ -20,7 +20,7 @@ fn web_font_runtime(family : String) -> WebFontRuntime {
 }
 
 ///|
-fn begin_web_font_load(family : String) -> UInt {
+fn begin_web_font_load(family : String) -> UInt32 {
   let runtime = web_font_runtime(family)
   runtime.generation += 1U
   runtime.dom_ready_generation = None
@@ -29,7 +29,7 @@ fn begin_web_font_load(family : String) -> UInt {
 }
 
 ///|
-fn web_font_load_is_current(family : String, generation : UInt) -> Bool {
+fn web_font_load_is_current(family : String, generation : UInt32) -> Bool {
   web_font_runtime(family).generation == generation
 }
 
@@ -44,7 +44,7 @@ fn invalidate_web_font_metrics() -> Unit {
 ///|
 /// The DOM face provides a valid Canvas fallback while the font bytes are
 /// still being prepared for Cosmic rendering.
-fn mark_web_font_dom_ready(family : String, generation : UInt) -> Unit {
+fn mark_web_font_dom_ready(family : String, generation : UInt32) -> Unit {
   let runtime = web_font_runtime(family)
   guard runtime.generation == generation else { return }
   guard runtime.dom_ready_generation != Some(generation) else { return }
@@ -57,7 +57,7 @@ fn mark_web_font_dom_ready(family : String, generation : UInt) -> Unit {
 
 ///|
 /// Cosmic metrics are the canonical WebGPU measurement and rendering source.
-fn mark_web_font_bytes_ready(family : String, generation : UInt) -> Unit {
+fn mark_web_font_bytes_ready(family : String, generation : UInt32) -> Unit {
   let runtime = web_font_runtime(family)
   guard runtime.generation == generation else { return }
   guard runtime.bytes_ready_generation != Some(generation) else { return }
@@ -67,7 +67,7 @@ fn mark_web_font_bytes_ready(family : String, generation : UInt) -> Unit {
 }
 
 ///|
-pub fn font_metrics_revision(family : String) -> UInt {
+pub fn font_metrics_revision(family : String) -> UInt32 {
   web_font_runtime(family).metrics_revision
 }
 

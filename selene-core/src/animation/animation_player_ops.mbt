@@ -25,7 +25,7 @@ pub fn[T] register_animation_event_descriptor(
 fn allocate_node(
   graph : AnimationGraph,
   node_type : AnimationGraphNodeType,
-  mask : UInt,
+  mask : UInt32,
 ) -> AnimationNodeIndex {
   let node = AnimationNodeIndex(graph.next_node)
   graph.next_node += 1U
@@ -38,7 +38,7 @@ pub fn AnimationGraph::add_edge(
   self : AnimationGraph,
   parent : AnimationNodeIndex,
   child : AnimationNodeIndex,
-  weight? : Double = 1.0,
+  weight~ : Double = 1.0,
 ) -> Unit {
   guard self.nodes.get(parent) is Some(node) else { return }
   node.children.push({ child, weight, })
@@ -48,7 +48,7 @@ pub fn AnimationGraph::add_edge(
 pub fn AnimationGraph::add_blend(
   self : AnimationGraph,
   parent? : AnimationNodeIndex,
-  weight? : Double = 1.0,
+  weight~ : Double = 1.0,
 ) -> AnimationNodeIndex {
   let node = allocate_node(self, Blend, 0U)
   self.add_edge(parent.unwrap_or(self.root), node, weight~)
@@ -58,9 +58,9 @@ pub fn AnimationGraph::add_blend(
 ///|
 pub fn AnimationGraph::add_blend_with_mask(
   self : AnimationGraph,
-  groups : Array[Int],
+  groups : Array[Int32],
   parent? : AnimationNodeIndex,
-  weight? : Double = 1.0,
+  weight~ : Double = 1.0,
 ) -> AnimationNodeIndex {
   let node = allocate_node(self, Blend, mask_from_groups(groups))
   self.add_edge(parent.unwrap_or(self.root), node, weight~)
@@ -71,7 +71,7 @@ pub fn AnimationGraph::add_blend_with_mask(
 pub fn AnimationGraph::add_additive_blend(
   self : AnimationGraph,
   parent? : AnimationNodeIndex,
-  weight? : Double = 1.0,
+  weight~ : Double = 1.0,
 ) -> AnimationNodeIndex {
   let node = allocate_node(self, AdditiveBlend, 0U)
   self.add_edge(parent.unwrap_or(self.root), node, weight~)
@@ -81,9 +81,9 @@ pub fn AnimationGraph::add_additive_blend(
 ///|
 pub fn AnimationGraph::add_additive_blend_with_mask(
   self : AnimationGraph,
-  groups : Array[Int],
+  groups : Array[Int32],
   parent? : AnimationNodeIndex,
-  weight? : Double = 1.0,
+  weight~ : Double = 1.0,
 ) -> AnimationNodeIndex {
   let node = allocate_node(self, AdditiveBlend, mask_from_groups(groups))
   self.add_edge(parent.unwrap_or(self.root), node, weight~)
@@ -95,7 +95,7 @@ pub fn AnimationGraph::add_clip(
   self : AnimationGraph,
   clip : AnimationClipHandle,
   parent? : AnimationNodeIndex,
-  weight? : Double = 1.0,
+  weight~ : Double = 1.0,
 ) -> AnimationNodeIndex {
   let node = allocate_node(self, Clip(clip), 0U)
   self.add_edge(parent.unwrap_or(self.root), node, weight~)
@@ -106,9 +106,9 @@ pub fn AnimationGraph::add_clip(
 pub fn AnimationGraph::add_clip_with_mask(
   self : AnimationGraph,
   clip : AnimationClipHandle,
-  groups : Array[Int],
+  groups : Array[Int32],
   parent? : AnimationNodeIndex,
-  weight? : Double = 1.0,
+  weight~ : Double = 1.0,
 ) -> AnimationNodeIndex {
   let node = allocate_node(self, Clip(clip), mask_from_groups(groups))
   self.add_edge(parent.unwrap_or(self.root), node, weight~)
@@ -119,7 +119,7 @@ pub fn AnimationGraph::add_clip_with_mask(
 pub fn AnimationGraph::add_target_to_mask_group(
   self : AnimationGraph,
   target : AnimationTargetId,
-  group : Int,
+  group : Int32,
 ) -> Unit {
   if group < 0 || group >= 63 {
     return
@@ -184,7 +184,7 @@ pub fn AnimationClip::add_event(
   self : AnimationClip,
   time : Double,
   descriptor : AnimationEventDescriptorHandle,
-  dispatch? : AnimationClipEventDispatch = { target: None, },
+  dispatch~ : AnimationClipEventDispatch = { target: None, },
 ) -> Unit {
   self.events.push({ time, descriptor, dispatch, })
   if time > self.duration {
@@ -196,7 +196,7 @@ pub fn AnimationClip::add_event(
 pub fn VariableCurve::scalar(
   field : AnimatedFieldHandle,
   keys : Array[ScalarKeyframe],
-  interpolation? : ChannelInterpolation = Linear,
+  interpolation~ : ChannelInterpolation = Linear,
 ) -> VariableCurve {
   Scalar(field, keys, interpolation)
 }
@@ -205,7 +205,7 @@ pub fn VariableCurve::scalar(
 pub fn VariableCurve::vec3(
   field : AnimatedFieldHandle,
   keys : Array[Vec3Keyframe],
-  interpolation? : ChannelInterpolation = Linear,
+  interpolation~ : ChannelInterpolation = Linear,
 ) -> VariableCurve {
   Vec3(field, keys, interpolation)
 }
@@ -214,7 +214,7 @@ pub fn VariableCurve::vec3(
 pub fn VariableCurve::quat(
   field : AnimatedFieldHandle,
   keys : Array[QuatKeyframe],
-  interpolation? : ChannelInterpolation = Linear,
+  interpolation~ : ChannelInterpolation = Linear,
 ) -> VariableCurve {
   Quat(field, keys, interpolation)
 }
@@ -223,7 +223,7 @@ pub fn VariableCurve::quat(
 pub fn VariableCurve::weights(
   field : AnimatedFieldHandle,
   keys : Array[WeightKeyframe],
-  interpolation? : ChannelInterpolation = Linear,
+  interpolation~ : ChannelInterpolation = Linear,
 ) -> VariableCurve {
   Weights(field, keys, interpolation)
 }
@@ -268,6 +268,6 @@ pub fn ActiveAnimation::repeat_mode(self : ActiveAnimation) -> RepeatAnimation {
 }
 
 ///|
-pub fn ActiveAnimation::completions(self : ActiveAnimation) -> UInt {
+pub fn ActiveAnimation::completions(self : ActiveAnimation) -> UInt32 {
   self.completed_repeats
 }

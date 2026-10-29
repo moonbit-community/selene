@@ -113,7 +113,7 @@ fn should_have_physics(entity : @entity.Entity) -> Bool {
 }
 
 ///|
-fn group_from_index(index : Int) -> @rapier_dynamics.Group {
+fn group_from_index(index : Int32) -> @rapier_dynamics.Group {
   match index {
     0 => @rapier_dynamics.Group::group_1()
     1 => @rapier_dynamics.Group::group_2()
@@ -251,7 +251,7 @@ fn collision_polyline_to_rapier_shape(
   if vertices.length() < 2 {
     return None
   }
-  let segments : Array[(Int, Int)] = []
+  let segments : Array[(Int32, Int32)] = []
   for index in 0..<(vertices.length() - 1) {
     segments.push((index, index + 1))
   }
@@ -297,7 +297,7 @@ fn collision_shape_to_rapier_points(
 ///|
 fn triangulate_collision_polygon(
   points : Array[@math.Vec2],
-) -> Array[(Int, Int, Int)] {
+) -> Array[(Int32, Int32, Int32)] {
   if points.length() < 3 {
     return []
   }
@@ -306,11 +306,11 @@ fn triangulate_collision_polygon(
   } else {
     -1.0
   }
-  let remaining : Array[Int] = []
+  let remaining : Array[Int32] = []
   for index in 0..<points.length() {
     remaining.push(index)
   }
-  let triangles : Array[(Int, Int, Int)] = []
+  let triangles : Array[(Int32, Int32, Int32)] = []
   let mut guard_counter = 0
   while remaining.length() > 3 &&
         guard_counter < points.length() * points.length() {
@@ -335,7 +335,7 @@ fn triangulate_collision_polygon(
         continue
       }
       triangles.push((a_index, b_index, c_index))
-      let next_remaining : Array[Int] = []
+      let next_remaining : Array[Int32] = []
       for index, value in remaining {
         if index != current_index {
           next_remaining.push(value)
@@ -362,10 +362,10 @@ fn triangulate_collision_polygon(
 ///|
 fn collision_is_ear(
   points : Array[@math.Vec2],
-  remaining : Array[Int],
-  a_index : Int,
-  b_index : Int,
-  c_index : Int,
+  remaining : Array[Int32],
+  a_index : Int32,
+  b_index : Int32,
+  c_index : Int32,
   winding : Double,
 ) -> Bool {
   let a = points[a_index]

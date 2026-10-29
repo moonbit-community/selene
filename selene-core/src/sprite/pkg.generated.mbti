@@ -71,9 +71,9 @@ pub(all) enum SpriteImageMode {
 
 pub(all) struct TextureAtlas {
   layout : TextureAtlasLayoutHandle
-  mut index : Int
+  mut index : Int32
 } derive(Eq, @debug.Debug)
-pub fn TextureAtlas::TextureAtlas(TextureAtlasLayoutHandle, index? : Int) -> Self
+pub fn TextureAtlas::TextureAtlas(TextureAtlasLayoutHandle, index? : Int32) -> Self
 pub fn TextureAtlas::equal(Self, Self) -> Bool
 pub fn TextureAtlas::not_equal(Self, Self) -> Bool
 pub fn TextureAtlas::to_repr(Self) -> @debug.Repr
@@ -83,11 +83,11 @@ pub(all) struct TextureAtlasLayout {
   rects : Array[@math.Rect]
 }
 pub fn TextureAtlasLayout::TextureAtlasLayout(@math.Vec2, Array[@math.Rect]) -> Self
-pub fn TextureAtlasLayout::from_grid(@math.Vec2, Int, Int, padding? : @math.Vec2?, offset? : @math.Vec2?) -> Self
+pub fn TextureAtlasLayout::from_grid(@math.Vec2, Int32, Int32, padding? : @math.Vec2?, offset? : @math.Vec2?) -> Self
 
-pub(all) struct TextureAtlasLayoutHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub(all) struct TextureAtlasLayoutHandle(UInt32) derive(Eq, Hash, @debug.Debug)
 pub fn TextureAtlasLayoutHandle::equal(Self, Self) -> Bool
-pub fn TextureAtlasLayoutHandle::hash(Self) -> Int
+pub fn TextureAtlasLayoutHandle::hash(Self) -> Int32
 pub fn TextureAtlasLayoutHandle::hash_combine(Self, Hasher) -> Unit
 pub fn TextureAtlasLayoutHandle::not_equal(Self, Self) -> Bool
 pub fn TextureAtlasLayoutHandle::to_repr(Self) -> @debug.Repr

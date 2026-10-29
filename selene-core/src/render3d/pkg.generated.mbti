@@ -24,7 +24,7 @@ pub fn cubemap_asset_six_faces(@render3d_types.CubemapFaces3D) -> @render3d_type
 
 pub fn cubemap_faces3d(@render3d_types.ImageHandle, @render3d_types.ImageHandle, @render3d_types.ImageHandle, @render3d_types.ImageHandle, @render3d_types.ImageHandle, @render3d_types.ImageHandle) -> @render3d_types.CubemapFaces3D
 
-pub fn cylinder_mesh(Double, Double, Double, slices? : Int) -> @render3d_types.MeshAsset
+pub fn cylinder_mesh(Double, Double, Double, slices? : Int32) -> @render3d_types.MeshAsset
 
 pub fn default_cascade_shadow_config3d() -> @render3d_types.CascadeShadowConfig3D
 
@@ -118,9 +118,9 @@ pub fn take_released_material_assets() -> Array[@render3d_types.MaterialHandle]
 
 pub fn take_released_mesh_assets() -> Array[@render3d_types.MeshHandle]
 
-pub fn texture_binding3d(@render3d_types.ImageHandle, texcoord_set? : Int, sampler? : @render3d_types.TextureSampler3D, transform? : @render3d_types.TextureTransform3D) -> @render3d_types.TextureBinding3D
+pub fn texture_binding3d(@render3d_types.ImageHandle, texcoord_set? : Int32, sampler? : @render3d_types.TextureSampler3D, transform? : @render3d_types.TextureTransform3D) -> @render3d_types.TextureBinding3D
 
-pub fn triangle_mesh(Array[@math.Vec3], uvs? : Array[@math.Vec2]?, normals? : Array[@math.Vec3]?, tangents? : Array[@render3d_types.Tangent3D]?, colors? : Array[@render.Color]?, uv_sets? : Array[Array[@math.Vec2]], indices? : Array[Int]?, topology? : @render3d_types.TriangleTopology3D) -> @render3d_types.MeshAsset
+pub fn triangle_mesh(Array[@math.Vec3], uvs? : Array[@math.Vec2]?, normals? : Array[@math.Vec3]?, tangents? : Array[@render3d_types.Tangent3D]?, colors? : Array[@render.Color]?, uv_sets? : Array[Array[@math.Vec2]], indices? : Array[Int32]?, topology? : @render3d_types.TriangleTopology3D) -> @render3d_types.MeshAsset
 
 pub fn update_cubemap_asset(@render3d_types.CubemapHandle, @render3d_types.CubemapAsset3D) -> Unit
 

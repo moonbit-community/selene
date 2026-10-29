@@ -5,7 +5,7 @@ let extracted_ui_entities : Array[@entity.Entity] = []
 fn push_ui_rect_fill(
   rect : @math.Rect,
   color : @render.Color,
-  camera_entity_id? : UInt? = None,
+  camera_entity_id~ : UInt32? = None,
 ) -> Unit {
   if rect.size[X] <= 0.0 || rect.size[Y] <= 0.0 || color.a <= 0.0 {
     return
@@ -25,7 +25,7 @@ fn push_ui_circle_fill(
   center : @math.Vec2,
   radius : Double,
   color : @render.Color,
-  camera_entity_id? : UInt? = None,
+  camera_entity_id~ : UInt32? = None,
 ) -> Unit {
   if radius <= 0.0 || color.a <= 0.0 {
     return
@@ -181,7 +181,7 @@ fn push_quarter_circle(
   center : @math.Vec2,
   radius : Double,
   color : @render.Color,
-  camera_entity_id? : UInt? = None,
+  camera_entity_id~ : UInt32? = None,
 ) -> Unit {
   if clip_rect.size[X] <= 0.0 || clip_rect.size[Y] <= 0.0 || radius <= 0.0 {
     return
@@ -196,7 +196,7 @@ fn push_rounded_rect(
   rect : @math.Rect,
   radius : ResolvedBorderRadius,
   color : @render.Color,
-  camera_entity_id? : UInt? = None,
+  camera_entity_id~ : UInt32? = None,
 ) -> Unit {
   if rect.size[X] <= 0.0 || rect.size[Y] <= 0.0 || color.a <= 0.0 {
     return
@@ -293,7 +293,7 @@ fn push_rounded_rect(
 }
 
 ///|
-fn shadow_samples(blur : Double) -> Int {
+fn shadow_samples(blur : Double) -> Int32 {
   if blur <= 0.0 {
     1
   } else {
@@ -305,7 +305,7 @@ fn shadow_samples(blur : Double) -> Int {
 ///|
 fn push_box_shadow(
   entity : @entity.Entity,
-  camera_entity_id? : UInt? = None,
+  camera_entity_id~ : UInt32? = None,
 ) -> Unit {
   guard box_shadows().get(entity) is Some(shadow) else { return }
   guard global_ui_nodes().get(entity) is Some(global) else { return }
@@ -381,7 +381,7 @@ fn render_text_style(entity : @entity.Entity) -> @render2d_types.TextStyle2D? {
 ///|
 fn ui_material_context_for(
   entity : @entity.Entity,
-  camera_entity_id? : UInt? = None,
+  camera_entity_id~ : UInt32? = None,
 ) -> UiMaterialContext? {
   global_ui_nodes()
   .get(entity)
@@ -452,7 +452,7 @@ pub fn draw_ui_material_image(
 ///|
 fn push_background(
   entity : @entity.Entity,
-  camera_entity_id? : UInt? = None,
+  camera_entity_id~ : UInt32? = None,
 ) -> Unit {
   guard !material_nodes().contains(entity) else { return }
   guard background_colors().get(entity) is Some(background) else { return }
@@ -465,7 +465,7 @@ fn push_background(
 ///|
 fn push_material_node(
   entity : @entity.Entity,
-  camera_entity_id? : UInt? = None,
+  camera_entity_id~ : UInt32? = None,
 ) -> Bool {
   guard material_nodes().get(entity) is Some(material_node) else {
     return false
@@ -483,7 +483,7 @@ fn push_material_node(
 ///|
 fn push_border(
   entity : @entity.Entity,
-  camera_entity_id? : UInt? = None,
+  camera_entity_id~ : UInt32? = None,
 ) -> Unit {
   guard border_colors().get(entity) is Some(border_color) else { return }
   guard global_ui_nodes().get(entity) is Some(global) else { return }
@@ -566,7 +566,7 @@ fn push_border(
 ///|
 fn push_outline(
   entity : @entity.Entity,
-  camera_entity_id? : UInt? = None,
+  camera_entity_id~ : UInt32? = None,
 ) -> Unit {
   guard outlines().get(entity) is Some(outline) else { return }
   guard global_ui_nodes().get(entity) is Some(transform) else { return }
@@ -693,7 +693,7 @@ fn fitted_image_rect(container : @math.Rect, image : UiImage) -> @math.Rect {
 ///|
 fn push_image(
   entity : @entity.Entity,
-  camera_entity_id? : UInt? = None,
+  camera_entity_id~ : UInt32? = None,
 ) -> Unit {
   guard !material_nodes().contains(entity) else { return }
   guard ui_images().get(entity) is Some(image) else { return }
@@ -786,7 +786,10 @@ fn prepared_text_lines(
 }
 
 ///|
-fn push_text(entity : @entity.Entity, camera_entity_id? : UInt? = None) -> Unit {
+fn push_text(
+  entity : @entity.Entity,
+  camera_entity_id~ : UInt32? = None,
+) -> Unit {
   guard texts().get(entity) is Some(_) else { return }
   guard global_ui_nodes().get(entity) is Some(transform) else { return }
   guard render_text_style(entity) is Some(style) else { return }
@@ -860,7 +863,7 @@ fn inherited_clip_for_entity(entity : @entity.Entity) -> @math.Rect? {
 ///|
 fn render_entity(
   entity : @entity.Entity,
-  camera_entity_id? : UInt? = None,
+  camera_entity_id~ : UInt32? = None,
 ) -> Unit {
   guard should_render_ui(entity) else { return }
   guard nodes().get(entity) is Some(node) else { return }
@@ -914,7 +917,7 @@ fn render_entity(
 }
 
 ///|
-fn render_target_camera_id(entity : @entity.Entity) -> UInt? {
+fn render_target_camera_id(entity : @entity.Entity) -> UInt32? {
   global_ui_nodes()
   .get(entity)
   .map(fn(transform) { transform.target_camera.map(fn(camera) { camera.id() }) })

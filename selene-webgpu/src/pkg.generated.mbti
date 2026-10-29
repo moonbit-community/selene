@@ -28,7 +28,7 @@ pub fn draw_rect(@render2d_types.RectDrawCommand2D) -> Unit
 
 pub fn draw_text(@render2d_types.TextDrawCommand2D) -> Unit
 
-pub fn font_metrics_revision(String) -> UInt
+pub fn font_metrics_revision(String) -> UInt32
 
 pub fn frame_begin(@render.Color) -> Unit
 
@@ -42,7 +42,7 @@ pub fn get_time_scale() -> Double
 
 pub fn initialize(@platform_runtime.WindowConfig, @platform_runtime.RunnerCallbacks) -> () -> Unit
 
-pub fn is_finished(instance~ : Int) -> Bool
+pub fn is_finished(instance~ : Int32) -> Bool
 
 pub fn load_font(String, String) -> Unit
 
@@ -50,7 +50,7 @@ pub fn lock_mouse(@ref.Ref[Bool]) -> Unit
 
 pub fn measure_text(@render2d_types.TextStyle2D, String) -> @math.Vec2
 
-pub fn play_audio(audio_path~ : String, volume~ : Double, speed~ : Double, loop_~ : Bool, paused~ : Bool) -> Int
+pub fn play_audio(audio_path~ : String, volume~ : Double, speed~ : Double, loop_~ : Bool, paused~ : Bool) -> Int32
 
 pub fn pop_clip_rect() -> Unit
 
@@ -90,19 +90,19 @@ pub fn reset_clip_stack() -> Unit
 
 pub fn set_embedded_assets((String) -> Bytes?) -> Unit
 
-pub fn set_loop(instance~ : Int, loop_~ : Bool) -> Unit
+pub fn set_loop(instance~ : Int32, loop_~ : Bool) -> Unit
 
-pub fn set_paused(instance~ : Int, paused~ : Bool) -> Unit
+pub fn set_paused(instance~ : Int32, paused~ : Bool) -> Unit
 
 pub fn set_render3d_lighting_mode(Render3DLightingMode) -> Unit
 
-pub fn set_speed(instance~ : Int, speed~ : Double) -> Unit
+pub fn set_speed(instance~ : Int32, speed~ : Double) -> Unit
 
 pub fn set_time_scale(Double) -> Unit
 
-pub fn set_volume(instance~ : Int, volume~ : Double) -> Unit
+pub fn set_volume(instance~ : Int32, volume~ : Double) -> Unit
 
-pub fn stop(instance~ : Int) -> Unit
+pub fn stop(instance~ : Int32) -> Unit
 
 pub fn sync_cubemap_asset(@render3d_types.CubemapHandle, @render3d_types.CubemapAsset3D) -> Unit
 
@@ -144,15 +144,15 @@ pub fn Render3DLightingMode::not_equal(Self, Self) -> Bool
 pub fn Render3DLightingMode::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Render3DSubmissionStatsSnapshot {
-  sections : Int
-  submitted_items : Int
-  skipped_items : Int
-  command_groups : Int
-  draw_commands : Int
-  lit_triangle_commands : Int
-  textured_triangle_commands : Int
-  uploaded_vertex_bytes : Int
-  render_bind_group_creations : Int
+  sections : Int32
+  submitted_items : Int32
+  skipped_items : Int32
+  command_groups : Int32
+  draw_commands : Int32
+  lit_triangle_commands : Int32
+  textured_triangle_commands : Int32
+  uploaded_vertex_bytes : Int32
+  render_bind_group_creations : Int32
 } derive(Eq, @debug.Debug)
 pub fn Render3DSubmissionStatsSnapshot::equal(Self, Self) -> Bool
 pub fn Render3DSubmissionStatsSnapshot::not_equal(Self, Self) -> Bool
@@ -184,6 +184,6 @@ pub fn WebGpuRender3DTimingSnapshot::not_equal(Self, Self) -> Bool
 pub fn WebGpuRender3DTimingSnapshot::to_repr(Self) -> @debug.Repr
 
 // Type aliases
-pub type AudioInstance = Int
+pub type AudioInstance = Int32
 
 // Traits

@@ -13,7 +13,7 @@ extern "js" fn perf_query_mode(default_value : String) -> String =
   #| }
 
 ///|
-extern "js" fn perf_query_count(default_value : Int) -> Int =
+extern "js" fn perf_query_count(default_value : Int32) -> Int32 =
   #| (defaultValue) => {
   #|   const params = new URLSearchParams(globalThis.location?.search || "");
   #|   const parsed = Number.parseInt(params.get("count") || "", 10);
@@ -34,14 +34,14 @@ extern "js" fn perf_now_ms() -> Double = "() => performance.now()"
 ///|
 extern "js" fn perf_publish_live(
   case_name : String,
-  count : Int,
+  count : Int32,
   duration : Double,
-  frames : Int,
+  frames : Int32,
   fps : Double,
   p95_frame_ms : Double,
   p95_work_ms : Double,
-  draw_commands : Int,
-  uploaded_vertex_bytes : Int,
+  draw_commands : Int32,
+  uploaded_vertex_bytes : Int32,
 ) -> Unit =
   #| (caseName, count, duration, frames, fps, p95FrameMs, p95WorkMs, drawCommands, uploadedVertexBytes) => {
   #|   const target = globalThis.document?.getElementById("perf-live");
@@ -63,9 +63,9 @@ extern "js" fn perf_publish_live(
 extern "js" fn perf_publish_result(
   case_name : String,
   mode : String,
-  count : Int,
+  count : Int32,
   duration : Double,
-  frames : Int,
+  frames : Int32,
   avg_fps : Double,
   p50_frame_ms : Double,
   p95_frame_ms : Double,
@@ -78,11 +78,11 @@ extern "js" fn perf_publish_result(
   p95_render3d_submit_ms : Double,
   p95_render3d_items_ms : Double,
   p95_render3d_flush_ms : Double,
-  submitted_items : Int,
-  draw_commands : Int,
-  command_groups : Int,
-  uploaded_vertex_bytes : Int,
-  render_bind_group_creations : Int,
+  submitted_items : Int32,
+  draw_commands : Int32,
+  command_groups : Int32,
+  uploaded_vertex_bytes : Int32,
+  render_bind_group_creations : Int32,
 ) -> Unit =
   #| (
   #|   caseName,

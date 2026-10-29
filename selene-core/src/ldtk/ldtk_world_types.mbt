@@ -11,7 +11,7 @@ fn set_entity_translation_2d(
 }
 
 ///|
-fn set_entity_depth(entity : @entity.Entity, z : Int) -> Unit {
+fn set_entity_depth(entity : @entity.Entity, z : Int32) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
@@ -42,9 +42,9 @@ fn ldtk_sprite_anchor_for_pixel_offset(
 ///|
 pub struct LdtkWorldSpawnSettings {
   position : @math.Vec2
-  zindex : Int
-  level_z_step : Int
-  layer_z_step : Int
+  zindex : Int32
+  level_z_step : Int32
+  layer_z_step : Int32
   spawn_hidden_layers : Bool
   follow_level_selection : Bool
   initial_level_set : LdtkLevelSet?
@@ -74,24 +74,24 @@ pub struct LdtkLevelInstance {
 
 ///|
 pub struct LdtkLayerMetadata {
-  c_hei : Int
-  c_wid : Int
-  grid_size : Int
+  c_hei : Int32
+  c_wid : Int32
+  grid_size : Int32
   identifier : String
   opacity : Double
-  px_total_offset_x : Int
-  px_total_offset_y : Int
-  tileset_def_uid : Int?
+  px_total_offset_x : Int32
+  px_total_offset_y : Int32
+  tileset_def_uid : Int32?
   tileset_rel_path : String?
   layer_type : String
   iid : String
-  layer_def_uid : Int
-  level_id : Int
-  optional_rules : Array[Int]
-  override_tileset_uid : Int?
-  px_offset_x : Int
-  px_offset_y : Int
-  seed : Int
+  layer_def_uid : Int32
+  level_id : Int32
+  optional_rules : Array[Int32]
+  override_tileset_uid : Int32?
+  px_offset_x : Int32
+  px_offset_y : Int32
+  seed : Int32
   visible : Bool
 }
 
@@ -102,7 +102,7 @@ pub struct LdtkLevelBackground {
   level_iid : String
   color : String?
   rel_path : String?
-  zindex : Int
+  zindex : Int32
 }
 
 ///|
@@ -117,18 +117,18 @@ pub struct LdtkEntityIid {
 
 ///|
 pub struct LdtkGridCoords {
-  x : Int
-  y : Int
+  x : Int32
+  y : Int32
 }
 
 ///|
 pub struct LdtkIntGridCell {
-  value : Int
+  value : Int32
 }
 
 ///|
 pub struct LdtkTileMetadata {
-  tile_id : Int
+  tile_id : Int32
   src : @math.Vec2
   flip_x : Bool
   flip_y : Bool
@@ -160,7 +160,7 @@ pub struct LdtkSpawnedLayerInstance {
   level_entity : @entity.Entity
   layer : LdtkLayerInstance
   effective_visible : Bool
-  zindex : Int
+  zindex : Int32
 }
 
 ///|
@@ -170,7 +170,7 @@ pub struct LdtkSpawnedTileInstance {
   layer_entity : @entity.Entity
   layer : LdtkLayerInstance
   tile : LdtkTileInstance
-  zindex : Int
+  zindex : Int32
 }
 
 ///|
@@ -180,7 +180,7 @@ pub struct LdtkSpawnedEntityInstance {
   layer_entity : @entity.Entity
   layer : LdtkLayerInstance
   instance : LdtkEntityInstance
-  zindex : Int
+  zindex : Int32
 }
 
 ///|
@@ -189,10 +189,10 @@ pub struct LdtkSpawnedIntGridCell {
   level_entity : @entity.Entity
   layer_entity : @entity.Entity
   layer : LdtkLayerInstance
-  value : Int
-  grid_x : Int
-  grid_y : Int
-  zindex : Int
+  value : Int32
+  grid_x : Int32
+  grid_y : Int32
+  zindex : Int32
 }
 
 ///|
@@ -247,7 +247,7 @@ priv struct LdtkWorldStore {
 }
 
 ///|
-let ldtk_world_stores : Map[UInt, LdtkWorldStore] = Map([])
+let ldtk_world_stores : Map[UInt32, LdtkWorldStore] = Map([])
 
 ///|
 fn ldtk_world_store() -> LdtkWorldStore {

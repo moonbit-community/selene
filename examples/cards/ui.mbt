@@ -13,13 +13,13 @@
 // limitations under the License.
 
 ///|
-const HUD_ZINDEX : Int = 100
+const HUD_ZINDEX : Int32 = 100
 
 ///|
-const BUTTON_ZINDEX : Int = 110
+const BUTTON_ZINDEX : Int32 = 110
 
 ///|
-const BUTTON_LABEL_ZINDEX : Int = 111
+const BUTTON_LABEL_ZINDEX : Int32 = 111
 
 ///|
 let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = EventReader()
@@ -83,10 +83,10 @@ fn configure_text(
   content : String,
   color : String,
   font : String,
-  size? : @math.Vec2 = Vec2(-1.0, -1.0),
-  align? : @math.HAlign = Left,
-  baseline? : @math.VAlign = Top,
-  zindex? : Int = HUD_ZINDEX,
+  size~ : @math.Vec2 = Vec2(-1.0, -1.0),
+  align~ : @math.HAlign = Left,
+  baseline~ : @math.VAlign = Top,
+  zindex~ : Int32 = HUD_ZINDEX,
 ) -> Unit {
   @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
   @ui.z_indexes().set(entity, ZIndex(zindex))
@@ -102,7 +102,7 @@ fn configure_button(
   offset : @math.Vec2,
   size : @math.Vec2,
   background : String,
-  tab_index : Int,
+  tab_index : Int32,
 ) -> Unit {
   @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
   @ui.z_indexes().set(entity, ZIndex(BUTTON_ZINDEX))

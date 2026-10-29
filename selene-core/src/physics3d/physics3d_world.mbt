@@ -89,7 +89,7 @@ pub fn Collider::convex_hull(points : Array[@math.Vec3]) -> Collider {
 ///|
 pub fn Collider::trimesh(
   vertices : Array[@math.Vec3],
-  indices : Array[(Int, Int, Int)],
+  indices : Array[(Int32, Int32, Int32)],
 ) -> Collider {
   TriMesh(vertices, indices)
 }
@@ -97,8 +97,8 @@ pub fn Collider::trimesh(
 ///|
 pub fn Collider::heightfield(
   heights : Array[Double],
-  nrows : Int,
-  ncols : Int,
+  nrows : Int32,
+  ncols : Int32,
   scale : @math.Vec3,
 ) -> Collider {
   Heightfield(heights, nrows, ncols, scale)
@@ -106,8 +106,8 @@ pub fn Collider::heightfield(
 
 ///|
 pub fn CollisionGroups::CollisionGroups(
-  memberships : Int,
-  filters : Int,
+  memberships : Int32,
+  filters : Int32,
 ) -> CollisionGroups {
   { memberships, filters, }
 }
@@ -119,8 +119,8 @@ pub fn CollisionGroups::all() -> CollisionGroups {
 
 ///|
 pub fn SolverGroups::SolverGroups(
-  memberships : Int,
-  filters : Int,
+  memberships : Int32,
+  filters : Int32,
 ) -> SolverGroups {
   { memberships, filters, }
 }

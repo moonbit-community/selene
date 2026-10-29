@@ -54,9 +54,9 @@ fn configure_text_box(
   content : String,
   color : String,
   font : String,
-  size? : @math.Vec2 = Vec2(-1.0, -1.0),
-  align? : @math.HAlign = Left,
-  baseline? : @math.VAlign = Top,
+  size~ : @math.Vec2 = Vec2(-1.0, -1.0),
+  align~ : @math.HAlign = Left,
+  baseline~ : @math.VAlign = Top,
 ) -> Unit {
   @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
   @ui.z_indexes().set(entity, ZIndex(HUD_ZINDEX))

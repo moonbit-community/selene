@@ -1,17 +1,14 @@
 # Selene 游戏引擎 [English](./README.md)
 
-Selene 是一个面向 MoonBit 的 ECS 游戏引擎，采用 WebGPU 作为 Web 主线后端，并提供 raylib 原生后端，同时包含仓库内的场景编辑器栈。
+Selene 是一个面向 MoonBit 的 ECS 游戏引擎，采用 WebGPU 作为 Web 主线后端，并提供 raylib 原生后端。
 
 ## 包结构
 
 | 包名 | 作用 |
 | --- | --- |
-| `Milky2018/selene` | 核心 ECS/运行时模块（`app`、`asset`、`editor_bridge`、`animation`、`scene`、`physics2d/3d`、`render2d/3d`、`ui`） |
+| `Milky2018/selene` | 核心 ECS/运行时模块（`app`、`asset`、`animation`、`scene`、`physics2d/3d`、`render2d/3d`、`ui`） |
 | `Milky2018/selene_webgpu` | Web 后端实现 |
 | `Milky2018/selene_raylib` | 原生后端实现 |
-| `Milky2018/selene_editor_shared` | 编辑器共享协议与桥接契约 |
-| `Milky2018/selene_editor_frontend` | 编辑器浏览器前端与预览运行时 |
-| `Milky2018/selene_editor_service` | 编辑器本地原生服务 |
 
 ## 快速开始
 
@@ -22,16 +19,6 @@ python3 -m http.server 8000
 ```
 
 打开 `http://localhost:8000/examples/index.html`。
-
-## 编辑器
-
-在仓库根目录运行：
-
-```bash
-just editor
-```
-
-这会构建前端 bundle、复制到 service，并在 `47142` 端口启动本地编辑器服务。
 
 ## 文档
 

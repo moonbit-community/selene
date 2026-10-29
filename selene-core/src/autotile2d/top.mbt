@@ -22,59 +22,59 @@ pub fn autotile_rule_set_wang() -> AutoTileRuleSetKind {
 
 ///|
 pub struct AutoTileCell {
-  x : Int
-  y : Int
-  terrain : Int
+  x : Int32
+  y : Int32
+  terrain : Int32
 } derive(Debug, Eq, ToJson, FromJson)
 
 ///|
-pub fn autotile_cell(x : Int, y : Int, terrain : Int) -> AutoTileCell {
+pub fn autotile_cell(x : Int32, y : Int32, terrain : Int32) -> AutoTileCell {
   { x, y, terrain, }
 }
 
 ///|
 pub struct AutoTileMaskRule {
-  mask : Int
+  mask : Int32
   region_name : String
-  atlas_index : Int
+  atlas_index : Int32
 } derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub fn autotile_mask_rule(
-  mask : Int,
+  mask : Int32,
   region_name : String,
-  atlas_index? : Int = 0,
+  atlas_index~ : Int32 = 0,
 ) -> AutoTileMaskRule {
   { mask, region_name, atlas_index, }
 }
 
 ///|
 pub struct AutoTileWangRule {
-  north : Int
-  east : Int
-  south : Int
-  west : Int
+  north : Int32
+  east : Int32
+  south : Int32
+  west : Int32
   region_name : String
-  atlas_index : Int
+  atlas_index : Int32
 } derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub fn autotile_wang_rule(
-  north : Int,
-  east : Int,
-  south : Int,
-  west : Int,
+  north : Int32,
+  east : Int32,
+  south : Int32,
+  west : Int32,
   region_name : String,
-  atlas_index? : Int = 0,
+  atlas_index~ : Int32 = 0,
 ) -> AutoTileWangRule {
   { north, east, south, west, region_name, atlas_index, }
 }
 
 ///|
 pub struct AutoTilePaletteEntry {
-  terrain : Int
+  terrain : Int32
   fallback_region_name : String
-  fallback_atlas_index : Int
+  fallback_atlas_index : Int32
   bitmask4_rules : Array[AutoTileMaskRule]
   bitmask8_rules : Array[AutoTileMaskRule]
   wang_rules : Array[AutoTileWangRule]
@@ -82,12 +82,12 @@ pub struct AutoTilePaletteEntry {
 
 ///|
 pub fn autotile_palette_entry(
-  terrain : Int,
+  terrain : Int32,
   fallback_region_name : String,
-  fallback_atlas_index? : Int = 0,
-  bitmask4_rules? : Array[AutoTileMaskRule] = [],
-  bitmask8_rules? : Array[AutoTileMaskRule] = [],
-  wang_rules? : Array[AutoTileWangRule] = [],
+  fallback_atlas_index~ : Int32 = 0,
+  bitmask4_rules~ : Array[AutoTileMaskRule] = [],
+  bitmask8_rules~ : Array[AutoTileMaskRule] = [],
+  wang_rules~ : Array[AutoTileWangRule] = [],
 ) -> AutoTilePaletteEntry {
   {
     terrain,
@@ -113,14 +113,14 @@ pub struct AutoTileLayerSource {
 
 ///|
 pub fn autotile_layer_source(
-  tile_width? : Double = 16.0,
-  tile_height? : Double = 16.0,
-  origin_x? : Double = 0.0,
-  origin_y? : Double = 0.0,
-  atlas_asset_path? : String = "",
-  rule_set? : AutoTileRuleSetKind = Bitmask8,
-  palette? : Array[AutoTilePaletteEntry] = [],
-  cells? : Array[AutoTileCell] = [],
+  tile_width~ : Double = 16.0,
+  tile_height~ : Double = 16.0,
+  origin_x~ : Double = 0.0,
+  origin_y~ : Double = 0.0,
+  atlas_asset_path~ : String = "",
+  rule_set~ : AutoTileRuleSetKind = Bitmask8,
+  palette~ : Array[AutoTilePaletteEntry] = [],
+  cells~ : Array[AutoTileCell] = [],
 ) -> AutoTileLayerSource {
   {
     tile_width,
@@ -136,30 +136,30 @@ pub fn autotile_layer_source(
 
 ///|
 pub struct AutoTileSolvedTile {
-  x : Int
-  y : Int
+  x : Int32
+  y : Int32
   region_name : String
-  atlas_index : Int
+  atlas_index : Int32
 } derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub fn autotile_solved_tile(
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
   region_name : String,
-  atlas_index? : Int = 0,
+  atlas_index~ : Int32 = 0,
 ) -> AutoTileSolvedTile {
   { x, y, region_name, atlas_index, }
 }
 
 ///|
 pub struct AutoTileGridPos {
-  x : Int
-  y : Int
+  x : Int32
+  y : Int32
 } derive(Debug, Eq, ToJson, FromJson)
 
 ///|
-pub fn autotile_grid_pos(x : Int, y : Int) -> AutoTileGridPos {
+pub fn autotile_grid_pos(x : Int32, y : Int32) -> AutoTileGridPos {
   { x, y, }
 }
 
@@ -173,8 +173,8 @@ pub struct AutoTileDiff {
 ///|
 pub fn autotile_diff(
   source : AutoTileLayerSource,
-  changed_tiles? : Array[AutoTileSolvedTile] = [],
-  removed_tiles? : Array[AutoTileGridPos] = [],
+  changed_tiles~ : Array[AutoTileSolvedTile] = [],
+  removed_tiles~ : Array[AutoTileGridPos] = [],
 ) -> AutoTileDiff {
   { source, changed_tiles, removed_tiles, }
 }
@@ -189,10 +189,10 @@ pub struct AutoTileVisual {
 
 ///|
 pub fn autotile_visual(
-  image_path? : String? = None,
-  rect? : @math.Rect? = None,
-  custom_size? : @math.Vec2? = None,
-  anchor? : @sprite.Anchor = @sprite.default_anchor(),
+  image_path~ : String? = None,
+  rect~ : @math.Rect? = None,
+  custom_size~ : @math.Vec2? = None,
+  anchor~ : @sprite.Anchor = @sprite.default_anchor(),
 ) -> AutoTileVisual {
   { image_path, rect, custom_size, anchor, }
 }
@@ -208,14 +208,14 @@ pub struct AutoTileRuntimeContext {
 
 ///|
 pub fn autotile_runtime_context(
-  visual_resolver? : AutoTileVisualResolver? = None,
-  z? : Double = 0.0,
+  visual_resolver~ : AutoTileVisualResolver? = None,
+  z~ : Double = 0.0,
 ) -> AutoTileRuntimeContext {
   { visual_resolver, z, }
 }
 
 ///|
-fn cell_key(x : Int, y : Int) -> String {
+fn cell_key(x : Int32, y : Int32) -> String {
   x.to_string() + "," + y.to_string()
 }
 
@@ -231,12 +231,17 @@ fn pos_of_key(key : String) -> AutoTileGridPos {
 }
 
 ///|
-fn neighbor_terrain(cells : Map[String, Int], x : Int, y : Int) -> Int? {
+fn neighbor_terrain(cells : Map[String, Int32], x : Int32, y : Int32) -> Int32? {
   cells.get(cell_key(x, y))
 }
 
 ///|
-fn bitmask4(cells : Map[String, Int], x : Int, y : Int, terrain : Int) -> Int {
+fn bitmask4(
+  cells : Map[String, Int32],
+  x : Int32,
+  y : Int32,
+  terrain : Int32,
+) -> Int32 {
   let north = neighbor_terrain(cells, x, y - 1) == Some(terrain)
   let east = neighbor_terrain(cells, x + 1, y) == Some(terrain)
   let south = neighbor_terrain(cells, x, y + 1) == Some(terrain)
@@ -248,7 +253,12 @@ fn bitmask4(cells : Map[String, Int], x : Int, y : Int, terrain : Int) -> Int {
 }
 
 ///|
-fn bitmask8(cells : Map[String, Int], x : Int, y : Int, terrain : Int) -> Int {
+fn bitmask8(
+  cells : Map[String, Int32],
+  x : Int32,
+  y : Int32,
+  terrain : Int32,
+) -> Int32 {
   let north = neighbor_terrain(cells, x, y - 1) == Some(terrain)
   let east = neighbor_terrain(cells, x + 1, y) == Some(terrain)
   let south = neighbor_terrain(cells, x, y + 1) == Some(terrain)
@@ -276,7 +286,11 @@ fn bitmask8(cells : Map[String, Int], x : Int, y : Int, terrain : Int) -> Int {
 }
 
 ///|
-fn wang_key(cells : Map[String, Int], x : Int, y : Int) -> AutoTileWangRule {
+fn wang_key(
+  cells : Map[String, Int32],
+  x : Int32,
+  y : Int32,
+) -> AutoTileWangRule {
   {
     north: neighbor_terrain(cells, x, y - 1).unwrap_or(0),
     east: neighbor_terrain(cells, x + 1, y).unwrap_or(0),
@@ -290,7 +304,7 @@ fn wang_key(cells : Map[String, Int], x : Int, y : Int) -> AutoTileWangRule {
 ///|
 fn palette_for_terrain(
   source : AutoTileLayerSource,
-  terrain : Int,
+  terrain : Int32,
 ) -> AutoTilePaletteEntry? {
   for entry in source.palette {
     if entry.terrain == terrain {
@@ -303,10 +317,10 @@ fn palette_for_terrain(
 ///|
 fn solved_tile_for(
   source : AutoTileLayerSource,
-  cells : Map[String, Int],
-  x : Int,
-  y : Int,
-  terrain : Int,
+  cells : Map[String, Int32],
+  x : Int32,
+  y : Int32,
+  terrain : Int32,
 ) -> AutoTileSolvedTile {
   let fallback = { x, y, region_name: "", atlas_index: 0, }
   let palette = match palette_for_terrain(source, terrain) {
@@ -366,7 +380,7 @@ fn solved_tile_for(
 }
 
 ///|
-fn sorted_cell_keys(cells : Map[String, Int]) -> Array[String] {
+fn sorted_cell_keys(cells : Map[String, Int32]) -> Array[String] {
   let keys : Array[String] = []
   for key, _ in cells {
     keys.push(key)
@@ -384,8 +398,8 @@ fn sorted_cell_keys(cells : Map[String, Int]) -> Array[String] {
 }
 
 ///|
-fn cells_map_of(source : AutoTileLayerSource) -> Map[String, Int] {
-  let cells : Map[String, Int] = Map([])
+fn cells_map_of(source : AutoTileLayerSource) -> Map[String, Int32] {
+  let cells : Map[String, Int32] = Map([])
   for cell in source.cells {
     cells.set(cell_key(cell.x, cell.y), cell.terrain)
   }
@@ -393,7 +407,7 @@ fn cells_map_of(source : AutoTileLayerSource) -> Map[String, Int] {
 }
 
 ///|
-fn cells_array_of(map : Map[String, Int]) -> Array[AutoTileCell] {
+fn cells_array_of(map : Map[String, Int32]) -> Array[AutoTileCell] {
   let cells : Array[AutoTileCell] = []
   for key in sorted_cell_keys(map) {
     let pos = pos_of_key(key)
@@ -406,7 +420,7 @@ fn cells_array_of(map : Map[String, Int]) -> Array[AutoTileCell] {
 ///|
 fn solve_from_cells(
   source : AutoTileLayerSource,
-  cells : Map[String, Int],
+  cells : Map[String, Int32],
 ) -> Array[AutoTileSolvedTile] {
   let solved : Array[AutoTileSolvedTile] = []
   for key in sorted_cell_keys(cells) {
@@ -425,7 +439,7 @@ pub fn solve_autotile_layer(
 }
 
 ///|
-fn affected_keys(x : Int, y : Int) -> Array[String] {
+fn affected_keys(x : Int32, y : Int32) -> Array[String] {
   let keys : Array[String] = []
   for dy = -1; dy <= 1; dy = dy + 1 {
     for dx = -1; dx <= 1; dx = dx + 1 {
@@ -438,7 +452,7 @@ fn affected_keys(x : Int, y : Int) -> Array[String] {
 ///|
 fn solved_map_of(
   source : AutoTileLayerSource,
-  cells : Map[String, Int],
+  cells : Map[String, Int32],
   keys : Array[String],
 ) -> Map[String, AutoTileSolvedTile] {
   let solved : Map[String, AutoTileSolvedTile] = Map([])
@@ -477,12 +491,12 @@ fn sort_grid_positions(positions : Array[AutoTileGridPos]) -> Unit {
 ///|
 pub fn update_cell_and_resolve_diff(
   source : AutoTileLayerSource,
-  x : Int,
-  y : Int,
-  terrain : Int?,
+  x : Int32,
+  y : Int32,
+  terrain : Int32?,
 ) -> AutoTileDiff {
   let before_cells = cells_map_of(source)
-  let after_cells : Map[String, Int] = Map([])
+  let after_cells : Map[String, Int32] = Map([])
   for key, value in before_cells {
     after_cells.set(key, value)
   }
@@ -531,7 +545,7 @@ priv struct AutoTileWorldStore {
 }
 
 ///|
-let autotile_world_stores : Map[UInt, AutoTileWorldStore] = Map([])
+let autotile_world_stores : Map[UInt32, AutoTileWorldStore] = Map([])
 
 ///|
 fn autotile_world_store() -> AutoTileWorldStore {
@@ -540,7 +554,11 @@ fn autotile_world_store() -> AutoTileWorldStore {
 }
 
 ///|
-fn tile_position(source : AutoTileLayerSource, x : Int, y : Int) -> @math.Vec2 {
+fn tile_position(
+  source : AutoTileLayerSource,
+  x : Int32,
+  y : Int32,
+) -> @math.Vec2 {
   Vec2(
     source.origin_x + (x.to_double() + 0.5) * source.tile_width,
     source.origin_y + (y.to_double() + 0.5) * source.tile_height,
@@ -589,7 +607,7 @@ fn destroy_layer_tiles(state : RuntimeLayerState) -> Unit {
 pub fn register_runtime_layer(
   layer_entity : @entity.Entity,
   source : AutoTileLayerSource,
-  context? : AutoTileRuntimeContext = autotile_runtime_context(),
+  context~ : AutoTileRuntimeContext = autotile_runtime_context(),
 ) -> Unit {
   let store = autotile_world_store()
   if store.layers.get(layer_entity) is Some(previous) {
@@ -641,9 +659,9 @@ fn apply_diff_to_runtime(
 ///|
 pub fn set_runtime_cell(
   layer_entity : @entity.Entity,
-  x : Int,
-  y : Int,
-  terrain : Int,
+  x : Int32,
+  y : Int32,
+  terrain : Int32,
 ) -> Unit {
   let store = autotile_world_store()
   guard store.layers.get(layer_entity) is Some(state) else { return }
@@ -657,8 +675,8 @@ pub fn set_runtime_cell(
 ///|
 pub fn remove_runtime_cell(
   layer_entity : @entity.Entity,
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
 ) -> Unit {
   let store = autotile_world_store()
   guard store.layers.get(layer_entity) is Some(state) else { return }
