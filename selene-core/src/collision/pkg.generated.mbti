@@ -31,7 +31,7 @@ pub fn collider_handle(@entity.Entity) -> @Milky2018/moon_rapier/collision.Colli
 
 pub fn colliders() -> Map[@entity.Entity, Collider]
 
-pub fn configure_physics(gravity? : @math.Vec2, pixels_per_meter? : Double, max_ccd_substeps? : Int) -> Unit
+pub fn configure_physics(gravity? : @math.Vec2, pixels_per_meter? : Double, max_ccd_substeps? : Int32) -> Unit
 
 pub let contact_event_bus : @event.Events[ContactEvent]
 
@@ -138,7 +138,7 @@ pub fn CollisionFilter::equal(Self, Self) -> Bool
 pub fn CollisionFilter::not_equal(Self, Self) -> Bool
 
 pub struct CollisionGroup {
-  value : UInt
+  value : UInt32
 } derive(Eq)
 pub fn CollisionGroup::CollisionGroup() -> Self
 pub fn CollisionGroup::equal(Self, Self) -> Bool
@@ -246,7 +246,7 @@ pub fn MultibodyJointKind::to_repr(Self) -> @debug.Repr
 pub(all) struct PhysicsConfig {
   mut gravity : @math.Vec2
   mut pixels_per_meter : Double
-  mut max_ccd_substeps : Int
+  mut max_ccd_substeps : Int32
 }
 
 pub(all) struct Pickable {

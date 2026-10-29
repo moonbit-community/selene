@@ -14,15 +14,15 @@
 
 ///|
 enum HandRank {
-  HighCard(Int) // A-H
-  OnePair(Int) // A-H, A-D
-  TwoPair(Int, Int) // A-H, A-D, 2-C, 2-D
-  ThreeOfKind(Int) // A-H, A-D, A-C
-  Straight(Int) // A-H, 2-D, 3-C, 4-D, 5-H
-  Flush(Int) // A-H, 2-H, 3-H, 4-H, 5-H
-  FullHouse(Int, Int) // A-H, A-D, 2-C, 2-D, 2-S
-  FourOfKind(Int) // A-H, A-D, A-C, A-S
-  StraightFlush(Int) // 10-D, J-D, Q-D, K-D, A-D
+  HighCard(Int32) // A-H
+  OnePair(Int32) // A-H, A-D
+  TwoPair(Int32, Int32) // A-H, A-D, 2-C, 2-D
+  ThreeOfKind(Int32) // A-H, A-D, A-C
+  Straight(Int32) // A-H, 2-D, 3-C, 4-D, 5-H
+  Flush(Int32) // A-H, 2-H, 3-H, 4-H, 5-H
+  FullHouse(Int32, Int32) // A-H, A-D, 2-C, 2-D, 2-S
+  FourOfKind(Int32) // A-H, A-D, A-C, A-S
+  StraightFlush(Int32) // 10-D, J-D, Q-D, K-D, A-D
 } derive(Debug)
 
 ///|
@@ -43,7 +43,7 @@ fn HandRank::hand_rank_to_string(rank : HandRank) -> String {
 
 ///|
 /// Get base award multiplier for each hand rank
-fn hand_rank_base_award(rank : HandRank) -> Int {
+fn hand_rank_base_award(rank : HandRank) -> Int32 {
   match rank {
     HighCard(n) => n
     OnePair(n) => 15 + n * 2
@@ -96,7 +96,7 @@ fn find_best_hand(cards : Array[Card]) -> HandRank {
 }
 
 ///|
-fn count_by_num(hand : Array[Card]) -> Map[CardNum, Int] {
+fn count_by_num(hand : Array[Card]) -> Map[CardNum, Int32] {
   let map = Map([])
   for card in hand {
     let count = map.get(card.0).unwrap_or(0)
@@ -106,7 +106,7 @@ fn count_by_num(hand : Array[Card]) -> Map[CardNum, Int] {
 }
 
 ///|
-fn count_by_suit(hand : Array[Card]) -> Map[CardSuit, Int] {
+fn count_by_suit(hand : Array[Card]) -> Map[CardSuit, Int32] {
   let map = Map([])
   for card in hand {
     let count = map.get(card.1).unwrap_or(0)
@@ -116,7 +116,7 @@ fn count_by_suit(hand : Array[Card]) -> Map[CardSuit, Int] {
 }
 
 ///|
-fn is_straight(hand : Array[Card]) -> Int? {
+fn is_straight(hand : Array[Card]) -> Int32? {
   if count_by_num(hand).length() < 5 {
     return None
   }
@@ -132,7 +132,7 @@ fn is_straight(hand : Array[Card]) -> Int? {
 }
 
 ///|
-fn is_flush(hand : Array[Card]) -> Int? {
+fn is_flush(hand : Array[Card]) -> Int32? {
   // Check if there's a suit with 5+ cards
   let suit_counts = count_by_suit(hand)
   for entry in suit_counts {
@@ -177,8 +177,8 @@ fn eval_rank(hand : Array[Card]) -> HandRank {
     }
   }
   // FullHouse
-  let mut three_kind : Int? = None
-  let mut pair : Int? = None
+  let mut three_kind : Int32? = None
+  let mut pair : Int32? = None
   for entry in nums {
     if entry.1 == 3 {
       three_kind = Some(entry.0.to_int())

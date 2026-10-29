@@ -1,5 +1,5 @@
 ///|
-let touch_control_stores : Map[UInt, TouchControlsWorldStore] = Map([])
+let touch_control_stores : Map[UInt32, TouchControlsWorldStore] = Map([])
 
 ///|
 fn store() -> TouchControlsWorldStore {
@@ -81,9 +81,9 @@ pub fn spawn_mobile_platformer_controls(
   move_left_button : @inputs.VirtualButton,
   move_right_button : @inputs.VirtualButton,
   jump_button : @inputs.VirtualButton,
-  left_label? : String = "",
-  right_label? : String = "",
-  jump_label? : String = "JUMP",
+  left_label~ : String = "",
+  right_label~ : String = "",
+  jump_label~ : String = "JUMP",
 ) -> Unit {
   clear_controls()
   add_virtual_button_control(

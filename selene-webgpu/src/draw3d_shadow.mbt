@@ -6,8 +6,8 @@ priv struct DirectionalShadowBound3D {
 
 ///|
 priv struct DirectionalShadowCascade3D {
-  light_index : Int
-  cascade_index : Int
+  light_index : Int32
+  cascade_index : Int32
   light_view_projection : Array[Double]
   atlas_offset_x : Double
   atlas_offset_y : Double
@@ -28,7 +28,7 @@ priv struct CameraBasis3D {
 fn pack_directional_shadow_cascade_data(
   frame : @render3d_types.RenderFrame3D,
   aspect : Double,
-  mode? : Render3DLightingMode = Full,
+  mode~ : Render3DLightingMode = Full,
 ) -> Array[Double] {
   let values : Array[Double] = []
   match frame.camera {
@@ -58,7 +58,7 @@ fn pack_directional_shadow_cascade_data(
 ///|
 fn pack_spot_shadow_view_projection_data(
   frame : @render3d_types.RenderFrame3D,
-  mode? : Render3DLightingMode = Full,
+  mode~ : Render3DLightingMode = Full,
 ) -> Array[Double] {
   let values : Array[Double] = []
   let count = min_int(
@@ -77,7 +77,7 @@ fn pack_spot_shadow_view_projection_data(
 ///|
 fn pack_point_shadow_view_projection_data(
   frame : @render3d_types.RenderFrame3D,
-  mode? : Render3DLightingMode = Full,
+  mode~ : Render3DLightingMode = Full,
 ) -> Array[Double] {
   let values : Array[Double] = []
   let count = min_int(
@@ -101,7 +101,7 @@ fn pack_point_shadow_view_projection_data(
 ///|
 fn directional_shadow_cascades3d(
   light : @render3d_types.DirectionalLight3D,
-  light_index : Int,
+  light_index : Int32,
   camera : @render3d_types.FrameCamera3D,
   aspect : Double,
   tile_size : Double,
@@ -212,7 +212,7 @@ fn spot_shadow_view_projection3d(
 ///|
 fn point_shadow_face_view_projection3d(
   light : @render3d_types.FramePointLight3D,
-  face_index : Int,
+  face_index : Int32,
 ) -> Array[Double] {
   let (direction, up) = point_shadow_face3d(face_index)
   let (near_plane, far_plane) = shadow_near_far3d(
@@ -403,7 +403,7 @@ fn choose_shadow_up3d(direction : @smath.Vec3) -> @smath.Vec3 {
 }
 
 ///|
-fn directional_shadow_atlas_layout3d(cascade_count : Int) -> (Int, Int) {
+fn directional_shadow_atlas_layout3d(cascade_count : Int32) -> (Int32, Int32) {
   if cascade_count <= 1 {
     (1, 1)
   } else if cascade_count == 2 {
@@ -415,8 +415,8 @@ fn directional_shadow_atlas_layout3d(cascade_count : Int) -> (Int, Int) {
 
 ///|
 fn shadow_atlas_rect3d(
-  slot : Int,
-  columns : Int,
+  slot : Int32,
+  columns : Int32,
   tile_size : Double,
   atlas_width : Double,
   atlas_height : Double,
@@ -435,7 +435,7 @@ fn shadow_atlas_rect3d(
 }
 
 ///|
-fn point_shadow_face3d(face_index : Int) -> (@smath.Vec3, @smath.Vec3) {
+fn point_shadow_face3d(face_index : Int32) -> (@smath.Vec3, @smath.Vec3) {
   match face_index {
     0 => (Vec3(1.0, 0.0, 0.0), Vec3(0.0, -1.0, 0.0))
     1 => (Vec3(-1.0, 0.0, 0.0), Vec3(0.0, -1.0, 0.0))
@@ -512,7 +512,7 @@ fn append_directional_shadow_cascade3d(
 ///|
 fn append_spot_shadow_atlas_rect3d(
   values : Array[Double],
-  light_index : Int,
+  light_index : Int32,
 ) -> Unit {
   let (offset_x, offset_y, scale_x, scale_y) = shadow_atlas_rect3d(
     light_index, 2, 1.0, 2.0, 2.0,
@@ -526,8 +526,8 @@ fn append_spot_shadow_atlas_rect3d(
 ///|
 fn append_point_shadow_atlas_rect3d(
   values : Array[Double],
-  light_index : Int,
-  face_index : Int,
+  light_index : Int32,
+  face_index : Int32,
 ) -> Unit {
   let (offset_x, offset_y, scale_x, scale_y) = shadow_atlas_rect3d(
     light_index * 6 + face_index,

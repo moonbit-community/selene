@@ -30,7 +30,7 @@ priv struct WeaponData {
   base_range : Double
   speed_modifier : Double // Speed change when this weapon is added
   attack_speed_modifier : Double // Attack speed change when this weapon is added
-  penetration : Int // Number of enemies a bullet can hit
+  penetration : Int32 // Number of enemies a bullet can hit
 }
 
 ///|
@@ -110,7 +110,7 @@ fn get_weapon_name(weapon_type : WeaponType) -> String {
 }
 
 ///|
-fn get_weapon_weight(weapon_type : WeaponType, level : Int) -> Double {
+fn get_weapon_weight(weapon_type : WeaponType, level : Int32) -> Double {
   match weapon_type {
     Pistol => 10.0 + level.to_double() * 0.5
     Minigun => level.to_double() * 0.2
@@ -136,9 +136,9 @@ let weapon_timers : Array[Double] = []
 ///|
 priv struct PlayerBulletState {
   mut alive : Bool
-  mut penetration_count : Int
+  mut penetration_count : Int32
   damage : Double
-  penetration_limit : Int
+  penetration_limit : Int32
 }
 
 ///|
@@ -164,7 +164,7 @@ fn update_weapon_timers(
   attack_speed : Double,
   player_attack : Double,
   player_range : Double,
-  player_penetration : Int,
+  player_penetration : Int32,
   player_pos : @math.Vec2,
 ) -> Unit {
   // Initialize timers array if needed
@@ -212,7 +212,7 @@ fn shoot_weapon_bullet(
   target_pos : @math.Vec2,
   weapon_data : WeaponData,
   damage : Double,
-  total_penetration : Int,
+  total_penetration : Int32,
 ) -> Unit {
   let bullet_hitbox_size = 6.0
   let direction = target_pos - player_pos

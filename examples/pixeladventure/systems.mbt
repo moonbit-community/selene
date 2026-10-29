@@ -149,7 +149,7 @@ fn build_sprite_animation_clip_asset(
 fn install_sprite_animation_player(
   entity : @entity.Entity,
   animation : SpriteAnimationDef,
-  repeat? : @animation.RepeatAnimation = Forever,
+  repeat~ : @animation.RepeatAnimation = Forever,
 ) -> (@animation.AnimationGraphHandle, @animation.AnimationNodeIndex) {
   ensure_sprite_animation_binding(entity)
   let (graph, nodes) = @animation.AnimationGraph::from_clips([

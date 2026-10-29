@@ -81,7 +81,7 @@ priv struct Physics3DWorldStore {
 }
 
 ///|
-let physics3d_world_stores : Map[UInt, Physics3DWorldStore] = Map([])
+let physics3d_world_stores : Map[UInt32, Physics3DWorldStore] = Map([])
 
 ///|
 fn physics3d_world_store() -> Physics3DWorldStore {

@@ -4,7 +4,7 @@ fn parse_animation_channels(
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
-  target_ids : Map[Int, @animation.AnimationTargetId],
+  target_ids : Map[Int32, @animation.AnimationTargetId],
 ) -> Array[ParsedAnimationChannel] {
   guard field_array(animation_object, "samplers") is Some(samplers_json) else {
     return []
@@ -367,7 +367,7 @@ fn parse_texture_samplers(
 }
 
 ///|
-fn parse_texture_wrap(value : Int) -> @render3d.TextureWrap3D {
+fn parse_texture_wrap(value : Int32) -> @render3d.TextureWrap3D {
   match value {
     33071 => ClampToEdge
     33648 => MirroredRepeat
@@ -376,7 +376,7 @@ fn parse_texture_wrap(value : Int) -> @render3d.TextureWrap3D {
 }
 
 ///|
-fn parse_texture_mag_filter(value : Int) -> @render3d.TextureFilter3D {
+fn parse_texture_mag_filter(value : Int32) -> @render3d.TextureFilter3D {
   match value {
     9728 => Nearest
     _ => Linear
@@ -385,7 +385,7 @@ fn parse_texture_mag_filter(value : Int) -> @render3d.TextureFilter3D {
 
 ///|
 fn parse_texture_min_filter(
-  value : Int?,
+  value : Int32?,
 ) -> (@render3d.TextureFilter3D, @render3d.TextureFilter3D?) {
   match value {
     Some(9728) => (Nearest, None)

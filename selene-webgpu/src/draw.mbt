@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-fn alpha_mode_to_code(alpha_mode : @render.AlphaMode2D) -> Int {
+fn alpha_mode_to_code(alpha_mode : @render.AlphaMode2D) -> Int32 {
   match alpha_mode {
     Opaque => 0
     Blend => 1
@@ -21,7 +21,7 @@ fn alpha_mode_to_code(alpha_mode : @render.AlphaMode2D) -> Int {
 }
 
 ///|
-fn blend_mode_to_code(blend_mode : @render.BlendMode2D) -> Int {
+fn blend_mode_to_code(blend_mode : @render.BlendMode2D) -> Int32 {
   match blend_mode {
     Alpha => 0
     Additive => 1
@@ -32,9 +32,9 @@ fn blend_mode_to_code(blend_mode : @render.BlendMode2D) -> Int {
 ///|
 fn color_pipeline2d_code(
   topology : String,
-  alpha_code : Int,
-  blend_code : Int,
-) -> Int {
+  alpha_code : Int32,
+  blend_code : Int32,
+) -> Int32 {
   if topology == "line" {
     match blend_code {
       1 => 6
@@ -51,7 +51,7 @@ fn color_pipeline2d_code(
 }
 
 ///|
-fn texture_pipeline2d_code(alpha_code : Int, blend_code : Int) -> Int {
+fn texture_pipeline2d_code(alpha_code : Int32, blend_code : Int32) -> Int32 {
   match blend_code {
     1 => 10
     2 => 11
@@ -70,22 +70,22 @@ fn color_rgba(color : @render.Color) -> (Double, Double, Double, Double) {
 }
 
 ///|
-const MAX_DIRECTIONAL_LIGHTS : Int = 4
+const MAX_DIRECTIONAL_LIGHTS : Int32 = 4
 
 ///|
-const MAX_POINT_LIGHTS : Int = 8
+const MAX_POINT_LIGHTS : Int32 = 8
 
 ///|
-const MAX_SPOT_LIGHTS : Int = 4
+const MAX_SPOT_LIGHTS : Int32 = 4
 
 ///|
-const TEXTURED_SPHERE_SLICES : Int = 24
+const TEXTURED_SPHERE_SLICES : Int32 = 24
 
 ///|
-const TEXTURED_SPHERE_STACKS : Int = 16
+const TEXTURED_SPHERE_STACKS : Int32 = 16
 
 ///|
-const WEBGPU_PRIMITIVE_MESH_RESOURCE_TTL_FRAMES : Int = 120
+const WEBGPU_PRIMITIVE_MESH_RESOURCE_TTL_FRAMES : Int32 = 120
 
 ///|
 pub(all) enum Render3DLightingMode {
@@ -125,8 +125,8 @@ let textured_primitive_mesh_cache : Map[String, @render3d_types.TriangleMesh3D] 
 ///|
 priv struct MaterialTextureSource3D {
   path : String
-  texcoord_set : Int
-  sampler_code : Int
+  texcoord_set : Int32
+  sampler_code : Int32
 }
 
 ///|
@@ -136,7 +136,7 @@ priv struct MaterialTextureBundle3D {
   metallic_roughness_source : MaterialTextureSource3D?
   occlusion_source : MaterialTextureSource3D?
   normal_source : MaterialTextureSource3D?
-  primary_texcoord_set : Int
+  primary_texcoord_set : Int32
 }
 
 ///|
@@ -154,28 +154,28 @@ priv struct ResolvedRender3DMaterial {
 
 ///|
 priv struct Render3DSubmissionStats {
-  mut sections : Int
-  mut submitted_items : Int
-  mut skipped_items : Int
-  mut command_groups : Int
-  mut draw_commands : Int
-  mut lit_triangle_commands : Int
-  mut textured_triangle_commands : Int
-  mut uploaded_vertex_bytes : Int
-  mut render_bind_group_creations : Int
+  mut sections : Int32
+  mut submitted_items : Int32
+  mut skipped_items : Int32
+  mut command_groups : Int32
+  mut draw_commands : Int32
+  mut lit_triangle_commands : Int32
+  mut textured_triangle_commands : Int32
+  mut uploaded_vertex_bytes : Int32
+  mut render_bind_group_creations : Int32
 }
 
 ///|
 pub(all) struct Render3DSubmissionStatsSnapshot {
-  sections : Int
-  submitted_items : Int
-  skipped_items : Int
-  command_groups : Int
-  draw_commands : Int
-  lit_triangle_commands : Int
-  textured_triangle_commands : Int
-  uploaded_vertex_bytes : Int
-  render_bind_group_creations : Int
+  sections : Int32
+  submitted_items : Int32
+  skipped_items : Int32
+  command_groups : Int32
+  draw_commands : Int32
+  lit_triangle_commands : Int32
+  textured_triangle_commands : Int32
+  uploaded_vertex_bytes : Int32
+  render_bind_group_creations : Int32
 } derive(Eq, Debug)
 
 ///|
@@ -189,8 +189,8 @@ pub(all) struct WebGpuRender3DTimingSnapshot {
 
 ///|
 priv struct LitPrimitiveMeshBatchAccumulator {
-  order : Array[Int]
-  indices : Map[LitPrimitiveMeshBatchKey, Int]
+  order : Array[Int32]
+  indices : Map[LitPrimitiveMeshBatchKey, Int32]
   entries : Array[LitPrimitiveMeshBatch]
 }
 
@@ -217,7 +217,7 @@ let last_render3d_submission_stats : Ref[Render3DSubmissionStats] = Ref(
 )
 
 ///|
-let last_render3d_submission_stats_checksum : Ref[Int] = Ref(0)
+let last_render3d_submission_stats_checksum : Ref[Int32] = Ref(0)
 
 ///|
 let last_render3d_timing : Ref[WebGpuRender3DTimingSnapshot] = Ref({
@@ -229,16 +229,16 @@ let last_render3d_timing : Ref[WebGpuRender3DTimingSnapshot] = Ref({
 })
 
 ///|
-let retained_render3d_instance_last_seen : Map[String, Int] = Map([])
+let retained_render3d_instance_last_seen : Map[String, Int32] = Map([])
 
 ///|
 let current_render3d_lighting_mode : Ref[Render3DLightingMode] = Ref(Full)
 
 ///|
-let webgpu_resource_frame : Ref[Int] = Ref(0)
+let webgpu_resource_frame : Ref[Int32] = Ref(0)
 
 ///|
-let primitive_mesh_resource_last_seen : Map[String, Int] = Map([])
+let primitive_mesh_resource_last_seen : Map[String, Int32] = Map([])
 
 ///|
 let uploaded_primitive_mesh_resources : Map[String, Bool] = Map([])
@@ -289,7 +289,7 @@ pub fn webgpu_last_render3d_timing() -> WebGpuRender3DTimingSnapshot {
 priv struct ResolvedMaterialTextureInput3D {
   path : String
   uvs : Array[@smath.Vec2]
-  sampler_code : Int
+  sampler_code : Int32
 }
 
 ///|
@@ -600,7 +600,7 @@ fn end_3d() -> Unit {
 }
 
 ///|
-fn draw_render3d_lines(frame : @render3d_types.RenderFrame3D) -> Int {
+fn draw_render3d_lines(frame : @render3d_types.RenderFrame3D) -> Int32 {
   guard frame.lines.length() > 0 else { return 0 }
   let vertices : Array[Double] = []
   for line in frame.lines {
@@ -1307,7 +1307,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
 }
 
 ///|
-fn render3d_submission_stats_checksum(stats : Render3DSubmissionStats) -> Int {
+fn render3d_submission_stats_checksum(stats : Render3DSubmissionStats) -> Int32 {
   stats.sections +
   stats.submitted_items +
   stats.skipped_items +
@@ -1494,7 +1494,7 @@ fn retained_lit_primitive_instance_key(
 }
 
 ///|
-fn retained_instance_hash_component(value : Double) -> Int {
+fn retained_instance_hash_component(value : Double) -> Int32 {
   let scaled = (value * 1000000.0).to_int()
   let positive = if scaled < 0 { -scaled + 17 } else { scaled }
   positive % 1000003
@@ -1613,7 +1613,7 @@ fn webgpu_resource_float_key(value : Double) -> String {
 }
 
 ///|
-fn safe_cylinder_slices(slices : Int) -> Int {
+fn safe_cylinder_slices(slices : Int32) -> Int32 {
   if slices < 3 {
     3
   } else {
@@ -1628,7 +1628,7 @@ fn _collect_render3d_submission_stats(
   let stats = empty_render3d_submission_stats()
   let instanced_lit_buckets : Map[String, Bool] = Map([])
   let instanced_lit_instances : Map[String, Array[Double]] = Map([])
-  let instanced_lit_counts : Map[String, Int] = Map([])
+  let instanced_lit_counts : Map[String, Int32] = Map([])
   guard frame.camera is Some(_) else { return stats }
   stats.sections = 1
   for item in frame.items {
@@ -1761,7 +1761,7 @@ fn render3d_item_can_use_textured_path(
 ///|
 fn render3d_item_vertex_count(
   primitive : @render3d_types.MeshPrimitive3D,
-) -> Int {
+) -> Int32 {
   match primitive {
     Cube(_) => cuboid_triangle_vertex_count()
     Sphere(_) =>
@@ -1778,12 +1778,12 @@ fn render3d_item_vertex_count(
 }
 
 ///|
-fn cuboid_triangle_vertex_count() -> Int {
+fn cuboid_triangle_vertex_count() -> Int32 {
   36
 }
 
 ///|
-fn sphere_triangle_vertex_count(slices : Int, stacks : Int) -> Int {
+fn sphere_triangle_vertex_count(slices : Int32, stacks : Int32) -> Int32 {
   let safe_slices = if slices < 3 { 3 } else { slices }
   let safe_stacks = if stacks < 2 { 2 } else { stacks }
   safe_slices * (safe_stacks - 1) * 6
@@ -1793,8 +1793,8 @@ fn sphere_triangle_vertex_count(slices : Int, stacks : Int) -> Int {
 fn cylinder_triangle_vertex_count(
   radius_top : Double,
   radius_bottom : Double,
-  slices : Int,
-) -> Int {
+  slices : Int32,
+) -> Int32 {
   let safe_slices = if slices < 3 { 3 } else { slices }
   let cap_vertices = (if radius_top.abs() > 0.000001 { 3 } else { 0 }) +
     (if radius_bottom.abs() > 0.000001 { 3 } else { 0 })
@@ -1805,7 +1805,7 @@ fn cylinder_triangle_vertex_count(
 fn textured_triangle_mesh_vertex_count(
   mesh : @render3d_types.TriangleMesh3D,
   bundle : MaterialTextureBundle3D,
-) -> Int {
+) -> Int32 {
   guard resolve_triangle_indices(mesh) is Some(triangle_indices) else {
     return 0
   }
@@ -1962,7 +1962,7 @@ fn cached_cuboid_triangle_mesh3d(
   size_x : Double,
   size_y : Double,
   size_z : Double,
-  uv_set_count : Int,
+  uv_set_count : Int32,
 ) -> @render3d_types.TriangleMesh3D {
   cached_textured_primitive_mesh3d(
     textured_primitive_cache_key("cuboid", [
@@ -1978,9 +1978,9 @@ fn cached_cuboid_triangle_mesh3d(
 ///|
 fn cached_sphere_triangle_mesh3d(
   radius : Double,
-  slices : Int,
-  stacks : Int,
-  uv_set_count : Int,
+  slices : Int32,
+  stacks : Int32,
+  uv_set_count : Int32,
 ) -> @render3d_types.TriangleMesh3D {
   cached_textured_primitive_mesh3d(
     textured_primitive_cache_key("sphere", [
@@ -1998,8 +1998,8 @@ fn cached_cylinder_triangle_mesh3d(
   radius_top : Double,
   radius_bottom : Double,
   height : Double,
-  slices : Int,
-  uv_set_count : Int,
+  slices : Int32,
+  uv_set_count : Int32,
 ) -> @render3d_types.TriangleMesh3D {
   cached_textured_primitive_mesh3d(
     textured_primitive_cache_key("cylinder", [
@@ -2026,7 +2026,7 @@ fn build_cuboid_triangle_mesh3d(
   size_x : Double,
   size_y : Double,
   size_z : Double,
-  uv_set_count? : Int = 1,
+  uv_set_count~ : Int32 = 1,
 ) -> @render3d_types.TriangleMesh3D {
   let positions : Array[@smath.Vec3] = []
   let uvs : Array[@smath.Vec2] = []
@@ -2106,9 +2106,9 @@ fn build_cuboid_triangle_mesh3d(
 ///|
 fn build_sphere_triangle_mesh3d(
   radius : Double,
-  slices : Int,
-  stacks : Int,
-  uv_set_count? : Int = 1,
+  slices : Int32,
+  stacks : Int32,
+  uv_set_count~ : Int32 = 1,
 ) -> @render3d_types.TriangleMesh3D {
   let positions : Array[@smath.Vec3] = []
   let uvs : Array[@smath.Vec2] = []
@@ -2183,8 +2183,8 @@ fn build_cylinder_triangle_mesh3d(
   radius_top : Double,
   radius_bottom : Double,
   height : Double,
-  slices : Int,
-  uv_set_count? : Int = 1,
+  slices : Int32,
+  uv_set_count~ : Int32 = 1,
 ) -> @render3d_types.TriangleMesh3D {
   let positions : Array[@smath.Vec3] = []
   let uvs : Array[@smath.Vec2] = []
@@ -2296,7 +2296,7 @@ fn build_textured_triangle_mesh3d(
   positions : Array[@smath.Vec3],
   uvs : Array[@smath.Vec2],
   normals : Array[@smath.Vec3],
-  uv_set_count? : Int = 1,
+  uv_set_count~ : Int32 = 1,
 ) -> @render3d_types.TriangleMesh3D {
   let safe_uv_set_count = if uv_set_count < 1 { 1 } else { uv_set_count }
   let uv_sets : Array[Array[@smath.Vec2]] = []
@@ -2403,7 +2403,7 @@ fn inverse_scale_direction3d(
 }
 
 ///|
-fn required_primitive_uv_set_count(bundle : MaterialTextureBundle3D) -> Int {
+fn required_primitive_uv_set_count(bundle : MaterialTextureBundle3D) -> Int32 {
   let mut max_set = bundle.primary_texcoord_set
   let track = fn(source : MaterialTextureSource3D?) {
     match source {
@@ -2499,7 +2499,7 @@ fn configure_scene_lighting(
 ///|
 fn pack_directional_shadow_metadata3d(
   frame : @render3d_types.RenderFrame3D,
-  mode? : Render3DLightingMode = Full,
+  mode~ : Render3DLightingMode = Full,
 ) -> Array[Double] {
   let values : Array[Double] = []
   let count = min_int(
@@ -2519,7 +2519,7 @@ fn pack_directional_shadow_metadata3d(
 ///|
 fn pack_point_shadow_metadata3d(
   frame : @render3d_types.RenderFrame3D,
-  mode? : Render3DLightingMode = Full,
+  mode~ : Render3DLightingMode = Full,
 ) -> Array[Double] {
   let values : Array[Double] = []
   let count = min_int(
@@ -2538,7 +2538,7 @@ fn pack_point_shadow_metadata3d(
 ///|
 fn pack_spot_shadow_metadata3d(
   frame : @render3d_types.RenderFrame3D,
-  mode? : Render3DLightingMode = Full,
+  mode~ : Render3DLightingMode = Full,
 ) -> Array[Double] {
   let values : Array[Double] = []
   let count = min_int(
@@ -2555,7 +2555,7 @@ fn pack_spot_shadow_metadata3d(
 }
 
 ///|
-fn max_directional_lights_for_mode(mode : Render3DLightingMode) -> Int {
+fn max_directional_lights_for_mode(mode : Render3DLightingMode) -> Int32 {
   match mode {
     Full => MAX_DIRECTIONAL_LIGHTS
     Cheap => 1
@@ -2564,7 +2564,7 @@ fn max_directional_lights_for_mode(mode : Render3DLightingMode) -> Int {
 }
 
 ///|
-fn max_point_lights_for_mode(mode : Render3DLightingMode) -> Int {
+fn max_point_lights_for_mode(mode : Render3DLightingMode) -> Int32 {
   match mode {
     Full => MAX_POINT_LIGHTS
     Cheap | Unlit => 0
@@ -2572,7 +2572,7 @@ fn max_point_lights_for_mode(mode : Render3DLightingMode) -> Int {
 }
 
 ///|
-fn max_spot_lights_for_mode(mode : Render3DLightingMode) -> Int {
+fn max_spot_lights_for_mode(mode : Render3DLightingMode) -> Int32 {
   match mode {
     Full => MAX_SPOT_LIGHTS
     Cheap | Unlit => 0
@@ -2584,7 +2584,7 @@ fn pack_light_uniform_data(
   frame : @render3d_types.RenderFrame3D,
   camera : @render3d_types.FrameCamera3D,
   ambient : @smath.Vec3,
-  mode? : Render3DLightingMode = Full,
+  mode~ : Render3DLightingMode = Full,
 ) -> Array[Double] {
   let values : Array[Double] = []
   for _ in 0..<176 {
@@ -2707,7 +2707,7 @@ fn non_negative_double(value : Double) -> Double {
 }
 
 ///|
-fn min_int(lhs : Int, rhs : Int) -> Int {
+fn min_int(lhs : Int32, rhs : Int32) -> Int32 {
   if lhs < rhs {
     lhs
   } else {
@@ -2728,7 +2728,7 @@ fn resolve_mesh_normals(
 ///|
 fn resolve_triangle_indices(
   mesh : @render3d_types.TriangleMesh3D,
-) -> Array[Int]? {
+) -> Array[Int32]? {
   let base_indices = mesh.indices.unwrap_or(
     default_mesh_indices(mesh.positions.length()),
   )
@@ -2751,8 +2751,8 @@ fn resolve_triangle_indices(
 }
 
 ///|
-fn default_mesh_indices(vertex_count : Int) -> Array[Int] {
-  let indices : Array[Int] = []
+fn default_mesh_indices(vertex_count : Int32) -> Array[Int32] {
+  let indices : Array[Int32] = []
   for index in 0..<vertex_count {
     indices.push(index)
   }
@@ -2761,11 +2761,11 @@ fn default_mesh_indices(vertex_count : Int) -> Array[Int] {
 
 ///|
 fn triangulate_triangle_indices(
-  indices : Array[Int],
+  indices : Array[Int32],
   topology : @render3d_types.TriangleTopology3D,
-) -> Array[Int] {
-  let triangle_indices : Array[Int] = []
-  let push_index = fn(index : Int) { triangle_indices.push(index) }
+) -> Array[Int32] {
+  let triangle_indices : Array[Int32] = []
+  let push_index = fn(index : Int32) { triangle_indices.push(index) }
   match topology {
     TriangleList => {
       let tri_count = indices.length() / 3
@@ -2806,7 +2806,7 @@ fn triangulate_triangle_indices(
 ///|
 fn compute_vertex_normals(
   positions : Array[@smath.Vec3],
-  triangle_indices : Array[Int],
+  triangle_indices : Array[Int32],
 ) -> Array[@smath.Vec3] {
   let normals : Array[@smath.Vec3] = []
   for _ in 0..<positions.length() {
@@ -2868,7 +2868,7 @@ fn resolve_mesh_tangents(
 ///|
 fn flatten_colored_vertices3d(
   positions : Array[@smath.Vec3],
-  triangle_indices : Array[Int],
+  triangle_indices : Array[Int32],
   normals : Array[@smath.Vec3],
   vertex_colors : Array[@render.Color]?,
   scale : @smath.Vec3,
@@ -2913,7 +2913,7 @@ fn flatten_colored_vertices3d(
 ///|
 fn flatten_textured_vertices3d(
   positions : Array[@smath.Vec3],
-  triangle_indices : Array[Int],
+  triangle_indices : Array[Int32],
   base_uvs : Array[@smath.Vec2],
   emissive_uvs : Array[@smath.Vec2],
   metallic_roughness_uvs : Array[@smath.Vec2],
@@ -2994,7 +2994,7 @@ fn resolve_material_texture_input(
   mesh : @render3d_types.TriangleMesh3D,
   source : MaterialTextureSource3D?,
   fallback_uvs : Array[@smath.Vec2],
-  transform_binding? : @render3d_types.TextureBinding3D? = None,
+  transform_binding~ : @render3d_types.TextureBinding3D? = None,
 ) -> ResolvedMaterialTextureInput3D {
   match source {
     Some(source) =>
@@ -3018,7 +3018,7 @@ fn resolve_material_texture_input(
 ///|
 fn resolve_material_texture_uvs(
   binding : @render3d_types.TextureBinding3D?,
-  texcoord_set : Int,
+  texcoord_set : Int32,
   uvs : Array[@smath.Vec2],
 ) -> Array[@smath.Vec2] {
   match binding {
@@ -3075,7 +3075,7 @@ fn effective_material_color(
 ///|
 fn resolve_vertex_color(
   vertex_colors : Array[@render.Color]?,
-  index : Int,
+  index : Int32,
   base_color : @render.Color,
 ) -> @render.Color {
   match vertex_colors.bind(fn(values) { values.get(index) }) {
@@ -3095,7 +3095,7 @@ fn multiply_colors(lhs : @render.Color, rhs : @render.Color) -> @render.Color {
 }
 
 ///|
-fn texture_sampler_code(sampler : @render3d_types.TextureSampler3D) -> Int {
+fn texture_sampler_code(sampler : @render3d_types.TextureSampler3D) -> Int32 {
   let repeat_u = sampler.wrap_u != ClampToEdge
   let repeat_v = sampler.wrap_v != ClampToEdge
   if repeat_u && repeat_v {

@@ -48,11 +48,11 @@ fn sync_gamepad_events() -> Unit {
 
 ///|
 fn sync_buttons(
-  id : Int,
+  id : Int32,
   gamepad : @inputs.Gamepad,
   buttons : Set[@inputs.GamepadButtonInput],
 ) -> Unit {
-  let mappings : Array[(Int, @inputs.GamepadButton)] = [
+  let mappings : Array[(Int32, @inputs.GamepadButton)] = [
     (0, South),
     (1, East),
     (2, West),
@@ -80,7 +80,7 @@ fn sync_buttons(
 
 ///|
 fn sync_axes(
-  id : Int,
+  id : Int32,
   gamepad : @inputs.Gamepad,
   axes : Map[@inputs.GamepadAxisInput, Double],
 ) -> Unit {

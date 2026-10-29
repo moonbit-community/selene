@@ -13,19 +13,19 @@
 // limitations under the License.
 
 ///|
-const GROUND_ZINDEX : Int = 0
+const GROUND_ZINDEX : Int32 = 0
 
 ///|
-const GRASS_ZINDEX : Int = 1
+const GRASS_ZINDEX : Int32 = 1
 
 ///|
-const ENEMY_ZINDEX : Int = 2
+const ENEMY_ZINDEX : Int32 = 2
 
 ///|
-const PLAYER_ZINDEX : Int = 3
+const PLAYER_ZINDEX : Int32 = 3
 
 ///|
-const BULLET_ZINDEX : Int = 4
+const BULLET_ZINDEX : Int32 = 4
 
 ///|
-const HUD_ZINDEX : Int = 100
+const HUD_ZINDEX : Int32 = 100

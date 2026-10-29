@@ -113,41 +113,41 @@ pub struct LdtkWorld {
 ///|
 pub struct LdtkTilesetCustomData {
   data : String
-  tile_id : Int
+  tile_id : Int32
 }
 
 ///|
 pub struct LdtkTilesetEnumTag {
   enum_value_id : String
-  tile_ids : Array[Int]
+  tile_ids : Array[Int32]
 }
 
 ///|
 pub struct LdtkTilesetDefinition {
-  uid : Int
+  uid : Int32
   identifier : String
   rel_path : String?
-  tile_grid_size : Int
-  px_wid : Int
-  px_hei : Int
-  spacing : Int
-  padding : Int
+  tile_grid_size : Int32
+  px_wid : Int32
+  px_hei : Int32
+  spacing : Int32
+  padding : Int32
   custom_data : Array[LdtkTilesetCustomData]
   enum_tags : Array[LdtkTilesetEnumTag]
   tags : Array[String]
-  tags_source_enum_uid : Int?
+  tags_source_enum_uid : Int32?
 }
 
 ///|
 pub struct LdtkIntGridValueDefinition {
-  value : Int
+  value : Int32
   color : String?
   identifier : String?
 }
 
 ///|
 pub struct LdtkLayerDefinition {
-  uid : Int
+  uid : Int32
   identifier : String
   layer_type : String?
   int_grid_values : Array[LdtkIntGridValueDefinition]
@@ -155,7 +155,7 @@ pub struct LdtkLayerDefinition {
 
 ///|
 pub struct LdtkFieldDefinition {
-  uid : Int
+  uid : Int32
   identifier : String
   field_type : String
   is_array : Bool
@@ -165,10 +165,10 @@ pub struct LdtkFieldDefinition {
 
 ///|
 pub struct LdtkEntityDefinition {
-  uid : Int
+  uid : Int32
   identifier : String
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   color : String?
   tags : Array[String]
   field_definitions : Array[LdtkFieldDefinition]
@@ -182,7 +182,7 @@ pub struct LdtkEnumValueDefinition {
 
 ///|
 pub struct LdtkEnumDefinition {
-  uid : Int
+  uid : Int32
   identifier : String
   external_rel_path : String?
   tags : Array[String]
@@ -204,8 +204,8 @@ pub struct LdtkProject {
   external_levels : Bool
   world_layout : String?
   bg_color : String?
-  default_level_width : Int?
-  default_level_height : Int?
+  default_level_width : Int32?
+  default_level_height : Int32?
   defs : LdtkProjectDefinitions
   levels : Array[LdtkLevel]
   worlds : Array[LdtkWorld]

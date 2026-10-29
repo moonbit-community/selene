@@ -15,13 +15,13 @@
 ///|
 priv struct ShadowShaderState {
   shader : @raylib.Shader
-  light_view_projection_loc : Int
-  material_has_texture_loc : Int
-  material_alpha_mode_loc : Int
-  material_alpha_cutoff_loc : Int
-  base_uv_offset_scale_loc : Int
-  base_uv_rotation_loc : Int
-  base_uv_set_loc : Int
+  light_view_projection_loc : Int32
+  material_has_texture_loc : Int32
+  material_alpha_mode_loc : Int32
+  material_alpha_cutoff_loc : Int32
+  base_uv_offset_scale_loc : Int32
+  base_uv_rotation_loc : Int32
+  base_uv_set_loc : Int32
 }
 
 ///|
@@ -56,7 +56,7 @@ priv struct DirectionalShadowCascadeState {
 
 ///|
 priv struct FrameDirectionalShadowState {
-  depth_texture_id : UInt
+  depth_texture_id : UInt32
   cascades : Array[DirectionalShadowCascadeState]
   depth_bias : Double
   normal_bias : Double
@@ -64,18 +64,18 @@ priv struct FrameDirectionalShadowState {
 
 ///|
 priv struct FrameShadowState {
-  directional_shadows : Map[Int, FrameDirectionalShadowState]
-  spot_shadows : Map[Int, FrameSpotShadowState]
-  point_shadows : Map[Int, FramePointShadowState]
-  spot_shadow_atlas_id : UInt?
-  point_shadow_atlas_id : UInt?
+  directional_shadows : Map[Int32, FrameDirectionalShadowState]
+  spot_shadows : Map[Int32, FrameSpotShadowState]
+  point_shadows : Map[Int32, FramePointShadowState]
+  spot_shadow_atlas_id : UInt32?
+  point_shadow_atlas_id : UInt32?
   directional_texel_size : @smath.Vec2
   spot_texel_size : @smath.Vec2
   point_texel_size : @smath.Vec2
 }
 
 ///|
-const SHADOW_MAP_TEXTURE_SLOT_BASE : Int = 6
+const SHADOW_MAP_TEXTURE_SLOT_BASE : Int32 = 6
 
 ///|
 const SHADOW_CAMERA_MARGIN_SCALE : Double = 0.15
@@ -93,7 +93,7 @@ const SHADOW_CAMERA_DISTANCE_MIN : Double = 10.0
 const SHADOW_CAMERA_NEAR_MIN : Double = 0.01
 
 ///|
-fn shadow_texture_slot(index : Int) -> Int {
+fn shadow_texture_slot(index : Int32) -> Int32 {
   SHADOW_MAP_TEXTURE_SLOT_BASE + index
 }
 
@@ -148,12 +148,12 @@ let raylib_shadow_fragment_shader : String =
   #|
 
 ///|
-fn normalize_shadow_map_size(size : Int) -> Int {
+fn normalize_shadow_map_size(size : Int32) -> Int32 {
   @cmp.maximum(1, size)
 }
 
 ///|
-fn shadow_texel_size(size : Int) -> @smath.Vec2 {
+fn shadow_texel_size(size : Int32) -> @smath.Vec2 {
   let inv = 1.0 / normalize_shadow_map_size(size).to_double()
   Vec2(inv, inv)
 }
@@ -195,7 +195,7 @@ fn choose_shadow_up(light_direction : @smath.Vec3) -> @smath.Vec3 {
 ///|
 fn directional_shadow_cascade_count(
   light : @render3d_types.DirectionalLight3D,
-) -> Int {
+) -> Int32 {
   let count = light.cascade_shadow_config.bounds.length()
   if count < 1 {
     1
@@ -207,7 +207,7 @@ fn directional_shadow_cascade_count(
 }
 
 ///|
-fn directional_shadow_atlas_layout(cascade_count : Int) -> (Int, Int) {
+fn directional_shadow_atlas_layout(cascade_count : Int32) -> (Int32, Int32) {
   if cascade_count <= 1 {
     (1, 1)
   } else if cascade_count == 2 {
@@ -366,9 +366,9 @@ fn directional_shadow_bounds(
 ///|
 fn build_directional_shadow_cascades_for_light(
   frame : @render3d_types.RenderFrame3D,
-  light_index : Int,
+  light_index : Int32,
   camera : @render3d_types.FrameCamera3D,
-  shadow_map_size : Int,
+  shadow_map_size : Int32,
 ) -> Array[DirectionalShadowCascadeState] {
   if light_index < 0 || light_index >= frame.directional_lights.length() {
     return []
@@ -460,8 +460,8 @@ fn build_directional_shadow_cascades_for_light(
 ///|
 fn shadowed_directional_light_indices(
   frame : @render3d_types.RenderFrame3D,
-) -> Array[Int] {
-  let indices : Array[Int] = []
+) -> Array[Int32] {
+  let indices : Array[Int32] = []
   let directional_count = @cmp.minimum(
     frame.directional_lights.length(),
     MAX_DIRECTIONAL_LIGHTS,
@@ -625,7 +625,7 @@ fn scene_shadow_bounds(frame : @render3d_types.RenderFrame3D) -> Bounds3D? {
 ///|
 fn build_directional_shadow_setup_for_light(
   frame : @render3d_types.RenderFrame3D,
-  light_index : Int,
+  light_index : Int32,
 ) -> DirectionalShadowSetup? {
   guard scene_shadow_bounds(frame) is Some(bounds) else { return None }
   guard light_index >= 0 && light_index < frame.directional_lights.length() else {
@@ -777,9 +777,9 @@ fn get_shadow_material() -> @raylib.Material {
 
 ///|
 fn create_directional_shadow_render_texture(
-  tile_size : Int,
-  atlas_columns : Int,
-  atlas_rows : Int,
+  tile_size : Int32,
+  atlas_columns : Int32,
+  atlas_rows : Int32,
   warn_key : String,
 ) -> @raylib.RenderTexture? {
   let width = tile_size * atlas_columns
@@ -815,9 +815,9 @@ fn create_directional_shadow_render_texture(
 
 ///|
 fn get_shadow_render_texture(
-  index : Int,
-  shadow_map_size : Int,
-  cascade_count : Int,
+  index : Int32,
+  shadow_map_size : Int32,
+  cascade_count : Int32,
 ) -> @raylib.RenderTexture? {
   guard index >= 0 && index < MAX_DIRECTIONAL_LIGHTS else { return None }
   let tile_size = normalize_shadow_map_size(shadow_map_size)
@@ -885,7 +885,7 @@ fn get_shadow_render_texture(
 fn upload_shadow_uniforms(
   material : @render3d_types.StandardMaterial3D,
   base_source : MaterialTextureSource3D?,
-  base_uv_set : Int,
+  base_uv_set : Int32,
   setup : DirectionalShadowSetup,
 ) -> ShadowShaderState {
   ignore(setup.half_extent)
@@ -934,7 +934,7 @@ fn draw_shadow_mesh_with_material(
   mesh : @raylib.Mesh,
   material : @render3d_types.StandardMaterial3D,
   base_source : MaterialTextureSource3D?,
-  base_uv_set : Int,
+  base_uv_set : Int32,
   setup : DirectionalShadowSetup,
 ) -> Unit {
   if material.alpha_mode == Blend {
@@ -957,7 +957,7 @@ fn draw_shadow_mesh_with_material(
 }
 
 ///|
-fn shadow_base_uv_set(base_source : MaterialTextureSource3D?) -> Int {
+fn shadow_base_uv_set(base_source : MaterialTextureSource3D?) -> Int32 {
   match base_source {
     Some(source) => if source.texcoord_set == 1 { 1 } else { 0 }
     None => 0
@@ -1014,7 +1014,7 @@ fn draw_shadow_cylinder(
   radius_top : Double,
   radius_bottom : Double,
   height : Double,
-  slices : Int,
+  slices : Int32,
   material : @render3d_types.StandardMaterial3D,
   base_source : MaterialTextureSource3D?,
   setup : DirectionalShadowSetup,
@@ -1176,7 +1176,7 @@ fn render_directional_shadow_map(
   let shadow_map_size = normalize_shadow_map_size(
     frame.directional_shadow_map_size,
   )
-  let directional_shadows : Map[Int, FrameDirectionalShadowState] = Map([])
+  let directional_shadows : Map[Int32, FrameDirectionalShadowState] = Map([])
   for light_index in shadowed_directional_light_indices(frame) {
     let mut cascades = build_directional_shadow_cascades_for_light(
       frame, light_index, camera, shadow_map_size,

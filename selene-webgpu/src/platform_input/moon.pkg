@@ -6,6 +6,4 @@ import {
 
 supported_targets = "js"
 
-options(
-  implement: "Milky2018/selene/platform_input",
-)
+virtual(implement: "Milky2018/selene/platform_input")

@@ -13,19 +13,19 @@
 // limitations under the License.
 
 ///|
-pub(all) struct MeshHandle(UInt) derive(Eq, Debug, Hash)
+pub(all) struct MeshHandle(UInt32) derive(Eq, Debug, Hash)
 
 ///|
-pub(all) struct MaterialHandle(UInt) derive(Eq, Debug, Hash)
+pub(all) struct MaterialHandle(UInt32) derive(Eq, Debug, Hash)
 
 ///|
-pub(all) struct ImageHandle(UInt) derive(Eq, Debug, Hash)
+pub(all) struct ImageHandle(UInt32) derive(Eq, Debug, Hash)
 
 ///|
-pub(all) struct SceneHandle(UInt) derive(Eq, Debug, Hash)
+pub(all) struct SceneHandle(UInt32) derive(Eq, Debug, Hash)
 
 ///|
-pub(all) struct CubemapHandle(UInt) derive(Eq, Debug, Hash)
+pub(all) struct CubemapHandle(UInt32) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) enum CameraProjection3D {
@@ -73,7 +73,7 @@ pub(all) struct TextureTransform3D {
 pub(all) struct TextureBinding3D {
   image : ImageHandle
   sampler : TextureSampler3D
-  texcoord_set : Int
+  texcoord_set : Int32
   transform : TextureTransform3D
 } derive(Eq, Debug)
 
@@ -95,7 +95,7 @@ pub(all) enum TriangleTopology3D {
 ///|
 pub(all) struct TriangleMesh3D {
   positions : Array[@math.Vec3]
-  indices : Array[Int]?
+  indices : Array[Int32]?
   topology : TriangleTopology3D
   uv_sets : Array[Array[@math.Vec2]]
   normals : Array[@math.Vec3]?
@@ -107,7 +107,7 @@ pub(all) struct TriangleMesh3D {
 pub(all) enum MeshPrimitive3D {
   Cube(@math.Vec3)
   Sphere(Double)
-  Cylinder(Double, Double, Double, Int)
+  Cylinder(Double, Double, Double, Int32)
   Plane(@math.Vec3)
   Triangles(TriangleMesh3D)
 } derive(Eq, Debug)
@@ -234,17 +234,17 @@ pub(all) struct AmbientLight3D {
 
 ///|
 pub(all) struct DirectionalLightShadowMap3D {
-  size : Int
+  size : Int32
 } derive(Eq, Debug)
 
 ///|
 pub(all) struct PointLightShadowMap3D {
-  size : Int
+  size : Int32
 } derive(Eq, Debug)
 
 ///|
 pub(all) struct CascadeShadowConfigBuilder3D {
-  num_cascades : Int
+  num_cascades : Int32
   minimum_distance : Double
   maximum_distance : Double
   first_cascade_far_bound : Double
@@ -280,7 +280,7 @@ pub(all) struct FrameCamera3D {
 
 ///|
 pub(all) struct RenderItem3D {
-  entity_id : UInt?
+  entity_id : UInt32?
   transform : FrameTransform3D
   mesh : MeshHandle
   material : MaterialHandle
@@ -306,8 +306,8 @@ pub(all) struct RenderFrame3D {
   mut point_lights : Array[FramePointLight3D]
   mut spot_lights : Array[FrameSpotLight3D]
   mut ambient_light : AmbientLight3D?
-  mut directional_shadow_map_size : Int
-  mut point_shadow_map_size : Int
+  mut directional_shadow_map_size : Int32
+  mut point_shadow_map_size : Int32
 }
 
 ///|
@@ -343,9 +343,9 @@ pub fn apply_texture_transform3d(
 ///|
 pub fn texture_binding3d(
   image : ImageHandle,
-  texcoord_set? : Int = 0,
-  sampler? : TextureSampler3D = default_texture_sampler3d(),
-  transform? : TextureTransform3D = default_texture_transform3d(),
+  texcoord_set~ : Int32 = 0,
+  sampler~ : TextureSampler3D = default_texture_sampler3d(),
+  transform~ : TextureTransform3D = default_texture_transform3d(),
 ) -> TextureBinding3D {
   { image, sampler, texcoord_set, transform, }
 }
@@ -370,8 +370,8 @@ pub fn cubemap_asset_six_faces(faces : CubemapFaces3D) -> CubemapAsset3D {
 ///|
 pub fn skybox3d(
   cubemap : CubemapHandle,
-  brightness? : Double = 1.0,
-  rotation? : @math.Quat = @math.Quat::identity(),
+  brightness~ : Double = 1.0,
+  rotation~ : @math.Quat = @math.Quat::identity(),
 ) -> Skybox3D {
   {
     cubemap,

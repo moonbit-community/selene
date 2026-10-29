@@ -64,7 +64,7 @@ priv struct AudioWorldStore {
 }
 
 ///|
-let audio_world_stores : Map[UInt, AudioWorldStore] = Map([])
+let audio_world_stores : Map[UInt32, AudioWorldStore] = Map([])
 
 ///|
 fn audio_world_store() -> AudioWorldStore {
@@ -301,7 +301,7 @@ pub fn global_volume() -> Double {
 pub fn attach_audio(
   entity : @entity.Entity,
   player : AudioPlayer,
-  settings? : PlaybackSettings = PlaybackSettings::once(),
+  settings~ : PlaybackSettings = PlaybackSettings::once(),
 ) -> Unit {
   audio_players().set(entity, player)
   audio_playback_settings().set(entity, normalize_settings(settings))
@@ -314,7 +314,7 @@ pub fn attach_audio(
 ///|
 pub fn spawn_audio(
   source : AudioHandle,
-  settings? : PlaybackSettings = PlaybackSettings::once(),
+  settings~ : PlaybackSettings = PlaybackSettings::once(),
 ) -> @entity.Entity {
   let entity = @entity.Entity()
   attach_audio(entity, AudioPlayer(source), settings~)
@@ -324,14 +324,14 @@ pub fn spawn_audio(
 ///|
 pub fn send_audio_event(
   source : AudioHandle,
-  settings? : PlaybackSettings = PlaybackSettings::once(),
+  settings~ : PlaybackSettings = PlaybackSettings::once(),
   target? : @entity.Entity,
 ) -> Unit {
   audio_event_bus.send({ source, settings, target, })
 }
 
 ///|
-pub fn play_one_shot(source : AudioHandle, volume? : Double = 1.0) -> Unit {
+pub fn play_one_shot(source : AudioHandle, volume~ : Double = 1.0) -> Unit {
   send_audio_event(
     source,
     settings=PlaybackSettings::remove().with_volume(volume),

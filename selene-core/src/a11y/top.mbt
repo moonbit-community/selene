@@ -39,13 +39,13 @@ pub(all) struct A11y {
 
 ///|
 pub fn A11y::A11y(
-  role? : A11yRole = Container,
-  label? : String? = None,
-  value? : String? = None,
-  focusable? : Bool = false,
-  disabled? : Bool = false,
-  selected? : Bool? = None,
-  hidden? : Bool = false,
+  role~ : A11yRole = Container,
+  label~ : String? = None,
+  value~ : String? = None,
+  focusable~ : Bool = false,
+  disabled~ : Bool = false,
+  selected~ : Bool? = None,
+  hidden~ : Bool = false,
 ) -> A11y {
   {
     role,
@@ -78,7 +78,7 @@ priv struct A11yWorldStore {
 }
 
 ///|
-let a11y_world_stores : Map[UInt, A11yWorldStore] = Map([])
+let a11y_world_stores : Map[UInt32, A11yWorldStore] = Map([])
 
 ///|
 fn a11y_world_store() -> A11yWorldStore {

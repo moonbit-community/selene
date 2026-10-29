@@ -8,7 +8,7 @@ pub(all) struct Camera2dView {
 }
 
 ///|
-fn compare_camera2d_views(lhs : Camera2dView, rhs : Camera2dView) -> Int {
+fn compare_camera2d_views(lhs : Camera2dView, rhs : Camera2dView) -> Int32 {
   if lhs.camera.order != rhs.camera.order {
     lhs.camera.order - rhs.camera.order
   } else {

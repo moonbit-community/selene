@@ -30,9 +30,9 @@ pub fn capture_frame_png_to_file(String) -> Bool
 
 pub fn capture_last_frame_metadata() -> FrameCaptureMetadata?
 
-pub fn capture_last_frame_metadata_json(indent? : Int) -> String?
+pub fn capture_last_frame_metadata_json(indent? : Int32) -> String?
 
-pub fn capture_last_frame_with_metadata(Int, Int, indent? : Int) -> FrameCaptureArtifact?
+pub fn capture_last_frame_with_metadata(Int32, Int32, indent? : Int32) -> FrameCaptureArtifact?
 
 pub fn clear_deterministic_mode() -> Unit
 
@@ -46,13 +46,13 @@ pub fn deterministic_mode() -> DeterministicModeConfig
 
 pub fn deterministic_ordering_enabled() -> Bool
 
-pub fn export_sprite_inspector_regions(Array[SpriteInspectorEntry], String, file_naming? : (SpriteInspectorEntry, Int) -> String) -> Int
+pub fn export_sprite_inspector_regions(Array[SpriteInspectorEntry], String, file_naming? : (SpriteInspectorEntry, Int32) -> String) -> Int32
 
 pub fn export_texture_region_png(String, @math.Rect, String) -> Bool
 
 pub fn fixed_delta_override() -> Double?
 
-pub fn frame_capture_file_stem(UInt, UInt) -> String
+pub fn frame_capture_file_stem(UInt32, UInt32) -> String
 
 pub fn frame_delta_override() -> Double?
 
@@ -62,27 +62,27 @@ pub fn latest_render_submission() -> RenderSubmissionDebug?
 
 pub fn next_deterministic_f64() -> Double
 
-pub fn next_deterministic_u32() -> UInt
+pub fn next_deterministic_u32() -> UInt32
 
 pub fn note_fixed_step(Double) -> Unit
 
-pub fn note_render(Double, Int, Int) -> Unit
+pub fn note_render(Double, Int32, Int32) -> Unit
 
-pub fn note_update(Double, Int) -> Unit
+pub fn note_update(Double, Int32) -> Unit
 
 pub fn queue_input_event(InputInjectionEvent) -> Unit
 
 pub fn queue_input_snapshot(@inputs.InputSnapshot) -> Unit
 
-pub fn queued_input_count() -> Int
+pub fn queued_input_count() -> Int32
 
 pub fn record_render_submission(@render_pipeline.RenderFrame, Array[@render2d.DrawCommandWithDepth2D]) -> Unit
 
 pub fn register_snapshot_provider(String, (@ecs.World) -> String) -> Unit
 
-pub fn render_last_frame_offscreen_png(Int, Int) -> Bytes?
+pub fn render_last_frame_offscreen_png(Int32, Int32) -> Bytes?
 
-pub fn rng_seed() -> UInt
+pub fn rng_seed() -> UInt32
 
 pub fn rolling_metrics() -> Array[FramePerformanceMetrics]
 
@@ -90,7 +90,7 @@ pub fn set_atlas_overlay_enabled(Bool) -> Unit
 
 pub fn set_deterministic_mode(DeterministicModeConfig) -> Unit
 
-pub fn set_rng_seed(UInt) -> Unit
+pub fn set_rng_seed(UInt32) -> Unit
 
 pub fn sprite_inspector_entries() -> Array[SpriteInspectorEntry]
 
@@ -108,7 +108,7 @@ pub fn world_snapshot() -> WorldSnapshot
 
 // Types and methods
 pub(all) struct AtlasOverlayEntry {
-  entity_id : UInt?
+  entity_id : UInt32?
   layer : String
   texture_path : String
   source_rect : DebugRect
@@ -119,8 +119,8 @@ pub fn AtlasOverlayEntry::to_repr(Self) -> @debug.Repr
 
 pub(all) struct AtlasValidationIssue {
   kind : AtlasValidationIssueKind
-  rect_index : Int?
-  other_rect_index : Int?
+  rect_index : Int32?
+  other_rect_index : Int32?
   message : String
 }
 
@@ -135,14 +135,14 @@ pub(all) enum AtlasValidationIssueKind {
 }
 
 pub(all) struct AtlasValidationReport {
-  total_rects : Int
+  total_rects : Int32
   issues : Array[AtlasValidationIssue]
 }
 
 pub(all) struct DebugColor {
-  r : UInt
-  g : UInt
-  b : UInt
+  r : UInt32
+  g : UInt32
+  b : UInt32
   a : Double
 } derive(Eq, ToJson, @debug.Debug)
 pub fn DebugColor::equal(Self, Self) -> Bool
@@ -181,14 +181,14 @@ pub fn DebugVec3::to_json(Self) -> Json
 pub fn DebugVec3::to_repr(Self) -> @debug.Repr
 
 pub(all) struct DeterministicModeConfig {
-  rng_seed : UInt
+  rng_seed : UInt32
   fixed_delta_override : Double?
   frame_delta_override : Double?
   deterministic_ordering : Bool
 }
 
 pub(all) struct DrawSubmission2DInfo {
-  entity_id : UInt?
+  entity_id : UInt32?
   layer : String
   kind : String
   depth : Double?
@@ -200,7 +200,7 @@ pub(all) struct DrawSubmission2DInfo {
 }
 
 pub(all) struct DrawSubmission2DMetadataEntry {
-  entity_id : UInt?
+  entity_id : UInt32?
   layer : String
   kind : String
   depth : Double?
@@ -214,7 +214,7 @@ pub fn DrawSubmission2DMetadataEntry::to_json(Self) -> Json
 pub fn DrawSubmission2DMetadataEntry::to_repr(Self) -> @debug.Repr
 
 pub(all) struct DrawSubmission3DInfo {
-  entity_id : UInt?
+  entity_id : UInt32?
   mesh : @render3d_types.MeshHandle
   material : @render3d_types.MaterialHandle
   cast_shadows : Bool
@@ -224,7 +224,7 @@ pub(all) struct DrawSubmission3DInfo {
 }
 
 pub(all) struct EntitySnapshot {
-  entity_id : UInt
+  entity_id : UInt32
   name : String?
   transform : @transform.Transform?
   global_transform : @transform.GlobalTransform?
@@ -236,8 +236,8 @@ pub(all) struct EntitySnapshot {
 }
 
 pub(all) struct FrameCaptureArtifact {
-  frame_index : UInt
-  fixed_step_index : UInt
+  frame_index : UInt32
+  fixed_step_index : UInt32
   file_stem : String
   png : Bytes
   metadata_json : String
@@ -245,11 +245,11 @@ pub(all) struct FrameCaptureArtifact {
 pub fn FrameCaptureArtifact::to_repr(Self) -> @debug.Repr
 
 pub(all) struct FrameCaptureMetadata {
-  frame_index : UInt
-  fixed_step_index : UInt
+  frame_index : UInt32
+  fixed_step_index : UInt32
   metrics : FramePerformanceMetricsExport?
   draw2d : Array[DrawSubmission2DMetadataEntry]
-  draw3d_count : Int
+  draw3d_count : Int32
   sprites : Array[SpriteInspectorEntry]
   atlas_overlay : Array[AtlasOverlayEntry]
 } derive(ToJson, @debug.Debug)
@@ -257,27 +257,27 @@ pub fn FrameCaptureMetadata::to_json(Self) -> Json
 pub fn FrameCaptureMetadata::to_repr(Self) -> @debug.Repr
 
 pub(all) struct FramePerformanceMetrics {
-  frame_index : UInt
-  fixed_step_index : UInt
-  fixed_steps_this_frame : Int
+  frame_index : UInt32
+  fixed_step_index : UInt32
+  fixed_steps_this_frame : Int32
   update_delta : Double
   fixed_delta_total : Double
   render_delta : Double
-  entity_count : Int
-  draw2d_count : Int
-  draw3d_count : Int
+  entity_count : Int32
+  draw2d_count : Int32
+  draw3d_count : Int32
 }
 
 pub(all) struct FramePerformanceMetricsExport {
-  frame_index : UInt
-  fixed_step_index : UInt
-  fixed_steps_this_frame : Int
+  frame_index : UInt32
+  fixed_step_index : UInt32
+  fixed_steps_this_frame : Int32
   update_delta : Double
   fixed_delta_total : Double
   render_delta : Double
-  entity_count : Int
-  draw2d_count : Int
-  draw3d_count : Int
+  entity_count : Int32
+  draw2d_count : Int32
+  draw3d_count : Int32
 } derive(Eq, ToJson, @debug.Debug)
 pub fn FramePerformanceMetricsExport::equal(Self, Self) -> Bool
 pub fn FramePerformanceMetricsExport::not_equal(Self, Self) -> Bool
@@ -299,14 +299,14 @@ pub(all) enum InputInjectionEvent {
 }
 
 pub(all) struct RenderSubmissionDebug {
-  frame_index : UInt
-  fixed_step_index : UInt
+  frame_index : UInt32
+  fixed_step_index : UInt32
   draw2d : Array[DrawSubmission2DInfo]
   draw3d : Array[DrawSubmission3DInfo]
 }
 
 pub(all) struct SpriteInspectorEntry {
-  entity_id : UInt
+  entity_id : UInt32
   entity_name : String?
   visible : Bool
   image_path : String?
@@ -322,8 +322,8 @@ pub fn SpriteInspectorEntry::to_json(Self) -> Json
 pub fn SpriteInspectorEntry::to_repr(Self) -> @debug.Repr
 
 pub(all) struct WorldSnapshot {
-  frame_index : UInt
-  fixed_step_index : UInt
+  frame_index : UInt32
+  fixed_step_index : UInt32
   entities : Array[EntitySnapshot]
   custom_fields : Array[(String, String)]
 }

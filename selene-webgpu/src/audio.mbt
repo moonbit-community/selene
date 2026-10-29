@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-pub type AudioInstance = Int
+pub type AudioInstance = Int32
 
 ///|
 
@@ -33,17 +33,17 @@ priv struct CachedAudioSource {
 priv struct AudioPlayback {
   audio : Audio
   mut requested_paused : Bool
-  mut last_play_attempt_activation_epoch : Int
+  mut last_play_attempt_activation_epoch : Int32
 }
 
 ///|
 let audio_instances : Map[AudioInstance, AudioPlayback] = Map([])
 
 ///|
-let next_audio_instance : Ref[Int] = Ref(1)
+let next_audio_instance : Ref[Int32] = Ref(1)
 
 ///|
-let audio_user_activation_epoch : Ref[Int] = Ref(0)
+let audio_user_activation_epoch : Ref[Int32] = Ref(0)
 
 ///|
 let cached_audio_sources : Map[String, CachedAudioSource] = Map([])
@@ -69,7 +69,7 @@ fn note_audio_user_activation() -> Unit {
 }
 
 ///|
-fn current_audio_activation_epoch() -> Int {
+fn current_audio_activation_epoch() -> Int32 {
   audio_user_activation_epoch.val
 }
 
@@ -106,10 +106,10 @@ fn browser_audio_mime_type(path : String) -> String {
 
 ///|
 fn should_retry_blocked_audio_playback(
-  play_state : Int,
+  play_state : Int32,
   requested_paused : Bool,
-  activation_epoch : Int,
-  last_play_attempt_activation_epoch : Int,
+  activation_epoch : Int32,
+  last_play_attempt_activation_epoch : Int32,
 ) -> Bool {
   play_state == AUDIO_PLAY_STATE_BLOCKED &&
   !requested_paused &&
@@ -124,7 +124,7 @@ fn retire_cached_audio_source(entry : CachedAudioSource) -> Unit {
 }
 
 ///|
-fn clear_cached_audio_source(path : String, retire? : Bool = true) -> Unit {
+fn clear_cached_audio_source(path : String, retire~ : Bool = true) -> Unit {
   if cached_audio_sources.get(path) is Some(entry) {
     if retire {
       retire_cached_audio_source(entry)
@@ -136,7 +136,7 @@ fn clear_cached_audio_source(path : String, retire? : Bool = true) -> Unit {
 }
 
 ///|
-fn resolved_audio_source(path : String, refresh? : Bool = false) -> String {
+fn resolved_audio_source(path : String, refresh~ : Bool = false) -> String {
   if !refresh {
     if cached_audio_sources.get(path) is Some(entry) {
       return entry.src
@@ -179,7 +179,7 @@ fn clear_preloaded_audio_template(path : String) -> Unit {
 ///|
 fn ensure_preloaded_audio_template(
   path : String,
-  refresh? : Bool = false,
+  refresh~ : Bool = false,
 ) -> Audio {
   if !refresh {
     if preloaded_audio_templates.get(path) is Some(audio) {

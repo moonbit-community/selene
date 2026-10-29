@@ -139,7 +139,7 @@ fn draw_triangle_mesh(
 ///|
 fn resolve_triangle_normals(
   mesh : @render3d_types.TriangleMesh3D,
-  triangle_indices : Array[Int],
+  triangle_indices : Array[Int32],
 ) -> Array[@smath.Vec3] {
   mesh.normals
   .filter(fn(candidates) { candidates.length() == mesh.positions.length() })
@@ -149,7 +149,7 @@ fn resolve_triangle_normals(
 ///|
 fn compute_vertex_normals(
   positions : Array[@smath.Vec3],
-  triangle_indices : Array[Int],
+  triangle_indices : Array[Int32],
 ) -> Array[@smath.Vec3] {
   let normals : Array[@smath.Vec3] = []
   for _ in 0..<positions.length() {

@@ -94,11 +94,11 @@ fn get_embedded_asset(path : String) -> Bytes? {
 }
 
 ///|
-fn saturating_file_byte(value : Int) -> Byte {
+fn saturating_file_byte(value : Int32) -> Byte {
   if value < 0 {
-    Int::to_byte(0)
+    Int32::to_byte(0)
   } else if value > 255 {
-    Int::to_byte(255)
+    Int32::to_byte(255)
   } else {
     value.to_byte()
   }

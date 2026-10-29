@@ -30,11 +30,11 @@ test "app: add_plugins preserves plugin order" {
 
 ///|
 test "app: add_message registers buses to final world" {
-  let events : @event.Events[Int] = Events()
+  let events : @event.Events[Int32] = Events()
   let world_a = @ecs.World()
   let world_b = @ecs.World()
-  let reader_a : @event.EventReader[Int] = EventReader()
-  let reader_b : @event.EventReader[Int] = EventReader()
+  let reader_a : @event.EventReader[Int32] = EventReader()
+  let reader_b : @event.EventReader[Int32] = EventReader()
 
   let app = App().with_world(world_a).add_message(events).with_world(world_b)
   for register in app.event_registrations {
@@ -61,10 +61,10 @@ test "app: add_message registers buses to final world" {
 ///|
 test "app: run_frames advances startup/update/fixed/render schedules deterministically" {
   let world = @ecs.World()
-  let startup_count : Ref[Int] = { val: 0, }
-  let update_count : Ref[Int] = { val: 0, }
-  let fixed_count : Ref[Int] = { val: 0, }
-  let render_count : Ref[Int] = { val: 0, }
+  let startup_count : Ref[Int32] = { val: 0, }
+  let update_count : Ref[Int32] = { val: 0, }
+  let fixed_count : Ref[Int32] = { val: 0, }
+  let render_count : Ref[Int32] = { val: 0, }
 
   let app = App()
     .with_world(world)
@@ -112,9 +112,9 @@ test "app: headless frames service platform maintenance around game and render" 
 ///|
 test "app: step_fixed advances only fixed schedule after startup" {
   let world = @ecs.World()
-  let startup_count : Ref[Int] = { val: 0, }
-  let update_count : Ref[Int] = { val: 0, }
-  let fixed_count : Ref[Int] = { val: 0, }
+  let startup_count : Ref[Int32] = { val: 0, }
+  let update_count : Ref[Int32] = { val: 0, }
+  let fixed_count : Ref[Int32] = { val: 0, }
 
   let app = App()
     .with_world(world)
@@ -198,8 +198,8 @@ test "app: run_frames_capture provides a generic capture pipeline without game-s
 ///|
 test "app: run_frames_capture accepts selected frame indexes" {
   let world = @ecs.World()
-  let rendered_frames : Array[Int] = []
-  let capture_attempts : Array[Int] = []
+  let rendered_frames : Array[Int32] = []
+  let capture_attempts : Array[Int32] = []
   let app = App()
     .with_world(world)
     .add_system(

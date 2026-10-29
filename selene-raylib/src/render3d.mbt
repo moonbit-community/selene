@@ -284,10 +284,10 @@ fn draw_mesh3d_instance(
 }
 
 ///|
-const TEXTURED_SPHERE_STACKS : Int = 16
+const TEXTURED_SPHERE_STACKS : Int32 = 16
 
 ///|
-const TEXTURED_SPHERE_SLICES : Int = 24
+const TEXTURED_SPHERE_SLICES : Int32 = 24
 
 ///|
 fn draw_lit_cuboid(
@@ -338,7 +338,7 @@ fn draw_lit_cylinder(
   radius_top : Double,
   radius_bottom : Double,
   height : Double,
-  slices : Int,
+  slices : Int32,
   material : @render3d_types.StandardMaterial3D,
   frame : @render3d_types.RenderFrame3D,
   camera_position : @smath.Vec3,
@@ -485,7 +485,7 @@ fn resolve_material_texture_bundle(
 }
 
 ///|
-fn texture_wrap_to_raylib(wrap : @render3d_types.TextureWrap3D) -> Int {
+fn texture_wrap_to_raylib(wrap : @render3d_types.TextureWrap3D) -> Int32 {
   match wrap {
     ClampToEdge => @raylib.TextureWrapClamp
     MirroredRepeat => @raylib.TextureWrapMirrorRepeat
@@ -494,7 +494,9 @@ fn texture_wrap_to_raylib(wrap : @render3d_types.TextureWrap3D) -> Int {
 }
 
 ///|
-fn texture_filter_to_raylib(sampler : @render3d_types.TextureSampler3D) -> Int {
+fn texture_filter_to_raylib(
+  sampler : @render3d_types.TextureSampler3D,
+) -> Int32 {
   let nearest = sampler.mag_filter == Nearest || sampler.min_filter == Nearest
   match sampler.mipmap_filter {
     Some(_) =>
@@ -614,7 +616,7 @@ fn build_cylinder_mesh(
   radius_top : Double,
   radius_bottom : Double,
   height : Double,
-  slices : Int,
+  slices : Int32,
 ) -> (Array[@smath.Vec3], Array[@smath.Vec2], Array[@smath.Vec3]) {
   let vertices : Array[@smath.Vec3] = []
   let uvs : Array[@smath.Vec2] = []

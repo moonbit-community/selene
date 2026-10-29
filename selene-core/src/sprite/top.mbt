@@ -24,7 +24,7 @@ priv struct SpriteWorldStore {
 }
 
 ///|
-let sprite_world_stores : Map[UInt, SpriteWorldStore] = Map([])
+let sprite_world_stores : Map[UInt32, SpriteWorldStore] = Map([])
 
 ///|
 fn sprite_world_store() -> SpriteWorldStore {
@@ -44,16 +44,16 @@ fn white_sprite_color() -> @render.Color {
 
 ///|
 pub fn Sprite::Sprite(
-  image? : @asset.ImageHandle? = None,
-  texture_atlas? : TextureAtlas? = None,
-  rect? : @math.Rect? = None,
-  color? : @render.Color = white_sprite_color(),
-  custom_size? : @math.Vec2? = None,
-  anchor? : Anchor = default_anchor(),
-  flip_x? : Bool = false,
-  flip_y? : Bool = false,
-  image_mode? : SpriteImageMode = Auto,
-  blend_mode? : @render.BlendMode2D = Alpha,
+  image~ : @asset.ImageHandle? = None,
+  texture_atlas~ : TextureAtlas? = None,
+  rect~ : @math.Rect? = None,
+  color~ : @render.Color = white_sprite_color(),
+  custom_size~ : @math.Vec2? = None,
+  anchor~ : Anchor = default_anchor(),
+  flip_x~ : Bool = false,
+  flip_y~ : Bool = false,
+  image_mode~ : SpriteImageMode = Auto,
+  blend_mode~ : @render.BlendMode2D = Alpha,
 ) -> Sprite {
   {
     image,
@@ -72,7 +72,7 @@ pub fn Sprite::Sprite(
 ///|
 pub fn Sprite::from_image(
   image : @asset.ImageHandle,
-  custom_size? : @math.Vec2? = None,
+  custom_size~ : @math.Vec2? = None,
 ) -> Sprite {
   Sprite(image=Some(image), custom_size~)
 }
@@ -191,7 +191,7 @@ fn push_sprite_draw_command(
   depth : Double,
   snapped_pos : @math.Vec2,
   transform : @math.Transform,
-  camera_entity_id : UInt?,
+  camera_entity_id : UInt32?,
   sorting : @render2d.Sorting2d,
 ) -> Unit {
   match sprite.image {

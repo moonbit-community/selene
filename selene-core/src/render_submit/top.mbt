@@ -4,7 +4,7 @@ fn full_screen_viewport() -> @math.Rect {
 }
 
 ///|
-fn screen_pass_order(camera_views : Array[@camera.Camera2dView]) -> Int {
+fn screen_pass_order(camera_views : Array[@camera.Camera2dView]) -> Int32 {
   if camera_views.is_empty() {
     0
   } else {

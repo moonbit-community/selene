@@ -27,7 +27,7 @@ priv struct ShapeWorldStore {
 }
 
 ///|
-let shape_world_stores : Map[UInt, ShapeWorldStore] = Map([])
+let shape_world_stores : Map[UInt32, ShapeWorldStore] = Map([])
 
 ///|
 fn shape_world_store() -> ShapeWorldStore {

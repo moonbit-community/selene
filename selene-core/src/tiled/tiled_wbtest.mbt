@@ -169,7 +169,7 @@ fn test_tileset_16x16() -> TiledTileset {
 }
 
 ///|
-fn test_tile_cell(x : Int, y : Int) -> TiledCell {
+fn test_tile_cell(x : Int32, y : Int32) -> TiledCell {
   { x, y, gid: decode_tiled_gid(1), }
 }
 

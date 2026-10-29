@@ -168,7 +168,7 @@ priv struct TransformWorldStore {
 }
 
 ///|
-let transform_world_stores : Map[UInt, TransformWorldStore] = Map([])
+let transform_world_stores : Map[UInt32, TransformWorldStore] = Map([])
 
 ///|
 fn transform_world_store() -> TransformWorldStore {

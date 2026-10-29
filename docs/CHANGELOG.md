@@ -4,16 +4,24 @@
 
 ### Added
 
+- Added WebGPU unit tests and shared example tests to the existing CI checks.
+
 ### Changed
 
-- Updated MoonBit compatibility for the 2026-08-19 nightly toolchain, including
-  explicit trait method extensions, exhaustive guard handling, and current
-  operator and error-cleanup syntax.
-- Updated `moonbitlang/x` to 0.5.1 and `moonbitlang/async` to 0.21.0.
+- Changed CI and Pages deployment to install the latest MoonBit toolchain.
+- Updated backend dependencies and migrated sources to current MoonBit formatting
+  and integer/parameter syntax.
+- Changed Pixel Adventure to spawn its existing level directly from MoonBit data.
 
 ### Fixed
 
+- Fixed the test command for current MoonBit tooling, removed duplicate and unused
+  package imports, and replaced deprecated random-number constructors.
+
 ### Removed
+
+- Removed the scene editor modules, editor bridge, document formats, integration
+  specs, and editor entries in workspace, CI, publishing, examples, and documentation.
 
 ## [0.37.3] - 2026-09-07
 

@@ -1,7 +1,7 @@
 ///|
 priv struct ImageVertices2D {
   vertices : Array[Double]
-  sampler_code : Int
+  sampler_code : Int32
 }
 
 ///|

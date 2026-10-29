@@ -69,7 +69,7 @@ python3 -m http.server 8000
 
 使用 `moon new` 创建项目后，可以参考 `examples/pixeladventure` 的组织方式：
 
-- `pixeladventure`：共享游戏逻辑包、场景运行时桥接，以及资源引用
+- `pixeladventure`：共享游戏逻辑包、关卡生成，以及资源引用
 - `pixeladventure/web`：Web 入口 wrapper（通过 `overrides` 选择 webgpu 后端）
 
 ### 素材准备
@@ -81,10 +81,7 @@ python3 -m http.server 8000
 
 将素材放入项目资源目录，例如 `assets/pixeladventure/...`。
 
-当前示例还会把 Selene 项目清单和启动场景与游戏代码放在一起：
-
-- `selene.project.json`：项目入口和资源索引
-- `scenes/main.scene.json`：启动场景文档
+关卡在游戏代码旁的 `level.mbt` 和 `level_data.mbt` 中定义。
 
 ### 引擎依赖安装
 
@@ -109,7 +106,6 @@ import {
   "Milky2018/selene/animation",
   "Milky2018/selene/asset",
   "Milky2018/selene/audio",
-  "Milky2018/selene/editor_bridge",
   "Milky2018/selene/ecs",
   "Milky2018/selene/entity",
   "Milky2018/selene/event",
@@ -338,26 +334,9 @@ let player_collision_group = @physics2d.collision_group()
 
 只有过滤规则允许的碰撞组之间才会发生碰撞。
 
-### 场景文档与关卡加载
+### 关卡加载
 
-直接手写整张地图不方便。当前示例使用 Selene 项目清单和启动场景文档，再在运行时把它们实例化出来。
-
-`editor_scene.mbt` 中的加载流程大致如下：
-
-```moonbit
-let bundle = load_pixeladventure_project_bundle_with_source(source)
-let scene = bundle.scene
-let context = @editor_bridge.asset_instantiation_context(
-  atlas_assets=bundle.atlas_assets,
-  animation_clip_assets=bundle.animation_clip_assets,
-  animation_graph_assets=bundle.animation_graph_assets,
-  custom_component_handlers=pixeladventure_custom_component_handlers(),
-)
-let runtime = @editor_bridge.instantiate_scene_document_with_context(
-  scene,
-  context,
-)
-```
+`level.mbt` 直接生成角色、苹果、旗帜和摄像机，并使用 `level_data.mbt` 中的图块坐标创建地形精灵和合并的行碰撞体。
 
 ### 摄像机
 

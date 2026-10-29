@@ -89,10 +89,10 @@ fn quat_from_matrix3(
 }
 
 ///|
-fn parse_node_children(node_object : Map[String, Json]) -> Array[Int] {
+fn parse_node_children(node_object : Map[String, Json]) -> Array[Int32] {
   guard node_object.get("children") is Some(children_json) else { return [] }
   guard json_array(children_json) is Some(children) else { return [] }
-  let indexes : Array[Int] = []
+  let indexes : Array[Int32] = []
   for value in children {
     if json_number(value) is Some(number) {
       indexes.push(number.to_int())
@@ -104,8 +104,8 @@ fn parse_node_children(node_object : Map[String, Json]) -> Array[Int] {
 ///|
 fn parse_root_nodes(
   root_object : Map[String, Json],
-  max_nodes : Int,
-) -> Array[Int] {
+  max_nodes : Int32,
+) -> Array[Int32] {
   guard root_object.get("scenes") is Some(scenes_json) else {
     return fallback_root_nodes(max_nodes)
   }
@@ -131,7 +131,7 @@ fn parse_root_nodes(
   guard json_array(root_nodes_json) is Some(root_nodes) else {
     return fallback_root_nodes(max_nodes)
   }
-  let indexes : Array[Int] = []
+  let indexes : Array[Int32] = []
   for value in root_nodes {
     if json_number(value) is Some(number) {
       let index = number.to_int()
@@ -148,7 +148,7 @@ fn parse_root_nodes(
 }
 
 ///|
-fn fallback_root_nodes(max_nodes : Int) -> Array[Int] {
+fn fallback_root_nodes(max_nodes : Int32) -> Array[Int32] {
   if max_nodes > 0 {
     [0]
   } else {
@@ -193,7 +193,7 @@ fn color_from_factor4(values : Array[Double]) -> @render.Color {
 }
 
 ///|
-fn factor_to_u8(value : Double) -> UInt {
+fn factor_to_u8(value : Double) -> UInt32 {
   (clamp01(value) * 255.0).to_int().reinterpret_as_uint()
 }
 
@@ -222,7 +222,7 @@ fn parse_morph_weight_values(values : Array[Json]?) -> Array[Double] {
 
 ///|
 fn resolve_morph_weights(
-  target_count : Int,
+  target_count : Int32,
   candidate_weights : Array[Double],
 ) -> Array[Double] {
   if target_count <= 0 {
@@ -247,7 +247,7 @@ fn resolve_morph_weights(
 fn max_attribute_set_index(
   attributes_object : Map[String, Json],
   prefix : String,
-) -> Int {
+) -> Int32 {
   let mut max_index = -1
   for pair in attributes_object.to_array() {
     let key = pair.0

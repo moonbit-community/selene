@@ -19,9 +19,9 @@ pub(all) struct App {
   viewport_width : Double
   zoom : Double
   image_smooth : Bool
-  fps : UInt
-  fixed_hz : UInt
-  max_fixed_steps_per_frame : UInt
+  fps : UInt32
+  fixed_hz : UInt32
+  max_fixed_steps_per_frame : UInt32
   world : @ecs.World
   event_registrations : Array[(@ecs.World) -> Unit]
   systems : Array[RegisteredSystem]
@@ -33,13 +33,13 @@ pub fn App::add_plugins(Self, Array[(Self) -> Self]) -> Self
 pub fn App::add_system(Self, @system.Schedule, (@ecs.World) -> Unit, system_name? : String, in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
 pub fn App::add_systems(Self, @system.Schedule, Array[(@ecs.World) -> Unit], in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
 pub fn App::run(Self) -> Unit
-pub fn App::run_frames(Self, Int, raw_delta? : Double, fixed_delta_override? : Double?) -> Unit
-pub fn App::run_frames_capture(Self, Int, capture_width? : Int, capture_height? : Int, raw_delta? : Double, fixed_delta_override? : Double?, metadata_indent? : Int, capture_frame_indexes? : Array[Int]?) -> Array[@runtime_debug.FrameCaptureArtifact]
-pub fn App::step_fixed(Self, Int, fixed_delta_override? : Double?) -> Unit
-pub fn App::with_fixed_hz(Self, UInt) -> Self
-pub fn App::with_fps(Self, UInt) -> Self
+pub fn App::run_frames(Self, Int32, raw_delta? : Double, fixed_delta_override? : Double?) -> Unit
+pub fn App::run_frames_capture(Self, Int32, capture_width? : Int32, capture_height? : Int32, raw_delta? : Double, fixed_delta_override? : Double?, metadata_indent? : Int32, capture_frame_indexes? : Array[Int32]?) -> Array[@runtime_debug.FrameCaptureArtifact]
+pub fn App::step_fixed(Self, Int32, fixed_delta_override? : Double?) -> Unit
+pub fn App::with_fixed_hz(Self, UInt32) -> Self
+pub fn App::with_fps(Self, UInt32) -> Self
 pub fn App::with_image_smooth(Self, Bool) -> Self
-pub fn App::with_max_fixed_steps_per_frame(Self, UInt) -> Self
+pub fn App::with_max_fixed_steps_per_frame(Self, UInt32) -> Self
 pub fn App::with_viewport_height(Self, Double) -> Self
 pub fn App::with_viewport_width(Self, Double) -> Self
 pub fn App::with_world(Self, @ecs.World) -> Self
@@ -59,7 +59,7 @@ pub(all) struct RegisteredSystem {
 pub(all) struct RuntimePlan {
   world : @ecs.World
   fixed_dt : Double
-  max_fixed_steps : Int
+  max_fixed_steps : Int32
   startup_systems : Array[RegisteredSystem]
   frame_first : Array[RegisteredSystem]
   frame_pre : Array[RegisteredSystem]

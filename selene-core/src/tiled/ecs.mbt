@@ -25,7 +25,7 @@ fn tiled_ecs_set_entity_translation_2d(
 }
 
 ///|
-fn tiled_ecs_set_entity_depth(entity : @entity.Entity, z : Int) -> Unit {
+fn tiled_ecs_set_entity_depth(entity : @entity.Entity, z : Int32) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
@@ -162,8 +162,8 @@ fn tiled_install_sprite_animation(
 ///|
 pub(all) struct TiledSpawnSettings {
   position : @math.Vec2
-  zindex : Int
-  layer_z_step : Int
+  zindex : Int32
+  layer_z_step : Int32
   spawn_hidden_layers : Bool
   physics_settings : TiledPhysicsSettings?
   map_hook : ((TiledMapSpawnedEvent) -> Unit)?
@@ -183,7 +183,7 @@ pub struct TiledLayerInstance {
   map_entity : @entity.Entity
   layer : TiledLayer
   effective_visible : Bool
-  zindex : Int
+  zindex : Int32
 }
 
 ///|
@@ -226,9 +226,9 @@ pub fn TiledProperties::get(
 
 ///|
 pub struct TiledMapStorage {
-  layers : Map[Int, @entity.Entity]
-  objects : Map[Int, @entity.Entity]
-  tiles : Map[Int, Array[@entity.Entity]]
+  layers : Map[Int32, @entity.Entity]
+  objects : Map[Int32, @entity.Entity]
+  tiles : Map[Int32, Array[@entity.Entity]]
 }
 
 ///|
@@ -246,7 +246,7 @@ pub fn empty_tiled_map_storage() -> TiledMapStorage {
 ///|
 pub fn TiledMapStorage::layer_entity(
   self : TiledMapStorage,
-  layer_id : Int,
+  layer_id : Int32,
 ) -> @entity.Entity? {
   self.layers.get(layer_id)
 }
@@ -254,7 +254,7 @@ pub fn TiledMapStorage::layer_entity(
 ///|
 pub fn TiledMapStorage::object_entity(
   self : TiledMapStorage,
-  object_id : Int,
+  object_id : Int32,
 ) -> @entity.Entity? {
   self.objects.get(object_id)
 }
@@ -262,7 +262,7 @@ pub fn TiledMapStorage::object_entity(
 ///|
 pub fn TiledMapStorage::tile_entities(
   self : TiledMapStorage,
-  global_tile_id : Int,
+  global_tile_id : Int32,
 ) -> Array[@entity.Entity] {
   self.tiles.get(global_tile_id).unwrap_or([])
 }
@@ -280,7 +280,7 @@ priv struct TiledEcsWorldStore {
 }
 
 ///|
-let tiled_ecs_world_stores : Map[UInt, TiledEcsWorldStore] = Map([])
+let tiled_ecs_world_stores : Map[UInt32, TiledEcsWorldStore] = Map([])
 
 ///|
 fn tiled_ecs_world_store() -> TiledEcsWorldStore {
@@ -359,7 +359,7 @@ pub fn default_tiled_spawn_settings() -> TiledSpawnSettings {
 ///|
 pub fn load_and_spawn_tiled_map(
   path : String,
-  settings? : TiledSpawnSettings = default_tiled_spawn_settings(),
+  settings~ : TiledSpawnSettings = default_tiled_spawn_settings(),
 ) -> @entity.Entity {
   spawn_tiled_map(load_tiled_map(path), settings~)
 }
@@ -367,7 +367,7 @@ pub fn load_and_spawn_tiled_map(
 ///|
 pub fn spawn_tiled_map(
   map : TiledMap,
-  settings? : TiledSpawnSettings = default_tiled_spawn_settings(),
+  settings~ : TiledSpawnSettings = default_tiled_spawn_settings(),
 ) -> @entity.Entity {
   let root = @entity.Entity()
   spawn_tiled_map_root(root, map, settings)
@@ -378,7 +378,7 @@ pub fn spawn_tiled_map(
 pub fn spawn_tiled_map_into_entity(
   root : @entity.Entity,
   map : TiledMap,
-  settings? : TiledSpawnSettings = default_tiled_spawn_settings(),
+  settings~ : TiledSpawnSettings = default_tiled_spawn_settings(),
 ) -> Unit {
   spawn_tiled_map_root(root, map, settings)
 }
@@ -387,7 +387,7 @@ pub fn spawn_tiled_map_into_entity(
 pub fn respawn_tiled_map_into_entity(
   root : @entity.Entity,
   map : TiledMap,
-  settings? : TiledSpawnSettings = default_tiled_spawn_settings(),
+  settings~ : TiledSpawnSettings = default_tiled_spawn_settings(),
 ) -> Unit {
   clear_tiled_children(root)
   @entity.entity_flush_system(0.0)
@@ -424,8 +424,8 @@ fn spawn_tiled_layers(
   layers : Array[TiledLayer],
   settings : TiledSpawnSettings,
   inherited_visible : Bool,
-  next_layer_index : Int,
-) -> Int {
+  next_layer_index : Int32,
+) -> Int32 {
   let mut layer_index = next_layer_index
   for layer in layers {
     let effective_visible = inherited_visible && layer.visible
@@ -492,7 +492,7 @@ fn spawn_tiled_tile_layer(
   map : TiledMap,
   layer : TiledLayer,
   tile_layer : TiledTileLayer,
-  zindex : Int,
+  zindex : Int32,
   settings : TiledSpawnSettings,
 ) -> Unit {
   for cell in tile_layer.tile_cells() {
@@ -556,7 +556,7 @@ fn spawn_tiled_object_layer(
   map : TiledMap,
   layer : TiledLayer,
   object_layer : TiledObjectLayer,
-  zindex : Int,
+  zindex : Int32,
   visible : Bool,
   settings : TiledSpawnSettings,
 ) -> Unit {
@@ -626,7 +626,7 @@ fn spawn_tiled_image_layer(
   map : TiledMap,
   layer : TiledLayer,
   image_layer : TiledImageLayer,
-  zindex : Int,
+  zindex : Int32,
   visible : Bool,
   settings : TiledSpawnSettings,
 ) -> Unit {
@@ -786,7 +786,7 @@ fn tiled_animation_frames_from_definition(
 }
 
 ///|
-fn tiled_animation_step_ms(animation : Array[TiledAnimationFrame]) -> Int {
+fn tiled_animation_step_ms(animation : Array[TiledAnimationFrame]) -> Int32 {
   let mut step_ms = 0
   for frame in animation {
     let duration_ms = if frame.duration_ms > 0 {
@@ -808,7 +808,7 @@ fn tiled_animation_step_ms(animation : Array[TiledAnimationFrame]) -> Int {
 }
 
 ///|
-fn tiled_gcd(left : Int, right : Int) -> Int {
+fn tiled_gcd(left : Int32, right : Int32) -> Int32 {
   let mut a = left.abs()
   let mut b = right.abs()
   while b != 0 {
@@ -823,7 +823,7 @@ fn tiled_gcd(left : Int, right : Int) -> Int {
 fn tiled_visual_regions_for_local_tile(
   map : TiledMap,
   tileset : TiledTileset,
-  local_id : Int,
+  local_id : Int32,
   frame_size : @math.Vec2,
 ) -> Array[(@asset.ImageHandle, @math.Rect)] {
   if local_id < 0 || frame_size[X] <= 0.0 || frame_size[Y] <= 0.0 {
@@ -875,7 +875,7 @@ fn tiled_layout_size(rects : Array[@math.Rect]) -> @math.Vec2 {
 fn tiled_tileset_source_offset(
   map : TiledMap,
   tileset : TiledTileset,
-  local_id : Int,
+  local_id : Int32,
 ) -> @math.Vec2? {
   guard tileset.image is Some(_) else { return None }
   let tile_width = tileset.tile_width.unwrap_or(map.tile_width).to_double()
@@ -1016,7 +1016,7 @@ fn tiled_staggered_layout_cell_position(
 }
 
 ///|
-fn tiled_is_staggered_index(index : Int, stagger_index : String?) -> Bool {
+fn tiled_is_staggered_index(index : Int32, stagger_index : String?) -> Bool {
   let is_even = index.abs() % 2 == 0
   match stagger_index.map_or("odd", fn(value) { value.to_lower() }) {
     "even" => is_even
@@ -1149,7 +1149,7 @@ fn tiled_set_properties(
 ///|
 fn tiled_register_layer_entity(
   map_entity : @entity.Entity,
-  layer_id : Int,
+  layer_id : Int32,
   layer_entity : @entity.Entity,
 ) -> Unit {
   guard tiled_map_storages().get(map_entity) is Some(storage) else { return }
@@ -1159,7 +1159,7 @@ fn tiled_register_layer_entity(
 ///|
 fn tiled_register_object_entity(
   map_entity : @entity.Entity,
-  object_id : Int,
+  object_id : Int32,
   object_entity : @entity.Entity,
 ) -> Unit {
   guard tiled_map_storages().get(map_entity) is Some(storage) else { return }
@@ -1169,7 +1169,7 @@ fn tiled_register_object_entity(
 ///|
 fn tiled_register_tile_entity(
   map_entity : @entity.Entity,
-  global_tile_id : Int,
+  global_tile_id : Int32,
   tile_entity : @entity.Entity,
 ) -> Unit {
   guard global_tile_id > 0 else { return }

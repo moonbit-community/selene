@@ -56,7 +56,7 @@ pub fn atlas_overlay_enabled() -> Bool {
 }
 
 ///|
-pub fn set_rng_seed(seed : UInt) -> Unit {
+pub fn set_rng_seed(seed : UInt32) -> Unit {
   let world_id = current_world_id()
   let mode = deterministic_mode()
   deterministic_mode_by_world.set(world_id, { ..mode, rng_seed: seed, })
@@ -64,12 +64,12 @@ pub fn set_rng_seed(seed : UInt) -> Unit {
 }
 
 ///|
-pub fn rng_seed() -> UInt {
+pub fn rng_seed() -> UInt32 {
   deterministic_mode().rng_seed
 }
 
 ///|
-pub fn next_deterministic_u32() -> UInt {
+pub fn next_deterministic_u32() -> UInt32 {
   let world_id = current_world_id()
   let mut x = rng_state_by_world.get_or_init(world_id, () => {
     deterministic_mode().rng_seed
@@ -156,7 +156,7 @@ pub fn queue_input_snapshot(snapshot : @inputs.InputSnapshot) -> Unit {
 }
 
 ///|
-pub fn queued_input_count() -> Int {
+pub fn queued_input_count() -> Int32 {
   queued_inputs().length()
 }
 

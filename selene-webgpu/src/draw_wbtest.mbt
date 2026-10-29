@@ -1,15 +1,15 @@
 ///|
-fn webgpu_test_handle(id : Int) -> @render3d_types.ImageHandle {
+fn webgpu_test_handle(id : Int32) -> @render3d_types.ImageHandle {
   ImageHandle(id.reinterpret_as_uint())
 }
 
 ///|
-fn webgpu_test_mesh_handle(id : Int) -> @render3d_types.MeshHandle {
+fn webgpu_test_mesh_handle(id : Int32) -> @render3d_types.MeshHandle {
   MeshHandle(id.reinterpret_as_uint())
 }
 
 ///|
-fn webgpu_test_material_handle(id : Int) -> @render3d_types.MaterialHandle {
+fn webgpu_test_material_handle(id : Int32) -> @render3d_types.MaterialHandle {
   MaterialHandle(id.reinterpret_as_uint())
 }
 

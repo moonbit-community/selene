@@ -34,7 +34,7 @@ pub fn LdtkProject::raw_level_set_for_selection(
 ///|
 pub fn LdtkProject::tileset_by_uid(
   self : LdtkProject,
-  uid : Int,
+  uid : Int32,
 ) -> LdtkTilesetDefinition? {
   for tileset in self.defs.tilesets {
     if tileset.uid == uid {
@@ -47,7 +47,7 @@ pub fn LdtkProject::tileset_by_uid(
 ///|
 pub fn LdtkTilesetDefinition::tile_custom_data(
   self : LdtkTilesetDefinition,
-  tile_id : Int,
+  tile_id : Int32,
 ) -> String? {
   for custom_data in self.custom_data {
     if custom_data.tile_id == tile_id {
@@ -60,7 +60,7 @@ pub fn LdtkTilesetDefinition::tile_custom_data(
 ///|
 pub fn LdtkTilesetDefinition::tile_enum_tags(
   self : LdtkTilesetDefinition,
-  tile_id : Int,
+  tile_id : Int32,
 ) -> Array[String] {
   let tags : Array[String] = []
   for enum_tag in self.enum_tags {
@@ -77,8 +77,8 @@ pub fn LdtkTilesetDefinition::tile_enum_tags(
 ///|
 pub fn LdtkProject::tileset_tile_custom_data(
   self : LdtkProject,
-  tileset_uid : Int,
-  tile_id : Int,
+  tileset_uid : Int32,
+  tile_id : Int32,
 ) -> String? {
   guard self.tileset_by_uid(tileset_uid) is Some(tileset) else { return None }
   tileset.tile_custom_data(tile_id)
@@ -87,8 +87,8 @@ pub fn LdtkProject::tileset_tile_custom_data(
 ///|
 pub fn LdtkProject::tileset_tile_enum_tags(
   self : LdtkProject,
-  tileset_uid : Int,
-  tile_id : Int,
+  tileset_uid : Int32,
+  tile_id : Int32,
 ) -> Array[String] {
   guard self.tileset_by_uid(tileset_uid) is Some(tileset) else { return [] }
   tileset.tile_enum_tags(tile_id)
@@ -123,7 +123,7 @@ pub fn LdtkProject::entity_definition_by_identifier(
 ///|
 pub fn LdtkProject::entity_definition_by_uid(
   self : LdtkProject,
-  uid : Int,
+  uid : Int32,
 ) -> LdtkEntityDefinition? {
   for entity_definition in self.defs.entities {
     if entity_definition.uid == uid {
@@ -154,7 +154,7 @@ pub fn LdtkProject::enum_definition_by_identifier(
 ///|
 pub fn LdtkProject::enum_definition_by_uid(
   self : LdtkProject,
-  uid : Int,
+  uid : Int32,
 ) -> LdtkEnumDefinition? {
   for enum_definition in self.defs.enums {
     if enum_definition.uid == uid {
@@ -185,7 +185,7 @@ pub fn LdtkProject::external_enum_definition_by_identifier(
 ///|
 pub fn LdtkProject::external_enum_definition_by_uid(
   self : LdtkProject,
-  uid : Int,
+  uid : Int32,
 ) -> LdtkEnumDefinition? {
   for enum_definition in self.defs.external_enums {
     if enum_definition.uid == uid {
@@ -199,7 +199,7 @@ pub fn LdtkProject::external_enum_definition_by_uid(
 pub fn LdtkProject::int_grid_color(
   self : LdtkProject,
   layer_identifier : String,
-  value : Int,
+  value : Int32,
 ) -> String? {
   guard self.layer_definition_by_identifier(layer_identifier)
     is Some(layer_definition) else {
@@ -610,10 +610,10 @@ fn parse_ldtk_layer_instances(layers_json : Json?) -> Array[LdtkLayerInstance] {
 }
 
 ///|
-fn parse_ldtk_int_array(value : Json?) -> Array[Int] {
+fn parse_ldtk_int_array(value : Json?) -> Array[Int32] {
   guard value is Some(value_json) else { return [] }
   guard json_array(value_json) is Some(items) else { return [] }
-  let values : Array[Int] = []
+  let values : Array[Int32] = []
   for item in items {
     if json_int(item) is Some(int_value) {
       values.push(int_value)

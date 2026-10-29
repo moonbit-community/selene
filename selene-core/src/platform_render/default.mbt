@@ -12,7 +12,7 @@ pub fn register_font(family : String, path : String) -> Unit {
 ///|
 /// Returns a monotonically increasing revision whenever the backend's
 /// measurable glyph metrics for `family` change.
-pub fn font_metrics_revision(family : String) -> UInt {
+pub fn font_metrics_revision(family : String) -> UInt32 {
   ignore(family)
   0U
 }
@@ -64,8 +64,8 @@ pub fn capture_frame_png_to_file(path : String) -> Bool {
 ///|
 pub fn render_offscreen_png(
   frame : @render_pipeline.RenderFrame,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Bytes? {
   ignore(frame)
   ignore(width)

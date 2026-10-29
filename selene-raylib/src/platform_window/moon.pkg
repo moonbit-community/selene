@@ -5,6 +5,4 @@ import {
 
 supported_targets = "native"
 
-options(
-  implement: "Milky2018/selene/platform_window",
-)
+virtual(implement: "Milky2018/selene/platform_window")

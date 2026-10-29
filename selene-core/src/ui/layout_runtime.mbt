@@ -3,7 +3,7 @@ priv struct UiMeasureSnapshot {
   text_content : String?
   font_handle : @asset.FontHandle?
   font_state : @asset.LoadState?
-  font_metrics_revision : UInt
+  font_metrics_revision : UInt32
   font_family : String?
   font_size : Double?
   line_height : Double
@@ -27,8 +27,8 @@ priv struct UiProjectionSnapshot {
 priv struct UiStackSnapshot {
   displayed : Bool
   visible : Bool
-  z_index : Int?
-  global_z_index : Int?
+  z_index : Int32?
+  global_z_index : Int32?
 } derive(Eq)
 
 ///|
@@ -58,20 +58,20 @@ priv struct UiLayoutRootSnapshot {
 
 ///|
 priv struct UiLayoutRootRuntime {
-  node_id : Int
-  mut child_node_id : Int
+  node_id : Int32
+  mut child_node_id : Int32
   mut snapshot : UiLayoutRootSnapshot
 }
 
 ///|
 priv struct UiLayoutRuntime {
   tree : @tree.ChicleTree[@entity.Entity]
-  node_ids : Map[@entity.Entity, Int]
+  node_ids : Map[@entity.Entity, Int32]
   nodes : Map[@entity.Entity, UiLayoutNodeRuntime]
   roots : Map[@entity.Entity, UiLayoutRootRuntime]
-  mut layout_revision : UInt
-  mut projection_revision : UInt
-  mut stacking_revision : UInt
+  mut layout_revision : UInt32
+  mut projection_revision : UInt32
+  mut stacking_revision : UInt32
 }
 
 ///|
@@ -82,7 +82,7 @@ priv struct UiLayoutDirty {
 }
 
 ///|
-let ui_layout_runtimes : Map[UInt, UiLayoutRuntime] = Map([])
+let ui_layout_runtimes : Map[UInt32, UiLayoutRuntime] = Map([])
 
 ///|
 fn ui_layout_runtime() -> UiLayoutRuntime {
@@ -285,7 +285,7 @@ fn ui_root_snapshot(root : @entity.Entity) -> UiLayoutRootSnapshot {
 ///|
 fn set_chicle_style(
   runtime : UiLayoutRuntime,
-  node_id : Int,
+  node_id : Int32,
   style : @style.Style,
 ) -> Unit {
   runtime.tree.set_style(node_id, style) catch {
@@ -296,8 +296,8 @@ fn set_chicle_style(
 ///|
 fn set_chicle_children(
   runtime : UiLayoutRuntime,
-  node_id : Int,
-  children : Array[Int],
+  node_id : Int32,
+  children : Array[Int32],
 ) -> Unit {
   runtime.tree.set_children(node_id, children) catch {
     _ => abort("UI layout runtime contains an invalid Chicle hierarchy")
@@ -305,14 +305,14 @@ fn set_chicle_children(
 }
 
 ///|
-fn mark_chicle_dirty(runtime : UiLayoutRuntime, node_id : Int) -> Unit {
+fn mark_chicle_dirty(runtime : UiLayoutRuntime, node_id : Int32) -> Unit {
   runtime.tree.mark_dirty(node_id) catch {
     _ => abort("UI layout runtime contains an invalid Chicle node")
   }
 }
 
 ///|
-fn remove_chicle_node(runtime : UiLayoutRuntime, node_id : Int) -> Unit {
+fn remove_chicle_node(runtime : UiLayoutRuntime, node_id : Int32) -> Unit {
   runtime.tree.remove(node_id) catch {
     _ => abort("UI layout runtime contains an invalid Chicle node")
   }
@@ -324,7 +324,7 @@ fn sync_layout_node(
   entity : @entity.Entity,
   reachable : Set[@entity.Entity],
   dirty : UiLayoutDirty,
-) -> Int? {
+) -> Int32? {
   guard nodes().get(entity) is Some(node) else { return None }
   guard node.active else { return None }
   reachable.add(entity)
@@ -381,7 +381,7 @@ fn sync_layout_node(
   }
 
   let child_entities : Array[@entity.Entity] = []
-  let child_ids : Array[Int] = []
+  let child_ids : Array[Int32] = []
   for child in ui_children(entity) {
     if sync_layout_node(runtime, child, reachable, dirty) is Some(child_id) {
       child_entities.push(child)
@@ -556,7 +556,7 @@ fn project_layout(
 fn record_ui_tree_order(
   runtime : UiLayoutRuntime,
   entity : @entity.Entity,
-  order : Ref[Int],
+  order : Ref[Int32],
 ) -> Unit {
   guard runtime.nodes.contains(entity) else { return }
   order.val += 1

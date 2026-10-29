@@ -368,7 +368,7 @@ fn weighted_skin_matrix(
 fn update_bound_mesh(
   mesh : @render3d.MeshHandle,
   positions : Array[@math.Vec3],
-  indices : Array[Int]?,
+  indices : Array[Int32]?,
   topology : @render3d.TriangleTopology3D,
   normals : Array[@math.Vec3],
   uv_sets : Array[Array[@math.Vec2]],

@@ -106,7 +106,7 @@ fn uniform_texture_transform_rotation(
 ///|
 fn to_ray_vec3_array(
   values : Array[@smath.Vec3],
-  count : Int,
+  count : Int32,
 ) -> Array[@raylib.Vector3] {
   let out : Array[@raylib.Vector3] = []
   for index in 0..<count {
@@ -117,7 +117,7 @@ fn to_ray_vec3_array(
 }
 
 ///|
-fn to_float_array(values : Array[Double], count : Int) -> Array[Float] {
+fn to_float_array(values : Array[Double], count : Int32) -> Array[Float] {
   let out : Array[Float] = []
   for index in 0..<count {
     out.push(to_float(values[index]))
@@ -128,7 +128,7 @@ fn to_float_array(values : Array[Double], count : Int) -> Array[Float] {
 ///|
 fn set_shader_uniform(
   shader : @raylib.Shader,
-  loc : Int,
+  loc : Int32,
   value : @raylib.ShaderUniformData,
 ) -> Unit {
   if loc == -1 {
@@ -140,7 +140,7 @@ fn set_shader_uniform(
 ///|
 fn set_shader_uniform_v(
   shader : @raylib.Shader,
-  loc : Int,
+  loc : Int32,
   data : @raylib.ShaderUniformDataV,
 ) -> Unit {
   if loc == -1 {
@@ -209,24 +209,24 @@ fn create_lighting_shader_state() -> LightingShaderState {
     raylib_lighting_vertex_shader, raylib_lighting_fragment_shader,
   )
   configure_lighting_shader_locations(shader)
-  let shadow_enabled_locs : Array[Int] = []
-  let shadow_cascade_count_locs : Array[Int] = []
-  let shadow_matrix_locs : Array[Int] = []
-  let shadow_rect_locs : Array[Int] = []
-  let shadow_bound_locs : Array[Int] = []
-  let shadow_depth_bias_locs : Array[Int] = []
-  let shadow_normal_bias_locs : Array[Int] = []
-  let shadow_sampler_locs : Array[Int] = []
-  let spot_shadow_enabled_locs : Array[Int] = []
-  let spot_shadow_matrix_locs : Array[Int] = []
-  let spot_shadow_rect_locs : Array[Int] = []
-  let spot_shadow_depth_bias_locs : Array[Int] = []
-  let spot_shadow_normal_bias_locs : Array[Int] = []
-  let point_shadow_enabled_locs : Array[Int] = []
-  let point_shadow_depth_bias_locs : Array[Int] = []
-  let point_shadow_normal_bias_locs : Array[Int] = []
-  let point_shadow_matrix_locs : Array[Int] = []
-  let point_shadow_rect_locs : Array[Int] = []
+  let shadow_enabled_locs : Array[Int32] = []
+  let shadow_cascade_count_locs : Array[Int32] = []
+  let shadow_matrix_locs : Array[Int32] = []
+  let shadow_rect_locs : Array[Int32] = []
+  let shadow_bound_locs : Array[Int32] = []
+  let shadow_depth_bias_locs : Array[Int32] = []
+  let shadow_normal_bias_locs : Array[Int32] = []
+  let shadow_sampler_locs : Array[Int32] = []
+  let spot_shadow_enabled_locs : Array[Int32] = []
+  let spot_shadow_matrix_locs : Array[Int32] = []
+  let spot_shadow_rect_locs : Array[Int32] = []
+  let spot_shadow_depth_bias_locs : Array[Int32] = []
+  let spot_shadow_normal_bias_locs : Array[Int32] = []
+  let point_shadow_enabled_locs : Array[Int32] = []
+  let point_shadow_depth_bias_locs : Array[Int32] = []
+  let point_shadow_normal_bias_locs : Array[Int32] = []
+  let point_shadow_matrix_locs : Array[Int32] = []
+  let point_shadow_rect_locs : Array[Int32] = []
   for index in 0..<MAX_DIRECTIONAL_LIGHTS {
     shadow_enabled_locs.push(
       @raylib.get_shader_location(shader, "shadowEnabled[\{index}]"),

@@ -134,8 +134,8 @@ pub fn[T] Without::to_filter(self : Without[T]) -> EntityFilter {
 ///|
 pub fn[T] Query::iter(
   self : Query[T],
-  require_filters? : Array[EntityFilter] = [],
-  reject_filters? : Array[EntityFilter] = [],
+  require_filters~ : Array[EntityFilter] = [],
+  reject_filters~ : Array[EntityFilter] = [],
 ) -> Array[(@entity.Entity, T)] {
   ignore(self.world)
   let output : Array[(@entity.Entity, T)] = []
@@ -166,8 +166,8 @@ pub fn[T] Query::iter(
 ///|
 pub fn[T] Query::single(
   self : Query[T],
-  require_filters? : Array[EntityFilter] = [],
-  reject_filters? : Array[EntityFilter] = [],
+  require_filters~ : Array[EntityFilter] = [],
+  reject_filters~ : Array[EntityFilter] = [],
 ) -> (@entity.Entity, T)? {
   let matches = self.iter(require_filters~, reject_filters~)
   if matches.length() == 1 {

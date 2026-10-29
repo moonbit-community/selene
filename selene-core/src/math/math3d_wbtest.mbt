@@ -1,5 +1,5 @@
 ///|
-fn approx(a : Double, b : Double, eps? : Double = 0.000001) -> Bool {
+fn approx(a : Double, b : Double, eps~ : Double = 0.000001) -> Bool {
   let diff = a - b
   diff < eps && diff > -eps
 }

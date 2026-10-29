@@ -25,7 +25,7 @@ pub struct TiledLayerSpawnedEvent {
   layer_entity : @entity.Entity
   layer : TiledLayer
   effective_visible : Bool
-  zindex : Int
+  zindex : Int32
 }
 
 ///|

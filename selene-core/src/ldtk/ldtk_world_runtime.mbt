@@ -1,5 +1,5 @@
 ///|
-pub fn unregister_ldtk_int_grid_value_spawn_hook(value : Int) -> Unit {
+pub fn unregister_ldtk_int_grid_value_spawn_hook(value : Int32) -> Unit {
   ldtk_int_grid_value_spawn_hooks().remove(
     ldtk_int_grid_value_spawn_hook_key(value),
   )
@@ -20,7 +20,7 @@ pub fn clear_ldtk_int_grid_layer_spawn_hooks() -> Unit {
 ///|
 pub fn register_ldtk_int_grid_cell_spawn_hook(
   layer_identifier : String,
-  value : Int,
+  value : Int32,
   hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
 ) -> Unit {
   ldtk_int_grid_cell_spawn_hooks().set(
@@ -32,7 +32,7 @@ pub fn register_ldtk_int_grid_cell_spawn_hook(
 ///|
 pub fn unregister_ldtk_int_grid_cell_spawn_hook(
   layer_identifier : String,
-  value : Int,
+  value : Int32,
 ) -> Unit {
   ldtk_int_grid_cell_spawn_hooks().remove(
     ldtk_int_grid_cell_spawn_hook_key(layer_identifier, value),
@@ -56,7 +56,7 @@ pub fn clear_ldtk_int_grid_value_spawn_hooks() -> Unit {
 ///|
 pub fn load_and_spawn_ldtk_world(
   path : String,
-  settings? : LdtkWorldSpawnSettings = default_ldtk_world_spawn_settings(),
+  settings~ : LdtkWorldSpawnSettings = default_ldtk_world_spawn_settings(),
 ) -> @entity.Entity {
   spawn_ldtk_world(load_ldtk_project(path), settings~)
 }
@@ -64,7 +64,7 @@ pub fn load_and_spawn_ldtk_world(
 ///|
 pub fn spawn_ldtk_world(
   project : LdtkProject,
-  settings? : LdtkWorldSpawnSettings = default_ldtk_world_spawn_settings(),
+  settings~ : LdtkWorldSpawnSettings = default_ldtk_world_spawn_settings(),
 ) -> @entity.Entity {
   let world_entity = @entity.Entity()
   spawn_ldtk_world_root(world_entity, project, settings)
@@ -75,7 +75,7 @@ pub fn spawn_ldtk_world(
 pub fn spawn_ldtk_world_into_entity(
   root : @entity.Entity,
   project : LdtkProject,
-  settings? : LdtkWorldSpawnSettings = default_ldtk_world_spawn_settings(),
+  settings~ : LdtkWorldSpawnSettings = default_ldtk_world_spawn_settings(),
 ) -> Unit {
   spawn_ldtk_world_root(root, project, settings)
 }
@@ -84,7 +84,7 @@ pub fn spawn_ldtk_world_into_entity(
 pub fn respawn_ldtk_world_into_entity(
   root : @entity.Entity,
   project : LdtkProject,
-  settings? : LdtkWorldSpawnSettings = default_ldtk_world_spawn_settings(),
+  settings~ : LdtkWorldSpawnSettings = default_ldtk_world_spawn_settings(),
 ) -> Unit {
   clear_ldtk_children(root)
   @entity.entity_flush_system(0.0)
@@ -487,7 +487,7 @@ fn ldtk_spawn_layer_tiles(
   instance : LdtkWorldInstance,
   layer : LdtkLayerInstance,
   tiles : Array[LdtkTileInstance],
-  zindex : Int,
+  zindex : Int32,
 ) -> Unit {
   guard ldtk_layer_tileset_image(instance.project, layer) is Some(image) else {
     return
@@ -563,7 +563,7 @@ fn ldtk_spawn_int_grid_cells(
   level : LdtkLevel,
   instance : LdtkWorldInstance,
   layer : LdtkLayerInstance,
-  zindex : Int,
+  zindex : Int32,
 ) -> Unit {
   let width = layer.c_wid
   let grid_size = ldtk_layer_grid_size(instance.project, layer)
@@ -689,7 +689,7 @@ fn ldtk_spawn_layer_entities(
   layer_offset : @math.Vec2,
   instance : LdtkWorldInstance,
   layer : LdtkLayerInstance,
-  zindex : Int,
+  zindex : Int32,
 ) -> Unit {
   for entity_instance in layer.entity_instances {
     let base_offset = ldtk_entity_position(entity_instance)

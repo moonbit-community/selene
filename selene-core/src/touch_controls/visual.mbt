@@ -29,7 +29,7 @@ fn push_label(
   text : String,
   center : @math.Vec2,
   color : @render.Color,
-  size? : Double = 18.0,
+  size~ : Double = 18.0,
 ) -> Unit {
   if text == "" {
     return

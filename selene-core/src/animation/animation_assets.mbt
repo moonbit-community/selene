@@ -19,10 +19,10 @@ pub(all) struct MorphTargetBinding3D {
 
 ///|
 pub(all) struct SkinVertexInfluence3D {
-  joint0 : Int
-  joint1 : Int
-  joint2 : Int
-  joint3 : Int
+  joint0 : Int32
+  joint1 : Int32
+  joint2 : Int32
+  joint3 : Int32
   weight0 : Double
   weight1 : Double
   weight2 : Double
@@ -34,7 +34,7 @@ pub(all) struct SkinnedMeshBinding3D {
   target_entity : @entity.Entity
   mesh : @render3d.MeshHandle
   base_positions : Array[@math.Vec3]
-  indices : Array[Int]?
+  indices : Array[Int32]?
   topology : @render3d.TriangleTopology3D
   base_normals : Array[@math.Vec3]
   uv_sets : Array[Array[@math.Vec2]]
@@ -52,7 +52,7 @@ pub(all) struct MorphMeshBinding3D {
   target_entity : @entity.Entity
   mesh : @render3d.MeshHandle
   base_positions : Array[@math.Vec3]
-  indices : Array[Int]?
+  indices : Array[Int32]?
   topology : @render3d.TriangleTopology3D
   base_normals : Array[@math.Vec3]
   uv_sets : Array[Array[@math.Vec2]]
@@ -74,7 +74,7 @@ priv struct AnimationWorldStore {
 }
 
 ///|
-let animation_world_stores : Map[UInt, AnimationWorldStore] = Map([])
+let animation_world_stores : Map[UInt32, AnimationWorldStore] = Map([])
 
 ///|
 fn animation_world_store() -> AnimationWorldStore {
@@ -91,16 +91,16 @@ fn animation_world_store() -> AnimationWorldStore {
 }
 
 ///|
-let next_clip_id : Ref[UInt] = Ref(0U)
+let next_clip_id : Ref[UInt32] = Ref(0U)
 
 ///|
-let next_graph_id : Ref[UInt] = Ref(0U)
+let next_graph_id : Ref[UInt32] = Ref(0U)
 
 ///|
-let next_field_id : Ref[UInt] = Ref(0U)
+let next_field_id : Ref[UInt32] = Ref(0U)
 
 ///|
-let next_event_descriptor_id : Ref[UInt] = Ref(0U)
+let next_event_descriptor_id : Ref[UInt32] = Ref(0U)
 
 ///|
 let animation_clips : Map[AnimationClipHandle, AnimationClip] = Map([])

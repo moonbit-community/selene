@@ -1,17 +1,14 @@
 # Selene Game Engine [中文版](./README-zh.md)
 
-Selene is an ECS game engine for MoonBit with a WebGPU-first web backend, a raylib native backend, and an in-repo scene editor stack.
+Selene is an ECS game engine for MoonBit with a WebGPU-first web backend and a raylib native backend.
 
 ## Packages
 
 | Package | Purpose |
 | --- | --- |
-| `Milky2018/selene` | Core ECS/runtime modules (`app`, `asset`, `editor_bridge`, `animation`, `scene`, `physics2d/3d`, `render2d/3d`, `ui`) |
+| `Milky2018/selene` | Core ECS/runtime modules (`app`, `asset`, `animation`, `scene`, `physics2d/3d`, `render2d/3d`, `ui`) |
 | `Milky2018/selene_webgpu` | Web backend implementation |
 | `Milky2018/selene_raylib` | Native backend implementation |
-| `Milky2018/selene_editor_shared` | Shared editor protocol and bridge contracts |
-| `Milky2018/selene_editor_frontend` | Browser editor shell and preview runtime |
-| `Milky2018/selene_editor_service` | Native local editor service |
 
 ## Quick Start
 
@@ -22,16 +19,6 @@ python3 -m http.server 8000
 ```
 
 Open `http://localhost:8000/examples/index.html`.
-
-## Editor
-
-From the repository root:
-
-```bash
-just editor
-```
-
-This builds the frontend bundle, copies it into the service, and starts the local editor service on port `47142`.
 
 ## Documentation
 

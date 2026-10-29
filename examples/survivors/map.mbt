@@ -52,7 +52,7 @@ fn add_border(size : @math.Vec2) -> Unit {
 ///|
 fn add_grass() -> Unit {
   let density = 0.05
-  let rand = @random.Rand::new()
+  let rand = @random.Rand()
   for x in 0..<(MAP_WIDTH / 16.0).to_int() {
     for y in 0..<(MAP_HEIGHT / 16.0).to_int() {
       if rand.double() < density {

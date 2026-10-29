@@ -29,9 +29,9 @@ pub fn Collider::Collider(filter : CollisionFilter) -> Collider {
 ///|
 pub fn Collider::with_material(
   filter : CollisionFilter,
-  friction? : Double = 0.5,
-  restitution? : Double = 0.0,
-  active? : Bool = true,
+  friction~ : Double = 0.5,
+  restitution~ : Double = 0.0,
+  active~ : Bool = true,
 ) -> Collider {
   { active, filter, friction, restitution, }
 }
@@ -44,7 +44,7 @@ priv struct ColliderWorldStore {
 }
 
 ///|
-let collider_world_stores : Map[UInt, ColliderWorldStore] = Map([])
+let collider_world_stores : Map[UInt32, ColliderWorldStore] = Map([])
 
 ///|
 fn collider_world_store() -> ColliderWorldStore {

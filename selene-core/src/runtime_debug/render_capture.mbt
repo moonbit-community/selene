@@ -1,6 +1,6 @@
 ///|
 fn draw2d_info(
-  entity_id : UInt?,
+  entity_id : UInt32?,
   layer : String,
   depth : Double?,
   command : @render2d_types.DrawCommand2D,
@@ -210,7 +210,7 @@ pub fn capture_last_frame_metadata() -> FrameCaptureMetadata? {
 }
 
 ///|
-pub fn capture_last_frame_metadata_json(indent? : Int = 2) -> String? {
+pub fn capture_last_frame_metadata_json(indent~ : Int32 = 2) -> String? {
   capture_last_frame_metadata().map(fn(metadata) {
     metadata.to_json().stringify(indent~)
   })
@@ -218,17 +218,17 @@ pub fn capture_last_frame_metadata_json(indent? : Int = 2) -> String? {
 
 ///|
 pub fn frame_capture_file_stem(
-  frame_index : UInt,
-  fixed_step_index : UInt,
+  frame_index : UInt32,
+  fixed_step_index : UInt32,
 ) -> String {
   "frame_\{frame_index.to_string()}_fixed_\{fixed_step_index.to_string()}"
 }
 
 ///|
 pub fn capture_last_frame_with_metadata(
-  width : Int,
-  height : Int,
-  indent? : Int = 2,
+  width : Int32,
+  height : Int32,
+  indent~ : Int32 = 2,
 ) -> FrameCaptureArtifact? {
   guard capture_last_frame_metadata() is Some(metadata) else { return None }
   let png = match render_last_frame_offscreen_png(width, height) {
@@ -250,7 +250,7 @@ pub fn capture_last_frame_with_metadata(
 }
 
 ///|
-pub fn render_last_frame_offscreen_png(width : Int, height : Int) -> Bytes? {
+pub fn render_last_frame_offscreen_png(width : Int32, height : Int32) -> Bytes? {
   guard latest_render_frame_by_world.get(current_world_id()) is Some(frame) else {
     return None
   }

@@ -1,14 +1,14 @@
 ///|
 priv struct StateWorldRuntime {
-  mut frame_serial : UInt
+  mut frame_serial : UInt32
   transition_callbacks : Array[() -> Unit]
 }
 
 ///|
-let state_world_runtimes : Map[UInt, StateWorldRuntime] = Map([])
+let state_world_runtimes : Map[UInt32, StateWorldRuntime] = Map([])
 
 ///|
-fn state_runtime(world_id : UInt) -> StateWorldRuntime {
+fn state_runtime(world_id : UInt32) -> StateWorldRuntime {
   state_world_runtimes.get_or_init(world_id, () => {
     frame_serial: 0U,
     transition_callbacks: [],
@@ -23,11 +23,11 @@ fn current_state_runtime() -> StateWorldRuntime {
 
 ///|
 pub(all) struct State[T] {
-  world_id : UInt
+  world_id : UInt32
   current : Ref[T]
   next : Ref[T?]
   previous : Ref[T?]
-  changed_serial : Ref[UInt]
+  changed_serial : Ref[UInt32]
 }
 
 ///|

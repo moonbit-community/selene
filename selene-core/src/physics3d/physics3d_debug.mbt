@@ -146,7 +146,7 @@ fn build_box_wire(
 
 ///|
 fn build_capsule_wire(
-  axis : Int,
+  axis : Int32,
   half_height : Double,
   radius : Double,
 ) -> Array[ColliderWireSegment3D] {
@@ -182,7 +182,7 @@ fn build_capsule_wire(
 
 ///|
 fn build_cylinder_wire(
-  axis : Int,
+  axis : Int32,
   half_height : Double,
   radius : Double,
 ) -> Array[ColliderWireSegment3D] {
@@ -266,7 +266,7 @@ fn build_convex_hull_wire(
 ///|
 fn build_trimesh_wire(
   vertices : Array[@math.Vec3],
-  indices : Array[(Int, Int, Int)],
+  indices : Array[(Int32, Int32, Int32)],
 ) -> Array[ColliderWireSegment3D] {
   let segments : Array[ColliderWireSegment3D] = []
   for triangle in indices {
@@ -287,8 +287,8 @@ fn build_trimesh_wire(
 ///|
 fn build_heightfield_wire(
   heights : Array[Double],
-  nrows : Int,
-  ncols : Int,
+  nrows : Int32,
+  ncols : Int32,
   scale : @math.Vec3,
 ) -> Array[ColliderWireSegment3D] {
   guard nrows > 0 && ncols > 0 else { return [] }
@@ -320,11 +320,11 @@ fn build_heightfield_wire(
 ///|
 fn heightfield_point(
   heights : Array[Double],
-  nrows : Int,
-  ncols : Int,
+  nrows : Int32,
+  ncols : Int32,
   scale : @math.Vec3,
-  row : Int,
-  col : Int,
+  row : Int32,
+  col : Int32,
 ) -> @math.Vec3 {
   let x = if ncols <= 1 {
     0.0
@@ -349,7 +349,7 @@ fn heightfield_point(
 fn append_circle_wire(
   segments : Array[ColliderWireSegment3D],
   center : @math.Vec3,
-  axis : Int,
+  axis : Int32,
   radius : Double,
 ) -> Unit {
   let steps = 32
@@ -368,8 +368,8 @@ fn append_circle_wire(
 ///|
 fn append_capsule_arc(
   segments : Array[ColliderWireSegment3D],
-  axis : Int,
-  radial_axis : Int,
+  axis : Int32,
+  radial_axis : Int32,
   center : @math.Vec3,
   positive_axis : Bool,
   radial_sign : Double,
@@ -391,7 +391,7 @@ fn append_capsule_arc(
 }
 
 ///|
-fn circle_point(axis : Int, radius : Double, angle : Double) -> @math.Vec3 {
+fn circle_point(axis : Int32, radius : Double, angle : Double) -> @math.Vec3 {
   let a = perpendicular_axis(axis, 0)
   let b = perpendicular_axis(axis, 1)
   axis_point(a, @cmath.cos(angle) * radius) +
@@ -399,7 +399,7 @@ fn circle_point(axis : Int, radius : Double, angle : Double) -> @math.Vec3 {
 }
 
 ///|
-fn perpendicular_axis(axis : Int, slot : Int) -> Int {
+fn perpendicular_axis(axis : Int32, slot : Int32) -> Int32 {
   match axis {
     0 => if slot == 0 { 1 } else { 2 }
     1 => if slot == 0 { 0 } else { 2 }
@@ -408,7 +408,7 @@ fn perpendicular_axis(axis : Int, slot : Int) -> Int {
 }
 
 ///|
-fn axis_point(axis : Int, value : Double) -> @math.Vec3 {
+fn axis_point(axis : Int32, value : Double) -> @math.Vec3 {
   match axis {
     0 => Vec3(value, 0.0, 0.0)
     1 => Vec3(0.0, value, 0.0)
@@ -422,7 +422,7 @@ fn wire_segment(start : @math.Vec3, end : @math.Vec3) -> ColliderWireSegment3D {
 }
 
 ///|
-fn valid_vertex_index(vertices : Array[@math.Vec3], index : Int) -> Bool {
+fn valid_vertex_index(vertices : Array[@math.Vec3], index : Int32) -> Bool {
   index >= 0 && index < vertices.length()
 }
 
@@ -507,7 +507,7 @@ fn points_key(points : Array[@math.Vec3]) -> String {
 }
 
 ///|
-fn indices_key(indices : Array[(Int, Int, Int)]) -> String {
+fn indices_key(indices : Array[(Int32, Int32, Int32)]) -> String {
   let mut key = indices.length().to_string()
   for triangle in indices {
     let a = triangle.0

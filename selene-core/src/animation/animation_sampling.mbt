@@ -96,7 +96,7 @@ pub fn ActiveAnimation::seek_to(
 pub fn AnimationPlayer::play(
   self : AnimationPlayer,
   node : AnimationNodeIndex,
-  repeat? : RepeatAnimation = Forever,
+  repeat~ : RepeatAnimation = Forever,
 ) -> ActiveAnimation {
   match self.active_animations.get(node) {
     Some(active) => active
@@ -108,7 +108,7 @@ pub fn AnimationPlayer::play(
 pub fn AnimationPlayer::start(
   self : AnimationPlayer,
   node : AnimationNodeIndex,
-  repeat? : RepeatAnimation = Forever,
+  repeat~ : RepeatAnimation = Forever,
 ) -> ActiveAnimation {
   self.active_animations.set(node, active_animation_default(repeat))
   self.active_animations.get(node).unwrap()
@@ -221,7 +221,7 @@ pub fn AnimationTransitions::play(
   player : AnimationPlayer,
   node : AnimationNodeIndex,
   duration : Double,
-  repeat? : RepeatAnimation = Forever,
+  repeat~ : RepeatAnimation = Forever,
 ) -> ActiveAnimation {
   let safe_duration = @cmp.maximum(0.0, duration)
   if self.main == Some(node) && player.animation(node) is Some(active) {

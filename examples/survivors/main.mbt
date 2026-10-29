@@ -57,7 +57,7 @@ priv struct GameState {
   camera_entity : @entity.Entity
   mut player_direction : Dir4
   rand : @random.Rand
-  mut score : Int
+  mut score : Int32
   score_box : @entity.Entity
   mut invincible : Bool
   mut game_timer : Double
@@ -65,15 +65,15 @@ priv struct GameState {
   timer_box : @entity.Entity
   game_over_box : @entity.Entity
   mut game_over_displayed : Bool
-  mut current_wave : Int
+  mut current_wave : Int32
   wave_box : @entity.Entity
-  mut exp : Int
+  mut exp : Int32
   exp_box : @entity.Entity
-  mut player_level : Int
+  mut player_level : Int32
   level_box : @entity.Entity
   player_stats : PlayerStats
   level_up_panel : LevelUpPanel
-  pending_level_ups : Array[Int] // Queue of pending level-ups
+  pending_level_ups : Array[Int32] // Queue of pending level-ups
   mut score_blink_timer : Double // Timer for blinking effect
   mut score_is_red : Bool // Track current color state
   game_over_panel : GameOverPanel
@@ -99,7 +99,7 @@ priv struct PlayerStats {
   mut range : Double
   mut speed : Double
   mut attack_speed : Double
-  mut penetration : Int
+  mut penetration : Int32
   weapon_instances : Array[WeaponType] // Can have multiple of same type
 }
 
@@ -158,7 +158,7 @@ let game_state : GameState = {
   player_entity: Entity(),
   camera_entity: Entity(),
   player_direction: Down,
-  rand: @random.Rand::new(),
+  rand: @random.Rand(),
   score: 0,
   score_box: Entity(),
   invincible: false,
@@ -192,18 +192,18 @@ let game_state : GameState = {
 }
 
 ///|
-fn set_score(score : Int) -> Unit {
+fn set_score(score : Int32) -> Unit {
   game_state.score = score
   set_ui_text(game_state.score_box, "Score: " + game_state.score.to_string())
 }
 
 ///|
-fn xp_required_for_level(n : Int) -> Int {
+fn xp_required_for_level(n : Int32) -> Int32 {
   n * (2 * n * n + 21 * n + 73) / 6
 }
 
 ///|
-fn get_level_from_xp(xp : Int) -> Int {
+fn get_level_from_xp(xp : Int32) -> Int32 {
   let mut level = 1
   while xp >= xp_required_for_level(level) {
     level += 1
@@ -212,7 +212,7 @@ fn get_level_from_xp(xp : Int) -> Int {
 }
 
 ///|
-fn add_exp(exp_gained : Int) -> Unit {
+fn add_exp(exp_gained : Int32) -> Unit {
   let old_level = game_state.player_level
   game_state.exp += exp_gained
 
@@ -308,7 +308,7 @@ fn[T] weighted_random_selection(
 }
 
 ///|
-fn generate_level_up_selections(level : Int) -> Array[LevelUpSelection] {
+fn generate_level_up_selections(level : Int32) -> Array[LevelUpSelection] {
   // For levels 5, 10, 15, etc., offer 2 powerups + 1 weapon
   if level % 5 == 0 {
     return generate_mixed_selections(level)
@@ -318,7 +318,7 @@ fn generate_level_up_selections(level : Int) -> Array[LevelUpSelection] {
 }
 
 ///|
-fn generate_mixed_selections(level : Int) -> Array[LevelUpSelection] {
+fn generate_mixed_selections(level : Int32) -> Array[LevelUpSelection] {
   let selected = []
 
   // Add 2 weighted random powerups
@@ -338,7 +338,7 @@ fn generate_mixed_selections(level : Int) -> Array[LevelUpSelection] {
 }
 
 ///|
-fn generate_powerup_selections(level : Int) -> Array[LevelUpSelection] {
+fn generate_powerup_selections(level : Int32) -> Array[LevelUpSelection] {
   let selected = []
 
   // Add 3 weighted random powerups
@@ -353,7 +353,7 @@ fn generate_powerup_selections(level : Int) -> Array[LevelUpSelection] {
 
 ///|
 fn select_weighted_powerup(
-  level : Int,
+  level : Int32,
   already_selected : Array[LevelUpSelection],
 ) -> Powerup? {
   let all_powerup_types = [
@@ -406,7 +406,7 @@ fn select_weighted_powerup(
 }
 
 ///|
-fn select_weighted_weapon(level : Int) -> WeaponType? {
+fn select_weighted_weapon(level : Int32) -> WeaponType? {
   let all_weapons = [Pistol, Minigun, SniperRifle, Sword]
   let weights = []
   for weapon_type in all_weapons {

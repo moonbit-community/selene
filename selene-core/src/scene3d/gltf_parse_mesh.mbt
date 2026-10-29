@@ -1,7 +1,7 @@
 ///|
 fn parse_triangle_uv_sets(
   attributes_object : Map[String, Json],
-  vertex_count : Int,
+  vertex_count : Int32,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
@@ -28,7 +28,7 @@ fn parse_triangle_uv_sets(
 ///|
 fn parse_triangle_colors(
   attributes_object : Map[String, Json],
-  vertex_count : Int,
+  vertex_count : Int32,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
@@ -46,7 +46,7 @@ fn parse_triangle_colors(
 ///|
 fn parse_triangle_tangents(
   attributes_object : Map[String, Json],
-  vertex_count : Int,
+  vertex_count : Int32,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
@@ -65,7 +65,7 @@ fn parse_triangle_tangents(
 ///|
 fn parse_triangle_influences(
   attributes_object : Map[String, Json],
-  vertex_count : Int,
+  vertex_count : Int32,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
@@ -124,15 +124,15 @@ fn parse_triangle_influences(
 
 ///|
 fn select_skin_influences(
-  joints0 : (Int, Int, Int, Int),
+  joints0 : (Int32, Int32, Int32, Int32),
   weights0 : (Double, Double, Double, Double),
-  joints1 : (Int, Int, Int, Int)?,
+  joints1 : (Int32, Int32, Int32, Int32)?,
   weights1 : (Double, Double, Double, Double)?,
 ) -> @animation.SkinVertexInfluence3D {
-  let best_joints : Array[Int] = [-1, -1, -1, -1]
+  let best_joints : Array[Int32] = [-1, -1, -1, -1]
   let best_weights : Array[Double] = [0.0, 0.0, 0.0, 0.0]
-  let insert_candidate : (Int, Double) -> Unit = fn(
-    joint : Int,
+  let insert_candidate : (Int32, Double) -> Unit = fn(
+    joint : Int32,
     weight : Double,
   ) {
     if weight <= 0.0 {
@@ -191,7 +191,7 @@ fn select_skin_influences(
 ///|
 fn parse_triangle_morph_targets(
   primitive_object : Map[String, Json],
-  vertex_count : Int,
+  vertex_count : Int32,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],

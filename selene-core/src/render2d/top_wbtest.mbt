@@ -14,7 +14,7 @@ fn test_rect_command(
 }
 
 ///|
-fn int_array_matches(values : Array[Int], expected : Array[Int]) -> Bool {
+fn int_array_matches(values : Array[Int32], expected : Array[Int32]) -> Bool {
   let mut matches = values.length() == expected.length()
   if matches {
     for index in 0..<values.length() {

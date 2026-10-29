@@ -1,18 +1,18 @@
 ///|
 pub(all) struct World {
-  id : UInt
+  id : UInt32
   pending_commands : Array[(World) -> Unit]
-  mut frame_index : UInt
-  mut fixed_step_index : UInt
+  mut frame_index : UInt32
+  mut fixed_step_index : UInt32
 }
 
 ///|
-fn make_world(id : UInt) -> World {
+fn make_world(id : UInt32) -> World {
   { id, pending_commands: [], frame_index: 0, fixed_step_index: 0, }
 }
 
 ///|
-let next_world_id : Ref[UInt] = Ref(1U)
+let next_world_id : Ref[UInt32] = Ref(1U)
 
 ///|
 let bootstrap_world_value : World = make_world(0U)
@@ -56,7 +56,7 @@ pub fn clear_current_world() -> Unit {
 }
 
 ///|
-pub fn World::id(self : World) -> UInt {
+pub fn World::id(self : World) -> UInt32 {
   self.id
 }
 
@@ -93,11 +93,11 @@ pub fn World::advance_fixed_step(self : World) -> Unit {
 }
 
 ///|
-pub fn World::frame_index(self : World) -> UInt {
+pub fn World::frame_index(self : World) -> UInt32 {
   self.frame_index
 }
 
 ///|
-pub fn World::fixed_step_index(self : World) -> UInt {
+pub fn World::fixed_step_index(self : World) -> UInt32 {
   self.fixed_step_index
 }

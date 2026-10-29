@@ -1,6 +1,6 @@
 ///|
 fn read_accessor_vec3(
-  accessor_index : Int,
+  accessor_index : Int32,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
@@ -118,7 +118,7 @@ fn read_accessor_vec3(
 
 ///|
 fn read_accessor_vec2(
-  accessor_index : Int,
+  accessor_index : Int32,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
@@ -224,7 +224,7 @@ fn read_accessor_vec2(
 
 ///|
 fn read_accessor_quat(
-  accessor_index : Int,
+  accessor_index : Int32,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
@@ -358,7 +358,7 @@ fn read_accessor_quat(
 
 ///|
 fn read_accessor_scalar(
-  accessor_index : Int,
+  accessor_index : Int32,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
@@ -454,7 +454,7 @@ fn read_accessor_scalar(
 
 ///|
 fn read_accessor_tangent(
-  accessor_index : Int,
+  accessor_index : Int32,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],

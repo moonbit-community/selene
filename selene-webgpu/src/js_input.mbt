@@ -42,7 +42,7 @@ extern "js" fn webgpu_end_frame() -> Unit =
   #| }
 
 ///|
-extern "js" fn webgpu_capture_frame_png_bytes_ffi() -> FixedArray[Int] =
+extern "js" fn webgpu_capture_frame_png_bytes_ffi() -> FixedArray[Int32] =
   #| () => {
   #|   try {
   #|     const rt = globalThis.__selene_webgpu_runtime;
@@ -78,7 +78,7 @@ extern "js" fn webgpu_begin_2d_pass(
   y : Double,
   width : Double,
   height : Double,
-  load_op : Int,
+  load_op : Int32,
   clear_r : Double,
   clear_g : Double,
   clear_b : Double,
@@ -125,6 +125,6 @@ fn webgpu_measure_text(
 }
 
 ///|
-fn webgpu_capture_frame_png_bytes() -> Array[Int] {
+fn webgpu_capture_frame_png_bytes() -> Array[Int32] {
   Array::from_fixed_array(webgpu_capture_frame_png_bytes_ffi())
 }

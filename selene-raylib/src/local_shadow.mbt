@@ -35,36 +35,36 @@ priv struct FramePointShadowState {
 }
 
 ///|
-const SPOT_SHADOW_TEXTURE_SLOT : Int = 10
+const SPOT_SHADOW_TEXTURE_SLOT : Int32 = 10
 
 ///|
-const POINT_SHADOW_TEXTURE_SLOT : Int = 11
+const POINT_SHADOW_TEXTURE_SLOT : Int32 = 11
 
 ///|
-const SPOT_SHADOW_ATLAS_COLUMNS : Int = 2
+const SPOT_SHADOW_ATLAS_COLUMNS : Int32 = 2
 
 ///|
-const SPOT_SHADOW_ATLAS_ROWS : Int = 2
+const SPOT_SHADOW_ATLAS_ROWS : Int32 = 2
 
 ///|
-const POINT_SHADOW_FACE_COUNT : Int = 6
+const POINT_SHADOW_FACE_COUNT : Int32 = 6
 
 ///|
-const POINT_SHADOW_ATLAS_COLUMNS : Int = 8
+const POINT_SHADOW_ATLAS_COLUMNS : Int32 = 8
 
 ///|
-const POINT_SHADOW_ATLAS_ROWS : Int = 6
+const POINT_SHADOW_ATLAS_ROWS : Int32 = 6
 
 ///|
 const LOCAL_SHADOW_NEAR_MIN : Double = 0.01
 
 ///|
 fn make_shadow_atlas_rect(
-  slot : Int,
-  columns : Int,
-  tile_size : Int,
-  atlas_width : Int,
-  atlas_height : Int,
+  slot : Int32,
+  columns : Int32,
+  tile_size : Int32,
+  atlas_width : Int32,
+  atlas_height : Int32,
 ) -> ShadowAtlasRect {
   let column = slot % columns
   let row = slot / columns
@@ -91,13 +91,13 @@ fn uniform_shadow_atlas_rect(
 }
 
 ///|
-fn point_shadow_texel_size(face_size : Int) -> @smath.Vec2 {
+fn point_shadow_texel_size(face_size : Int32) -> @smath.Vec2 {
   let inv = 1.0 / @cmp.maximum(1, face_size).to_double()
   Vec2(inv, inv)
 }
 
 ///|
-fn spot_shadow_texel_size(shadow_map_size : Int) -> @smath.Vec2 {
+fn spot_shadow_texel_size(shadow_map_size : Int32) -> @smath.Vec2 {
   let inv = 1.0 / @cmp.maximum(1, shadow_map_size).to_double()
   Vec2(inv, inv)
 }
@@ -139,7 +139,7 @@ fn build_spot_shadow_setup(
 }
 
 ///|
-fn point_shadow_face(index : Int) -> (@smath.Vec3, @smath.Vec3) {
+fn point_shadow_face(index : Int32) -> (@smath.Vec3, @smath.Vec3) {
   match index {
     0 => (Vec3(1.0, 0.0, 0.0), Vec3(0.0, -1.0, 0.0))
     1 => (Vec3(-1.0, 0.0, 0.0), Vec3(0.0, -1.0, 0.0))
@@ -153,7 +153,7 @@ fn point_shadow_face(index : Int) -> (@smath.Vec3, @smath.Vec3) {
 ///|
 fn build_point_shadow_face_setup(
   light : @render3d_types.FramePointLight3D,
-  face_index : Int,
+  face_index : Int32,
 ) -> DirectionalShadowSetup {
   let (direction, up) = point_shadow_face(face_index)
   let near_plane = shadow_map_near_z(light.shadow_map_near_z)
@@ -180,7 +180,7 @@ fn build_point_shadow_face_setup(
 
 ///|
 fn get_spot_shadow_render_texture(
-  shadow_map_size : Int,
+  shadow_map_size : Int32,
 ) -> @raylib.RenderTexture? {
   let shadow_map_size = @cmp.maximum(1, shadow_map_size)
   if backend.spot_shadow_map_size != shadow_map_size {
@@ -229,7 +229,7 @@ fn get_spot_shadow_render_texture(
 }
 
 ///|
-fn get_point_shadow_render_texture(face_size : Int) -> @raylib.RenderTexture? {
+fn get_point_shadow_render_texture(face_size : Int32) -> @raylib.RenderTexture? {
   let face_size = @cmp.maximum(1, face_size)
   if backend.point_shadow_map_size != face_size {
     if backend.point_shadow_render_texture is Some(render_texture) {
@@ -316,8 +316,8 @@ fn render_shadow_casters_for_setup(
 fn render_spot_shadow_map(
   frame : @render3d_types.RenderFrame3D,
   camera : @render3d_types.FrameCamera3D,
-) -> (Map[Int, FrameSpotShadowState], UInt?, @smath.Vec2) {
-  let spot_shadows : Map[Int, FrameSpotShadowState] = Map([])
+) -> (Map[Int32, FrameSpotShadowState], UInt32?, @smath.Vec2) {
+  let spot_shadows : Map[Int32, FrameSpotShadowState] = Map([])
   let spot_count = @cmp.minimum(frame.spot_lights.length(), MAX_SPOT_LIGHTS)
   let shadow_map_size = @cmp.maximum(1, frame.directional_shadow_map_size)
   if spot_count == 0 {
@@ -369,8 +369,8 @@ fn render_spot_shadow_map(
 fn render_point_shadow_map(
   frame : @render3d_types.RenderFrame3D,
   camera : @render3d_types.FrameCamera3D,
-) -> (Map[Int, FramePointShadowState], UInt?, @smath.Vec2) {
-  let point_shadows : Map[Int, FramePointShadowState] = Map([])
+) -> (Map[Int32, FramePointShadowState], UInt32?, @smath.Vec2) {
+  let point_shadows : Map[Int32, FramePointShadowState] = Map([])
   let point_count = @cmp.minimum(frame.point_lights.length(), MAX_POINT_LIGHTS)
   let face_size = @cmp.maximum(1, frame.point_shadow_map_size)
   if point_count == 0 {

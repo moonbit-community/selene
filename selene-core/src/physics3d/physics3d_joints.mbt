@@ -215,9 +215,9 @@ pub fn RapierContext::cast_ray(
   _self : RapierContext,
   origin : @math.Vec3,
   direction : @math.Vec3,
-  max_toi? : Double = 1000.0,
-  solid? : Bool = true,
-  query_filter? : QueryFilter = QueryFilter::all(),
+  max_toi~ : Double = 1000.0,
+  solid~ : Bool = true,
+  query_filter~ : QueryFilter = QueryFilter::all(),
 ) -> RaycastHit? {
   if direction.length_squared() <= 0.000000001 {
     return None
@@ -253,11 +253,11 @@ pub fn RapierContext::cast_shape(
   _self : RapierContext,
   shape : Collider,
   origin : @math.Vec3,
-  rotation? : @math.Quat = @math.Quat::identity(),
-  direction? : @math.Vec3 = Vec3(0.0, -1.0, 0.0),
-  max_toi? : Double = 1000.0,
-  stop_at_penetration? : Bool = false,
-  query_filter? : QueryFilter = QueryFilter::all(),
+  rotation~ : @math.Quat = @math.Quat::identity(),
+  direction~ : @math.Vec3 = Vec3(0.0, -1.0, 0.0),
+  max_toi~ : Double = 1000.0,
+  stop_at_penetration~ : Bool = false,
+  query_filter~ : QueryFilter = QueryFilter::all(),
 ) -> ShapeCastHit? {
   if direction.length_squared() <= 0.000000001 {
     return None
@@ -296,7 +296,7 @@ pub fn RapierContext::cast_shape(
 pub fn RapierContext::intersections_with_point(
   _self : RapierContext,
   point : @math.Vec3,
-  query_filter? : QueryFilter = QueryFilter::all(),
+  query_filter~ : QueryFilter = QueryFilter::all(),
 ) -> Array[@entity.Entity] {
   let world = physics3d_world()
   let query = make_query_pipeline(query_filter~)
@@ -320,8 +320,8 @@ pub fn RapierContext::intersections_with_shape(
   _self : RapierContext,
   shape : Collider,
   origin : @math.Vec3,
-  rotation? : @math.Quat = @math.Quat::identity(),
-  query_filter? : QueryFilter = QueryFilter::all(),
+  rotation~ : @math.Quat = @math.Quat::identity(),
+  query_filter~ : QueryFilter = QueryFilter::all(),
 ) -> Array[@entity.Entity] {
   let world = physics3d_world()
   let query = make_query_pipeline(query_filter~)
@@ -358,8 +358,8 @@ pub fn RapierContext::intersections_with_shape(
 pub fn RapierContext::project_point(
   _self : RapierContext,
   point : @math.Vec3,
-  solid? : Bool = true,
-  query_filter? : QueryFilter = QueryFilter::all(),
+  solid~ : Bool = true,
+  query_filter~ : QueryFilter = QueryFilter::all(),
 ) -> PointProjection? {
   let world = physics3d_world()
   let query = make_query_pipeline(query_filter~)

@@ -1,15 +1,15 @@
 ///|
 pub(all) struct TouchId {
-  value : Int
+  value : Int32
 } derive(Eq, Hash, Debug)
 
 ///|
-pub fn TouchId::TouchId(value : Int) -> TouchId {
+pub fn TouchId::TouchId(value : Int32) -> TouchId {
   { value, }
 }
 
 ///|
-pub fn TouchId::value(self : TouchId) -> Int {
+pub fn TouchId::value(self : TouchId) -> Int32 {
   self.value
 }
 
@@ -60,7 +60,7 @@ pub(all) enum PointerPhase {
 ///|
 pub(all) struct PointerId {
   source : PointerSource
-  value : Int
+  value : Int32
 } derive(Eq, Hash, Debug)
 
 ///|
@@ -375,10 +375,10 @@ fn push_gesture(
   primary_id? : TouchId,
   secondary_id? : TouchId,
   position~ : @math.Vec2,
-  delta? : @math.Vec2 = @math.Vec2::zero(),
-  scale? : Double = 1.0,
-  distance? : Double = 0.0,
-  duration? : Double = 0.0,
+  delta~ : @math.Vec2 = @math.Vec2::zero(),
+  scale~ : Double = 1.0,
+  distance~ : Double = 0.0,
+  duration~ : Double = 0.0,
 ) -> Unit {
   touch_gesture_changes.push({
     kind,
@@ -432,7 +432,7 @@ fn process_started_touch(event : TouchEvent) -> Unit {
 }
 
 ///|
-fn active_touch_count() -> Int {
+fn active_touch_count() -> Int32 {
   let mut count = 0
   for _, _ in touches {
     count += 1

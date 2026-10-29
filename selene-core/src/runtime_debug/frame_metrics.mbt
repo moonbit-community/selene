@@ -47,7 +47,7 @@ pub fn note_fixed_step(delta : Double) -> Unit {
 }
 
 ///|
-pub fn note_update(update_delta : Double, entity_count : Int) -> Unit {
+pub fn note_update(update_delta : Double, entity_count : Int32) -> Unit {
   let world_id = current_world_id()
   let metrics = ensure_metrics()
   frame_metrics_by_world.set(world_id, {
@@ -60,8 +60,8 @@ pub fn note_update(update_delta : Double, entity_count : Int) -> Unit {
 ///|
 pub fn note_render(
   render_delta : Double,
-  draw2d_count : Int,
-  draw3d_count : Int,
+  draw2d_count : Int32,
+  draw3d_count : Int32,
 ) -> Unit {
   let world_id = current_world_id()
   let metrics = ensure_metrics()

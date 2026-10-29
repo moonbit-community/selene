@@ -2,8 +2,8 @@
 fn sanitize_triangle_uv_set(
   mesh_handle : @render3d_types.MeshHandle,
   label : String,
-  set : Int,
-) -> Int {
+  set : Int32,
+) -> Int32 {
   if set == 0 || set == 1 {
     set
   } else {
@@ -145,7 +145,7 @@ fn resolve_triangle_uv_sets(
 ///|
 fn expand_vec3_with_indices(
   values : Array[@smath.Vec3],
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> Array[@smath.Vec3]? {
   let output : Array[@smath.Vec3] = []
   for index in indices {
@@ -158,7 +158,7 @@ fn expand_vec3_with_indices(
 ///|
 fn expand_vec2_with_indices(
   values : Array[@smath.Vec2],
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> Array[@smath.Vec2]? {
   let output : Array[@smath.Vec2] = []
   for index in indices {
@@ -171,7 +171,7 @@ fn expand_vec2_with_indices(
 ///|
 fn expand_color_with_indices(
   values : Array[@render.Color],
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> Array[@render.Color]? {
   let output : Array[@render.Color] = []
   for index in indices {
@@ -184,7 +184,7 @@ fn expand_color_with_indices(
 ///|
 fn expand_tangent_with_indices(
   values : Array[@render3d_types.Tangent3D],
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> Array[@render3d_types.Tangent3D]? {
   let output : Array[@render3d_types.Tangent3D] = []
   for index in indices {
@@ -291,7 +291,7 @@ fn empty_uploaded_triangle_mesh() -> @raylib.Mesh {
 ///|
 fn material_texture_for_slot(
   bundle : MaterialTextureBundle3D,
-  slot : Int,
+  slot : Int32,
 ) -> @raylib.Texture {
   match slot {
     0 => bundle.base_texture
@@ -420,8 +420,8 @@ fn offscreen_target_name_from_path(path : String) -> String? {
 ///|
 fn ensure_offscreen_target_2d(
   name : String,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> OffscreenTarget2D? {
   let width = @cmp.maximum(1, width)
   let height = @cmp.maximum(1, height)

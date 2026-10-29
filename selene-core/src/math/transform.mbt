@@ -57,12 +57,12 @@ pub impl Default for Transform with fn default() -> Transform {
 /// Create transform from matrix components
 /// 
 pub fn Transform::Transform(
-  a? : Double = 1.0,
-  b? : Double = 0.0,
-  c? : Double = 0.0,
-  d? : Double = 1.0,
-  tx? : Double = 0.0,
-  ty? : Double = 0.0,
+  a~ : Double = 1.0,
+  b~ : Double = 0.0,
+  c~ : Double = 0.0,
+  d~ : Double = 1.0,
+  tx~ : Double = 0.0,
+  ty~ : Double = 0.0,
 ) -> Transform {
   { a, b, c, d, tx, ty, }
 }
@@ -343,7 +343,7 @@ pub impl Mul for Transform with fn mul(self : Transform, other : Transform) -> T
 // Helper function to check if two doubles are approximately equal
 
 ///|
-fn approx_eq(a : Double, b : Double, epsilon? : Double = 0.000001) -> Bool {
+fn approx_eq(a : Double, b : Double, epsilon~ : Double = 0.000001) -> Bool {
   (a - b).abs() < epsilon
 }
 
@@ -353,7 +353,7 @@ fn approx_eq(a : Double, b : Double, epsilon? : Double = 0.000001) -> Bool {
 fn transform_approx_eq(
   t1 : Transform,
   t2 : Transform,
-  epsilon? : Double = 0.000001,
+  epsilon~ : Double = 0.000001,
 ) -> Bool {
   approx_eq(t1.a, t2.a, epsilon~) &&
   approx_eq(t1.b, t2.b, epsilon~) &&

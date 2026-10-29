@@ -7,7 +7,7 @@ pub(all) enum EventDomain {
 
 ///|
 pub(all) struct EventReader[T] {
-  last_seen_by_world : Map[UInt, Int]
+  last_seen_by_world : Map[UInt32, Int32]
   marker : T?
 }
 
@@ -17,7 +17,7 @@ pub(all) struct EventWriter[T] {
 }
 
 ///|
-pub(all) struct ObserverHandle(Int) derive(Eq, Debug, Hash)
+pub(all) struct ObserverHandle(Int32) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) struct Trigger[T] {
@@ -27,7 +27,7 @@ pub(all) struct Trigger[T] {
 
 ///|
 priv struct EventRecord[T] {
-  id : Int
+  id : Int32
   event : T
 }
 
@@ -39,8 +39,8 @@ priv struct ObserverEntry[T] {
 
 ///|
 struct EventWorldStore[T] {
-  mut next_event_id : Int
-  mut next_observer_id : Int
+  mut next_event_id : Int32
+  mut next_observer_id : Int32
   mut older : Array[EventRecord[T]]
   mut newer : Array[EventRecord[T]]
   observers : Map[ObserverHandle, ObserverEntry[T]]
@@ -49,35 +49,35 @@ struct EventWorldStore[T] {
 
 ///|
 pub struct Events[T] {
-  id : UInt
+  id : UInt32
   domain : EventDomain
-  stores : Map[UInt, EventWorldStore[T]]
+  stores : Map[UInt32, EventWorldStore[T]]
   marker : T?
 }
 
 ///|
 priv struct RegisteredBus {
-  id : UInt
+  id : UInt32
   domain : EventDomain
   update : () -> Unit
   dispatch : () -> Unit
 }
 
 ///|
-let registered_buses_by_world : Map[UInt, Array[RegisteredBus]] = Map([])
+let registered_buses_by_world : Map[UInt32, Array[RegisteredBus]] = Map([])
 
 ///|
-let next_event_bus_id : Ref[UInt] = { val: 1U, }
+let next_event_bus_id : Ref[UInt32] = { val: 1U, }
 
 ///|
-fn allocate_event_bus_id() -> UInt {
+fn allocate_event_bus_id() -> UInt32 {
   let id = next_event_bus_id.val
   next_event_bus_id.val += 1U
   id
 }
 
 ///|
-fn current_world_id() -> UInt {
+fn current_world_id() -> UInt32 {
   @ecs.require_current_world().id()
 }
 
@@ -145,7 +145,7 @@ pub fn[T] EventWriter::trigger(
 }
 
 ///|
-pub fn[T] Events::Events(domain? : EventDomain = Frame) -> Events[T] {
+pub fn[T] Events::Events(domain~ : EventDomain = Frame) -> Events[T] {
   { id: allocate_event_bus_id(), domain, stores: Map([]), marker: None, }
 }
 

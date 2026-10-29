@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-fn int_array_matches(values : Array[Int], expected : Array[Int]) -> Bool {
+fn int_array_matches(values : Array[Int32], expected : Array[Int32]) -> Bool {
   let mut matches = values.length() == expected.length()
   if matches {
     for index in 0..<values.length() {
@@ -27,8 +27,8 @@ fn int_array_matches(values : Array[Int], expected : Array[Int]) -> Bool {
 
 ///|
 test "events: reader consumes unseen events in order" {
-  let events : Events[Int] = Events()
-  let reader : EventReader[Int] = EventReader()
+  let events : Events[Int32] = Events()
+  let reader : EventReader[Int32] = EventReader()
   events.send(10)
   events.send(20)
   inspect(int_array_matches(events.read(reader), [10, 20]), content="true")
@@ -37,9 +37,9 @@ test "events: reader consumes unseen events in order" {
 
 ///|
 test "events: readers are independent" {
-  let events : Events[Int] = Events()
-  let reader_a : EventReader[Int] = EventReader()
-  let reader_b : EventReader[Int] = EventReader()
+  let events : Events[Int32] = Events()
+  let reader_a : EventReader[Int32] = EventReader()
+  let reader_b : EventReader[Int32] = EventReader()
   events.send(7)
   inspect(int_array_matches(events.read(reader_a), [7]), content="true")
   inspect(int_array_matches(events.read(reader_a), []), content="true")
@@ -48,8 +48,8 @@ test "events: readers are independent" {
 
 ///|
 test "events: update keeps last and current cycle payloads" {
-  let events : Events[Int] = Events()
-  let reader : EventReader[Int] = EventReader()
+  let events : Events[Int32] = Events()
+  let reader : EventReader[Int32] = EventReader()
   events.send(1)
   events.update()
   events.send(2)
@@ -61,8 +61,8 @@ test "events: update keeps last and current cycle payloads" {
 
 ///|
 test "events: trigger dispatches observers while send does not" {
-  let events : Events[Int] = Events()
-  let received : Array[Int] = []
+  let events : Events[Int32] = Events()
+  let received : Array[Int32] = []
   events.observe_global(fn(item) { received.push(item.event) }) |> ignore
 
   events.send(1)
@@ -76,10 +76,10 @@ test "events: trigger dispatches observers while send does not" {
 
 ///|
 test "events: entity observer only receives targeted trigger" {
-  let events : Events[Int] = Events()
+  let events : Events[Int32] = Events()
   let target = @entity.Entity()
   let other = @entity.Entity()
-  let received : Array[Int] = []
+  let received : Array[Int32] = []
   events.observe_entity(target, fn(item) { received.push(item.event) })
   |> ignore
 
@@ -94,8 +94,8 @@ test "events: entity observer only receives targeted trigger" {
 
 ///|
 test "events: unobserve removes callback" {
-  let events : Events[Int] = Events()
-  let received : Array[Int] = []
+  let events : Events[Int32] = Events()
+  let received : Array[Int32] = []
   let handle = events.observe_global(fn(item) { received.push(item.event) })
   events.unobserve(handle)
   events.trigger(5, None)
@@ -105,11 +105,11 @@ test "events: unobserve removes callback" {
 
 ///|
 test "events: frame update systems are world-scoped and require explicit registration" {
-  let events : Events[Int] = Events()
+  let events : Events[Int32] = Events()
   let world_a = @ecs.World()
   let world_b = @ecs.World()
-  let reader_a : EventReader[Int] = EventReader()
-  let reader_b : EventReader[Int] = EventReader()
+  let reader_a : EventReader[Int32] = EventReader()
+  let reader_b : EventReader[Int32] = EventReader()
 
   events.register_to_world(world_a)
 

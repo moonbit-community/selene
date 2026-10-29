@@ -12,7 +12,8 @@ test "native support resolves shared example asset paths" {
     content="true",
   )
   inspect(
-    read_example_asset("pixeladventure", "selene.project.json") is Some(_),
+    read_example_asset("pixeladventure", "assets/pixeladventure/arrowkey.png")
+    is Some(_),
     content="true",
   )
 }

@@ -54,7 +54,7 @@ fn cleanup_test_ui_entity(entity : @entity.Entity) -> Unit {
 fn test_entity_index(
   entities : Array[@entity.Entity],
   target : @entity.Entity,
-) -> Int {
+) -> Int32 {
   for index, entity in entities {
     if entity == target {
       return index

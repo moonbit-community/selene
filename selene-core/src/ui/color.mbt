@@ -1,6 +1,6 @@
 ///|
-pub fn rgba(r : Int, g : Int, b : Int, a : Double) -> @render.Color {
-  let clamp_channel = fn(value : Int) -> UInt {
+pub fn rgba(r : Int32, g : Int32, b : Int32, a : Double) -> @render.Color {
+  let clamp_channel = fn(value : Int32) -> UInt32 {
     if value < 0 {
       0U
     } else if value > 255 {
@@ -32,14 +32,14 @@ pub fn transparent() -> @render.Color {
 }
 
 ///|
-fn parse_uint(text : StringView, base : Int) -> UInt? {
+fn parse_uint(text : StringView, base : Int32) -> UInt32? {
   Some(@string.parse_uint(text, base~)) catch {
     _ => None
   }
 }
 
 ///|
-fn parse_int(text : StringView) -> Int? {
+fn parse_int(text : StringView) -> Int32? {
   Some(@string.parse_int(text)) catch {
     _ => None
   }
@@ -53,7 +53,7 @@ fn parse_double(text : StringView) -> Double? {
 }
 
 ///|
-fn parse_hex_byte(text : String) -> UInt? {
+fn parse_hex_byte(text : String) -> UInt32? {
   parse_uint(text.to_string_view(), 16)
 }
 

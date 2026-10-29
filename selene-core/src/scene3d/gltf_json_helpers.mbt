@@ -58,7 +58,7 @@ fn json_number(value : Json) -> Double? {
 }
 
 ///|
-fn json_int(value : Json) -> Int? {
+fn json_int(value : Json) -> Int32? {
   if json_number(value) is Some(number) {
     Some(number.to_int())
   } else {
@@ -117,7 +117,7 @@ fn field_number(object : Map[String, Json], key : String) -> Double? {
 }
 
 ///|
-fn field_int(object : Map[String, Json], key : String) -> Int? {
+fn field_int(object : Map[String, Json], key : String) -> Int32? {
   if field_json(object, key) is Some(value) {
     json_int(value)
   } else {

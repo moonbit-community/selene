@@ -89,7 +89,7 @@ priv struct UiInteractionRuntime {
 }
 
 ///|
-let ui_interaction_runtimes : Map[UInt, UiInteractionRuntime] = Map([])
+let ui_interaction_runtimes : Map[UInt32, UiInteractionRuntime] = Map([])
 
 ///|
 fn ui_interaction_runtime() -> UiInteractionRuntime {

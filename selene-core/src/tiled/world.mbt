@@ -20,21 +20,21 @@ fn tiled_world_entity_translation_2d(entity : @entity.Entity) -> @math.Vec2? {
 ///|
 pub struct TiledWorldMap {
   file_name : String
-  x : Int
-  y : Int
-  width : Int?
-  height : Int?
+  x : Int32
+  y : Int32
+  width : Int32?
+  height : Int32?
 }
 
 ///|
 pub struct TiledWorldPattern {
   regexp : String
-  multiplier_x : Int
-  multiplier_y : Int
-  offset_x : Int
-  offset_y : Int
-  map_width : Int
-  map_height : Int
+  multiplier_x : Int32
+  multiplier_y : Int32
+  offset_x : Int32
+  offset_y : Int32
+  map_width : Int32
+  map_height : Int32
 }
 
 ///|
@@ -47,7 +47,7 @@ pub struct TiledWorld {
 
 ///|
 pub struct TiledWorldLoadedMap {
-  index : Int
+  index : Int32
   world_map : TiledWorldMap
   resolved_map_path : String
   map : TiledMap
@@ -59,7 +59,7 @@ pub struct TiledWorldInstance {
   world : TiledWorld
   settings : TiledWorldSpawnSettings
   loaded_maps : Array[TiledWorldLoadedMap]
-  spawned_maps : Map[Int, @entity.Entity]
+  spawned_maps : Map[Int32, @entity.Entity]
 }
 
 ///|
@@ -73,7 +73,7 @@ pub struct TiledWorldMapInstance {
 ///|
 pub(all) struct TiledWorldSpawnSettings {
   position : @math.Vec2
-  map_z_step : Int
+  map_z_step : Int32
   map_settings : TiledSpawnSettings
   focus_map_path : String?
   chunking : @math.Vec2?
@@ -88,7 +88,7 @@ priv struct TiledWorldRuntimeStore {
 }
 
 ///|
-let tiled_world_runtime_stores : Map[UInt, TiledWorldRuntimeStore] = Map([])
+let tiled_world_runtime_stores : Map[UInt32, TiledWorldRuntimeStore] = Map([])
 
 ///|
 fn tiled_world_runtime_store() -> TiledWorldRuntimeStore {
@@ -151,7 +151,7 @@ pub fn load_tiled_world(path : String) -> TiledWorld {
 ///|
 pub fn load_and_spawn_tiled_world(
   path : String,
-  settings? : TiledWorldSpawnSettings = default_tiled_world_spawn_settings(),
+  settings~ : TiledWorldSpawnSettings = default_tiled_world_spawn_settings(),
 ) -> @entity.Entity {
   spawn_tiled_world(load_tiled_world(path), settings~)
 }
@@ -159,7 +159,7 @@ pub fn load_and_spawn_tiled_world(
 ///|
 pub fn spawn_tiled_world(
   world : TiledWorld,
-  settings? : TiledWorldSpawnSettings = default_tiled_world_spawn_settings(),
+  settings~ : TiledWorldSpawnSettings = default_tiled_world_spawn_settings(),
 ) -> @entity.Entity {
   let world_entity = @entity.Entity()
   spawn_tiled_world_root(world_entity, world, settings)
@@ -170,7 +170,7 @@ pub fn spawn_tiled_world(
 pub fn spawn_tiled_world_into_entity(
   root : @entity.Entity,
   world : TiledWorld,
-  settings? : TiledWorldSpawnSettings = default_tiled_world_spawn_settings(),
+  settings~ : TiledWorldSpawnSettings = default_tiled_world_spawn_settings(),
 ) -> Unit {
   spawn_tiled_world_root(root, world, settings)
 }
@@ -179,7 +179,7 @@ pub fn spawn_tiled_world_into_entity(
 pub fn respawn_tiled_world_into_entity(
   root : @entity.Entity,
   world : TiledWorld,
-  settings? : TiledWorldSpawnSettings = default_tiled_world_spawn_settings(),
+  settings~ : TiledWorldSpawnSettings = default_tiled_world_spawn_settings(),
 ) -> Unit {
   clear_tiled_children(root)
   @entity.entity_flush_system(0.0)
@@ -210,7 +210,7 @@ fn spawn_tiled_world_root(
       ),
     })
   }
-  let spawned_maps : Map[Int, @entity.Entity] = Map([])
+  let spawned_maps : Map[Int32, @entity.Entity] = Map([])
   tiled_world_instances().set(world_entity, {
     world,
     settings,
@@ -264,7 +264,7 @@ fn tiled_world_update_chunking(world_entity : @entity.Entity) -> Unit {
   let world_origin = world_pos
   let map_offset = instance.settings.map_settings.position
 
-  let visible : Array[Int] = []
+  let visible : Array[Int32] = []
   for loaded in instance.loaded_maps {
     if !loaded.spawnable {
       continue
@@ -330,7 +330,7 @@ fn tiled_camera_view_bounds() -> (@math.Vec2, @math.Vec2) {
 ///|
 fn tiled_world_spawn_loaded_map(
   world_entity : @entity.Entity,
-  index : Int,
+  index : Int32,
 ) -> Unit {
   guard tiled_world_instances().get(world_entity) is Some(instance) else {
     return
@@ -586,7 +586,7 @@ priv enum TiledPatternAtom {
   Space
   Word
   CharClass(Bool, Array[(Char, Char)])
-  Group(Array[TiledPatternToken], Int?)
+  Group(Array[TiledPatternToken], Int32?)
 }
 
 ///|
@@ -598,7 +598,7 @@ priv struct TiledPatternToken {
 ///|
 priv struct TiledWorldPatternRegex {
   tokens : Array[TiledPatternToken]
-  capture_count : Int
+  capture_count : Int32
 }
 
 ///|
@@ -625,10 +625,10 @@ fn tiled_world_compile_pattern_regex(
 ///|
 fn tiled_world_parse_pattern_tokens(
   chars : Array[Char],
-  start_index : Int,
-  capture_index : Int,
+  start_index : Int32,
+  capture_index : Int32,
   stop_char : Char?,
-) -> (Array[TiledPatternToken], Int, Int)? {
+) -> (Array[TiledPatternToken], Int32, Int32)? {
   let tokens : Array[TiledPatternToken] = []
   let mut index = start_index
   let mut next_capture_index = capture_index
@@ -673,15 +673,15 @@ fn tiled_world_parse_pattern_tokens(
 ///|
 fn tiled_world_parse_pattern_atom(
   chars : Array[Char],
-  start_index : Int,
-  capture_index : Int,
-) -> (TiledPatternAtom, Int, Int)? {
+  start_index : Int32,
+  capture_index : Int32,
+) -> (TiledPatternAtom, Int32, Int32)? {
   if start_index >= chars.length() {
     return None
   }
   match chars[start_index] {
     '(' => {
-      let mut group_capture : Int? = Some(capture_index + 1)
+      let mut group_capture : Int32? = Some(capture_index + 1)
       let mut group_start = start_index + 1
       if group_start + 1 < chars.length() &&
         chars[group_start] == '?' &&
@@ -730,8 +730,8 @@ fn tiled_world_parse_pattern_atom(
 ///|
 fn tiled_world_parse_escape_atom(
   chars : Array[Char],
-  start_index : Int,
-) -> (TiledPatternAtom, Int)? {
+  start_index : Int32,
+) -> (TiledPatternAtom, Int32)? {
   if start_index + 1 >= chars.length() {
     return None
   }
@@ -750,8 +750,8 @@ fn tiled_world_parse_escape_atom(
 ///|
 fn tiled_world_parse_pattern_char_class(
   chars : Array[Char],
-  start_index : Int,
-) -> (Bool, Array[(Char, Char)], Int)? {
+  start_index : Int32,
+) -> (Bool, Array[(Char, Char)], Int32)? {
   let mut index = start_index + 1
   let mut negated = false
   if index < chars.length() && chars[index] == '^' {
@@ -794,8 +794,8 @@ fn tiled_world_parse_pattern_char_class(
 ///|
 fn tiled_world_parse_pattern_class_piece(
   chars : Array[Char],
-  start_index : Int,
-) -> (TiledPatternClassPiece, Int)? {
+  start_index : Int32,
+) -> (TiledPatternClassPiece, Int32)? {
   if start_index >= chars.length() {
     return None
   }
@@ -849,7 +849,7 @@ fn tiled_world_space_ranges() -> Array[(Char, Char)] {
 fn tiled_world_match_pattern_regex(
   regex : TiledWorldPatternRegex,
   file_name : String,
-) -> (Int, Int)? {
+) -> (Int32, Int32)? {
   let chars = file_name.to_array()
   let captures = tiled_world_empty_captures(regex.capture_count)
   guard tiled_world_match_pattern_tokens(
@@ -874,7 +874,7 @@ fn tiled_world_match_pattern_regex(
 }
 
 ///|
-fn tiled_world_empty_captures(capture_count : Int) -> Array[String?] {
+fn tiled_world_empty_captures(capture_count : Int32) -> Array[String?] {
   let captures : Array[String?] = []
   let mut index = 0
   while index <= capture_count {
@@ -892,12 +892,12 @@ fn tiled_world_clone_captures(captures : Array[String?]) -> Array[String?] {
 ///|
 fn tiled_world_match_pattern_tokens(
   tokens : Array[TiledPatternToken],
-  token_index : Int,
+  token_index : Int32,
   chars : Array[Char],
   source : String,
-  position : Int,
+  position : Int32,
   captures : Array[String?],
-) -> (Int, Array[String?])? {
+) -> (Int32, Array[String?])? {
   if token_index >= tokens.length() {
     return Some((position, captures))
   }
@@ -914,7 +914,7 @@ fn tiled_world_match_pattern_tokens(
     OneOrMore => chars.length() - position + 1
     ZeroOrMore => chars.length() - position + 1
   }
-  let states : Array[(Int, Array[String?])] = [(position, captures)]
+  let states : Array[(Int32, Array[String?])] = [(position, captures)]
   let mut repeat_count = 0
   while repeat_count < max_repeat {
     let state = states[states.length() - 1]
@@ -961,9 +961,9 @@ fn tiled_world_match_pattern_atom_once(
   atom : TiledPatternAtom,
   chars : Array[Char],
   source : String,
-  position : Int,
+  position : Int32,
   captures : Array[String?],
-) -> (Int, Array[String?])? {
+) -> (Int32, Array[String?])? {
   match atom {
     Empty => Some((position, tiled_world_clone_captures(captures)))
     Literal(expected) =>
@@ -1061,7 +1061,7 @@ fn tiled_world_is_word_char(ch : Char) -> Bool {
 }
 
 ///|
-fn tiled_world_capture_int(source : String) -> Int? {
+fn tiled_world_capture_int(source : String) -> Int32? {
   Some(@string.parse_int(source[:])) catch {
     _ => None
   }
@@ -1119,7 +1119,7 @@ fn tiled_world_maps_touch_or_overlap(
 ///|
 fn tiled_world_map_bounds(
   loaded_map : LoadedTiledWorldMap,
-) -> (Int, Int, Int, Int) {
+) -> (Int32, Int32, Int32, Int32) {
   let width = loaded_map.world_map.width.unwrap_or(
     loaded_map.map.width * loaded_map.map.tile_width,
   )

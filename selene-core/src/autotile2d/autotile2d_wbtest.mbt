@@ -1,16 +1,16 @@
 ///|
-fn mask_rule(mask : Int, name : String) -> AutoTileMaskRule {
+fn mask_rule(mask : Int32, name : String) -> AutoTileMaskRule {
   { mask, region_name: name, atlas_index: mask, }
 }
 
 ///|
 fn wang_rule(
-  north : Int,
-  east : Int,
-  south : Int,
-  west : Int,
+  north : Int32,
+  east : Int32,
+  south : Int32,
+  west : Int32,
   name : String,
-  index : Int,
+  index : Int32,
 ) -> AutoTileWangRule {
   { north, east, south, west, region_name: name, atlas_index: index, }
 }
@@ -36,8 +36,8 @@ fn test_source(
 ///|
 fn solved_name_at(
   solved : Array[AutoTileSolvedTile],
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
 ) -> String {
   for tile in solved {
     if tile.x == x && tile.y == y {
@@ -48,7 +48,11 @@ fn solved_name_at(
 }
 
 ///|
-fn solved_index_at(solved : Array[AutoTileSolvedTile], x : Int, y : Int) -> Int {
+fn solved_index_at(
+  solved : Array[AutoTileSolvedTile],
+  x : Int32,
+  y : Int32,
+) -> Int32 {
   for tile in solved {
     if tile.x == x && tile.y == y {
       return tile.atlas_index
@@ -133,7 +137,7 @@ test "bitmask8 reachable mask set is the canonical 47-tiles subset" {
       bitmask8_rules=rules,
     ),
   ]
-  let reachable_masks : Map[Int, Bool] = Map([])
+  let reachable_masks : Map[Int32, Bool] = Map([])
   // Neighbor bit order (for generated input combinations):
   // 0:N, 1:E, 2:S, 3:W, 4:NE, 5:SE, 6:SW, 7:NW
   for combo = 0; combo < 256; combo = combo + 1 {

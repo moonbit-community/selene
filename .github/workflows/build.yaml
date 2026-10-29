@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     env:
-      MOONBIT_INSTALL_VERSION: nightly
+      MOONBIT_INSTALL_VERSION: latest
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -42,13 +42,13 @@ jobs:
       - name: Install MoonBit
         if: ${{ matrix.os != 'windows-latest' }}
         run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s nightly
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s latest
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
       - name: Install MoonBit on Windows
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
-          $env:MOONBIT_INSTALL_VERSION = "nightly"
+          $env:MOONBIT_INSTALL_VERSION = "latest"
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
           "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
@@ -66,7 +66,7 @@ jobs:
           cd selene-core
           moon update
           moon check --deny-warn
-          moon test src/animation src/app src/asset src/autotile2d src/collision src/editor_bridge src/entity src/event src/input_action src/inputs src/ldtk src/math src/physics3d src/render2d src/render3d src/render_submit src/runtime_debug src/scene3d src/sprite src/text2d src/tiled src/touch_controls src/transform src/ui --target native --release --deny-warn
+          moon test src/animation src/app src/asset src/autotile2d src/collision src/entity src/event src/input_action src/inputs src/ldtk src/math src/physics3d src/render2d src/render3d src/render_submit src/runtime_debug src/scene3d src/sprite src/text2d src/tiled src/touch_controls src/transform src/ui --target native --release --deny-warn
           moon build
 
       - name: selene-raylib
@@ -81,33 +81,8 @@ jobs:
           cd selene-webgpu
           moon update
           moon check --deny-warn
+          moon test src --target js --deny-warn
           moon build
-
-      - name: selene-editor-shared
-        run: |
-          cd selene-editor-shared
-          moon update
-          moon check --target all --deny-warn
-
-      - name: selene-editor-frontend
-        run: |
-          cd selene-editor-frontend
-          moon update
-          moon check --target js --deny-warn
-
-      - name: selene-editor-service
-        run: |
-          cd selene-editor-service
-          moon update
-          moon check --target native --deny-warn
-          moon test service/core --target native --release --deny-warn
-
-      - name: selene-editor-specs
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
-          cd selene-editor-specs
-          moon update
-          moon test specs --target native --release --deny-warn
 
       - name: selene-examples
         if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -115,6 +90,7 @@ jobs:
           cd examples
           moon update
           moon check --deny-warn
+          moon test cards pixeladventure scene3d survivors tank3d --target native --release --deny-warn
 
       - name: selene-examples-native
         if: ${{ matrix.os == 'ubuntu-latest' }}

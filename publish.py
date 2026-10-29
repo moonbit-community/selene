@@ -23,9 +23,6 @@ INTERNAL_MODULES = {
     "Milky2018/selene",
     "Milky2018/selene_webgpu",
     "Milky2018/selene_raylib",
-    "Milky2018/selene_editor_shared",
-    "Milky2018/selene_editor_frontend",
-    "Milky2018/selene_editor_service",
 }
 
 
@@ -39,18 +36,12 @@ RELEASE_MODULES = [
     ModuleConfig("selene-core", ROOT_DIR / "selene-core"),
     ModuleConfig("selene-webgpu", ROOT_DIR / "selene-webgpu"),
     ModuleConfig("selene-raylib", ROOT_DIR / "selene-raylib"),
-    ModuleConfig("selene-editor-shared", ROOT_DIR / "selene-editor-shared"),
-    ModuleConfig("selene-editor-frontend", ROOT_DIR / "selene-editor-frontend"),
-    ModuleConfig("selene-editor-service", ROOT_DIR / "selene-editor-service"),
 ]
 
 PUBLISH_ORDER = [
     "selene-core",
     "selene-webgpu",
     "selene-raylib",
-    "selene-editor-shared",
-    "selene-editor-frontend",
-    "selene-editor-service",
 ]
 
 LEGACY_UI_CHECK_REL_PATH = Path("scripts/check_no_legacy_ui.sh")
@@ -165,22 +156,6 @@ def module_info_entries(module: ModuleConfig) -> list[tuple[str, str]]:
         return [(str(module.path / "src"), "js")]
     if module.name == "selene-raylib":
         return [(str(module.path / "src"), "native")]
-    if module.name == "selene-editor-shared":
-        return [
-            (str(module.path / "shared"), "js"),
-            (str(module.path / "shared"), "native"),
-            (str(module.path / "preview_bridge"), "js"),
-            (str(module.path / "preview_bridge"), "native"),
-        ]
-    if module.name == "selene-editor-frontend":
-        return [
-            (str(module.path / "frontend"), "js"),
-            (str(module.path / "preview"), "js"),
-        ]
-    if module.name == "selene-editor-service":
-        return [
-            (str(module.path / "service"), "native"),
-        ]
     raise RuntimeError(f"Unknown module for info generation: {module.name}")
 
 
@@ -219,12 +194,6 @@ def run_module_quality_checks(module: ModuleConfig):
     elif module.name == "selene-webgpu":
         check_targets = ["js"]
     elif module.name == "selene-raylib":
-        check_targets = ["native"]
-    elif module.name == "selene-editor-shared":
-        check_targets = ["js", "native"]
-    elif module.name == "selene-editor-frontend":
-        check_targets = ["js"]
-    elif module.name == "selene-editor-service":
         check_targets = ["native"]
     else:
         raise RuntimeError(f"Unknown module for quality checks: {module.name}")

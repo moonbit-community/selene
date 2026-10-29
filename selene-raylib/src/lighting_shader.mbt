@@ -1,5 +1,5 @@
 ///|
-fn read_float(bytes : Bytes, off : Int) -> Float {
+fn read_float(bytes : Bytes, off : Int32) -> Float {
   let bits = bytes[off].to_int() |
     (bytes[off + 1].to_int() << 8) |
     (bytes[off + 2].to_int() << 16) |
@@ -8,7 +8,7 @@ fn read_float(bytes : Bytes, off : Int) -> Float {
 }
 
 ///|
-fn clamp_u8(value : Int) -> Int {
+fn clamp_u8(value : Int32) -> Int32 {
   if value < 0 {
     0
   } else if value > 255 {
@@ -154,12 +154,12 @@ fn light_rgb(color : @render.Color, intensity : Double) -> @smath.Vec3 {
 }
 
 ///|
-fn uniform_int(value : Int) -> @raylib.ShaderUniformData {
+fn uniform_int(value : Int32) -> @raylib.ShaderUniformData {
   Int(value)
 }
 
 ///|
-fn uniform_texture_unit(value : Int) -> @raylib.ShaderUniformData {
+fn uniform_texture_unit(value : Int32) -> @raylib.ShaderUniformData {
   // NOTE: Keep texture samplers on Int uniforms for raylib 0.3.1 compatibility.
   // Some drivers/backend paths interpret SHADER_UNIFORM_SAMPLER2D inconsistently.
   Int(value)

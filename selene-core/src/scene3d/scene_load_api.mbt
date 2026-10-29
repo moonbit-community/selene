@@ -7,38 +7,38 @@ priv struct ParsedLightTemplate {
 
 ///|
 priv struct BufferViewTemplate {
-  buffer : Int
-  byte_offset : Int
-  byte_length : Int
-  byte_stride : Int?
+  buffer : Int32
+  byte_offset : Int32
+  byte_length : Int32
+  byte_stride : Int32?
 }
 
 ///|
 priv struct SparseIndicesTemplate {
-  buffer_view : Int
-  byte_offset : Int
-  component_type : Int
+  buffer_view : Int32
+  byte_offset : Int32
+  component_type : Int32
 }
 
 ///|
 priv struct SparseValuesTemplate {
-  buffer_view : Int
-  byte_offset : Int
+  buffer_view : Int32
+  byte_offset : Int32
 }
 
 ///|
 priv struct SparseAccessorTemplate {
-  count : Int
+  count : Int32
   indices : SparseIndicesTemplate
   values : SparseValuesTemplate
 }
 
 ///|
 priv struct AccessorTemplate {
-  buffer_view : Int?
-  byte_offset : Int
-  component_type : Int
-  count : Int
+  buffer_view : Int32?
+  byte_offset : Int32
+  component_type : Int32
+  count : Int32
   type_name : String
   normalized : Bool
   sparse : SparseAccessorTemplate?
@@ -105,7 +105,7 @@ pub fn instantiate_scene_instance(
   guard scene_templates.get(scene) is Some(template) else {
     return { root, parts, animations: Map([]), }
   }
-  let node_entities : Map[Int, @entity.Entity] = Map([])
+  let node_entities : Map[Int32, @entity.Entity] = Map([])
   let pending_skin_bindings : Array[PendingSkinBinding] = []
   for root_order, node_index in template.roots {
     instantiate_scene_node(

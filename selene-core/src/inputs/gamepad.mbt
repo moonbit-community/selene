@@ -15,16 +15,16 @@
 ///|
 /// Stable gamepad identifier.
 pub(all) struct Gamepad {
-  id : Int
+  id : Int32
 } derive(Eq, Debug, Hash)
 
 ///|
-pub fn Gamepad::Gamepad(id : Int) -> Gamepad {
+pub fn Gamepad::Gamepad(id : Int32) -> Gamepad {
   { id, }
 }
 
 ///|
-pub fn Gamepad::id(self : Gamepad) -> Int {
+pub fn Gamepad::id(self : Gamepad) -> Int32 {
   self.id
 }
 
@@ -131,7 +131,7 @@ priv struct GamepadWorldStore {
 }
 
 ///|
-let gamepad_world_stores : Map[UInt, GamepadWorldStore] = Map([])
+let gamepad_world_stores : Map[UInt32, GamepadWorldStore] = Map([])
 
 ///|
 fn gamepad_world_store() -> GamepadWorldStore {

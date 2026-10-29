@@ -1,6 +1,6 @@
 # Pixel Adventure Example
 
-A small Selene example built around scene documents, atlases, animation clips/graphs, and the editor/runtime round-trip.
+A small Selene example with a code-defined level, sprite atlases, animation clips/graphs, and physics.
 
 ## Run
 

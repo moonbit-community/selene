@@ -33,9 +33,9 @@ pub(all) struct ColorMaterial {
 pub fn ColorMaterial::ColorMaterial(color? : @render.Color, texture? : @asset_types.ImageHandle?, uv_transform? : @math.Transform, alpha_mode? : @render.AlphaMode2D, blend_mode? : @render.BlendMode2D) -> Self
 pub fn ColorMaterial::from_color(@render.Color) -> Self
 
-pub(all) struct ColorMaterialHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub(all) struct ColorMaterialHandle(UInt32) derive(Eq, Hash, @debug.Debug)
 pub fn ColorMaterialHandle::equal(Self, Self) -> Bool
-pub fn ColorMaterialHandle::hash(Self) -> Int
+pub fn ColorMaterialHandle::hash(Self) -> Int32
 pub fn ColorMaterialHandle::hash_combine(Self, Hasher) -> Unit
 pub fn ColorMaterialHandle::not_equal(Self, Self) -> Bool
 pub fn ColorMaterialHandle::to_repr(Self) -> @debug.Repr

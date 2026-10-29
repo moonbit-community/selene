@@ -11,7 +11,7 @@ fn with_physics3d_test_world(action : () -> Unit raise) -> Unit raise {
 }
 
 ///|
-fn step_physics(iterations : Int) -> Unit {
+fn step_physics(iterations : Int32) -> Unit {
   for _ in 0..<iterations {
     physics_step_system(1.0 / 60.0)
   }

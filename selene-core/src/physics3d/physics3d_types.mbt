@@ -49,7 +49,7 @@ pub(all) struct LockedAxes {
 pub(all) struct Ccd {} derive(Eq, Debug)
 
 ///|
-pub(all) struct Dominance(Int) derive(Eq, Debug)
+pub(all) struct Dominance(Int32) derive(Eq, Debug)
 
 ///|
 pub(all) enum AdditionalMassProperties {
@@ -69,8 +69,8 @@ pub(all) enum Collider {
   RoundCylinder(Double, Double, Double)
   Halfspace(@math.Vec3)
   ConvexHull(Array[@math.Vec3])
-  TriMesh(Array[@math.Vec3], Array[(Int, Int, Int)])
-  Heightfield(Array[Double], Int, Int, @math.Vec3)
+  TriMesh(Array[@math.Vec3], Array[(Int32, Int32, Int32)])
+  Heightfield(Array[Double], Int32, Int32, @math.Vec3)
 } derive(Eq, Debug)
 
 ///|
@@ -90,14 +90,14 @@ pub(all) struct Restitution(Double) derive(Eq, Debug)
 
 ///|
 pub(all) struct CollisionGroups {
-  memberships : Int
-  filters : Int
+  memberships : Int32
+  filters : Int32
 } derive(Eq, Debug)
 
 ///|
 pub(all) struct SolverGroups {
-  memberships : Int
-  filters : Int
+  memberships : Int32
+  filters : Int32
 } derive(Eq, Debug)
 
 ///|

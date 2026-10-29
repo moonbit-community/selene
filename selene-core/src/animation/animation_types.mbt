@@ -62,7 +62,7 @@ pub(all) struct AnimatedField {
 }
 
 ///|
-pub(all) struct AnimatedFieldHandle(UInt) derive(Eq, Debug, Hash)
+pub(all) struct AnimatedFieldHandle(UInt32) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) enum VariableCurve {
@@ -89,7 +89,7 @@ pub(all) struct AnimationEventContext {
 } derive(Eq, Debug)
 
 ///|
-pub(all) struct AnimationEventDescriptorHandle(UInt) derive(Eq, Debug, Hash)
+pub(all) struct AnimationEventDescriptorHandle(UInt32) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) struct AnimationClipEventDispatch {
@@ -112,10 +112,10 @@ pub(all) struct AnimationClip {
 }
 
 ///|
-pub(all) struct AnimationClipHandle(UInt) derive(Eq, Debug, Hash)
+pub(all) struct AnimationClipHandle(UInt32) derive(Eq, Debug, Hash)
 
 ///|
-pub(all) struct AnimationNodeIndex(UInt) derive(Eq, Debug, Hash)
+pub(all) struct AnimationNodeIndex(UInt32) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) enum AnimationGraphNodeType {
@@ -133,7 +133,7 @@ pub(all) struct AnimationGraphEdge {
 ///|
 pub(all) struct AnimationGraphNode {
   node_type : AnimationGraphNodeType
-  mask : UInt
+  mask : UInt32
   children : Array[AnimationGraphEdge]
 }
 
@@ -141,18 +141,18 @@ pub(all) struct AnimationGraphNode {
 pub(all) struct AnimationGraph {
   root : AnimationNodeIndex
   nodes : Map[AnimationNodeIndex, AnimationGraphNode]
-  mask_groups : Map[AnimationTargetId, UInt]
-  mut next_node : UInt
+  mask_groups : Map[AnimationTargetId, UInt32]
+  mut next_node : UInt32
 }
 
 ///|
-pub(all) struct AnimationGraphHandle(UInt) derive(Eq, Debug, Hash)
+pub(all) struct AnimationGraphHandle(UInt32) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) enum RepeatAnimation {
   Never
   Forever
-  Count(UInt)
+  Count(UInt32)
 } derive(Eq, Debug)
 
 ///|
@@ -164,7 +164,7 @@ pub(all) struct ActiveAnimation {
   mut repeat : RepeatAnimation
   mut paused : Bool
   mut finished : Bool
-  mut completed_repeats : UInt
+  mut completed_repeats : UInt32
 }
 
 ///|

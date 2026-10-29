@@ -23,10 +23,10 @@ pub(all) struct TouchControlStyle {
 
 ///|
 pub fn TouchControlStyle::TouchControlStyle(
-  base_color? : @render.Color = rgba(35U, 42U, 54U, 0.36),
-  active_color? : @render.Color = rgba(78U, 142U, 255U, 0.52),
-  knob_color? : @render.Color = rgba(236U, 242U, 255U, 0.58),
-  label_color? : @render.Color = rgba(255U, 255U, 255U, 0.84),
+  base_color~ : @render.Color = rgba(35U, 42U, 54U, 0.36),
+  active_color~ : @render.Color = rgba(78U, 142U, 255U, 0.52),
+  knob_color~ : @render.Color = rgba(236U, 242U, 255U, 0.58),
+  label_color~ : @render.Color = rgba(255U, 255U, 255U, 0.84),
 ) -> TouchControlStyle {
   { base_color, active_color, knob_color, label_color, }
 }
@@ -48,11 +48,11 @@ pub fn VirtualStick::VirtualStick(
   id : String,
   axis_x : @inputs.VirtualAxis,
   axis_y : @inputs.VirtualAxis,
-  placement? : TouchPlacement = BottomLeft,
-  radius? : Double = 64.0,
-  dead_zone? : Double = 10.0,
-  mode? : StickMode = Floating,
-  style? : TouchControlStyle = TouchControlStyle(),
+  placement~ : TouchPlacement = BottomLeft,
+  radius~ : Double = 64.0,
+  dead_zone~ : Double = 10.0,
+  mode~ : StickMode = Floating,
+  style~ : TouchControlStyle = TouchControlStyle(),
 ) -> VirtualStick {
   { id, axis_x, axis_y, placement, radius, dead_zone, mode, style, }
 }
@@ -71,10 +71,10 @@ pub(all) struct VirtualButtonControl {
 pub fn VirtualButtonControl::VirtualButtonControl(
   id : String,
   button : @inputs.VirtualButton,
-  placement? : TouchPlacement = BottomRight,
-  radius? : Double = 48.0,
-  label? : String = "",
-  style? : TouchControlStyle = TouchControlStyle(),
+  placement~ : TouchPlacement = BottomRight,
+  radius~ : Double = 48.0,
+  label~ : String = "",
+  style~ : TouchControlStyle = TouchControlStyle(),
 ) -> VirtualButtonControl {
   { id, button, placement, radius, label, style, }
 }

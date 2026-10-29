@@ -1,6 +1,6 @@
 ///|
 pub fn add_ldtk_int_cell_registration(
-  value : Int,
+  value : Int32,
   hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
 ) -> Unit {
   add_ldtk_int_cell_registration_for_layer_optional(None, Some(value), hook)
@@ -28,7 +28,7 @@ pub fn add_default_ldtk_int_cell_registration(
 ///|
 pub fn[T] add_ldtk_int_cell_component_for_layer_optional(
   layer_identifier : String?,
-  value : Int?,
+  value : Int32?,
   storage : Map[@entity.Entity, T],
   make : (LdtkIntGridCellSpawnedEvent) -> T,
 ) -> Unit {
@@ -42,7 +42,7 @@ pub fn[T] add_ldtk_int_cell_component_for_layer_optional(
 ///|
 pub fn[T] add_ldtk_int_cell_component_for_layer(
   layer_identifier : String,
-  value : Int,
+  value : Int32,
   storage : Map[@entity.Entity, T],
   make : (LdtkIntGridCellSpawnedEvent) -> T,
 ) -> Unit {
@@ -56,7 +56,7 @@ pub fn[T] add_ldtk_int_cell_component_for_layer(
 
 ///|
 pub fn[T] add_ldtk_int_cell_component(
-  value : Int,
+  value : Int32,
   storage : Map[@entity.Entity, T],
   make : (LdtkIntGridCellSpawnedEvent) -> T,
 ) -> Unit {
@@ -208,7 +208,7 @@ pub fn register_ldtk_int_grid_layer_spawn_hook(
 ///|
 pub fn register_ldtk_int_grid_spawn_hook_optional(
   layer_identifier : String?,
-  value : Int?,
+  value : Int32?,
   hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
 ) -> Unit {
   match (layer_identifier, value) {
@@ -223,7 +223,7 @@ pub fn register_ldtk_int_grid_spawn_hook_optional(
 
 ///|
 pub fn register_ldtk_int_grid_value_spawn_hook(
-  value : Int,
+  value : Int32,
   hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
 ) -> Unit {
   ldtk_int_grid_value_spawn_hooks().set(
@@ -249,7 +249,7 @@ pub fn unregister_ldtk_int_grid_layer_spawn_hook(
 ///|
 pub fn unregister_ldtk_int_grid_spawn_hook_optional(
   layer_identifier : String?,
-  value : Int?,
+  value : Int32?,
 ) -> Unit {
   match (layer_identifier, value) {
     (Some(layer), Some(cell_value)) =>

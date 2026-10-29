@@ -192,9 +192,9 @@ fn json_vec2(value : Json) -> @math.Vec2? {
 }
 
 ///|
-fn json_int_array(value : Json) -> Array[Int]? {
+fn json_int_array(value : Json) -> Array[Int32]? {
   guard json_array(value) is Some(items) else { return None }
-  let values : Array[Int] = []
+  let values : Array[Int32] = []
   for item in items {
     if json_int(item) is Some(int_value) {
       values.push(int_value)
@@ -384,7 +384,7 @@ fn json_number(value : Json) -> Double? {
 }
 
 ///|
-fn json_int(value : Json) -> Int? {
+fn json_int(value : Json) -> Int32? {
   json_decode(value)
 }
 
@@ -469,7 +469,7 @@ fn field_number_any(
 }
 
 ///|
-fn field_int(object : Map[String, Json], key : String) -> Int? {
+fn field_int(object : Map[String, Json], key : String) -> Int32? {
   if field_json(object, key) is Some(value) {
     if json_int(value) is Some(int_value) {
       return Some(int_value)
@@ -481,7 +481,7 @@ fn field_int(object : Map[String, Json], key : String) -> Int? {
 }
 
 ///|
-fn field_int_any(object : Map[String, Json], keys : Array[String]) -> Int? {
+fn field_int_any(object : Map[String, Json], keys : Array[String]) -> Int32? {
   for key in keys {
     if field_int(object, key) is Some(value) {
       return Some(value)

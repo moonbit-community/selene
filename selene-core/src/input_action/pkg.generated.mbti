@@ -62,7 +62,7 @@ pub(all) struct InputAction {
 } derive(Eq, Hash, @debug.Debug)
 pub fn InputAction::InputAction(String) -> Self
 pub fn InputAction::equal(Self, Self) -> Bool
-pub fn InputAction::hash(Self) -> Int
+pub fn InputAction::hash(Self) -> Int32
 pub fn InputAction::hash_combine(Self, Hasher) -> Unit
 pub fn InputAction::not_equal(Self, Self) -> Bool
 pub fn InputAction::to_repr(Self) -> @debug.Repr

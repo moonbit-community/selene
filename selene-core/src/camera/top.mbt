@@ -64,9 +64,9 @@ fn default_camera_clear_color() -> @render.Color {
 
 ///|
 pub fn CameraPass2D::CameraPass2D(
-  load_op? : CameraPassLoadOp2D = Load,
-  clear_color? : @render.Color = default_camera_clear_color(),
-  target? : CameraPassTarget2D = Screen,
+  load_op~ : CameraPassLoadOp2D = Load,
+  clear_color~ : @render.Color = default_camera_clear_color(),
+  target~ : CameraPassTarget2D = Screen,
 ) -> CameraPass2D {
   { load_op, clear_color, target, }
 }
@@ -74,17 +74,17 @@ pub fn CameraPass2D::CameraPass2D(
 ///|
 pub(all) struct Camera {
   mut is_active : Bool
-  order : Int
+  order : Int32
   viewport : CameraViewport?
   pass : CameraPass2D
 } derive(Eq, Debug)
 
 ///|
 pub fn Camera::Camera(
-  is_active? : Bool = true,
-  order? : Int = 0,
-  viewport? : CameraViewport? = None,
-  pass? : CameraPass2D = CameraPass2D(),
+  is_active~ : Bool = true,
+  order~ : Int32 = 0,
+  viewport~ : CameraViewport? = None,
+  pass~ : CameraPass2D = CameraPass2D(),
 ) -> Camera {
   { is_active, order, viewport, pass, }
 }
@@ -117,9 +117,9 @@ pub(all) struct OrthographicProjection {
 
 ///|
 pub fn OrthographicProjection::OrthographicProjection(
-  scale? : Double = 1.0,
-  near? : Double = -1000.0,
-  far? : Double = 1000.0,
+  scale~ : Double = 1.0,
+  near~ : Double = -1000.0,
+  far~ : Double = 1000.0,
 ) -> OrthographicProjection {
   { near, far, scale: projection_scale(scale), }
 }
@@ -137,7 +137,7 @@ priv struct CameraWorldStore {
 }
 
 ///|
-let camera_world_stores : Map[UInt, CameraWorldStore] = Map([])
+let camera_world_stores : Map[UInt32, CameraWorldStore] = Map([])
 
 ///|
 fn camera_world_store() -> CameraWorldStore {

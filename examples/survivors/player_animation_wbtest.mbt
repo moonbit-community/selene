@@ -64,7 +64,7 @@ test "player run animation advances atlas indices in order" {
     controller.run_right,
   )
 
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   indices.push(
     @sprite.sprites().get(entity).unwrap().texture_atlas.unwrap().index,
   )

@@ -31,13 +31,13 @@ pub(all) struct AssetEvent[T] {
 } derive(Eq, Debug)
 
 ///|
-let next_image_id : Ref[UInt] = Ref(0)
+let next_image_id : Ref[UInt32] = Ref(0)
 
 ///|
-let next_audio_id : Ref[UInt] = Ref(0)
+let next_audio_id : Ref[UInt32] = Ref(0)
 
 ///|
-let next_font_id : Ref[UInt] = Ref(0)
+let next_font_id : Ref[UInt32] = Ref(0)
 
 ///|
 let images_by_path : Map[String, ImageHandle] = Map([])

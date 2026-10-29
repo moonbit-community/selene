@@ -17,18 +17,18 @@ priv struct SceneNodeTemplate {
   name : String?
   transform : @transform.Transform
   renderers : Array[MeshRendererTemplate]
-  skin_index : Int?
+  skin_index : Int32?
   morph_weights : Array[Double]
   camera : @camera3d.Camera3DComponent?
   directional_light : @render3d.DirectionalLight3D?
   point_light : @render3d.PointLight3D?
   spot_light : @render3d.SpotLight3D?
-  children : Array[Int]
+  children : Array[Int32]
 }
 
 ///|
 priv struct SceneTemplate {
-  roots : Array[Int]
+  roots : Array[Int32]
   nodes : Array[SceneNodeTemplate]
   skins : Array[SkinTemplate]
   animations : Map[String, @animation.AnimationClipHandle]
@@ -45,7 +45,7 @@ pub(all) struct SceneInstance {
 priv struct MeshSceneTemplate {
   renderers : Array[MeshRendererTemplate]
   morph_weights : Array[Double]
-  morph_target_count : Int
+  morph_target_count : Int32
 }
 
 ///|
@@ -62,14 +62,14 @@ priv struct MorphTargetTemplate {
 
 ///|
 priv struct SkinTemplate {
-  joints : Array[Int]
+  joints : Array[Int32]
   inverse_bind_matrices : Array[@math.Mat4]
 }
 
 ///|
 priv struct SkinnedPrimitiveTemplate {
   base_positions : Array[@math.Vec3]
-  indices : Array[Int]?
+  indices : Array[Int32]?
   topology : @render3d.TriangleTopology3D
   base_normals : Array[@math.Vec3]
   uv_sets : Array[Array[@math.Vec2]]
@@ -85,7 +85,7 @@ priv struct PendingSkinBinding {
   entity : @entity.Entity
   target_entity : @entity.Entity
   mesh : @render3d.MeshHandle
-  skin_index : Int
+  skin_index : Int32
   skinned : SkinnedPrimitiveTemplate
 }
 
@@ -98,7 +98,7 @@ priv struct ParsedMeshAsset {
 ///|
 priv struct AnimationSamplerTemplate {
   times : Array[Double]
-  output_accessor : Int
+  output_accessor : Int32
   interpolation : @animation.ChannelInterpolation
 }
 

@@ -2,7 +2,7 @@
 
 Core ECS/runtime package for Selene.
 
-It includes app/runtime orchestration, ECS data flow, assets, scenes, animation, 2D/3D rendering, UI, physics, and editor-bridge document codecs.
+It includes app/runtime orchestration, ECS data flow, assets, scenes, animation, 2D/3D rendering, UI, physics.
 
 ## Install
 

@@ -20,7 +20,7 @@ pub struct LdtkLayerSpawnedEvent {
   level : LdtkLevel
   layer : LdtkLayerInstance
   effective_visible : Bool
-  zindex : Int
+  zindex : Int32
 }
 
 ///|
@@ -32,7 +32,7 @@ pub struct LdtkTileSpawnedEvent {
   level : LdtkLevel
   layer : LdtkLayerInstance
   tile : LdtkTileInstance
-  zindex : Int
+  zindex : Int32
 }
 
 ///|
@@ -44,7 +44,7 @@ pub struct LdtkEntitySpawnedEvent {
   level : LdtkLevel
   layer : LdtkLayerInstance
   instance : LdtkEntityInstance
-  zindex : Int
+  zindex : Int32
 }
 
 ///|
@@ -55,10 +55,10 @@ pub struct LdtkIntGridCellSpawnedEvent {
   cell_entity : @entity.Entity
   level : LdtkLevel
   layer : LdtkLayerInstance
-  value : Int
-  grid_x : Int
-  grid_y : Int
-  zindex : Int
+  value : Int32
+  grid_x : Int32
+  grid_y : Int32
+  zindex : Int32
 }
 
 ///|
@@ -70,10 +70,10 @@ pub struct LdtkIntGridColliderSpawnedEvent {
   collider_entity : @entity.Entity
   level : LdtkLevel
   layer : LdtkLayerInstance
-  value : Int
-  grid_x : Int
-  grid_y : Int
-  zindex : Int
+  value : Int32
+  grid_x : Int32
+  grid_y : Int32
+  zindex : Int32
   sensor : Bool
 }
 

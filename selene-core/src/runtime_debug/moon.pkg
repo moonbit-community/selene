@@ -17,5 +17,4 @@ import {
   "Milky2018/selene/transform",
   "Milky2018/selene/visibility",
   "moonbitlang/core/cmp",
-  "moonbitlang/core/json",
 }

@@ -31,7 +31,7 @@ pub(all) struct Camera3DComponent {
   near : Double
   far : Double
   fov_y : Double
-  order : Int
+  order : Int32
   clear_color : @render.Color
   mut enabled : Bool
 }

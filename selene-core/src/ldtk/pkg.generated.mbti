@@ -20,9 +20,9 @@ pub fn add_default_ldtk_entity_registration((LdtkEntitySpawnedEvent) -> Unit) ->
 
 pub fn add_default_ldtk_entity_registration_for_layer(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
-pub fn add_default_ldtk_entity_tile_sprite(zindex_offset? : Int) -> Unit
+pub fn add_default_ldtk_entity_tile_sprite(zindex_offset? : Int32) -> Unit
 
-pub fn add_default_ldtk_entity_tile_sprite_for_layer(String, zindex_offset? : Int) -> Unit
+pub fn add_default_ldtk_entity_tile_sprite_for_layer(String, zindex_offset? : Int32) -> Unit
 
 pub fn[T] add_default_ldtk_int_cell_component(Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
 
@@ -44,23 +44,23 @@ pub fn add_ldtk_entity_registration_for_layer(String, String, (LdtkEntitySpawned
 
 pub fn add_ldtk_entity_registration_for_layer_optional(String?, String?, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
-pub fn add_ldtk_entity_tile_sprite(String, zindex_offset? : Int) -> Unit
+pub fn add_ldtk_entity_tile_sprite(String, zindex_offset? : Int32) -> Unit
 
-pub fn add_ldtk_entity_tile_sprite_for_layer(String, String, zindex_offset? : Int) -> Unit
+pub fn add_ldtk_entity_tile_sprite_for_layer(String, String, zindex_offset? : Int32) -> Unit
 
-pub fn add_ldtk_entity_tile_sprite_for_layer_optional(String?, String?, zindex_offset? : Int) -> Unit
+pub fn add_ldtk_entity_tile_sprite_for_layer_optional(String?, String?, zindex_offset? : Int32) -> Unit
 
-pub fn[T] add_ldtk_int_cell_component(Int, Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+pub fn[T] add_ldtk_int_cell_component(Int32, Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
 
-pub fn[T] add_ldtk_int_cell_component_for_layer(String, Int, Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+pub fn[T] add_ldtk_int_cell_component_for_layer(String, Int32, Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
 
-pub fn[T] add_ldtk_int_cell_component_for_layer_optional(String?, Int?, Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+pub fn[T] add_ldtk_int_cell_component_for_layer_optional(String?, Int32?, Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
 
-pub fn add_ldtk_int_cell_registration(Int, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn add_ldtk_int_cell_registration(Int32, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
-pub fn add_ldtk_int_cell_registration_for_layer(String, Int, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn add_ldtk_int_cell_registration_for_layer(String, Int32, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
-pub fn add_ldtk_int_cell_registration_for_layer_optional(String?, Int?, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn add_ldtk_int_cell_registration_for_layer_optional(String?, Int32?, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
 pub fn clear_ldtk_children(@entity.Entity) -> Unit
 
@@ -106,7 +106,7 @@ pub fn empty_ldtk_project_definitions() -> LdtkProjectDefinitions
 
 pub fn empty_ldtk_tileset_rect() -> LdtkTilesetRect
 
-pub fn insert_ldtk_entity_tile_sprite(LdtkEntitySpawnedEvent, zindex? : Int) -> Bool
+pub fn insert_ldtk_entity_tile_sprite(LdtkEntitySpawnedEvent, zindex? : Int32) -> Bool
 
 pub fn ldtk_entity_by_iid(@entity.Entity, String) -> @entity.Entity?
 
@@ -122,7 +122,7 @@ pub fn ldtk_entity_spawn_hooks() -> Map[String, (LdtkEntitySpawnedEvent) -> Unit
 
 pub let ldtk_entity_spawned_event_bus : @event.Events[LdtkEntitySpawnedEvent]
 
-pub fn ldtk_entity_tile_sprite(LdtkEntitySpawnedEvent, zindex? : Int) -> @sprite.Sprite?
+pub fn ldtk_entity_tile_sprite(LdtkEntitySpawnedEvent, zindex? : Int32) -> @sprite.Sprite?
 
 pub fn ldtk_entity_typed_registrations() -> Map[String, (LdtkEntitySpawnedEvent) -> Unit]
 
@@ -152,9 +152,9 @@ pub fn ldtk_field_file_path_array(Array[LdtkFieldInstance], String) -> Array[Str
 
 pub fn ldtk_field_instance(Array[LdtkFieldInstance], String) -> LdtkFieldInstance?
 
-pub fn ldtk_field_int(Array[LdtkFieldInstance], String) -> Int?
+pub fn ldtk_field_int(Array[LdtkFieldInstance], String) -> Int32?
 
-pub fn ldtk_field_int_array(Array[LdtkFieldInstance], String) -> Array[Int]?
+pub fn ldtk_field_int_array(Array[LdtkFieldInstance], String) -> Array[Int32]?
 
 pub fn ldtk_field_number(Array[LdtkFieldInstance], String) -> Double?
 
@@ -214,11 +214,11 @@ pub fn ldtk_level_selection_identifier(String) -> LdtkLevelSelection
 
 pub fn ldtk_level_selection_iid(String) -> LdtkLevelSelection
 
-pub fn ldtk_level_selection_index(Int) -> LdtkLevelSelection
+pub fn ldtk_level_selection_index(Int32) -> LdtkLevelSelection
 
-pub fn ldtk_level_selection_indices(Int, Int) -> LdtkLevelSelection
+pub fn ldtk_level_selection_indices(Int32, Int32) -> LdtkLevelSelection
 
-pub fn ldtk_level_selection_uid(Int) -> LdtkLevelSelection
+pub fn ldtk_level_selection_uid(Int32) -> LdtkLevelSelection
 
 pub fn ldtk_level_set_equals(LdtkLevelSet, LdtkLevelSet) -> Bool
 
@@ -268,9 +268,9 @@ pub fn register_default_ldtk_entity((LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
 pub fn register_default_ldtk_entity_for_layer(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
-pub fn register_default_ldtk_entity_tile_sprite(zindex_offset? : Int) -> Unit
+pub fn register_default_ldtk_entity_tile_sprite(zindex_offset? : Int32) -> Unit
 
-pub fn register_default_ldtk_entity_tile_sprite_for_layer(String, zindex_offset? : Int) -> Unit
+pub fn register_default_ldtk_entity_tile_sprite_for_layer(String, zindex_offset? : Int32) -> Unit
 
 pub fn register_default_ldtk_int_cell((LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
@@ -292,27 +292,27 @@ pub fn register_ldtk_entity_spawn_hook_for_layer(String, String, (LdtkEntitySpaw
 
 pub fn register_ldtk_entity_spawn_hook_optional(String?, String?, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
-pub fn register_ldtk_entity_tile_sprite(String, zindex_offset? : Int) -> Unit
+pub fn register_ldtk_entity_tile_sprite(String, zindex_offset? : Int32) -> Unit
 
-pub fn register_ldtk_entity_tile_sprite_for_layer(String, String, zindex_offset? : Int) -> Unit
+pub fn register_ldtk_entity_tile_sprite_for_layer(String, String, zindex_offset? : Int32) -> Unit
 
-pub fn register_ldtk_entity_tile_sprite_for_layer_optional(String?, String?, zindex_offset? : Int) -> Unit
+pub fn register_ldtk_entity_tile_sprite_for_layer_optional(String?, String?, zindex_offset? : Int32) -> Unit
 
-pub fn register_ldtk_int_cell(Int, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn register_ldtk_int_cell(Int32, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
-pub fn register_ldtk_int_cell_for_layer(String, Int, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn register_ldtk_int_cell_for_layer(String, Int32, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
-pub fn register_ldtk_int_cell_for_layer_optional(String?, Int?, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn register_ldtk_int_cell_for_layer_optional(String?, Int32?, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
-pub fn register_ldtk_int_grid_cell_spawn_hook(String, Int, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn register_ldtk_int_grid_cell_spawn_hook(String, Int32, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
 pub fn register_ldtk_int_grid_default_spawn_hook((LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
 pub fn register_ldtk_int_grid_layer_spawn_hook(String, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
-pub fn register_ldtk_int_grid_spawn_hook_optional(String?, Int?, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn register_ldtk_int_grid_spawn_hook_optional(String?, Int32?, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
-pub fn register_ldtk_int_grid_value_spawn_hook(Int, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn register_ldtk_int_grid_value_spawn_hook(Int32, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
 pub fn respawn_ldtk_world_into_entity(@entity.Entity, LdtkProject, settings? : LdtkWorldSpawnSettings) -> Unit
 
@@ -352,28 +352,28 @@ pub fn unregister_ldtk_entity_spawn_hook_for_layer(String, String) -> Unit
 
 pub fn unregister_ldtk_entity_spawn_hook_optional(String?, String?) -> Unit
 
-pub fn unregister_ldtk_int_cell(Int) -> Unit
+pub fn unregister_ldtk_int_cell(Int32) -> Unit
 
-pub fn unregister_ldtk_int_cell_for_layer(String, Int) -> Unit
+pub fn unregister_ldtk_int_cell_for_layer(String, Int32) -> Unit
 
-pub fn unregister_ldtk_int_cell_for_layer_optional(String?, Int?) -> Unit
+pub fn unregister_ldtk_int_cell_for_layer_optional(String?, Int32?) -> Unit
 
-pub fn unregister_ldtk_int_grid_cell_spawn_hook(String, Int) -> Unit
+pub fn unregister_ldtk_int_grid_cell_spawn_hook(String, Int32) -> Unit
 
 pub fn unregister_ldtk_int_grid_layer_spawn_hook(String) -> Unit
 
-pub fn unregister_ldtk_int_grid_spawn_hook_optional(String?, Int?) -> Unit
+pub fn unregister_ldtk_int_grid_spawn_hook_optional(String?, Int32?) -> Unit
 
-pub fn unregister_ldtk_int_grid_value_spawn_hook(Int) -> Unit
+pub fn unregister_ldtk_int_grid_value_spawn_hook(Int32) -> Unit
 
 // Errors
 
 // Types and methods
 pub struct LdtkEntityDefinition {
-  uid : Int
+  uid : Int32
   identifier : String
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   color : String?
   tags : Array[String]
   field_definitions : Array[LdtkFieldDefinition]
@@ -386,9 +386,9 @@ pub struct LdtkEntityIid {
 pub struct LdtkEntityInstance {
   iid : String
   identifier : String
-  def_uid : Int
-  width : Int
-  height : Int
+  def_uid : Int32
+  width : Int32
+  height : Int32
   px : @math.Vec2
   grid : @math.Vec2
   pivot : @math.Vec2
@@ -410,8 +410,8 @@ pub fn LdtkEntityInstance::field_enum(Self, String) -> String?
 pub fn LdtkEntityInstance::field_enum_array(Self, String) -> Array[String]?
 pub fn LdtkEntityInstance::field_file_path(Self, String) -> String?
 pub fn LdtkEntityInstance::field_file_path_array(Self, String) -> Array[String]?
-pub fn LdtkEntityInstance::field_int(Self, String) -> Int?
-pub fn LdtkEntityInstance::field_int_array(Self, String) -> Array[Int]?
+pub fn LdtkEntityInstance::field_int(Self, String) -> Int32?
+pub fn LdtkEntityInstance::field_int_array(Self, String) -> Array[Int32]?
 pub fn LdtkEntityInstance::field_number(Self, String) -> Double?
 pub fn LdtkEntityInstance::field_number_array(Self, String) -> Array[Double]?
 pub fn LdtkEntityInstance::field_string(Self, String) -> String?
@@ -437,11 +437,11 @@ pub struct LdtkEntitySpawnedEvent {
   level : LdtkLevel
   layer : LdtkLayerInstance
   instance : LdtkEntityInstance
-  zindex : Int
+  zindex : Int32
 }
 
 pub struct LdtkEnumDefinition {
-  uid : Int
+  uid : Int32
   identifier : String
   external_rel_path : String?
   tags : Array[String]
@@ -454,7 +454,7 @@ pub struct LdtkEnumValueDefinition {
 }
 
 pub struct LdtkFieldDefinition {
-  uid : Int
+  uid : Int32
   identifier : String
   field_type : String
   is_array : Bool
@@ -466,7 +466,7 @@ pub struct LdtkFieldInstance {
   identifier : String
   value_type : String
   value : Json?
-  def_uid : Int?
+  def_uid : Int32?
 }
 pub fn LdtkFieldInstance::bool_array_value(Self) -> Array[Bool]?
 pub fn LdtkFieldInstance::bool_value(Self) -> Bool?
@@ -480,8 +480,8 @@ pub fn LdtkFieldInstance::enum_array_value(Self) -> Array[String]?
 pub fn LdtkFieldInstance::enum_value(Self) -> String?
 pub fn LdtkFieldInstance::file_path_array_value(Self) -> Array[String]?
 pub fn LdtkFieldInstance::file_path_value(Self) -> String?
-pub fn LdtkFieldInstance::int_array_value(Self) -> Array[Int]?
-pub fn LdtkFieldInstance::int_value(Self) -> Int?
+pub fn LdtkFieldInstance::int_array_value(Self) -> Array[Int32]?
+pub fn LdtkFieldInstance::int_value(Self) -> Int32?
 pub fn LdtkFieldInstance::number_array_value(Self) -> Array[Double]?
 pub fn LdtkFieldInstance::number_value(Self) -> Double?
 pub fn LdtkFieldInstance::string_array_value(Self) -> Array[String]?
@@ -492,8 +492,8 @@ pub fn LdtkFieldInstance::vec2_array_value(Self) -> Array[@math.Vec2]?
 pub fn LdtkFieldInstance::vec2_value(Self) -> @math.Vec2?
 
 pub struct LdtkGridCoords {
-  x : Int
-  y : Int
+  x : Int32
+  y : Int32
 }
 
 pub struct LdtkIndexedLevel {
@@ -502,7 +502,7 @@ pub struct LdtkIndexedLevel {
 }
 
 pub struct LdtkIntGridCell {
-  value : Int
+  value : Int32
 }
 
 pub struct LdtkIntGridCellSpawnedEvent {
@@ -512,10 +512,10 @@ pub struct LdtkIntGridCellSpawnedEvent {
   cell_entity : @entity.Entity
   level : LdtkLevel
   layer : LdtkLayerInstance
-  value : Int
-  grid_x : Int
-  grid_y : Int
-  zindex : Int
+  value : Int32
+  grid_x : Int32
+  grid_y : Int32
+  zindex : Int32
 }
 
 pub struct LdtkIntGridCollider {
@@ -530,22 +530,22 @@ pub struct LdtkIntGridColliderSpawnedEvent {
   collider_entity : @entity.Entity
   level : LdtkLevel
   layer : LdtkLayerInstance
-  value : Int
-  grid_x : Int
-  grid_y : Int
-  zindex : Int
+  value : Int32
+  grid_x : Int32
+  grid_y : Int32
+  zindex : Int32
   sensor : Bool
 }
 
 pub struct LdtkIntGridPhysicsSettings {
   enabled : Bool
   layer_identifiers : Array[String]
-  values : Array[Int]
+  values : Array[Int32]
   as_sensor : Bool
   collision_filter : @collision.CollisionFilter
   sensor_filter : @collision.CollisionFilter
 }
-pub fn LdtkIntGridPhysicsSettings::matches(Self, String, Int) -> Bool
+pub fn LdtkIntGridPhysicsSettings::matches(Self, String, Int32) -> Bool
 
 pub enum LdtkIntGridRendering {
   Colorful
@@ -556,13 +556,13 @@ pub fn LdtkIntGridRendering::not_equal(Self, Self) -> Bool
 pub fn LdtkIntGridRendering::to_repr(Self) -> @debug.Repr
 
 pub struct LdtkIntGridValueDefinition {
-  value : Int
+  value : Int32
   color : String?
   identifier : String?
 }
 
 pub struct LdtkLayerDefinition {
-  uid : Int
+  uid : Int32
   identifier : String
   layer_type : String?
   int_grid_values : Array[LdtkIntGridValueDefinition]
@@ -572,47 +572,47 @@ pub struct LdtkLayerInstance {
   iid : String
   identifier : String
   layer_type : String
-  level_id : Int
-  layer_def_uid : Int
-  c_wid : Int
-  c_hei : Int
-  grid_size : Int
+  level_id : Int32
+  layer_def_uid : Int32
+  c_wid : Int32
+  c_hei : Int32
+  grid_size : Int32
   opacity : Double
   visible : Bool
-  optional_rules : Array[Int]
-  override_tileset_uid : Int?
-  px_offset_x : Int
-  px_offset_y : Int
-  px_total_offset_x : Int
-  px_total_offset_y : Int
-  seed : Int
-  tileset_def_uid : Int?
+  optional_rules : Array[Int32]
+  override_tileset_uid : Int32?
+  px_offset_x : Int32
+  px_offset_y : Int32
+  px_total_offset_x : Int32
+  px_total_offset_y : Int32
+  seed : Int32
+  tileset_def_uid : Int32?
   tileset_rel_path : String?
-  int_grid_csv : Array[Int]
+  int_grid_csv : Array[Int32]
   auto_layer_tiles : Array[LdtkTileInstance]
   grid_tiles : Array[LdtkTileInstance]
   entity_instances : Array[LdtkEntityInstance]
 }
 
 pub struct LdtkLayerMetadata {
-  c_hei : Int
-  c_wid : Int
-  grid_size : Int
+  c_hei : Int32
+  c_wid : Int32
+  grid_size : Int32
   identifier : String
   opacity : Double
-  px_total_offset_x : Int
-  px_total_offset_y : Int
-  tileset_def_uid : Int?
+  px_total_offset_x : Int32
+  px_total_offset_y : Int32
+  tileset_def_uid : Int32?
   tileset_rel_path : String?
   layer_type : String
   iid : String
-  layer_def_uid : Int
-  level_id : Int
-  optional_rules : Array[Int]
-  override_tileset_uid : Int?
-  px_offset_x : Int
-  px_offset_y : Int
-  seed : Int
+  layer_def_uid : Int32
+  level_id : Int32
+  optional_rules : Array[Int32]
+  override_tileset_uid : Int32?
+  px_offset_x : Int32
+  px_offset_y : Int32
+  seed : Int32
   visible : Bool
 }
 
@@ -623,17 +623,17 @@ pub struct LdtkLayerSpawnedEvent {
   level : LdtkLevel
   layer : LdtkLayerInstance
   effective_visible : Bool
-  zindex : Int
+  zindex : Int32
 }
 
 pub struct LdtkLevel {
   identifier : String
   iid : String
-  uid : Int
-  world_x : Int
-  world_y : Int
-  px_wid : Int
-  px_hei : Int
+  uid : Int32
+  world_x : Int32
+  world_y : Int32
+  px_wid : Int32
+  px_hei : Int32
   bg_color : String?
   bg_pos : LdtkLevelBackgroundPosition?
   bg_rel_path : String?
@@ -655,8 +655,8 @@ pub fn LdtkLevel::field_enum(Self, String) -> String?
 pub fn LdtkLevel::field_enum_array(Self, String) -> Array[String]?
 pub fn LdtkLevel::field_file_path(Self, String) -> String?
 pub fn LdtkLevel::field_file_path_array(Self, String) -> Array[String]?
-pub fn LdtkLevel::field_int(Self, String) -> Int?
-pub fn LdtkLevel::field_int_array(Self, String) -> Array[Int]?
+pub fn LdtkLevel::field_int(Self, String) -> Int32?
+pub fn LdtkLevel::field_int_array(Self, String) -> Array[Int32]?
 pub fn LdtkLevel::field_number(Self, String) -> Double?
 pub fn LdtkLevel::field_number_array(Self, String) -> Array[Double]?
 pub fn LdtkLevel::field_string(Self, String) -> String?
@@ -672,7 +672,7 @@ pub struct LdtkLevelBackground {
   level_iid : String
   color : String?
   rel_path : String?
-  zindex : Int
+  zindex : Int32
 }
 
 pub struct LdtkLevelBackgroundPosition {
@@ -696,12 +696,12 @@ pub struct LdtkLevelIid {
 }
 
 pub struct LdtkLevelIndices {
-  world : Int?
-  level : Int
+  world : Int32?
+  level : Int32
 }
 pub fn LdtkLevelIndices::equals(Self, Self) -> Bool
-pub fn LdtkLevelIndices::in_root(Int) -> Self
-pub fn LdtkLevelIndices::in_world(Int, Int) -> Self
+pub fn LdtkLevelIndices::in_root(Int32) -> Self
+pub fn LdtkLevelIndices::in_world(Int32, Int32) -> Self
 
 pub struct LdtkLevelInstance {
   world_entity : @entity.Entity
@@ -713,7 +713,7 @@ pub enum LdtkLevelSelection {
   Identifier(String)
   Indices(LdtkLevelIndices)
   Iid(String)
-  Uid(Int)
+  Uid(Int32)
 }
 pub fn LdtkLevelSelection::is_match(Self, LdtkLevelIndices, LdtkLevel) -> Bool
 
@@ -745,22 +745,22 @@ pub struct LdtkProject {
   external_levels : Bool
   world_layout : String?
   bg_color : String?
-  default_level_width : Int?
-  default_level_height : Int?
+  default_level_width : Int32?
+  default_level_height : Int32?
   defs : LdtkProjectDefinitions
   levels : Array[LdtkLevel]
   worlds : Array[LdtkWorld]
 }
 pub fn LdtkProject::entity_definition_by_identifier(Self, String) -> LdtkEntityDefinition?
-pub fn LdtkProject::entity_definition_by_uid(Self, Int) -> LdtkEntityDefinition?
+pub fn LdtkProject::entity_definition_by_uid(Self, Int32) -> LdtkEntityDefinition?
 pub fn LdtkProject::enum_definition_by_identifier(Self, String) -> LdtkEnumDefinition?
-pub fn LdtkProject::enum_definition_by_uid(Self, Int) -> LdtkEnumDefinition?
+pub fn LdtkProject::enum_definition_by_uid(Self, Int32) -> LdtkEnumDefinition?
 pub fn LdtkProject::external_enum_definition_by_identifier(Self, String) -> LdtkEnumDefinition?
-pub fn LdtkProject::external_enum_definition_by_uid(Self, Int) -> LdtkEnumDefinition?
+pub fn LdtkProject::external_enum_definition_by_uid(Self, Int32) -> LdtkEnumDefinition?
 pub fn LdtkProject::find_level_by_selection(Self, LdtkLevelSelection) -> LdtkIndexedLevel?
 pub fn LdtkProject::from_ldtk_json(Json) -> Self
 pub fn LdtkProject::indexed_levels(Self) -> Array[LdtkIndexedLevel]
-pub fn LdtkProject::int_grid_color(Self, String, Int) -> String?
+pub fn LdtkProject::int_grid_color(Self, String, Int32) -> String?
 pub fn LdtkProject::layer_definition_by_identifier(Self, String) -> LdtkLayerDefinition?
 pub fn LdtkProject::level_at_indices(Self, LdtkLevelIndices) -> LdtkLevel?
 pub fn LdtkProject::level_by_iid(Self, String) -> LdtkLevel?
@@ -771,9 +771,9 @@ pub fn LdtkProject::raw_level_at_indices(Self, LdtkLevelIndices) -> LdtkLevel?
 pub fn LdtkProject::raw_level_by_iid(Self, String) -> LdtkLevel?
 pub fn LdtkProject::raw_level_set_for_selection(Self, LdtkLevelSelection, LdtkLevelSpawnBehavior) -> LdtkLevelSet
 pub fn LdtkProject::resolve_path(Self, String) -> String
-pub fn LdtkProject::tileset_by_uid(Self, Int) -> LdtkTilesetDefinition?
-pub fn LdtkProject::tileset_tile_custom_data(Self, Int, Int) -> String?
-pub fn LdtkProject::tileset_tile_enum_tags(Self, Int, Int) -> Array[String]
+pub fn LdtkProject::tileset_by_uid(Self, Int32) -> LdtkTilesetDefinition?
+pub fn LdtkProject::tileset_tile_custom_data(Self, Int32, Int32) -> String?
+pub fn LdtkProject::tileset_tile_enum_tags(Self, Int32, Int32) -> Array[String]
 
 pub struct LdtkProjectDefinitions {
   tilesets : Array[LdtkTilesetDefinition]
@@ -804,7 +804,7 @@ pub struct LdtkSpawnedEntityInstance {
   layer_entity : @entity.Entity
   layer : LdtkLayerInstance
   instance : LdtkEntityInstance
-  zindex : Int
+  zindex : Int32
 }
 
 pub struct LdtkSpawnedIntGridCell {
@@ -812,10 +812,10 @@ pub struct LdtkSpawnedIntGridCell {
   level_entity : @entity.Entity
   layer_entity : @entity.Entity
   layer : LdtkLayerInstance
-  value : Int
-  grid_x : Int
-  grid_y : Int
-  zindex : Int
+  value : Int32
+  grid_x : Int32
+  grid_y : Int32
+  zindex : Int32
 }
 
 pub struct LdtkSpawnedLayerInstance {
@@ -823,7 +823,7 @@ pub struct LdtkSpawnedLayerInstance {
   level_entity : @entity.Entity
   layer : LdtkLayerInstance
   effective_visible : Bool
-  zindex : Int
+  zindex : Int32
 }
 
 pub struct LdtkSpawnedTileInstance {
@@ -832,21 +832,21 @@ pub struct LdtkSpawnedTileInstance {
   layer_entity : @entity.Entity
   layer : LdtkLayerInstance
   tile : LdtkTileInstance
-  zindex : Int
+  zindex : Int32
 }
 
 pub struct LdtkTileInstance {
-  tile_id : Int
+  tile_id : Int32
   src : @math.Vec2
   px : @math.Vec2
   flip_x : Bool
   flip_y : Bool
   alpha : Double
-  data : Array[Int]
+  data : Array[Int32]
 }
 
 pub struct LdtkTileMetadata {
-  tile_id : Int
+  tile_id : Int32
   src : @math.Vec2
   flip_x : Bool
   flip_y : Bool
@@ -863,42 +863,42 @@ pub struct LdtkTileSpawnedEvent {
   level : LdtkLevel
   layer : LdtkLayerInstance
   tile : LdtkTileInstance
-  zindex : Int
+  zindex : Int32
 }
 
 pub struct LdtkTilesetCustomData {
   data : String
-  tile_id : Int
+  tile_id : Int32
 }
 
 pub struct LdtkTilesetDefinition {
-  uid : Int
+  uid : Int32
   identifier : String
   rel_path : String?
-  tile_grid_size : Int
-  px_wid : Int
-  px_hei : Int
-  spacing : Int
-  padding : Int
+  tile_grid_size : Int32
+  px_wid : Int32
+  px_hei : Int32
+  spacing : Int32
+  padding : Int32
   custom_data : Array[LdtkTilesetCustomData]
   enum_tags : Array[LdtkTilesetEnumTag]
   tags : Array[String]
-  tags_source_enum_uid : Int?
+  tags_source_enum_uid : Int32?
 }
-pub fn LdtkTilesetDefinition::tile_custom_data(Self, Int) -> String?
-pub fn LdtkTilesetDefinition::tile_enum_tags(Self, Int) -> Array[String]
+pub fn LdtkTilesetDefinition::tile_custom_data(Self, Int32) -> String?
+pub fn LdtkTilesetDefinition::tile_enum_tags(Self, Int32) -> Array[String]
 
 pub struct LdtkTilesetEnumTag {
   enum_value_id : String
-  tile_ids : Array[Int]
+  tile_ids : Array[Int32]
 }
 
 pub struct LdtkTilesetRect {
-  tileset_uid : Int?
-  x : Int
-  y : Int
-  w : Int
-  h : Int
+  tileset_uid : Int32?
+  x : Int32
+  y : Int32
+  w : Int32
+  h : Int32
 }
 
 pub struct LdtkWorld {
@@ -917,9 +917,9 @@ pub struct LdtkWorldInstance {
 
 pub struct LdtkWorldSpawnSettings {
   position : @math.Vec2
-  zindex : Int
-  level_z_step : Int
-  layer_z_step : Int
+  zindex : Int32
+  level_z_step : Int32
+  layer_z_step : Int32
   spawn_hidden_layers : Bool
   follow_level_selection : Bool
   initial_level_set : LdtkLevelSet?

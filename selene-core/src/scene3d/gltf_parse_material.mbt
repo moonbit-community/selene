@@ -2,7 +2,7 @@
 fn resolve_texture_binding(
   texture_object : Map[String, Json],
   texture_sources : Array[TextureSourceTemplate?],
-  texture_transform? : Bool = false,
+  texture_transform~ : Bool = false,
 ) -> @render3d.TextureBinding3D? {
   guard field_int(texture_object, "index") is Some(texture_index) else {
     return None
@@ -30,8 +30,8 @@ fn resolve_texture_binding(
 ///|
 fn resolve_texture_transform(
   texture_object : Map[String, Json],
-  fallback_texcoord_set : Int,
-) -> (Int, @render3d.TextureTransform3D) {
+  fallback_texcoord_set : Int32,
+) -> (Int32, @render3d.TextureTransform3D) {
   guard field_object(texture_object, "extensions") is Some(extensions) else {
     return (fallback_texcoord_set, @render3d.default_texture_transform3d())
   }
@@ -147,7 +147,7 @@ fn parse_buffer_views(
 
 ///|
 fn resolve_buffer_view_bytes(
-  buffer_view_index : Int,
+  buffer_view_index : Int32,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
 ) -> Bytes? {
@@ -501,7 +501,7 @@ fn parse_triangle_binding(
   primitive_object : Map[String, Json],
   attributes_object : Map[String, Json],
   positions : Array[@math.Vec3],
-  indices : Array[Int]?,
+  indices : Array[Int32]?,
   topology : @render3d.TriangleTopology3D,
   triangle_normals : Array[@math.Vec3],
   triangle_uv_sets : Array[Array[@math.Vec2]],

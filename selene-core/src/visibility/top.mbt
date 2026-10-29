@@ -16,7 +16,7 @@ pub(all) struct ViewVisibility {
 
 ///|
 pub(all) struct RenderLayers {
-  mask : UInt
+  mask : UInt32
 } derive(Eq, Debug)
 
 ///|
@@ -28,7 +28,7 @@ priv struct VisibilityWorldStore {
 }
 
 ///|
-let visibility_world_stores : Map[UInt, VisibilityWorldStore] = Map([])
+let visibility_world_stores : Map[UInt32, VisibilityWorldStore] = Map([])
 
 ///|
 fn visibility_world_store() -> VisibilityWorldStore {
@@ -67,7 +67,7 @@ pub fn default_render_layers() -> RenderLayers {
 }
 
 ///|
-pub fn layer(index : UInt) -> RenderLayers {
+pub fn layer(index : UInt32) -> RenderLayers {
   if index >= 63U {
     { mask: 0U, }
   } else {
@@ -76,7 +76,7 @@ pub fn layer(index : UInt) -> RenderLayers {
 }
 
 ///|
-pub fn layers(mask : UInt) -> RenderLayers {
+pub fn layers(mask : UInt32) -> RenderLayers {
   { mask, }
 }
 

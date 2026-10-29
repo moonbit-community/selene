@@ -227,9 +227,9 @@ fn test_project_with_layers(
 ///|
 fn test_int_grid_layer(
   identifier : String,
-  c_wid : Int,
-  c_hei : Int,
-  int_grid_csv : Array[Int],
+  c_wid : Int32,
+  c_hei : Int32,
+  int_grid_csv : Array[Int32],
 ) -> LdtkLayerInstance {
   {
     iid: "layer-int-\{identifier}",
@@ -262,7 +262,7 @@ fn test_int_grid_layer(
 fn count_transformed_events(
   events : Array[LdtkLevelEvent],
   iid : String,
-) -> Int {
+) -> Int32 {
   let mut count = 0
   for event in events {
     match event {
@@ -288,7 +288,7 @@ fn spawned_entity_by_iid_in_level(
 }
 
 ///|
-fn worldly_count(world_entity : @entity.Entity) -> Int {
+fn worldly_count(world_entity : @entity.Entity) -> Int32 {
   let mut count = 0
   for pair in ldtk_worldly_entities().to_array() {
     if pair.1.world_entity == world_entity {
@@ -299,7 +299,7 @@ fn worldly_count(world_entity : @entity.Entity) -> Int {
 }
 
 ///|
-fn level_background_count(level_iid : String) -> Int {
+fn level_background_count(level_iid : String) -> Int32 {
   let mut count = 0
   for pair in ldtk_level_backgrounds().to_array() {
     if pair.1.level_iid == level_iid {
@@ -310,7 +310,7 @@ fn level_background_count(level_iid : String) -> Int {
 }
 
 ///|
-fn level_background_image_count(level_iid : String) -> Int {
+fn level_background_image_count(level_iid : String) -> Int32 {
   let mut count = 0
   for pair in ldtk_level_backgrounds().to_array() {
     if pair.1.level_iid == level_iid && pair.1.rel_path is Some(_) {
@@ -1672,7 +1672,7 @@ test "ldtk add entity component helpers can build bundle-like sets" {
       },
     ]),
   ])
-  let entity_scores : Map[@entity.Entity, Int] = Map([])
+  let entity_scores : Map[@entity.Entity, Int32] = Map([])
   let entity_kinds : Map[@entity.Entity, String] = Map([])
 
   add_ldtk_entity_component("Enemy", entity_scores, fn(_event) { 99 })
@@ -1782,7 +1782,7 @@ test "ldtk add int cell component helpers can compose per scope" {
     test_int_grid_layer("Collision", 2, 1, [1, 2]),
   ])
   let cell_labels : Map[@entity.Entity, String] = Map([])
-  let cell_values_x2 : Map[@entity.Entity, Int] = Map([])
+  let cell_values_x2 : Map[@entity.Entity, Int32] = Map([])
 
   add_ldtk_int_cell_component(2, cell_labels, fn(_event) { "solid" })
   add_ldtk_int_cell_component(2, cell_values_x2, fn(event) { event.value * 2 })

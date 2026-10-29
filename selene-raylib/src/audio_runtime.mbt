@@ -64,15 +64,15 @@ fn cosmic_font_size(size : Double) -> Double {
 }
 
 ///|
-fn text_color_channel_to_int(channel : UInt) -> Int {
+fn text_color_channel_to_int(channel : UInt32) -> Int32 {
   clamp_u8(channel.reinterpret_as_int())
 }
 
 ///|
 fn styled_text_pixel_rgba(
   color : @render.Color,
-  coverage_alpha : Int,
-) -> (Int, Int, Int, Int) {
+  coverage_alpha : Int32,
+) -> (Int32, Int32, Int32, Int32) {
   (
     text_color_channel_to_int(color.r),
     text_color_channel_to_int(color.g),
@@ -104,7 +104,7 @@ fn rasterize_with_cosmic(
   let mut min_y = 0
   let mut max_x = -1
   let mut max_y = -1
-  let fills : Array[(Int, Int, Int, Int, Int)] = []
+  let fills : Array[(Int32, Int32, Int32, Int32, Int32)] = []
   let (drawn_buffer, swash_cache) = buffer.draw(
     cosmic_font_system.val,
     cosmic_swash_cache.val,
@@ -286,7 +286,7 @@ fn draw_text_with_cosmic(command : @render2d_types.TextDrawCommand2D) -> Bool {
 }
 
 ///|
-fn key_to_raylib(code : @inputs.Code) -> Int {
+fn key_to_raylib(code : @inputs.Code) -> Int32 {
   match code {
     KeyA => @raylib.KeyA
     KeyB => @raylib.KeyB
@@ -488,7 +488,7 @@ fn sync_touch_events() -> Unit {
 }
 
 ///|
-const MAX_GAMEPADS : Int = 8
+const MAX_GAMEPADS : Int32 = 8
 
 ///|
 fn sync_gamepad_events() -> Unit {
@@ -513,11 +513,11 @@ fn sync_gamepad_events() -> Unit {
 
 ///|
 fn sync_one_gamepad_buttons(
-  id : Int,
+  id : Int32,
   gamepad : @inputs.Gamepad,
   buttons : Set[@inputs.GamepadButtonInput],
 ) -> Unit {
-  let mappings : Array[(Int, @inputs.GamepadButton)] = [
+  let mappings : Array[(Int32, @inputs.GamepadButton)] = [
     (@raylib.GamepadButtonRightFaceDown, South),
     (@raylib.GamepadButtonRightFaceRight, East),
     (@raylib.GamepadButtonRightFaceUp, North),
@@ -545,7 +545,7 @@ fn sync_one_gamepad_buttons(
 
 ///|
 fn sync_one_gamepad_axes(
-  id : Int,
+  id : Int32,
   gamepad : @inputs.Gamepad,
   axes : Map[@inputs.GamepadAxisInput, Double],
 ) -> Unit {

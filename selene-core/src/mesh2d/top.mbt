@@ -10,7 +10,7 @@ pub(all) struct Mesh2dAsset {
 } derive(Eq, Debug)
 
 ///|
-pub(all) struct Mesh2dHandle(UInt) derive(Eq, Debug, Hash)
+pub(all) struct Mesh2dHandle(UInt32) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) struct Mesh2d {
@@ -28,7 +28,7 @@ priv struct Mesh2dWorldStore {
 }
 
 ///|
-let mesh2d_world_stores : Map[UInt, Mesh2dWorldStore] = Map([])
+let mesh2d_world_stores : Map[UInt32, Mesh2dWorldStore] = Map([])
 
 ///|
 fn mesh2d_world_store() -> Mesh2dWorldStore {
@@ -45,7 +45,7 @@ pub fn mesh2ds() -> Map[@entity.Entity, Mesh2d] {
 let mesh_storage : Mesh2dStorage = { meshes: Map([]), }
 
 ///|
-let next_mesh2d_id : Ref[UInt] = Ref(0U)
+let next_mesh2d_id : Ref[UInt32] = Ref(0U)
 
 ///|
 pub fn mesh2d_storage() -> Mesh2dStorage {
@@ -202,7 +202,7 @@ fn push_mesh2d_draw_command(
   depth : Double,
   snapped_pos : @math.Vec2,
   screen_transform : @math.Transform,
-  camera_entity_id : UInt?,
+  camera_entity_id : UInt32?,
   sorting : @render2d.Sorting2d,
 ) -> Unit {
   match mesh_asset.primitive {

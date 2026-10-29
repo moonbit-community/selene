@@ -1,9 +1,5 @@
 ///|
-fn with_pixeladventure_test_world(action : () -> Unit raise) -> Unit raise {
-  let previous = @ecs.current_world()
-  let world = @ecs.World()
-  @ecs.set_current_world(world)
-  action()
+fn restore_pixeladventure_test_world(previous : @ecs.World?) -> Unit {
   match previous {
     Some(world) => @ecs.set_current_world(world)
     None => @ecs.clear_current_world()
@@ -11,174 +7,63 @@ fn with_pixeladventure_test_world(action : () -> Unit raise) -> Unit raise {
 }
 
 ///|
-fn scene_component_count_for_compare(
-  scene : @editor_bridge.SceneDocument,
-  kind : String,
-) -> Int {
-  let mut count = 0
-  for entity in scene.entities {
-    if entity.component(kind) is Some(_) {
-      count += 1
-    }
-  }
-  count
+fn with_pixeladventure_test_world(action : () -> Unit raise) -> Unit raise {
+  let previous = @ecs.current_world()
+  @ecs.set_current_world(@ecs.World())
+  defer restore_pixeladventure_test_world(previous)
+  action()
 }
 
 ///|
-fn expected_scene_world_size() -> @math.Vec2 {
-  Vec2(928.0, 576.0)
-}
-
-///|
-fn scene_terrain_segments(
-  scene : @editor_bridge.SceneDocument,
-) -> Array[String] {
-  let rows : Map[Int, Array[Int]] = Map([])
-  for placement in terrain_placements_from_scene(scene) {
-    if !placement.solid || placement.collider_group != "grass" {
-      continue
-    }
-    rows.get_or_init(placement.tile_y, fn() { [] }).push(placement.tile_x)
-  }
-  collapse_terrain_rows(rows)
-}
-
-///|
-fn collapse_terrain_rows(rows : Map[Int, Array[Int]]) -> Array[String] {
-  let segments : Array[String] = []
-  for y, columns in rows {
-    columns.sort()
-    let mut cursor = 0
-    while cursor < columns.length() {
-      let start_x = columns[cursor]
-      let mut end_x = start_x
-      cursor += 1
-      while cursor < columns.length() && columns[cursor] == end_x + 1 {
-        end_x = columns[cursor]
-        cursor += 1
-      }
-      segments.push("\{y}:\{start_x}:\{end_x - start_x + 1}")
-    }
-  }
-  segments.sort()
-  segments
-}
-
-///|
-test "editor scene includes required gameplay markers" {
+test "level loading preserves gameplay entities and terrain" {
   with_pixeladventure_test_asset_io(fn() raise {
-    let scene = pixeladventure_startup_scene_document_with_source(
-      pixeladventure_test_document_source(),
-    )
-    inspect(
-      scene_component_count_for_compare(
-        scene, pixeladventure_player_component_kind,
-      ),
-      content="1",
-    )
-    inspect(
-      scene_component_count_for_compare(
-        scene, pixeladventure_flag_component_kind,
-      ),
-      content="1",
-    )
-    inspect(
-      scene_component_count_for_compare(
-        scene, pixeladventure_apple_component_kind,
-      ),
-      content="7",
-    )
-    inspect(
-      scene_component_count_for_compare(
-        scene, pixeladventure_bird_component_kind,
-      ),
-      content="2",
-    )
-    inspect(
-      scene_component_count_for_compare(
-        scene, pixeladventure_terrain_component_kind,
-      ),
-      content="702",
-    )
-    inspect(scene_terrain_segments(scene).is_empty(), content="false")
+    with_pixeladventure_test_world(fn() raise {
+      let loaded = load_level_scene()
+      inspect(players().length(), content="1")
+      inspect(birds().length(), content="2")
+      inspect(apples().length(), content="7")
+      inspect(flags().length(), content="1")
+      let player_transform = @transform.transforms()
+        .get(loaded.player_entity)
+        .unwrap()
+      inspect(player_transform.translation.x, content="80")
+      inspect(player_transform.translation.y, content="496")
+      inspect(player_transform.translation.z == PLAYER_Z, content="true")
+      inspect(loaded.world_size == Vec2(928.0, 576.0), content="true")
+      inspect(
+        @camera.camera2ds().contains(loaded.camera_entity),
+        content="true",
+      )
+      let mut terrain_count = 0
+      for _, sprite in @sprite.sprites() {
+        if sprite.image.bind(@asset.image_path) ==
+          Some("assets/pixeladventure/Terrain/Terrain (16x16).png") {
+          terrain_count += 1
+        }
+      }
+      inspect(terrain_count, content="702")
+    })
   })
 }
 
 ///|
-test "editor scene runtime registers gameplay entities through custom components" {
+test "level flag retains its animated sprite" {
   with_pixeladventure_test_asset_io(fn() raise {
     with_pixeladventure_test_world(fn() raise {
-      reset_pixeladventure_world_store()
-      let source = pixeladventure_test_document_source()
-      let scene = pixeladventure_startup_scene_document_with_source(source)
-      let loaded = load_level_scene_with_source(source)
-      inspect(
-        players().to_array().length() ==
-        scene_component_count_for_compare(
-          scene, pixeladventure_player_component_kind,
-        ),
-        content="true",
-      )
-      inspect(
-        birds().to_array().length() ==
-        scene_component_count_for_compare(
-          scene, pixeladventure_bird_component_kind,
-        ),
-        content="true",
-      )
-      inspect(
-        apples().to_array().length() ==
-        scene_component_count_for_compare(
-          scene, pixeladventure_apple_component_kind,
-        ),
-        content="true",
-      )
-      inspect(
-        flags().to_array().length() ==
-        scene_component_count_for_compare(
-          scene, pixeladventure_flag_component_kind,
-        ),
-        content="true",
-      )
-      let runtime_flags = flags().to_array()
-      inspect(runtime_flags.length() > 0, content="true")
-      let flag_entity = runtime_flags[0].0
+      ignore(load_level_scene())
+      let flag_entity = flags().to_array()[0].0
       let flag_sprite = @sprite.sprites().get(flag_entity).unwrap()
       inspect(
-        flag_sprite.image.bind(@asset.image_path) ==
-        Some(
-          "assets/pixeladventure/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png",
-        ),
+        flag_sprite.image.bind(@asset.image_path) == Some(FLAG_IDLE_PATH),
         content="true",
       )
+      let atlas = flag_sprite.texture_atlas.unwrap()
       inspect(
-        match flag_sprite.texture_atlas {
-          Some(atlas) =>
-            match @sprite.texture_atlas_layout(atlas.layout) {
-              Some(layout) => layout.rects.length() == 10
-              None => false
-            }
-          None => false
-        },
-        content="true",
+        @sprite.texture_atlas_layout(atlas.layout).unwrap().rects.length(),
+        content="10",
       )
       inspect(
-        @animation.animation_players().get(flag_entity) is Some(_),
-        content="true",
-      )
-      let expected_world_size = expected_scene_world_size()
-      inspect(
-        loaded.world_size[X] == expected_world_size[X] &&
-        loaded.world_size[Y] == expected_world_size[Y],
-        content="true",
-      )
-      inspect(
-        @transform.transforms().get(loaded.player_entity).unwrap().translation.z ==
-        PLAYER_Z,
-        content="true",
-      )
-      inspect(
-        @transform.transforms().get(loaded.camera_entity) is Some(_),
+        @animation.animation_players().contains(flag_entity),
         content="true",
       )
     })

@@ -130,7 +130,7 @@ priv struct Render3DComponentWorldStore {
 }
 
 ///|
-let render3d_component_world_stores : Map[UInt, Render3DComponentWorldStore] = Map([],
+let render3d_component_world_stores : Map[UInt32, Render3DComponentWorldStore] = Map([],
 )
 
 ///|
@@ -179,7 +179,7 @@ priv struct Render3DWorldState {
 }
 
 ///|
-let render3d_world_states : Map[UInt, Render3DWorldState] = Map([])
+let render3d_world_states : Map[UInt32, Render3DWorldState] = Map([])
 
 ///|
 fn render3d_world_state() -> Render3DWorldState {
@@ -208,19 +208,19 @@ let cubemaps : Map[CubemapHandle, CubemapAsset3D] = Map([])
 let scene_paths : Map[SceneHandle, String] = Map([])
 
 ///|
-let next_mesh_id : Ref[UInt] = Ref(0)
+let next_mesh_id : Ref[UInt32] = Ref(0)
 
 ///|
-let next_material_id : Ref[UInt] = Ref(0)
+let next_material_id : Ref[UInt32] = Ref(0)
 
 ///|
-let next_image_id : Ref[UInt] = Ref(0)
+let next_image_id : Ref[UInt32] = Ref(0)
 
 ///|
-let next_cubemap_id : Ref[UInt] = Ref(0)
+let next_cubemap_id : Ref[UInt32] = Ref(0)
 
 ///|
-let next_scene_id : Ref[UInt] = Ref(0)
+let next_scene_id : Ref[UInt32] = Ref(0)
 
 ///|
 let dirty_mesh_assets : Map[MeshHandle, MeshAsset] = Map([])
@@ -324,9 +324,9 @@ pub fn apply_texture_transform3d(
 ///|
 pub fn texture_binding3d(
   image : ImageHandle,
-  texcoord_set? : Int = 0,
-  sampler? : TextureSampler3D = default_texture_sampler3d(),
-  transform? : TextureTransform3D = default_texture_transform3d(),
+  texcoord_set~ : Int32 = 0,
+  sampler~ : TextureSampler3D = default_texture_sampler3d(),
+  transform~ : TextureTransform3D = default_texture_transform3d(),
 ) -> TextureBinding3D {
   @render3d_types.texture_binding3d(image, texcoord_set~, sampler~, transform~)
 }
@@ -353,8 +353,8 @@ pub fn cubemap_asset_six_faces(faces : CubemapFaces3D) -> CubemapAsset3D {
 ///|
 pub fn skybox3d(
   cubemap : CubemapHandle,
-  brightness? : Double = 1.0,
-  rotation? : @math.Quat = @math.Quat::identity(),
+  brightness~ : Double = 1.0,
+  rotation~ : @math.Quat = @math.Quat::identity(),
 ) -> Skybox3D {
   @render3d_types.skybox3d(cubemap, brightness~, rotation~)
 }
@@ -374,7 +374,7 @@ pub fn cylinder_mesh(
   radius_top : Double,
   radius_bottom : Double,
   height : Double,
-  slices? : Int = 24,
+  slices~ : Int32 = 24,
 ) -> MeshAsset {
   { primitive: Cylinder(radius_top, radius_bottom, height, slices), }
 }
@@ -387,13 +387,13 @@ pub fn plane_mesh(size : @math.Vec3) -> MeshAsset {
 ///|
 pub fn triangle_mesh(
   positions : Array[@math.Vec3],
-  uvs? : Array[@math.Vec2]? = None,
-  normals? : Array[@math.Vec3]? = None,
-  tangents? : Array[Tangent3D]? = None,
-  colors? : Array[@render.Color]? = None,
-  uv_sets? : Array[Array[@math.Vec2]] = [],
-  indices? : Array[Int]? = None,
-  topology? : TriangleTopology3D = TriangleList,
+  uvs~ : Array[@math.Vec2]? = None,
+  normals~ : Array[@math.Vec3]? = None,
+  tangents~ : Array[Tangent3D]? = None,
+  colors~ : Array[@render.Color]? = None,
+  uv_sets~ : Array[Array[@math.Vec2]] = [],
+  indices~ : Array[Int32]? = None,
+  topology~ : TriangleTopology3D = TriangleList,
 ) -> MeshAsset {
   let resolved_uv_sets = uv_sets.copy()
   if resolved_uv_sets.length() == 0 {

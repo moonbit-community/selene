@@ -80,7 +80,7 @@ pub fn JointMotor::position(
   stiffness : Double,
   damping : Double,
   max_force? : Double,
-  model? : JointMotorModel = AccelerationBased,
+  model~ : JointMotorModel = AccelerationBased,
 ) -> JointMotor {
   Position(target_position~, stiffness~, damping~, max_force~, model~)
 }
@@ -90,7 +90,7 @@ pub fn JointMotor::velocity(
   target_velocity : Double,
   damping : Double,
   max_force? : Double,
-  model? : JointMotorModel = AccelerationBased,
+  model~ : JointMotorModel = AccelerationBased,
 ) -> JointMotor {
   Velocity(target_velocity~, damping~, max_force~, model~)
 }
@@ -173,10 +173,10 @@ pub type MultibodyLinkId = @rapier_dynamics.MultibodyLinkId
 pub fn Joint::fixed(
   entity1 : @entity.Entity,
   entity2 : @entity.Entity,
-  local_anchor1? : @math.Vec2 = @math.Vec2::zero(),
-  local_anchor2? : @math.Vec2 = @math.Vec2::zero(),
-  active? : Bool = true,
-  contacts_enabled? : Bool = false,
+  local_anchor1~ : @math.Vec2 = @math.Vec2::zero(),
+  local_anchor2~ : @math.Vec2 = @math.Vec2::zero(),
+  active~ : Bool = true,
+  contacts_enabled~ : Bool = false,
 ) -> Joint {
   {
     entity1,
@@ -191,13 +191,13 @@ pub fn Joint::fixed(
 pub fn Joint::revolute(
   entity1 : @entity.Entity,
   entity2 : @entity.Entity,
-  local_anchor1? : @math.Vec2 = @math.Vec2::zero(),
-  local_anchor2? : @math.Vec2 = @math.Vec2::zero(),
+  local_anchor1~ : @math.Vec2 = @math.Vec2::zero(),
+  local_anchor2~ : @math.Vec2 = @math.Vec2::zero(),
   limits? : JointLimits,
   motor? : JointMotor,
   softness? : JointSoftness,
-  active? : Bool = true,
-  contacts_enabled? : Bool = false,
+  active~ : Bool = true,
+  contacts_enabled~ : Bool = false,
 ) -> Joint {
   {
     entity1,
@@ -213,11 +213,11 @@ pub fn Joint::prismatic(
   entity1 : @entity.Entity,
   entity2 : @entity.Entity,
   axis : @math.Vec2,
-  local_anchor1? : @math.Vec2 = @math.Vec2::zero(),
-  local_anchor2? : @math.Vec2 = @math.Vec2::zero(),
+  local_anchor1~ : @math.Vec2 = @math.Vec2::zero(),
+  local_anchor2~ : @math.Vec2 = @math.Vec2::zero(),
   limits? : JointLimits,
-  active? : Bool = true,
-  contacts_enabled? : Bool = false,
+  active~ : Bool = true,
+  contacts_enabled~ : Bool = false,
 ) -> Joint {
   {
     entity1,
@@ -233,10 +233,10 @@ pub fn Joint::rope(
   entity1 : @entity.Entity,
   entity2 : @entity.Entity,
   max_distance : Double,
-  local_anchor1? : @math.Vec2 = @math.Vec2::zero(),
-  local_anchor2? : @math.Vec2 = @math.Vec2::zero(),
-  active? : Bool = true,
-  contacts_enabled? : Bool = false,
+  local_anchor1~ : @math.Vec2 = @math.Vec2::zero(),
+  local_anchor2~ : @math.Vec2 = @math.Vec2::zero(),
+  active~ : Bool = true,
+  contacts_enabled~ : Bool = false,
 ) -> Joint {
   {
     entity1,
@@ -254,11 +254,11 @@ pub fn Joint::spring(
   rest_length : Double,
   stiffness : Double,
   damping : Double,
-  local_anchor1? : @math.Vec2 = @math.Vec2::zero(),
-  local_anchor2? : @math.Vec2 = @math.Vec2::zero(),
-  model? : JointMotorModel = AccelerationBased,
-  active? : Bool = true,
-  contacts_enabled? : Bool = false,
+  local_anchor1~ : @math.Vec2 = @math.Vec2::zero(),
+  local_anchor2~ : @math.Vec2 = @math.Vec2::zero(),
+  model~ : JointMotorModel = AccelerationBased,
+  active~ : Bool = true,
+  contacts_enabled~ : Bool = false,
 ) -> Joint {
   {
     entity1,
@@ -279,12 +279,12 @@ pub fn Joint::spring(
 ///|
 pub fn MultibodyJoint::revolute(
   parent : @entity.Entity,
-  local_anchor1? : @math.Vec2 = @math.Vec2::zero(),
-  local_anchor2? : @math.Vec2 = @math.Vec2::zero(),
+  local_anchor1~ : @math.Vec2 = @math.Vec2::zero(),
+  local_anchor2~ : @math.Vec2 = @math.Vec2::zero(),
   limits? : JointLimits,
   motor? : JointMotor,
   softness? : JointSoftness,
-  active? : Bool = true,
+  active~ : Bool = true,
 ) -> MultibodyJoint {
   {
     parent,
@@ -300,7 +300,7 @@ priv struct JointWorldStore {
 }
 
 ///|
-let joint_world_stores : Map[UInt, JointWorldStore] = Map([])
+let joint_world_stores : Map[UInt32, JointWorldStore] = Map([])
 
 ///|
 fn joint_world_store() -> JointWorldStore {

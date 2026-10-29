@@ -29,7 +29,7 @@ pub fn AnimatedBy::AnimatedBy(player : @entity.Entity) -> AnimatedBy {
 }
 
 ///|
-fn mask_from_groups(groups : Array[Int]) -> UInt {
+fn mask_from_groups(groups : Array[Int32]) -> UInt32 {
   let mut mask = 0U
   for group in groups {
     if group >= 0 && group < 63 {

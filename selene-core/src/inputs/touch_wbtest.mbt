@@ -75,7 +75,7 @@ fn apply_touch_frame(
 }
 
 ///|
-fn gesture_kind_name_at(index : Int) -> String {
+fn gesture_kind_name_at(index : Int32) -> String {
   match touch_gesture_changes_this_frame().get(index) {
     Some(event) =>
       match event.kind {

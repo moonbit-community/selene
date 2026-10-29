@@ -46,7 +46,7 @@ priv struct HierarchyWorldStore {
 }
 
 ///|
-let hierarchy_world_stores : Map[UInt, HierarchyWorldStore] = Map([])
+let hierarchy_world_stores : Map[UInt32, HierarchyWorldStore] = Map([])
 
 ///|
 fn hierarchy_store() -> HierarchyWorldStore {

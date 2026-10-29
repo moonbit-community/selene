@@ -14,15 +14,15 @@
 
 ///|
 priv struct CosmicRasterImage {
-  width : Int
-  height : Int
-  pixels : Array[Int]
+  width : Int32
+  height : Int32
+  pixels : Array[Int32]
 }
 
 ///|
 priv struct CosmicTextCacheEntry {
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
 }
 
 ///|
@@ -42,11 +42,11 @@ let cosmic_loaded_families : Map[String, Bool] = Map([])
 let cosmic_text_cache : Map[String, CosmicTextCacheEntry] = Map([])
 
 ///|
-fn saturating_byte(value : Int) -> Byte {
+fn saturating_byte(value : Int32) -> Byte {
   if value < 0 {
-    Int::to_byte(0)
+    Int32::to_byte(0)
   } else if value > 255 {
-    Int::to_byte(255)
+    Int32::to_byte(255)
   } else {
     value.to_byte()
   }
@@ -68,15 +68,15 @@ fn to_cosmic_color(color : @render.Color) -> @cosmic.Color {
 }
 
 ///|
-fn color_channel_to_int(channel : UInt) -> Int {
+fn color_channel_to_int(channel : UInt32) -> Int32 {
   saturating_byte(channel.reinterpret_as_int()).to_int()
 }
 
 ///|
 fn styled_text_pixel_rgba(
   color : @render.Color,
-  coverage_alpha : Int,
-) -> (Int, Int, Int, Int) {
+  coverage_alpha : Int32,
+) -> (Int32, Int32, Int32, Int32) {
   (
     color_channel_to_int(color.r),
     color_channel_to_int(color.g),
@@ -195,7 +195,7 @@ fn rasterize_with_cosmic(
   let mut min_y = 0
   let mut max_x = -1
   let mut max_y = -1
-  let points : Array[(Int, Int, Int)] = []
+  let points : Array[(Int32, Int32, Int32)] = []
   let (drawn_buffer, swash_cache) = buffer.draw(
     cosmic_font_system.val,
     cosmic_swash_cache.val,

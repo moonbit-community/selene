@@ -15,9 +15,9 @@ pub fn inherited_visibilities() -> Map[@entity.Entity, InheritedVisibility]
 
 pub fn is_visible(@entity.Entity) -> Bool
 
-pub fn layer(UInt) -> RenderLayers
+pub fn layer(UInt32) -> RenderLayers
 
-pub fn layers(UInt) -> RenderLayers
+pub fn layers(UInt32) -> RenderLayers
 
 pub fn matches(RenderLayers, RenderLayers) -> Bool
 
@@ -40,7 +40,7 @@ pub fn InheritedVisibility::not_equal(Self, Self) -> Bool
 pub fn InheritedVisibility::to_repr(Self) -> @debug.Repr
 
 pub(all) struct RenderLayers {
-  mask : UInt
+  mask : UInt32
 } derive(Eq, @debug.Debug)
 pub fn RenderLayers::equal(Self, Self) -> Bool
 pub fn RenderLayers::not_equal(Self, Self) -> Bool
