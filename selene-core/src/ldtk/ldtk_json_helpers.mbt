@@ -96,7 +96,7 @@ fn resolve_external_ldtk_level(
 
 ///|
 fn parse_ldtk_level_source(source : String) -> LdtkLevel? {
-  let root_json = @json.parse(source.view()) catch { _ => return None }
+  let root_json = @json.parse(source[:]) catch { _ => return None }
   guard json_object(root_json) is Some(root_object) else { return None }
   Some(parse_ldtk_level(root_object))
 }

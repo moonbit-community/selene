@@ -602,9 +602,7 @@ fn parse_tiled_tileset_source(
 
 ///|
 fn parse_tiled_json_map_source(source : String) -> TiledMap {
-  let document = @json.parse(source.view()) catch {
-    _ => return empty_tiled_map()
-  }
+  let document = @json.parse(source[:]) catch { _ => return empty_tiled_map() }
   TiledMap::from_tiled_json(document)
 }
 
@@ -614,7 +612,7 @@ fn parse_tiled_json_tileset_source(
   first_gid : Int32,
   source_path : String,
 ) -> TiledTileset? {
-  let document = @json.parse(source.view()) catch { _ => return None }
+  let document = @json.parse(source[:]) catch { _ => return None }
   guard json_object(document) is Some(tileset_object) else { return None }
   let external_tileset = parse_tileset(tileset_object)
   Some({ ..external_tileset, first_gid, source: Some(source_path), })

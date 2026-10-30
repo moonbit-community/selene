@@ -154,7 +154,7 @@ fn cleanup_ldtk_entity(entity : @entity.Entity) -> Unit {
 
 ///|
 fn json_literal(source : String) -> Json {
-  @json.parse(source.view()) catch {
+  @json.parse(source[:]) catch {
     _ => abort("Invalid JSON literal")
   }
 }

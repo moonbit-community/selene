@@ -132,7 +132,7 @@ pub fn load_tiled_world(path : String) -> TiledWorld {
   guard load_tiled_text_document(path) is Some(source) else {
     return empty_tiled_world()
   }
-  let document = @json.parse(source.view()) catch {
+  let document = @json.parse(source[:]) catch {
     _ => return empty_tiled_world()
   }
   guard json_object(document) is Some(root_object) else {
