@@ -6,6 +6,8 @@
 
 ### Changed
 
+- Replace deprecated whole-string views with slicing.
+
 ### Fixed
 
 ### Removed

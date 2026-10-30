@@ -106,7 +106,7 @@ fn decode_data_uri_base64(uri : String) -> Bytes? {
     return None
   }
   let payload = uri.unsafe_substring(start=comma_idx + 1, end=uri.length())
-  Some(@base64.decode_lossy(payload.view()))
+  Some(@base64.decode_lossy(payload[:]))
 }
 
 ///|
