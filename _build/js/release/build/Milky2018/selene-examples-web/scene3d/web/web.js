@@ -186975,7 +186975,7 @@ function _M0FP39Milky20186selene7scene3d25decode__data__uri__base64(uri) {
       return undefined;
     }
     const payload = uri.substring(_comma_idx + 1 | 0, uri.length);
-    return _M0FPC28encoding6base6421decode__lossy_2einner(_M0MPC16string6String12view_2einner(payload, 0, undefined), false);
+    return _M0FPC28encoding6base6421decode__lossy_2einner(new _M0TPC16string10StringView(payload, 0, payload.length), false);
   }
 }
 function _M0FP39Milky20186selene7scene3d30resolve__relative__asset__path(scene_path, uri) {
@@ -189106,7 +189106,7 @@ function _M0FP39Milky20186selene7scene3d26max__attribute__set__index(attributes_
         let _try_err;
         _L$2: {
           _L$3: {
-            const _bind$102 = _M0FPC28internal7strconv18parse__int_2einner(_M0MPC16string6String12view_2einner(suffix, 0, undefined), 0);
+            const _bind$102 = _M0FPC28internal7strconv18parse__int_2einner(new _M0TPC16string10StringView(suffix, 0, suffix.length), 0);
             if (_bind$102.$tag === 1) {
               const _ok = _bind$102;
               index = _ok._0;
