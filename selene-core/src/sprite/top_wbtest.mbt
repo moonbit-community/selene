@@ -83,3 +83,27 @@ test "sprite rendering keeps visible sprites inside the camera viewport" {
     ignore(sprite_entity)
   })
 }
+
+///|
+test "sprite draw ties keep insertion order after a component moves rows" {
+  with_sprite_test_world(fn() raise {
+    @system.configure_display(100.0, 100.0, 1.0)
+    let first = spawn_color_sprite(Vec2(0.0, 0.0))
+    let second = spawn_color_sprite(Vec2(0.0, 0.0))
+    let globals = @transform.global_transforms()
+    let first_transform = globals.get(first).unwrap()
+    globals.remove(first)
+    @render2d.begin_frame2d_system(0.0)
+    render_sprite_system(0.0)
+    let commands = @render2d.get_screen_world_commands_with_depth()
+    assert_eq(commands.map(command => command.entity_id), [Some(second.id())])
+    globals.set(first, first_transform)
+    @render2d.begin_frame2d_system(0.0)
+    render_sprite_system(0.0)
+    let commands = @render2d.get_screen_world_commands_with_depth()
+    assert_eq(commands.map(command => command.entity_id), [
+      Some(first.id()),
+      Some(second.id()),
+    ])
+  })
+}

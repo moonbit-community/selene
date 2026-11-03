@@ -10,7 +10,7 @@ import {
 // Values
 pub fn compute_global_transform(@entity.Entity) -> GlobalTransform?
 
-pub fn global_transforms() -> Map[@entity.Entity, GlobalTransform]
+pub fn global_transforms() -> @entity.ComponentStore[GlobalTransform]
 
 pub fn remove_parent_in_place(@entity.Entity) -> Unit
 

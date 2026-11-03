@@ -72,3 +72,26 @@ pub fn has_pending_commands(world : @ecs.World) -> Bool {
 pub fn commands_flush_system(world : @ecs.World, _delta : Double) -> Unit {
   world.flush_commands()
 }
+
+///|
+/// Queues an insertion into an archetype component store.
+pub fn[T] Commands::insert_component(
+  self : Commands,
+  storage : @entity.ComponentStore[T],
+  entity : @entity.Entity,
+  value : T,
+) -> Unit {
+  guard entity.belongs_to(self.world) else { return }
+  self.add(_ => storage.set(entity, value))
+}
+
+///|
+/// Queues a removal from an archetype component store.
+pub fn[T] Commands::remove_component(
+  self : Commands,
+  storage : @entity.ComponentStore[T],
+  entity : @entity.Entity,
+) -> Unit {
+  guard entity.belongs_to(self.world) else { return }
+  self.add(_ => storage.remove(entity))
+}

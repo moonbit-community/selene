@@ -164,13 +164,15 @@ pub fn GlobalTransform::reparented_to(
 ///|
 priv struct TransformWorldStore {
   transforms : Map[@entity.Entity, Transform]
-  global_transforms : Map[@entity.Entity, GlobalTransform]
+  global_transforms : @entity.ComponentStore[GlobalTransform]
+  propagated : Array[Bool]
 }
 
 ///|
 let transform_store_key : @ecs.WorldKey[TransformWorldStore] = WorldKey(() => {
   transforms: Map([]),
-  global_transforms: Map([]),
+  global_transforms: ComponentStore(@ecs.require_current_world()),
+  propagated: [],
 })
 
 ///|
@@ -184,7 +186,7 @@ pub fn transforms() -> Map[@entity.Entity, Transform] {
 }
 
 ///|
-pub fn global_transforms() -> Map[@entity.Entity, GlobalTransform] {
+pub fn global_transforms() -> @entity.ComponentStore[GlobalTransform] {
   transform_world_store().global_transforms
 }
 
@@ -239,9 +241,19 @@ pub fn remove_parent_in_place(child : @entity.Entity) -> Unit {
 ///|
 pub fn transform_propagate_system(_delta : Double) -> Unit {
   let is_alive = @entity.alive_in_world(@ecs.require_current_world())
-  let globals = global_transforms()
-  let locals = transforms()
-  globals.clear()
+  let store = transform_world_store()
+  let globals = store.global_transforms
+  let locals = store.transforms
+  let propagated = store.propagated
+  propagated.fill(false)
+  let write_global = (entity : @entity.Entity, global : GlobalTransform) => {
+    let index = entity.id().reinterpret_as_int()
+    while propagated.length() <= index {
+      propagated.push(false)
+    }
+    propagated[index] = true
+    globals.set(entity, global)
+  }
   for entity in @entity.iter_entities() {
     if !is_alive(entity) || entity.get_parent() is Some(_) {
       continue
@@ -249,14 +261,25 @@ pub fn transform_propagate_system(_delta : Double) -> Unit {
     let global = GlobalTransform::from_transform(
       locals.get(entity).unwrap_or_default(),
     )
-    globals.set(entity, global)
-    propagate_children(entity, global, locals, globals, is_alive)
+    write_global(entity, global)
+    propagate_children(entity, global, locals, write_global, is_alive)
   }
   for entity, transform in locals {
-    if !is_alive(entity) || globals.contains(entity) {
+    if !is_alive(entity) ||
+      propagated.get(entity.id().reinterpret_as_int()).unwrap_or(false) {
       continue
     }
-    globals.set(entity, GlobalTransform::from_transform(transform))
+    write_global(entity, GlobalTransform::from_transform(transform))
+  }
+  // Keep existing rows in place across frames. Only stale globals migrate.
+  let stale = []
+  for entity, _ in globals {
+    if !propagated.get(entity.id().reinterpret_as_int()).unwrap_or(false) {
+      stale.push(entity)
+    }
+  }
+  for entity in stale {
+    globals.remove(entity)
   }
 }
 
@@ -265,7 +288,7 @@ fn propagate_children(
   entity : @entity.Entity,
   parent_global : GlobalTransform,
   locals : Map[@entity.Entity, Transform],
-  globals : Map[@entity.Entity, GlobalTransform],
+  write_global : (@entity.Entity, GlobalTransform) -> Unit,
   is_alive : (@entity.Entity) -> Bool,
 ) -> Unit {
   for child in entity.get_children() {
@@ -276,7 +299,7 @@ fn propagate_children(
     let global = {
       affine: parent_global.affine * local_transform.compute_affine(),
     }
-    globals.set(child, global)
-    propagate_children(child, global, locals, globals, is_alive)
+    write_global(child, global)
+    propagate_children(child, global, locals, write_global, is_alive)
   }
 }

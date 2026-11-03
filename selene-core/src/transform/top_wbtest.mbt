@@ -72,3 +72,24 @@ test "remove_parent_in_place preserves global transform" {
   inspect(transform_test_translation(child), content="12,0,0")
   inspect(transform_test_global_translation(child), content="12,0,0")
 }
+
+///|
+test "transform propagation updates existing rows and prunes despawned globals" {
+  let entity = @entity.Entity()
+  transforms().set(entity, Transform::from_xyz(1.0, 0.0, 0.0))
+  transform_propagate_system(0.0)
+  assert_eq(transform_test_global_translation(entity), "1,0,0")
+  transforms().set(entity, Transform::from_xyz(2.0, 0.0, 0.0))
+  transform_propagate_system(0.0)
+  assert_eq(transform_test_global_translation(entity), "2,0,0")
+  entity.destroy()
+  transform_propagate_system(0.0)
+  assert_false(global_transforms().contains(entity))
+  entity.respawn()
+  @entity.entity_flush_system(0.0)
+  transform_propagate_system(0.0)
+  assert_eq(transform_test_global_translation(entity), "2,0,0")
+  entity.destroy()
+  @entity.entity_flush_system(0.0)
+  transforms().remove(entity)
+}

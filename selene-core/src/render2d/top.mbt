@@ -155,17 +155,36 @@ fn push_ui_command(
 }
 
 ///|
-fn push_world_command(
+/// Reserves a range of draw-order keys for one batch in the active frame.
+pub fn reserve_world_command_order(count : Int32) -> Int32 {
+  let frame = frame2d()
+  let start = frame.next_order
+  frame.next_order += count
+  start
+}
+
+///|
+/// Submits a world draw. An explicit order must belong to a reserved range.
+pub fn push_world_command(
   depth : Double,
   entity_id : UInt32?,
   command : @render2d_types.DrawCommand2D,
   camera_entity_id~ : UInt32? = None,
   sorting~ : Sorting2d = Sorting2d(),
+  order~ : Int32? = None,
 ) -> Unit {
   let frame = frame2d()
+  let order = match order {
+    Some(order) => order
+    None => {
+      let order = frame.next_order
+      frame.next_order += 1
+      order
+    }
+  }
   world_command_bucket(frame, camera_entity_id).push({
     depth,
-    order: frame.next_order,
+    order,
     camera_entity_id,
     entity_id,
     sorting_layer: sorting.layer,
@@ -173,7 +192,6 @@ fn push_world_command(
     sorting_order: sorting.order,
     command,
   })
-  frame.next_order += 1
 }
 
 ///|

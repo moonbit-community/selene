@@ -6,6 +6,7 @@ import {
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
+  "Milky2018/selene/transform",
   "moonbitlang/core/debug",
 }
 
@@ -14,13 +15,15 @@ pub fn color_from_css(String) -> @render.Color
 
 pub fn default_anchor() -> Anchor
 
+pub fn for_each_sprite_transform((@entity.Entity, Sprite, @transform.GlobalTransform) -> Unit) -> Unit
+
 pub fn register_texture_atlas_layout(TextureAtlasLayout) -> TextureAtlasLayoutHandle
 
 pub fn release_texture_atlas_layout(TextureAtlasLayoutHandle) -> Unit
 
 pub fn render_sprite_system(Double) -> Unit
 
-pub fn sprites() -> Map[@entity.Entity, Sprite]
+pub fn sprites() -> @entity.ComponentStore[Sprite]
 
 pub fn take_dirty_texture_atlas_layouts() -> Array[(TextureAtlasLayoutHandle, TextureAtlasLayout)]
 

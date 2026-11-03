@@ -20,6 +20,21 @@ pub fn iter_entities() -> Iter[Entity]
 // Errors
 
 // Types and methods
+type ArchetypeQuery2[A, B]
+pub fn[A, B] ArchetypeQuery2::ArchetypeQuery2(ComponentStore[A], ComponentStore[B]) -> Self[A, B]
+pub fn[A, B] ArchetypeQuery2::for_each(Self[A, B], (Entity, A, B) -> Unit) -> Unit
+
+type ComponentStore[T]
+pub fn[T] ComponentStore::ComponentStore(@ecs.World) -> Self[T]
+pub fn[T] ComponentStore::clear(Self[T]) -> Unit
+pub fn[T] ComponentStore::contains(Self[T], Entity) -> Bool
+pub fn[T] ComponentStore::get(Self[T], Entity) -> T?
+pub fn[T] ComponentStore::insertion_order(Self[T], Entity) -> Int32
+pub fn[T] ComponentStore::iter2(Self[T]) -> Iter2[Entity, T]
+pub fn[T] ComponentStore::order_span(Self[T]) -> Int32
+pub fn[T] ComponentStore::remove(Self[T], Entity) -> Unit
+pub fn[T] ComponentStore::set(Self[T], Entity, T) -> Unit
+
 type Entity derive(Eq, Hash, @debug.Debug)
 pub fn Entity::Entity() -> Self
 pub fn Entity::belongs_to(Self, @ecs.World) -> Bool

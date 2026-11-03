@@ -1,19 +1,33 @@
 ///|
-fn sprite_transform_checksum(
-  lookup : (@entity.Entity) -> @transform.GlobalTransform?,
-) -> Int32 {
-  let mut checksum = 0
-  for entity, sprite in @sprite.sprites() {
-    if lookup(entity) is Some(transform) {
-      checksum += sprite.color.r.reinterpret_as_int() +
-        transform.translation().x.to_int()
+fn make_sprite_fixture(
+  size : Int32,
+) -> (Array[@entity.Entity], @transform.GlobalTransform) {
+  @system.configure_display(960.0, 540.0, 1.0)
+  let transforms = @transform.global_transforms()
+  let sprites = @sprite.sprites()
+  let entities = []
+  let sprite = @sprite.Sprite::from_color(
+    { r: 255U, g: 255U, b: 255U, a: 1.0, },
+    Vec2(16.0, 16.0),
+  )
+  let global = @transform.GlobalTransform::from_transform(
+    @transform.Transform::from_xyz(4.0, 0.0, 0.0),
+  )
+  for i in 0..<size {
+    let entity = @entity.Entity()
+    entities.push(entity)
+    sprites.set(entity, sprite)
+    if i % 4 != 0 {
+      transforms.set(entity, global)
     }
   }
-  checksum
+  (entities, global)
 }
 
 ///|
-test "sprite transform join and CPU extraction" (b : @bench.T) {
+test "sprite CPU extraction, transform propagation, and component churn" (
+  b : @bench.T,
+) {
   let previous = @ecs.current_world()
   defer (match previous {
     Some(world) => @ecs.set_current_world(world)
@@ -21,51 +35,7 @@ test "sprite transform join and CPU extraction" (b : @bench.T) {
   })
   for size in [1000, 10000] {
     @ecs.set_current_world(World())
-    @system.configure_display(960.0, 540.0, 1.0)
-    let transforms = @transform.global_transforms()
-    let sprites = @sprite.sprites()
-    let rows = FixedArray::make(size, -1)
-    let dense = []
-    let sprite = @sprite.Sprite::from_color(
-      { r: 255U, g: 255U, b: 255U, a: 1.0, },
-      Vec2(16.0, 16.0),
-    )
-    for i in 0..<size {
-      let entity = @entity.Entity()
-      sprites.set(entity, sprite)
-      if i % 4 != 0 {
-        let transform = @transform.GlobalTransform::from_transform(
-          @transform.Transform::from_xyz(i.to_double(), 0.0, 0.0),
-        )
-        transforms.set(entity, transform)
-        rows[entity.id().reinterpret_as_int()] = dense.length()
-        dense.push(transform)
-      }
-    }
-    let resolve_each = entity => @transform.global_transforms().get(entity)
-    let resolve_once = entity => transforms.get(entity)
-    // This read-only layout estimates lookup cost with dense values and sparse
-    // row indexes. It does not measure the cost of maintaining a sparse set.
-    let resolve_dense = (entity : @entity.Entity) => {
-      let row = rows[entity.id().reinterpret_as_int()]
-      if row < 0 {
-        None
-      } else {
-        Some(dense[row])
-      }
-    }
-    let expected = sprite_transform_checksum(resolve_once)
-    assert_eq(sprite_transform_checksum(resolve_each), expected)
-    assert_eq(sprite_transform_checksum(resolve_dense), expected)
-    b.bench(name="sprite-join/per-entity-store/n=\{size}", count=10, () => {
-      b.keep(sprite_transform_checksum(resolve_each))
-    })
-    b.bench(name="sprite-join/bound-store/n=\{size}", count=10, () => {
-      b.keep(sprite_transform_checksum(resolve_once))
-    })
-    b.bench(name="sprite-join/dense-index/n=\{size}", count=10, () => {
-      b.keep(sprite_transform_checksum(resolve_dense))
-    })
+    let (entities, global) = make_sprite_fixture(size)
     @render2d.begin_frame2d_system(0.0)
     @sprite.render_sprite_system(0.0)
     assert_eq(
@@ -75,6 +45,64 @@ test "sprite transform join and CPU extraction" (b : @bench.T) {
     b.bench(name="sprite-extract/n=\{size}", count=10, () => {
       @render2d.begin_frame2d_system(0.0)
       @sprite.render_sprite_system(0.0)
+    })
+    let globals = @transform.global_transforms()
+    b.bench(name="transform-churn/n=\{size}", count=10, () => {
+      for i in 0..<(size / 20) {
+        let entity = entities[i * 20 + 1]
+        globals.remove(entity)
+        globals.set(entity, global)
+      }
+    })
+    @transform.transform_propagate_system(0.0)
+    b.bench(name="transform-propagate/n=\{size}", count=10, () => {
+      @transform.transform_propagate_system(0.0)
+    })
+  }
+}
+
+///|
+test "sprite archetype join versus hash join" (b : @bench.T) {
+  let previous = @ecs.current_world()
+  defer (match previous {
+    Some(world) => @ecs.set_current_world(world)
+    None => @ecs.clear_current_world()
+  })
+  for size in [1000, 10000] {
+    @ecs.set_current_world(World())
+    ignore(make_sprite_fixture(size))
+    let sprites : Map[@entity.Entity, @sprite.Sprite] = Map([])
+    let globals : Map[@entity.Entity, @transform.GlobalTransform] = Map([])
+    for entity, sprite in @sprite.sprites() {
+      sprites.set(entity, sprite)
+    }
+    for entity, transform in @transform.global_transforms() {
+      globals.set(entity, transform)
+    }
+    let map_checksum = () => {
+      let mut checksum = 0
+      for entity, sprite in sprites {
+        if globals.get(entity) is Some(transform) {
+          checksum += sprite.color.r.reinterpret_as_int() +
+            transform.translation().x.to_int()
+        }
+      }
+      checksum
+    }
+    let archetype_checksum = () => {
+      let mut checksum = 0
+      @sprite.for_each_sprite_transform((_, sprite, transform) => {
+        checksum += sprite.color.r.reinterpret_as_int() +
+          transform.translation().x.to_int()
+      })
+      checksum
+    }
+    assert_eq(archetype_checksum(), map_checksum())
+    b.bench(name="sprite-join/map/n=\{size}", count=10, () => {
+      b.keep(map_checksum())
+    })
+    b.bench(name="sprite-join/archetype/n=\{size}", count=10, () => {
+      b.keep(archetype_checksum())
     })
   }
 }

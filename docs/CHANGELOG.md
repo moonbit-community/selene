@@ -5,12 +5,19 @@
 ### Added
 
 - Added typed World-local storage and streaming ECS query traversal.
+- Added World-local archetypes with typed columns, dynamic component migration,
+  and cached two-component queries.
 
 ### Changed
 
 - Moved entity, hierarchy, transform, and sprite storage into their owning
-  Worlds. Sprite extraction and transform propagation reuse their storage
-  lookups within each pass.
+  Worlds.
+- Sprite extraction walks matching Sprite and GlobalTransform columns directly.
+  GlobalTransform propagation updates existing rows and removes stale globals.
+- `sprites()` and `global_transforms()` now return typed component stores.
+  Point access with `.get()`, `.set()`, `.remove()`, and `.contains()` keeps
+  the same call shape. Use `Commands::insert_component` and
+  `Commands::remove_component` to queue structural changes to these stores.
 
 ### Fixed
 

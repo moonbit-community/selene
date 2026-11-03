@@ -96,6 +96,10 @@ pub fn push_ui_text(@render2d_types.TextDrawCommand2D) -> Unit
 
 pub fn push_ui_text_to_camera(UInt32?, @render2d_types.TextDrawCommand2D) -> Unit
 
+pub fn push_world_command(Double, UInt32?, @render2d_types.DrawCommand2D, camera_entity_id? : UInt32?, sorting? : Sorting2d, order? : Int32?) -> Unit
+
+pub fn reserve_world_command_order(Int32) -> Int32
+
 pub fn sort_depth_for_transform(@transform.GlobalTransform, Sorting2d) -> Double
 
 pub fn sorting2ds() -> Map[@entity.Entity, Sorting2d]
