@@ -6,12 +6,30 @@
 
 ### Changed
 
+### Fixed
+
+### Removed
+
+## [0.39.0] - 2026-11-03
+
+### Added
+
+### Changed
+
+- Updated external workspace dependencies to their current non-deprecated releases.
+- Migrated trait derivations to `#derive(...)` and switched CI and Pages builds
+  to the MoonBit `pre-release` toolchain required by this syntax.
+- Replaced Tiled gzip/zlib decoding with the byte-based APIs in
+  `moonbit-community/flate`, removing the `gmlewis/io`, `gmlewis/gzip`, and
+  `gmlewis/flate` dependencies.
 - Deprecated all published Mooncakes versions of the retired `selene-canvas`,
   `selene_tools`, `selene_editor`, `selene_editor_shared`,
   `selene_editor_frontend`, and `selene_editor_service` modules. The canvas
   deprecation directs users to `Milky2018/selene_webgpu`.
 
 ### Fixed
+
+- Reject compressed Tiled layer data with damaged checksums or truncated streams.
 
 ### Removed
 

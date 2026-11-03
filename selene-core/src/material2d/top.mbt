@@ -8,17 +8,20 @@ pub(all) struct ColorMaterial {
 }
 
 ///|
-pub(all) struct ColorMaterialHandle(UInt32) derive(Eq, Debug, Hash)
+#derive(Eq, Debug, Hash)
+pub(all) struct ColorMaterialHandle(UInt32)
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum Material2dHandle {
   Color(ColorMaterialHandle)
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct MeshMaterial2d {
   material : Material2dHandle
-} derive(Eq, Debug)
+}
 
 ///|
 priv struct Material2dWorldStore {

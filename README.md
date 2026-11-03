@@ -12,6 +12,8 @@ Selene is an ECS game engine for MoonBit with a WebGPU-first web backend and a r
 
 ## Quick Start
 
+The current sources require the MoonBit `pre-release` toolchain for `#derive` syntax.
+
 ```bash
 moon update
 moon -C examples-web build --release

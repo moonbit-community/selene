@@ -62,10 +62,11 @@ fn curve_end_time(curve : VariableCurve) -> Double {
 }
 
 ///|
+#derive(Eq, Hash)
 priv struct AnimationPropertyKey {
   entity : @entity.Entity
   field : AnimatedFieldHandle
-} derive(Eq, Hash)
+}
 
 ///|
 priv struct AnimationSampleBuffer {

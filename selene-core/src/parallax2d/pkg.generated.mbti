@@ -20,20 +20,22 @@ pub fn parallax_world_position(@math.Vec2, Parallax2d?, @camera.Camera2dView?) -
 // Errors
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) struct Parallax2d {
   base_offset : @math.Vec2
   factor : @math.Vec2
   reference : Parallax2dReference
-} derive(Eq, @debug.Debug)
+}
 pub fn Parallax2d::Parallax2d(base_offset? : @math.Vec2, factor? : @math.Vec2, reference? : Parallax2dReference) -> Self
 pub fn Parallax2d::equal(Self, Self) -> Bool
 pub fn Parallax2d::not_equal(Self, Self) -> Bool
 pub fn Parallax2d::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub enum Parallax2dReference {
   ViewOrigin
   ViewCenter(@math.Vec2)
-} derive(Eq, @debug.Debug)
+}
 pub fn Parallax2dReference::equal(Self, Self) -> Bool
 pub fn Parallax2dReference::not_equal(Self, Self) -> Bool
 pub fn Parallax2dReference::to_repr(Self) -> @debug.Repr

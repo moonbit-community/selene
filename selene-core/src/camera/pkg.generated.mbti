@@ -37,12 +37,13 @@ pub fn world_transform_2d(@transform.GlobalTransform) -> @math.Transform
 // Errors
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) struct Camera {
   mut is_active : Bool
   order : Int32
   viewport : CameraViewport?
   pass : CameraPass2D
-} derive(Eq, @debug.Debug)
+}
 pub fn Camera::Camera(is_active? : Bool, order? : Int32, viewport? : CameraViewport?, pass? : CameraPass2D) -> Self
 pub fn Camera::contains_screen_point(Self, @math.Vec2) -> Bool
 pub fn Camera::default() -> Self
@@ -56,8 +57,9 @@ pub fn Camera::with_viewport(Self, CameraViewport?) -> Self
 pub fn Camera::world_to_viewport(Self, @transform.GlobalTransform, OrthographicProjection, @math.Vec2) -> @math.Vec2
 pub impl Default for Camera
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Camera2d {
-} derive(Eq, @debug.Debug)
+}
 pub fn Camera2d::Camera2d() -> Self
 pub fn Camera2d::default() -> Self
 pub fn Camera2d::equal(Self, Self) -> Bool
@@ -78,36 +80,40 @@ pub fn Camera2dView::world_bounds(Self) -> @math.Rect
 pub fn Camera2dView::world_origin(Self) -> @math.Vec2
 pub fn Camera2dView::world_to_viewport(Self, @math.Vec2) -> @math.Vec2
 
+#derive(Eq, @debug.Debug)
 pub(all) struct CameraPass2D {
   load_op : CameraPassLoadOp2D
   clear_color : @render.Color
   target : CameraPassTarget2D
-} derive(Eq, @debug.Debug)
+}
 pub fn CameraPass2D::CameraPass2D(load_op? : CameraPassLoadOp2D, clear_color? : @render.Color, target? : CameraPassTarget2D) -> Self
 pub fn CameraPass2D::equal(Self, Self) -> Bool
 pub fn CameraPass2D::not_equal(Self, Self) -> Bool
 pub fn CameraPass2D::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) enum CameraPassLoadOp2D {
   Load
   Clear
-} derive(Eq, @debug.Debug)
+}
 pub fn CameraPassLoadOp2D::equal(Self, Self) -> Bool
 pub fn CameraPassLoadOp2D::not_equal(Self, Self) -> Bool
 pub fn CameraPassLoadOp2D::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) enum CameraPassTarget2D {
   Screen
   Offscreen(String)
-} derive(Eq, @debug.Debug)
+}
 pub fn CameraPassTarget2D::equal(Self, Self) -> Bool
 pub fn CameraPassTarget2D::not_equal(Self, Self) -> Bool
 pub fn CameraPassTarget2D::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct CameraViewport {
   position : @math.Vec2
   size : @math.Vec2
-} derive(Eq, @debug.Debug)
+}
 pub fn CameraViewport::CameraViewport(@math.Vec2, @math.Vec2) -> Self
 pub fn CameraViewport::equal(Self, Self) -> Bool
 pub fn CameraViewport::from_rect(@math.Rect) -> Self
@@ -115,11 +121,12 @@ pub fn CameraViewport::not_equal(Self, Self) -> Bool
 pub fn CameraViewport::rect(Self) -> @math.Rect
 pub fn CameraViewport::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct OrthographicProjection {
   near : Double
   far : Double
   scale : Double
-} derive(Eq, @debug.Debug)
+}
 pub fn OrthographicProjection::OrthographicProjection(scale? : Double, near? : Double, far? : Double) -> Self
 pub fn OrthographicProjection::default() -> Self
 pub fn OrthographicProjection::equal(Self, Self) -> Bool

@@ -25,10 +25,11 @@ pub fn TiledNameFilter::matches(self : TiledNameFilter, name : String) -> Bool {
 }
 
 ///|
+#derive(Eq)
 pub enum TiledColliderSourceKind {
   TilesLayer
   Object
-} derive(Eq)
+}
 
 ///|
 pub(all) struct TiledPhysicsSettings {

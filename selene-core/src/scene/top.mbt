@@ -10,10 +10,11 @@ pub(all) struct SceneSpawner {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct SceneInstanceReadyEvent {
   scene : SceneHandle
   root : @entity.Entity
-} derive(Eq, Debug)
+}
 
 ///|
 let scene_instances : Map[@entity.Entity, SceneHandle] = Map([])

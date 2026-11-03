@@ -1,4 +1,5 @@
 ///|
+#derive(Eq)
 priv struct UiMeasureSnapshot {
   text_content : String?
   font_handle : @asset.FontHandle?
@@ -10,9 +11,10 @@ priv struct UiMeasureSnapshot {
   wrap : TextWrap
   overflow : TextOverflow
   image_size : @math.Vec2?
-} derive(Eq)
+}
 
 ///|
+#derive(Eq)
 priv struct UiProjectionSnapshot {
   target_camera : @entity.Entity?
   target_viewport_position : @math.Vec2?
@@ -21,22 +23,24 @@ priv struct UiProjectionSnapshot {
   use_rounding : Bool?
   override_clip : Bool
   overflow_clip_margin : OverflowClipMargin
-} derive(Eq)
+}
 
 ///|
+#derive(Eq)
 priv struct UiStackSnapshot {
   displayed : Bool
   visible : Bool
   z_index : Int32?
   global_z_index : Int32?
-} derive(Eq)
+}
 
 ///|
 /// Chicle's Style does not implement Eq, so this stores the equivalent
 /// normalized Selene values used to construct it.
+#derive(Eq)
 priv struct UiChicleStyleSnapshot {
   node : Node
-} derive(Eq)
+}
 
 ///|
 priv struct UiLayoutNodeRuntime {
@@ -49,12 +53,13 @@ priv struct UiLayoutNodeRuntime {
 }
 
 ///|
+#derive(Eq)
 priv struct UiLayoutRootSnapshot {
   target_camera : @entity.Entity?
   viewport_position : @math.Vec2
   viewport_size : @math.Vec2
   logical_size : @math.Vec2
-} derive(Eq)
+}
 
 ///|
 priv struct UiLayoutRootRuntime {

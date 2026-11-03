@@ -14,10 +14,11 @@
 
 ///|
 /// Motor model used by joint motors and springs.
+#derive(Eq, Debug)
 pub enum JointMotorModel {
   AccelerationBased
   ForceBased
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn JointMotorModel::acceleration_based() -> JointMotorModel {
@@ -31,10 +32,11 @@ pub fn JointMotorModel::force_based() -> JointMotorModel {
 
 ///|
 /// Optional scalar lower/upper limits for a 2D joint axis.
+#derive(Eq, Debug)
 pub struct JointLimits {
   min : Double
   max : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn JointLimits::JointLimits(min : Double, max : Double) -> JointLimits {
@@ -43,10 +45,11 @@ pub fn JointLimits::JointLimits(min : Double, max : Double) -> JointLimits {
 
 ///|
 /// Softness parameters forwarded to Rapier spring-style joints.
+#derive(Eq, Debug)
 pub struct JointSoftness {
   damping_ratio : Double
   natural_frequency : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn JointSoftness::JointSoftness(
@@ -58,6 +61,7 @@ pub fn JointSoftness::JointSoftness(
 
 ///|
 /// Motor parameters for revolute joints.
+#derive(Eq, Debug)
 pub enum JointMotor {
   Position(
     target_position~ : Double,
@@ -72,7 +76,7 @@ pub enum JointMotor {
     max_force~ : Double?,
     model~ : JointMotorModel
   )
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn JointMotor::position(
@@ -97,6 +101,7 @@ pub fn JointMotor::velocity(
 
 ///|
 /// Supported 2D joint descriptors backed by Rapier impulse joints.
+#derive(Eq, Debug)
 pub enum JointKind {
   Fixed(local_anchor1~ : @math.Vec2, local_anchor2~ : @math.Vec2)
   Revolute(
@@ -125,17 +130,18 @@ pub enum JointKind {
     local_anchor2~ : @math.Vec2,
     model~ : JointMotorModel
   )
-} derive(Eq, Debug)
+}
 
 ///|
 /// Authored 2D joint component that connects two rigid-body entities.
+#derive(Eq, Debug)
 pub struct Joint {
   entity1 : @entity.Entity
   entity2 : @entity.Entity
   kind : JointKind
   active : Bool
   contacts_enabled : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 /// Native Rapier impulse-joint handle.
@@ -143,6 +149,7 @@ pub type JointHandle = @rapier_dynamics.ImpulseJointHandle
 
 ///|
 /// Supported 2D multibody-joint descriptors backed by Rapier articulations.
+#derive(Eq, Debug)
 pub enum MultibodyJointKind {
   Revolute(
     local_anchor1~ : @math.Vec2,
@@ -151,15 +158,16 @@ pub enum MultibodyJointKind {
     motor~ : JointMotor?,
     softness~ : JointSoftness?
   )
-} derive(Eq, Debug)
+}
 
 ///|
 /// Authored 2D multibody joint attached to the child rigid-body entity.
+#derive(Eq, Debug)
 pub struct MultibodyJoint {
   parent : @entity.Entity
   kind : MultibodyJointKind
   active : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 /// Native Rapier multibody-joint handle.

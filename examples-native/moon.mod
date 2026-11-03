@@ -3,10 +3,10 @@ name = "Milky2018/selene-examples-native"
 version = "0.21.2"
 
 import {
-  "Milky2018/selene@0.38.1",
-  "Milky2018/selene_raylib@0.38.1",
+  "Milky2018/selene@0.39.0",
+  "Milky2018/selene_raylib@0.39.0",
   "Milky2018/selene-examples@0.21.2",
-  "moonbitlang/x@0.5.1",
+  "moonbitlang/x@0.5.7",
 }
 
 readme = "../examples/README.md"

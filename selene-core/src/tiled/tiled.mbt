@@ -819,13 +819,9 @@ fn decompress_tiled_gid_bytes(bytes : Bytes, compression : String?) -> Bytes? {
 
 ///|
 fn tiled_gzip_decompress(bytes : Bytes) -> Bytes? {
-  let source = @io.Buffer::from_bytes(bytes)
-  let (reader, err) = @gzip.Reader::new(source)
-  guard err is None else { return None }
-  let (decoded, read_err) = @io.read_all(reader)
-  ignore(reader.close())
-  guard read_err is None else { return None }
-  Some(decoded.to_bytes())
+  Some(@gzip.decompress(bytes[:])) catch {
+    _ => None
+  }
 }
 
 ///|
@@ -837,30 +833,9 @@ fn tiled_zstd_decompress(bytes : Bytes) -> Bytes? {
 
 ///|
 fn tiled_zlib_decompress(bytes : Bytes) -> Bytes? {
-  let raw = bytes.to_array()
-  if raw.length() < 6 {
-    return None
+  Some(@zlib.decompress(bytes[:])) catch {
+    _ => None
   }
-  let cmf = raw[0].to_int()
-  let flg = raw[1].to_int()
-  if (cmf & 0x0F) != 8 {
-    return None
-  }
-  if ((cmf << 8) | flg) % 31 != 0 {
-    return None
-  }
-  let has_dict = (flg & 0x20) != 0
-  let header_size = if has_dict { 6 } else { 2 }
-  if raw.length() <= header_size + 4 {
-    return None
-  }
-  let payload = Bytes::from_array(raw[header_size:raw.length() - 4])
-  let source = @io.Buffer::from_bytes(payload)
-  let inflater = &@flate.Reader::new(source)
-  let (decoded, read_err) = @io.read_all(inflater)
-  ignore(inflater.close())
-  guard read_err is None else { return None }
-  Some(decoded.to_bytes())
 }
 
 ///|

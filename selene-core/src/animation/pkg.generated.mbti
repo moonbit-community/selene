@@ -128,7 +128,8 @@ pub(all) struct AnimatedField {
   apply : (@entity.Entity, AnimatedValue) -> Unit
 }
 
-pub(all) struct AnimatedFieldHandle(UInt32) derive(Eq, Hash, @debug.Debug)
+#derive(Eq, Hash, @debug.Debug)
+pub(all) struct AnimatedFieldHandle(UInt32)
 pub fn AnimatedFieldHandle::equal(Self, Self) -> Bool
 pub fn AnimatedFieldHandle::hash(Self) -> Int32
 pub fn AnimatedFieldHandle::hash_combine(Self, Hasher) -> Unit
@@ -152,40 +153,45 @@ pub fn AnimationClip::AnimationClip(String) -> Self
 pub fn AnimationClip::add_curve_to_target(Self, AnimationTargetId, VariableCurve) -> Unit
 pub fn AnimationClip::add_event(Self, Double, AnimationEventDescriptorHandle, dispatch? : AnimationClipEventDispatch) -> Unit
 
+#derive(Eq, @debug.Debug)
 pub(all) struct AnimationClipEventDispatch {
   target : AnimationTargetId?
-} derive(Eq, @debug.Debug)
+}
 pub fn AnimationClipEventDispatch::equal(Self, Self) -> Bool
 pub fn AnimationClipEventDispatch::not_equal(Self, Self) -> Bool
 pub fn AnimationClipEventDispatch::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct AnimationClipEventKeyframe {
   time : Double
   descriptor : AnimationEventDescriptorHandle
   dispatch : AnimationClipEventDispatch
-} derive(Eq, @debug.Debug)
+}
 pub fn AnimationClipEventKeyframe::equal(Self, Self) -> Bool
 pub fn AnimationClipEventKeyframe::not_equal(Self, Self) -> Bool
 pub fn AnimationClipEventKeyframe::to_repr(Self) -> @debug.Repr
 
-pub(all) struct AnimationClipHandle(UInt32) derive(Eq, Hash, @debug.Debug)
+#derive(Eq, Hash, @debug.Debug)
+pub(all) struct AnimationClipHandle(UInt32)
 pub fn AnimationClipHandle::equal(Self, Self) -> Bool
 pub fn AnimationClipHandle::hash(Self) -> Int32
 pub fn AnimationClipHandle::hash_combine(Self, Hasher) -> Unit
 pub fn AnimationClipHandle::not_equal(Self, Self) -> Bool
 pub fn AnimationClipHandle::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct AnimationEventContext {
   clip : AnimationClipHandle
   player : @entity.Entity
   target : @entity.Entity?
   time : Double
-} derive(Eq, @debug.Debug)
+}
 pub fn AnimationEventContext::equal(Self, Self) -> Bool
 pub fn AnimationEventContext::not_equal(Self, Self) -> Bool
 pub fn AnimationEventContext::to_repr(Self) -> @debug.Repr
 
-pub(all) struct AnimationEventDescriptorHandle(UInt32) derive(Eq, Hash, @debug.Debug)
+#derive(Eq, Hash, @debug.Debug)
+pub(all) struct AnimationEventDescriptorHandle(UInt32)
 pub fn AnimationEventDescriptorHandle::equal(Self, Self) -> Bool
 pub fn AnimationEventDescriptorHandle::hash(Self) -> Int32
 pub fn AnimationEventDescriptorHandle::hash_combine(Self, Hasher) -> Unit
@@ -216,7 +222,8 @@ pub(all) struct AnimationGraphEdge {
   mut weight : Double
 }
 
-pub(all) struct AnimationGraphHandle(UInt32) derive(Eq, Hash, @debug.Debug)
+#derive(Eq, Hash, @debug.Debug)
+pub(all) struct AnimationGraphHandle(UInt32)
 pub fn AnimationGraphHandle::equal(Self, Self) -> Bool
 pub fn AnimationGraphHandle::hash(Self) -> Int32
 pub fn AnimationGraphHandle::hash_combine(Self, Hasher) -> Unit
@@ -235,7 +242,8 @@ pub(all) enum AnimationGraphNodeType {
   Clip(AnimationClipHandle)
 }
 
-pub(all) struct AnimationNodeIndex(UInt32) derive(Eq, Hash, @debug.Debug)
+#derive(Eq, Hash, @debug.Debug)
+pub(all) struct AnimationNodeIndex(UInt32)
 pub fn AnimationNodeIndex::equal(Self, Self) -> Bool
 pub fn AnimationNodeIndex::hash(Self) -> Int32
 pub fn AnimationNodeIndex::hash_combine(Self, Hasher) -> Unit
@@ -261,7 +269,8 @@ pub fn AnimationPlayer::start(Self, AnimationNodeIndex, repeat? : RepeatAnimatio
 pub fn AnimationPlayer::stop(Self, AnimationNodeIndex) -> Self
 pub fn AnimationPlayer::stop_all(Self) -> Self
 
-pub(all) struct AnimationTargetId(String) derive(Eq, Hash, @debug.Debug)
+#derive(Eq, Hash, @debug.Debug)
+pub(all) struct AnimationTargetId(String)
 pub fn AnimationTargetId::equal(Self, Self) -> Bool
 pub fn AnimationTargetId::from_names(Array[String]) -> Self
 pub fn AnimationTargetId::hash(Self) -> Int32
@@ -278,21 +287,23 @@ pub fn AnimationTransitions::AnimationTransitions() -> Self
 pub fn AnimationTransitions::get_main_animation(Self) -> AnimationNodeIndex?
 pub fn AnimationTransitions::play(Self, AnimationPlayer, AnimationNodeIndex, Double, repeat? : RepeatAnimation) -> ActiveAnimation
 
+#derive(Eq, @debug.Debug)
 pub(all) enum AnimationValueKind {
   Scalar
   Vec3
   Quat
   Weights
-} derive(Eq, @debug.Debug)
+}
 pub fn AnimationValueKind::equal(Self, Self) -> Bool
 pub fn AnimationValueKind::not_equal(Self, Self) -> Bool
 pub fn AnimationValueKind::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) enum ChannelInterpolation {
   Step
   Linear
   CubicSpline
-} derive(Eq, @debug.Debug)
+}
 pub fn ChannelInterpolation::equal(Self, Self) -> Bool
 pub fn ChannelInterpolation::not_equal(Self, Self) -> Bool
 pub fn ChannelInterpolation::to_repr(Self) -> @debug.Repr
@@ -311,39 +322,43 @@ pub(all) struct MorphMeshBinding3D {
   mut morph_weights : Array[Double]
 }
 
+#derive(Eq, @debug.Debug)
 pub(all) struct MorphTargetBinding3D {
   position_deltas : Array[@math.Vec3]?
   normal_deltas : Array[@math.Vec3]?
-} derive(Eq, @debug.Debug)
+}
 pub fn MorphTargetBinding3D::equal(Self, Self) -> Bool
 pub fn MorphTargetBinding3D::not_equal(Self, Self) -> Bool
 pub fn MorphTargetBinding3D::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct QuatKeyframe {
   time : Double
   value : @math.Quat
   in_tangent : @math.Quat?
   out_tangent : @math.Quat?
-} derive(Eq, @debug.Debug)
+}
 pub fn QuatKeyframe::equal(Self, Self) -> Bool
 pub fn QuatKeyframe::not_equal(Self, Self) -> Bool
 pub fn QuatKeyframe::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) enum RepeatAnimation {
   Never
   Forever
   Count(UInt32)
-} derive(Eq, @debug.Debug)
+}
 pub fn RepeatAnimation::equal(Self, Self) -> Bool
 pub fn RepeatAnimation::not_equal(Self, Self) -> Bool
 pub fn RepeatAnimation::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct ScalarKeyframe {
   time : Double
   value : Double
   in_tangent : Double?
   out_tangent : Double?
-} derive(Eq, @debug.Debug)
+}
 pub fn ScalarKeyframe::equal(Self, Self) -> Bool
 pub fn ScalarKeyframe::not_equal(Self, Self) -> Bool
 pub fn ScalarKeyframe::to_repr(Self) -> @debug.Repr
@@ -393,22 +408,24 @@ pub fn VariableCurve::scalar(AnimatedFieldHandle, Array[ScalarKeyframe], interpo
 pub fn VariableCurve::vec3(AnimatedFieldHandle, Array[Vec3Keyframe], interpolation? : ChannelInterpolation) -> Self
 pub fn VariableCurve::weights(AnimatedFieldHandle, Array[WeightKeyframe], interpolation? : ChannelInterpolation) -> Self
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Vec3Keyframe {
   time : Double
   value : @math.Vec3
   in_tangent : @math.Vec3?
   out_tangent : @math.Vec3?
-} derive(Eq, @debug.Debug)
+}
 pub fn Vec3Keyframe::equal(Self, Self) -> Bool
 pub fn Vec3Keyframe::not_equal(Self, Self) -> Bool
 pub fn Vec3Keyframe::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct WeightKeyframe {
   time : Double
   value : Array[Double]
   in_tangent : Array[Double]?
   out_tangent : Array[Double]?
-} derive(Eq, @debug.Debug)
+}
 pub fn WeightKeyframe::equal(Self, Self) -> Bool
 pub fn WeightKeyframe::not_equal(Self, Self) -> Bool
 pub fn WeightKeyframe::to_repr(Self) -> @debug.Repr

@@ -1,18 +1,16 @@
 name = "Milky2018/selene"
 
-version = "0.38.1"
+version = "0.39.0"
 
 import {
-  "Milky2018/moon_rapier@0.5.1",
-  "Milky2018/moon_accesskit@0.4.1",
-  "Milky2018/xml@0.4.1",
-  "gmlewis/base64@0.16.12",
-  "moonbitlang/x@0.5.1",
-  "gmlewis/gzip@0.34.13",
-  "Milky2018/zstd@0.1.2",
-  "gmlewis/io@0.23.16",
-  "gmlewis/flate@0.36.13",
-  "Milky2018/chicle@0.6.1",
+  "Milky2018/moon_rapier@0.5.2",
+  "Milky2018/moon_accesskit@0.4.3",
+  "Milky2018/xml@0.6.1",
+  "moonbit-community/flate@0.10.0",
+  "gmlewis/base64@0.16.14",
+  "moonbitlang/x@0.5.7",
+  "Milky2018/zstd@0.1.4",
+  "Milky2018/chicle@0.6.3",
 }
 
 readme = "README.md"

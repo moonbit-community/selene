@@ -12,10 +12,11 @@ pub(all) struct AnimationTransitions {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct MorphTargetBinding3D {
   position_deltas : Array[@math.Vec3]?
   normal_deltas : Array[@math.Vec3]?
-} derive(Eq, Debug)
+}
 
 ///|
 pub(all) struct SkinVertexInfluence3D {

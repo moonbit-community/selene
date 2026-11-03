@@ -15,6 +15,7 @@ import {
   "Milky2018/selene/velocity",
   "Milky2018/selene/visibility",
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
 }
 
 // Values
@@ -107,14 +108,15 @@ pub fn world_snapshot() -> WorldSnapshot
 // Errors
 
 // Types and methods
+#derive(@debug.Debug, @json.ToJson)
 pub(all) struct AtlasOverlayEntry {
   entity_id : UInt32?
   layer : String
   texture_path : String
   source_rect : DebugRect
   destination_rect : DebugRect?
-} derive(ToJson, @debug.Debug)
-pub fn AtlasOverlayEntry::to_json(Self) -> Json
+}
+pub fn AtlasOverlayEntry::to_json(Self) -> @json.Json
 pub fn AtlasOverlayEntry::to_repr(Self) -> @debug.Repr
 
 pub(all) struct AtlasValidationIssue {
@@ -139,45 +141,49 @@ pub(all) struct AtlasValidationReport {
   issues : Array[AtlasValidationIssue]
 }
 
+#derive(Eq, @debug.Debug, @json.ToJson)
 pub(all) struct DebugColor {
   r : UInt32
   g : UInt32
   b : UInt32
   a : Double
-} derive(Eq, ToJson, @debug.Debug)
+}
 pub fn DebugColor::equal(Self, Self) -> Bool
 pub fn DebugColor::not_equal(Self, Self) -> Bool
-pub fn DebugColor::to_json(Self) -> Json
+pub fn DebugColor::to_json(Self) -> @json.Json
 pub fn DebugColor::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug, @json.ToJson)
 pub(all) struct DebugRect {
   x : Double
   y : Double
   width : Double
   height : Double
-} derive(Eq, ToJson, @debug.Debug)
+}
 pub fn DebugRect::equal(Self, Self) -> Bool
 pub fn DebugRect::not_equal(Self, Self) -> Bool
-pub fn DebugRect::to_json(Self) -> Json
+pub fn DebugRect::to_json(Self) -> @json.Json
 pub fn DebugRect::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug, @json.ToJson)
 pub(all) struct DebugVec2 {
   x : Double
   y : Double
-} derive(Eq, ToJson, @debug.Debug)
+}
 pub fn DebugVec2::equal(Self, Self) -> Bool
 pub fn DebugVec2::not_equal(Self, Self) -> Bool
-pub fn DebugVec2::to_json(Self) -> Json
+pub fn DebugVec2::to_json(Self) -> @json.Json
 pub fn DebugVec2::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug, @json.ToJson)
 pub(all) struct DebugVec3 {
   x : Double
   y : Double
   z : Double
-} derive(Eq, ToJson, @debug.Debug)
+}
 pub fn DebugVec3::equal(Self, Self) -> Bool
 pub fn DebugVec3::not_equal(Self, Self) -> Bool
-pub fn DebugVec3::to_json(Self) -> Json
+pub fn DebugVec3::to_json(Self) -> @json.Json
 pub fn DebugVec3::to_repr(Self) -> @debug.Repr
 
 pub(all) struct DeterministicModeConfig {
@@ -199,6 +205,7 @@ pub(all) struct DrawSubmission2DInfo {
   color : @render.Color?
 }
 
+#derive(@debug.Debug, @json.ToJson)
 pub(all) struct DrawSubmission2DMetadataEntry {
   entity_id : UInt32?
   layer : String
@@ -209,8 +216,8 @@ pub(all) struct DrawSubmission2DMetadataEntry {
   destination_rect : DebugRect?
   transform_translation : DebugVec2?
   color : DebugColor?
-} derive(ToJson, @debug.Debug)
-pub fn DrawSubmission2DMetadataEntry::to_json(Self) -> Json
+}
+pub fn DrawSubmission2DMetadataEntry::to_json(Self) -> @json.Json
 pub fn DrawSubmission2DMetadataEntry::to_repr(Self) -> @debug.Repr
 
 pub(all) struct DrawSubmission3DInfo {
@@ -235,15 +242,17 @@ pub(all) struct EntitySnapshot {
   linear_velocity2d : @velocity.Velocity?
 }
 
+#derive(@debug.Debug)
 pub(all) struct FrameCaptureArtifact {
   frame_index : UInt32
   fixed_step_index : UInt32
   file_stem : String
   png : Bytes
   metadata_json : String
-} derive(@debug.Debug)
+}
 pub fn FrameCaptureArtifact::to_repr(Self) -> @debug.Repr
 
+#derive(@debug.Debug, @json.ToJson)
 pub(all) struct FrameCaptureMetadata {
   frame_index : UInt32
   fixed_step_index : UInt32
@@ -252,8 +261,8 @@ pub(all) struct FrameCaptureMetadata {
   draw3d_count : Int32
   sprites : Array[SpriteInspectorEntry]
   atlas_overlay : Array[AtlasOverlayEntry]
-} derive(ToJson, @debug.Debug)
-pub fn FrameCaptureMetadata::to_json(Self) -> Json
+}
+pub fn FrameCaptureMetadata::to_json(Self) -> @json.Json
 pub fn FrameCaptureMetadata::to_repr(Self) -> @debug.Repr
 
 pub(all) struct FramePerformanceMetrics {
@@ -268,6 +277,7 @@ pub(all) struct FramePerformanceMetrics {
   draw3d_count : Int32
 }
 
+#derive(Eq, @debug.Debug, @json.ToJson)
 pub(all) struct FramePerformanceMetricsExport {
   frame_index : UInt32
   fixed_step_index : UInt32
@@ -278,10 +288,10 @@ pub(all) struct FramePerformanceMetricsExport {
   entity_count : Int32
   draw2d_count : Int32
   draw3d_count : Int32
-} derive(Eq, ToJson, @debug.Debug)
+}
 pub fn FramePerformanceMetricsExport::equal(Self, Self) -> Bool
 pub fn FramePerformanceMetricsExport::not_equal(Self, Self) -> Bool
-pub fn FramePerformanceMetricsExport::to_json(Self) -> Json
+pub fn FramePerformanceMetricsExport::to_json(Self) -> @json.Json
 pub fn FramePerformanceMetricsExport::to_repr(Self) -> @debug.Repr
 
 pub(all) enum InputInjectionEvent {
@@ -305,6 +315,7 @@ pub(all) struct RenderSubmissionDebug {
   draw3d : Array[DrawSubmission3DInfo]
 }
 
+#derive(@debug.Debug, @json.ToJson)
 pub(all) struct SpriteInspectorEntry {
   entity_id : UInt32
   entity_name : String?
@@ -317,8 +328,8 @@ pub(all) struct SpriteInspectorEntry {
   flip_y : Bool
   local_translation : DebugVec3?
   world_translation : DebugVec3?
-} derive(ToJson, @debug.Debug)
-pub fn SpriteInspectorEntry::to_json(Self) -> Json
+}
+pub fn SpriteInspectorEntry::to_json(Self) -> @json.Json
 pub fn SpriteInspectorEntry::to_repr(Self) -> @debug.Repr
 
 pub(all) struct WorldSnapshot {

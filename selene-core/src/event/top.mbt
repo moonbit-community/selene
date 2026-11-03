@@ -1,9 +1,10 @@
 ///|
+#derive(Eq, Debug)
 pub(all) enum EventDomain {
   Frame
   Fixed
   Render
-} derive(Eq, Debug)
+}
 
 ///|
 pub(all) struct EventReader[T] {
@@ -17,7 +18,8 @@ pub(all) struct EventWriter[T] {
 }
 
 ///|
-pub(all) struct ObserverHandle(Int32) derive(Eq, Debug, Hash)
+#derive(Eq, Debug, Hash)
+pub(all) struct ObserverHandle(Int32)
 
 ///|
 pub(all) struct Trigger[T] {
