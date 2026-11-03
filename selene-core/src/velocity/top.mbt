@@ -30,16 +30,17 @@ pub(all) struct Velocity(@math.Vec2) derive(Eq, Debug)
 
 ///|
 priv struct VelocityWorldStore {
-  velocities : Map[@entity.Entity, Velocity]
+  velocities : @entity.ComponentStore[Velocity]
 }
 
 ///|
-let velocity_world_stores : Map[UInt32, VelocityWorldStore] = Map([])
+let velocity_world_store_key : @ecs.WorldKey[VelocityWorldStore] = WorldKey(() => {
+  velocities: ComponentStore(@ecs.require_current_world()),
+})
 
 ///|
 fn velocity_world_store() -> VelocityWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  velocity_world_stores.get_or_init(world_id, () => { velocities: Map([]), })
+  @ecs.require_current_world().get_or_init(velocity_world_store_key)
 }
 
 ///|
@@ -60,6 +61,6 @@ fn velocity_world_store() -> VelocityWorldStore {
 /// inspect(entity_vel, content="Some(Velocity(Vec2(10, 5)))")
 /// ```
 ///
-pub fn velocities() -> Map[@entity.Entity, Velocity] {
+pub fn velocities() -> @entity.ComponentStore[Velocity] {
   velocity_world_store().velocities
 }

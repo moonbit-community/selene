@@ -176,58 +176,66 @@ priv struct BirdController {
 
 ///|
 priv struct PixelAdventureWorldStore {
-  sessions : Map[@entity.Entity, GameSession]
-  players : Map[@entity.Entity, PlayerController]
-  birds : Map[@entity.Entity, BirdController]
-  apples : Map[@entity.Entity, Unit]
-  flags : Map[@entity.Entity, Unit]
-  ui_click_reader : @event.EventReader[@ui.UiClickEvent]
+  sessions : @entity.ComponentStore[GameSession]
+  players : @entity.ComponentStore[PlayerController]
+  birds : @entity.ComponentStore[BirdController]
+  apples : @entity.ComponentStore[Unit]
+  flags : @entity.ComponentStore[Unit]
+  mut ui_click_reader : @event.EventReader[@ui.UiClickEvent]
 }
 
 ///|
-let pixeladventure_world_stores : Map[UInt32, PixelAdventureWorldStore] = Map([])
+let pixeladventure_world_store_key : @ecs.WorldKey[PixelAdventureWorldStore] = WorldKey(() => {
+    let world = @ecs.require_current_world()
+    {
+      sessions: ComponentStore(world),
+      players: ComponentStore(world),
+      birds: ComponentStore(world),
+      apples: ComponentStore(world),
+      flags: ComponentStore(world),
+      ui_click_reader: EventReader(),
+    }
+  },
+)
 
 ///|
 fn pixeladventure_world_store() -> PixelAdventureWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  pixeladventure_world_stores.get_or_init(world_id, () => {
-    sessions: Map([]),
-    players: Map([]),
-    birds: Map([]),
-    apples: Map([]),
-    flags: Map([]),
-    ui_click_reader: EventReader(),
-  })
+  @ecs.require_current_world().get_or_init(pixeladventure_world_store_key)
 }
 
 ///|
 fn reset_pixeladventure_world_store() -> Unit {
-  let world_id = @ecs.require_current_world().id()
-  pixeladventure_world_stores.remove(world_id)
+  let store = pixeladventure_world_store()
+  store.sessions.clear()
+  store.players.clear()
+  store.birds.clear()
+  store.apples.clear()
+  store.flags.clear()
+  store.ui_click_reader = EventReader()
 }
 
 ///|
-fn sessions() -> Map[@entity.Entity, GameSession] {
+fn sessions() -> @entity.ComponentStore[GameSession] {
   pixeladventure_world_store().sessions
 }
 
 ///|
-fn players() -> Map[@entity.Entity, PlayerController] {
+fn players() -> @entity.ComponentStore[PlayerController] {
   pixeladventure_world_store().players
 }
 
 ///|
-fn birds() -> Map[@entity.Entity, BirdController] {
+fn birds() -> @entity.ComponentStore[BirdController] {
   pixeladventure_world_store().birds
 }
 
 ///|
-fn apples() -> Map[@entity.Entity, Unit] {
+fn apples() -> @entity.ComponentStore[Unit] {
   pixeladventure_world_store().apples
 }
 
 ///|
-fn flags() -> Map[@entity.Entity, Unit] {
+fn flags() -> @entity.ComponentStore[Unit] {
   pixeladventure_world_store().flags
 }
 

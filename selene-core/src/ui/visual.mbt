@@ -393,76 +393,75 @@ pub(all) enum Interaction {
 
 ///|
 priv struct UiVisualWorldStore {
-  background_colors : Map[@entity.Entity, BackgroundColor]
-  border_colors : Map[@entity.Entity, BorderColor]
-  border_radii : Map[@entity.Entity, BorderRadius]
-  box_shadows : Map[@entity.Entity, BoxShadow]
-  outlines : Map[@entity.Entity, Outline]
-  ui_images : Map[@entity.Entity, UiImage]
-  material_nodes : Map[@entity.Entity, MaterialNode]
-  texts : Map[@entity.Entity, Text]
-  text_fonts : Map[@entity.Entity, TextFont]
-  text_colors : Map[@entity.Entity, TextColor]
-  text_layouts : Map[@entity.Entity, TextLayout]
-  buttons : Map[@entity.Entity, Button]
-  interactions : Map[@entity.Entity, Interaction]
+  background_colors : @entity.ComponentStore[BackgroundColor]
+  border_colors : @entity.ComponentStore[BorderColor]
+  border_radii : @entity.ComponentStore[BorderRadius]
+  box_shadows : @entity.ComponentStore[BoxShadow]
+  outlines : @entity.ComponentStore[Outline]
+  ui_images : @entity.ComponentStore[UiImage]
+  material_nodes : @entity.ComponentStore[MaterialNode]
+  texts : @entity.ComponentStore[Text]
+  text_fonts : @entity.ComponentStore[TextFont]
+  text_colors : @entity.ComponentStore[TextColor]
+  text_layouts : @entity.ComponentStore[TextLayout]
+  buttons : @entity.ComponentStore[Button]
+  interactions : @entity.ComponentStore[Interaction]
 }
 
 ///|
-let ui_visual_world_stores : Map[UInt32, UiVisualWorldStore] = Map([])
+let ui_visual_world_store_key : @ecs.WorldKey[UiVisualWorldStore] = WorldKey(() => {
+  background_colors: ComponentStore(@ecs.require_current_world()),
+  border_colors: ComponentStore(@ecs.require_current_world()),
+  border_radii: ComponentStore(@ecs.require_current_world()),
+  box_shadows: ComponentStore(@ecs.require_current_world()),
+  outlines: ComponentStore(@ecs.require_current_world()),
+  ui_images: ComponentStore(@ecs.require_current_world()),
+  material_nodes: ComponentStore(@ecs.require_current_world()),
+  texts: ComponentStore(@ecs.require_current_world()),
+  text_fonts: ComponentStore(@ecs.require_current_world()),
+  text_colors: ComponentStore(@ecs.require_current_world()),
+  text_layouts: ComponentStore(@ecs.require_current_world()),
+  buttons: ComponentStore(@ecs.require_current_world()),
+  interactions: ComponentStore(@ecs.require_current_world()),
+})
 
 ///|
 fn ui_visual_world_store() -> UiVisualWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  ui_visual_world_stores.get_or_init(world_id, () => {
-    background_colors: Map([]),
-    border_colors: Map([]),
-    border_radii: Map([]),
-    box_shadows: Map([]),
-    outlines: Map([]),
-    ui_images: Map([]),
-    material_nodes: Map([]),
-    texts: Map([]),
-    text_fonts: Map([]),
-    text_colors: Map([]),
-    text_layouts: Map([]),
-    buttons: Map([]),
-    interactions: Map([]),
-  })
+  @ecs.require_current_world().get_or_init(ui_visual_world_store_key)
 }
 
 ///|
-pub fn background_colors() -> Map[@entity.Entity, BackgroundColor] {
+pub fn background_colors() -> @entity.ComponentStore[BackgroundColor] {
   ui_visual_world_store().background_colors
 }
 
 ///|
-pub fn border_colors() -> Map[@entity.Entity, BorderColor] {
+pub fn border_colors() -> @entity.ComponentStore[BorderColor] {
   ui_visual_world_store().border_colors
 }
 
 ///|
-pub fn border_radii() -> Map[@entity.Entity, BorderRadius] {
+pub fn border_radii() -> @entity.ComponentStore[BorderRadius] {
   ui_visual_world_store().border_radii
 }
 
 ///|
-pub fn box_shadows() -> Map[@entity.Entity, BoxShadow] {
+pub fn box_shadows() -> @entity.ComponentStore[BoxShadow] {
   ui_visual_world_store().box_shadows
 }
 
 ///|
-pub fn outlines() -> Map[@entity.Entity, Outline] {
+pub fn outlines() -> @entity.ComponentStore[Outline] {
   ui_visual_world_store().outlines
 }
 
 ///|
-pub fn ui_images() -> Map[@entity.Entity, UiImage] {
+pub fn ui_images() -> @entity.ComponentStore[UiImage] {
   ui_visual_world_store().ui_images
 }
 
 ///|
-pub fn material_nodes() -> Map[@entity.Entity, MaterialNode] {
+pub fn material_nodes() -> @entity.ComponentStore[MaterialNode] {
   ui_visual_world_store().material_nodes
 }
 
@@ -473,32 +472,32 @@ let ui_material_assets : Map[UiMaterialHandle, UiMaterialAsset] = Map([])
 let next_ui_material_id : Ref[UInt32] = Ref(0)
 
 ///|
-pub fn texts() -> Map[@entity.Entity, Text] {
+pub fn texts() -> @entity.ComponentStore[Text] {
   ui_visual_world_store().texts
 }
 
 ///|
-pub fn text_fonts() -> Map[@entity.Entity, TextFont] {
+pub fn text_fonts() -> @entity.ComponentStore[TextFont] {
   ui_visual_world_store().text_fonts
 }
 
 ///|
-pub fn text_colors() -> Map[@entity.Entity, TextColor] {
+pub fn text_colors() -> @entity.ComponentStore[TextColor] {
   ui_visual_world_store().text_colors
 }
 
 ///|
-pub fn text_layouts() -> Map[@entity.Entity, TextLayout] {
+pub fn text_layouts() -> @entity.ComponentStore[TextLayout] {
   ui_visual_world_store().text_layouts
 }
 
 ///|
-pub fn buttons() -> Map[@entity.Entity, Button] {
+pub fn buttons() -> @entity.ComponentStore[Button] {
   ui_visual_world_store().buttons
 }
 
 ///|
-pub fn interactions() -> Map[@entity.Entity, Interaction] {
+pub fn interactions() -> @entity.ComponentStore[Interaction] {
   ui_visual_world_store().interactions
 }
 

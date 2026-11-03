@@ -74,29 +74,29 @@ pub struct TiledColliderSpawnedEvent {
 
 ///|
 priv struct TiledPhysicsWorldStore {
-  tiled_colliders : Map[@entity.Entity, TiledColliders]
-  tiled_collider_origins : Map[@entity.Entity, TiledColliderOrigin]
+  tiled_colliders : @entity.ComponentStore[TiledColliders]
+  tiled_collider_origins : @entity.ComponentStore[TiledColliderOrigin]
 }
 
 ///|
-let tiled_physics_world_stores : Map[UInt32, TiledPhysicsWorldStore] = Map([])
+let tiled_physics_world_store_key : @ecs.WorldKey[TiledPhysicsWorldStore] = WorldKey(() => {
+    tiled_colliders: ComponentStore(@ecs.require_current_world()),
+    tiled_collider_origins: ComponentStore(@ecs.require_current_world()),
+  },
+)
 
 ///|
 fn tiled_physics_world_store() -> TiledPhysicsWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  tiled_physics_world_stores.get_or_init(world_id, () => {
-    tiled_colliders: Map([]),
-    tiled_collider_origins: Map([]),
-  })
+  @ecs.require_current_world().get_or_init(tiled_physics_world_store_key)
 }
 
 ///|
-pub fn tiled_colliders() -> Map[@entity.Entity, TiledColliders] {
+pub fn tiled_colliders() -> @entity.ComponentStore[TiledColliders] {
   tiled_physics_world_store().tiled_colliders
 }
 
 ///|
-pub fn tiled_collider_origins() -> Map[@entity.Entity, TiledColliderOrigin] {
+pub fn tiled_collider_origins() -> @entity.ComponentStore[TiledColliderOrigin] {
   tiled_physics_world_store().tiled_collider_origins
 }
 

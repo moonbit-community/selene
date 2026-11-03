@@ -11,7 +11,7 @@ import {
 // Values
 pub fn inherited_parallax2d(@entity.Entity) -> Parallax2d?
 
-pub fn parallax2ds() -> Map[@entity.Entity, Parallax2d]
+pub fn parallax2ds() -> @entity.ComponentStore[Parallax2d]
 
 pub fn parallax_depends_on_camera(Parallax2d?) -> Bool
 

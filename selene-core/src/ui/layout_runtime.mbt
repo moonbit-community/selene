@@ -530,9 +530,7 @@ fn project_layout(
   runtime : UiLayoutRuntime,
   roots : Array[@entity.Entity],
 ) -> Unit {
-  computed_ui_nodes().clear()
-  global_ui_nodes().clear()
-  calculated_clips().clear()
+  let projected : Set[@entity.Entity] = Set([])
   for root in roots {
     guard runtime.roots.get(root) is Some(root_runtime) else { continue }
     let snapshot = root_runtime.snapshot
@@ -548,8 +546,12 @@ fn project_layout(
       None,
       true,
       layout_space,
+      projected,
     )
   }
+  computed_ui_nodes().retain(entity => projected.contains(entity))
+  global_ui_nodes().retain(entity => projected.contains(entity))
+  calculated_clips().retain(entity => projected.contains(entity))
 }
 
 ///|
@@ -571,11 +573,11 @@ fn rebuild_layout_stack(
   runtime : UiLayoutRuntime,
   roots : Array[@entity.Entity],
 ) -> Unit {
-  tree_orders().clear()
   let order = Ref(0)
   for root in roots {
     record_ui_tree_order(runtime, root, order)
   }
+  tree_orders().retain(entity => runtime.nodes.contains(entity))
   rebuild_ui_stack()
 }
 

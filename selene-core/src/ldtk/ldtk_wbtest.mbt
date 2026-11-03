@@ -1672,8 +1672,12 @@ test "ldtk add entity component helpers can build bundle-like sets" {
       },
     ]),
   ])
-  let entity_scores : Map[@entity.Entity, Int32] = Map([])
-  let entity_kinds : Map[@entity.Entity, String] = Map([])
+  let entity_scores : @entity.ComponentStore[Int32] = ComponentStore(
+    @ecs.require_current_world(),
+  )
+  let entity_kinds : @entity.ComponentStore[String] = ComponentStore(
+    @ecs.require_current_world(),
+  )
 
   add_ldtk_entity_component("Enemy", entity_scores, fn(_event) { 99 })
   add_ldtk_entity_component("Enemy", entity_kinds, fn(event) {
@@ -1781,8 +1785,12 @@ test "ldtk add int cell component helpers can compose per scope" {
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 2, 1, [1, 2]),
   ])
-  let cell_labels : Map[@entity.Entity, String] = Map([])
-  let cell_values_x2 : Map[@entity.Entity, Int32] = Map([])
+  let cell_labels : @entity.ComponentStore[String] = ComponentStore(
+    @ecs.require_current_world(),
+  )
+  let cell_values_x2 : @entity.ComponentStore[Int32] = ComponentStore(
+    @ecs.require_current_world(),
+  )
 
   add_ldtk_int_cell_component(2, cell_labels, fn(_event) { "solid" })
   add_ldtk_int_cell_component(2, cell_values_x2, fn(event) { event.value * 2 })

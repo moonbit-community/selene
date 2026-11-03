@@ -83,29 +83,31 @@ pub(all) struct TiledWorldSpawnSettings {
 
 ///|
 priv struct TiledWorldRuntimeStore {
-  tiled_world_instances : Map[@entity.Entity, TiledWorldInstance]
-  tiled_world_map_instances : Map[@entity.Entity, TiledWorldMapInstance]
+  tiled_world_instances : @entity.ComponentStore[TiledWorldInstance]
+  tiled_world_map_instances : @entity.ComponentStore[TiledWorldMapInstance]
 }
 
 ///|
-let tiled_world_runtime_stores : Map[UInt32, TiledWorldRuntimeStore] = Map([])
+let tiled_world_runtime_store_key : @ecs.WorldKey[TiledWorldRuntimeStore] = WorldKey(() => {
+    tiled_world_instances: ComponentStore(@ecs.require_current_world()),
+    tiled_world_map_instances: ComponentStore(@ecs.require_current_world()),
+  },
+)
 
 ///|
 fn tiled_world_runtime_store() -> TiledWorldRuntimeStore {
-  let world_id = @ecs.require_current_world().id()
-  tiled_world_runtime_stores.get_or_init(world_id, () => {
-    tiled_world_instances: Map([]),
-    tiled_world_map_instances: Map([]),
-  })
+  @ecs.require_current_world().get_or_init(tiled_world_runtime_store_key)
 }
 
 ///|
-pub fn tiled_world_instances() -> Map[@entity.Entity, TiledWorldInstance] {
+pub fn tiled_world_instances() -> @entity.ComponentStore[TiledWorldInstance] {
   tiled_world_runtime_store().tiled_world_instances
 }
 
 ///|
-pub fn tiled_world_map_instances() -> Map[@entity.Entity, TiledWorldMapInstance] {
+pub fn tiled_world_map_instances() -> @entity.ComponentStore[
+  TiledWorldMapInstance,
+] {
   tiled_world_runtime_store().tiled_world_map_instances
 }
 

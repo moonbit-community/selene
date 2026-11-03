@@ -256,6 +256,7 @@ fn move_without_collision(
   entity : @entity.Entity,
   displacement : @math.Vec2,
   delta : Double,
+  write_resolved : (@entity.Entity, @math.Vec2) -> Unit,
 ) -> Unit {
   if entity_translation(entity) is Some(position) {
     let new_position = position + displacement
@@ -267,9 +268,9 @@ fn move_without_collision(
     }
   }
   if delta.abs() <= EPSILON {
-    resolved_velocities().set(entity, @math.Vec2::zero())
+    write_resolved(entity, @math.Vec2::zero())
   } else {
-    resolved_velocities().set(entity, displacement.scalar_div(delta))
+    write_resolved(entity, displacement.scalar_div(delta))
   }
   set_grounded(entity, false)
 }
@@ -281,19 +282,35 @@ fn move_with_kinematic_controller(
   velocity : @math.Vec2,
   delta : Double,
   query_base : @rapier_collision.QueryPipeline,
+  write_resolved : (@entity.Entity, @math.Vec2) -> Unit,
 ) -> Unit {
   guard entity_translation(entity) is Some(position) else { return }
   guard entity_collision_shape(entity) is Some(shape) else {
-    move_without_collision(entity, velocity.scalar_mul(delta), delta)
+    move_without_collision(
+      entity,
+      velocity.scalar_mul(delta),
+      delta,
+      write_resolved,
+    )
     return
   }
   guard collision_shape_to_rapier_shape(shape)
     is Some((rapier_shape, translation)) else {
-    move_without_collision(entity, velocity.scalar_mul(delta), delta)
+    move_without_collision(
+      entity,
+      velocity.scalar_mul(delta),
+      delta,
+      write_resolved,
+    )
     return
   }
   guard colliders().get(entity) is Some(collider) else {
-    move_without_collision(entity, velocity.scalar_mul(delta), delta)
+    move_without_collision(
+      entity,
+      velocity.scalar_mul(delta),
+      delta,
+      write_resolved,
+    )
     return
   }
   let displacement = velocity.scalar_mul(delta)
@@ -335,7 +352,7 @@ fn move_with_kinematic_controller(
       |> ignore
     }
   }
-  resolved_velocities().set(entity, applied_displacement.scalar_div(delta))
+  write_resolved(entity, applied_displacement.scalar_div(delta))
   set_grounded(entity, effective.is_grounded())
 }
 
@@ -476,7 +493,9 @@ fn process_trigger_events() -> Unit {
 }
 
 ///|
-fn sync_body_outputs() -> Unit {
+fn sync_body_outputs(
+  write_resolved : (@entity.Entity, @math.Vec2) -> Unit,
+) -> Unit {
   for entity, handle in world().entity_bodies {
     guard entity_translation(entity) is Some(_) else { continue }
     if world().bodies.get(handle) is Some(body) {
@@ -484,7 +503,7 @@ fn sync_body_outputs() -> Unit {
       if body_type is Dynamic || body_type is KinematicVelocityBased {
         set_entity_translation(entity, from_physics_vec2(body.translation()))
         set_entity_rotation(entity, from_physics_rotation(body.rotation()))
-        resolved_velocities().set(entity, from_physics_vec2(body.linvel()))
+        write_resolved(entity, from_physics_vec2(body.linvel()))
         set_grounded(entity, false)
       }
     }
@@ -526,7 +545,12 @@ fn rapier_fixed_step(delta : Double) -> Unit {
   sync_world_joints()
   sync_world_multibody_joints()
   grounded_entities().clear()
-  resolved_velocities().clear()
+  let resolved = resolved_velocities()
+  let written : Set[@entity.Entity] = Set([])
+  let write_resolved = (entity : @entity.Entity, velocity : @math.Vec2) => {
+    written.add(entity)
+    resolved.set(entity, velocity)
+  }
 
   let query_base = @rapier_collision.QueryPipeline::QueryPipeline(
     QueryFilter(),
@@ -546,17 +570,19 @@ fn rapier_fixed_step(delta : Double) -> Unit {
           velocity.0,
           delta,
           query_base,
+          write_resolved,
         )
       } else {
-        move_without_collision(entity, displacement, delta)
+        move_without_collision(entity, displacement, delta, write_resolved)
       }
     } else {
-      move_without_collision(entity, displacement, delta)
+      move_without_collision(entity, displacement, delta, write_resolved)
     }
   }
 
   step_rapier_pipeline(delta)
-  sync_body_outputs()
+  sync_body_outputs(write_resolved)
+  resolved.retain(entity => written.contains(entity))
   process_contact_events()
   process_trigger_events()
 }

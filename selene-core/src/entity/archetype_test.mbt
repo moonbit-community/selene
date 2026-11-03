@@ -98,3 +98,27 @@ test "batch views stay aligned across tables and write only the first column" {
   })
   assert_eq(entries, [(second.id(), 12, 7)])
 }
+
+///|
+test "component iteration survives other column moves and removal of the current row" {
+  let world = @ecs.World()
+  let a : @entity.ComponentStore[Int32] = ComponentStore(world)
+  let b : @entity.ComponentStore[Bool] = ComponentStore(world)
+  let first = @entity.Entity::reserve_spawn_in(world)
+  let second = @entity.Entity::reserve_spawn_in(world)
+  let third = @entity.Entity::reserve_spawn_in(world)
+  a.set(first, 1)
+  a.set(second, 2)
+  a.set(third, 3)
+  let seen = []
+  for entity, value in a {
+    seen.push(value)
+    b.set(entity, true)
+    if entity == second {
+      a.remove(entity)
+    }
+  }
+  assert_eq(seen, [1, 2, 3])
+  assert_eq(a.to_array(), [(first, 1), (third, 3)])
+  assert_eq(b.keys().collect(), [first, second, third])
+}

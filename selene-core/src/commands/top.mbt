@@ -34,24 +34,9 @@ pub fn Commands::despawn(self : Commands, entity : @entity.Entity) -> Unit {
 }
 
 ///|
-pub fn[T] Commands::insert(
-  self : Commands,
-  storage : Map[@entity.Entity, T],
-  entity : @entity.Entity,
-  value : T,
-) -> Unit {
-  guard entity.belongs_to(self.world) else { return }
-  self.add(fn(_world) { storage.set(entity, value) })
-}
-
-///|
-pub fn[T] Commands::remove(
-  self : Commands,
-  storage : Map[@entity.Entity, T],
-  entity : @entity.Entity,
-) -> Unit {
-  guard entity.belongs_to(self.world) else { return }
-  self.add(fn(_world) { storage.remove(entity) })
+/// Queues permanent deletion and slot recycling for this entity and its descendants.
+pub fn Commands::delete(self : Commands, entity : @entity.Entity) -> Unit {
+  self.add(_ => ignore(entity.delete()))
 }
 
 ///|

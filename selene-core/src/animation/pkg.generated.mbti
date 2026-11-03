@@ -12,7 +12,7 @@ import {
 }
 
 // Values
-pub fn animated_bys() -> Map[@entity.Entity, AnimatedBy]
+pub fn animated_bys() -> @entity.ComponentStore[AnimatedBy]
 
 pub fn animated_field(AnimatedFieldHandle) -> AnimatedField?
 
@@ -26,21 +26,21 @@ pub fn animation_graph_asset(AnimationGraphHandle) -> AnimationGraph?
 
 pub let animation_graph_asset_events : @event.Events[@asset.AssetEvent[AnimationGraphHandle]]
 
-pub fn animation_graph_handles() -> Map[@entity.Entity, AnimationGraphHandle]
+pub fn animation_graph_handles() -> @entity.ComponentStore[AnimationGraphHandle]
 
 pub fn animation_player_system(Double) -> Unit
 
-pub fn animation_players() -> Map[@entity.Entity, AnimationPlayer]
+pub fn animation_players() -> @entity.ComponentStore[AnimationPlayer]
 
 pub fn animation_skinning_system(Double) -> Unit
 
 pub fn animation_target_id_of(@entity.Entity) -> AnimationTargetId?
 
-pub fn animation_target_ids() -> Map[@entity.Entity, AnimationTargetId]
+pub fn animation_target_ids() -> @entity.ComponentStore[AnimationTargetId]
 
 pub fn animation_transition_system(Double) -> Unit
 
-pub fn animation_transitions() -> Map[@entity.Entity, AnimationTransitions]
+pub fn animation_transitions() -> @entity.ComponentStore[AnimationTransitions]
 
 pub fn bind_morph_mesh(@entity.Entity, MorphMeshBinding3D) -> Unit
 

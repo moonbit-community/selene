@@ -12,7 +12,7 @@ import {
 // Values
 pub fn color_material(ColorMaterialHandle) -> ColorMaterial?
 
-pub fn mesh_material2ds() -> Map[@entity.Entity, MeshMaterial2d]
+pub fn mesh_material2ds() -> @entity.ComponentStore[MeshMaterial2d]
 
 pub fn register_color_material(ColorMaterial) -> ColorMaterialHandle
 

@@ -1,25 +1,25 @@
 ///|
-pub fn animation_transitions() -> Map[@entity.Entity, AnimationTransitions] {
+pub fn animation_transitions() -> @entity.ComponentStore[AnimationTransitions] {
   animation_world_store().animation_transitions
 }
 
 ///|
-pub fn animation_target_ids() -> Map[@entity.Entity, AnimationTargetId] {
+pub fn animation_target_ids() -> @entity.ComponentStore[AnimationTargetId] {
   animation_world_store().animation_target_ids
 }
 
 ///|
-pub fn animated_bys() -> Map[@entity.Entity, AnimatedBy] {
+pub fn animated_bys() -> @entity.ComponentStore[AnimatedBy] {
   animation_world_store().animated_bys
 }
 
 ///|
-fn skinned_meshes() -> Map[@entity.Entity, SkinnedMeshBinding3D] {
+fn skinned_meshes() -> @entity.ComponentStore[SkinnedMeshBinding3D] {
   animation_world_store().skinned_meshes
 }
 
 ///|
-fn morphed_meshes() -> Map[@entity.Entity, MorphMeshBinding3D] {
+fn morphed_meshes() -> @entity.ComponentStore[MorphMeshBinding3D] {
   animation_world_store().morphed_meshes
 }
 

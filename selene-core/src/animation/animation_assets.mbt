@@ -64,30 +64,29 @@ pub(all) struct MorphMeshBinding3D {
 
 ///|
 priv struct AnimationWorldStore {
-  animation_players : Map[@entity.Entity, AnimationPlayer]
-  animation_graph_handles : Map[@entity.Entity, AnimationGraphHandle]
-  animation_transitions : Map[@entity.Entity, AnimationTransitions]
-  animation_target_ids : Map[@entity.Entity, AnimationTargetId]
-  animated_bys : Map[@entity.Entity, AnimatedBy]
-  skinned_meshes : Map[@entity.Entity, SkinnedMeshBinding3D]
-  morphed_meshes : Map[@entity.Entity, MorphMeshBinding3D]
+  animation_players : @entity.ComponentStore[AnimationPlayer]
+  animation_graph_handles : @entity.ComponentStore[AnimationGraphHandle]
+  animation_transitions : @entity.ComponentStore[AnimationTransitions]
+  animation_target_ids : @entity.ComponentStore[AnimationTargetId]
+  animated_bys : @entity.ComponentStore[AnimatedBy]
+  skinned_meshes : @entity.ComponentStore[SkinnedMeshBinding3D]
+  morphed_meshes : @entity.ComponentStore[MorphMeshBinding3D]
 }
 
 ///|
-let animation_world_stores : Map[UInt32, AnimationWorldStore] = Map([])
+let animation_world_store_key : @ecs.WorldKey[AnimationWorldStore] = WorldKey(() => {
+  animation_players: ComponentStore(@ecs.require_current_world()),
+  animation_graph_handles: ComponentStore(@ecs.require_current_world()),
+  animation_transitions: ComponentStore(@ecs.require_current_world()),
+  animation_target_ids: ComponentStore(@ecs.require_current_world()),
+  animated_bys: ComponentStore(@ecs.require_current_world()),
+  skinned_meshes: ComponentStore(@ecs.require_current_world()),
+  morphed_meshes: ComponentStore(@ecs.require_current_world()),
+})
 
 ///|
 fn animation_world_store() -> AnimationWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  animation_world_stores.get_or_init(world_id, () => {
-    animation_players: Map([]),
-    animation_graph_handles: Map([]),
-    animation_transitions: Map([]),
-    animation_target_ids: Map([]),
-    animated_bys: Map([]),
-    skinned_meshes: Map([]),
-    morphed_meshes: Map([]),
-  })
+  @ecs.require_current_world().get_or_init(animation_world_store_key)
 }
 
 ///|
@@ -150,11 +149,11 @@ pub let animation_graph_asset_events : @event.Events[
 ] = Events()
 
 ///|
-pub fn animation_players() -> Map[@entity.Entity, AnimationPlayer] {
+pub fn animation_players() -> @entity.ComponentStore[AnimationPlayer] {
   animation_world_store().animation_players
 }
 
 ///|
-pub fn animation_graph_handles() -> Map[@entity.Entity, AnimationGraphHandle] {
+pub fn animation_graph_handles() -> @entity.ComponentStore[AnimationGraphHandle] {
   animation_world_store().animation_graph_handles
 }

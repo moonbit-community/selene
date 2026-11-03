@@ -541,16 +541,17 @@ priv struct RuntimeLayerState {
 
 ///|
 priv struct AutoTileWorldStore {
-  layers : Map[@entity.Entity, RuntimeLayerState]
+  layers : @entity.ComponentStore[RuntimeLayerState]
 }
 
 ///|
-let autotile_world_stores : Map[UInt32, AutoTileWorldStore] = Map([])
+let autotile_world_store_key : @ecs.WorldKey[AutoTileWorldStore] = WorldKey(() => {
+  layers: ComponentStore(@ecs.require_current_world()),
+})
 
 ///|
 fn autotile_world_store() -> AutoTileWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  autotile_world_stores.get_or_init(world_id, fn() { { layers: Map([]), } })
+  @ecs.require_current_world().get_or_init(autotile_world_store_key)
 }
 
 ///|

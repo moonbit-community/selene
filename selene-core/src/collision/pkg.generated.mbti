@@ -25,11 +25,11 @@ pub fn apply_impulse_at_point(@entity.Entity, @math.Vec2, @math.Vec2, wake_up? :
 
 pub fn apply_torque_impulse(@entity.Entity, Double, wake_up? : Bool) -> Unit
 
-pub fn areas() -> Map[@entity.Entity, Area]
+pub fn areas() -> @entity.ComponentStore[Area]
 
 pub fn collider_handle(@entity.Entity) -> @Milky2018/moon_rapier/collision.ColliderHandle?
 
-pub fn colliders() -> Map[@entity.Entity, Collider]
+pub fn colliders() -> @entity.ComponentStore[Collider]
 
 pub fn configure_physics(gravity? : @math.Vec2, pixels_per_meter? : Double, max_ccd_substeps? : Int32) -> Unit
 
@@ -51,13 +51,13 @@ pub fn is_grounded(@entity.Entity) -> Bool
 
 pub fn joint_handle(@entity.Entity) -> @dynamics.ImpulseJointHandle?
 
-pub fn joints() -> Map[@entity.Entity, Joint]
+pub fn joints() -> @entity.ComponentStore[Joint]
 
 pub fn move_system(Double) -> Unit
 
 pub fn multibody_joint_handle(@entity.Entity) -> @dynamics.MultibodyJointHandle?
 
-pub fn multibody_joints() -> Map[@entity.Entity, MultibodyJoint]
+pub fn multibody_joints() -> @entity.ComponentStore[MultibodyJoint]
 
 pub fn multibody_link(@entity.Entity) -> @dynamics.MultibodyLinkId?
 
@@ -65,7 +65,7 @@ pub let physics_config : PhysicsConfig
 
 pub fn pickable_click_system(Double) -> Unit
 
-pub fn pickables() -> Map[@entity.Entity, Pickable]
+pub fn pickables() -> @entity.ComponentStore[Pickable]
 
 pub let pointer_event_bus : @event.Events[PointerEvent]
 
@@ -75,9 +75,9 @@ pub fn reset_forces(@entity.Entity, wake_up? : Bool) -> Unit
 
 pub fn reset_torques(@entity.Entity, wake_up? : Bool) -> Unit
 
-pub fn resolved_velocities() -> Map[@entity.Entity, @velocity.Velocity]
+pub fn resolved_velocities() -> @entity.ComponentStore[@velocity.Velocity]
 
-pub fn rigid_bodies() -> Map[@entity.Entity, RigidBody]
+pub fn rigid_bodies() -> @entity.ComponentStore[RigidBody]
 
 pub fn rigid_body_angular_velocity(@entity.Entity) -> Double?
 
@@ -99,7 +99,7 @@ pub fn set_rigid_body_translation(@entity.Entity, @math.Vec2) -> Unit
 
 pub fn shape_cast(CollisionShape, @math.Vec2, rotation? : Double, direction? : @math.Vec2, max_toi? : Double, stop_at_penetration? : Bool, query_filter? : SpatialQueryFilter) -> ShapeCastHit?
 
-pub fn shapes() -> Map[@entity.Entity, CollisionShape]
+pub fn shapes() -> @entity.ComponentStore[CollisionShape]
 
 pub let trigger_event_bus : @event.Events[TriggerEvent]
 

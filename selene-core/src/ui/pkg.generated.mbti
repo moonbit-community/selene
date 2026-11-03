@@ -33,23 +33,23 @@ pub fn align_content_start() -> AlignContent
 
 pub fn align_content_stretch() -> AlignContent
 
-pub fn background_colors() -> Map[@entity.Entity, BackgroundColor]
+pub fn background_colors() -> @entity.ComponentStore[BackgroundColor]
 
 pub fn blur() -> Unit
 
-pub fn border_colors() -> Map[@entity.Entity, BorderColor]
+pub fn border_colors() -> @entity.ComponentStore[BorderColor]
 
-pub fn border_radii() -> Map[@entity.Entity, BorderRadius]
+pub fn border_radii() -> @entity.ComponentStore[BorderRadius]
 
-pub fn box_shadows() -> Map[@entity.Entity, BoxShadow]
+pub fn box_shadows() -> @entity.ComponentStore[BoxShadow]
 
-pub fn buttons() -> Map[@entity.Entity, Button]
+pub fn buttons() -> @entity.ComponentStore[Button]
 
-pub fn calculated_clips() -> Map[@entity.Entity, CalculatedClip]
+pub fn calculated_clips() -> @entity.ComponentStore[CalculatedClip]
 
 pub let click_event_bus : @event.Events[UiClickEvent]
 
-pub fn computed_ui_nodes() -> Map[@entity.Entity, ComputedUiNode]
+pub fn computed_ui_nodes() -> @entity.ComponentStore[ComputedUiNode]
 
 pub fn consume_pointer(@inputs.PointerId) -> Unit
 
@@ -75,19 +75,19 @@ pub let focus_in_event_bus : @event.Events[UiFocusInEvent]
 
 pub let focus_out_event_bus : @event.Events[UiFocusOutEvent]
 
-pub fn focus_policies() -> Map[@entity.Entity, FocusPolicy]
+pub fn focus_policies() -> @entity.ComponentStore[FocusPolicy]
 
-pub fn focusables() -> Map[@entity.Entity, Focusable]
+pub fn focusables() -> @entity.ComponentStore[Focusable]
 
 pub fn focused_entity() -> @entity.Entity?
 
-pub fn focuseds() -> Map[@entity.Entity, Focused]
+pub fn focuseds() -> @entity.ComponentStore[Focused]
 
 pub fn get_ui_scale_mode() -> UiScaleMode
 
-pub fn global_ui_nodes() -> Map[@entity.Entity, GlobalUiNode]
+pub fn global_ui_nodes() -> @entity.ComponentStore[GlobalUiNode]
 
-pub fn global_zindexes() -> Map[@entity.Entity, GlobalZIndex]
+pub fn global_zindexes() -> @entity.ComponentStore[GlobalZIndex]
 
 pub fn grid_auto() -> GridTrack
 
@@ -129,7 +129,7 @@ pub fn grid_span(Int32) -> GridPlacement
 
 pub fn hovered_entity() -> @entity.Entity?
 
-pub fn interactions() -> Map[@entity.Entity, Interaction]
+pub fn interactions() -> @entity.ComponentStore[Interaction]
 
 pub fn is_pointer_consumed(@inputs.PointerId) -> Bool
 
@@ -137,21 +137,21 @@ pub fn is_touch_consumed(@inputs.TouchId) -> Bool
 
 pub fn is_ui_entity(@entity.Entity) -> Bool
 
-pub fn layout_configs() -> Map[@entity.Entity, LayoutConfig]
+pub fn layout_configs() -> @entity.ComponentStore[LayoutConfig]
 
 pub fn logical_to_screen_point(@math.Vec2, UiLayoutSpace) -> @math.Vec2
 
 pub fn logical_to_screen_size(@math.Vec2, UiLayoutSpace) -> @math.Vec2
 
-pub fn material_nodes() -> Map[@entity.Entity, MaterialNode]
+pub fn material_nodes() -> @entity.ComponentStore[MaterialNode]
 
 pub let navigation_event_bus : @event.Events[UiNavigationEvent]
 
-pub fn nodes() -> Map[@entity.Entity, Node]
+pub fn nodes() -> @entity.ComponentStore[Node]
 
-pub fn outlines() -> Map[@entity.Entity, Outline]
+pub fn outlines() -> @entity.ComponentStore[Outline]
 
-pub fn override_clips() -> Map[@entity.Entity, OverrideClip]
+pub fn override_clips() -> @entity.ComponentStore[OverrideClip]
 
 pub fn parse_color(String) -> @render.Color
 
@@ -165,27 +165,27 @@ pub let pointer_up_event_bus : @event.Events[UiPointerUpEvent]
 
 pub fn register_ui_material_asset(UiMaterialAsset) -> UiMaterialHandle
 
-pub fn relative_cursor_positions() -> Map[@entity.Entity, RelativeCursorPosition]
+pub fn relative_cursor_positions() -> @entity.ComponentStore[RelativeCursorPosition]
 
 pub fn release_ui_material_asset(UiMaterialHandle) -> Unit
 
 pub fn rgba(Int32, Int32, Int32, Double) -> @render.Color
 
-pub fn scroll_positions() -> Map[@entity.Entity, ScrollPosition]
+pub fn scroll_positions() -> @entity.ComponentStore[ScrollPosition]
 
 pub fn set_ui_scale_mode(UiScaleMode) -> Unit
 
-pub fn tab_indexes() -> Map[@entity.Entity, TabIndex]
+pub fn tab_indexes() -> @entity.ComponentStore[TabIndex]
 
-pub fn text_colors() -> Map[@entity.Entity, TextColor]
+pub fn text_colors() -> @entity.ComponentStore[TextColor]
 
-pub fn text_fonts() -> Map[@entity.Entity, TextFont]
+pub fn text_fonts() -> @entity.ComponentStore[TextFont]
 
-pub fn text_layouts() -> Map[@entity.Entity, TextLayout]
+pub fn text_layouts() -> @entity.ComponentStore[TextLayout]
 
 pub fn text_style_for(@entity.Entity) -> @render2d_types.TextStyle2D?
 
-pub fn texts() -> Map[@entity.Entity, Text]
+pub fn texts() -> @entity.ComponentStore[Text]
 
 pub fn to_screen_rect(@math.Rect, UiLayoutSpace) -> @math.Rect
 
@@ -193,7 +193,7 @@ pub fn transparent() -> @render.Color
 
 pub fn ui_extract_system(Double) -> Unit
 
-pub fn ui_images() -> Map[@entity.Entity, UiImage]
+pub fn ui_images() -> @entity.ComponentStore[UiImage]
 
 pub fn ui_input_capture_system(Double) -> Unit
 
@@ -209,7 +209,7 @@ pub fn ui_material_asset(UiMaterialHandle) -> UiMaterialAsset?
 
 pub fn ui_prepare_system(Double) -> Unit
 
-pub fn ui_target_cameras() -> Map[@entity.Entity, UiTargetCamera]
+pub fn ui_target_cameras() -> @entity.ComponentStore[UiTargetCamera]
 
 pub fn unconsumed_pointer_changes_this_frame() -> Array[@inputs.PointerEvent]
 
@@ -217,7 +217,7 @@ pub fn unconsumed_touch_changes_this_frame() -> Array[@inputs.TouchEvent]
 
 pub fn update_ui_material_asset(UiMaterialHandle, UiMaterialAsset) -> Unit
 
-pub fn z_indexes() -> Map[@entity.Entity, ZIndex]
+pub fn z_indexes() -> @entity.ComponentStore[ZIndex]
 
 // Errors
 

@@ -105,6 +105,7 @@ pub fn[T] SpawnBundle::queue_spawn(
   }
   let entity = Entity::reserve_spawn_in(world)
   world.queue_command(_ => {
+    guard self.storage.slot(entity) is Some(_) else { return }
     self.storage.require_no_query()
     if self.storage.location(entity) is Some(_) {
       // Immediate edits to a pending entity may already have created a row.

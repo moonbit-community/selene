@@ -41,14 +41,14 @@ priv struct Parent {
 
 ///|
 priv struct HierarchyWorldStore {
-  parents : Map[Entity, Parent]
-  children : Map[Entity, Child]
+  parents : ComponentStore[Parent]
+  children : ComponentStore[Child]
 }
 
 ///|
 let hierarchy_store_key : @ecs.WorldKey[HierarchyWorldStore] = WorldKey(() => {
-  parents: Map([]),
-  children: Map([]),
+  parents: ComponentStore(@ecs.require_current_world()),
+  children: ComponentStore(@ecs.require_current_world()),
 })
 
 ///|
@@ -57,12 +57,12 @@ fn hierarchy_store() -> HierarchyWorldStore {
 }
 
 ///|
-fn hierarchy_parents() -> Map[Entity, Parent] {
+fn hierarchy_parents() -> ComponentStore[Parent] {
   hierarchy_store().parents
 }
 
 ///|
-fn hierarchy_children() -> Map[Entity, Child] {
+fn hierarchy_children() -> ComponentStore[Child] {
   hierarchy_store().children
 }
 
@@ -80,31 +80,23 @@ fn hierarchy_would_create_cycle(child : Entity, parent : Entity) -> Bool {
 }
 
 ///|
-fn detach_parent_link(child : Entity) -> Unit {
+fn unlink_from_parent(child : Entity) -> Unit {
   let parents = hierarchy_parents()
-  let children = hierarchy_children()
-  match children.get(child) {
-    Some(rel) => {
-      children.remove(child)
-      match parents.get(rel.parent) {
-        Some(parent_record) => {
-          let updated_children = parent_record.children.filter(fn(entity) {
-            entity != child
-          })
-          if updated_children.length() == 0 {
-            parents.remove(rel.parent)
-          } else {
-            parents.set(rel.parent, {
-              ..parent_record,
-              children: updated_children,
-            })
-          }
-        }
-        None => ()
-      }
-    }
-    None => ()
+  guard hierarchy_children().get(child) is Some(rel) else { return }
+  guard parents.get(rel.parent) is Some(parent_record) else { return }
+  let updated_children = parent_record.children.filter(entity => entity != child)
+  if updated_children.is_empty() {
+    parents.remove(rel.parent)
+  } else {
+    parents.set(rel.parent, { ..parent_record, children: updated_children, })
   }
+}
+
+///|
+fn detach_parent_link(child : Entity) -> Unit {
+  unlink_from_parent(child)
+  hierarchy_children().remove(child)
+  let parents = hierarchy_parents()
   match parents.get(child) {
     Some(parent_record) =>
       parents.set(child, { ..parent_record, is_root: true, })
@@ -165,8 +157,8 @@ fn attach_parent_link(child : Entity, parent : Entity) -> Unit {
 /// ```
 ///
 pub fn Entity::spawn_child(parent : Entity) -> Entity {
-  guard parent.belongs_to(@ecs.require_current_world()) else {
-    abort("parent belongs to another world")
+  guard parent.is_valid_in(@ecs.require_current_world()) else {
+    abort("parent entity is invalid in this world")
   }
   let child_entity = Entity()
   attach_parent_link(child_entity, parent)
@@ -261,7 +253,7 @@ pub fn Entity::get_parent(child : Entity) -> Entity? {
 ///|
 pub fn Entity::set_parent(child : Entity, parent : Entity) -> Unit {
   let world = @ecs.require_current_world()
-  guard child.belongs_to(world) && parent.belongs_to(world) else { return }
+  guard child.is_valid_in(world) && parent.is_valid_in(world) else { return }
   guard child != parent else { return }
   guard !hierarchy_would_create_cycle(child, parent) else { return }
   guard child.get_parent() != Some(parent) else { return }
@@ -271,7 +263,7 @@ pub fn Entity::set_parent(child : Entity, parent : Entity) -> Unit {
 
 ///|
 pub fn Entity::remove_parent(child : Entity) -> Unit {
-  guard child.belongs_to(@ecs.require_current_world()) else { return }
+  guard child.is_valid_in(@ecs.require_current_world()) else { return }
   detach_parent_link(child)
 }
 

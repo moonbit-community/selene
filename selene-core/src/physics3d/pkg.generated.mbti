@@ -13,65 +13,65 @@ import {
 }
 
 // Values
-pub fn active_collision_types() -> Map[@entity.Entity, @collision.ActiveCollisionTypes]
+pub fn active_collision_types() -> @entity.ComponentStore[@collision.ActiveCollisionTypes]
 
-pub fn active_events() -> Map[@entity.Entity, @collision.ActiveEvents]
+pub fn active_events() -> @entity.ComponentStore[@collision.ActiveEvents]
 
-pub fn active_hooks() -> Map[@entity.Entity, @collision.ActiveHooks]
+pub fn active_hooks() -> @entity.ComponentStore[@collision.ActiveHooks]
 
-pub fn additional_mass_properties() -> Map[@entity.Entity, AdditionalMassProperties]
+pub fn additional_mass_properties() -> @entity.ComponentStore[AdditionalMassProperties]
 
-pub fn ccds() -> Map[@entity.Entity, Ccd]
+pub fn ccds() -> @entity.ComponentStore[Ccd]
 
 pub fn collider_handle(@entity.Entity) -> @collision.ColliderHandle3D?
 
-pub fn collider_mass_properties() -> Map[@entity.Entity, ColliderMassProperties]
+pub fn collider_mass_properties() -> @entity.ComponentStore[ColliderMassProperties]
 
-pub fn colliders() -> Map[@entity.Entity, Collider]
+pub fn colliders() -> @entity.ComponentStore[Collider]
 
 pub let collision_event_bus : @event.Events[CollisionEvent]
 
-pub fn collision_groups() -> Map[@entity.Entity, CollisionGroups]
+pub fn collision_groups() -> @entity.ComponentStore[CollisionGroups]
 
 pub let config : Physics3DConfig
 
 pub let contact_force_event_bus : @event.Events[ContactForceEvent]
 
-pub fn contact_force_event_thresholds() -> Map[@entity.Entity, ContactForceEventThreshold]
+pub fn contact_force_event_thresholds() -> @entity.ComponentStore[ContactForceEventThreshold]
 
 pub fn context() -> RapierContext
 
-pub fn dampings() -> Map[@entity.Entity, Damping]
+pub fn dampings() -> @entity.ComponentStore[Damping]
 
 pub fn debug_colliders_system(Double) -> Unit
 
-pub fn dominances() -> Map[@entity.Entity, Dominance]
+pub fn dominances() -> @entity.ComponentStore[Dominance]
 
-pub fn frictions() -> Map[@entity.Entity, Friction]
+pub fn frictions() -> @entity.ComponentStore[Friction]
 
-pub fn gravity_scales() -> Map[@entity.Entity, GravityScale]
+pub fn gravity_scales() -> @entity.ComponentStore[GravityScale]
 
 pub fn impulse_joint_handle(@entity.Entity) -> @dynamics.JointHandle3DReal?
 
-pub fn impulse_joints() -> Map[@entity.Entity, ImpulseJoint]
+pub fn impulse_joints() -> @entity.ComponentStore[ImpulseJoint]
 
-pub fn kinematic_character_controller_collisions() -> Map[@entity.Entity, KinematicCharacterControllerCollisions]
+pub fn kinematic_character_controller_collisions() -> @entity.ComponentStore[KinematicCharacterControllerCollisions]
 
-pub fn kinematic_character_controller_outputs() -> Map[@entity.Entity, KinematicCharacterControllerOutput]
+pub fn kinematic_character_controller_outputs() -> @entity.ComponentStore[KinematicCharacterControllerOutput]
 
-pub fn kinematic_character_controllers() -> Map[@entity.Entity, KinematicCharacterController]
+pub fn kinematic_character_controllers() -> @entity.ComponentStore[KinematicCharacterController]
 
-pub fn locked_axes() -> Map[@entity.Entity, LockedAxes]
+pub fn locked_axes() -> @entity.ComponentStore[LockedAxes]
 
 pub fn multibody_joint_handle(@entity.Entity) -> @dynamics.MultibodyJointHandle?
 
-pub fn multibody_joints() -> Map[@entity.Entity, MultibodyJoint]
+pub fn multibody_joints() -> @entity.ComponentStore[MultibodyJoint]
 
 pub fn physics_step_system(Double) -> Unit
 
-pub fn restitutions() -> Map[@entity.Entity, Restitution]
+pub fn restitutions() -> @entity.ComponentStore[Restitution]
 
-pub fn rigid_bodies() -> Map[@entity.Entity, RigidBody]
+pub fn rigid_bodies() -> @entity.ComponentStore[RigidBody]
 
 pub fn rigid_body_angular_velocity(@entity.Entity) -> @math.Vec3?
 
@@ -85,7 +85,7 @@ pub fn rigid_body_translation(@entity.Entity) -> @math.Vec3?
 
 pub let sensor_event_bus : @event.Events[SensorEvent]
 
-pub fn sensors() -> Map[@entity.Entity, Sensor]
+pub fn sensors() -> @entity.ComponentStore[Sensor]
 
 pub fn set_gravity(@math.Vec3) -> Unit
 
@@ -97,9 +97,9 @@ pub fn set_rigid_body_rotation(@entity.Entity, @math.Quat) -> Unit
 
 pub fn set_rigid_body_translation(@entity.Entity, @math.Vec3) -> Unit
 
-pub fn solver_groups() -> Map[@entity.Entity, SolverGroups]
+pub fn solver_groups() -> @entity.ComponentStore[SolverGroups]
 
-pub fn velocities() -> Map[@entity.Entity, Velocity]
+pub fn velocities() -> @entity.ComponentStore[Velocity]
 
 // Errors
 

@@ -162,61 +162,61 @@ pub type PointerEvent = @collision.PointerEvent
 
 ///|
 /// Linear velocities in world space.
-pub fn linear_velocities() -> Map[@entity.Entity, LinearVelocity] {
+pub fn linear_velocities() -> @entity.ComponentStore[LinearVelocity] {
   @velocity.velocities()
 }
 
 ///|
 /// Backward-compatible velocity store alias.
-pub fn velocities() -> Map[@entity.Entity, Velocity] {
+pub fn velocities() -> @entity.ComponentStore[Velocity] {
   @velocity.velocities()
 }
 
 ///|
 /// Collider components.
-pub fn colliders() -> Map[@entity.Entity, Collider] {
+pub fn colliders() -> @entity.ComponentStore[Collider] {
   @collision.colliders()
 }
 
 ///|
 /// Explicit rigid-body descriptors.
-pub fn rigid_bodies() -> Map[@entity.Entity, RigidBody] {
+pub fn rigid_bodies() -> @entity.ComponentStore[RigidBody] {
   @collision.rigid_bodies()
 }
 
 ///|
 /// Authored 2D joint descriptors.
-pub fn joints() -> Map[@entity.Entity, Joint] {
+pub fn joints() -> @entity.ComponentStore[Joint] {
   @collision.joints()
 }
 
 ///|
 /// Authored 2D multibody joint descriptors keyed by the child rigid-body entity.
-pub fn multibody_joints() -> Map[@entity.Entity, MultibodyJoint] {
+pub fn multibody_joints() -> @entity.ComponentStore[MultibodyJoint] {
   @collision.multibody_joints()
 }
 
 ///|
 /// Sensor/area components.
-pub fn sensors() -> Map[@entity.Entity, Sensor] {
+pub fn sensors() -> @entity.ComponentStore[Sensor] {
   @collision.areas()
 }
 
 ///|
 /// Backward-compatible area store alias.
-pub fn areas() -> Map[@entity.Entity, Area] {
+pub fn areas() -> @entity.ComponentStore[Area] {
   @collision.areas()
 }
 
 ///|
 /// Collider shape components.
-pub fn shapes() -> Map[@entity.Entity, ColliderShape] {
+pub fn shapes() -> @entity.ComponentStore[ColliderShape] {
   @collision.shapes()
 }
 
 ///|
 /// Frame-local resolved velocities after physics step.
-pub fn resolved_velocities() -> Map[@entity.Entity, LinearVelocity] {
+pub fn resolved_velocities() -> @entity.ComponentStore[LinearVelocity] {
   @collision.resolved_velocities()
 }
 
@@ -228,7 +228,7 @@ pub fn grounded_entities() -> @set.Set[@entity.Entity] {
 
 ///|
 /// Pointer-interactive components.
-pub fn pickables() -> Map[@entity.Entity, Pickable] {
+pub fn pickables() -> @entity.ComponentStore[Pickable] {
   @collision.pickables()
 }
 

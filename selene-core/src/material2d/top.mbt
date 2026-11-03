@@ -22,22 +22,22 @@ pub(all) struct MeshMaterial2d {
 
 ///|
 priv struct Material2dWorldStore {
-  mesh_material2ds : Map[@entity.Entity, MeshMaterial2d]
+  mesh_material2ds : @entity.ComponentStore[MeshMaterial2d]
 }
 
 ///|
-let material2d_world_stores : Map[UInt32, Material2dWorldStore] = Map([])
+let material2d_world_store_key : @ecs.WorldKey[Material2dWorldStore] = WorldKey(() => {
+    mesh_material2ds: ComponentStore(@ecs.require_current_world()),
+  },
+)
 
 ///|
 fn material2d_world_store() -> Material2dWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  material2d_world_stores.get_or_init(world_id, fn() {
-    { mesh_material2ds: Map([]), }
-  })
+  @ecs.require_current_world().get_or_init(material2d_world_store_key)
 }
 
 ///|
-pub fn mesh_material2ds() -> Map[@entity.Entity, MeshMaterial2d] {
+pub fn mesh_material2ds() -> @entity.ComponentStore[MeshMaterial2d] {
   material2d_world_store().mesh_material2ds
 }
 

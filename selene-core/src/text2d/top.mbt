@@ -34,40 +34,37 @@ priv struct CachedTextLayout2d {
 
 ///|
 priv struct Text2dWorldStore {
-  text2ds : Map[@entity.Entity, Text2d]
-  text_bounds : Map[@entity.Entity, TextBounds]
-  text_anchors : Map[@entity.Entity, @sprite.Anchor]
+  text2ds : @entity.ComponentStore[Text2d]
+  text_bounds : @entity.ComponentStore[TextBounds]
+  text_anchors : @entity.ComponentStore[@sprite.Anchor]
   text_layout_caches : Map[@entity.Entity, CachedTextLayout2d]
 }
 
 ///|
-let text2d_world_stores : Map[UInt32, Text2dWorldStore] = Map([])
+let text2d_world_store_key : @ecs.WorldKey[Text2dWorldStore] = WorldKey(() => {
+  text2ds: ComponentStore(@ecs.require_current_world()),
+  text_bounds: ComponentStore(@ecs.require_current_world()),
+  text_anchors: ComponentStore(@ecs.require_current_world()),
+  text_layout_caches: Map([]),
+})
 
 ///|
 fn text2d_world_store() -> Text2dWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  text2d_world_stores.get_or_init(world_id, fn() {
-    {
-      text2ds: Map([]),
-      text_bounds: Map([]),
-      text_anchors: Map([]),
-      text_layout_caches: Map([]),
-    }
-  })
+  @ecs.require_current_world().get_or_init(text2d_world_store_key)
 }
 
 ///|
-pub fn text2ds() -> Map[@entity.Entity, Text2d] {
+pub fn text2ds() -> @entity.ComponentStore[Text2d] {
   text2d_world_store().text2ds
 }
 
 ///|
-pub fn text_bounds() -> Map[@entity.Entity, TextBounds] {
+pub fn text_bounds() -> @entity.ComponentStore[TextBounds] {
   text2d_world_store().text_bounds
 }
 
 ///|
-pub fn text_anchors() -> Map[@entity.Entity, @sprite.Anchor] {
+pub fn text_anchors() -> @entity.ComponentStore[@sprite.Anchor] {
   text2d_world_store().text_anchors
 }
 

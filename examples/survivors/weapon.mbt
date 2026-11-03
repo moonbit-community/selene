@@ -142,7 +142,14 @@ priv struct PlayerBulletState {
 }
 
 ///|
-let player_bullets : Map[@entity.Entity, PlayerBulletState] = Map([])
+let player_bullets_key : @ecs.WorldKey[
+  @entity.ComponentStore[PlayerBulletState],
+] = WorldKey(() => ComponentStore(@ecs.require_current_world()))
+
+///|
+fn player_bullets() -> @entity.ComponentStore[PlayerBulletState] {
+  @ecs.require_current_world().get_or_init(player_bullets_key)
+}
 
 ///|
 let player_bullet_trigger_event_reader : @event.EventReader[
@@ -247,7 +254,7 @@ fn shoot_weapon_bullet(
     ]),
   )
   @physics2d.areas().set(bullet_entity, area)
-  player_bullets.set(bullet_entity, {
+  player_bullets().set(bullet_entity, {
     alive: true,
     penetration_count: 0,
     damage,
@@ -259,13 +266,13 @@ fn shoot_weapon_bullet(
   let bullet_duration = weapon_range / weapon_data.bullet_speed
   @system.timeout(bullet_duration, fn() {
     bullet_entity.destroy()
-    player_bullets.remove(bullet_entity)
+    player_bullets().remove(bullet_entity)
   })
 }
 
 ///|
 fn start_bullet_despawn(bullet_entity : @entity.Entity) -> Unit {
-  guard player_bullets.get(bullet_entity) is Some(bullet) else { return }
+  guard player_bullets().get(bullet_entity) is Some(bullet) else { return }
   if !bullet.alive {
     return
   }
@@ -273,7 +280,7 @@ fn start_bullet_despawn(bullet_entity : @entity.Entity) -> Unit {
   @physics2d.linear_velocities().remove(bullet_entity)
   @physics2d.areas().remove(bullet_entity)
   bullet_entity.destroy()
-  player_bullets.remove(bullet_entity)
+  player_bullets().remove(bullet_entity)
 }
 
 ///|
@@ -283,9 +290,9 @@ fn player_bullet_trigger_system(_world : @ecs.World) -> Unit {
       player_bullet_trigger_event_reader,
     ) {
     guard event.entered else { continue }
-    guard player_bullets.get(event.area) is Some(bullet) else { continue }
+    guard player_bullets().get(event.area) is Some(bullet) else { continue }
     guard bullet.alive else { continue }
-    if enemies.get(event.other) is Some(enemy) {
+    if enemies().get(event.other) is Some(enemy) {
       enemy.health -= bullet.damage
       bullet.penetration_count += 1
       if enemy.health <= 0.0 {

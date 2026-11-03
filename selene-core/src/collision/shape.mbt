@@ -23,16 +23,17 @@ pub(all) enum CollisionShape {
 
 ///|
 priv struct ShapeWorldStore {
-  shapes : Map[@entity.Entity, CollisionShape]
+  shapes : @entity.ComponentStore[CollisionShape]
 }
 
 ///|
-let shape_world_stores : Map[UInt32, ShapeWorldStore] = Map([])
+let shape_world_store_key : @ecs.WorldKey[ShapeWorldStore] = WorldKey(() => {
+  shapes: ComponentStore(@ecs.require_current_world()),
+})
 
 ///|
 fn shape_world_store() -> ShapeWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  shape_world_stores.get_or_init(world_id, () => { shapes: Map([]), })
+  @ecs.require_current_world().get_or_init(shape_world_store_key)
 }
 
 ///|
@@ -51,6 +52,6 @@ fn shape_world_store() -> ShapeWorldStore {
 ///   ),
 /// )
 /// ```
-pub fn shapes() -> Map[@entity.Entity, CollisionShape] {
+pub fn shapes() -> @entity.ComponentStore[CollisionShape] {
   shape_world_store().shapes
 }

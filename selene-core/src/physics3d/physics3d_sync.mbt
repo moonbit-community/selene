@@ -1,55 +1,53 @@
 ///|
-pub fn active_events() -> Map[@entity.Entity, @collision.ActiveEvents] {
+pub fn active_events() -> @entity.ComponentStore[@collision.ActiveEvents] {
   physics3d_component_world_store().active_events
 }
 
 ///|
-pub fn active_hooks() -> Map[@entity.Entity, @collision.ActiveHooks] {
+pub fn active_hooks() -> @entity.ComponentStore[@collision.ActiveHooks] {
   physics3d_component_world_store().active_hooks
 }
 
 ///|
-pub fn contact_force_event_thresholds() -> Map[
-  @entity.Entity,
+pub fn contact_force_event_thresholds() -> @entity.ComponentStore[
   ContactForceEventThreshold,
 ] {
   physics3d_component_world_store().contact_force_event_thresholds
 }
 
 ///|
-pub fn collider_mass_properties() -> Map[@entity.Entity, ColliderMassProperties] {
+pub fn collider_mass_properties() -> @entity.ComponentStore[
+  ColliderMassProperties,
+] {
   physics3d_component_world_store().collider_mass_properties
 }
 
 ///|
-pub fn impulse_joints() -> Map[@entity.Entity, ImpulseJoint] {
+pub fn impulse_joints() -> @entity.ComponentStore[ImpulseJoint] {
   physics3d_component_world_store().impulse_joints
 }
 
 ///|
-pub fn multibody_joints() -> Map[@entity.Entity, MultibodyJoint] {
+pub fn multibody_joints() -> @entity.ComponentStore[MultibodyJoint] {
   physics3d_component_world_store().multibody_joints
 }
 
 ///|
-pub fn kinematic_character_controllers() -> Map[
-  @entity.Entity,
+pub fn kinematic_character_controllers() -> @entity.ComponentStore[
   KinematicCharacterController,
 ] {
   physics3d_component_world_store().kinematic_character_controllers
 }
 
 ///|
-pub fn kinematic_character_controller_outputs() -> Map[
-  @entity.Entity,
+pub fn kinematic_character_controller_outputs() -> @entity.ComponentStore[
   KinematicCharacterControllerOutput,
 ] {
   physics3d_component_world_store().kinematic_character_controller_outputs
 }
 
 ///|
-pub fn kinematic_character_controller_collisions() -> Map[
-  @entity.Entity,
+pub fn kinematic_character_controller_collisions() -> @entity.ComponentStore[
   KinematicCharacterControllerCollisions,
 ] {
   physics3d_component_world_store().kinematic_character_controller_collisions

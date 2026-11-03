@@ -16,6 +16,8 @@
 struct Entity {
   world_id : UInt32
   value : UInt32
+  slot : Int32
+  generation : UInt32
 } derive(Eq, Debug, Hash)
 
 ///|
@@ -28,11 +30,19 @@ enum EntityLifecycleState {
 } derive(Eq, Debug)
 
 ///|
+priv struct EntitySlot {
+  mut generation : UInt32
+  mut state : EntityLifecycleState?
+  mut location : (Int32, Int32)?
+}
+
+///|
 priv struct EntityWorldStore {
   mut entity_generator : UInt32
   mut alive_count : Int32
   all_entities : @set.Set[Entity]
-  lifecycle_states : Map[Entity, EntityLifecycleState]
+  archetypes : ArchetypeWorld
+  free_slots : Array[Int32]
   pending_state_changes : @set.Set[Entity]
 }
 
@@ -41,7 +51,8 @@ let entity_store_key : @ecs.WorldKey[EntityWorldStore] = WorldKey(() => {
   entity_generator: 0U,
   alive_count: 0,
   all_entities: Set([]),
-  lifecycle_states: Map([]),
+  archetypes: make_archetype_world([]),
+  free_slots: [],
   pending_state_changes: Set([]),
 })
 
@@ -69,10 +80,8 @@ pub fn Entity::is_alive(e : Entity) -> Bool {
 
 ///|
 fn EntityWorldStore::is_alive(self : EntityWorldStore, entity : Entity) -> Bool {
-  match self.lifecycle_states.get(entity).unwrap_or(Destroyed) {
-    Alive | PendingRespawn => true
-    PendingSpawn | PendingDespawn | Destroyed => false
-  }
+  guard self.archetypes.slot(entity) is Some(slot) else { false }
+  slot.state is Some(Alive) || slot.state is Some(PendingRespawn)
 }
 
 ///|
@@ -84,6 +93,39 @@ pub fn alive_in_world(world : @ecs.World) -> (Entity) -> Bool {
 }
 
 ///|
+/// Checks whether this handle still owns its slot in the specified World.
+pub fn Entity::is_valid_in(self : Entity, world : @ecs.World) -> Bool {
+  self.belongs_to(world) &&
+  world.get_or_init(entity_store_key).archetypes.slot(self) is Some(_)
+}
+
+///|
+fn EntityWorldStore::allocate(
+  self : EntityWorldStore,
+  world_id : UInt32,
+  state : EntityLifecycleState,
+) -> Entity {
+  let value = self.entity_generator
+  guard value != 0xffffffffU else {
+    abort("entity IDs exhausted for this world")
+  }
+  self.entity_generator += 1U
+  let slots = self.archetypes.slots
+  let slot = match self.free_slots.pop() {
+    Some(index) => {
+      slots[index].state = Some(state)
+      index
+    }
+    None => {
+      let index = slots.length()
+      slots.push({ generation: 0U, state: Some(state), location: None, })
+      index
+    }
+  }
+  { world_id, value, slot, generation: slots[slot].generation, }
+}
+
+///|
 pub fn Entity::Entity() -> Entity {
   spawn_in(@ecs.require_current_world())
 }
@@ -91,17 +133,22 @@ pub fn Entity::Entity() -> Entity {
 ///|
 fn spawn_in(world : @ecs.World) -> Entity {
   let store = world.get_or_init(entity_store_key)
-  let entity = { world_id: world.id(), value: store.entity_generator, }
-  store.entity_generator += 1U
+  let entity = store.allocate(world.id(), Alive)
   store.all_entities.add(entity)
   store.alive_count += 1
-  store.lifecycle_states.set(entity, Alive)
   entity
 }
 
 ///|
+/// A stable World-local ID. The ID stays unique when a storage slot is reused.
 pub fn Entity::id(self : Entity) -> UInt32 {
   self.value
+}
+
+///|
+/// The reusable slot index, suitable for World-local traversal scratch space.
+pub fn Entity::slot_index(self : Entity) -> Int32 {
+  self.slot
 }
 
 ///|
@@ -121,30 +168,29 @@ pub fn Entity::reserve_spawn() -> Entity {
 /// Reserves an entity in the specified World, independently of the active World.
 pub fn Entity::reserve_spawn_in(world : @ecs.World) -> Entity {
   let store = world.get_or_init(entity_store_key)
-  let entity = { world_id: world.id(), value: store.entity_generator, }
-  store.entity_generator += 1U
-  store.lifecycle_states.set(entity, PendingSpawn)
+  let entity = store.allocate(world.id(), PendingSpawn)
   store.pending_state_changes.add(entity)
   entity
 }
 
 ///|
+/// Despawns this entity while retaining its slot and components for respawn.
 pub fn Entity::destroy(e : Entity) -> Unit {
-  guard e.belongs_to(@ecs.require_current_world()) else { return }
-  let store = entity_store()
-  match store.lifecycle_states.get(e).unwrap_or(Destroyed) {
+  let world = @ecs.require_current_world()
+  guard e.belongs_to(world) else { return }
+  let store = world.get_or_init(entity_store_key)
+  guard store.archetypes.slot(e) is Some(slot) else { return }
+  match slot.state.unwrap() {
     Destroyed | PendingDespawn => ()
     PendingSpawn => {
-      store.lifecycle_states.set(e, PendingDespawn)
+      slot.state = Some(PendingDespawn)
       store.pending_state_changes.add(e)
     }
     Alive | PendingRespawn => {
-      if store.all_entities.contains(e) {
-        if store.alive_count > 0 {
-          store.alive_count -= 1
-        }
+      if store.all_entities.contains(e) && store.alive_count > 0 {
+        store.alive_count -= 1
       }
-      store.lifecycle_states.set(e, PendingDespawn)
+      slot.state = Some(PendingDespawn)
       store.pending_state_changes.add(e)
       if hierarchy_parents().get(e) is Some(p) {
         for c in p.children {
@@ -157,16 +203,17 @@ pub fn Entity::destroy(e : Entity) -> Unit {
 
 ///|
 pub fn Entity::respawn(e : Entity) -> Unit {
-  guard e.belongs_to(@ecs.require_current_world()) else { return }
-  let store = entity_store()
-  match store.lifecycle_states.get(e).unwrap_or(Destroyed) {
+  let world = @ecs.require_current_world()
+  guard e.belongs_to(world) else { return }
+  let store = world.get_or_init(entity_store_key)
+  guard store.archetypes.slot(e) is Some(slot) else { return }
+  match slot.state.unwrap() {
     Alive | PendingRespawn => ()
     Destroyed | PendingDespawn | PendingSpawn => {
-      if store.lifecycle_states.get(e) is Some(PendingDespawn) &&
-        store.all_entities.contains(e) {
+      if slot.state is Some(PendingDespawn) && store.all_entities.contains(e) {
         store.alive_count += 1
       }
-      store.lifecycle_states.set(e, PendingRespawn)
+      slot.state = Some(PendingRespawn)
       store.pending_state_changes.add(e)
       if hierarchy_parents().get(e) is Some(p) {
         for c in p.children {
@@ -181,29 +228,21 @@ pub fn Entity::respawn(e : Entity) -> Unit {
 pub fn entity_flush_system(_delta : Double) -> Unit {
   let store = entity_store()
   for entity in store.pending_state_changes.to_array() {
-    match store.lifecycle_states.get(entity).unwrap_or(Destroyed) {
-      PendingSpawn => {
+    store.pending_state_changes.remove(entity)
+    guard store.archetypes.slot(entity) is Some(slot) else { continue }
+    match slot.state.unwrap() {
+      PendingSpawn | PendingRespawn => {
         if !store.all_entities.contains(entity) {
           store.all_entities.add(entity)
           store.alive_count += 1
         }
-        store.lifecycle_states.set(entity, Alive)
+        slot.state = Some(Alive)
       }
       PendingDespawn => {
-        if store.all_entities.contains(entity) {
-          store.all_entities.remove(entity)
-        }
-        store.lifecycle_states.set(entity, Destroyed)
-      }
-      PendingRespawn => {
-        if !store.all_entities.contains(entity) {
-          store.all_entities.add(entity)
-          store.alive_count += 1
-        }
-        store.lifecycle_states.set(entity, Alive)
+        store.all_entities.remove(entity)
+        slot.state = Some(Destroyed)
       }
       Alive | Destroyed => ()
     }
-    store.pending_state_changes.remove(entity)
   }
 }

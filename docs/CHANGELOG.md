@@ -10,8 +10,18 @@
 - Added zero-copy batch reads and in-place writes for archetype queries.
 - Added reusable spawn bundles that insert an entity directly into its final
   archetype, including through deferred commands.
+- Added permanent entity deletion with generation-checked slot recycling,
+  including through deferred commands. Destroyed entities remain recoverable
+  through respawn until permanently deleted. Public entity IDs remain unique
+  within a World as storage slots are reused. Handles from earlier generations
+  cannot access the current occupant. Added benchmarks for churn and component
+  updates in long-running Worlds with a fixed live population.
 
 ### Changed
+
+- Moved built-in ECS components and hierarchy relations into World-owned
+  archetype storage. Component accessors, queries, and LDtk registration
+  helpers now take or return typed component stores.
 
 - Moved entity, hierarchy, transform, and sprite storage into their owning
   Worlds.
@@ -29,6 +39,9 @@
 - Initialized the registry index before the pre-release CI compatibility check.
 
 ### Removed
+
+- Removed the Map-based ECS command insertion and removal APIs. Use
+  `Commands::insert_component` and `Commands::remove_component`.
 
 - Removed the deprecated raylib backend and its native example launchers from
   the workspace, CI, and release pipeline.

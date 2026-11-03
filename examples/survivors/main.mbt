@@ -620,12 +620,12 @@ fn restart_game() -> Unit {
   weapon_timers.clear()
 
   // Clear all enemies
-  for e, _state in enemies {
+  for e, _state in enemies() {
     if e.is_alive() {
       e.destroy()
     }
   }
-  enemies.clear()
+  enemies().clear()
 
   // Reset wave state
   reset_wave_state()

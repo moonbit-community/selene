@@ -106,6 +106,7 @@ pub fn render_sprite_system(delta : Double) -> Unit {
   let camera_extract = @culling2d.build_camera_extract2d_context(camera_views)
   let is_alive = @entity.alive_in_world(@ecs.require_current_world())
   let sprites = sprites()
+  let sorting2ds = @render2d.sorting2ds()
   // Draw ties retain Sprite insertion order even when a row moves tables.
   let order_base = @render2d.reserve_world_command_order(sprites.order_span())
   for_each_sprite_transform((entity, sprite, global_transform) => {
@@ -113,7 +114,7 @@ pub fn render_sprite_system(delta : Double) -> Unit {
     guard @visibility.is_visible(entity) else { return }
     guard sprite_size(sprite) is Some(size) else { return }
     let order = order_base + sprites.insertion_order(entity)
-    let sorting = @render2d.entity_sorting2d(entity)
+    let sorting = sorting2ds.get(entity).unwrap_or(Sorting2d())
     let depth = @render2d.sort_depth_for_transform(global_transform, sorting)
     let transform = global_transform.compute_transform()
     let base_pos = @math.Vec2(transform.translation.x, transform.translation.y)

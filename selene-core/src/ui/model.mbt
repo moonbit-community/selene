@@ -754,132 +754,130 @@ pub fn RelativeCursorPosition::mouse_over(
 
 ///|
 priv struct UiModelWorldStore {
-  nodes : Map[@entity.Entity, Node]
-  computed_ui_nodes : Map[@entity.Entity, ComputedUiNode]
-  global_ui_nodes : Map[@entity.Entity, GlobalUiNode]
-  ui_target_cameras : Map[@entity.Entity, UiTargetCamera]
-  calculated_clips : Map[@entity.Entity, CalculatedClip]
-  layout_configs : Map[@entity.Entity, LayoutConfig]
-  z_indexes : Map[@entity.Entity, ZIndex]
-  global_zindexes : Map[@entity.Entity, GlobalZIndex]
-  scroll_positions : Map[@entity.Entity, ScrollPosition]
-  tab_indexes : Map[@entity.Entity, TabIndex]
-  focus_policies : Map[@entity.Entity, FocusPolicy]
-  focusables : Map[@entity.Entity, Focusable]
-  focuseds : Map[@entity.Entity, Focused]
-  override_clips : Map[@entity.Entity, OverrideClip]
-  relative_cursor_positions : Map[@entity.Entity, RelativeCursorPosition]
-  tree_orders : Map[@entity.Entity, Int32]
+  nodes : @entity.ComponentStore[Node]
+  computed_ui_nodes : @entity.ComponentStore[ComputedUiNode]
+  global_ui_nodes : @entity.ComponentStore[GlobalUiNode]
+  ui_target_cameras : @entity.ComponentStore[UiTargetCamera]
+  calculated_clips : @entity.ComponentStore[CalculatedClip]
+  layout_configs : @entity.ComponentStore[LayoutConfig]
+  z_indexes : @entity.ComponentStore[ZIndex]
+  global_zindexes : @entity.ComponentStore[GlobalZIndex]
+  scroll_positions : @entity.ComponentStore[ScrollPosition]
+  tab_indexes : @entity.ComponentStore[TabIndex]
+  focus_policies : @entity.ComponentStore[FocusPolicy]
+  focusables : @entity.ComponentStore[Focusable]
+  focuseds : @entity.ComponentStore[Focused]
+  override_clips : @entity.ComponentStore[OverrideClip]
+  relative_cursor_positions : @entity.ComponentStore[RelativeCursorPosition]
+  tree_orders : @entity.ComponentStore[Int32]
   ui_stack_entities : Array[@entity.Entity]
 }
 
 ///|
-let ui_model_world_stores : Map[UInt32, UiModelWorldStore] = Map([])
+let ui_model_world_store_key : @ecs.WorldKey[UiModelWorldStore] = WorldKey(() => {
+  nodes: ComponentStore(@ecs.require_current_world()),
+  computed_ui_nodes: ComponentStore(@ecs.require_current_world()),
+  global_ui_nodes: ComponentStore(@ecs.require_current_world()),
+  ui_target_cameras: ComponentStore(@ecs.require_current_world()),
+  calculated_clips: ComponentStore(@ecs.require_current_world()),
+  layout_configs: ComponentStore(@ecs.require_current_world()),
+  z_indexes: ComponentStore(@ecs.require_current_world()),
+  global_zindexes: ComponentStore(@ecs.require_current_world()),
+  scroll_positions: ComponentStore(@ecs.require_current_world()),
+  tab_indexes: ComponentStore(@ecs.require_current_world()),
+  focus_policies: ComponentStore(@ecs.require_current_world()),
+  focusables: ComponentStore(@ecs.require_current_world()),
+  focuseds: ComponentStore(@ecs.require_current_world()),
+  override_clips: ComponentStore(@ecs.require_current_world()),
+  relative_cursor_positions: ComponentStore(@ecs.require_current_world()),
+  tree_orders: ComponentStore(@ecs.require_current_world()),
+  ui_stack_entities: [],
+})
 
 ///|
 fn ui_model_world_store() -> UiModelWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  ui_model_world_stores.get_or_init(world_id, () => {
-    nodes: Map([]),
-    computed_ui_nodes: Map([]),
-    global_ui_nodes: Map([]),
-    ui_target_cameras: Map([]),
-    calculated_clips: Map([]),
-    layout_configs: Map([]),
-    z_indexes: Map([]),
-    global_zindexes: Map([]),
-    scroll_positions: Map([]),
-    tab_indexes: Map([]),
-    focus_policies: Map([]),
-    focusables: Map([]),
-    focuseds: Map([]),
-    override_clips: Map([]),
-    relative_cursor_positions: Map([]),
-    tree_orders: Map([]),
-    ui_stack_entities: [],
-  })
+  @ecs.require_current_world().get_or_init(ui_model_world_store_key)
 }
 
 ///|
-pub fn nodes() -> Map[@entity.Entity, Node] {
+pub fn nodes() -> @entity.ComponentStore[Node] {
   ui_model_world_store().nodes
 }
 
 ///|
-pub fn computed_ui_nodes() -> Map[@entity.Entity, ComputedUiNode] {
+pub fn computed_ui_nodes() -> @entity.ComponentStore[ComputedUiNode] {
   ui_model_world_store().computed_ui_nodes
 }
 
 ///|
-pub fn global_ui_nodes() -> Map[@entity.Entity, GlobalUiNode] {
+pub fn global_ui_nodes() -> @entity.ComponentStore[GlobalUiNode] {
   ui_model_world_store().global_ui_nodes
 }
 
 ///|
-pub fn ui_target_cameras() -> Map[@entity.Entity, UiTargetCamera] {
+pub fn ui_target_cameras() -> @entity.ComponentStore[UiTargetCamera] {
   ui_model_world_store().ui_target_cameras
 }
 
 ///|
-pub fn calculated_clips() -> Map[@entity.Entity, CalculatedClip] {
+pub fn calculated_clips() -> @entity.ComponentStore[CalculatedClip] {
   ui_model_world_store().calculated_clips
 }
 
 ///|
-pub fn layout_configs() -> Map[@entity.Entity, LayoutConfig] {
+pub fn layout_configs() -> @entity.ComponentStore[LayoutConfig] {
   ui_model_world_store().layout_configs
 }
 
 ///|
-pub fn z_indexes() -> Map[@entity.Entity, ZIndex] {
+pub fn z_indexes() -> @entity.ComponentStore[ZIndex] {
   ui_model_world_store().z_indexes
 }
 
 ///|
-pub fn global_zindexes() -> Map[@entity.Entity, GlobalZIndex] {
+pub fn global_zindexes() -> @entity.ComponentStore[GlobalZIndex] {
   ui_model_world_store().global_zindexes
 }
 
 ///|
-pub fn scroll_positions() -> Map[@entity.Entity, ScrollPosition] {
+pub fn scroll_positions() -> @entity.ComponentStore[ScrollPosition] {
   ui_model_world_store().scroll_positions
 }
 
 ///|
-pub fn tab_indexes() -> Map[@entity.Entity, TabIndex] {
+pub fn tab_indexes() -> @entity.ComponentStore[TabIndex] {
   ui_model_world_store().tab_indexes
 }
 
 ///|
-pub fn focus_policies() -> Map[@entity.Entity, FocusPolicy] {
+pub fn focus_policies() -> @entity.ComponentStore[FocusPolicy] {
   ui_model_world_store().focus_policies
 }
 
 ///|
-pub fn focusables() -> Map[@entity.Entity, Focusable] {
+pub fn focusables() -> @entity.ComponentStore[Focusable] {
   ui_model_world_store().focusables
 }
 
 ///|
-pub fn focuseds() -> Map[@entity.Entity, Focused] {
+pub fn focuseds() -> @entity.ComponentStore[Focused] {
   ui_model_world_store().focuseds
 }
 
 ///|
-pub fn override_clips() -> Map[@entity.Entity, OverrideClip] {
+pub fn override_clips() -> @entity.ComponentStore[OverrideClip] {
   ui_model_world_store().override_clips
 }
 
 ///|
-pub fn relative_cursor_positions() -> Map[
-  @entity.Entity,
+pub fn relative_cursor_positions() -> @entity.ComponentStore[
   RelativeCursorPosition,
 ] {
   ui_model_world_store().relative_cursor_positions
 }
 
 ///|
-fn tree_orders() -> Map[@entity.Entity, Int32] {
+fn tree_orders() -> @entity.ComponentStore[Int32] {
   ui_model_world_store().tree_orders
 }
 

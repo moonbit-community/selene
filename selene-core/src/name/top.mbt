@@ -5,16 +5,17 @@ pub(all) struct Name {
 
 ///|
 priv struct NameWorldStore {
-  names : Map[@entity.Entity, Name]
+  names : @entity.ComponentStore[Name]
 }
 
 ///|
-let name_world_stores : Map[UInt32, NameWorldStore] = Map([])
+let name_world_store_key : @ecs.WorldKey[NameWorldStore] = WorldKey(() => {
+  names: ComponentStore(@ecs.require_current_world()),
+})
 
 ///|
 fn name_world_store() -> NameWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  name_world_stores.get_or_init(world_id, () => { names: Map([]), })
+  @ecs.require_current_world().get_or_init(name_world_store_key)
 }
 
 ///|
@@ -23,7 +24,7 @@ pub fn Name::Name(value : String) -> Name {
 }
 
 ///|
-pub fn names() -> Map[@entity.Entity, Name] {
+pub fn names() -> @entity.ComponentStore[Name] {
   name_world_store().names
 }
 

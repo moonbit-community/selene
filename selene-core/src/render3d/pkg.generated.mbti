@@ -14,7 +14,7 @@ pub fn apply_texture_transform3d(@render3d_types.TextureTransform3D, @math.Vec2)
 
 pub fn build_cascade_shadow_config3d(@render3d_types.CascadeShadowConfigBuilder3D) -> @render3d_types.CascadeShadowConfig3D
 
-pub fn camera_skyboxes3d() -> Map[@entity.Entity, @render3d_types.Skybox3D]
+pub fn camera_skyboxes3d() -> @entity.ComponentStore[@render3d_types.Skybox3D]
 
 pub fn cube_mesh(@math.Vec3) -> @render3d_types.MeshAsset
 
@@ -46,7 +46,7 @@ pub fn default_texture_sampler3d() -> @render3d_types.TextureSampler3D
 
 pub fn default_texture_transform3d() -> @render3d_types.TextureTransform3D
 
-pub fn directional_lights3d() -> Map[@entity.Entity, @render3d_types.DirectionalLight3D]
+pub fn directional_lights3d() -> @entity.ComponentStore[@render3d_types.DirectionalLight3D]
 
 pub fn empty_render_frame3d() -> @render3d_types.RenderFrame3D
 
@@ -60,13 +60,13 @@ pub fn get_point_light_shadow_map3d() -> @render3d_types.PointLightShadowMap3D
 
 pub fn get_scene_path(@render3d_types.SceneHandle) -> String?
 
-pub fn mesh3d_renderers() -> Map[@entity.Entity, Mesh3DRenderer]
+pub fn mesh3d_renderers() -> @entity.ComponentStore[Mesh3DRenderer]
 
 pub fn mesh_asset(@render3d_types.MeshHandle) -> @render3d_types.MeshAsset?
 
 pub fn plane_mesh(@math.Vec3) -> @render3d_types.MeshAsset
 
-pub fn point_lights3d() -> Map[@entity.Entity, @render3d_types.PointLight3D]
+pub fn point_lights3d() -> @entity.ComponentStore[@render3d_types.PointLight3D]
 
 pub fn push_line3d(@render3d_types.RenderLine3D) -> Unit
 
@@ -100,7 +100,7 @@ pub fn skybox3d(@render3d_types.CubemapHandle, brightness? : Double, rotation? :
 
 pub fn sphere_mesh(Double) -> @render3d_types.MeshAsset
 
-pub fn spot_lights3d() -> Map[@entity.Entity, @render3d_types.SpotLight3D]
+pub fn spot_lights3d() -> @entity.ComponentStore[@render3d_types.SpotLight3D]
 
 pub fn take_dirty_cubemap_assets() -> Array[(@render3d_types.CubemapHandle, @render3d_types.CubemapAsset3D)]
 

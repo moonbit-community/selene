@@ -14,15 +14,15 @@ pub fn active_camera2d_views() -> Array[Camera2dView]
 
 pub fn camera2d_view_for_screen_point(@math.Vec2) -> Camera2dView?
 
-pub fn camera2ds() -> Map[@entity.Entity, Camera2d]
+pub fn camera2ds() -> @entity.ComponentStore[Camera2d]
 
 pub fn camera_relative_transform(@transform.GlobalTransform, Camera2dView) -> @transform.Transform
 
 pub fn camera_screen_transform(@transform.GlobalTransform, Camera2dView?) -> @math.Transform
 
-pub fn cameras() -> Map[@entity.Entity, Camera]
+pub fn cameras() -> @entity.ComponentStore[Camera]
 
-pub fn orthographic_projections() -> Map[@entity.Entity, OrthographicProjection]
+pub fn orthographic_projections() -> @entity.ComponentStore[OrthographicProjection]
 
 pub fn pixel_snapped_position(@math.Vec2) -> @math.Vec2
 

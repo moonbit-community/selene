@@ -74,20 +74,21 @@ pub fn A11y::on_click(self : A11y, callback : () -> Unit) -> Unit {
 
 ///|
 priv struct A11yWorldStore {
-  a11ys : Map[@entity.Entity, A11y]
+  a11ys : @entity.ComponentStore[A11y]
 }
 
 ///|
-let a11y_world_stores : Map[UInt32, A11yWorldStore] = Map([])
+let a11y_world_store_key : @ecs.WorldKey[A11yWorldStore] = WorldKey(() => {
+  a11ys: ComponentStore(@ecs.require_current_world()),
+})
 
 ///|
 fn a11y_world_store() -> A11yWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  a11y_world_stores.get_or_init(world_id, () => { a11ys: Map([]), })
+  @ecs.require_current_world().get_or_init(a11y_world_store_key)
 }
 
 ///|
-pub fn a11ys() -> Map[@entity.Entity, A11y] {
+pub fn a11ys() -> @entity.ComponentStore[A11y] {
   a11y_world_store().a11ys
 }
 

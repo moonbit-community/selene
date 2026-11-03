@@ -2,6 +2,7 @@
 priv struct ArchetypeColumn {
   append_to : (Int32, Int32) -> Unit
   remove_row : (Int32) -> Unit
+  forget : (Entity) -> Unit
 }
 
 ///|
@@ -16,21 +17,23 @@ priv struct Archetype {
 priv struct ArchetypeWorld {
   tables : Array[Archetype]
   table_ids : Map[Array[Int32], Int32]
-  locations : Array[(Int32, Int32)?]
+  slots : Array[EntitySlot]
   create_columns : Array[(Int32) -> ArchetypeColumn]
   singleton_tables : Array[Int32?]
   mut active_queries : Int32
 }
 
 ///|
-let archetype_world_key : @ecs.WorldKey[ArchetypeWorld] = WorldKey(() => {
-  tables: [],
-  table_ids: {},
-  locations: [],
-  create_columns: [],
-  singleton_tables: [],
-  active_queries: 0,
-})
+fn make_archetype_world(slots : Array[EntitySlot]) -> ArchetypeWorld {
+  {
+    tables: [],
+    table_ids: {},
+    slots,
+    create_columns: [],
+    singleton_tables: [],
+    active_queries: 0,
+  }
+}
 
 ///|
 fn ArchetypeWorld::table_for(
@@ -96,11 +99,21 @@ fn[T] swap_remove_row(column : Array[T], row : Int32) -> Unit {
 }
 
 ///|
+fn ArchetypeWorld::slot(self : ArchetypeWorld, entity : Entity) -> EntitySlot? {
+  guard self.slots.get(entity.slot) is Some(slot) else { None }
+  guard slot.generation == entity.generation && slot.state is Some(_) else {
+    None
+  }
+  Some(slot)
+}
+
+///|
 fn ArchetypeWorld::location(
   self : ArchetypeWorld,
   entity : Entity,
 ) -> (Int32, Int32)? {
-  self.locations.get(entity.id().reinterpret_as_int()).unwrap_or(None)
+  guard self.slot(entity) is Some(slot) else { None }
+  slot.location
 }
 
 ///|
@@ -109,12 +122,8 @@ fn ArchetypeWorld::append_entity(
   id : Int32,
   entity : Entity,
 ) -> Unit {
-  let index = entity.id().reinterpret_as_int()
-  while self.locations.length() <= index {
-    self.locations.push(None)
-  }
   let entities = self.tables[id].entities
-  self.locations[index] = Some((id, entities.length()))
+  self.slots[entity.slot].location = Some((id, entities.length()))
   entities.push(entity)
 }
 
@@ -129,7 +138,7 @@ fn ArchetypeWorld::move_row(
     let table = self.tables[id]
     if target is Some(target) {
       let signature = self.tables[target].signature
-      // Both signatures are sorted. Transfer only the common columns.
+      // Both signatures are sorted. Transfer common columns and unlink removed ones.
       let mut next = 0
       for i, component in table.signature {
         while next < signature.length() && signature[next] < component {
@@ -137,13 +146,19 @@ fn ArchetypeWorld::move_row(
         }
         if next < signature.length() && signature[next] == component {
           (table.columns[i].append_to)(target, row)
+        } else {
+          (table.columns[i].forget)(entity)
         }
+      }
+    } else {
+      for column in table.columns {
+        (column.forget)(entity)
       }
     }
     let last = table.entities.length() - 1
     if row != last {
-      let moved = table.entities[last].id().reinterpret_as_int()
-      self.locations[moved] = Some((id, row))
+      let moved = table.entities[last]
+      self.slots[moved.slot].location = Some((id, row))
     }
     for column in table.columns {
       (column.remove_row)(row)
@@ -152,6 +167,6 @@ fn ArchetypeWorld::move_row(
   }
   match target {
     Some(id) => self.append_entity(id, entity)
-    None => self.locations[entity.id().reinterpret_as_int()] = None
+    None => self.slots[entity.slot].location = None
   }
 }

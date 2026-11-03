@@ -51,45 +51,45 @@ pub fn spawn_tiled_world(TiledWorld, settings? : TiledWorldSpawnSettings) -> @en
 
 pub fn spawn_tiled_world_into_entity(@entity.Entity, TiledWorld, settings? : TiledWorldSpawnSettings) -> Unit
 
-pub fn tiled_collider_origins() -> Map[@entity.Entity, TiledColliderOrigin]
+pub fn tiled_collider_origins() -> @entity.ComponentStore[TiledColliderOrigin]
 
 pub let tiled_collider_spawned_event_bus : @event.Events[TiledColliderSpawnedEvent]
 
-pub fn tiled_colliders() -> Map[@entity.Entity, TiledColliders]
+pub fn tiled_colliders() -> @entity.ComponentStore[TiledColliders]
 
-pub fn tiled_image_layer_instances() -> Map[@entity.Entity, TiledImageLayerInstance]
+pub fn tiled_image_layer_instances() -> @entity.ComponentStore[TiledImageLayerInstance]
 
 pub let tiled_image_layer_spawned_event_bus : @event.Events[TiledImageLayerSpawnedEvent]
 
-pub fn tiled_layer_instances() -> Map[@entity.Entity, TiledLayerInstance]
+pub fn tiled_layer_instances() -> @entity.ComponentStore[TiledLayerInstance]
 
 pub let tiled_layer_spawned_event_bus : @event.Events[TiledLayerSpawnedEvent]
 
-pub fn tiled_map_instances() -> Map[@entity.Entity, TiledMapInstance]
+pub fn tiled_map_instances() -> @entity.ComponentStore[TiledMapInstance]
 
 pub let tiled_map_spawned_event_bus : @event.Events[TiledMapSpawnedEvent]
 
-pub fn tiled_map_storages() -> Map[@entity.Entity, TiledMapStorage]
+pub fn tiled_map_storages() -> @entity.ComponentStore[TiledMapStorage]
 
-pub fn tiled_object_instances() -> Map[@entity.Entity, TiledObjectInstance]
+pub fn tiled_object_instances() -> @entity.ComponentStore[TiledObjectInstance]
 
 pub let tiled_object_spawned_event_bus : @event.Events[TiledObjectSpawnedEvent]
 
-pub fn tiled_parallax_layers() -> Map[@entity.Entity, TiledParallaxLayer]
+pub fn tiled_parallax_layers() -> @entity.ComponentStore[TiledParallaxLayer]
 
 pub fn tiled_parallax_system(Double) -> Unit
 
-pub fn tiled_properties() -> Map[@entity.Entity, TiledProperties]
+pub fn tiled_properties() -> @entity.ComponentStore[TiledProperties]
 
-pub fn tiled_tile_instances() -> Map[@entity.Entity, TiledTileInstance]
+pub fn tiled_tile_instances() -> @entity.ComponentStore[TiledTileInstance]
 
 pub let tiled_tile_spawned_event_bus : @event.Events[TiledTileSpawnedEvent]
 
 pub fn tiled_world_chunking_system(Double) -> Unit
 
-pub fn tiled_world_instances() -> Map[@entity.Entity, TiledWorldInstance]
+pub fn tiled_world_instances() -> @entity.ComponentStore[TiledWorldInstance]
 
-pub fn tiled_world_map_instances() -> Map[@entity.Entity, TiledWorldMapInstance]
+pub fn tiled_world_map_instances() -> @entity.ComponentStore[TiledWorldMapInstance]
 
 pub let tiled_world_map_spawned_event_bus : @event.Events[TiledWorldMapSpawnedEvent]
 

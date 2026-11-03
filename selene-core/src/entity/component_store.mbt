@@ -5,16 +5,16 @@ struct ComponentStore[T] {
   storage : ArchetypeWorld
   component : Int32
   columns : Array[Array[T]?]
-  orders : Array[Int32]
-  mut next_order : Int32
+  order : ComponentOrder
 }
 
 ///|
 pub fn[T] ComponentStore::ComponentStore(
   world : @ecs.World,
 ) -> ComponentStore[T] {
-  let storage = world.get_or_init(archetype_world_key)
+  let storage = world.get_or_init(entity_store_key).archetypes
   let columns : Array[Array[T]?] = []
+  let order = { entries: [], head: None, tail: None, length: 0, next_rank: 0, }
   let component = storage.create_columns.length()
   storage.singleton_tables.push(None)
   storage.create_columns.push(table => {
@@ -26,16 +26,18 @@ pub fn[T] ComponentStore::ComponentStore(
     {
       append_to: (target, row) => columns[target].unwrap().push(values[row]),
       remove_row: row => swap_remove_row(values, row),
+      forget: entity => order.remove(entity),
     }
   })
-  {
-    world_id: world.id(),
-    storage,
-    component,
-    columns,
-    orders: [],
-    next_order: 0,
-  }
+  { world_id: world.id(), storage, component, columns, order, }
+}
+
+///|
+pub fn[T] ComponentStore::belongs_to(
+  self : ComponentStore[T],
+  world : @ecs.World,
+) -> Bool {
+  self.world_id == world.id()
 }
 
 ///|
@@ -43,7 +45,7 @@ fn[T] ComponentStore::location(
   self : ComponentStore[T],
   entity : Entity,
 ) -> (Int32, Int32)? {
-  guard self.world_id == entity.world_id else { None }
+  guard self.order.length > 0 && self.world_id == entity.world_id else { None }
   self.storage.location(entity)
 }
 
@@ -69,13 +71,15 @@ pub fn[T] ComponentStore::contains(
 }
 
 ///|
+#alias(op_set)
 pub fn[T] ComponentStore::set(
   self : ComponentStore[T],
   entity : Entity,
   value : T,
 ) -> Unit {
   guard self.world_id == entity.world_id else { return }
-  let location = self.location(entity)
+  guard self.storage.slot(entity) is Some(slot) else { return }
+  let location = slot.location
   if location is Some((id, row)) && self.column(id) is Some(column) {
     column[row] = value
     return
@@ -97,12 +101,7 @@ fn[T] ComponentStore::append_new(
   value : T,
 ) -> Unit {
   self.columns[id].unwrap().push(value)
-  let index = entity.id().reinterpret_as_int()
-  while self.orders.length() <= index {
-    self.orders.push(0)
-  }
-  self.orders[index] = self.next_order
-  self.next_order += 1
+  self.order.append(entity)
 }
 
 ///|
@@ -121,36 +120,103 @@ pub fn[T] ComponentStore::remove(
 }
 
 ///|
-/// Visits entries in archetype order. Queue structural changes after iteration.
+/// Visits entries in component insertion order, independently of row migration.
 pub fn[T] ComponentStore::iter2(self : ComponentStore[T]) -> Iter2[Entity, T] {
-  let mut id = 0
-  let mut row = 0
-  Iter2::new(() => {
-    while id < self.columns.length() {
-      if self.columns[id] is Some(column) && row < column.length() {
-        let result = (self.storage.tables[id].entities[row], column[row])
-        row += 1
-        return Some(result)
-      }
-      id += 1
-      row = 0
+  let mut next = self.order.head
+  let length = self.order.length
+  let mut remaining = length
+  Iter2::new(
+    () => {
+      guard remaining > 0 && next is Some(index) else { None }
+      guard self.order.entries.get(index) is Some(Some(entry)) else { None }
+      next = entry.next
+      remaining -= 1
+      let (table, row) = self.storage.slots[index].location.unwrap()
+      Some((entry.entity, self.columns[table].unwrap()[row]))
+    },
+    size_hint=length,
+  )
+}
+
+///|
+pub fn[T] ComponentStore::iter(self : ComponentStore[T]) -> Iter[(Entity, T)] {
+  let entries = self.iter2()
+  Iter::new(() => entries.next())
+}
+
+///|
+pub fn[T] ComponentStore::keys(self : ComponentStore[T]) -> Iter[Entity] {
+  let mut next = self.order.head
+  let length = self.order.length
+  let mut remaining = length
+  Iter::new(
+    () => {
+      guard remaining > 0 && next is Some(index) else { None }
+      guard self.order.entries.get(index) is Some(Some(entry)) else { None }
+      next = entry.next
+      remaining -= 1
+      Some(entry.entity)
+    },
+    size_hint=length,
+  )
+}
+
+///|
+pub fn[T] ComponentStore::values(self : ComponentStore[T]) -> Iter[T] {
+  self.iter().map(pair => pair.1)
+}
+
+///|
+pub fn[T] ComponentStore::to_array(
+  self : ComponentStore[T],
+) -> Array[(Entity, T)] {
+  self.iter().collect()
+}
+
+///|
+pub fn[T] ComponentStore::length(self : ComponentStore[T]) -> Int32 {
+  self.order.length
+}
+
+///|
+pub fn[T] ComponentStore::is_empty(self : ComponentStore[T]) -> Bool {
+  self.order.length == 0
+}
+
+///|
+pub fn[T] ComponentStore::get_or_init(
+  self : ComponentStore[T],
+  entity : Entity,
+  create : () -> T,
+) -> T {
+  if self.get(entity) is Some(value) {
+    value
+  } else {
+    let value = create()
+    self.set(entity, value)
+    value
+  }
+}
+
+///|
+pub fn[T] ComponentStore::retain(
+  self : ComponentStore[T],
+  predicate : (Entity) -> Bool,
+) -> Unit {
+  for entity in self.keys() {
+    if !predicate(entity) {
+      self.remove(entity)
     }
-    None
-  })
+  }
 }
 
 ///|
 pub fn[T] ComponentStore::clear(self : ComponentStore[T]) -> Unit {
-  for id, column in self.columns {
-    if column is Some(_) {
-      let entities = self.storage.tables[id].entities
-      while entities.last() is Some(entity) {
-        self.remove(entity)
-      }
-    }
+  while self.order.head is Some(index) {
+    self.remove(self.order.entries[index].unwrap().entity)
   }
-  self.orders.clear()
-  self.next_order = 0
+  self.order.entries.clear()
+  self.order.next_rank = 0
 }
 
 ///|
@@ -159,11 +225,16 @@ pub fn[T] ComponentStore::insertion_order(
   self : ComponentStore[T],
   entity : Entity,
 ) -> Int32 {
-  self.orders[entity.id().reinterpret_as_int()]
+  guard self.world_id == entity.world_id &&
+    self.order.entries.get(entity.slot) is Some(Some(entry)) &&
+    entry.entity.generation == entity.generation else {
+    abort("entity does not have this component")
+  }
+  entry.rank
 }
 
 ///|
 /// Upper bound of the insertion ranks of this store.
 pub fn[T] ComponentStore::order_span(self : ComponentStore[T]) -> Int32 {
-  self.next_order
+  self.order.next_rank
 }

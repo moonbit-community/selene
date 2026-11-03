@@ -102,7 +102,7 @@ pub fn reserve_world_command_order(Int32) -> Int32
 
 pub fn sort_depth_for_transform(@transform.GlobalTransform, Sorting2d) -> Double
 
-pub fn sorting2ds() -> Map[@entity.Entity, Sorting2d]
+pub fn sorting2ds() -> @entity.ComponentStore[Sorting2d]
 
 // Errors
 

@@ -6,25 +6,24 @@ pub(all) struct EntityFilter {
 ///|
 pub(all) struct Query[T] {
   world : @ecs.World
-  storage : Map[@entity.Entity, T]
+  storage : @entity.ComponentStore[T]
 }
 
 ///|
 pub(all) struct With[T] {
-  storage : Map[@entity.Entity, T]
+  storage : @entity.ComponentStore[T]
 }
 
 ///|
 pub(all) struct Without[T] {
-  storage : Map[@entity.Entity, T]
+  storage : @entity.ComponentStore[T]
 }
 
 ///|
-pub(all) struct QueryReader[T] {
+struct QueryReader[T] {
   mut world_id : UInt32?
-  mut entities : @set.Set[@entity.Entity]
-  mut entries : Map[@entity.Entity, T]
-  mut initialized : Bool
+  // Historical values for change detection, separate from live components.
+  entries : Map[@entity.Entity, T]
 }
 
 ///|
@@ -37,22 +36,20 @@ pub(all) struct QueryDelta[T] {
 ///|
 pub fn[T] query(
   world : @ecs.World,
-  storage : Map[@entity.Entity, T],
+  storage : @entity.ComponentStore[T],
 ) -> Query[T] {
   { world, storage, }
 }
 
 ///|
 pub fn[T] QueryReader::QueryReader() -> QueryReader[T] {
-  { world_id: None, entities: Set([]), entries: Map([]), initialized: false, }
+  { world_id: None, entries: Map([]), }
 }
 
 ///|
 pub fn[T] QueryReader::reset(self : QueryReader[T]) -> Unit {
   self.world_id = None
-  self.entities.clear()
   self.entries.clear()
-  self.initialized = false
 }
 
 ///|
@@ -65,60 +62,48 @@ pub fn[T] QueryDelta::empty() -> QueryDelta[T] {
 pub fn[T : Eq] QueryReader::read(
   self : QueryReader[T],
   world : @ecs.World,
-  storage : Map[@entity.Entity, T],
+  storage : @entity.ComponentStore[T],
 ) -> QueryDelta[T] {
   if self.world_id != Some(world.id()) {
     self.reset()
     self.world_id = Some(world.id())
   }
-  if !self.initialized {
-    self.initialized = true
-    let added : Array[(@entity.Entity, T)] = []
+  let added = []
+  let removed = []
+  let changed = []
+
+  if storage.belongs_to(world) {
     for entity, component in storage {
-      guard entity.belongs_to(world) else { continue }
-      self.entities.add(entity)
-      self.entries.set(entity, component)
-      added.push((entity, component))
-    }
-    return { ..QueryDelta::empty(), added, }
-  }
-
-  let added : Array[(@entity.Entity, T)] = []
-  let removed : Array[@entity.Entity] = []
-  let changed : Array[(@entity.Entity, T)] = []
-
-  for entity, component in storage {
-    guard entity.belongs_to(world) else { continue }
-    if !self.entities.contains(entity) {
-      self.entities.add(entity)
-      self.entries.set(entity, component)
-      added.push((entity, component))
-      continue
-    }
-    if self.entries.get(entity) is Some(previous) && previous != component {
-      self.entries.set(entity, component)
-      changed.push((entity, component))
+      match self.entries.get(entity) {
+        None => {
+          self.entries.set(entity, component)
+          added.push((entity, component))
+        }
+        Some(previous) if previous != component => {
+          self.entries.set(entity, component)
+          changed.push((entity, component))
+        }
+        Some(_) => ()
+      }
     }
   }
 
-  for entity in self.entities.to_array() {
+  for entity in self.entries.keys().collect() {
     if !storage.contains(entity) {
-      self.entities.remove(entity)
       self.entries.remove(entity)
       removed.push(entity)
     }
   }
-
   { added, removed, changed, }
 }
 
 ///|
-pub fn[T] with_component(storage : Map[@entity.Entity, T]) -> With[T] {
+pub fn[T] with_component(storage : @entity.ComponentStore[T]) -> With[T] {
   { storage, }
 }
 
 ///|
-pub fn[T] without_component(storage : Map[@entity.Entity, T]) -> Without[T] {
+pub fn[T] without_component(storage : @entity.ComponentStore[T]) -> Without[T] {
   { storage, }
 }
 
@@ -149,8 +134,8 @@ pub fn[T] Query::for_each(
   require_filters~ : Array[EntityFilter] = [],
   reject_filters~ : Array[EntityFilter] = [],
 ) -> Unit {
+  guard self.storage.belongs_to(self.world) else { return }
   for entity, component in self.storage {
-    guard entity.belongs_to(self.world) else { continue }
     let mut accepted = true
     for filter in require_filters {
       if !filter.passes(entity) {

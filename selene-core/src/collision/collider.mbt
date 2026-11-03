@@ -38,27 +38,26 @@ pub fn Collider::with_material(
 
 ///|
 priv struct ColliderWorldStore {
-  colliders : Map[@entity.Entity, Collider]
-  resolved_velocities : Map[@entity.Entity, @velocity.Velocity]
+  colliders : @entity.ComponentStore[Collider]
+  resolved_velocities : @entity.ComponentStore[@velocity.Velocity]
   grounded_entities : Set[@entity.Entity]
 }
 
 ///|
-let collider_world_stores : Map[UInt32, ColliderWorldStore] = Map([])
+let collider_world_store_key : @ecs.WorldKey[ColliderWorldStore] = WorldKey(() => {
+  colliders: ComponentStore(@ecs.require_current_world()),
+  resolved_velocities: ComponentStore(@ecs.require_current_world()),
+  grounded_entities: Set([]),
+})
 
 ///|
 fn collider_world_store() -> ColliderWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  collider_world_stores.get_or_init(world_id, () => {
-    colliders: Map([]),
-    resolved_velocities: Map([]),
-    grounded_entities: Set([]),
-  })
+  @ecs.require_current_world().get_or_init(collider_world_store_key)
 }
 
 ///|
 /// World collider components.
-pub fn colliders() -> Map[@entity.Entity, Collider] {
+pub fn colliders() -> @entity.ComponentStore[Collider] {
   collider_world_store().colliders
 }
 
@@ -77,7 +76,7 @@ pub let contact_event_bus : @event.Events[ContactEvent] = Events()
 
 ///|
 /// Effective post-solve velocities from the latest fixed step.
-pub fn resolved_velocities() -> Map[@entity.Entity, @velocity.Velocity] {
+pub fn resolved_velocities() -> @entity.ComponentStore[@velocity.Velocity] {
   collider_world_store().resolved_velocities
 }
 

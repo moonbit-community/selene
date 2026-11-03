@@ -58,36 +58,35 @@ pub(all) struct AudioEvent {
 
 ///|
 priv struct AudioWorldStore {
-  audio_players : Map[@entity.Entity, AudioPlayer]
-  audio_playback_settings : Map[@entity.Entity, PlaybackSettings]
-  audio_sinks : Map[@entity.Entity, AudioSink]
+  audio_players : @entity.ComponentStore[AudioPlayer]
+  audio_playback_settings : @entity.ComponentStore[PlaybackSettings]
+  audio_sinks : @entity.ComponentStore[AudioSink]
 }
 
 ///|
-let audio_world_stores : Map[UInt32, AudioWorldStore] = Map([])
+let audio_world_store_key : @ecs.WorldKey[AudioWorldStore] = WorldKey(() => {
+  audio_players: ComponentStore(@ecs.require_current_world()),
+  audio_playback_settings: ComponentStore(@ecs.require_current_world()),
+  audio_sinks: ComponentStore(@ecs.require_current_world()),
+})
 
 ///|
 fn audio_world_store() -> AudioWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  audio_world_stores.get_or_init(world_id, () => {
-    audio_players: Map([]),
-    audio_playback_settings: Map([]),
-    audio_sinks: Map([]),
-  })
+  @ecs.require_current_world().get_or_init(audio_world_store_key)
 }
 
 ///|
-pub fn audio_players() -> Map[@entity.Entity, AudioPlayer] {
+pub fn audio_players() -> @entity.ComponentStore[AudioPlayer] {
   audio_world_store().audio_players
 }
 
 ///|
-pub fn audio_playback_settings() -> Map[@entity.Entity, PlaybackSettings] {
+pub fn audio_playback_settings() -> @entity.ComponentStore[PlaybackSettings] {
   audio_world_store().audio_playback_settings
 }
 
 ///|
-pub fn audio_sinks() -> Map[@entity.Entity, AudioSink] {
+pub fn audio_sinks() -> @entity.ComponentStore[AudioSink] {
   audio_world_store().audio_sinks
 }
 

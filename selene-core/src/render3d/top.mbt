@@ -122,51 +122,51 @@ pub(all) struct Mesh3DRenderer {
 
 ///|
 priv struct Render3DComponentWorldStore {
-  mesh3d_renderers : Map[@entity.Entity, Mesh3DRenderer]
-  directional_lights3d : Map[@entity.Entity, DirectionalLight3D]
-  point_lights3d : Map[@entity.Entity, PointLight3D]
-  spot_lights3d : Map[@entity.Entity, SpotLight3D]
-  camera_skyboxes3d : Map[@entity.Entity, Skybox3D]
+  mesh3d_renderers : @entity.ComponentStore[Mesh3DRenderer]
+  directional_lights3d : @entity.ComponentStore[DirectionalLight3D]
+  point_lights3d : @entity.ComponentStore[PointLight3D]
+  spot_lights3d : @entity.ComponentStore[SpotLight3D]
+  camera_skyboxes3d : @entity.ComponentStore[Skybox3D]
 }
 
 ///|
-let render3d_component_world_stores : Map[UInt32, Render3DComponentWorldStore] = Map([],
-)
+let render3d_component_world_store_key : @ecs.WorldKey[
+  Render3DComponentWorldStore,
+] = WorldKey(() => {
+  mesh3d_renderers: ComponentStore(@ecs.require_current_world()),
+  directional_lights3d: ComponentStore(@ecs.require_current_world()),
+  point_lights3d: ComponentStore(@ecs.require_current_world()),
+  spot_lights3d: ComponentStore(@ecs.require_current_world()),
+  camera_skyboxes3d: ComponentStore(@ecs.require_current_world()),
+})
 
 ///|
 fn render3d_component_world_store() -> Render3DComponentWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  render3d_component_world_stores.get_or_init(world_id, () => {
-    mesh3d_renderers: Map([]),
-    directional_lights3d: Map([]),
-    point_lights3d: Map([]),
-    spot_lights3d: Map([]),
-    camera_skyboxes3d: Map([]),
-  })
+  @ecs.require_current_world().get_or_init(render3d_component_world_store_key)
 }
 
 ///|
-pub fn mesh3d_renderers() -> Map[@entity.Entity, Mesh3DRenderer] {
+pub fn mesh3d_renderers() -> @entity.ComponentStore[Mesh3DRenderer] {
   render3d_component_world_store().mesh3d_renderers
 }
 
 ///|
-pub fn directional_lights3d() -> Map[@entity.Entity, DirectionalLight3D] {
+pub fn directional_lights3d() -> @entity.ComponentStore[DirectionalLight3D] {
   render3d_component_world_store().directional_lights3d
 }
 
 ///|
-pub fn point_lights3d() -> Map[@entity.Entity, PointLight3D] {
+pub fn point_lights3d() -> @entity.ComponentStore[PointLight3D] {
   render3d_component_world_store().point_lights3d
 }
 
 ///|
-pub fn spot_lights3d() -> Map[@entity.Entity, SpotLight3D] {
+pub fn spot_lights3d() -> @entity.ComponentStore[SpotLight3D] {
   render3d_component_world_store().spot_lights3d
 }
 
 ///|
-pub fn camera_skyboxes3d() -> Map[@entity.Entity, Skybox3D] {
+pub fn camera_skyboxes3d() -> @entity.ComponentStore[Skybox3D] {
   render3d_component_world_store().camera_skyboxes3d
 }
 

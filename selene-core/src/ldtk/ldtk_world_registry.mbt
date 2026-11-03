@@ -1,85 +1,81 @@
 ///|
-pub fn ldtk_level_instances() -> Map[@entity.Entity, LdtkLevelInstance] {
+pub fn ldtk_level_instances() -> @entity.ComponentStore[LdtkLevelInstance] {
   ldtk_world_store().ldtk_level_instances
 }
 
 ///|
-pub fn ldtk_layer_metadata() -> Map[@entity.Entity, LdtkLayerMetadata] {
+pub fn ldtk_layer_metadata() -> @entity.ComponentStore[LdtkLayerMetadata] {
   ldtk_world_store().ldtk_layer_metadata
 }
 
 ///|
-pub fn ldtk_level_backgrounds() -> Map[@entity.Entity, LdtkLevelBackground] {
+pub fn ldtk_level_backgrounds() -> @entity.ComponentStore[LdtkLevelBackground] {
   ldtk_world_store().ldtk_level_backgrounds
 }
 
 ///|
-pub fn ldtk_level_iids() -> Map[@entity.Entity, LdtkLevelIid] {
+pub fn ldtk_level_iids() -> @entity.ComponentStore[LdtkLevelIid] {
   ldtk_world_store().ldtk_level_iids
 }
 
 ///|
-pub fn ldtk_entity_iids() -> Map[@entity.Entity, LdtkEntityIid] {
+pub fn ldtk_entity_iids() -> @entity.ComponentStore[LdtkEntityIid] {
   ldtk_world_store().ldtk_entity_iids
 }
 
 ///|
-pub fn ldtk_grid_coords() -> Map[@entity.Entity, LdtkGridCoords] {
+pub fn ldtk_grid_coords() -> @entity.ComponentStore[LdtkGridCoords] {
   ldtk_world_store().ldtk_grid_coords
 }
 
 ///|
-pub fn ldtk_int_grid_cells() -> Map[@entity.Entity, LdtkIntGridCell] {
+pub fn ldtk_int_grid_cells() -> @entity.ComponentStore[LdtkIntGridCell] {
   ldtk_world_store().ldtk_int_grid_cells
 }
 
 ///|
-pub fn ldtk_tile_metadata() -> Map[@entity.Entity, LdtkTileMetadata] {
+pub fn ldtk_tile_metadata() -> @entity.ComponentStore[LdtkTileMetadata] {
   ldtk_world_store().ldtk_tile_metadata
 }
 
 ///|
-pub fn ldtk_int_grid_colliders() -> Map[@entity.Entity, LdtkIntGridCollider] {
+pub fn ldtk_int_grid_colliders() -> @entity.ComponentStore[LdtkIntGridCollider] {
   ldtk_world_store().ldtk_int_grid_colliders
 }
 
 ///|
-pub fn ldtk_worldly_entities() -> Map[@entity.Entity, LdtkWorldly] {
+pub fn ldtk_worldly_entities() -> @entity.ComponentStore[LdtkWorldly] {
   ldtk_world_store().ldtk_worldly_entities
 }
 
 ///|
-pub fn ldtk_respawns() -> Map[@entity.Entity, LdtkRespawn] {
+pub fn ldtk_respawns() -> @entity.ComponentStore[LdtkRespawn] {
   ldtk_world_store().ldtk_respawns
 }
 
 ///|
-pub fn ldtk_spawned_layer_instances() -> Map[
-  @entity.Entity,
+pub fn ldtk_spawned_layer_instances() -> @entity.ComponentStore[
   LdtkSpawnedLayerInstance,
 ] {
   ldtk_world_store().ldtk_spawned_layer_instances
 }
 
 ///|
-pub fn ldtk_spawned_tile_instances() -> Map[
-  @entity.Entity,
+pub fn ldtk_spawned_tile_instances() -> @entity.ComponentStore[
   LdtkSpawnedTileInstance,
 ] {
   ldtk_world_store().ldtk_spawned_tile_instances
 }
 
 ///|
-pub fn ldtk_spawned_entity_instances() -> Map[
-  @entity.Entity,
+pub fn ldtk_spawned_entity_instances() -> @entity.ComponentStore[
   LdtkSpawnedEntityInstance,
 ] {
   ldtk_world_store().ldtk_spawned_entity_instances
 }
 
 ///|
-pub fn ldtk_spawned_int_grid_cells() -> Map[
-  @entity.Entity,
+pub fn ldtk_spawned_int_grid_cells() -> @entity.ComponentStore[
   LdtkSpawnedIntGridCell,
 ] {
   ldtk_world_store().ldtk_spawned_int_grid_cells

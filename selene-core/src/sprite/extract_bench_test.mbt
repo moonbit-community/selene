@@ -62,7 +62,7 @@ test "sprite CPU extraction, transform propagation, and component churn" (
 }
 
 ///|
-test "sprite archetype join versus hash join" (b : @bench.T) {
+test "sprite archetype join" (b : @bench.T) {
   let previous = @ecs.current_world()
   defer (match previous {
     Some(world) => @ecs.set_current_world(world)
@@ -71,24 +71,6 @@ test "sprite archetype join versus hash join" (b : @bench.T) {
   for size in [1000, 10000] {
     @ecs.set_current_world(World())
     ignore(make_sprite_fixture(size))
-    let sprites : Map[@entity.Entity, @sprite.Sprite] = Map([])
-    let globals : Map[@entity.Entity, @transform.GlobalTransform] = Map([])
-    for entity, sprite in @sprite.sprites() {
-      sprites.set(entity, sprite)
-    }
-    for entity, transform in @transform.global_transforms() {
-      globals.set(entity, transform)
-    }
-    let map_checksum = () => {
-      let mut checksum = 0
-      for entity, sprite in sprites {
-        if globals.get(entity) is Some(transform) {
-          checksum += sprite.color.r.reinterpret_as_int() +
-            transform.translation().x.to_int()
-        }
-      }
-      checksum
-    }
     let archetype_checksum = () => {
       let mut checksum = 0
       @sprite.for_each_sprite_transform((_, sprite, transform) => {
@@ -97,10 +79,7 @@ test "sprite archetype join versus hash join" (b : @bench.T) {
       })
       checksum
     }
-    assert_eq(archetype_checksum(), map_checksum())
-    b.bench(name="sprite-join/map/n=\{size}", count=10, () => {
-      b.keep(map_checksum())
-    })
+    assert_eq(archetype_checksum(), (size - size / 4) * (255 + 4))
     b.bench(name="sprite-join/archetype/n=\{size}", count=10, () => {
       b.keep(archetype_checksum())
     })

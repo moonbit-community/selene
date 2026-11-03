@@ -18,7 +18,7 @@ pub fn set_parent_in_place(@entity.Entity, @entity.Entity) -> Unit
 
 pub fn transform_propagate_system(Double) -> Unit
 
-pub fn transforms() -> Map[@entity.Entity, Transform]
+pub fn transforms() -> @entity.ComponentStore[Transform]
 
 // Errors
 

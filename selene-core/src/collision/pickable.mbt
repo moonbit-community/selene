@@ -25,21 +25,22 @@ pub fn Pickable::Pickable() -> Pickable {
 
 ///|
 priv struct PickableWorldStore {
-  pickables : Map[@entity.Entity, Pickable]
+  pickables : @entity.ComponentStore[Pickable]
 }
 
 ///|
-let pickable_world_stores : Map[UInt32, PickableWorldStore] = Map([])
+let pickable_world_store_key : @ecs.WorldKey[PickableWorldStore] = WorldKey(() => {
+  pickables: ComponentStore(@ecs.require_current_world()),
+})
 
 ///|
 fn pickable_world_store() -> PickableWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  pickable_world_stores.get_or_init(world_id, () => { pickables: Map([]), })
+  @ecs.require_current_world().get_or_init(pickable_world_store_key)
 }
 
 ///|
 /// All pickable components.
-pub fn pickables() -> Map[@entity.Entity, Pickable] {
+pub fn pickables() -> @entity.ComponentStore[Pickable] {
   pickable_world_store().pickables
 }
 

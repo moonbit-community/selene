@@ -131,36 +131,37 @@ pub impl Default for OrthographicProjection with fn default() -> OrthographicPro
 
 ///|
 priv struct CameraWorldStore {
-  cameras : Map[@entity.Entity, Camera]
-  camera2ds : Map[@entity.Entity, Camera2d]
-  orthographic_projections : Map[@entity.Entity, OrthographicProjection]
+  cameras : @entity.ComponentStore[Camera]
+  camera2ds : @entity.ComponentStore[Camera2d]
+  orthographic_projections : @entity.ComponentStore[OrthographicProjection]
 }
 
 ///|
-let camera_world_stores : Map[UInt32, CameraWorldStore] = Map([])
+let camera_world_store_key : @ecs.WorldKey[CameraWorldStore] = WorldKey(() => {
+  cameras: ComponentStore(@ecs.require_current_world()),
+  camera2ds: ComponentStore(@ecs.require_current_world()),
+  orthographic_projections: ComponentStore(@ecs.require_current_world()),
+})
 
 ///|
 fn camera_world_store() -> CameraWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  camera_world_stores.get_or_init(world_id, () => {
-    cameras: Map([]),
-    camera2ds: Map([]),
-    orthographic_projections: Map([]),
-  })
+  @ecs.require_current_world().get_or_init(camera_world_store_key)
 }
 
 ///|
-pub fn cameras() -> Map[@entity.Entity, Camera] {
+pub fn cameras() -> @entity.ComponentStore[Camera] {
   camera_world_store().cameras
 }
 
 ///|
-pub fn camera2ds() -> Map[@entity.Entity, Camera2d] {
+pub fn camera2ds() -> @entity.ComponentStore[Camera2d] {
   camera_world_store().camera2ds
 }
 
 ///|
-pub fn orthographic_projections() -> Map[@entity.Entity, OrthographicProjection] {
+pub fn orthographic_projections() -> @entity.ComponentStore[
+  OrthographicProjection,
+] {
   camera_world_store().orthographic_projections
 }
 

@@ -295,30 +295,29 @@ pub fn MultibodyJoint::revolute(
 
 ///|
 priv struct JointWorldStore {
-  joints : Map[@entity.Entity, Joint]
-  multibody_joints : Map[@entity.Entity, MultibodyJoint]
+  joints : @entity.ComponentStore[Joint]
+  multibody_joints : @entity.ComponentStore[MultibodyJoint]
 }
 
 ///|
-let joint_world_stores : Map[UInt32, JointWorldStore] = Map([])
+let joint_world_store_key : @ecs.WorldKey[JointWorldStore] = WorldKey(() => {
+  joints: ComponentStore(@ecs.require_current_world()),
+  multibody_joints: ComponentStore(@ecs.require_current_world()),
+})
 
 ///|
 fn joint_world_store() -> JointWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  joint_world_stores.get_or_init(world_id, () => {
-    joints: Map([]),
-    multibody_joints: Map([]),
-  })
+  @ecs.require_current_world().get_or_init(joint_world_store_key)
 }
 
 ///|
 /// Authored 2D joint components.
-pub fn joints() -> Map[@entity.Entity, Joint] {
+pub fn joints() -> @entity.ComponentStore[Joint] {
   joint_world_store().joints
 }
 
 ///|
 /// Authored 2D multibody joint components keyed by the child rigid-body entity.
-pub fn multibody_joints() -> Map[@entity.Entity, MultibodyJoint] {
+pub fn multibody_joints() -> @entity.ComponentStore[MultibodyJoint] {
   joint_world_store().multibody_joints
 }

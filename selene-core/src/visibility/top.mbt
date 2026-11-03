@@ -21,43 +21,43 @@ pub(all) struct RenderLayers {
 
 ///|
 priv struct VisibilityWorldStore {
-  visibilities : Map[@entity.Entity, Visibility]
-  inherited_visibilities : Map[@entity.Entity, InheritedVisibility]
-  view_visibilities : Map[@entity.Entity, ViewVisibility]
-  render_layers : Map[@entity.Entity, RenderLayers]
+  visibilities : @entity.ComponentStore[Visibility]
+  inherited_visibilities : @entity.ComponentStore[InheritedVisibility]
+  view_visibilities : @entity.ComponentStore[ViewVisibility]
+  render_layers : @entity.ComponentStore[RenderLayers]
 }
 
 ///|
-let visibility_world_stores : Map[UInt32, VisibilityWorldStore] = Map([])
+let visibility_world_store_key : @ecs.WorldKey[VisibilityWorldStore] = WorldKey(() => {
+    visibilities: ComponentStore(@ecs.require_current_world()),
+    inherited_visibilities: ComponentStore(@ecs.require_current_world()),
+    view_visibilities: ComponentStore(@ecs.require_current_world()),
+    render_layers: ComponentStore(@ecs.require_current_world()),
+  },
+)
 
 ///|
 fn visibility_world_store() -> VisibilityWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  visibility_world_stores.get_or_init(world_id, () => {
-    visibilities: Map([]),
-    inherited_visibilities: Map([]),
-    view_visibilities: Map([]),
-    render_layers: Map([]),
-  })
+  @ecs.require_current_world().get_or_init(visibility_world_store_key)
 }
 
 ///|
-pub fn visibilities() -> Map[@entity.Entity, Visibility] {
+pub fn visibilities() -> @entity.ComponentStore[Visibility] {
   visibility_world_store().visibilities
 }
 
 ///|
-pub fn inherited_visibilities() -> Map[@entity.Entity, InheritedVisibility] {
+pub fn inherited_visibilities() -> @entity.ComponentStore[InheritedVisibility] {
   visibility_world_store().inherited_visibilities
 }
 
 ///|
-pub fn view_visibilities() -> Map[@entity.Entity, ViewVisibility] {
+pub fn view_visibilities() -> @entity.ComponentStore[ViewVisibility] {
   visibility_world_store().view_visibilities
 }
 
 ///|
-pub fn render_layers() -> Map[@entity.Entity, RenderLayers] {
+pub fn render_layers() -> @entity.ComponentStore[RenderLayers] {
   visibility_world_store().render_layers
 }
 
@@ -120,30 +120,11 @@ pub fn visibility_propagate_system(_delta : Double) -> Unit {
     inherited_visibilities.set(entity, { visible, })
     view_visibilities.set(entity, { visible, })
   }
-  for pair in inherited_visibilities.to_array() {
-    let entity = pair.0
-    if !entity.is_alive() {
-      inherited_visibilities.remove(entity)
-    }
-  }
-  for pair in view_visibilities.to_array() {
-    let entity = pair.0
-    if !entity.is_alive() {
-      view_visibilities.remove(entity)
-    }
-  }
-  for pair in render_layers.to_array() {
-    let entity = pair.0
-    if !entity.is_alive() {
-      render_layers.remove(entity)
-    }
-  }
-  for pair in visibilities.to_array() {
-    let entity = pair.0
-    if !entity.is_alive() {
-      visibilities.remove(entity)
-    }
-  }
+  let alive = @entity.alive_in_world(@ecs.require_current_world())
+  inherited_visibilities.retain(alive)
+  view_visibilities.retain(alive)
+  render_layers.retain(alive)
+  visibilities.retain(alive)
 }
 
 ///|

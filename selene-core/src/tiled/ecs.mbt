@@ -269,74 +269,72 @@ pub fn TiledMapStorage::tile_entities(
 
 ///|
 priv struct TiledEcsWorldStore {
-  tiled_map_instances : Map[@entity.Entity, TiledMapInstance]
-  tiled_layer_instances : Map[@entity.Entity, TiledLayerInstance]
-  tiled_tile_instances : Map[@entity.Entity, TiledTileInstance]
-  tiled_object_instances : Map[@entity.Entity, TiledObjectInstance]
-  tiled_image_layer_instances : Map[@entity.Entity, TiledImageLayerInstance]
-  tiled_properties : Map[@entity.Entity, TiledProperties]
-  tiled_map_storages : Map[@entity.Entity, TiledMapStorage]
-  tiled_parallax_layers : Map[@entity.Entity, TiledParallaxLayer]
+  tiled_map_instances : @entity.ComponentStore[TiledMapInstance]
+  tiled_layer_instances : @entity.ComponentStore[TiledLayerInstance]
+  tiled_tile_instances : @entity.ComponentStore[TiledTileInstance]
+  tiled_object_instances : @entity.ComponentStore[TiledObjectInstance]
+  tiled_image_layer_instances : @entity.ComponentStore[TiledImageLayerInstance]
+  tiled_properties : @entity.ComponentStore[TiledProperties]
+  tiled_map_storages : @entity.ComponentStore[TiledMapStorage]
+  tiled_parallax_layers : @entity.ComponentStore[TiledParallaxLayer]
 }
 
 ///|
-let tiled_ecs_world_stores : Map[UInt32, TiledEcsWorldStore] = Map([])
+let tiled_ecs_world_store_key : @ecs.WorldKey[TiledEcsWorldStore] = WorldKey(() => {
+  tiled_map_instances: ComponentStore(@ecs.require_current_world()),
+  tiled_layer_instances: ComponentStore(@ecs.require_current_world()),
+  tiled_tile_instances: ComponentStore(@ecs.require_current_world()),
+  tiled_object_instances: ComponentStore(@ecs.require_current_world()),
+  tiled_image_layer_instances: ComponentStore(@ecs.require_current_world()),
+  tiled_properties: ComponentStore(@ecs.require_current_world()),
+  tiled_map_storages: ComponentStore(@ecs.require_current_world()),
+  tiled_parallax_layers: ComponentStore(@ecs.require_current_world()),
+})
 
 ///|
 fn tiled_ecs_world_store() -> TiledEcsWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  tiled_ecs_world_stores.get_or_init(world_id, () => {
-    tiled_map_instances: Map([]),
-    tiled_layer_instances: Map([]),
-    tiled_tile_instances: Map([]),
-    tiled_object_instances: Map([]),
-    tiled_image_layer_instances: Map([]),
-    tiled_properties: Map([]),
-    tiled_map_storages: Map([]),
-    tiled_parallax_layers: Map([]),
-  })
+  @ecs.require_current_world().get_or_init(tiled_ecs_world_store_key)
 }
 
 ///|
-pub fn tiled_map_instances() -> Map[@entity.Entity, TiledMapInstance] {
+pub fn tiled_map_instances() -> @entity.ComponentStore[TiledMapInstance] {
   tiled_ecs_world_store().tiled_map_instances
 }
 
 ///|
-pub fn tiled_layer_instances() -> Map[@entity.Entity, TiledLayerInstance] {
+pub fn tiled_layer_instances() -> @entity.ComponentStore[TiledLayerInstance] {
   tiled_ecs_world_store().tiled_layer_instances
 }
 
 ///|
-pub fn tiled_tile_instances() -> Map[@entity.Entity, TiledTileInstance] {
+pub fn tiled_tile_instances() -> @entity.ComponentStore[TiledTileInstance] {
   tiled_ecs_world_store().tiled_tile_instances
 }
 
 ///|
-pub fn tiled_object_instances() -> Map[@entity.Entity, TiledObjectInstance] {
+pub fn tiled_object_instances() -> @entity.ComponentStore[TiledObjectInstance] {
   tiled_ecs_world_store().tiled_object_instances
 }
 
 ///|
-pub fn tiled_image_layer_instances() -> Map[
-  @entity.Entity,
+pub fn tiled_image_layer_instances() -> @entity.ComponentStore[
   TiledImageLayerInstance,
 ] {
   tiled_ecs_world_store().tiled_image_layer_instances
 }
 
 ///|
-pub fn tiled_properties() -> Map[@entity.Entity, TiledProperties] {
+pub fn tiled_properties() -> @entity.ComponentStore[TiledProperties] {
   tiled_ecs_world_store().tiled_properties
 }
 
 ///|
-pub fn tiled_map_storages() -> Map[@entity.Entity, TiledMapStorage] {
+pub fn tiled_map_storages() -> @entity.ComponentStore[TiledMapStorage] {
   tiled_ecs_world_store().tiled_map_storages
 }
 
 ///|
-pub fn tiled_parallax_layers() -> Map[@entity.Entity, TiledParallaxLayer] {
+pub fn tiled_parallax_layers() -> @entity.ComponentStore[TiledParallaxLayer] {
   tiled_ecs_world_store().tiled_parallax_layers
 }
 

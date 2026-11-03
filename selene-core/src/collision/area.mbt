@@ -27,21 +27,22 @@ pub fn Area::Area(filter : CollisionFilter) -> Area {
 
 ///|
 priv struct AreaWorldStore {
-  areas : Map[@entity.Entity, Area]
+  areas : @entity.ComponentStore[Area]
 }
 
 ///|
-let area_world_stores : Map[UInt32, AreaWorldStore] = Map([])
+let area_world_store_key : @ecs.WorldKey[AreaWorldStore] = WorldKey(() => {
+  areas: ComponentStore(@ecs.require_current_world()),
+})
 
 ///|
 fn area_world_store() -> AreaWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  area_world_stores.get_or_init(world_id, () => { areas: Map([]), })
+  @ecs.require_current_world().get_or_init(area_world_store_key)
 }
 
 ///|
 /// All area components.
-pub fn areas() -> Map[@entity.Entity, Area] {
+pub fn areas() -> @entity.ComponentStore[Area] {
   area_world_store().areas
 }
 

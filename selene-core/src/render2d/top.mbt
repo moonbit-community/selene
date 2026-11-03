@@ -45,7 +45,7 @@ pub fn Sorting2d::Sorting2d(
 
 ///|
 priv struct Sorting2dWorldStore {
-  sorting2ds : Map[@entity.Entity, Sorting2d]
+  sorting2ds : @entity.ComponentStore[Sorting2d]
 }
 
 ///|
@@ -61,7 +61,9 @@ priv struct RenderFrameState2D {
 let frame2d_by_world : Map[UInt32, RenderFrameState2D] = Map([])
 
 ///|
-let sorting2d_by_world : Map[UInt32, Sorting2dWorldStore] = Map([])
+let sorting2d_store_key : @ecs.WorldKey[Sorting2dWorldStore] = WorldKey(() => {
+  sorting2ds: ComponentStore(@ecs.require_current_world()),
+})
 
 ///|
 fn frame2d() -> RenderFrameState2D {
@@ -79,12 +81,11 @@ fn frame2d() -> RenderFrameState2D {
 
 ///|
 fn sorting2d_store() -> Sorting2dWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  sorting2d_by_world.get_or_init(world_id, fn() { { sorting2ds: Map([]), } })
+  @ecs.require_current_world().get_or_init(sorting2d_store_key)
 }
 
 ///|
-pub fn sorting2ds() -> Map[@entity.Entity, Sorting2d] {
+pub fn sorting2ds() -> @entity.ComponentStore[Sorting2d] {
   sorting2d_store().sorting2ds
 }
 
@@ -97,13 +98,7 @@ pub fn begin_frame2d_system(_delta : Double) -> Unit {
     camera_ui_commands: Map([]),
     next_order: 0,
   })
-  let sorting = sorting2ds()
-  for pair in sorting.to_array() {
-    let entity = pair.0
-    if !entity.is_alive() {
-      sorting.remove(entity)
-    }
-  }
+  sorting2ds().retain(@entity.alive_in_world(@ecs.require_current_world()))
 }
 
 ///|

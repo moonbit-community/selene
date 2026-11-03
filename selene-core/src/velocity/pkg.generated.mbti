@@ -8,7 +8,7 @@ import {
 }
 
 // Values
-pub fn velocities() -> Map[@entity.Entity, Velocity]
+pub fn velocities() -> @entity.ComponentStore[Velocity]
 
 // Errors
 

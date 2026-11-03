@@ -24,18 +24,18 @@ pub(all) struct Parallax2d {
 
 ///|
 priv struct Parallax2dWorldStore {
-  parallax2ds : Map[@entity.Entity, Parallax2d]
+  parallax2ds : @entity.ComponentStore[Parallax2d]
 }
 
 ///|
-let parallax2d_world_stores : Map[UInt32, Parallax2dWorldStore] = Map([])
+let parallax2d_world_store_key : @ecs.WorldKey[Parallax2dWorldStore] = WorldKey(() => {
+    parallax2ds: ComponentStore(@ecs.require_current_world()),
+  },
+)
 
 ///|
 fn parallax2d_world_store() -> Parallax2dWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  parallax2d_world_stores.get_or_init(world_id, fn() {
-    { parallax2ds: Map([]), }
-  })
+  @ecs.require_current_world().get_or_init(parallax2d_world_store_key)
 }
 
 ///|
@@ -64,7 +64,7 @@ pub fn Parallax2d::Parallax2d(
 }
 
 ///|
-pub fn parallax2ds() -> Map[@entity.Entity, Parallax2d] {
+pub fn parallax2ds() -> @entity.ComponentStore[Parallax2d] {
   parallax2d_world_store().parallax2ds
 }
 

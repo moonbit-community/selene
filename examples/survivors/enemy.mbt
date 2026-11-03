@@ -300,7 +300,7 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
             ]),
           ),
         )
-        enemies.set(enemy, enemy_state)
+        enemies().set(enemy, enemy_state)
         play_enemy_animation_state(
           enemy,
           enemy_state,
@@ -339,7 +339,14 @@ enum EnemyType {
 } derive(Eq, Hash)
 
 ///|
-let enemies : Map[@entity.Entity, Enemy] = Map([])
+let enemies_key : @ecs.WorldKey[@entity.ComponentStore[Enemy]] = WorldKey(() => {
+  ComponentStore(@ecs.require_current_world())
+})
+
+///|
+fn enemies() -> @entity.ComponentStore[Enemy] {
+  @ecs.require_current_world().get_or_init(enemies_key)
+}
 
 ///|
 let enemy_bullets : Set[@entity.Entity] = Set([])
@@ -451,7 +458,7 @@ fn enemy_ai_system(_world : @ecs.World) -> Unit {
   if game_state.game_over {
     return
   }
-  for e, state in enemies {
+  for e, state in enemies() {
     guard e.is_alive() else { continue }
     guard @transform.transforms().get(game_state.player_entity)
       is Some(player_transform) else {
@@ -493,7 +500,7 @@ fn devil_shooting_system(_world : @ecs.World) -> Unit {
   if game_state.game_over {
     return
   }
-  for e, state in enemies {
+  for e, state in enemies() {
     guard e.is_alive() else { continue }
     // Only Devil enemies shoot
     if state.enemy_type != Devil {
@@ -583,7 +590,7 @@ fn enemy_collision_system(_world : @ecs.World) -> Unit {
   for event in @physics2d.contact_event_bus.read(enemy_contact_event_reader) {
     guard event.started else { continue }
     guard event.entity == game_state.player_entity else { continue }
-    if enemies.contains(event.other) {
+    if enemies().contains(event.other) {
       apply_player_damage()
     }
   }
@@ -612,7 +619,7 @@ fn check_victory_system(_world : @ecs.World) -> Unit {
 
   // Count alive enemies
   let mut alive_count = 0
-  for e, _state in enemies {
+  for e, _state in enemies() {
     if e.is_alive() {
       alive_count += 1
     }

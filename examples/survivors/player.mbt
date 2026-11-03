@@ -35,10 +35,16 @@ priv struct PlayerAnimationController {
 }
 
 ///|
-let player_animation_controllers : Map[
-  @entity.Entity,
+let player_animation_controllers_key : @ecs.WorldKey[
+  @entity.ComponentStore[PlayerAnimationController],
+] = WorldKey(() => ComponentStore(@ecs.require_current_world()))
+
+///|
+fn player_animation_controllers() -> @entity.ComponentStore[
   PlayerAnimationController,
-] = Map([])
+] {
+  @ecs.require_current_world().get_or_init(player_animation_controllers_key)
+}
 
 ///|
 fn player_input_vector() -> @math.Vec2 {
@@ -154,7 +160,7 @@ fn play_player_animation_state(
   animation : SpriteAnimationDef,
   node : @animation.AnimationNodeIndex,
 ) -> Unit {
-  guard player_animation_controllers.get(entity) is Some(controller) else {
+  guard player_animation_controllers().get(entity) is Some(controller) else {
     return
   }
   if controller.current == Some(node) {
@@ -172,7 +178,7 @@ fn play_player_animation_state(
 fn add_player() -> Unit {
   let entity = game_state.player_entity
   let animation_controller = create_player_animation_controller(entity)
-  player_animation_controllers.set(entity, animation_controller)
+  player_animation_controllers().set(entity, animation_controller)
   @sprite.sprites().set(
     entity,
     sprite_animation_sprite(player_idle_right_animation),
@@ -229,7 +235,7 @@ fn player_update_system(_world : @ecs.World) -> Unit {
   } else if vel[Y] < 0.0 {
     game_state.player_direction = Up
   }
-  guard player_animation_controllers.get(entity) is Some(animation_controller) else {
+  guard player_animation_controllers().get(entity) is Some(animation_controller) else {
     return
   }
   match (vel == @math.Vec2::zero(), game_state.player_direction) {
@@ -338,7 +344,7 @@ fn find_nearest_enemy_in_range(
 ) -> @math.Vec2? {
   let mut min = weapon_range
   let mut res : @math.Vec2? = None
-  for e, _enemy in enemies {
+  for e, _enemy in enemies() {
     guard e.is_alive() else { continue }
     guard @transform.transforms().get(e) is Some(enemy_transform) else {
       continue

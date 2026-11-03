@@ -9,7 +9,7 @@ import {
 // Values
 pub fn name_of(@entity.Entity) -> String?
 
-pub fn names() -> Map[@entity.Entity, Name]
+pub fn names() -> @entity.ComponentStore[Name]
 
 // Errors
 

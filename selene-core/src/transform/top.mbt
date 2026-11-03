@@ -163,14 +163,14 @@ pub fn GlobalTransform::reparented_to(
 
 ///|
 priv struct TransformWorldStore {
-  transforms : Map[@entity.Entity, Transform]
+  transforms : @entity.ComponentStore[Transform]
   global_transforms : @entity.ComponentStore[GlobalTransform]
   propagated : Array[Bool]
 }
 
 ///|
 let transform_store_key : @ecs.WorldKey[TransformWorldStore] = WorldKey(() => {
-  transforms: Map([]),
+  transforms: ComponentStore(@ecs.require_current_world()),
   global_transforms: ComponentStore(@ecs.require_current_world()),
   propagated: [],
 })
@@ -181,7 +181,7 @@ fn transform_world_store() -> TransformWorldStore {
 }
 
 ///|
-pub fn transforms() -> Map[@entity.Entity, Transform] {
+pub fn transforms() -> @entity.ComponentStore[Transform] {
   transform_world_store().transforms
 }
 
@@ -247,7 +247,7 @@ pub fn transform_propagate_system(_delta : Double) -> Unit {
   let propagated = store.propagated
   propagated.fill(false)
   let write_global = (entity : @entity.Entity, global : GlobalTransform) => {
-    let index = entity.id().reinterpret_as_int()
+    let index = entity.slot_index()
     while propagated.length() <= index {
       propagated.push(false)
     }
@@ -265,8 +265,7 @@ pub fn transform_propagate_system(_delta : Double) -> Unit {
     propagate_children(entity, global, locals, write_global, is_alive)
   }
   for entity, transform in locals {
-    if !is_alive(entity) ||
-      propagated.get(entity.id().reinterpret_as_int()).unwrap_or(false) {
+    if !is_alive(entity) || propagated.get(entity.slot_index()).unwrap_or(false) {
       continue
     }
     write_global(entity, GlobalTransform::from_transform(transform))
@@ -274,7 +273,7 @@ pub fn transform_propagate_system(_delta : Double) -> Unit {
   // Keep existing rows in place across frames. Only stale globals migrate.
   let stale = []
   for entity, _ in globals {
-    if !propagated.get(entity.id().reinterpret_as_int()).unwrap_or(false) {
+    if !propagated.get(entity.slot_index()).unwrap_or(false) {
       stale.push(entity)
     }
   }
@@ -287,7 +286,7 @@ pub fn transform_propagate_system(_delta : Double) -> Unit {
 fn propagate_children(
   entity : @entity.Entity,
   parent_global : GlobalTransform,
-  locals : Map[@entity.Entity, Transform],
+  locals : @entity.ComponentStore[Transform],
   write_global : (@entity.Entity, GlobalTransform) -> Unit,
   is_alive : (@entity.Entity) -> Bool,
 ) -> Unit {

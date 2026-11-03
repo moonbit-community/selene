@@ -71,20 +71,21 @@ pub fn RigidBody::kinematic_velocity_based() -> RigidBody {
 
 ///|
 priv struct RigidBodyWorldStore {
-  rigid_bodies : Map[@entity.Entity, RigidBody]
+  rigid_bodies : @entity.ComponentStore[RigidBody]
 }
 
 ///|
-let rigid_body_world_stores : Map[UInt32, RigidBodyWorldStore] = Map([])
+let rigid_body_world_store_key : @ecs.WorldKey[RigidBodyWorldStore] = WorldKey(() => {
+  rigid_bodies: ComponentStore(@ecs.require_current_world()),
+})
 
 ///|
 fn rigid_body_world_store() -> RigidBodyWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  rigid_body_world_stores.get_or_init(world_id, () => { rigid_bodies: Map([]), })
+  @ecs.require_current_world().get_or_init(rigid_body_world_store_key)
 }
 
 ///|
 /// Explicit rigid-body descriptors for entities that participate in 2D physics.
-pub fn rigid_bodies() -> Map[@entity.Entity, RigidBody] {
+pub fn rigid_bodies() -> @entity.ComponentStore[RigidBody] {
   rigid_body_world_store().rigid_bodies
 }
