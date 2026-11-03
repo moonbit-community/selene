@@ -158,7 +158,7 @@ let game_state : GameState = {
   player_entity: Entity(),
   camera_entity: Entity(),
   player_direction: Down,
-  rand: @random.Rand(),
+  rand: Rand(),
   score: 0,
   score_box: Entity(),
   invincible: false,

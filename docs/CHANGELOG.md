@@ -6,9 +6,22 @@
 
 ### Changed
 
+### Fixed
+
+### Removed
+
+## [0.38.1] - 2026-11-03
+
+### Added
+
+### Changed
+
 - Replace deprecated whole-string views with slicing.
 
 ### Fixed
+
+- Removed redundant accessibility tree and example type qualifications reported
+  by the current MoonBit toolchain's `unnecessary_annotation` warning.
 
 ### Removed
 

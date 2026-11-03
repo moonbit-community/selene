@@ -83,7 +83,7 @@ priv struct GameState {
 ///|
 /// Global game state
 let game_state : GameState = {
-  rand: @random.Rand(),
+  rand: Rand(),
   deck: [],
   player: {
     chips: 1000,

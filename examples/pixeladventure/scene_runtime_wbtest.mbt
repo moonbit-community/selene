@@ -9,7 +9,7 @@ fn restore_pixeladventure_test_world(previous : @ecs.World?) -> Unit {
 ///|
 fn with_pixeladventure_test_world(action : () -> Unit raise) -> Unit raise {
   let previous = @ecs.current_world()
-  @ecs.set_current_world(@ecs.World())
+  @ecs.set_current_world(World())
   defer restore_pixeladventure_test_world(previous)
   action()
 }

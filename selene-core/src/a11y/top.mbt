@@ -408,7 +408,7 @@ fn build_tree_update(
     node.set_children(child_ids)
     update.push_node(id, node)
   }
-  update.set_tree(@moon_accesskit.TreeInfo(@moon_accesskit.NodeId::root()))
+  update.set_tree(TreeInfo(@moon_accesskit.NodeId::root()))
   update
 }
 
