@@ -19,22 +19,13 @@ pub(all) struct Sprite {
 }
 
 ///|
-priv struct SpriteWorldStore {
-  sprites : Map[@entity.Entity, Sprite]
-}
-
-///|
-let sprite_world_stores : Map[UInt32, SpriteWorldStore] = Map([])
-
-///|
-fn sprite_world_store() -> SpriteWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  sprite_world_stores.get_or_init(world_id, fn() { { sprites: Map([]), } })
-}
+let sprite_store_key : @ecs.WorldKey[Map[@entity.Entity, Sprite]] = WorldKey(() => {
+  Map([])
+})
 
 ///|
 pub fn sprites() -> Map[@entity.Entity, Sprite] {
-  sprite_world_store().sprites
+  @ecs.require_current_world().get_or_init(sprite_store_key)
 }
 
 ///|
@@ -99,10 +90,12 @@ pub fn render_sprite_system(delta : Double) -> Unit {
   ignore(delta)
   let camera_views = @camera.active_camera2d_views()
   let camera_extract = @culling2d.build_camera_extract2d_context(camera_views)
+  let is_alive = @entity.alive_in_world(@ecs.require_current_world())
+  let global_transforms = @transform.global_transforms()
   for entity, sprite in sprites() {
-    guard entity.is_alive() else { continue }
+    guard is_alive(entity) else { continue }
     guard @visibility.is_visible(entity) else { continue }
-    guard @transform.global_transforms().get(entity) is Some(global_transform) else {
+    guard global_transforms.get(entity) is Some(global_transform) else {
       continue
     }
     guard sprite_size(sprite) is Some(size) else { continue }

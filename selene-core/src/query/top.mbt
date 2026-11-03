@@ -21,6 +21,7 @@ pub(all) struct Without[T] {
 
 ///|
 pub(all) struct QueryReader[T] {
+  mut world_id : UInt32?
   mut entities : @set.Set[@entity.Entity]
   mut entries : Map[@entity.Entity, T]
   mut initialized : Bool
@@ -43,11 +44,12 @@ pub fn[T] query(
 
 ///|
 pub fn[T] QueryReader::QueryReader() -> QueryReader[T] {
-  { entities: Set([]), entries: Map([]), initialized: false, }
+  { world_id: None, entities: Set([]), entries: Map([]), initialized: false, }
 }
 
 ///|
 pub fn[T] QueryReader::reset(self : QueryReader[T]) -> Unit {
+  self.world_id = None
   self.entities.clear()
   self.entries.clear()
   self.initialized = false
@@ -59,15 +61,21 @@ pub fn[T] QueryDelta::empty() -> QueryDelta[T] {
 }
 
 ///|
+/// Reads changes for one World. Switching Worlds starts a fresh snapshot.
 pub fn[T : Eq] QueryReader::read(
   self : QueryReader[T],
-  _world : @ecs.World,
+  world : @ecs.World,
   storage : Map[@entity.Entity, T],
 ) -> QueryDelta[T] {
+  if self.world_id != Some(world.id()) {
+    self.reset()
+    self.world_id = Some(world.id())
+  }
   if !self.initialized {
     self.initialized = true
     let added : Array[(@entity.Entity, T)] = []
     for entity, component in storage {
+      guard entity.belongs_to(world) else { continue }
       self.entities.add(entity)
       self.entries.set(entity, component)
       added.push((entity, component))
@@ -80,6 +88,7 @@ pub fn[T : Eq] QueryReader::read(
   let changed : Array[(@entity.Entity, T)] = []
 
   for entity, component in storage {
+    guard entity.belongs_to(world) else { continue }
     if !self.entities.contains(entity) {
       self.entities.add(entity)
       self.entries.set(entity, component)
@@ -132,14 +141,16 @@ pub fn[T] Without::to_filter(self : Without[T]) -> EntityFilter {
 }
 
 ///|
-pub fn[T] Query::iter(
+/// Visits matching entries in storage order without collecting a result array.
+/// Queue structural changes for the next flush when visiting entries.
+pub fn[T] Query::for_each(
   self : Query[T],
+  visit : (@entity.Entity, T) -> Unit,
   require_filters~ : Array[EntityFilter] = [],
   reject_filters~ : Array[EntityFilter] = [],
-) -> Array[(@entity.Entity, T)] {
-  ignore(self.world)
-  let output : Array[(@entity.Entity, T)] = []
+) -> Unit {
   for entity, component in self.storage {
+    guard entity.belongs_to(self.world) else { continue }
     let mut accepted = true
     for filter in require_filters {
       if !filter.passes(entity) {
@@ -157,9 +168,23 @@ pub fn[T] Query::iter(
       }
     }
     if accepted {
-      output.push((entity, component))
+      visit(entity, component)
     }
   }
+}
+
+///|
+pub fn[T] Query::iter(
+  self : Query[T],
+  require_filters~ : Array[EntityFilter] = [],
+  reject_filters~ : Array[EntityFilter] = [],
+) -> Array[(@entity.Entity, T)] {
+  let output = []
+  self.for_each(
+    (entity, component) => output.push((entity, component)),
+    require_filters~,
+    reject_filters~,
+  )
   output
 }
 

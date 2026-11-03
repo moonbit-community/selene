@@ -15,8 +15,7 @@ pub fn Commands::add(self : Commands, command : (@ecs.World) -> Unit) -> Unit {
 
 ///|
 pub fn Commands::spawn(self : Commands) -> @entity.Entity {
-  ignore(self)
-  @entity.Entity::reserve_spawn()
+  @entity.Entity::reserve_spawn_in(self.world)
 }
 
 ///|
@@ -31,6 +30,7 @@ pub fn[T] Commands::insert(
   entity : @entity.Entity,
   value : T,
 ) -> Unit {
+  guard entity.belongs_to(self.world) else { return }
   self.add(fn(_world) { storage.set(entity, value) })
 }
 
@@ -40,6 +40,7 @@ pub fn[T] Commands::remove(
   storage : Map[@entity.Entity, T],
   entity : @entity.Entity,
 ) -> Unit {
+  guard entity.belongs_to(self.world) else { return }
   self.add(fn(_world) { storage.remove(entity) })
 }
 

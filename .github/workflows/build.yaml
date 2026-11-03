@@ -52,7 +52,7 @@ jobs:
           cd selene-core
           moon update
           moon check --deny-warn
-          moon test src/animation src/app src/asset src/autotile2d src/collision src/entity src/event src/input_action src/inputs src/ldtk src/math src/physics3d src/render2d src/render3d src/render_submit src/runtime_debug src/scene3d src/sprite src/text2d src/tiled src/touch_controls src/transform src/ui --target native --release --deny-warn
+          moon test src/animation src/app src/asset src/autotile2d src/collision src/commands src/ecs src/entity src/event src/input_action src/inputs src/ldtk src/math src/physics3d src/query src/render2d src/render3d src/render_submit src/runtime_debug src/scene3d src/sprite src/text2d src/tiled src/touch_controls src/transform src/ui --target native --release --deny-warn
           moon build
 
       - name: selene-webgpu

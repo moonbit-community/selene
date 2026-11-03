@@ -2,11 +2,14 @@
 package "Milky2018/selene/entity"
 
 import {
+  "Milky2018/selene/ecs",
   "moonbitlang/core/debug",
 }
 
 // Values
 pub fn alive_entity_count() -> Int32
+
+pub fn alive_in_world(@ecs.World) -> (Entity) -> Bool
 
 pub fn entity_flush_system(Double) -> Unit
 
@@ -19,6 +22,7 @@ pub fn iter_entities() -> Iter[Entity]
 // Types and methods
 type Entity derive(Eq, Hash, @debug.Debug)
 pub fn Entity::Entity() -> Self
+pub fn Entity::belongs_to(Self, @ecs.World) -> Bool
 pub fn Entity::destroy(Self) -> Unit
 pub fn Entity::equal(Self, Self) -> Bool
 pub fn Entity::get_children(Self) -> Array[Self]
@@ -31,6 +35,7 @@ pub fn Entity::is_child(Self) -> Bool
 pub fn Entity::not_equal(Self, Self) -> Bool
 pub fn Entity::remove_parent(Self) -> Unit
 pub fn Entity::reserve_spawn() -> Self
+pub fn Entity::reserve_spawn_in(@ecs.World) -> Self
 pub fn Entity::respawn(Self) -> Unit
 pub fn Entity::set_parent(Self, Self) -> Unit
 pub fn Entity::spawn_child(Self) -> Self

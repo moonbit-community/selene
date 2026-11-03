@@ -4,9 +4,17 @@
 
 ### Added
 
+- Added typed World-local storage and streaming ECS query traversal.
+
 ### Changed
 
+- Moved entity, hierarchy, transform, and sprite storage into their owning
+  Worlds. Sprite extraction and transform propagation reuse their storage
+  lookups within each pass.
+
 ### Fixed
+
+- Isolated entity identity, deferred commands, and query snapshots across Worlds.
 
 - Initialized the registry index before the pre-release CI compatibility check.
 

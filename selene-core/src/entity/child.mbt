@@ -46,15 +46,14 @@ priv struct HierarchyWorldStore {
 }
 
 ///|
-let hierarchy_world_stores : Map[UInt32, HierarchyWorldStore] = Map([])
+let hierarchy_store_key : @ecs.WorldKey[HierarchyWorldStore] = WorldKey(() => {
+  parents: Map([]),
+  children: Map([]),
+})
 
 ///|
 fn hierarchy_store() -> HierarchyWorldStore {
-  let world = @ecs.require_current_world()
-  hierarchy_world_stores.get_or_init(world.id(), () => {
-    parents: Map([]),
-    children: Map([]),
-  })
+  @ecs.require_current_world().get_or_init(hierarchy_store_key)
 }
 
 ///|
@@ -166,6 +165,9 @@ fn attach_parent_link(child : Entity, parent : Entity) -> Unit {
 /// ```
 ///
 pub fn Entity::spawn_child(parent : Entity) -> Entity {
+  guard parent.belongs_to(@ecs.require_current_world()) else {
+    abort("parent belongs to another world")
+  }
   let child_entity = Entity()
   attach_parent_link(child_entity, parent)
   child_entity
@@ -258,6 +260,8 @@ pub fn Entity::get_parent(child : Entity) -> Entity? {
 
 ///|
 pub fn Entity::set_parent(child : Entity, parent : Entity) -> Unit {
+  let world = @ecs.require_current_world()
+  guard child.belongs_to(world) && parent.belongs_to(world) else { return }
   guard child != parent else { return }
   guard !hierarchy_would_create_cycle(child, parent) else { return }
   guard child.get_parent() != Some(parent) else { return }
@@ -267,6 +271,7 @@ pub fn Entity::set_parent(child : Entity, parent : Entity) -> Unit {
 
 ///|
 pub fn Entity::remove_parent(child : Entity) -> Unit {
+  guard child.belongs_to(@ecs.require_current_world()) else { return }
   detach_parent_link(child)
 }
 

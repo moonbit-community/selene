@@ -1,14 +1,21 @@
 ///|
-pub(all) struct World {
+pub struct World {
   id : UInt32
   pending_commands : Array[(World) -> Unit]
   mut frame_index : UInt32
   mut fixed_step_index : UInt32
+  priv storage : Map[Int32, () -> Unit]
 }
 
 ///|
 fn make_world(id : UInt32) -> World {
-  { id, pending_commands: [], frame_index: 0, fixed_step_index: 0, }
+  {
+    id,
+    pending_commands: [],
+    frame_index: 0,
+    fixed_step_index: 0,
+    storage: {},
+  }
 }
 
 ///|
@@ -77,6 +84,11 @@ pub fn World::flush_commands(self : World) -> Unit {
   }
   let queued = self.pending_commands.copy()
   self.pending_commands.clear()
+  let previous_world = current_world_ref.val
+  current_world_ref.val = Some(self)
+  defer {
+    current_world_ref.val = previous_world
+  }
   for command in queued {
     command(self)
   }

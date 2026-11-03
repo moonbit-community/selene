@@ -15,11 +15,12 @@ pub fn set_current_world(World) -> Unit
 // Errors
 
 // Types and methods
-pub(all) struct World {
+pub struct World {
   id : UInt32
   pending_commands : Array[(World) -> Unit]
   mut frame_index : UInt32
   mut fixed_step_index : UInt32
+  // private fields
 }
 pub fn World::World() -> Self
 pub fn World::advance_fixed_step(Self) -> Unit
@@ -27,9 +28,13 @@ pub fn World::advance_frame(Self) -> Unit
 pub fn World::fixed_step_index(Self) -> UInt32
 pub fn World::flush_commands(Self) -> Unit
 pub fn World::frame_index(Self) -> UInt32
+pub fn[T] World::get_or_init(Self, WorldKey[T]) -> T
 pub fn World::has_pending_commands(Self) -> Bool
 pub fn World::id(Self) -> UInt32
 pub fn World::queue_command(Self, (Self) -> Unit) -> Unit
+
+type WorldKey[T]
+pub fn[T] WorldKey::WorldKey(() -> T) -> Self[T]
 
 // Type aliases
 

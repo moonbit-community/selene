@@ -14,6 +14,7 @@
 
 ///|
 struct Entity {
+  world_id : UInt32
   value : UInt32
 } derive(Eq, Debug, Hash)
 
@@ -36,18 +37,17 @@ priv struct EntityWorldStore {
 }
 
 ///|
-let entity_world_stores : Map[UInt32, EntityWorldStore] = Map([])
+let entity_store_key : @ecs.WorldKey[EntityWorldStore] = WorldKey(() => {
+  entity_generator: 0U,
+  alive_count: 0,
+  all_entities: Set([]),
+  lifecycle_states: Map([]),
+  pending_state_changes: Set([]),
+})
 
 ///|
 fn entity_store() -> EntityWorldStore {
-  let world = @ecs.require_current_world()
-  entity_world_stores.get_or_init(world.id(), () => {
-    entity_generator: 0U,
-    alive_count: 0,
-    all_entities: Set([]),
-    lifecycle_states: Map([]),
-    pending_state_changes: Set([]),
-  })
+  @ecs.require_current_world().get_or_init(entity_store_key)
 }
 
 ///|
@@ -62,16 +62,32 @@ pub fn alive_entity_count() -> Int32 {
 
 ///|
 pub fn Entity::is_alive(e : Entity) -> Bool {
-  match entity_store().lifecycle_states.get(e).unwrap_or(Destroyed) {
+  let world = @ecs.require_current_world()
+  guard e.belongs_to(world) else { false }
+  world.get_or_init(entity_store_key).is_alive(e)
+}
+
+///|
+fn EntityWorldStore::is_alive(self : EntityWorldStore, entity : Entity) -> Bool {
+  match self.lifecycle_states.get(entity).unwrap_or(Destroyed) {
     Alive | PendingRespawn => true
     PendingSpawn | PendingDespawn | Destroyed => false
   }
 }
 
 ///|
+/// Binds a live-state check to a World for repeated use during a traversal.
+pub fn alive_in_world(world : @ecs.World) -> (Entity) -> Bool {
+  let store = world.get_or_init(entity_store_key)
+  let world_id = world.id()
+  entity => entity.world_id == world_id && store.is_alive(entity)
+}
+
+///|
 pub fn Entity::Entity() -> Entity {
-  let store = entity_store()
-  let entity = { value: store.entity_generator, }
+  let world = @ecs.require_current_world()
+  let store = world.get_or_init(entity_store_key)
+  let entity = { world_id: world.id(), value: store.entity_generator, }
   store.entity_generator += 1U
   store.all_entities.add(entity)
   store.alive_count += 1
@@ -85,11 +101,23 @@ pub fn Entity::id(self : Entity) -> UInt32 {
 }
 
 ///|
+/// Checks ownership independently of the entity's lifecycle state.
+pub fn Entity::belongs_to(self : Entity, world : @ecs.World) -> Bool {
+  self.world_id == world.id()
+}
+
+///|
 /// Reserves an entity id that becomes alive on the next flush.
 /// This matches deferred-spawn semantics used by commands.
 pub fn Entity::reserve_spawn() -> Entity {
-  let store = entity_store()
-  let entity = { value: store.entity_generator, }
+  Entity::reserve_spawn_in(@ecs.require_current_world())
+}
+
+///|
+/// Reserves an entity in the specified World, independently of the active World.
+pub fn Entity::reserve_spawn_in(world : @ecs.World) -> Entity {
+  let store = world.get_or_init(entity_store_key)
+  let entity = { world_id: world.id(), value: store.entity_generator, }
   store.entity_generator += 1U
   store.lifecycle_states.set(entity, PendingSpawn)
   store.pending_state_changes.add(entity)
@@ -98,6 +126,7 @@ pub fn Entity::reserve_spawn() -> Entity {
 
 ///|
 pub fn Entity::destroy(e : Entity) -> Unit {
+  guard e.belongs_to(@ecs.require_current_world()) else { return }
   let store = entity_store()
   match store.lifecycle_states.get(e).unwrap_or(Destroyed) {
     Destroyed | PendingDespawn => ()
@@ -124,6 +153,7 @@ pub fn Entity::destroy(e : Entity) -> Unit {
 
 ///|
 pub fn Entity::respawn(e : Entity) -> Unit {
+  guard e.belongs_to(@ecs.require_current_world()) else { return }
   let store = entity_store()
   match store.lifecycle_states.get(e).unwrap_or(Destroyed) {
     Alive | PendingRespawn => ()

@@ -26,6 +26,7 @@ pub(all) struct Query[T] {
   world : @ecs.World
   storage : Map[@entity.Entity, T]
 }
+pub fn[T] Query::for_each(Self[T], (@entity.Entity, T) -> Unit, require_filters? : Array[EntityFilter], reject_filters? : Array[EntityFilter]) -> Unit
 pub fn[T] Query::iter(Self[T], require_filters? : Array[EntityFilter], reject_filters? : Array[EntityFilter]) -> Array[(@entity.Entity, T)]
 pub fn[T] Query::single(Self[T], require_filters? : Array[EntityFilter], reject_filters? : Array[EntityFilter]) -> (@entity.Entity, T)?
 
@@ -37,6 +38,7 @@ pub(all) struct QueryDelta[T] {
 pub fn[T] QueryDelta::empty() -> Self[T]
 
 pub(all) struct QueryReader[T] {
+  mut world_id : UInt32?
   mut entities : @set.Set[@entity.Entity]
   mut entries : Map[@entity.Entity, T]
   mut initialized : Bool

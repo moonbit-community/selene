@@ -168,15 +168,14 @@ priv struct TransformWorldStore {
 }
 
 ///|
-let transform_world_stores : Map[UInt32, TransformWorldStore] = Map([])
+let transform_store_key : @ecs.WorldKey[TransformWorldStore] = WorldKey(() => {
+  transforms: Map([]),
+  global_transforms: Map([]),
+})
 
 ///|
 fn transform_world_store() -> TransformWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  transform_world_stores.get_or_init(world_id, () => {
-    transforms: Map([]),
-    global_transforms: Map([]),
-  })
+  @ecs.require_current_world().get_or_init(transform_store_key)
 }
 
 ///|
@@ -211,6 +210,8 @@ pub fn set_parent_in_place(
   child : @entity.Entity,
   parent : @entity.Entity,
 ) -> Unit {
+  let world = @ecs.require_current_world()
+  guard child.belongs_to(world) && parent.belongs_to(world) else { return }
   guard child != parent else { return }
   let current_global = compute_global_transform(child)
   let parent_global = compute_global_transform(parent)
@@ -237,20 +238,22 @@ pub fn remove_parent_in_place(child : @entity.Entity) -> Unit {
 
 ///|
 pub fn transform_propagate_system(_delta : Double) -> Unit {
+  let is_alive = @entity.alive_in_world(@ecs.require_current_world())
   let globals = global_transforms()
+  let locals = transforms()
   globals.clear()
   for entity in @entity.iter_entities() {
-    if !entity.is_alive() || entity.get_parent() is Some(_) {
+    if !is_alive(entity) || entity.get_parent() is Some(_) {
       continue
     }
     let global = GlobalTransform::from_transform(
-      transforms().get(entity).unwrap_or_default(),
+      locals.get(entity).unwrap_or_default(),
     )
     globals.set(entity, global)
-    propagate_children(entity, global)
+    propagate_children(entity, global, locals, globals, is_alive)
   }
-  for entity, transform in transforms() {
-    if !entity.is_alive() || globals.contains(entity) {
+  for entity, transform in locals {
+    if !is_alive(entity) || globals.contains(entity) {
       continue
     }
     globals.set(entity, GlobalTransform::from_transform(transform))
@@ -261,16 +264,19 @@ pub fn transform_propagate_system(_delta : Double) -> Unit {
 fn propagate_children(
   entity : @entity.Entity,
   parent_global : GlobalTransform,
+  locals : Map[@entity.Entity, Transform],
+  globals : Map[@entity.Entity, GlobalTransform],
+  is_alive : (@entity.Entity) -> Bool,
 ) -> Unit {
   for child in entity.get_children() {
-    if !child.is_alive() {
+    if !is_alive(child) {
       continue
     }
-    let local_transform = transforms().get(child).unwrap_or_default()
+    let local_transform = locals.get(child).unwrap_or_default()
     let global = {
       affine: parent_global.affine * local_transform.compute_affine(),
     }
-    global_transforms().set(child, global)
-    propagate_children(child, global)
+    globals.set(child, global)
+    propagate_children(child, global, locals, globals, is_alive)
   }
 }
