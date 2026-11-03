@@ -1,7 +1,6 @@
 ///|
 pub struct World {
   id : UInt32
-  pending_commands : Array[(World) -> Unit]
   mut frame_index : UInt32
   mut fixed_step_index : UInt32
   priv storage : Map[Int32, () -> Unit]
@@ -9,13 +8,7 @@ pub struct World {
 
 ///|
 fn make_world(id : UInt32) -> World {
-  {
-    id,
-    pending_commands: [],
-    frame_index: 0,
-    fixed_step_index: 0,
-    storage: {},
-  }
+  { id, frame_index: 0, fixed_step_index: 0, storage: {}, }
 }
 
 ///|
@@ -65,33 +58,6 @@ pub fn clear_current_world() -> Unit {
 ///|
 pub fn World::id(self : World) -> UInt32 {
   self.id
-}
-
-///|
-pub fn World::queue_command(self : World, command : (World) -> Unit) -> Unit {
-  self.pending_commands.push(command)
-}
-
-///|
-pub fn World::has_pending_commands(self : World) -> Bool {
-  self.pending_commands.length() > 0
-}
-
-///|
-pub fn World::flush_commands(self : World) -> Unit {
-  if self.pending_commands.length() == 0 {
-    return
-  }
-  let queued = self.pending_commands.copy()
-  self.pending_commands.clear()
-  let previous_world = current_world_ref.val
-  current_world_ref.val = Some(self)
-  defer {
-    current_world_ref.val = previous_world
-  }
-  for command in queued {
-    command(self)
-  }
 }
 
 ///|

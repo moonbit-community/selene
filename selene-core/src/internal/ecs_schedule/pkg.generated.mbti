@@ -1,0 +1,29 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/internal/ecs_schedule"
+
+import {
+  "Milky2018/selene/ecs",
+}
+
+// Values
+pub fn enqueue(@ecs.World, (@ecs.World) -> Unit) -> Unit
+
+pub fn enter_query() -> Unit
+
+pub fn flush(@ecs.World) -> Unit raise FlushError
+
+pub fn has_pending(@ecs.World) -> Bool
+
+pub fn leave_query() -> Unit
+
+// Errors
+pub(all) suberror FlushError {
+  ReentrantFlush
+  ActiveQuery
+}
+
+// Types and methods
+
+// Type aliases
+
+// Traits

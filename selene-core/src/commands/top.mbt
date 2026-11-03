@@ -10,12 +10,12 @@ pub fn commands(world : @ecs.World) -> Commands {
 
 ///|
 pub fn Commands::add(self : Commands, command : (@ecs.World) -> Unit) -> Unit {
-  self.world.queue_command(command)
+  @ecs_schedule.enqueue(self.world, command)
 }
 
 ///|
 pub fn Commands::spawn(self : Commands) -> @entity.Entity {
-  @entity.Entity::reserve_spawn_in(self.world)
+  @entity.Entity::queue_spawn_in(self.world)
 }
 
 ///|
@@ -60,12 +60,7 @@ pub fn[T] Commands::trigger(
 
 ///|
 pub fn has_pending_commands(world : @ecs.World) -> Bool {
-  world.has_pending_commands()
-}
-
-///|
-pub fn commands_flush_system(world : @ecs.World, _delta : Double) -> Unit {
-  world.flush_commands()
+  @ecs_schedule.has_pending(world)
 }
 
 ///|

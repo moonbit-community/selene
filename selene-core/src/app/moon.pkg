@@ -1,6 +1,6 @@
 import {
-  "Milky2018/selene/commands",
   "Milky2018/selene/ecs",
+  "Milky2018/selene/internal/ecs_schedule",
   "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
@@ -15,3 +15,8 @@ import {
   "moonbitlang/core/cmp",
   "moonbitlang/core/set",
 }
+
+import {
+  "Milky2018/selene/commands",
+  "Milky2018/selene/query",
+} for "test"

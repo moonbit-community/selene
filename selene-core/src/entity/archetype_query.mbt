@@ -30,9 +30,11 @@ fn[A, B] ArchetypeQuery2::for_each_columns(
     }
   }
   self.scanned = storage.tables.length()
+  @ecs_schedule.enter_query()
   storage.active_queries += 1
   defer {
     storage.active_queries -= 1
+    @ecs_schedule.leave_query()
   }
   for id in self.matches {
     let entities = storage.tables[id].entities

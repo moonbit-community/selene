@@ -525,7 +525,7 @@ fn startup_runtime(plan : RuntimePlan) -> Unit {
   @ecs.set_current_world(plan.world)
   @time.set_delta(0.0)
   run_stage(plan.startup_systems, plan.world)
-  @commands.commands_flush_system(plan.world, 0.0)
+  try! @ecs_schedule.flush(plan.world)
   @entity.entity_flush_system(0.0)
 }
 
@@ -549,7 +549,7 @@ fn run_fixed_step_once(plan : RuntimePlan) -> Unit {
   run_stage(plan.fixed_update, plan.world)
   run_stage(plan.fixed_post, plan.world)
   run_stage(plan.fixed_last, plan.world)
-  @commands.commands_flush_system(plan.world, fixed_delta)
+  try! @ecs_schedule.flush(plan.world)
   @entity.entity_flush_system(fixed_delta)
   @runtime_debug.note_fixed_step(fixed_delta)
 }
@@ -599,7 +599,7 @@ fn run_game_frame(
   run_stage(plan.frame_post, plan.world)
   @event.event_observer_dispatch_system(delta)
   run_stage(plan.frame_last, plan.world)
-  @commands.commands_flush_system(plan.world, delta)
+  try! @ecs_schedule.flush(plan.world)
   @entity.entity_flush_system(delta)
 
   @runtime_debug.note_update(delta, @entity.alive_entity_count())

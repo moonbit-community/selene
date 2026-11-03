@@ -4,6 +4,8 @@
 
 ### Added
 
+- `timeout` now returns a `TimerHandle` that can cancel a pending callback.
+  Use `ignore(timeout(...))` when discarding the handle.
 - Added typed World-local storage and streaming ECS query traversal.
 - Added World-local archetypes with typed columns, dynamic component migration,
   and cached two-component queries.
@@ -34,12 +36,20 @@
 
 ### Fixed
 
+- Isolated timeout queues by World and preserved zero-delay timeouts scheduled
+  by callbacks for the next timer tick.
+- Guarded command flushes against reentry and active queries. Commands queued
+  during a flush run in FIFO order at the next scheduler flush.
 - Isolated entity identity, deferred commands, and query snapshots across Worlds.
 
 - Initialized the registry index before the pre-release CI compatibility check.
 
 ### Removed
 
+- Removed direct access to the World's command queue. Use `Commands::add` and
+  `@commands.has_pending_commands` to enqueue and inspect pending work. The app
+  scheduler flushes after startup, after each fixed step, and at the end of the
+  game frame.
 - Removed the Map-based ECS command insertion and removal APIs. Use
   `Commands::insert_component` and `Commands::remove_component`.
 

@@ -174,6 +174,27 @@ pub fn Entity::reserve_spawn_in(world : @ecs.World) -> Entity {
 }
 
 ///|
+/// Reserves an entity now and queues its activation with the next command batch.
+pub fn Entity::queue_spawn_in(world : @ecs.World) -> Entity {
+  queue_entity_spawn(world, _ => ())
+}
+
+///|
+fn queue_entity_spawn(
+  world : @ecs.World,
+  initialize : (Entity) -> Unit,
+) -> Entity {
+  let store = world.get_or_init(entity_store_key)
+  let entity = store.allocate(world.id(), PendingSpawn)
+  @ecs_schedule.enqueue(world, _ => {
+    guard store.archetypes.slot(entity) is Some(_) else { return }
+    initialize(entity)
+    store.pending_state_changes.add(entity)
+  })
+  entity
+}
+
+///|
 /// Despawns this entity while retaining its slot and components for respawn.
 pub fn Entity::destroy(e : Entity) -> Unit {
   let world = @ecs.require_current_world()

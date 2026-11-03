@@ -264,10 +264,12 @@ fn shoot_weapon_bullet(
   // Calculate bullet duration based on weapon range
   let weapon_range = calculate_weapon_range(weapon_data, 0.0)
   let bullet_duration = weapon_range / weapon_data.bullet_speed
-  @system.timeout(bullet_duration, fn() {
-    bullet_entity.destroy()
-    player_bullets().remove(bullet_entity)
-  })
+  ignore(
+    @system.timeout(bullet_duration, fn() {
+      bullet_entity.destroy()
+      player_bullets().remove(bullet_entity)
+    }),
+  )
 }
 
 ///|

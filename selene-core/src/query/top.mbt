@@ -135,6 +135,8 @@ pub fn[T] Query::for_each(
   reject_filters~ : Array[EntityFilter] = [],
 ) -> Unit {
   guard self.storage.belongs_to(self.world) else { return }
+  @ecs_schedule.enter_query()
+  defer @ecs_schedule.leave_query()
   for entity, component in self.storage {
     let mut accepted = true
     for filter in require_filters {

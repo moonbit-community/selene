@@ -63,6 +63,7 @@ pub fn Entity::is_alive(Self) -> Bool
 pub fn Entity::is_child(Self) -> Bool
 pub fn Entity::is_valid_in(Self, @ecs.World) -> Bool
 pub fn Entity::not_equal(Self, Self) -> Bool
+pub fn Entity::queue_spawn_in(@ecs.World) -> Self
 pub fn Entity::remove_parent(Self) -> Unit
 pub fn Entity::reserve_spawn() -> Self
 pub fn Entity::reserve_spawn_in(@ecs.World) -> Self

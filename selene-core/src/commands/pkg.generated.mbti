@@ -10,8 +10,6 @@ import {
 // Values
 pub fn commands(@ecs.World) -> Commands
 
-pub fn commands_flush_system(@ecs.World, Double) -> Unit
-
 pub fn has_pending_commands(@ecs.World) -> Bool
 
 // Errors

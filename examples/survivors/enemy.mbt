@@ -310,7 +310,7 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
       }
       None => () // No more enemies to spawn in this wave
     }
-    @system.timeout(spawn_interval, spawn_enemy)
+    ignore(@system.timeout(spawn_interval, spawn_enemy))
   }
 
   spawn_enemy()
@@ -566,10 +566,12 @@ fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
   )
   @physics2d.areas().set(bullet_entity, area)
   enemy_bullets.add(bullet_entity)
-  @system.timeout(5.0, fn() {
-    bullet_entity.destroy()
-    enemy_bullets.remove(bullet_entity)
-  })
+  ignore(
+    @system.timeout(5.0, fn() {
+      bullet_entity.destroy()
+      enemy_bullets.remove(bullet_entity)
+    }),
+  )
 }
 
 ///|
@@ -582,7 +584,9 @@ fn apply_player_damage() -> Unit {
   let new_score = (game_state.score - penalty).max(0)
   set_score(new_score)
   trigger_damage_effect()
-  @system.timeout(INVINCIBLE_TIME, fn() { game_state.invincible = false })
+  ignore(
+    @system.timeout(INVINCIBLE_TIME, fn() { game_state.invincible = false }),
+  )
 }
 
 ///|

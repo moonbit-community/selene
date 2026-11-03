@@ -13,77 +13,102 @@
 // limitations under the License.
 
 ///|
-priv struct Timer {
-  mut rest : Double
-  pausible : Bool
-  callback : () -> Unit
+/// A handle to one timeout. Cancellation is independent of the active World.
+struct TimerHandle {
+  mut callback : (() -> Unit)?
 }
 
 ///|
-let timers : Array[Timer] = Array()
+/// Cancels a pending callback. Returns true only if it was still pending.
+pub fn TimerHandle::cancel(self : TimerHandle) -> Bool {
+  let pending = self.callback is Some(_)
+  self.callback = None
+  pending
+}
 
 ///|
-/// Schedules a callback function to be executed after a specified time delay.
-///
-/// Parameters:
-///
-/// * `time` : The delay in seconds before the callback is executed.
-/// * `callback` : The function to be called when the timer expires.
-/// * `pausible` : Whether the timer should be affected by the pausible timer
-///   system. Defaults to `true`. If `true`, the timer will be processed by
-///   `timer_system()` and affected by `set_time_scale()`, if `false`, it 
-///   will be processed by `realtime_timer_system()` and not affected by 
-///   `set_time_scale()`.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// // Schedule a callback to run after 2.5 seconds (pausible timer)
-/// @system.timeout(2.5, fn() { println("Timer expired!") })
-///
-/// // Schedule a realtime callback that won't be paused
-/// @system.timeout(1.0, fn() { println("Realtime timer!") }, pausible=false)
-/// ```
-///
+priv struct Timer {
+  mut remaining : Double
+  pausible : Bool
+  handle : TimerHandle
+}
+
+///|
+priv struct Timers {
+  pending : Array[Timer]
+  mut ticking : Bool
+}
+
+///|
+let timers : @ecs.WorldKey[Timers] = @ecs.WorldKey(() => {
+  pending: [],
+  ticking: false,
+})
+
+///|
+/// Schedules a one-shot callback in the active World and returns its handle.
+/// The delay is in seconds. By default it uses scaled frame time.
+/// Pass `pausible=false` to use unscaled frame time.
+/// A timeout scheduled by a callback is first eligible on the next timer tick.
 pub fn timeout(
   time : Double,
   callback : () -> Unit,
   pausible~ : Bool = true,
-) -> Unit {
-  timers.push({ rest: time, pausible, callback, })
+) -> TimerHandle {
+  let handle = { callback: Some(callback), }
+  let state = @ecs.require_current_world().get_or_init(timers)
+  state.pending.push({ remaining: time, pausible, handle, })
+  handle
 }
 
 ///|
-/// Updates and processes all pausible timers by the given time delta.
-///
-/// Parameters:
-///
-/// * `delta` : The time elapsed since the last update, in seconds.
-///
+fn tick_timers(scaled : Double?, unscaled : Double?) -> Unit {
+  let world = @ecs.require_current_world()
+  let state = world.get_or_init(timers)
+  guard !state.ticking && !state.pending.is_empty() else { return }
+  state.ticking = true
+  defer {
+    state.ticking = false
+    @ecs.set_current_world(world)
+  }
+  let due = []
+  state.pending.retain(timer => {
+    if timer.handle.callback is None {
+      return false
+    }
+    let delta = if timer.pausible { scaled } else { unscaled }
+    if delta is Some(delta) {
+      timer.remaining -= delta
+      if timer.remaining <= 0.0 {
+        due.push(timer.handle)
+        return false
+      }
+    }
+    true
+  })
+  for handle in due {
+    if handle.callback is Some(callback) {
+      handle.callback = None
+      @ecs.set_current_world(world)
+      callback()
+    }
+  }
+}
+
+///|
+/// Advances both timer clocks in one tick. The default plugins use this system.
+pub fn timers_system(delta : Double) -> Unit {
+  tick_timers(Some(delta), Some(@time.raw_delta()))
+}
+
+///|
+/// Advances only scaled timers by the given delta in seconds.
 pub fn timer_system(delta : Double) -> Unit {
-  for timer in timers.filter(timer => timer.pausible) {
-    timer.rest -= delta
-    if timer.rest <= 0 {
-      (timer.callback)()
-    }
-  }
-  timers.retain(fn(timer) { timer.rest > 0 })
+  tick_timers(Some(delta), None)
 }
 
 ///|
-/// Updates and processes all realtime timers by the given time delta.
-///
-/// Parameters:
-///
-/// * `delta` : The time elapsed since the last update, in seconds.
-///
+/// Advances only unscaled timers using the active World's raw frame delta.
 pub fn realtime_timer_system(_delta : Double) -> Unit {
-  let realtime_delta = @time.raw_delta()
-  for timer in timers.filter(timer => !timer.pausible) {
-    timer.rest -= realtime_delta
-    if timer.rest <= 0 {
-      (timer.callback)()
-    }
-  }
-  timers.retain(fn(timer) { timer.rest > 0 })
+  tick_timers(None, Some(@time.raw_delta()))
 }

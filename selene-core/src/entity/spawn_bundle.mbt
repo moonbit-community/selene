@@ -103,9 +103,7 @@ pub fn[T] SpawnBundle::queue_spawn(
   guard self.world_id == world.id() else {
     abort("spawn bundle belongs to another world")
   }
-  let entity = Entity::reserve_spawn_in(world)
-  world.queue_command(_ => {
-    guard self.storage.slot(entity) is Some(_) else { return }
+  queue_entity_spawn(world, entity => {
     self.storage.require_no_query()
     if self.storage.location(entity) is Some(_) {
       // Immediate edits to a pending entity may already have created a row.
@@ -114,5 +112,4 @@ pub fn[T] SpawnBundle::queue_spawn(
       self.append_row(entity, values)
     }
   })
-  entity
 }

@@ -1,6 +1,7 @@
 import {
   "moonbitlang/core/debug",
   "Milky2018/selene/ecs",
+  "Milky2018/selene/internal/ecs_schedule",
   "moonbitlang/core/set",
 }
 
