@@ -119,4 +119,6 @@ jobs:
 
       - name: Check pre-release compatibility
         # Keep deprecation warnings visible while latest still requires the old syntax.
-        run: moon check --target all
+        run: |
+          moon update
+          moon check --target all

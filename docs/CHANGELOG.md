@@ -8,6 +8,8 @@
 
 ### Fixed
 
+- Initialized the registry index before the pre-release CI compatibility check.
+
 ### Removed
 
 ## [0.39.1] - 2026-11-03
