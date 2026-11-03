@@ -6,6 +6,11 @@
 
 ### Changed
 
+- Deprecated all published Mooncakes versions of the retired `selene-canvas`,
+  `selene_tools`, `selene_editor`, `selene_editor_shared`,
+  `selene_editor_frontend`, and `selene_editor_service` modules. The canvas
+  deprecation directs users to `Milky2018/selene_webgpu`.
+
 ### Fixed
 
 ### Removed
