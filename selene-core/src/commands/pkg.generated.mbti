@@ -28,6 +28,7 @@ pub fn[T] Commands::remove(Self, Map[@entity.Entity, T], @entity.Entity) -> Unit
 pub fn[T] Commands::remove_component(Self, @entity.ComponentStore[T], @entity.Entity) -> Unit
 pub fn[T] Commands::send(Self, @event.Events[T], T) -> Unit
 pub fn Commands::spawn(Self) -> @entity.Entity
+pub fn[T] Commands::spawn_bundle(Self, @entity.SpawnBundle[T], T) -> @entity.Entity
 pub fn[T] Commands::trigger(Self, @event.Events[T], T, @entity.Entity?) -> Unit
 
 // Type aliases

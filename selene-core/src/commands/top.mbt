@@ -19,6 +19,16 @@ pub fn Commands::spawn(self : Commands) -> @entity.Entity {
 }
 
 ///|
+/// Queues an entity with its initial archetype components and returns its pending handle.
+pub fn[T] Commands::spawn_bundle(
+  self : Commands,
+  bundle : @entity.SpawnBundle[T],
+  values : T,
+) -> @entity.Entity {
+  bundle.queue_spawn(self.world, values)
+}
+
+///|
 pub fn Commands::despawn(self : Commands, entity : @entity.Entity) -> Unit {
   self.add(fn(_world) { entity.destroy() })
 }

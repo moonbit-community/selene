@@ -44,7 +44,7 @@ fn[T] ComponentStore::location(
   entity : Entity,
 ) -> (Int32, Int32)? {
   guard self.world_id == entity.world_id else { None }
-  self.storage.locations.get(entity.id().reinterpret_as_int()).unwrap_or(None)
+  self.storage.location(entity)
 }
 
 ///|
@@ -86,6 +86,16 @@ pub fn[T] ComponentStore::set(
     None => self.storage.singleton_table(self.component)
   }
   self.storage.move_row(entity, location, Some(id))
+  self.append_new(id, entity, value)
+}
+
+///|
+fn[T] ComponentStore::append_new(
+  self : ComponentStore[T],
+  id : Int32,
+  entity : Entity,
+  value : T,
+) -> Unit {
   self.columns[id].unwrap().push(value)
   let index = entity.id().reinterpret_as_int()
   while self.orders.length() <= index {

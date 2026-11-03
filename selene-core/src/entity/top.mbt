@@ -85,7 +85,11 @@ pub fn alive_in_world(world : @ecs.World) -> (Entity) -> Bool {
 
 ///|
 pub fn Entity::Entity() -> Entity {
-  let world = @ecs.require_current_world()
+  spawn_in(@ecs.require_current_world())
+}
+
+///|
+fn spawn_in(world : @ecs.World) -> Entity {
   let store = world.get_or_init(entity_store_key)
   let entity = { world_id: world.id(), value: store.entity_generator, }
   store.entity_generator += 1U

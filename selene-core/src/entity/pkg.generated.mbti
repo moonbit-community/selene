@@ -36,6 +36,7 @@ pub fn[T] ComponentStore::iter2(Self[T]) -> Iter2[Entity, T]
 pub fn[T] ComponentStore::order_span(Self[T]) -> Int32
 pub fn[T] ComponentStore::remove(Self[T], Entity) -> Unit
 pub fn[T] ComponentStore::set(Self[T], Entity, T) -> Unit
+pub fn[T] ComponentStore::spawn_bundle(Self[T]) -> SpawnBundle[T]
 
 type Entity derive(Eq, Hash, @debug.Debug)
 pub fn Entity::Entity() -> Self
@@ -62,6 +63,11 @@ type EntityLifecycleState derive(Eq, @debug.Debug)
 pub fn EntityLifecycleState::equal(Self, Self) -> Bool
 pub fn EntityLifecycleState::not_equal(Self, Self) -> Bool
 pub fn EntityLifecycleState::to_repr(Self) -> @debug.Repr
+
+type SpawnBundle[T]
+pub fn[A, B] SpawnBundle::combine(Self[A], Self[B]) -> Self[(A, B)]
+pub fn[T] SpawnBundle::queue_spawn(Self[T], @ecs.World, T) -> Entity
+pub fn[T] SpawnBundle::spawn(Self[T], @ecs.World, T) -> Entity
 
 // Type aliases
 

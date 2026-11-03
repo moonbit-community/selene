@@ -96,22 +96,35 @@ fn[T] swap_remove_row(column : Array[T], row : Int32) -> Unit {
 }
 
 ///|
+fn ArchetypeWorld::location(
+  self : ArchetypeWorld,
+  entity : Entity,
+) -> (Int32, Int32)? {
+  self.locations.get(entity.id().reinterpret_as_int()).unwrap_or(None)
+}
+
+///|
+fn ArchetypeWorld::append_entity(
+  self : ArchetypeWorld,
+  id : Int32,
+  entity : Entity,
+) -> Unit {
+  let index = entity.id().reinterpret_as_int()
+  while self.locations.length() <= index {
+    self.locations.push(None)
+  }
+  let entities = self.tables[id].entities
+  self.locations[index] = Some((id, entities.length()))
+  entities.push(entity)
+}
+
+///|
 fn ArchetypeWorld::move_row(
   self : ArchetypeWorld,
   entity : Entity,
   source : (Int32, Int32)?,
   target : Int32?,
 ) -> Unit {
-  let index = entity.id().reinterpret_as_int()
-  while self.locations.length() <= index {
-    self.locations.push(None)
-  }
-  let destination = target.map(id => {
-    let entities = self.tables[id].entities
-    let row = entities.length()
-    entities.push(entity)
-    (id, row)
-  })
   if source is Some((id, row)) {
     let table = self.tables[id]
     if target is Some(target) {
@@ -137,5 +150,8 @@ fn ArchetypeWorld::move_row(
     }
     swap_remove_row(table.entities, row)
   }
-  self.locations[index] = destination
+  match target {
+    Some(id) => self.append_entity(id, entity)
+    None => self.locations[entity.id().reinterpret_as_int()] = None
+  }
 }

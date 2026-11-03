@@ -8,6 +8,8 @@
 - Added World-local archetypes with typed columns, dynamic component migration,
   and cached two-component queries.
 - Added zero-copy batch reads and in-place writes for archetype queries.
+- Added reusable spawn bundles that insert an entity directly into its final
+  archetype, including through deferred commands.
 
 ### Changed
 
