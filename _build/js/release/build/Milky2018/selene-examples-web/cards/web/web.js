@@ -213,21 +213,6 @@ function _M0TP39Milky201817selene_2dexamples5cards6Player(param0, param1, param2
   this.has_folded = param3;
   this.position = param4;
 }
-function _M0TPB9ArrayViewGUjRP39Milky20186selene9transform19TransformWorldStoreEE(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
-function _M0TPB9ArrayViewGUjRP39Milky20186selene6entity19HierarchyWorldStoreEE(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
-function _M0TPB9ArrayViewGUjRP39Milky20186selene6sprite16SpriteWorldStoreEE(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
 function _M0TPC16string10StringView(param0, param1, param2) {
   this.str = param0;
   this.start = param1;
@@ -254,6 +239,21 @@ function _M0TPB9ArrayViewGUsRP39Milky20186selene12asset__types11ImageHandleEE(pa
   this.end = param2;
 }
 function _M0TPB9ArrayViewGURP39Milky20186selene12asset__types11ImageHandlesEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TPB9ArrayViewGUjRP39Milky20186selene9transform19TransformWorldStoreEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TPB9ArrayViewGUjRP39Milky20186selene6sprite16SpriteWorldStoreEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TPB9ArrayViewGUjRP39Milky20186selene6entity19HierarchyWorldStoreEE(param0, param1, param2) {
   this.buf = param0;
   this.start = param1;
   this.end = param2;
@@ -316,73 +316,6 @@ function _M0TPB9ArrayViewGUjRP39Milky20186selene6system12DisplayStateEE(param0, 
   this.start = param1;
   this.end = param2;
 }
-function _M0TP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshot(param0, param1, param2, param3, param4) {
-  this.service_before_ms = param0;
-  this.game_ms = param1;
-  this.render_ms = param2;
-  this.service_after_ms = param3;
-  this.total_work_ms = param4;
-}
-function _M0TPB9ArrayViewGUjRP39Milky20186selene14runtime__debug21RenderSubmissionDebugEE(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
-function _M0TPB9ArrayViewGUjRPB5ArrayGRP39Milky20186selene5event13RegisteredBusEEE(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
-function _M0TPB9ArrayViewGUjRP39Milky20186selene4time9TimeStateEE(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
-function _M0TPB9ArrayViewGUjRP39Milky20186selene14runtime__debug23FramePerformanceMetricsEE(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
-function _M0TPB9ArrayViewGUjRPB5ArrayGRP39Milky20186selene14runtime__debug23FramePerformanceMetricsEEE(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
-function _M0TPB9ArrayViewGUjRP39Milky20186selene14runtime__debug23DeterministicModeConfigEE(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
-function _M0TPB9ArrayViewGUjRP39Milky20186selene5state17StateWorldRuntimeEE(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
-function _M0TPB9ArrayViewGUjRPB5ArrayGRP39Milky20186selene6inputs13InputSnapshotEEE(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
-function _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
-function _M0TPB9ArrayViewGUjRP39Milky20186selene6inputs17GamepadWorldStoreEE(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
-function _M0TPB9ArrayViewGURP39Milky20186selene6inputs7TouchIdRP39Milky20186selene6inputs10TouchPointEE(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
-function _M0TPB9ArrayViewGUiRP29Milky201814selene__webgpu13AudioPlaybackEE(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
 function _M0TPB9ArrayViewGUjRP39Milky20186selene6camera16CameraWorldStoreEE(param0, param1, param2) {
   this.buf = param0;
   this.start = param1;
@@ -428,20 +361,10 @@ function _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types10MeshHandleRP39
   this.start = param1;
   this.end = param2;
 }
-function _M0TPB9ArrayViewGUsbEE(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
 function _M0TPC15bytes9BytesView(param0, param1, param2) {
   this.buf = param0;
   this.start = param1;
   this.end = param2;
-}
-function _M0TP29Milky201811moon__swash12CharmapProxy(param0, param1, param2) {
-  this.offset = param0;
-  this.format = param1;
-  this.symbol = param2;
 }
 function _M0DTPC16option6OptionGdE4None() {}
 _M0DTPC16option6OptionGdE4None.prototype.$tag = 0;
@@ -450,6 +373,11 @@ function _M0DTPC16option6OptionGdE4Some(param0) {
   this._0 = param0;
 }
 _M0DTPC16option6OptionGdE4Some.prototype.$tag = 1;
+function _M0TP29Milky201811moon__swash12CharmapProxy(param0, param1, param2) {
+  this.offset = param0;
+  this.format = param1;
+  this.symbol = param2;
+}
 function _M0DTP39Milky201812moon__skrifa7outline11HintingMode6Strong() {}
 _M0DTP39Milky201812moon__skrifa7outline11HintingMode6Strong.prototype.$tag = 0;
 function _M0DTP39Milky201812moon__skrifa7outline11HintingMode6Smooth(param0, param1) {
@@ -489,6 +417,16 @@ function _M0DTP39Milky201812moon__skrifa7outline10HinterKind4Auto(param0) {
   this._0 = param0;
 }
 _M0DTP39Milky201812moon__skrifa7outline10HinterKind4Auto.prototype.$tag = 3;
+function _M0TP29Milky201810moon__zeno9Placement(param0, param1, param2, param3) {
+  this.left = param0;
+  this.top = param1;
+  this.width = param2;
+  this.height = param3;
+}
+function _M0TP29Milky201810moon__zeno11SegmentTime(param0, param1) {
+  this.distance = param0;
+  this.time = param1;
+}
 function _M0DTP29Milky201810moon__zeno7Segment4Line(param0, param1) {
   this._0 = param0;
   this._1 = param1;
@@ -503,16 +441,6 @@ function _M0DTP29Milky201810moon__zeno7Segment3End(param0) {
   this._0 = param0;
 }
 _M0DTP29Milky201810moon__zeno7Segment3End.prototype.$tag = 2;
-function _M0TP29Milky201810moon__zeno11SegmentTime(param0, param1) {
-  this.distance = param0;
-  this.time = param1;
-}
-function _M0TP29Milky201810moon__zeno9Placement(param0, param1, param2, param3) {
-  this.left = param0;
-  this.top = param1;
-  this.width = param2;
-  this.height = param3;
-}
 function _M0DTP39Milky201811moon__swash5scale6Source7Outline() {}
 _M0DTP39Milky201811moon__swash5scale6Source7Outline.prototype.$tag = 0;
 const _M0DTP39Milky201811moon__swash5scale6Source7Outline__ = new _M0DTP39Milky201811moon__swash5scale6Source7Outline();
@@ -528,6 +456,11 @@ function _M0DTP39Milky201811moon__swash5scale6Source11ColorBitmap(param0) {
   this._0 = param0;
 }
 _M0DTP39Milky201811moon__swash5scale6Source11ColorBitmap.prototype.$tag = 3;
+function _M0TPB9ArrayViewGUsbEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
 function _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types11ImageHandleRP39Milky20186selene15render3d__types10ImageAssetEE(param0, param1, param2) {
   this.buf = param0;
   this.start = param1;
@@ -572,6 +505,11 @@ function _M0TPB9ArrayViewGUjbEE(param0, param1, param2) {
   this.end = param2;
 }
 function _M0TPB9ArrayViewGUjRP39Milky20186selene8render2d18RenderFrameState2DEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TPB9ArrayViewGUjRP39Milky20186selene14runtime__debug21RenderSubmissionDebugEE(param0, param1, param2) {
   this.buf = param0;
   this.start = param1;
   this.end = param2;
@@ -621,12 +559,32 @@ function _M0TPB9ArrayViewGUjRP39Milky20186selene5audio15AudioWorldStoreEE(param0
   this.start = param1;
   this.end = param2;
 }
+function _M0TPB9ArrayViewGUiRP29Milky201814selene__webgpu13AudioPlaybackEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
 function _M0TPB9ArrayViewGURP39Milky20186selene2ui16UiMaterialHandleRP39Milky20186selene2ui15UiMaterialAssetEE(param0, param1, param2) {
   this.buf = param0;
   this.start = param1;
   this.end = param2;
 }
 function _M0TPB9ArrayViewGUjRP39Milky20186selene10visibility20VisibilityWorldStoreEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TPB9ArrayViewGUjRPB5ArrayGRP39Milky20186selene5event13RegisteredBusEEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TPB9ArrayViewGURP39Milky20186selene6inputs7TouchIdRP39Milky20186selene6inputs10TouchPointEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TPB9ArrayViewGUjRP39Milky20186selene6inputs17GamepadWorldStoreEE(param0, param1, param2) {
   this.buf = param0;
   this.start = param1;
   this.end = param2;
@@ -681,6 +639,11 @@ function _M0TPB9ArrayViewGUjRP39Milky20186selene2ui15UiLayoutRuntimeEE(param0, p
   this.end = param2;
 }
 function _M0TPB9ArrayViewGURP39Milky20186selene6entity6EntityRP39Milky20186selene15render3d__types11SceneHandleEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(param0, param1, param2) {
   this.buf = param0;
   this.start = param1;
   this.end = param2;
@@ -832,6 +795,11 @@ function _M0TPB9ArrayViewGURP39Milky20186selene6inputs7TouchIdRP39Milky20186sele
   this.start = param1;
   this.end = param2;
 }
+function _M0TPB9ArrayViewGUjRP39Milky20186selene4time9TimeStateEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
 function _M0TPB9ArrayViewGUjRP39Milky20186selene4ldtk14LdtkWorldStoreEE(param0, param1, param2) {
   this.buf = param0;
   this.start = param1;
@@ -861,6 +829,38 @@ function _M0TPB9ArrayViewGURP29Milky201815moon__accesskit6NodeIdRP39Milky20186se
   this.end = param2;
 }
 function _M0TPB9ArrayViewGURP39Milky20186selene6entity6EntitymEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshot(param0, param1, param2, param3, param4) {
+  this.service_before_ms = param0;
+  this.game_ms = param1;
+  this.render_ms = param2;
+  this.service_after_ms = param3;
+  this.total_work_ms = param4;
+}
+function _M0TPB9ArrayViewGUjRP39Milky20186selene14runtime__debug23FramePerformanceMetricsEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TPB9ArrayViewGUjRPB5ArrayGRP39Milky20186selene14runtime__debug23FramePerformanceMetricsEEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TPB9ArrayViewGUjRP39Milky20186selene14runtime__debug23DeterministicModeConfigEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TPB9ArrayViewGUjRP39Milky20186selene5state17StateWorldRuntimeEE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TPB9ArrayViewGUjRPB5ArrayGRP39Milky20186selene6inputs13InputSnapshotEEE(param0, param1, param2) {
   this.buf = param0;
   this.start = param1;
   this.end = param2;
@@ -944,6 +944,20 @@ function _M0TPB4IterGUiRP29Milky201812moon__cosmic11LayoutGlyphEE(param0, param1
   this.f = param0;
   this.size_hint = param1;
 }
+const _M0FPB22js__code__unit__string = (c) => String.fromCharCode(c);
+const _M0FPB13js__index__of = (s, start, end, p) => {
+  if (end - start < p.length) return -1;
+  if (end === s.length) return s.indexOf(p, start);
+  const i = s.substring(start, end).indexOf(p);
+  return i < 0 ? i : start + i;
+};
+const _M0FPB13js__substring = (s, start, end) => start === 0 && end === s.length ? s : s.substring(start, end);
+const _M0FPB19js__last__index__of = (s, start, end, p) => {
+  if (end - start < p.length) return -1;
+  if (start === 0) return s.lastIndexOf(p, end - p.length);
+  const i = s.substring(start, end).lastIndexOf(p);
+  return i < 0 ? i : start + i;
+};
 const _M0MPB7JSArray4push = (arr, val) => { arr.push(val); };
 function _M0TPB4IterGRPC16string10StringViewE(param0, param1) {
   this.f = param0;
@@ -14023,38 +14037,38 @@ function _M0DTPC16option6OptionGORP39Milky20186selene6camera14CameraViewportE4So
   this._0 = param0;
 }
 _M0DTPC16option6OptionGORP39Milky20186selene6camera14CameraViewportE4Some.prototype.$tag = 1;
-const _M0FP085Milky2018_2fmoon__zeno_2fTransformSink_24as_24_40Milky2018_2fmoon__zeno_2ePathBuilder = { method_0: _M0IP29Milky201810moon__zeno13TransformSinkP29Milky201810moon__zeno11PathBuilder14current__point, method_1: _M0IP29Milky201810moon__zeno13TransformSinkP29Milky201810moon__zeno11PathBuilder8move__to, method_2: _M0IP29Milky201810moon__zeno13TransformSinkP29Milky201810moon__zeno11PathBuilder8line__to, method_3: _M0IP29Milky201810moon__zeno13TransformSinkP29Milky201810moon__zeno11PathBuilder8quad__to, method_4: _M0IP29Milky201810moon__zeno13TransformSinkP29Milky201810moon__zeno11PathBuilder9curve__to, method_5: _M0IP29Milky201810moon__zeno13TransformSinkP29Milky201810moon__zeno11PathBuilder5close };
-const _M0FP082Milky2018_2fmoon__zeno_2fRasterizer_24as_24_40Milky2018_2fmoon__zeno_2ePathBuilder = { method_0: _M0IP29Milky201810moon__zeno10RasterizerP29Milky201810moon__zeno11PathBuilder14current__point, method_1: _M0IP29Milky201810moon__zeno10RasterizerP29Milky201810moon__zeno11PathBuilder8move__to, method_2: _M0IP29Milky201810moon__zeno10RasterizerP29Milky201810moon__zeno11PathBuilder8line__to, method_3: _M0IP29Milky201810moon__zeno10RasterizerP29Milky201810moon__zeno11PathBuilder8quad__to, method_4: _M0IP29Milky201810moon__zeno10RasterizerP29Milky201810moon__zeno11PathBuilder9curve__to, method_5: _M0IP29Milky201810moon__zeno10RasterizerP29Milky201810moon__zeno11PathBuilder5close };
-const _M0FP085Milky2018_2fmoon__zeno_2fBoundsBuilder_24as_24_40Milky2018_2fmoon__zeno_2ePathBuilder = { method_0: _M0IP29Milky201810moon__zeno13BoundsBuilderP29Milky201810moon__zeno11PathBuilder14current__point, method_1: _M0IP29Milky201810moon__zeno13BoundsBuilderP29Milky201810moon__zeno11PathBuilder8move__to, method_2: _M0IP29Milky201810moon__zeno13BoundsBuilderP29Milky201810moon__zeno11PathBuilder8line__to, method_3: _M0IP29Milky201810moon__zeno13BoundsBuilderP29Milky201810moon__zeno11PathBuilder8quad__to, method_4: _M0IP29Milky201810moon__zeno13BoundsBuilderP29Milky201810moon__zeno11PathBuilder9curve__to, method_5: _M0IP29Milky201810moon__zeno13BoundsBuilderP29Milky201810moon__zeno11PathBuilder5close };
-const _M0FP092Milky2018_2fmoon__zeno_2fScratchBoundsBuilder_24as_24_40Milky2018_2fmoon__zeno_2ePathBuilder = { method_0: _M0IP29Milky201810moon__zeno20ScratchBoundsBuilderP29Milky201810moon__zeno11PathBuilder14current__point, method_1: _M0IP29Milky201810moon__zeno20ScratchBoundsBuilderP29Milky201810moon__zeno11PathBuilder8move__to, method_2: _M0IP29Milky201810moon__zeno20ScratchBoundsBuilderP29Milky201810moon__zeno11PathBuilder8line__to, method_3: _M0IP29Milky201810moon__zeno20ScratchBoundsBuilderP29Milky201810moon__zeno11PathBuilder8quad__to, method_4: _M0IP29Milky201810moon__zeno20ScratchBoundsBuilderP29Milky201810moon__zeno11PathBuilder9curve__to, method_5: _M0IP29Milky201810moon__zeno20ScratchBoundsBuilderP29Milky201810moon__zeno11PathBuilder5close };
-const _M0FP0200_28moonbitlang_2fcore_2fbuiltin_2fArray_5bMilky2018_2fmoon__zeno_2fVector_5d_2c_20moonbitlang_2fcore_2fbuiltin_2fArray_5bMilky2018_2fmoon__zeno_2fVerb_5d_29_24as_24_40Milky2018_2fmoon__zeno_2ePathData = { method_0: _M0IPC15tuple6Tuple2P29Milky201810moon__zeno8PathData8commands, method_1: _M0IPC15tuple6Tuple2P29Milky201810moon__zeno8PathData8copy__to };
-const _M0FP0112moonbitlang_2fcore_2frandom_2finternal_2frandom__source_2fChaCha8_24as_24_40moonbitlang_2fcore_2frandom_2eSource = { method_0: _M0IPC36random8internal14random__source7ChaCha8PC16random6Source4next };
 const _M0FP092moonbitlang_2fcore_2fbuiltin_2fStringBuilder_24as_24_40moonbitlang_2fcore_2fbuiltin_2eLogger = { method_0: _M0IPB13StringBuilderPB6Logger13write__string, method_1: _M0IP016_24default__implPB6Logger16write__substringGRPB13StringBuilderE, method_2: _M0IPB13StringBuilderPB6Logger11write__view, method_3: _M0IPB13StringBuilderPB6Logger11write__char, method_4: _M0IP016_24default__implPB6Logger28write__string__interpolationGRPB13StringBuilderE, method_5: _M0IP016_24default__implPB6Logger5writeGRPB13StringBuilderE };
-const _M0MPB4Iter4nextN6constrS363GyE = 0;
-const _M0MPB4Iter4nextN6constrS364GyE = 0;
-const _M0MPB4Iter4nextN6constrS371GRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE = 0;
-const _M0MPB4Iter4nextN6constrS372GRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE = 0;
-const _M0MPB4Iter4nextN6constrS435GjE = 0;
-const _M0MPB4Iter4nextN6constrS436GjE = 0;
-const _M0MPB4Iter4nextN6constrS947GdE = 0;
-const _M0MPB4Iter4nextN6constrS948GdE = 0;
-const _M0MPB4Iter4nextN6constrS1067GcE = 0;
-const _M0MPB4Iter4nextN6constrS1068GcE = 0;
-const _M0MPB4Iter4nextN6constrS1131GRP39Milky20186selene6inputs4CodeE = 0;
-const _M0MPB4Iter4nextN6constrS1132GRP39Milky20186selene6inputs4CodeE = 0;
-const _M0MPB4Iter4nextN6constrS1147GkE = 0;
-const _M0MPB4Iter4nextN6constrS1148GkE = 0;
-const _M0MPB4Iter4nextN6constrS1339GiE = 0;
-const _M0MPB4Iter4nextN6constrS1340GiE = 0;
-const _M0MPB4Iter3newN6constrS1415GyE = 0;
-const _M0MPB4Iter3newN6constrS1421GRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE = 0;
-const _M0MPB4Iter3newN6constrS1469GjE = 0;
-const _M0MPB4Iter3newN6constrS1847GdE = 0;
-const _M0MPB4Iter3newN6constrS1937GcE = 0;
-const _M0MPB4Iter3newN6constrS1985GRP39Milky20186selene6inputs4CodeE = 0;
-const _M0MPB4Iter3newN6constrS1997GkE = 0;
-const _M0MPB4Iter3newN6constrS2135GiE = 0;
-const _M0MPB5Iter23newN6constrS2245GiRP29Milky201812moon__cosmic11LayoutGlyphE = 0;
+const _M0FP092Milky2018_2fmoon__zeno_2fScratchBoundsBuilder_24as_24_40Milky2018_2fmoon__zeno_2ePathBuilder = { method_0: _M0IP29Milky201810moon__zeno20ScratchBoundsBuilderP29Milky201810moon__zeno11PathBuilder14current__point, method_1: _M0IP29Milky201810moon__zeno20ScratchBoundsBuilderP29Milky201810moon__zeno11PathBuilder8move__to, method_2: _M0IP29Milky201810moon__zeno20ScratchBoundsBuilderP29Milky201810moon__zeno11PathBuilder8line__to, method_3: _M0IP29Milky201810moon__zeno20ScratchBoundsBuilderP29Milky201810moon__zeno11PathBuilder8quad__to, method_4: _M0IP29Milky201810moon__zeno20ScratchBoundsBuilderP29Milky201810moon__zeno11PathBuilder9curve__to, method_5: _M0IP29Milky201810moon__zeno20ScratchBoundsBuilderP29Milky201810moon__zeno11PathBuilder5close };
+const _M0FP0112moonbitlang_2fcore_2frandom_2finternal_2frandom__source_2fChaCha8_24as_24_40moonbitlang_2fcore_2frandom_2eSource = { method_0: _M0IPC36random8internal14random__source7ChaCha8PC16random6Source4next };
+const _M0FP085Milky2018_2fmoon__zeno_2fBoundsBuilder_24as_24_40Milky2018_2fmoon__zeno_2ePathBuilder = { method_0: _M0IP29Milky201810moon__zeno13BoundsBuilderP29Milky201810moon__zeno11PathBuilder14current__point, method_1: _M0IP29Milky201810moon__zeno13BoundsBuilderP29Milky201810moon__zeno11PathBuilder8move__to, method_2: _M0IP29Milky201810moon__zeno13BoundsBuilderP29Milky201810moon__zeno11PathBuilder8line__to, method_3: _M0IP29Milky201810moon__zeno13BoundsBuilderP29Milky201810moon__zeno11PathBuilder8quad__to, method_4: _M0IP29Milky201810moon__zeno13BoundsBuilderP29Milky201810moon__zeno11PathBuilder9curve__to, method_5: _M0IP29Milky201810moon__zeno13BoundsBuilderP29Milky201810moon__zeno11PathBuilder5close };
+const _M0FP082Milky2018_2fmoon__zeno_2fRasterizer_24as_24_40Milky2018_2fmoon__zeno_2ePathBuilder = { method_0: _M0IP29Milky201810moon__zeno10RasterizerP29Milky201810moon__zeno11PathBuilder14current__point, method_1: _M0IP29Milky201810moon__zeno10RasterizerP29Milky201810moon__zeno11PathBuilder8move__to, method_2: _M0IP29Milky201810moon__zeno10RasterizerP29Milky201810moon__zeno11PathBuilder8line__to, method_3: _M0IP29Milky201810moon__zeno10RasterizerP29Milky201810moon__zeno11PathBuilder8quad__to, method_4: _M0IP29Milky201810moon__zeno10RasterizerP29Milky201810moon__zeno11PathBuilder9curve__to, method_5: _M0IP29Milky201810moon__zeno10RasterizerP29Milky201810moon__zeno11PathBuilder5close };
+const _M0FP085Milky2018_2fmoon__zeno_2fTransformSink_24as_24_40Milky2018_2fmoon__zeno_2ePathBuilder = { method_0: _M0IP29Milky201810moon__zeno13TransformSinkP29Milky201810moon__zeno11PathBuilder14current__point, method_1: _M0IP29Milky201810moon__zeno13TransformSinkP29Milky201810moon__zeno11PathBuilder8move__to, method_2: _M0IP29Milky201810moon__zeno13TransformSinkP29Milky201810moon__zeno11PathBuilder8line__to, method_3: _M0IP29Milky201810moon__zeno13TransformSinkP29Milky201810moon__zeno11PathBuilder8quad__to, method_4: _M0IP29Milky201810moon__zeno13TransformSinkP29Milky201810moon__zeno11PathBuilder9curve__to, method_5: _M0IP29Milky201810moon__zeno13TransformSinkP29Milky201810moon__zeno11PathBuilder5close };
+const _M0FP0200_28moonbitlang_2fcore_2fbuiltin_2fArray_5bMilky2018_2fmoon__zeno_2fVector_5d_2c_20moonbitlang_2fcore_2fbuiltin_2fArray_5bMilky2018_2fmoon__zeno_2fVerb_5d_29_24as_24_40Milky2018_2fmoon__zeno_2ePathData = { method_0: _M0IPC15tuple6Tuple2P29Milky201810moon__zeno8PathData8commands, method_1: _M0IPC15tuple6Tuple2P29Milky201810moon__zeno8PathData8copy__to };
+const _M0MPB4Iter4nextN6constrS369GyE = 0;
+const _M0MPB4Iter4nextN6constrS370GyE = 0;
+const _M0MPB4Iter4nextN6constrS377GRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE = 0;
+const _M0MPB4Iter4nextN6constrS378GRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE = 0;
+const _M0MPB4Iter4nextN6constrS441GjE = 0;
+const _M0MPB4Iter4nextN6constrS442GjE = 0;
+const _M0MPB4Iter4nextN6constrS953GdE = 0;
+const _M0MPB4Iter4nextN6constrS954GdE = 0;
+const _M0MPB4Iter4nextN6constrS1081GcE = 0;
+const _M0MPB4Iter4nextN6constrS1082GcE = 0;
+const _M0MPB4Iter4nextN6constrS1145GRP39Milky20186selene6inputs4CodeE = 0;
+const _M0MPB4Iter4nextN6constrS1146GRP39Milky20186selene6inputs4CodeE = 0;
+const _M0MPB4Iter4nextN6constrS1161GkE = 0;
+const _M0MPB4Iter4nextN6constrS1162GkE = 0;
+const _M0MPB4Iter4nextN6constrS1353GiE = 0;
+const _M0MPB4Iter4nextN6constrS1354GiE = 0;
+const _M0MPB4Iter3newN6constrS1421GyE = 0;
+const _M0MPB4Iter3newN6constrS1427GRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE = 0;
+const _M0MPB4Iter3newN6constrS1475GjE = 0;
+const _M0MPB4Iter3newN6constrS1853GdE = 0;
+const _M0MPB4Iter3newN6constrS1949GcE = 0;
+const _M0MPB4Iter3newN6constrS1997GRP39Milky20186selene6inputs4CodeE = 0;
+const _M0MPB4Iter3newN6constrS2009GkE = 0;
+const _M0MPB4Iter3newN6constrS2147GiE = 0;
+const _M0MPB5Iter23newN6constrS2251GiRP29Milky201812moon__cosmic11LayoutGlyphE = 0;
 const _M0FPC16double14not__a__number = $i64_reinterpret_f64(9221120237041090561n);
 const _M0FPC16double8infinity = $i64_reinterpret_f64(9218868437227405312n);
 const _M0FPC16double13neg__infinity = $i64_reinterpret_f64(18442240474082181120n);
@@ -17346,27 +17360,21 @@ const _M0FP39Milky20186selene8render3d26released__material__assets = [];
 const _M0FP39Milky20186selene8render3d23released__image__assets = [];
 const _M0FP39Milky20186selene8render3d25released__cubemap__assets = [];
 const _M0MP39Milky20186selene5audio16PlaybackSettings4onceN6recordS87802 = new _M0TP39Milky20186selene5audio16PlaybackSettings(0, 1, 1, false, false);
-const _M0FP39Milky20186selene3ecs23bootstrap__world__value = _M0FP39Milky20186selene3ecs11make__world(0);
-const _M0FP39Milky20186selene3ecs19current__world__ref = _M0MPC13ref3Ref3RefGORP39Milky20186selene3ecs5WorldE(_M0FP39Milky20186selene3ecs23bootstrap__world__value);
 const _M0FPB4seed = _M0FPB12random__seed();
 const _M0FP39Milky201817selene_2dexamples5cards17ui__click__reader = _M0MP39Milky20186selene5event11EventReader11EventReaderGRP39Milky20186selene2ui12UiClickEventE();
+const _M0FP39Milky20186selene3ecs23bootstrap__world__value = _M0FP39Milky20186selene3ecs11make__world(0);
+const _M0FP39Milky20186selene3ecs19current__world__ref = _M0MPC13ref3Ref3RefGORP39Milky20186selene3ecs5WorldE(_M0FP39Milky20186selene3ecs23bootstrap__world__value);
 const _bind = [];
 const _M0FP39Milky20186selene6entity21entity__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene6entity16EntityWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene6entity16EntityWorldStoreEE(_bind, 0, 0), undefined);
 const _M0FPC13env4randN6constrS39685 = $bytes_literal$0;
 const _M0FP39Milky201817selene_2dexamples5cards11game__state = new _M0TP39Milky201817selene_2dexamples5cards9GameState(_M0MPC16random4Rand4Rand(undefined), [], new _M0TP39Milky201817selene_2dexamples5cards6Player(1000, [], 0, false, { _0: 240, _1: 240 }), 0, 0, [], 0, 10, 20, 10, 1000, 1, _M0MP39Milky20186selene6entity6Entity6Entity(), _M0MP39Milky20186selene6entity6Entity6Entity(), _M0MP39Milky20186selene6entity6Entity6Entity(), _M0MP39Milky20186selene6entity6Entity6Entity(), _M0MP39Milky20186selene6entity6Entity6Entity(), _M0MP39Milky20186selene6entity6Entity6Entity(), _M0MP39Milky20186selene6entity6Entity6Entity(), _M0MP39Milky20186selene6entity6Entity6Entity(), _M0MP39Milky20186selene6entity6Entity6Entity(), _M0MP39Milky20186selene6entity6Entity6Entity(), _M0MP39Milky20186selene6entity6Entity6Entity(), _M0MP39Milky20186selene6entity6Entity6Entity(), false, [], []);
-const _bind$2 = [];
-const _M0FP39Milky20186selene9transform24transform__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene9transform19TransformWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9transform19TransformWorldStoreEE(_bind$2, 0, 0), undefined);
-const _bind$3 = [];
-const _M0FP39Milky20186selene6entity24hierarchy__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene6entity19HierarchyWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene6entity19HierarchyWorldStoreEE(_bind$3, 0, 0), undefined);
-const _bind$4 = [];
-const _M0FP39Milky20186selene6sprite21sprite__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene6sprite16SpriteWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene6sprite16SpriteWorldStoreEE(_bind$4, 0, 0), undefined);
-const _M0MPC16string6String4trimN6recordS3133 = new _M0TPC16string10StringView("\t\n\r ", 0, 4);
+const _M0MPC16string6String4trimN6recordS3134 = new _M0TPC16string10StringView("\t\n\r ", 0, 4);
 const _M0FPC28internal7strconv21parse__uint64_2einnerN6recordS39782 = new _M0TPC16string10StringView("", 0, 0);
 const _M0FPC28internal7strconv17parse__scientificN8exp__numS39857 = 0n;
-const _M0FPC28internal7strconv17check__underscoreN25_2atransition__table__222S40006 = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 5, 5, 5, 5, 5, 0, 1, 2, 5];
-const _M0FPC28internal7strconv15parse__inf__nanN25_2atransition__table__304S39935 = [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 3, 4, 14, 14, 14, 14, 14, 14, 14, 7, 14, 14, 14, 14, 5, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 6, 14, 14, 14, 0, 14, 14, 14, 14, 14, 14, 14, 14, 14, 8, 14, 14, 14, 14, 14, 1, 14, 14, 9, 14, 14, 14, 14, 14, 14, 14, 14, 10, 14, 14, 14, 14, 14, 14, 11, 14, 14, 14, 14, 14, 14, 14, 14, 14, 12, 14, 14, 14, 14, 14, 14, 14, 14, 13, 14, 1, 14, 14, 14, 14, 14, 14, 14];
-const _M0MPC16string10StringView4trimN6recordS3126 = new _M0TPC16string10StringView("\t\n\r ", 0, 4);
-const _M0MPC16string10StringView4findN6constrS2387 = 0;
+const _M0FPC28internal7strconv17check__underscoreN25_2atransition__table__230S40006 = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 5, 5, 5, 5, 5, 0, 1, 2, 5];
+const _M0FPC28internal7strconv15parse__inf__nanN25_2atransition__table__312S39935 = [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 3, 4, 14, 14, 14, 14, 14, 14, 14, 7, 14, 14, 14, 14, 5, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 6, 14, 14, 14, 0, 14, 14, 14, 14, 14, 14, 14, 14, 14, 8, 14, 14, 14, 14, 14, 1, 14, 14, 9, 14, 14, 14, 14, 14, 14, 14, 14, 10, 14, 14, 14, 14, 14, 14, 11, 14, 14, 14, 14, 14, 14, 14, 14, 14, 12, 14, 14, 14, 14, 14, 14, 14, 14, 13, 14, 1, 14, 14, 14, 14, 14, 14, 14];
+const _M0MPC16string10StringView4trimN6recordS3127 = new _M0TPC16string10StringView("\t\n\r ", 0, 4);
+const _M0MPC16string10StringView4findN6constrS2388 = 0;
 const _M0FPC28internal7strconv20parse__int64_2einnerN6recordS39961 = new _M0TPC16string10StringView("", 0, 0);
 const _M0FP39Milky20186selene6sprite16parse__rgb__bodyN6recordS86114 = new _M0TPC16string10StringView(",", 0, 1);
 const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS86135 = new _M0TPC16string10StringView("rgba(", 0, 5);
@@ -17376,20 +17384,26 @@ const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS86138 = new _M0T
 const _M0FP39Milky20186selene6sprite12parse__colorN6recordS86142 = new _M0TPC16string10StringView("#", 0, 1);
 const _M0FP39Milky20186selene6sprite12parse__colorN6recordS86143 = new _M0TPC16string10StringView("rgb(", 0, 4);
 const _M0FP39Milky20186selene6sprite12parse__colorN6recordS86144 = new _M0TPC16string10StringView("rgba(", 0, 5);
-const _bind$5 = [];
-const _M0FP39Milky20186selene5asset13image__states = _M0MPB3Map3MapGRP39Milky20186selene12asset__types11ImageHandleRP39Milky20186selene5asset9LoadStateE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types11ImageHandleRP39Milky20186selene5asset9LoadStateEE(_bind$5, 0, 0), undefined);
+const _bind$2 = [];
+const _M0FP39Milky20186selene5asset13image__states = _M0MPB3Map3MapGRP39Milky20186selene12asset__types11ImageHandleRP39Milky20186selene5asset9LoadStateE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types11ImageHandleRP39Milky20186selene5asset9LoadStateEE(_bind$2, 0, 0), undefined);
 const _M0FP39Milky20186selene5asset20image__asset__events = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
 const _M0FP29Milky201814selene__webgpu23embedded__asset__lookup = _M0MPC13ref3Ref3RefGRP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshotE(_M0FP29Milky201814selene__webgpu32default__embedded__asset__lookup);
-const _bind$6 = [];
-const _M0FP29Milky201814selene__webgpu22embedded__asset__cache = _M0MPB3Map3MapGszE(new _M0TPB9ArrayViewGUszEE(_bind$6, 0, 0), undefined);
-const _bind$7 = [];
-const _M0FP29Milky201814selene__webgpu29reported__asset__io__failures = _M0MPC13set3Set3SetGsE(new _M0TPB9ArrayViewGsE(_bind$7, 0, 0), undefined);
+const _bind$3 = [];
+const _M0FP29Milky201814selene__webgpu22embedded__asset__cache = _M0MPB3Map3MapGszE(new _M0TPB9ArrayViewGUszEE(_bind$3, 0, 0), undefined);
+const _bind$4 = [];
+const _M0FP29Milky201814selene__webgpu29reported__asset__io__failures = _M0MPC13set3Set3SetGsE(new _M0TPB9ArrayViewGsE(_bind$4, 0, 0), undefined);
 const _M0FP29Milky201814selene__webgpu17get__asset__bytesN6recordS67832 = new _M0TPC16string10StringView("/", 0, 1);
-const _bind$8 = [];
-const _M0FP39Milky20186selene5asset16images__by__path = _M0MPB3Map3MapGsRP39Milky20186selene12asset__types11ImageHandleE(new _M0TPB9ArrayViewGUsRP39Milky20186selene12asset__types11ImageHandleEE(_bind$8, 0, 0), undefined);
-const _bind$9 = [];
-const _M0FP39Milky20186selene5asset23image__path__by__handle = _M0MPB3Map3MapGRP39Milky20186selene12asset__types11ImageHandlesE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types11ImageHandlesEE(_bind$9, 0, 0), undefined);
+const _bind$5 = [];
+const _M0FP39Milky20186selene5asset16images__by__path = _M0MPB3Map3MapGsRP39Milky20186selene12asset__types11ImageHandleE(new _M0TPB9ArrayViewGUsRP39Milky20186selene12asset__types11ImageHandleEE(_bind$5, 0, 0), undefined);
+const _bind$6 = [];
+const _M0FP39Milky20186selene5asset23image__path__by__handle = _M0MPB3Map3MapGRP39Milky20186selene12asset__types11ImageHandlesE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types11ImageHandlesEE(_bind$6, 0, 0), undefined);
 const _M0FP39Milky20186selene5asset15next__image__id = _M0MPC13ref3Ref3RefGjE(0);
+const _bind$7 = [];
+const _M0FP39Milky20186selene9transform24transform__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene9transform19TransformWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9transform19TransformWorldStoreEE(_bind$7, 0, 0), undefined);
+const _bind$8 = [];
+const _M0FP39Milky20186selene6sprite21sprite__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene6sprite16SpriteWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene6sprite16SpriteWorldStoreEE(_bind$8, 0, 0), undefined);
+const _bind$9 = [];
+const _M0FP39Milky20186selene6entity24hierarchy__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene6entity19HierarchyWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene6entity19HierarchyWorldStoreEE(_bind$9, 0, 0), undefined);
 const _M0FP39Milky201817selene_2dexamples5cards12is__straightN6constrS90436 = 14;
 const _M0FP39Milky201817selene_2dexamples5cards16find__best__handN6constrS90499 = new _M0DTP39Milky201817selene_2dexamples5cards8HandRank8HighCard(0);
 const _bind$10 = [];
@@ -17404,80 +17418,28 @@ const _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS90561
 const _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS90562 = 1;
 const _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS90563 = 2;
 const _M0FP39Milky20186selene2ui17click__event__bus = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
-const _M0FP29Milky201814selene__webgpu15canvas__backend = _M0MP29Milky201814selene__webgpu13WebGpuBackend13WebGpuBackend();
-const _M0FP29Milky201814selene__webgpu6window = _M0FP319moonbit_2dcommunity7rabbita3dom6window();
-const _M0FP29Milky201814selene__webgpu19last__frame__timingN6recordS67497 = new _M0TP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshot(0, 0, 0, 0, 0);
-const _M0FP29Milky201814selene__webgpu19last__frame__timing = _M0MPC13ref3Ref3RefGRP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshotE(_M0FP29Milky201814selene__webgpu19last__frame__timingN6recordS67497);
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67866 = { _0: 0, _1: 0 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67867 = { _0: 1, _1: 1 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67868 = { _0: 2, _1: 3 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67869 = { _0: 3, _1: 2 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67870 = { _0: 4, _1: 6 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67871 = { _0: 5, _1: 8 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67872 = { _0: 6, _1: 7 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67873 = { _0: 7, _1: 9 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67874 = { _0: 8, _1: 10 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67875 = { _0: 9, _1: 11 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67876 = { _0: 10, _1: 13 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67877 = { _0: 11, _1: 14 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67878 = { _0: 12, _1: 15 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67879 = { _0: 13, _1: 16 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67880 = { _0: 14, _1: 17 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67881 = { _0: 15, _1: 18 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67882 = { _0: 16, _1: 12 };
-const _M0FP29Milky201814selene__webgpu15realtime__delta = _M0MPC13ref3Ref3RefGdE(0);
 const _bind$14 = [];
-const _M0FP39Milky20186selene14runtime__debug29render__submission__by__world = _M0MPB3Map3MapGjRP39Milky20186selene14runtime__debug21RenderSubmissionDebugE(new _M0TPB9ArrayViewGUjRP39Milky20186selene14runtime__debug21RenderSubmissionDebugEE(_bind$14, 0, 0), undefined);
-const _bind$15 = [];
-const _M0FP39Milky20186selene5event28registered__buses__by__world = _M0MPB3Map3MapGjRPB5ArrayGRP39Milky20186selene5event13RegisteredBusEE(new _M0TPB9ArrayViewGUjRPB5ArrayGRP39Milky20186selene5event13RegisteredBusEEE(_bind$15, 0, 0), undefined);
-const _bind$16 = [];
-const _M0FP39Milky20186selene4time19time__world__states = _M0MPB3Map3MapGjRP39Milky20186selene4time9TimeStateE(new _M0TPB9ArrayViewGUjRP39Milky20186selene4time9TimeStateEE(_bind$16, 0, 0), undefined);
-const _bind$17 = [];
-const _M0FP39Milky20186selene14runtime__debug25frame__metrics__by__world = _M0MPB3Map3MapGjRP39Milky20186selene14runtime__debug23FramePerformanceMetricsE(new _M0TPB9ArrayViewGUjRP39Milky20186selene14runtime__debug23FramePerformanceMetricsEE(_bind$17, 0, 0), undefined);
-const _bind$18 = [];
-const _M0FP39Milky20186selene14runtime__debug34frame__metrics__history__by__world = _M0MPB3Map3MapGjRPB5ArrayGRP39Milky20186selene14runtime__debug23FramePerformanceMetricsEE(new _M0TPB9ArrayViewGUjRPB5ArrayGRP39Milky20186selene14runtime__debug23FramePerformanceMetricsEEE(_bind$18, 0, 0), undefined);
-const _bind$19 = [];
-const _M0FP39Milky20186selene14runtime__debug30deterministic__mode__by__world = _M0MPB3Map3MapGjRP39Milky20186selene14runtime__debug23DeterministicModeConfigE(new _M0TPB9ArrayViewGUjRP39Milky20186selene14runtime__debug23DeterministicModeConfigEE(_bind$19, 0, 0), undefined);
-const _M0FP29Milky201814selene__webgpu30audio__user__activation__epoch = _M0MPC13ref3Ref3RefGiE(0);
-const _M0FP39Milky20186selene15platform__input22mouse__relative__delta = _M0MPC13ref3Ref3RefGORP39Milky20186selene3ecs5WorldE(undefined);
-const _M0FP39Milky20186selene15platform__input10registered = _M0MPC13ref3Ref3RefGbE(false);
-const _M0FP39Milky20186selene15platform__input8snapshot = _M0FP39Milky20186selene6inputs22empty__input__snapshot();
-const _M0FP29Milky201814selene__webgpu27touch__handlers__registered = _M0MPC13ref3Ref3RefGbE(false);
-const _bind$20 = [];
-const _M0FP39Milky20186selene5state22state__world__runtimes = _M0MPB3Map3MapGjRP39Milky20186selene5state17StateWorldRuntimeE(new _M0TPB9ArrayViewGUjRP39Milky20186selene5state17StateWorldRuntimeEE(_bind$20, 0, 0), undefined);
-const _bind$21 = [];
-const _M0FP39Milky20186selene14runtime__debug25queued__inputs__by__world = _M0MPB3Map3MapGjRPB5ArrayGRP39Milky20186selene6inputs13InputSnapshotEE(new _M0TPB9ArrayViewGUjRPB5ArrayGRP39Milky20186selene6inputs13InputSnapshotEEE(_bind$21, 0, 0), undefined);
-const _M0FP39Milky20186selene6inputs31pending__mouse__relative__delta = _M0MPC13ref3Ref3RefGORP39Milky20186selene3ecs5WorldE(undefined);
-const _bind$22 = [];
-const _M0FP39Milky20186selene6inputs13pressed__keys = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs4CodeE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(_bind$22, 0, 0), undefined);
-const _bind$23 = [];
-const _M0FP39Milky20186selene6inputs22gamepad__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene6inputs17GamepadWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene6inputs17GamepadWorldStoreEE(_bind$23, 0, 0), undefined);
-const _bind$24 = [];
-const _M0FP39Milky20186selene6inputs7touches = _M0MPB3Map3MapGRP39Milky20186selene6inputs7TouchIdRP39Milky20186selene6inputs10TouchPointE(new _M0TPB9ArrayViewGURP39Milky20186selene6inputs7TouchIdRP39Milky20186selene6inputs10TouchPointEE(_bind$24, 0, 0), undefined);
-const _bind$25 = [];
-const _M0FP29Milky201814selene__webgpu16audio__instances = _M0MPB3Map3MapGiRP29Milky201814selene__webgpu13AudioPlaybackE(new _M0TPB9ArrayViewGUiRP29Milky201814selene__webgpu13AudioPlaybackEE(_bind$25, 0, 0), undefined);
-const _bind$26 = [];
-const _M0FP39Milky20186selene6camera21camera__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene6camera16CameraWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene6camera16CameraWorldStoreEE(_bind$26, 0, 0), undefined);
+const _M0FP39Milky20186selene6camera21camera__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene6camera16CameraWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene6camera16CameraWorldStoreEE(_bind$14, 0, 0), undefined);
 const _M0FP39Milky20186selene5asset19font__asset__events = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
-const _bind$27 = [];
-const _M0FP39Milky20186selene5asset15fonts__by__path = _M0MPB3Map3MapGsRP39Milky20186selene12asset__types10FontHandleE(new _M0TPB9ArrayViewGUsRP39Milky20186selene12asset__types10FontHandleEE(_bind$27, 0, 0), undefined);
-const _bind$28 = [];
-const _M0FP39Milky20186selene5asset24font__handle__by__family = _M0MPB3Map3MapGsRP39Milky20186selene12asset__types10FontHandleE(new _M0TPB9ArrayViewGUsRP39Milky20186selene12asset__types10FontHandleEE(_bind$28, 0, 0), undefined);
-const _bind$29 = [];
-const _M0FP29Milky201814selene__webgpu19web__font__runtimes = _M0MPB3Map3MapGsRP29Milky201814selene__webgpu14WebFontRuntimeE(new _M0TPB9ArrayViewGUsRP29Milky201814selene__webgpu14WebFontRuntimeEE(_bind$29, 0, 0), undefined);
-const _bind$30 = [];
-const _M0FP29Milky201814selene__webgpu19cosmic__text__cache = _M0MPB3Map3MapGsRP29Milky201814selene__webgpu20CosmicTextCacheEntryE(new _M0TPB9ArrayViewGUsRP29Milky201814selene__webgpu20CosmicTextCacheEntryEE(_bind$30, 0, 0), undefined);
-const _bind$31 = [];
-const _M0FP39Milky20186selene5asset24font__family__by__handle = _M0MPB3Map3MapGRP39Milky20186selene12asset__types10FontHandlesE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types10FontHandlesEE(_bind$31, 0, 0), undefined);
+const _bind$15 = [];
+const _M0FP39Milky20186selene5asset15fonts__by__path = _M0MPB3Map3MapGsRP39Milky20186selene12asset__types10FontHandleE(new _M0TPB9ArrayViewGUsRP39Milky20186selene12asset__types10FontHandleEE(_bind$15, 0, 0), undefined);
+const _bind$16 = [];
+const _M0FP39Milky20186selene5asset24font__handle__by__family = _M0MPB3Map3MapGsRP39Milky20186selene12asset__types10FontHandleE(new _M0TPB9ArrayViewGUsRP39Milky20186selene12asset__types10FontHandleEE(_bind$16, 0, 0), undefined);
+const _bind$17 = [];
+const _M0FP29Milky201814selene__webgpu19web__font__runtimes = _M0MPB3Map3MapGsRP29Milky201814selene__webgpu14WebFontRuntimeE(new _M0TPB9ArrayViewGUsRP29Milky201814selene__webgpu14WebFontRuntimeEE(_bind$17, 0, 0), undefined);
+const _bind$18 = [];
+const _M0FP29Milky201814selene__webgpu19cosmic__text__cache = _M0MPB3Map3MapGsRP29Milky201814selene__webgpu20CosmicTextCacheEntryE(new _M0TPB9ArrayViewGUsRP29Milky201814selene__webgpu20CosmicTextCacheEntryEE(_bind$18, 0, 0), undefined);
+const _bind$19 = [];
+const _M0FP39Milky20186selene5asset24font__family__by__handle = _M0MPB3Map3MapGRP39Milky20186selene12asset__types10FontHandlesE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types10FontHandlesEE(_bind$19, 0, 0), undefined);
 const _M0FP39Milky20186selene5asset14next__font__id = _M0MPC13ref3Ref3RefGjE(0);
-const _bind$32 = [];
-const _M0FP39Milky20186selene5asset22font__path__by__handle = _M0MPB3Map3MapGRP39Milky20186selene12asset__types10FontHandlesE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types10FontHandlesEE(_bind$32, 0, 0), undefined);
+const _bind$20 = [];
+const _M0FP39Milky20186selene5asset22font__path__by__handle = _M0MPB3Map3MapGRP39Milky20186selene12asset__types10FontHandlesE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types10FontHandlesEE(_bind$20, 0, 0), undefined);
 const _M0FP39Milky20186selene5asset23normalize__font__familyN6recordS69421 = new _M0TPC16string10StringView("/", 0, 1);
 const _M0FP39Milky20186selene5asset23normalize__font__familyN6recordS69422 = new _M0TPC16string10StringView(".", 0, 1);
-const _bind$33 = [];
-const _M0FP39Milky20186selene5asset12font__states = _M0MPB3Map3MapGRP39Milky20186selene12asset__types10FontHandleRP39Milky20186selene5asset9LoadStateE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types10FontHandleRP39Milky20186selene5asset9LoadStateEE(_bind$33, 0, 0), undefined);
-const _bind$34 = [];
-const _M0FP39Milky20186selene2ui16ui__scale__modes = _M0MPB3Map3MapGjRP39Milky20186selene2ui11UiScaleModeE(new _M0TPB9ArrayViewGUjRP39Milky20186selene2ui11UiScaleModeEE(_bind$34, 0, 0), undefined);
+const _bind$21 = [];
+const _M0FP39Milky20186selene5asset12font__states = _M0MPB3Map3MapGRP39Milky20186selene12asset__types10FontHandleRP39Milky20186selene5asset9LoadStateE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types10FontHandleRP39Milky20186selene5asset9LoadStateEE(_bind$21, 0, 0), undefined);
+const _bind$22 = [];
+const _M0FP39Milky20186selene2ui16ui__scale__modes = _M0MPB3Map3MapGjRP39Milky20186selene2ui11UiScaleModeE(new _M0TPB9ArrayViewGUjRP39Milky20186selene2ui11UiScaleModeEE(_bind$22, 0, 0), undefined);
 const _M0FP39Milky20186selene2ui16parse__rgb__bodyN6recordS83172 = new _M0TPC16string10StringView(",", 0, 1);
 const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS83193 = new _M0TPC16string10StringView("rgba(", 0, 5);
 const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS83194 = new _M0TPC16string10StringView(")", 0, 1);
@@ -17495,44 +17457,18 @@ const _M0FP39Milky201817selene_2dexamples5cards9setup__uiN6constrS90385 = 1;
 const _M0FP39Milky201817selene_2dexamples5cards9setup__uiN6constrS90386 = 1;
 const _M0FP39Milky201817selene_2dexamples5cards11game__startN6constrS90632 = "ThaleahFat";
 const _M0FP39Milky20186selene15render3d__types22empty__render__frame3dN6recordS67449 = new _M0TP39Milky20186selene6render5Color(0, 0, 0, 1);
-const _bind$35 = [];
-const _M0FP39Milky20186selene18render3d__pipeline28prepared__frame3d__by__world = _M0MPB3Map3MapGjRP39Milky20186selene15render3d__types13RenderFrame3DE(new _M0TPB9ArrayViewGUjRP39Milky20186selene15render3d__types13RenderFrame3DEE(_bind$35, 0, 0), undefined);
-const _bind$36 = [];
-const _M0FP39Milky20186selene8render3d19dirty__mesh__assets = _M0MPB3Map3MapGRP39Milky20186selene15render3d__types10MeshHandleRP39Milky20186selene15render3d__types9MeshAssetE(new _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types10MeshHandleRP39Milky20186selene15render3d__types9MeshAssetEE(_bind$36, 0, 0), undefined);
-const _M0FP29Milky201814selene__webgpu20cosmic__font__system = _M0MPC13ref3Ref3RefGRP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshotE(_M0MP29Milky201812moon__cosmic10FontSystem3new());
-const _M0FP29Milky201814selene__webgpu20cosmic__swash__cache = _M0MPC13ref3Ref3RefGRP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshotE(_M0MP29Milky201812moon__cosmic10SwashCache3new());
-const _bind$37 = [];
-const _M0FP29Milky201814selene__webgpu24cosmic__loaded__families = _M0MPB3Map3MapGsbE(new _M0TPB9ArrayViewGUsbEE(_bind$37, 0, 0), undefined);
+const _bind$23 = [];
+const _M0FP39Milky20186selene18render3d__pipeline28prepared__frame3d__by__world = _M0MPB3Map3MapGjRP39Milky20186selene15render3d__types13RenderFrame3DE(new _M0TPB9ArrayViewGUjRP39Milky20186selene15render3d__types13RenderFrame3DEE(_bind$23, 0, 0), undefined);
+const _bind$24 = [];
+const _M0FP39Milky20186selene8render3d19dirty__mesh__assets = _M0MPB3Map3MapGRP39Milky20186selene15render3d__types10MeshHandleRP39Milky20186selene15render3d__types9MeshAssetE(new _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types10MeshHandleRP39Milky20186selene15render3d__types9MeshAssetEE(_bind$24, 0, 0), undefined);
 const _M0FP29Milky201811moon__swash7records = _M0MPC15array13ReadOnlyArray10from__iterGRP29Milky201811moon__swash6RecordE(_M0MPB4Iter6concatGRP29Milky201811moon__swash6RecordE(_M0MPB4Iter6concatGRP29Milky201811moon__swash6RecordE(_M0MPC15array13ReadOnlyArray4iterGUjjjEE(_M0FP29Milky201811moon__swash19unicode__records__0()), _M0MPC15array13ReadOnlyArray4iterGUjjjEE(_M0FP29Milky201811moon__swash19unicode__records__1())), _M0MPC15array13ReadOnlyArray4iterGUjjjEE(_M0FP29Milky201811moon__swash19unicode__records__2())));
 const _M0FP39Milky201811moon__swash8internal3mapN6constrS46268 = 0;
 const _M0MP29Milky201811moon__swash10Variations10from__fontN6recordS48852 = new _M0TPC15bytes9BytesView($bytes_literal$0, 0, 0);
 const _M0MP29Milky201812moon__cosmic9ShapeLine5buildN6constrS66074 = 0;
-const _M0MP29Milky201812moon__cosmic10FontSystem7resolveN6constrS66999 = 0;
-const _M0FP39Milky201811moon__swash8internal12lookup__dataN5tupleS45192 = { _0: 0, _1: 0 };
-const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62616 = [1987212338];
-const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62617 = [1920232557];
-const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62618 = [1986359924];
-const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62619 = [1667329140, 1667460464, 1819239276, 1920365166];
-const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62620 = [1651275622, 1886614630];
-const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62621 = [1886545267, 1633842803, 1651275635, 1886614643];
-const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62622 = [1684632436, 1801810542, 1835102827, 1835756907];
-const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62623 = [1634429038, 1667329140, 1667460464, 1819239276, 1853188980, 1920365166];
-const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62624 = [1633842790, 1651275622, 1667916660, 1751215206, 1886614630, 1919644262, 1986098293];
-const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62625 = [1718185522, 1718185523, 1718185569, 1768843636, 1769172844, 1835361330, 1835361385];
-const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62626 = [1633842803, 1651275635, 1667329140, 1668049255, 1751215214, 1818847073, 1886545267, 1886614643, 1919118452, 1919707495];
-const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62627 = [1633842797, 1651275629, 1668641395, 1684632436, 1801810542, 1835102827, 1835756907];
-const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62628 = [1667460464, 1818914159, 1920365166, 1953131887, 1986686319];
-const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62629 = [1667329140, 1667460464, 1668049255, 1718185522, 1718185523, 1718185569, 1768843636, 1769172844, 1818847073, 1819239276, 1835361330, 1835361385, 1836279156, 1919707495, 1920365166];
-const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62630 = [1667329140, 1667460464, 1668049255, 1818847073, 1819239276, 1920365166];
-const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62631 = [1668641395, 1684632436, 1801810542, 1835102827, 1835756907];
-const _M0MP39Milky201811moon__swash5shape6Engine6EngineN5tupleS62531 = { _0: 0, _1: 0 };
-const _M0MP39Milky201811moon__swash5shape6Engine6EngineN5tupleS62532 = { _0: 0, _1: 0 };
-const _M0MP39Milky201811moon__swash5shape6Engine6EngineN5tupleS62533 = { _0: 0, _1: 0 };
-const _M0MP39Milky201811moon__swash5shape6Engine6EngineN5tupleS62534 = { _0: 0, _1: 0 };
-const _M0MP29Milky201811moon__swash12CharmapProxy10from__fontN6recordS50364 = new _M0TP29Milky201811moon__swash12CharmapProxy(0, 0, false);
 const _M0MP39Milky201811moon__swash5shape12ApplyContext12value__deltaN6constrS63159 = new _M0DTPC16option6OptionGdE4Some(0);
 const _M0MP39Milky201811moon__swash5shape12ApplyContext12value__deltaN6constrS63160 = new _M0DTPC16option6OptionGdE4Some(0);
 const _M0MP39Milky201811moon__swash5shape12ApplyContext16match__backtrackN6constrS63261 = true;
+const _M0FP39Milky201811moon__swash8internal12lookup__dataN5tupleS45192 = { _0: 0, _1: 0 };
 const _M0MP39Milky201811moon__swash5shape12ApplyContext15apply__subtableN6constrS63424 = false;
 const _M0MP39Milky201811moon__swash5shape12ApplyContext15apply__subtableN6constrS63425 = false;
 const _M0MP39Milky201811moon__swash5shape12ApplyContext15apply__subtableN6constrS63426 = true;
@@ -17575,24 +17511,29 @@ const _M0MP39Milky201811moon__swash5shape12ApplyContext5applyN6constrS64125 = fa
 const _M0MP39Milky201811moon__swash5shape12ApplyContext5applyN6constrS64126 = true;
 const _M0FP39Milky201811moon__swash5shape5applyN6constrS64167 = false;
 const _M0FP39Milky201811moon__swash5shape5applyN6constrS64168 = true;
-const _M0MP39Milky201811moon__swash5shape6Engine4gposN6constrS64315 = true;
 const _M0MP39Milky201811moon__swash5shape6Engine4gsubN6constrS64192 = true;
-const _M0FP29Milky201811moon__swash19complex__accept__asN6constrS49634 = true;
-const _M0FP29Milky201811moon__swash19complex__accept__asN6constrS49635 = false;
-const _M0FP29Milky201811moon__swash32complex__parse__emoji__extensionN6constrS49652 = true;
-const _M0FP29Milky201811moon__swash32complex__parse__emoji__extensionN6constrS49653 = false;
-const _M0FP29Milky201811moon__swash31complex__parse__vowel__modifierN6constrS49714 = true;
-const _M0FP29Milky201811moon__swash31complex__parse__vowel__modifierN6constrS49715 = true;
-const _M0FP29Milky201811moon__swash31complex__parse__vowel__modifierN6constrS49716 = true;
-const _M0FP29Milky201811moon__swash31complex__parse__vowel__modifierN6constrS49717 = true;
-const _M0FP29Milky201811moon__swash31complex__parse__vowel__modifierN6constrS49718 = true;
-const _M0FP29Milky201811moon__swash31complex__parse__vowel__modifierN6constrS49719 = false;
-const _M0FP29Milky201811moon__swash28complex__parse__halant__baseN6constrS49684 = true;
-const _M0FP29Milky201811moon__swash28complex__parse__halant__baseN6constrS49685 = true;
-const _M0FP29Milky201811moon__swash28complex__parse__halant__baseN6constrS49686 = false;
-const _M0FP29Milky201811moon__swash28complex__parse__halant__baseN6constrS49687 = false;
-const _M0FP29Milky201811moon__swash30complex__parse__halant__numberN6constrS49664 = true;
-const _M0FP29Milky201811moon__swash30complex__parse__halant__numberN6constrS49665 = false;
+const _M0MP29Milky201811moon__swash12CharmapProxy10from__fontN6recordS50364 = new _M0TP29Milky201811moon__swash12CharmapProxy(0, 0, false);
+const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62616 = [1987212338];
+const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62617 = [1920232557];
+const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62618 = [1986359924];
+const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62619 = [1667329140, 1667460464, 1819239276, 1920365166];
+const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62620 = [1651275622, 1886614630];
+const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62621 = [1886545267, 1633842803, 1651275635, 1886614643];
+const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62622 = [1684632436, 1801810542, 1835102827, 1835756907];
+const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62623 = [1634429038, 1667329140, 1667460464, 1819239276, 1853188980, 1920365166];
+const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62624 = [1633842790, 1651275622, 1667916660, 1751215206, 1886614630, 1919644262, 1986098293];
+const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62625 = [1718185522, 1718185523, 1718185569, 1768843636, 1769172844, 1835361330, 1835361385];
+const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62626 = [1633842803, 1651275635, 1667329140, 1668049255, 1751215214, 1818847073, 1886545267, 1886614643, 1919118452, 1919707495];
+const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62627 = [1633842797, 1651275629, 1668641395, 1684632436, 1801810542, 1835102827, 1835756907];
+const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62628 = [1667460464, 1818914159, 1920365166, 1953131887, 1986686319];
+const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62629 = [1667329140, 1667460464, 1668049255, 1718185522, 1718185523, 1718185569, 1768843636, 1769172844, 1818847073, 1819239276, 1835361330, 1835361385, 1836279156, 1919707495, 1920365166];
+const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62630 = [1667329140, 1667460464, 1668049255, 1818847073, 1819239276, 1920365166];
+const _M0MP39Milky201811moon__swash5shape12FeatureStore6groupsN7_2abindS62631 = [1668641395, 1684632436, 1801810542, 1835102827, 1835756907];
+const _M0MP39Milky201811moon__swash5shape6Engine6EngineN5tupleS62531 = { _0: 0, _1: 0 };
+const _M0MP39Milky201811moon__swash5shape6Engine6EngineN5tupleS62532 = { _0: 0, _1: 0 };
+const _M0MP39Milky201811moon__swash5shape6Engine6EngineN5tupleS62533 = { _0: 0, _1: 0 };
+const _M0MP39Milky201811moon__swash5shape6Engine6EngineN5tupleS62534 = { _0: 0, _1: 0 };
+const _M0MP39Milky201811moon__swash5shape6Engine4gposN6constrS64315 = true;
 const _M0FP29Milky201811moon__swash19myanmar__accept__asN6constrS49900 = true;
 const _M0FP29Milky201811moon__swash19myanmar__accept__asN6constrS49901 = false;
 const _M0FP29Milky201811moon__swash31myanmar__parse__pwo__tone__markN6constrS49951 = true;
@@ -17615,48 +17556,54 @@ const _M0FP29Milky201811moon__swash18simple__accept__asN6constrS49481 = true;
 const _M0FP29Milky201811moon__swash18simple__accept__asN6constrS49482 = false;
 const _M0FP29Milky201811moon__swash31simple__parse__emoji__extensionN6constrS49488 = true;
 const _M0FP29Milky201811moon__swash31simple__parse__emoji__extensionN6constrS49489 = false;
-const _M0MP29Milky201811moon__swash18BitmapStrikesProxy10from__fontN5tupleS50127 = { _0: 0, _1: 0 };
-const _M0MP29Milky201811moon__swash18BitmapStrikesProxy10from__fontN5tupleS50128 = { _0: 0, _1: 0 };
-const _p = 0;
-const _M0FP39Milky201811moon__swash5scale22scaler__proxy__counter = _M0MPC13ref3Ref3RefGRP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshotE(BigInt.asUintN(64, BigInt(_p)));
+const _M0FP29Milky201811moon__swash19complex__accept__asN6constrS49634 = true;
+const _M0FP29Milky201811moon__swash19complex__accept__asN6constrS49635 = false;
+const _M0FP29Milky201811moon__swash32complex__parse__emoji__extensionN6constrS49652 = true;
+const _M0FP29Milky201811moon__swash32complex__parse__emoji__extensionN6constrS49653 = false;
+const _M0FP29Milky201811moon__swash31complex__parse__vowel__modifierN6constrS49714 = true;
+const _M0FP29Milky201811moon__swash31complex__parse__vowel__modifierN6constrS49715 = true;
+const _M0FP29Milky201811moon__swash31complex__parse__vowel__modifierN6constrS49716 = true;
+const _M0FP29Milky201811moon__swash31complex__parse__vowel__modifierN6constrS49717 = true;
+const _M0FP29Milky201811moon__swash31complex__parse__vowel__modifierN6constrS49718 = true;
+const _M0FP29Milky201811moon__swash31complex__parse__vowel__modifierN6constrS49719 = false;
+const _M0FP29Milky201811moon__swash28complex__parse__halant__baseN6constrS49684 = true;
+const _M0FP29Milky201811moon__swash28complex__parse__halant__baseN6constrS49685 = true;
+const _M0FP29Milky201811moon__swash28complex__parse__halant__baseN6constrS49686 = false;
+const _M0FP29Milky201811moon__swash28complex__parse__halant__baseN6constrS49687 = false;
+const _M0FP29Milky201811moon__swash30complex__parse__halant__numberN6constrS49664 = true;
+const _M0FP29Milky201811moon__swash30complex__parse__halant__numberN6constrS49665 = false;
+const _M0MP29Milky201812moon__cosmic10FontSystem7resolveN6constrS66999 = 0;
 const _M0MP39Milky201812moon__skrifa4core7FontRef12sfnt__offsetN6constrS50527 = 0;
 const _M0MP39Milky201812moon__skrifa7outline22OutlineGlyphCollection22OutlineGlyphCollectionN6constrS55348 = 0;
 const _M0MP39Milky201812moon__skrifa7outline22OutlineGlyphCollection22OutlineGlyphCollectionN6constrS55349 = 2;
 const _M0MP39Milky201812moon__skrifa7outline22OutlineGlyphCollection22OutlineGlyphCollectionN6constrS55350 = 1;
 const _M0FP39Milky201811moon__swash5scale16hinting__optionsN6constrS62305 = 0;
 const _M0FP39Milky201811moon__swash5scale16hinting__optionsN6constrS62306 = new _M0DTP39Milky201812moon__skrifa7outline11HintingMode6Smooth(_M0FP39Milky201811moon__swash5scale16hinting__optionsN6constrS62305, true);
-const _M0FP39Milky201812moon__skrifa7outline26glyf__compute__scale__bitsN5tupleS57018 = { _0: false, _1: 65536 };
-const _M0FP39Milky201812moon__skrifa7outline26glyf__compute__scale__bitsN5tupleS57019 = { _0: false, _1: 65536 };
-const _bind$38 = [];
-const _M0FP39Milky201812moon__skrifa7outline16tt__empty__bytes = _M0MPC15bytes5Bytes11from__array(new _M0TPB9ArrayViewGyE(_bind$38, 0, _bind$38.length));
+const _bind$25 = [];
+const _M0FP39Milky201812moon__skrifa7outline16tt__empty__bytes = _M0MPC15bytes5Bytes11from__array(new _M0TPB9ArrayViewGyE(_bind$25, 0, _bind$25.length));
 const _M0MP39Milky201812moon__skrifa7outline12TtValueStack3popN6constrS52398 = new _M0DTPB6ResultGiRP39Milky201812moon__skrifa7outline9HintErrorE2Ok(0);
 const _M0MP39Milky201812moon__skrifa7outline6TtZone15unscaled__pointN6recordS52232 = new _M0TP39Milky201812moon__skrifa7outline7TtPoint(0, 0);
-const _M0MP39Milky201812moon__skrifa7outline8TtEngine8op__mdapN6recordS53659 = new _M0TP39Milky201812moon__skrifa7outline7TtPoint(0, 0);
 const _M0MP39Milky201812moon__skrifa7outline8TtEngine8op__scfsN6recordS53997 = new _M0TP39Milky201812moon__skrifa7outline7TtPoint(0, 0);
 const _M0MP39Milky201812moon__skrifa7outline8TtEngine6op__gcN6recordS53280 = new _M0TP39Milky201812moon__skrifa7outline7TtPoint(0, 0);
 const _M0MP39Milky201812moon__skrifa7outline8TtEngine6op__gcN6recordS53281 = new _M0TP39Milky201812moon__skrifa7outline7TtPoint(0, 0);
+const _M0MP39Milky201812moon__skrifa7outline8TtEngine8op__mdapN6recordS53659 = new _M0TP39Milky201812moon__skrifa7outline7TtPoint(0, 0);
 const _M0MP39Milky201812moon__skrifa7outline8TtEngine8op__miapN6recordS53713 = new _M0TP39Milky201812moon__skrifa7outline7TtPoint(0, 0);
 const _M0FP39Milky201812moon__skrifa7outline24tt__make__twilight__zoneN6recordS52545 = new _M0TP39Milky201812moon__skrifa7outline7TtPoint(0, 0);
 const _M0FP39Milky201812moon__skrifa7outline24tt__make__twilight__zoneN6recordS52546 = new _M0TP39Milky201812moon__skrifa7outline7TtPoint(0, 0);
 const _M0MP39Milky201812moon__skrifa7outline14TtHintInstance11reconfigureN6recordS54505 = new _M0TP39Milky201812moon__skrifa7outline7TtPoint(0, 0);
 const _M0MP39Milky201812moon__skrifa7outline14TtHintInstance11reconfigureN6recordS54506 = new _M0TP39Milky201812moon__skrifa7outline7TtPoint(0, 0);
+const _M0FP39Milky201812moon__skrifa7outline26glyf__compute__scale__bitsN5tupleS57018 = { _0: false, _1: 65536 };
+const _M0FP39Milky201812moon__skrifa7outline26glyf__compute__scale__bitsN5tupleS57019 = { _0: false, _1: 65536 };
 const _M0MP39Milky201812moon__skrifa7outline15HintingInstance11reconfigureN6constrS60024 = new _M0DTP39Milky201812moon__skrifa7outline10HinterKind3Cff(false);
 const _M0MP39Milky201812moon__skrifa7outline15HintingInstance11reconfigureN6constrS60025 = new _M0DTP39Milky201812moon__skrifa7outline10HinterKind3Cff(true);
+const _p = 1;
+const _M0FP29Milky201811moon__swash12key__counter = _M0MPC13ref3Ref3RefGRP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshotE(BigInt.asUintN(64, BigInt(_p)));
 const _M0FP39Milky201811moon__swash8internal6offsetN6constrS44936 = 0;
-const _p$2 = 1;
-const _M0FP29Milky201811moon__swash12key__counter = _M0MPC13ref3Ref3RefGRP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshotE(BigInt.asUintN(64, BigInt(_p$2)));
-const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60517 = new _M0DTP29Milky201810moon__zeno7Segment3End(true);
-const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60518 = _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60517;
-const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60519 = new _M0DTP29Milky201810moon__zeno7Segment3End(false);
-const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60520 = _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60519;
-const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60521 = new _M0DTP29Milky201810moon__zeno7Segment3End(true);
-const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60522 = _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60521;
-const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60523 = new _M0DTP29Milky201810moon__zeno7Segment3End(false);
-const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60524 = _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60523;
-const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60525 = new _M0DTP29Milky201810moon__zeno7Segment3End(true);
-const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60526 = _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60525;
-const _M0MP29Milky201810moon__zeno7Segment4timeN6recordS60594 = new _M0TP29Milky201810moon__zeno11SegmentTime(0, 0);
-const _M0MP39Milky201811moon__swash5scale5Image5clearN6recordS61972 = new _M0TP29Milky201810moon__zeno9Placement(0, 0, 0, 0);
+const _p$2 = 0;
+const _M0FP39Milky201811moon__swash5scale22scaler__proxy__counter = _M0MPC13ref3Ref3RefGRP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshotE(BigInt.asUintN(64, BigInt(_p$2)));
+const _M0MP29Milky201811moon__swash18BitmapStrikesProxy10from__fontN5tupleS50127 = { _0: 0, _1: 0 };
+const _M0MP29Milky201811moon__swash18BitmapStrikesProxy10from__fontN5tupleS50128 = { _0: 0, _1: 0 };
+const _M0MP39Milky201811moon__swash5scale5Image5ImageN6recordS62237 = new _M0TP29Milky201810moon__zeno9Placement(0, 0, 0, 0);
 const _M0FP39Milky201811moon__swash5scale7is__pngN6constrS61692 = 137;
 const _M0FP39Milky201811moon__swash5scale7is__pngN6constrS61693 = 80;
 const _M0FP39Milky201811moon__swash5scale7is__pngN6constrS61694 = 78;
@@ -17666,14 +17613,11 @@ const _M0FP39Milky201811moon__swash5scale7is__pngN6constrS61697 = 10;
 const _M0FP39Milky201811moon__swash5scale7is__pngN6constrS61698 = 26;
 const _M0FP39Milky201811moon__swash5scale7is__pngN6constrS61699 = 10;
 const _M0FP39Milky201811moon__swash5scale11decode__pngN6constrS61732 = 1229472850;
+const _M0MP39Milky201811moon__swash5scale5Image5clearN6recordS61972 = new _M0TP29Milky201810moon__zeno9Placement(0, 0, 0, 0);
 const _M0MP39Milky201811moon__swash5scale6Scaler19scale__bitmap__implN6recordS61974 = new _M0TP29Milky201810moon__zeno9Placement(0, 0, 0, 0);
 const _M0MP39Milky201811moon__swash5scale6Scaler19scale__bitmap__implN6constrS61975 = true;
 const _M0MP39Milky201811moon__swash5scale6Scaler19scale__bitmap__implN6constrS61976 = true;
 const _M0MP39Milky201811moon__swash5scale6Scaler19scale__bitmap__implN6constrS61977 = true;
-const _M0FP39Milky201812moon__skrifa7outline32glyf__outline__info__from__glyphN5tupleS55427 = { _0: false, _1: false };
-const _M0FP39Milky201812moon__skrifa7outline32glyf__outline__info__from__glyphN6constrS55428 = _M0FP39Milky201812moon__skrifa7outline32glyf__outline__info__from__glyphN5tupleS55427;
-const _M0FP39Milky201812moon__skrifa7outline30glyf__composite__point__offsetN5tupleS57108 = { _0: 0, _1: 0 };
-const _M0FP39Milky201812moon__skrifa7outline30glyf__composite__point__offsetN5tupleS57109 = { _0: 0, _1: 0 };
 const _M0FP39Milky201812moon__skrifa4core32metrics__glyf__point__count__idxN6constrS50781 = 0;
 const _M0FP39Milky201812moon__skrifa4core32metrics__glyf__point__count__idxN6constrS50782 = 0;
 const _M0MP39Milky201812moon__skrifa4core12GlyphMetrics21gvar__phantom__deltasN5tupleS50867 = { _0: 0, _1: 0 };
@@ -17699,6 +17643,13 @@ const _M0MP39Milky201812moon__skrifa4core12GlyphMetrics21gvar__phantom__deltasN5
 const _M0MP39Milky201812moon__skrifa4core12GlyphMetrics21gvar__phantom__deltasN5tupleS50887 = { _0: 0, _1: 0 };
 const _M0MP39Milky201812moon__skrifa4core12GlyphMetrics21gvar__phantom__deltasN5tupleS50888 = { _0: 0, _1: 0 };
 const _M0MP39Milky201812moon__skrifa4core12GlyphMetrics21gvar__phantom__deltasN5tupleS50889 = { _0: 0, _1: 0 };
+const _M0FP39Milky201812moon__skrifa7outline30glyf__composite__point__offsetN5tupleS57108 = { _0: 0, _1: 0 };
+const _M0FP39Milky201812moon__skrifa7outline30glyf__composite__point__offsetN5tupleS57109 = { _0: 0, _1: 0 };
+const _M0FP39Milky201812moon__skrifa7outline24cff__index1__total__sizeN6constrS55928 = 2;
+const _M0MP39Milky201812moon__skrifa7outline15AutoHintOutline20compute__orientationN6constrS56759 = 0;
+const _M0MP39Milky201812moon__skrifa7outline15AutoHintOutline20compute__orientationN6constrS56760 = 1;
+const _M0FP39Milky201812moon__skrifa7outline32glyf__outline__info__from__glyphN5tupleS55427 = { _0: false, _1: false };
+const _M0FP39Milky201812moon__skrifa7outline32glyf__outline__info__from__glyphN6constrS55428 = _M0FP39Milky201812moon__skrifa7outline32glyf__outline__info__from__glyphN5tupleS55427;
 const _M0FP39Milky201812moon__skrifa7outline25tt2__zone__outline__countN6constrS54752 = 0;
 const _M0FP39Milky201812moon__skrifa7outline40tt2__decode__simple__glyph__for__hintingN6recordS54654 = new _M0TP39Milky201812moon__skrifa7outline7TtPoint(0, 0);
 const _M0FP39Milky201812moon__skrifa7outline40tt2__decode__simple__glyph__for__hintingN6recordS54655 = new _M0TP39Milky201812moon__skrifa7outline7TtPoint(0, 0);
@@ -17712,69 +17663,84 @@ const _M0FP39Milky201812moon__skrifa7outline42tt2__load__glyph__zone__for__hinti
 const _M0FP39Milky201812moon__skrifa7outline42tt2__load__glyph__zone__for__hinting__implN6recordS55070 = new _M0TP39Milky201812moon__skrifa7outline7TtPoint(0, 0);
 const _M0FP39Milky201812moon__skrifa7outline42tt2__load__glyph__zone__for__hinting__implN6recordS55071 = new _M0TP39Milky201812moon__skrifa7outline7TtPoint(0, 0);
 const _M0FP39Milky201812moon__skrifa7outline42tt2__load__glyph__zone__for__hinting__implN6recordS55072 = new _M0TP39Milky201812moon__skrifa7outline7TtPoint(0, 0);
-const _M0MP39Milky201812moon__skrifa7outline15AutoHintOutline20compute__orientationN6constrS56759 = 0;
-const _M0MP39Milky201812moon__skrifa7outline15AutoHintOutline20compute__orientationN6constrS56760 = 1;
-const _M0FP39Milky201812moon__skrifa7outline24cff__index1__total__sizeN6constrS55928 = 2;
-const _M0MP39Milky201811moon__swash5scale5Image5ImageN6recordS62237 = new _M0TP29Milky201810moon__zeno9Placement(0, 0, 0, 0);
+const _M0MP29Milky201810moon__zeno7Segment4timeN6recordS60594 = new _M0TP29Milky201810moon__zeno11SegmentTime(0, 0);
+const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60517 = new _M0DTP29Milky201810moon__zeno7Segment3End(true);
+const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60518 = _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60517;
+const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60519 = new _M0DTP29Milky201810moon__zeno7Segment3End(false);
+const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60520 = _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60519;
+const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60521 = new _M0DTP29Milky201810moon__zeno7Segment3End(true);
+const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60522 = _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60521;
+const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60523 = new _M0DTP29Milky201810moon__zeno7Segment3End(false);
+const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60524 = _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60523;
+const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60525 = new _M0DTP29Milky201810moon__zeno7Segment3End(true);
+const _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60526 = _M0MP29Milky201810moon__zeno8Segments4nextN6constrS60525;
 const _M0FP29Milky201812moon__cosmic12swash__imageN6constrS66197 = new _M0DTP39Milky201811moon__swash5scale6Source12ColorOutline(0);
-const _bind$39 = [];
-const _M0FP29Milky201814selene__webgpu21synced__image__assets = _M0MPB3Map3MapGRP39Milky20186selene15render3d__types11ImageHandleRP39Milky20186selene15render3d__types10ImageAssetE(new _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types11ImageHandleRP39Milky20186selene15render3d__types10ImageAssetEE(_bind$39, 0, 0), undefined);
-const _bind$40 = [];
-const _M0FP29Milky201814selene__webgpu24synced__material__assets = _M0MPB3Map3MapGRP39Milky20186selene15render3d__types14MaterialHandleRP39Milky20186selene15render3d__types18StandardMaterial3DE(new _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types14MaterialHandleRP39Milky20186selene15render3d__types18StandardMaterial3DEE(_bind$40, 0, 0), undefined);
-const _bind$41 = [];
-const _M0FP29Milky201814selene__webgpu23synced__cubemap__assets = _M0MPB3Map3MapGRP39Milky20186selene15render3d__types13CubemapHandleRP39Milky20186selene15render3d__types14CubemapAsset3DE(new _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types13CubemapHandleRP39Milky20186selene15render3d__types14CubemapAsset3DEE(_bind$41, 0, 0), undefined);
-const _bind$42 = [];
-const _M0FP29Milky201814selene__webgpu20synced__mesh__assets = _M0MPB3Map3MapGRP39Milky20186selene15render3d__types10MeshHandleRP39Milky20186selene15render3d__types9MeshAssetE(new _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types10MeshHandleRP39Milky20186selene15render3d__types9MeshAssetEE(_bind$42, 0, 0), undefined);
-const _bind$43 = [];
-const _M0FP29Milky201814selene__webgpu36uploaded__primitive__mesh__resources = _M0MPB3Map3MapGsbE(new _M0TPB9ArrayViewGUsbEE(_bind$43, 0, 0), undefined);
+const _M0FP29Milky201814selene__webgpu20cosmic__font__system = _M0MPC13ref3Ref3RefGRP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshotE(_M0MP29Milky201812moon__cosmic10FontSystem3new());
+const _M0FP29Milky201814selene__webgpu20cosmic__swash__cache = _M0MPC13ref3Ref3RefGRP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshotE(_M0MP29Milky201812moon__cosmic10SwashCache3new());
+const _bind$26 = [];
+const _M0FP29Milky201814selene__webgpu24cosmic__loaded__families = _M0MPB3Map3MapGsbE(new _M0TPB9ArrayViewGUsbEE(_bind$26, 0, 0), undefined);
+const _bind$27 = [];
+const _M0FP29Milky201814selene__webgpu21synced__image__assets = _M0MPB3Map3MapGRP39Milky20186selene15render3d__types11ImageHandleRP39Milky20186selene15render3d__types10ImageAssetE(new _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types11ImageHandleRP39Milky20186selene15render3d__types10ImageAssetEE(_bind$27, 0, 0), undefined);
+const _bind$28 = [];
+const _M0FP29Milky201814selene__webgpu24synced__material__assets = _M0MPB3Map3MapGRP39Milky20186selene15render3d__types14MaterialHandleRP39Milky20186selene15render3d__types18StandardMaterial3DE(new _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types14MaterialHandleRP39Milky20186selene15render3d__types18StandardMaterial3DEE(_bind$28, 0, 0), undefined);
+const _bind$29 = [];
+const _M0FP29Milky201814selene__webgpu23synced__cubemap__assets = _M0MPB3Map3MapGRP39Milky20186selene15render3d__types13CubemapHandleRP39Milky20186selene15render3d__types14CubemapAsset3DE(new _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types13CubemapHandleRP39Milky20186selene15render3d__types14CubemapAsset3DEE(_bind$29, 0, 0), undefined);
+const _bind$30 = [];
+const _M0FP29Milky201814selene__webgpu20synced__mesh__assets = _M0MPB3Map3MapGRP39Milky20186selene15render3d__types10MeshHandleRP39Milky20186selene15render3d__types9MeshAssetE(new _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types10MeshHandleRP39Milky20186selene15render3d__types9MeshAssetEE(_bind$30, 0, 0), undefined);
+const _bind$31 = [];
+const _M0FP29Milky201814selene__webgpu36uploaded__primitive__mesh__resources = _M0MPB3Map3MapGsbE(new _M0TPB9ArrayViewGUsbEE(_bind$31, 0, 0), undefined);
 const _M0FP29Milky201814selene__webgpu23webgpu__resource__frame = _M0MPC13ref3Ref3RefGiE(0);
-const _bind$44 = [];
-const _M0FP29Milky201814selene__webgpu37primitive__mesh__resource__last__seen = _M0MPB3Map3MapGsiE(new _M0TPB9ArrayViewGUsiEE(_bind$44, 0, 0), undefined);
+const _bind$32 = [];
+const _M0FP29Milky201814selene__webgpu37primitive__mesh__resource__last__seen = _M0MPB3Map3MapGsiE(new _M0TPB9ArrayViewGUsiEE(_bind$32, 0, 0), undefined);
 const _M0FP29Milky201814selene__webgpu33current__render3d__lighting__mode = _M0MPC13ref3Ref3RefGRP29Milky201814selene__webgpu20Render3DLightingModeE(0);
-const _bind$45 = [];
-const _M0FP29Milky201814selene__webgpu32textured__primitive__mesh__cache = _M0MPB3Map3MapGsRP39Milky20186selene15render3d__types14TriangleMesh3DE(new _M0TPB9ArrayViewGUsRP39Milky20186selene15render3d__types14TriangleMesh3DEE(_bind$45, 0, 0), undefined);
+const _bind$33 = [];
+const _M0FP29Milky201814selene__webgpu32textured__primitive__mesh__cache = _M0MPB3Map3MapGsRP39Milky20186selene15render3d__types14TriangleMesh3DE(new _M0TPB9ArrayViewGUsRP39Milky20186selene15render3d__types14TriangleMesh3DEE(_bind$33, 0, 0), undefined);
 const _M0FP29Milky201814selene__webgpu22last__render3d__timingN6recordS67504 = new _M0TP29Milky201814selene__webgpu28WebGpuRender3DTimingSnapshot(0, 0, 0, 0, 0);
 const _M0FP29Milky201814selene__webgpu22last__render3d__timing = _M0MPC13ref3Ref3RefGRP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshotE(_M0FP29Milky201814selene__webgpu22last__render3d__timingN6recordS67504);
-const _bind$46 = [];
-const _M0FP29Milky201814selene__webgpu40retained__render3d__instance__last__seen = _M0MPB3Map3MapGsiE(new _M0TPB9ArrayViewGUsiEE(_bind$46, 0, 0), undefined);
+const _bind$34 = [];
+const _M0FP29Milky201814selene__webgpu40retained__render3d__instance__last__seen = _M0MPB3Map3MapGsiE(new _M0TPB9ArrayViewGUsiEE(_bind$34, 0, 0), undefined);
 const _M0FP29Milky201814selene__webgpu23resolve__mesh__tangentsN6recordS68878 = new _M0TP39Milky20186selene15render3d__types9Tangent3D(1, 0, 0, 1);
 const _M0FP29Milky201814selene__webgpu33last__render3d__submission__stats = _M0MPC13ref3Ref3RefGRP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshotE(_M0FP29Milky201814selene__webgpu34empty__render3d__submission__stats());
 const _M0FP29Milky201814selene__webgpu43last__render3d__submission__stats__checksum = _M0MPC13ref3Ref3RefGiE(0);
-const _bind$47 = [];
-const _M0FP39Milky20186selene8render3d22dirty__cubemap__assets = _M0MPB3Map3MapGRP39Milky20186selene15render3d__types13CubemapHandleRP39Milky20186selene15render3d__types14CubemapAsset3DE(new _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types13CubemapHandleRP39Milky20186selene15render3d__types14CubemapAsset3DEE(_bind$47, 0, 0), undefined);
-const _bind$48 = [];
-const _M0FP39Milky20186selene14runtime__debug34atlas__overlay__enabled__by__world = _M0MPB3Map3MapGjbE(new _M0TPB9ArrayViewGUjbEE(_bind$48, 0, 0), undefined);
-const _bind$49 = [];
-const _M0FP39Milky20186selene8render2d18frame2d__by__world = _M0MPB3Map3MapGjRP39Milky20186selene8render2d18RenderFrameState2DE(new _M0TPB9ArrayViewGUjRP39Milky20186selene8render2d18RenderFrameState2DEE(_bind$49, 0, 0), undefined);
+const _bind$35 = [];
+const _M0FP39Milky20186selene8render3d22dirty__cubemap__assets = _M0MPB3Map3MapGRP39Milky20186selene15render3d__types13CubemapHandleRP39Milky20186selene15render3d__types14CubemapAsset3DE(new _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types13CubemapHandleRP39Milky20186selene15render3d__types14CubemapAsset3DEE(_bind$35, 0, 0), undefined);
+const _bind$36 = [];
+const _M0FP39Milky20186selene14runtime__debug34atlas__overlay__enabled__by__world = _M0MPB3Map3MapGjbE(new _M0TPB9ArrayViewGUjbEE(_bind$36, 0, 0), undefined);
+const _bind$37 = [];
+const _M0FP39Milky20186selene8render2d18frame2d__by__world = _M0MPB3Map3MapGjRP39Milky20186selene8render2d18RenderFrameState2DE(new _M0TPB9ArrayViewGUjRP39Milky20186selene8render2d18RenderFrameState2DEE(_bind$37, 0, 0), undefined);
 const _M0FP39Milky20186selene14render__submit14build__frame2dN6recordS88915 = new _M0TP39Milky20186selene6render5Color(0, 0, 0, 1);
-const _bind$50 = [];
-const _M0FP39Milky20186selene14runtime__debug32latest__render__frame__by__world = _M0MPB3Map3MapGjRP39Milky20186selene16render__pipeline11RenderFrameE(new _M0TPB9ArrayViewGUjRP39Milky20186selene16render__pipeline11RenderFrameEE(_bind$50, 0, 0), undefined);
-const _bind$51 = [];
-const _M0FP39Milky20186selene8render3d20dirty__image__assets = _M0MPB3Map3MapGRP39Milky20186selene15render3d__types11ImageHandleRP39Milky20186selene15render3d__types10ImageAssetE(new _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types11ImageHandleRP39Milky20186selene15render3d__types10ImageAssetEE(_bind$51, 0, 0), undefined);
-const _bind$52 = [];
-const _M0FP39Milky20186selene8render3d23dirty__material__assets = _M0MPB3Map3MapGRP39Milky20186selene15render3d__types14MaterialHandleRP39Milky20186selene15render3d__types18StandardMaterial3DE(new _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types14MaterialHandleRP39Milky20186selene15render3d__types18StandardMaterial3DEE(_bind$52, 0, 0), undefined);
-const _bind$53 = [];
-const _M0FP39Milky20186selene15touch__controls22touch__control__stores = _M0MPB3Map3MapGjRP39Milky20186selene15touch__controls23TouchControlsWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene15touch__controls23TouchControlsWorldStoreEE(_bind$53, 0, 0), undefined);
-const _bind$54 = [];
-const _M0FP39Milky20186selene9animation24animation__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene9animation19AnimationWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9animation19AnimationWorldStoreEE(_bind$54, 0, 0), undefined);
-const _bind$55 = [];
-const _M0FP39Milky20186selene9animation17animation__graphs = _M0MPB3Map3MapGRP39Milky20186selene9animation20AnimationGraphHandleRP39Milky20186selene9animation14AnimationGraphE(new _M0TPB9ArrayViewGURP39Milky20186selene9animation20AnimationGraphHandleRP39Milky20186selene9animation14AnimationGraphEE(_bind$55, 0, 0), undefined);
-const _bind$56 = [];
-const _M0FP39Milky20186selene9animation16animation__clips = _M0MPB3Map3MapGRP39Milky20186selene9animation19AnimationClipHandleRP39Milky20186selene9animation13AnimationClipE(new _M0TPB9ArrayViewGURP39Milky20186selene9animation19AnimationClipHandleRP39Milky20186selene9animation13AnimationClipEE(_bind$56, 0, 0), undefined);
-const _bind$57 = [];
-const _M0FP39Milky20186selene4name19name__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene4name14NameWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene4name14NameWorldStoreEE(_bind$57, 0, 0), undefined);
-const _bind$58 = [];
-const _M0FP39Milky20186selene9animation26discrete__animated__fields = _M0MPC13set3Set3SetGRP39Milky20186selene9animation19AnimatedFieldHandleE(new _M0TPB9ArrayViewGRP39Milky20186selene9animation19AnimatedFieldHandleE(_bind$58, 0, 0), undefined);
-const _bind$59 = [];
-const _M0FP39Milky20186selene9animation16animated__fields = _M0MPB3Map3MapGRP39Milky20186selene9animation19AnimatedFieldHandleRP39Milky20186selene9animation13AnimatedFieldE(new _M0TPB9ArrayViewGURP39Milky20186selene9animation19AnimatedFieldHandleRP39Milky20186selene9animation13AnimatedFieldEE(_bind$59, 0, 0), undefined);
+const _bind$38 = [];
+const _M0FP39Milky20186selene14runtime__debug29render__submission__by__world = _M0MPB3Map3MapGjRP39Milky20186selene14runtime__debug21RenderSubmissionDebugE(new _M0TPB9ArrayViewGUjRP39Milky20186selene14runtime__debug21RenderSubmissionDebugEE(_bind$38, 0, 0), undefined);
+const _bind$39 = [];
+const _M0FP39Milky20186selene14runtime__debug32latest__render__frame__by__world = _M0MPB3Map3MapGjRP39Milky20186selene16render__pipeline11RenderFrameE(new _M0TPB9ArrayViewGUjRP39Milky20186selene16render__pipeline11RenderFrameEE(_bind$39, 0, 0), undefined);
+const _bind$40 = [];
+const _M0FP39Milky20186selene8render3d20dirty__image__assets = _M0MPB3Map3MapGRP39Milky20186selene15render3d__types11ImageHandleRP39Milky20186selene15render3d__types10ImageAssetE(new _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types11ImageHandleRP39Milky20186selene15render3d__types10ImageAssetEE(_bind$40, 0, 0), undefined);
+const _bind$41 = [];
+const _M0FP39Milky20186selene8render3d23dirty__material__assets = _M0MPB3Map3MapGRP39Milky20186selene15render3d__types14MaterialHandleRP39Milky20186selene15render3d__types18StandardMaterial3DE(new _M0TPB9ArrayViewGURP39Milky20186selene15render3d__types14MaterialHandleRP39Milky20186selene15render3d__types18StandardMaterial3DEE(_bind$41, 0, 0), undefined);
+const _bind$42 = [];
+const _M0FP39Milky20186selene15touch__controls22touch__control__stores = _M0MPB3Map3MapGjRP39Milky20186selene15touch__controls23TouchControlsWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene15touch__controls23TouchControlsWorldStoreEE(_bind$42, 0, 0), undefined);
+const _bind$43 = [];
+const _M0FP39Milky20186selene9animation24animation__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene9animation19AnimationWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9animation19AnimationWorldStoreEE(_bind$43, 0, 0), undefined);
+const _bind$44 = [];
+const _M0FP39Milky20186selene9animation17animation__graphs = _M0MPB3Map3MapGRP39Milky20186selene9animation20AnimationGraphHandleRP39Milky20186selene9animation14AnimationGraphE(new _M0TPB9ArrayViewGURP39Milky20186selene9animation20AnimationGraphHandleRP39Milky20186selene9animation14AnimationGraphEE(_bind$44, 0, 0), undefined);
+const _bind$45 = [];
+const _M0FP39Milky20186selene9animation16animation__clips = _M0MPB3Map3MapGRP39Milky20186selene9animation19AnimationClipHandleRP39Milky20186selene9animation13AnimationClipE(new _M0TPB9ArrayViewGURP39Milky20186selene9animation19AnimationClipHandleRP39Milky20186selene9animation13AnimationClipEE(_bind$45, 0, 0), undefined);
+const _bind$46 = [];
+const _M0FP39Milky20186selene4name19name__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene4name14NameWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene4name14NameWorldStoreEE(_bind$46, 0, 0), undefined);
+const _bind$47 = [];
+const _M0FP39Milky20186selene9animation26discrete__animated__fields = _M0MPC13set3Set3SetGRP39Milky20186selene9animation19AnimatedFieldHandleE(new _M0TPB9ArrayViewGRP39Milky20186selene9animation19AnimatedFieldHandleE(_bind$47, 0, 0), undefined);
+const _bind$48 = [];
+const _M0FP39Milky20186selene9animation16animated__fields = _M0MPB3Map3MapGRP39Milky20186selene9animation19AnimatedFieldHandleRP39Milky20186selene9animation13AnimatedFieldE(new _M0TPB9ArrayViewGURP39Milky20186selene9animation19AnimatedFieldHandleRP39Milky20186selene9animation13AnimatedFieldEE(_bind$48, 0, 0), undefined);
 const _M0FP39Milky20186selene5audio17audio__event__bus = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
-const _bind$60 = [];
-const _M0FP39Milky20186selene5audio20audio__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene5audio15AudioWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene5audio15AudioWorldStoreEE(_bind$60, 0, 0), undefined);
+const _bind$49 = [];
+const _M0FP39Milky20186selene5audio20audio__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene5audio15AudioWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene5audio15AudioWorldStoreEE(_bind$49, 0, 0), undefined);
+const _bind$50 = [];
+const _M0FP29Milky201814selene__webgpu16audio__instances = _M0MPB3Map3MapGiRP29Milky201814selene__webgpu13AudioPlaybackE(new _M0TPB9ArrayViewGUiRP29Milky201814selene__webgpu13AudioPlaybackEE(_bind$50, 0, 0), undefined);
 const _M0FP39Milky20186selene5audio20audio__event__reader = _M0MP39Milky20186selene5event11EventReader11EventReaderGRP39Milky20186selene2ui12UiClickEventE();
-const _bind$61 = [];
-const _M0FP39Milky20186selene2ui20ui__material__assets = _M0MPB3Map3MapGRP39Milky20186selene2ui16UiMaterialHandleRP39Milky20186selene2ui15UiMaterialAssetE(new _M0TPB9ArrayViewGURP39Milky20186selene2ui16UiMaterialHandleRP39Milky20186selene2ui15UiMaterialAssetEE(_bind$61, 0, 0), undefined);
-const _bind$62 = [];
-const _M0FP39Milky20186selene10visibility25visibility__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene10visibility20VisibilityWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene10visibility20VisibilityWorldStoreEE(_bind$62, 0, 0), undefined);
+const _bind$51 = [];
+const _M0FP39Milky20186selene2ui20ui__material__assets = _M0MPB3Map3MapGRP39Milky20186selene2ui16UiMaterialHandleRP39Milky20186selene2ui15UiMaterialAssetE(new _M0TPB9ArrayViewGURP39Milky20186selene2ui16UiMaterialHandleRP39Milky20186selene2ui15UiMaterialAssetEE(_bind$51, 0, 0), undefined);
+const _bind$52 = [];
+const _M0FP39Milky20186selene10visibility25visibility__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene10visibility20VisibilityWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene10visibility20VisibilityWorldStoreEE(_bind$52, 0, 0), undefined);
 const _M0FP39Milky20186selene2ui14truncate__lineN8ellipsisS83338 = "...";
 const _M0FP39Milky20186selene2ui10wrap__lineN6recordS83344 = new _M0TPC16string10StringView(" ", 0, 1);
 const _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS83361 = new _M0TPC16string10StringView("\n", 0, 1);
@@ -17782,6 +17748,8 @@ const _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS83362 = new _M0T
 const _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS83363 = new _M0TPC16string10StringView("\n", 0, 1);
 const _M0FP39Milky20186selene9physics3d18sensor__event__bus = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
 const _M0FP39Milky20186selene6inputs27virtual__button__event__bus = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
+const _bind$53 = [];
+const _M0FP39Milky20186selene5event28registered__buses__by__world = _M0MPB3Map3MapGjRPB5ArrayGRP39Milky20186selene5event13RegisteredBusEE(new _M0TPB9ArrayViewGUjRPB5ArrayGRP39Milky20186selene5event13RegisteredBusEEE(_bind$53, 0, 0), undefined);
 const _M0FP39Milky20186selene4ldtk32ldtk__world__spawned__event__bus = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
 const _M0FP39Milky20186selene5asset20audio__asset__events = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
 const _M0FP39Milky20186selene5tiled33tiled__world__spawned__event__bus = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
@@ -17825,8 +17793,12 @@ const _M0FP39Milky20186selene2ui22focus__out__event__bus = _M0MP39Milky20186sele
 const _M0FP39Milky20186selene4ldtk31ldtk__tile__spawned__event__bus = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
 const _M0FP39Milky20186selene2ui25pointer__down__event__bus = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
 const _M0FP39Milky20186selene9animation30animation__clip__asset__events = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
-const _bind$63 = [];
-const _M0FP39Milky20186selene8render2d20sorting2d__by__world = _M0MPB3Map3MapGjRP39Milky20186selene8render2d19Sorting2dWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene8render2d19Sorting2dWorldStoreEE(_bind$63, 0, 0), undefined);
+const _bind$54 = [];
+const _M0FP39Milky20186selene6inputs7touches = _M0MPB3Map3MapGRP39Milky20186selene6inputs7TouchIdRP39Milky20186selene6inputs10TouchPointE(new _M0TPB9ArrayViewGURP39Milky20186selene6inputs7TouchIdRP39Milky20186selene6inputs10TouchPointEE(_bind$54, 0, 0), undefined);
+const _bind$55 = [];
+const _M0FP39Milky20186selene6inputs22gamepad__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene6inputs17GamepadWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene6inputs17GamepadWorldStoreEE(_bind$55, 0, 0), undefined);
+const _bind$56 = [];
+const _M0FP39Milky20186selene8render2d20sorting2d__by__world = _M0MPB3Map3MapGjRP39Milky20186selene8render2d19Sorting2dWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene8render2d19Sorting2dWorldStoreEE(_bind$56, 0, 0), undefined);
 const _M0MP39Milky20186chicle5style5Style7defaultN6recordS78731 = new _M0TP39Milky20186chicle8geometry5PointGRP39Milky20186chicle5style8OverflowE(0, 0);
 const _M0MP39Milky20186chicle5style5Style7defaultN6constrS78732 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
 const _M0MP39Milky20186chicle5style5Style7defaultN6constrS78733 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
@@ -17842,27 +17814,46 @@ const _M0MP39Milky20186chicle5style5Style7defaultN6constrS78742 = new _M0DTP39Mi
 const _M0MP39Milky20186chicle5style5Style7defaultN6constrS78743 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
 const _M0MP39Milky20186chicle5style5Style7defaultN6constrS78744 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
 const _M0MP39Milky20186chicle5style5Style7defaultN6constrS78745 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0FP39Milky20186chicle4tree29margin__collapse__state__fromN5tupleS79285 = { _0: 0, _1: 0 };
 const _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS80506 = { _0: 0, _1: 0 };
 const _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS80507 = { _0: 0, _1: 0 };
+const _M0FP39Milky20186chicle4tree29margin__collapse__state__fromN5tupleS79285 = { _0: 0, _1: 0 };
 const _M0FP39Milky20186chicle4tree21collapse__state__fromN5tupleS79144 = { _0: 0, _1: 0 };
 const _M0FP39Milky20186chicle4tree22spanned__definite__lenN6constrS79595 = new _M0DTPC16option6OptionGdE4Some(0);
 const _M0FP39Milky20186chicle4tree43grid__definite__axis__border__content__sizeN5tupleS80341 = { _0: 0, _1: 0 };
 const _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS80743GRP39Milky20186selene6entity6EntityE = { _0: 0, _1: 0 };
 const _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS80744GRP39Milky20186selene6entity6EntityE = { _0: 0, _1: 0 };
-const _bind$64 = [];
-const _M0FP39Milky20186selene2ui20ui__layout__runtimes = _M0MPB3Map3MapGjRP39Milky20186selene2ui15UiLayoutRuntimeE(new _M0TPB9ArrayViewGUjRP39Milky20186selene2ui15UiLayoutRuntimeEE(_bind$64, 0, 0), undefined);
-const _bind$65 = [];
-const _M0FP39Milky20186selene5scene16scene__instances = _M0MPB3Map3MapGRP39Milky20186selene6entity6EntityRP39Milky20186selene15render3d__types11SceneHandleE(new _M0TPB9ArrayViewGURP39Milky20186selene6entity6EntityRP39Milky20186selene15render3d__types11SceneHandleEE(_bind$65, 0, 0), undefined);
+const _bind$57 = [];
+const _M0FP39Milky20186selene2ui20ui__layout__runtimes = _M0MPB3Map3MapGjRP39Milky20186selene2ui15UiLayoutRuntimeE(new _M0TPB9ArrayViewGUjRP39Milky20186selene2ui15UiLayoutRuntimeEE(_bind$57, 0, 0), undefined);
+const _bind$58 = [];
+const _M0FP39Milky20186selene5scene16scene__instances = _M0MPB3Map3MapGRP39Milky20186selene6entity6EntityRP39Milky20186selene15render3d__types11SceneHandleE(new _M0TPB9ArrayViewGURP39Milky20186selene6entity6EntityRP39Milky20186selene15render3d__types11SceneHandleEE(_bind$58, 0, 0), undefined);
 const _M0FP39Milky20186selene6system20mouse__lock__enabled = _M0MPC13ref3Ref3RefGbE(false);
 const _M0FP39Milky20186selene15platform__input27mouse__lock__requested__ref = _M0MPC13ref3Ref3RefGbE(false);
+const _M0FP29Milky201814selene__webgpu15canvas__backend = _M0MP29Milky201814selene__webgpu13WebGpuBackend13WebGpuBackend();
 const _M0FP39Milky20186selene15platform__input33mouse__lock__handlers__registered = _M0MPC13ref3Ref3RefGbE(false);
+const _M0FP29Milky201814selene__webgpu30audio__user__activation__epoch = _M0MPC13ref3Ref3RefGiE(0);
 const _M0FP39Milky20186selene6system22mouse__lock__requested = _M0MPC13ref3Ref3RefGbE(false);
-const _bind$66 = [];
-const _M0FP39Milky20186selene6inputs19just__pressed__keys = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs4CodeE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(_bind$66, 0, 0), undefined);
+const _bind$59 = [];
+const _M0FP39Milky20186selene6inputs19just__pressed__keys = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs4CodeE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(_bind$59, 0, 0), undefined);
 const _M0FP39Milky20186selene6system19mouse__lock__active = _M0MPC13ref3Ref3RefGbE(false);
-const _bind$67 = [];
-const _M0FP39Milky20186selene9animation29animation__event__descriptors = _M0MPB3Map3MapGRP39Milky20186selene9animation30AnimationEventDescriptorHandleRP39Milky20186selene9animation24AnimationEventDescriptorE(new _M0TPB9ArrayViewGURP39Milky20186selene9animation30AnimationEventDescriptorHandleRP39Milky20186selene9animation24AnimationEventDescriptorEE(_bind$67, 0, 0), undefined);
+const _bind$60 = [];
+const _M0FP39Milky20186selene9animation29animation__event__descriptors = _M0MPB3Map3MapGRP39Milky20186selene9animation30AnimationEventDescriptorHandleRP39Milky20186selene9animation24AnimationEventDescriptorE(new _M0TPB9ArrayViewGURP39Milky20186selene9animation30AnimationEventDescriptorHandleRP39Milky20186selene9animation24AnimationEventDescriptorEE(_bind$60, 0, 0), undefined);
+const _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients10cfm__coeffN3oneS71042 = Math.fround(1);
+const _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN6marginS76019 = Math.fround(1e-06);
+const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN12ang__impulseS76438 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS76439 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS76440 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS76441 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS76442 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS76443 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS76444 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS76445 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS76923 = { _0: Math.fround(0), _1: Math.fround(0) };
+const _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS76924 = { _0: Math.fround(0), _1: Math.fround(0) };
+const _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS76925 = { _0: Math.fround(0), _1: Math.fround(0) };
+const _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3epsS76976 = Math.fround(1e-12);
+const _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3tolS76977 = Math.fround(-1e-06);
+const _M0FP39Milky201812moon__rapier8pipeline28emit__contact__force__eventsN14max__thresholdS77863 = Math.fround(1e+30);
+const _M0FP39Milky201812moon__rapier8dynamics30dmatrix__inverse__or__identityN3epsS71090 = Math.fround(1e-09);
 const _M0FP39Milky201812moon__rapier9collision46project__point__on__segment__and__get__featureN6constrS72553 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(0);
 const _M0FP39Milky201812moon__rapier9collision46project__point__on__segment__and__get__featureN6constrS72554 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(1);
 const _M0FP39Milky201812moon__rapier9collision46project__point__on__segment__and__get__featureN6constrS72555 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
@@ -17902,46 +17893,29 @@ const _M0FP39Milky201812moon__rapier9collision20build__contact__pairN6constrS733
 const _M0FP39Milky201812moon__rapier9collision20build__contact__pairN6constrS73387 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
 const _M0FP39Milky201812moon__rapier9collision20build__contact__pairN3epsS73388 = Math.fround(1e-05);
 const _M0FP39Milky201812moon__rapier9collision17shapes__intersectN3epsS73854 = Math.fround(1e-06);
-const _M0FP39Milky201812moon__rapier8dynamics30dmatrix__inverse__or__identityN3epsS71090 = Math.fround(1e-09);
-const _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients10cfm__coeffN3oneS71042 = Math.fround(1);
-const _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS76923 = { _0: Math.fround(0), _1: Math.fround(0) };
-const _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS76924 = { _0: Math.fround(0), _1: Math.fround(0) };
-const _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS76925 = { _0: Math.fround(0), _1: Math.fround(0) };
-const _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3epsS76976 = Math.fround(1e-12);
-const _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3tolS76977 = Math.fround(-1e-06);
-const _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN6marginS76019 = Math.fround(1e-06);
-const _M0FP39Milky201812moon__rapier8pipeline28emit__contact__force__eventsN14max__thresholdS77863 = Math.fround(1e+30);
-const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN12ang__impulseS76438 = Math.fround(0);
-const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS76439 = Math.fround(0);
-const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS76440 = Math.fround(0);
-const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS76441 = Math.fround(0);
-const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS76442 = Math.fround(0);
-const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS76443 = Math.fround(0);
-const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS76444 = Math.fround(0);
-const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS76445 = Math.fround(0);
 const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS71404 = Math.fround(1);
 const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS71405 = Math.fround(0.001);
 const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS71406 = Math.fround(10);
 const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS71407 = Math.fround(0.002);
 const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS71408 = Math.fround(1);
-const _bind$68 = [];
-const _M0FP39Milky20186selene9collision24physics__world__runtimes = _M0MPB3Map3MapGjRP39Milky20186selene9collision19PhysicsWorldRuntimeE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9collision19PhysicsWorldRuntimeEE(_bind$68, 0, 0), undefined);
+const _bind$61 = [];
+const _M0FP39Milky20186selene9collision24physics__world__runtimes = _M0MPB3Map3MapGjRP39Milky20186selene9collision19PhysicsWorldRuntimeE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9collision19PhysicsWorldRuntimeEE(_bind$61, 0, 0), undefined);
 const _M0FP39Milky20186selene9collision15physics__config = new _M0TP39Milky20186selene9collision13PhysicsConfig({ _0: 0, _1: 0 }, 100, 1);
-const _bind$69 = [];
-const _M0FP39Milky20186selene8velocity23velocity__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene8velocity18VelocityWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene8velocity18VelocityWorldStoreEE(_bind$69, 0, 0), undefined);
-const _bind$70 = [];
-const _M0FP39Milky20186selene9collision26rigid__body__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene9collision19RigidBodyWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9collision19RigidBodyWorldStoreEE(_bind$70, 0, 0), undefined);
-const _bind$71 = [];
-const _M0FP39Milky20186selene9collision23collider__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene9collision18ColliderWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9collision18ColliderWorldStoreEE(_bind$71, 0, 0), undefined);
+const _bind$62 = [];
+const _M0FP39Milky20186selene8velocity23velocity__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene8velocity18VelocityWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene8velocity18VelocityWorldStoreEE(_bind$62, 0, 0), undefined);
+const _bind$63 = [];
+const _M0FP39Milky20186selene9collision26rigid__body__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene9collision19RigidBodyWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9collision19RigidBodyWorldStoreEE(_bind$63, 0, 0), undefined);
+const _bind$64 = [];
+const _M0FP39Milky20186selene9collision23collider__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene9collision18ColliderWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9collision18ColliderWorldStoreEE(_bind$64, 0, 0), undefined);
 const _M0FP39Milky201812moon__rapier7control16compute__extentsN5tupleS75416 = { _0: Math.fround(0), _1: Math.fround(0) };
 const _M0FP39Milky201812moon__rapier9collision20ray__intersect__ballN6constrS71726 = new _M0DTPC16option6OptionGfE4Some(Math.fround(0));
 const _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN11seg__radiusS72243 = Math.fround(0);
-const _bind$72 = [];
-const _M0FP39Milky20186selene9collision20shape__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene9collision15ShapeWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9collision15ShapeWorldStoreEE(_bind$72, 0, 0), undefined);
-const _bind$73 = [];
-const _M0FP39Milky20186selene9collision19area__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene9collision14AreaWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9collision14AreaWorldStoreEE(_bind$73, 0, 0), undefined);
-const _bind$74 = [];
-const _M0FP39Milky20186selene9collision20joint__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene9collision15JointWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9collision15JointWorldStoreEE(_bind$74, 0, 0), undefined);
+const _bind$65 = [];
+const _M0FP39Milky20186selene9collision20shape__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene9collision15ShapeWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9collision15ShapeWorldStoreEE(_bind$65, 0, 0), undefined);
+const _bind$66 = [];
+const _M0FP39Milky20186selene9collision19area__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene9collision14AreaWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9collision14AreaWorldStoreEE(_bind$66, 0, 0), undefined);
+const _bind$67 = [];
+const _M0FP39Milky20186selene9collision20joint__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene9collision15JointWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9collision15JointWorldStoreEE(_bind$67, 0, 0), undefined);
 const _M0FP39Milky20186selene5audio19global__volume__ref = _M0MPC13ref3Ref3RefGdE(1);
 const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS69160 = new _M0TPC16string10StringView(".ogg", 0, 4);
 const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS69161 = new _M0TPC16string10StringView(".oga", 0, 4);
@@ -17949,57 +17923,59 @@ const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS69162
 const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS69163 = new _M0TPC16string10StringView(".wav", 0, 4);
 const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS69164 = new _M0TPC16string10StringView(".flac", 0, 5);
 const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS69165 = new _M0TPC16string10StringView(".aac", 0, 4);
-const _bind$75 = [];
-const _M0FP29Milky201814selene__webgpu22cached__audio__sources = _M0MPB3Map3MapGsRP29Milky201814selene__webgpu17CachedAudioSourceE(new _M0TPB9ArrayViewGUsRP29Milky201814selene__webgpu17CachedAudioSourceEE(_bind$75, 0, 0), undefined);
+const _bind$68 = [];
+const _M0FP29Milky201814selene__webgpu22cached__audio__sources = _M0MPB3Map3MapGsRP29Milky201814selene__webgpu17CachedAudioSourceE(new _M0TPB9ArrayViewGUsRP29Milky201814selene__webgpu17CachedAudioSourceEE(_bind$68, 0, 0), undefined);
 const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS69154 = new _M0TPC16string10StringView("http://", 0, 7);
 const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS69155 = new _M0TPC16string10StringView("https://", 0, 8);
 const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS69156 = new _M0TPC16string10StringView("data:", 0, 5);
 const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS69157 = new _M0TPC16string10StringView("blob:", 0, 5);
 const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS69158 = new _M0TPC16string10StringView("assets/", 0, 7);
-const _bind$76 = [];
-const _M0FP29Milky201814selene__webgpu27preloaded__audio__templates = _M0MPB3Map3MapGsRP29Milky201814selene__webgpu5AudioE(new _M0TPB9ArrayViewGUsRP29Milky201814selene__webgpu5AudioEE(_bind$76, 0, 0), undefined);
+const _bind$69 = [];
+const _M0FP29Milky201814selene__webgpu27preloaded__audio__templates = _M0MPB3Map3MapGsRP29Milky201814selene__webgpu5AudioE(new _M0TPB9ArrayViewGUsRP29Milky201814selene__webgpu5AudioEE(_bind$69, 0, 0), undefined);
 const _M0FP29Milky201814selene__webgpu21next__audio__instance = _M0MPC13ref3Ref3RefGiE(1);
+const _bind$70 = [];
+const _M0FP39Milky20186selene5asset23audio__path__by__handle = _M0MPB3Map3MapGRP39Milky20186selene12asset__types11AudioHandlesE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types11AudioHandlesEE(_bind$70, 0, 0), undefined);
+const _bind$71 = [];
+const _M0FP39Milky20186selene13input__action15input__bindings = _M0MPB3Map3MapGRP39Milky20186selene13input__action11InputActionRPB5ArrayGRP39Milky20186selene13input__action12InputBindingEE(new _M0TPB9ArrayViewGURP39Milky20186selene13input__action11InputActionRPB5ArrayGRP39Milky20186selene13input__action12InputBindingEEE(_bind$71, 0, 0), undefined);
+const _bind$72 = [];
+const _M0FP39Milky20186selene6inputs21virtual__axis__values = _M0MPB3Map3MapGRP39Milky20186selene6inputs11VirtualAxisdE(new _M0TPB9ArrayViewGURP39Milky20186selene6inputs11VirtualAxisdEE(_bind$72, 0, 0), undefined);
+const _bind$73 = [];
+const _M0FP39Milky20186selene6inputs25pressed__virtual__buttons = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs13VirtualButtonE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs13VirtualButtonE(_bind$73, 0, 0), undefined);
+const _bind$74 = [];
+const _M0FP39Milky20186selene6inputs13pressed__keys = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs4CodeE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(_bind$74, 0, 0), undefined);
+const _bind$75 = [];
+const _M0FP39Milky20186selene13input__action14action__states = _M0MPB3Map3MapGRP39Milky20186selene13input__action11InputActionRP39Milky20186selene13input__action11ActionStateE(new _M0TPB9ArrayViewGURP39Milky20186selene13input__action11InputActionRP39Milky20186selene13input__action11ActionStateEE(_bind$75, 0, 0), undefined);
+const _bind$76 = [];
+const _M0FP39Milky20186selene6text2d21text2d__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene6text2d16Text2dWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene6text2d16Text2dWorldStoreEE(_bind$76, 0, 0), undefined);
 const _bind$77 = [];
-const _M0FP39Milky20186selene5asset23audio__path__by__handle = _M0MPB3Map3MapGRP39Milky20186selene12asset__types11AudioHandlesE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types11AudioHandlesEE(_bind$77, 0, 0), undefined);
-const _bind$78 = [];
-const _M0FP39Milky20186selene13input__action15input__bindings = _M0MPB3Map3MapGRP39Milky20186selene13input__action11InputActionRPB5ArrayGRP39Milky20186selene13input__action12InputBindingEE(new _M0TPB9ArrayViewGURP39Milky20186selene13input__action11InputActionRPB5ArrayGRP39Milky20186selene13input__action12InputBindingEEE(_bind$78, 0, 0), undefined);
-const _bind$79 = [];
-const _M0FP39Milky20186selene6inputs21virtual__axis__values = _M0MPB3Map3MapGRP39Milky20186selene6inputs11VirtualAxisdE(new _M0TPB9ArrayViewGURP39Milky20186selene6inputs11VirtualAxisdEE(_bind$79, 0, 0), undefined);
-const _bind$80 = [];
-const _M0FP39Milky20186selene6inputs25pressed__virtual__buttons = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs13VirtualButtonE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs13VirtualButtonE(_bind$80, 0, 0), undefined);
-const _bind$81 = [];
-const _M0FP39Milky20186selene13input__action14action__states = _M0MPB3Map3MapGRP39Milky20186selene13input__action11InputActionRP39Milky20186selene13input__action11ActionStateE(new _M0TPB9ArrayViewGURP39Milky20186selene13input__action11InputActionRP39Milky20186selene13input__action11ActionStateEE(_bind$81, 0, 0), undefined);
-const _bind$82 = [];
-const _M0FP39Milky20186selene6text2d21text2d__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene6text2d16Text2dWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene6text2d16Text2dWorldStoreEE(_bind$82, 0, 0), undefined);
-const _bind$83 = [];
-const _M0FP39Milky20186selene10parallax2d25parallax2d__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene10parallax2d20Parallax2dWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene10parallax2d20Parallax2dWorldStoreEE(_bind$83, 0, 0), undefined);
+const _M0FP39Milky20186selene10parallax2d25parallax2d__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene10parallax2d20Parallax2dWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene10parallax2d20Parallax2dWorldStoreEE(_bind$77, 0, 0), undefined);
 const _M0FP39Milky20186selene6text2d14truncate__lineN8ellipsisS88975 = "...";
 const _M0FP39Milky20186selene6text2d10wrap__lineN6recordS88981 = new _M0TPC16string10StringView(" ", 0, 1);
 const _M0FP39Milky20186selene6text2d20bounded__text__linesN6recordS88998 = new _M0TPC16string10StringView("\n", 0, 1);
-const _bind$84 = [];
-const _M0FP39Milky20186selene10material2d16color__materials = _M0MPB3Map3MapGRP39Milky20186selene10material2d19ColorMaterialHandleRP39Milky20186selene10material2d13ColorMaterialE(new _M0TPB9ArrayViewGURP39Milky20186selene10material2d19ColorMaterialHandleRP39Milky20186selene10material2d13ColorMaterialEE(_bind$84, 0, 0), undefined);
-const _bind$85 = [];
-const _M0FP39Milky20186selene6mesh2d21mesh2d__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene6mesh2d16Mesh2dWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene6mesh2d16Mesh2dWorldStoreEE(_bind$85, 0, 0), undefined);
-const _bind$86 = [];
-const _M0FP39Milky20186selene6mesh2d13mesh__storage = new _M0TP39Milky20186selene6mesh2d13Mesh2dStorage(_M0MPB3Map3MapGRP39Milky20186selene6mesh2d12Mesh2dHandleRP39Milky20186selene6mesh2d11Mesh2dAssetE(new _M0TPB9ArrayViewGURP39Milky20186selene6mesh2d12Mesh2dHandleRP39Milky20186selene6mesh2d11Mesh2dAssetEE(_bind$86, 0, 0), undefined));
-const _bind$87 = [];
-const _M0FP39Milky20186selene10material2d25material2d__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene10material2d20Material2dWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene10material2d20Material2dWorldStoreEE(_bind$87, 0, 0), undefined);
+const _bind$78 = [];
+const _M0FP39Milky20186selene10material2d16color__materials = _M0MPB3Map3MapGRP39Milky20186selene10material2d19ColorMaterialHandleRP39Milky20186selene10material2d13ColorMaterialE(new _M0TPB9ArrayViewGURP39Milky20186selene10material2d19ColorMaterialHandleRP39Milky20186selene10material2d13ColorMaterialEE(_bind$78, 0, 0), undefined);
+const _bind$79 = [];
+const _M0FP39Milky20186selene6mesh2d21mesh2d__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene6mesh2d16Mesh2dWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene6mesh2d16Mesh2dWorldStoreEE(_bind$79, 0, 0), undefined);
+const _bind$80 = [];
+const _M0FP39Milky20186selene6mesh2d13mesh__storage = new _M0TP39Milky20186selene6mesh2d13Mesh2dStorage(_M0MPB3Map3MapGRP39Milky20186selene6mesh2d12Mesh2dHandleRP39Milky20186selene6mesh2d11Mesh2dAssetE(new _M0TPB9ArrayViewGURP39Milky20186selene6mesh2d12Mesh2dHandleRP39Milky20186selene6mesh2d11Mesh2dAssetEE(_bind$80, 0, 0), undefined));
+const _bind$81 = [];
+const _M0FP39Milky20186selene10material2d25material2d__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene10material2d20Material2dWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene10material2d20Material2dWorldStoreEE(_bind$81, 0, 0), undefined);
 const _M0FP39Milky20186selene6inputs19pointer__event__bus = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
 const _M0FP39Milky20186selene6inputs25advanced__pointer__systemN2idS44259 = new _M0TP39Milky20186selene6inputs9PointerId(0, 0);
+const _bind$82 = [];
+const _M0FP39Milky20186selene6inputs19last__pressed__keys = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs4CodeE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(_bind$82, 0, 0), undefined);
+const _bind$83 = [];
+const _M0FP39Milky20186selene6inputs19just__release__keys = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs4CodeE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(_bind$83, 0, 0), undefined);
+const _bind$84 = [];
+const _M0FP39Milky20186selene6sprite35texture__atlas__layouts__by__handle = _M0MPB3Map3MapGRP39Milky20186selene6sprite24TextureAtlasLayoutHandleRP39Milky20186selene6sprite18TextureAtlasLayoutE(new _M0TPB9ArrayViewGURP39Milky20186selene6sprite24TextureAtlasLayoutHandleRP39Milky20186selene6sprite18TextureAtlasLayoutEE(_bind$84, 0, 0), undefined);
+const _bind$85 = [];
+const _M0FP39Milky20186selene9collision23pickable__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene9collision18PickableWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9collision18PickableWorldStoreEE(_bind$85, 0, 0), undefined);
+const _bind$86 = [];
+const _M0FP39Milky20186selene5tiled25tiled__ecs__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene5tiled18TiledEcsWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene5tiled18TiledEcsWorldStoreEE(_bind$86, 0, 0), undefined);
+const _bind$87 = [];
+const _M0FP39Milky20186selene5tiled29tiled__world__runtime__stores = _M0MPB3Map3MapGjRP39Milky20186selene5tiled22TiledWorldRuntimeStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene5tiled22TiledWorldRuntimeStoreEE(_bind$87, 0, 0), undefined);
 const _bind$88 = [];
-const _M0FP39Milky20186selene6inputs19last__pressed__keys = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs4CodeE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(_bind$88, 0, 0), undefined);
-const _bind$89 = [];
-const _M0FP39Milky20186selene6inputs19just__release__keys = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs4CodeE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(_bind$89, 0, 0), undefined);
-const _bind$90 = [];
-const _M0FP39Milky20186selene6sprite35texture__atlas__layouts__by__handle = _M0MPB3Map3MapGRP39Milky20186selene6sprite24TextureAtlasLayoutHandleRP39Milky20186selene6sprite18TextureAtlasLayoutE(new _M0TPB9ArrayViewGURP39Milky20186selene6sprite24TextureAtlasLayoutHandleRP39Milky20186selene6sprite18TextureAtlasLayoutEE(_bind$90, 0, 0), undefined);
-const _bind$91 = [];
-const _M0FP39Milky20186selene9collision23pickable__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene9collision18PickableWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9collision18PickableWorldStoreEE(_bind$91, 0, 0), undefined);
-const _bind$92 = [];
-const _M0FP39Milky20186selene5tiled25tiled__ecs__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene5tiled18TiledEcsWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene5tiled18TiledEcsWorldStoreEE(_bind$92, 0, 0), undefined);
-const _bind$93 = [];
-const _M0FP39Milky20186selene5tiled29tiled__world__runtime__stores = _M0MPB3Map3MapGjRP39Milky20186selene5tiled22TiledWorldRuntimeStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene5tiled22TiledWorldRuntimeStoreEE(_bind$93, 0, 0), undefined);
-const _bind$94 = [];
-const _M0FP39Milky20186selene5tiled29tiled__physics__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene5tiled22TiledPhysicsWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene5tiled22TiledPhysicsWorldStoreEE(_bind$94, 0, 0), undefined);
+const _M0FP39Milky20186selene5tiled29tiled__physics__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene5tiled22TiledPhysicsWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene5tiled22TiledPhysicsWorldStoreEE(_bind$88, 0, 0), undefined);
 const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS89589 = 0;
 const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS89590 = 1;
 const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS89591 = 2;
@@ -18014,24 +17990,26 @@ const _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS89160 = new _M0T
 const _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS89162 = new _M0TPC16string10StringView("/", 0, 1);
 const _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS89163 = new _M0TPC16string10StringView("\\", 0, 1);
 const _M0FP39Milky20186selene6sprite32next__texture__atlas__layout__id = _M0MPC13ref3Ref3RefGjE(0);
-const _bind$95 = [];
-const _M0FP39Milky20186selene6sprite30dirty__texture__atlas__layouts = _M0MPB3Map3MapGRP39Milky20186selene6sprite24TextureAtlasLayoutHandleRP39Milky20186selene6sprite18TextureAtlasLayoutE(new _M0TPB9ArrayViewGURP39Milky20186selene6sprite24TextureAtlasLayoutHandleRP39Milky20186selene6sprite18TextureAtlasLayoutEE(_bind$95, 0, 0), undefined);
+const _bind$89 = [];
+const _M0FP39Milky20186selene6sprite30dirty__texture__atlas__layouts = _M0MPB3Map3MapGRP39Milky20186selene6sprite24TextureAtlasLayoutHandleRP39Milky20186selene6sprite18TextureAtlasLayoutE(new _M0TPB9ArrayViewGURP39Milky20186selene6sprite24TextureAtlasLayoutHandleRP39Milky20186selene6sprite18TextureAtlasLayoutEE(_bind$89, 0, 0), undefined);
 const _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS89318 = new _M0TP39Milky20186selene6render5Color(255, 255, 255, 1);
 const _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS89319 = new _M0TP39Milky20186selene6render5Color(255, 255, 255, 1);
 const _M0FP39Milky20186selene9animation15next__graph__id = _M0MPC13ref3Ref3RefGjE(0);
-const _bind$96 = [];
-const _M0FP39Milky20186selene9animation31dirty__animation__graph__assets = _M0MPB3Map3MapGRP39Milky20186selene9animation20AnimationGraphHandleRP39Milky20186selene9animation14AnimationGraphE(new _M0TPB9ArrayViewGURP39Milky20186selene9animation20AnimationGraphHandleRP39Milky20186selene9animation14AnimationGraphEE(_bind$96, 0, 0), undefined);
+const _bind$90 = [];
+const _M0FP39Milky20186selene9animation31dirty__animation__graph__assets = _M0MPB3Map3MapGRP39Milky20186selene9animation20AnimationGraphHandleRP39Milky20186selene9animation14AnimationGraphE(new _M0TPB9ArrayViewGURP39Milky20186selene9animation20AnimationGraphHandleRP39Milky20186selene9animation14AnimationGraphEE(_bind$90, 0, 0), undefined);
 const _M0FP39Milky20186selene9animation15next__field__id = _M0MPC13ref3Ref3RefGjE(0);
 const _M0FP39Milky20186selene9animation33texture__atlas__index__field__ref = _M0MPC13ref3Ref3RefGORP39Milky20186selene9animation19AnimatedFieldHandleE(undefined);
-const _bind$97 = [];
-const _M0FP39Milky20186selene9animation30dirty__animation__clip__assets = _M0MPB3Map3MapGRP39Milky20186selene9animation19AnimationClipHandleRP39Milky20186selene9animation13AnimationClipE(new _M0TPB9ArrayViewGURP39Milky20186selene9animation19AnimationClipHandleRP39Milky20186selene9animation13AnimationClipEE(_bind$97, 0, 0), undefined);
+const _bind$91 = [];
+const _M0FP39Milky20186selene9animation30dirty__animation__clip__assets = _M0MPB3Map3MapGRP39Milky20186selene9animation19AnimationClipHandleRP39Milky20186selene9animation13AnimationClipE(new _M0TPB9ArrayViewGURP39Milky20186selene9animation19AnimationClipHandleRP39Milky20186selene9animation13AnimationClipEE(_bind$91, 0, 0), undefined);
 const _M0FP39Milky20186selene9animation14next__clip__id = _M0MPC13ref3Ref3RefGjE(0);
-const _bind$98 = [];
-const _M0FP39Milky20186selene6inputs16gesture__touches = _M0MPB3Map3MapGRP39Milky20186selene6inputs7TouchIdRP39Milky20186selene6inputs17GestureTouchStateE(new _M0TPB9ArrayViewGURP39Milky20186selene6inputs7TouchIdRP39Milky20186selene6inputs17GestureTouchStateEE(_bind$98, 0, 0), undefined);
+const _bind$92 = [];
+const _M0FP39Milky20186selene6inputs16gesture__touches = _M0MPB3Map3MapGRP39Milky20186selene6inputs7TouchIdRP39Milky20186selene6inputs17GestureTouchStateE(new _M0TPB9ArrayViewGURP39Milky20186selene6inputs7TouchIdRP39Milky20186selene6inputs17GestureTouchStateEE(_bind$92, 0, 0), undefined);
 const _M0FP39Milky20186selene6inputs12pinch__state = _M0MPC13ref3Ref3RefGORP39Milky20186selene3ecs5WorldE(undefined);
+const _bind$93 = [];
+const _M0FP39Milky20186selene4time19time__world__states = _M0MPB3Map3MapGjRP39Milky20186selene4time9TimeStateE(new _M0TPB9ArrayViewGUjRP39Milky20186selene4time9TimeStateEE(_bind$93, 0, 0), undefined);
 const _M0FP39Milky20186selene6system6timers = [];
-const _bind$99 = [];
-const _M0FP39Milky20186selene4ldtk19ldtk__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene4ldtk14LdtkWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene4ldtk14LdtkWorldStoreEE(_bind$99, 0, 0), undefined);
+const _bind$94 = [];
+const _M0FP39Milky20186selene4ldtk19ldtk__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene4ldtk14LdtkWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene4ldtk14LdtkWorldStoreEE(_bind$94, 0, 0), undefined);
 const _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS88191 = new _M0TPC16string10StringView(":\\", 0, 2);
 const _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS88192 = new _M0TPC16string10StringView("/", 0, 1);
 const _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS88193 = new _M0TPC16string10StringView("\\\\", 0, 2);
@@ -18056,13 +18034,55 @@ const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS86974 = 2;
 const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS86975 = true;
 const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS86976 = 1;
 const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS86977 = 6;
-const _bind$100 = [];
-const _M0FP39Milky20186selene4a11y19a11y__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene4a11y14A11yWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene4a11y14A11yWorldStoreEE(_bind$100, 0, 0), undefined);
+const _bind$95 = [];
+const _M0FP39Milky20186selene4a11y19a11y__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene4a11y14A11yWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene4a11y14A11yWorldStoreEE(_bind$95, 0, 0), undefined);
 const _M0FP39Milky20186selene4a11y14a11y__tree__id = _M0MP29Milky201815moon__accesskit6TreeId4root();
+const _bind$96 = [];
+const _M0FP39Milky20186selene4a11y23current__node__entities = _M0MPB3Map3MapGRP29Milky201815moon__accesskit6NodeIdRP39Milky20186selene6entity6EntityE(new _M0TPB9ArrayViewGURP29Milky201815moon__accesskit6NodeIdRP39Milky20186selene6entity6EntityEE(_bind$96, 0, 0), undefined);
+const _bind$97 = [];
+const _M0FP39Milky20186selene4a11y17entity__node__ids = _M0MPB3Map3MapGRP39Milky20186selene6entity6EntitymE(new _M0TPB9ArrayViewGURP39Milky20186selene6entity6EntitymEE(_bind$97, 0, 0), undefined);
+const _M0FP39Milky20186selene6inputs31pending__mouse__relative__delta = _M0MPC13ref3Ref3RefGORP39Milky20186selene3ecs5WorldE(undefined);
+const _M0FP29Milky201814selene__webgpu6window = _M0FP319moonbit_2dcommunity7rabbita3dom6window();
+const _M0FP29Milky201814selene__webgpu19last__frame__timingN6recordS67497 = new _M0TP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshot(0, 0, 0, 0, 0);
+const _M0FP29Milky201814selene__webgpu19last__frame__timing = _M0MPC13ref3Ref3RefGRP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshotE(_M0FP29Milky201814selene__webgpu19last__frame__timingN6recordS67497);
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67866 = { _0: 0, _1: 0 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67867 = { _0: 1, _1: 1 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67868 = { _0: 2, _1: 3 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67869 = { _0: 3, _1: 2 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67870 = { _0: 4, _1: 6 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67871 = { _0: 5, _1: 8 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67872 = { _0: 6, _1: 7 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67873 = { _0: 7, _1: 9 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67874 = { _0: 8, _1: 10 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67875 = { _0: 9, _1: 11 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67876 = { _0: 10, _1: 13 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67877 = { _0: 11, _1: 14 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67878 = { _0: 12, _1: 15 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67879 = { _0: 13, _1: 16 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67880 = { _0: 14, _1: 17 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67881 = { _0: 15, _1: 18 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS67882 = { _0: 16, _1: 12 };
+const _M0FP29Milky201814selene__webgpu15realtime__delta = _M0MPC13ref3Ref3RefGdE(0);
+const _bind$98 = [];
+const _M0FP39Milky20186selene14runtime__debug25frame__metrics__by__world = _M0MPB3Map3MapGjRP39Milky20186selene14runtime__debug23FramePerformanceMetricsE(new _M0TPB9ArrayViewGUjRP39Milky20186selene14runtime__debug23FramePerformanceMetricsEE(_bind$98, 0, 0), undefined);
+const _bind$99 = [];
+const _M0FP39Milky20186selene14runtime__debug34frame__metrics__history__by__world = _M0MPB3Map3MapGjRPB5ArrayGRP39Milky20186selene14runtime__debug23FramePerformanceMetricsEE(new _M0TPB9ArrayViewGUjRPB5ArrayGRP39Milky20186selene14runtime__debug23FramePerformanceMetricsEEE(_bind$99, 0, 0), undefined);
+const _bind$100 = [];
+const _M0FP39Milky20186selene14runtime__debug30deterministic__mode__by__world = _M0MPB3Map3MapGjRP39Milky20186selene14runtime__debug23DeterministicModeConfigE(new _M0TPB9ArrayViewGUjRP39Milky20186selene14runtime__debug23DeterministicModeConfigEE(_bind$100, 0, 0), undefined);
+const _M0FP39Milky20186selene15platform__input22mouse__relative__delta = _M0MPC13ref3Ref3RefGORP39Milky20186selene3ecs5WorldE(undefined);
+const _M0FP39Milky20186selene15platform__input10registered = _M0MPC13ref3Ref3RefGbE(false);
+const _M0FP39Milky20186selene15platform__input8snapshot = _M0FP39Milky20186selene6inputs22empty__input__snapshot();
+const _M0FP29Milky201814selene__webgpu27touch__handlers__registered = _M0MPC13ref3Ref3RefGbE(false);
 const _bind$101 = [];
-const _M0FP39Milky20186selene4a11y23current__node__entities = _M0MPB3Map3MapGRP29Milky201815moon__accesskit6NodeIdRP39Milky20186selene6entity6EntityE(new _M0TPB9ArrayViewGURP29Milky201815moon__accesskit6NodeIdRP39Milky20186selene6entity6EntityEE(_bind$101, 0, 0), undefined);
+const _M0FP39Milky20186selene5state22state__world__runtimes = _M0MPB3Map3MapGjRP39Milky20186selene5state17StateWorldRuntimeE(new _M0TPB9ArrayViewGUjRP39Milky20186selene5state17StateWorldRuntimeEE(_bind$101, 0, 0), undefined);
 const _bind$102 = [];
-const _M0FP39Milky20186selene4a11y17entity__node__ids = _M0MPB3Map3MapGRP39Milky20186selene6entity6EntitymE(new _M0TPB9ArrayViewGURP39Milky20186selene6entity6EntitymEE(_bind$102, 0, 0), undefined);
+const _M0FP39Milky20186selene14runtime__debug25queued__inputs__by__world = _M0MPB3Map3MapGjRPB5ArrayGRP39Milky20186selene6inputs13InputSnapshotEE(new _M0TPB9ArrayViewGUjRPB5ArrayGRP39Milky20186selene6inputs13InputSnapshotEEE(_bind$102, 0, 0), undefined);
+function _M0MPC16string6String12unsafe__view(self, start, end) {
+  return new _M0TPC16string10StringView(self, start, end);
+}
+function _M0MPC16string10StringView12unsafe__view(self, start, end) {
+  return new _M0TPC16string10StringView(self.str, self.start + start | 0, self.start + end | 0);
+}
 function _M0FPB13consume4__acc(acc, input) {
   const _p$3 = (acc >>> 0) + ((Math.imul(input, -1028477379) | 0) >>> 0) | 0;
   const _p$4 = 17;
@@ -18429,6 +18449,9 @@ function _M0IP016_24default__implPB2Eq10not__equalGRP39Milky20186selene2ui21UiCh
 function _M0IP016_24default__implPB2Eq10not__equalGOiE(x, y) {
   return !_M0IPC16option6OptionPB2Eq5equalGiE(x, y);
 }
+function _M0IP016_24default__implPB2Eq10not__equalGRPC16string10StringViewE(x, y) {
+  return !_M0IPC16string10StringViewPB2Eq5equal(x, y);
+}
 function _M0IP016_24default__implPB2Eq10not__equalGRP39Milky20186selene2ui17UiMeasureSnapshotE(x, y) {
   return !_M0IP39Milky20186selene2ui17UiMeasureSnapshotPB2Eq5equal(x, y);
 }
@@ -18455,9 +18478,6 @@ function _M0IP016_24default__implPB2Eq10not__equalGRP39Milky20186selene9collisio
 }
 function _M0IP016_24default__implPB2Eq10not__equalGRP39Milky201812moon__skrifa7outline17AutoHintDirectionE(x, y) {
   return !_M0IP39Milky201812moon__skrifa7outline17AutoHintDirectionPB2Eq5equal(x, y);
-}
-function _M0IP016_24default__implPB2Eq10not__equalGRPC16string10StringViewE(x, y) {
-  return !_M0IPC16string10StringViewPB2Eq5equal(x, y);
 }
 function _M0IP016_24default__implPB2Eq10not__equalGRP39Milky20186selene2ui4NodeE(x, y) {
   return !_M0IP39Milky20186selene2ui4NodePB2Eq5equal(x, y);
@@ -18782,13 +18802,13 @@ function _M0MPB4Iter4nextGyE(self) {
   const result = _func();
   const _bind$103 = self.size_hint;
   if (result === -1) {
-    self.size_hint = _M0MPB4Iter4nextN6constrS364GyE;
+    self.size_hint = _M0MPB4Iter4nextN6constrS370GyE;
   } else {
     if (_bind$103 === undefined) {
     } else {
       const _Some = _bind$103;
       const _n = _Some;
-      self.size_hint = _n > 0 ? _n - 1 | 0 : _M0MPB4Iter4nextN6constrS363GyE;
+      self.size_hint = _n > 0 ? _n - 1 | 0 : _M0MPB4Iter4nextN6constrS369GyE;
     }
   }
   return result;
@@ -18798,13 +18818,13 @@ function _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlu
   const result = _func();
   const _bind$103 = self.size_hint;
   if (result === undefined) {
-    self.size_hint = _M0MPB4Iter4nextN6constrS372GRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE;
+    self.size_hint = _M0MPB4Iter4nextN6constrS378GRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE;
   } else {
     if (_bind$103 === undefined) {
     } else {
       const _Some = _bind$103;
       const _n = _Some;
-      self.size_hint = _n > 0 ? _n - 1 | 0 : _M0MPB4Iter4nextN6constrS371GRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE;
+      self.size_hint = _n > 0 ? _n - 1 | 0 : _M0MPB4Iter4nextN6constrS377GRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE;
     }
   }
   return result;
@@ -18814,13 +18834,13 @@ function _M0MPB4Iter4nextGjE(self) {
   const result = _func();
   const _bind$103 = self.size_hint;
   if (result === undefined) {
-    self.size_hint = _M0MPB4Iter4nextN6constrS436GjE;
+    self.size_hint = _M0MPB4Iter4nextN6constrS442GjE;
   } else {
     if (_bind$103 === undefined) {
     } else {
       const _Some = _bind$103;
       const _n = _Some;
-      self.size_hint = _n > 0 ? _n - 1 | 0 : _M0MPB4Iter4nextN6constrS435GjE;
+      self.size_hint = _n > 0 ? _n - 1 | 0 : _M0MPB4Iter4nextN6constrS441GjE;
     }
   }
   return result;
@@ -18834,10 +18854,10 @@ function _M0MPB4Iter4nextGdE(self) {
     } else {
       const _Some = _bind$103;
       const _n = _Some;
-      self.size_hint = _n > 0 ? _n - 1 | 0 : _M0MPB4Iter4nextN6constrS947GdE;
+      self.size_hint = _n > 0 ? _n - 1 | 0 : _M0MPB4Iter4nextN6constrS953GdE;
     }
   } else {
-    self.size_hint = _M0MPB4Iter4nextN6constrS948GdE;
+    self.size_hint = _M0MPB4Iter4nextN6constrS954GdE;
   }
   return result;
 }
@@ -18846,13 +18866,13 @@ function _M0MPB4Iter4nextGcE(self) {
   const result = _func();
   const _bind$103 = self.size_hint;
   if (result === -1) {
-    self.size_hint = _M0MPB4Iter4nextN6constrS1068GcE;
+    self.size_hint = _M0MPB4Iter4nextN6constrS1082GcE;
   } else {
     if (_bind$103 === undefined) {
     } else {
       const _Some = _bind$103;
       const _n = _Some;
-      self.size_hint = _n > 0 ? _n - 1 | 0 : _M0MPB4Iter4nextN6constrS1067GcE;
+      self.size_hint = _n > 0 ? _n - 1 | 0 : _M0MPB4Iter4nextN6constrS1081GcE;
     }
   }
   return result;
@@ -18862,13 +18882,13 @@ function _M0MPB4Iter4nextGRP39Milky20186selene6inputs4CodeE(self) {
   const result = _func();
   const _bind$103 = self.size_hint;
   if (result === undefined) {
-    self.size_hint = _M0MPB4Iter4nextN6constrS1132GRP39Milky20186selene6inputs4CodeE;
+    self.size_hint = _M0MPB4Iter4nextN6constrS1146GRP39Milky20186selene6inputs4CodeE;
   } else {
     if (_bind$103 === undefined) {
     } else {
       const _Some = _bind$103;
       const _n = _Some;
-      self.size_hint = _n > 0 ? _n - 1 | 0 : _M0MPB4Iter4nextN6constrS1131GRP39Milky20186selene6inputs4CodeE;
+      self.size_hint = _n > 0 ? _n - 1 | 0 : _M0MPB4Iter4nextN6constrS1145GRP39Milky20186selene6inputs4CodeE;
     }
   }
   return result;
@@ -18878,13 +18898,13 @@ function _M0MPB4Iter4nextGkE(self) {
   const result = _func();
   const _bind$103 = self.size_hint;
   if (result === -1) {
-    self.size_hint = _M0MPB4Iter4nextN6constrS1148GkE;
+    self.size_hint = _M0MPB4Iter4nextN6constrS1162GkE;
   } else {
     if (_bind$103 === undefined) {
     } else {
       const _Some = _bind$103;
       const _n = _Some;
-      self.size_hint = _n > 0 ? _n - 1 | 0 : _M0MPB4Iter4nextN6constrS1147GkE;
+      self.size_hint = _n > 0 ? _n - 1 | 0 : _M0MPB4Iter4nextN6constrS1161GkE;
     }
   }
   return result;
@@ -18894,13 +18914,13 @@ function _M0MPB4Iter4nextGiE(self) {
   const result = _func();
   const _bind$103 = self.size_hint;
   if (result === undefined) {
-    self.size_hint = _M0MPB4Iter4nextN6constrS1340GiE;
+    self.size_hint = _M0MPB4Iter4nextN6constrS1354GiE;
   } else {
     if (_bind$103 === undefined) {
     } else {
       const _Some = _bind$103;
       const _n = _Some;
-      self.size_hint = _n > 0 ? _n - 1 | 0 : _M0MPB4Iter4nextN6constrS1339GiE;
+      self.size_hint = _n > 0 ? _n - 1 | 0 : _M0MPB4Iter4nextN6constrS1353GiE;
     }
   }
   return result;
@@ -18918,7 +18938,7 @@ function _M0MPB4Iter3newGyE(f, size_hint) {
   } else {
     const _Some = size_hint;
     const _n = _Some;
-    size_hint$2 = _n > 0 ? _n : _M0MPB4Iter3newN6constrS1415GyE;
+    size_hint$2 = _n > 0 ? _n : _M0MPB4Iter3newN6constrS1421GyE;
   }
   return new _M0TPB4IterGyE(f, size_hint$2);
 }
@@ -18929,7 +18949,7 @@ function _M0MPB4Iter3newGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlue
   } else {
     const _Some = size_hint;
     const _n = _Some;
-    size_hint$2 = _n > 0 ? _n : _M0MPB4Iter3newN6constrS1421GRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE;
+    size_hint$2 = _n > 0 ? _n : _M0MPB4Iter3newN6constrS1427GRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE;
   }
   return new _M0TPB4IterGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(f, size_hint$2);
 }
@@ -18940,7 +18960,7 @@ function _M0MPB4Iter3newGjE(f, size_hint) {
   } else {
     const _Some = size_hint;
     const _n = _Some;
-    size_hint$2 = _n > 0 ? _n : _M0MPB4Iter3newN6constrS1469GjE;
+    size_hint$2 = _n > 0 ? _n : _M0MPB4Iter3newN6constrS1475GjE;
   }
   return new _M0TPB4IterGjE(f, size_hint$2);
 }
@@ -18951,7 +18971,7 @@ function _M0MPB4Iter3newGdE(f, size_hint) {
   } else {
     const _Some = size_hint;
     const _n = _Some;
-    size_hint$2 = _n > 0 ? _n : _M0MPB4Iter3newN6constrS1847GdE;
+    size_hint$2 = _n > 0 ? _n : _M0MPB4Iter3newN6constrS1853GdE;
   }
   return new _M0TPB4IterGdE(f, size_hint$2);
 }
@@ -18962,7 +18982,7 @@ function _M0MPB4Iter3newGcE(f, size_hint) {
   } else {
     const _Some = size_hint;
     const _n = _Some;
-    size_hint$2 = _n > 0 ? _n : _M0MPB4Iter3newN6constrS1937GcE;
+    size_hint$2 = _n > 0 ? _n : _M0MPB4Iter3newN6constrS1949GcE;
   }
   return new _M0TPB4IterGcE(f, size_hint$2);
 }
@@ -18973,7 +18993,7 @@ function _M0MPB4Iter3newGRP39Milky20186selene6inputs4CodeE(f, size_hint) {
   } else {
     const _Some = size_hint;
     const _n = _Some;
-    size_hint$2 = _n > 0 ? _n : _M0MPB4Iter3newN6constrS1985GRP39Milky20186selene6inputs4CodeE;
+    size_hint$2 = _n > 0 ? _n : _M0MPB4Iter3newN6constrS1997GRP39Milky20186selene6inputs4CodeE;
   }
   return new _M0TPB4IterGRP39Milky20186selene6inputs4CodeE(f, size_hint$2);
 }
@@ -18984,7 +19004,7 @@ function _M0MPB4Iter3newGkE(f, size_hint) {
   } else {
     const _Some = size_hint;
     const _n = _Some;
-    size_hint$2 = _n > 0 ? _n : _M0MPB4Iter3newN6constrS1997GkE;
+    size_hint$2 = _n > 0 ? _n : _M0MPB4Iter3newN6constrS2009GkE;
   }
   return new _M0TPB4IterGkE(f, size_hint$2);
 }
@@ -18995,7 +19015,7 @@ function _M0MPB4Iter3newGiE(f, size_hint) {
   } else {
     const _Some = size_hint;
     const _n = _Some;
-    size_hint$2 = _n > 0 ? _n : _M0MPB4Iter3newN6constrS2135GiE;
+    size_hint$2 = _n > 0 ? _n : _M0MPB4Iter3newN6constrS2147GiE;
   }
   return new _M0TPB4IterGiE(f, size_hint$2);
 }
@@ -19053,7 +19073,7 @@ function _M0MPB5Iter23newGiRP29Milky201812moon__cosmic11LayoutGlyphE(f, size_hin
   } else {
     const _Some = size_hint;
     const _n = _Some;
-    size_hint$2 = _n > 0 ? _n : _M0MPB5Iter23newN6constrS2245GiRP29Milky201812moon__cosmic11LayoutGlyphE;
+    size_hint$2 = _n > 0 ? _n : _M0MPB5Iter23newN6constrS2251GiRP29Milky201812moon__cosmic11LayoutGlyphE;
   }
   return new _M0TPB4IterGUiRP29Milky201812moon__cosmic11LayoutGlyphEE(f, size_hint$2);
 }
@@ -19195,38 +19215,31 @@ function _M0MPC16string6String29offset__of__nth__char_2einner(self, i, start_off
   }
   return i >= 0 ? _M0MPC16string6String30offset__of__nth__char__forward(self, i, start_offset, end_offset$2) : _M0MPC16string6String31offset__of__nth__char__backward(self, -i | 0, start_offset, end_offset$2);
 }
-function _M0MPC16string10StringView12view_2einner(self, start_offset, end_offset) {
-  let end_offset$2;
-  if (end_offset === undefined) {
-    end_offset$2 = self.end - self.start | 0;
-  } else {
-    const _Some = end_offset;
-    end_offset$2 = _Some;
-  }
-  if (start_offset >= 0 && (start_offset <= end_offset$2 && end_offset$2 <= (self.end - self.start | 0))) {
-    return new _M0TPC16string10StringView(self.str, self.start + start_offset | 0, self.start + end_offset$2 | 0);
-  } else {
-    console.error("Invalid index for View");
-    return $panic();
-  }
-}
-function _M0MPC16string6String12view_2einner(self, start_offset, end_offset) {
-  let end_offset$2;
-  if (end_offset === undefined) {
-    end_offset$2 = self.length;
-  } else {
-    const _Some = end_offset;
-    end_offset$2 = _Some;
-  }
-  if (start_offset >= 0 && (start_offset <= end_offset$2 && end_offset$2 <= self.length)) {
-    return new _M0TPC16string10StringView(self, start_offset, end_offset$2);
-  } else {
-    console.error("Invalid index for View");
-    return $panic();
-  }
-}
 function _M0IPB13StringBuilderPB6Logger11write__view(self, str) {
   self.val = `${self.val}${_M0MPC16string10StringView9to__owned(str)}`;
+}
+function _M0FPB24find__code__unit__scalar(data, start, end, code) {
+  let _tmp = start;
+  while (true) {
+    const pos = _tmp;
+    if (pos < end) {
+      if (data.charCodeAt(pos) === code) {
+        return pos;
+      }
+      _tmp = pos + 1 | 0;
+      continue;
+    } else {
+      return -1;
+    }
+  }
+}
+function _M0FPB30find__code__unit__from__string(data, start, end, code) {
+  return (end - start | 0) <= 8 ? _M0FPB24find__code__unit__scalar(data, start, end, code) : _M0FPB13js__index__of(data, start, end, _M0FPB22js__code__unit__string(code));
+}
+function _M0FPB28find__code__unit__from__view(target, start, end, code) {
+  const target_start = target.start;
+  const found = _M0FPB30find__code__unit__from__string(target.str, target_start + start | 0, target_start + end | 0, code);
+  return found < 0 ? -1 : found - target_start | 0;
 }
 function _M0FPB19kmp__failure__table(pattern) {
   const m = pattern.end - pattern.start | 0;
@@ -19365,41 +19378,28 @@ function _M0FPB22find__by__two__anchors(target, pattern) {
     }
   }
 }
-function _M0FPB24find__code__unit__scalar(data, start, end, code) {
-  let _tmp = start;
-  while (true) {
-    const pos = _tmp;
-    if (pos < end) {
-      if (data.charCodeAt(pos) === code) {
-        return pos;
-      }
-      _tmp = pos + 1 | 0;
-      continue;
-    } else {
-      return -1;
-    }
+function _M0FPB13find__pattern(target, pattern) {
+  if ((pattern.end - pattern.start | 0) <= 250) {
+    const target_start = target.start;
+    const pattern_start = pattern.start;
+    const found = _M0FPB13js__index__of(target.str, target_start, target_start + (target.end - target.start | 0) | 0, _M0FPB13js__substring(pattern.str, pattern_start, pattern_start + (pattern.end - pattern.start | 0) | 0));
+    return found < 0 ? undefined : found - target_start | 0;
+  } else {
+    return _M0FPB22find__by__two__anchors(target, pattern);
   }
-}
-function _M0FPB30find__code__unit__from__string(data, start, end, code) {
-  return _M0FPB24find__code__unit__scalar(data, start, end, code);
-}
-function _M0FPB28find__code__unit__from__view(target, start, end, code) {
-  const target_start = target.start;
-  const found = _M0FPB30find__code__unit__from__string(target.str, target_start + start | 0, target_start + end | 0, code);
-  return found < 0 ? -1 : found - target_start | 0;
 }
 function _M0MPC16string10StringView4find(self, str) {
   const pattern_len = str.end - str.start | 0;
   switch (pattern_len) {
     case 0: {
-      return _M0MPC16string10StringView4findN6constrS2387;
+      return _M0MPC16string10StringView4findN6constrS2388;
     }
     case 1: {
       const found = _M0FPB28find__code__unit__from__view(self, 0, self.end - self.start | 0, str.str.charCodeAt(str.start));
       return found < 0 ? undefined : found;
     }
     default: {
-      return pattern_len > (self.end - self.start | 0) ? undefined : _M0FPB22find__by__two__anchors(self, str);
+      return pattern_len > (self.end - self.start | 0) ? undefined : _M0FPB13find__pattern(self, str);
     }
   }
 }
@@ -19570,7 +19570,7 @@ function _M0FPB29rev__find__code__unit__scalar(data, start, end, code) {
   }
 }
 function _M0FPB35rev__find__code__unit__from__string(data, start, end, code) {
-  return _M0FPB29rev__find__code__unit__scalar(data, start, end, code);
+  return (end - start | 0) <= 8 ? _M0FPB29rev__find__code__unit__scalar(data, start, end, code) : _M0FPB19js__last__index__of(data, start, end, _M0FPB22js__code__unit__string(code));
 }
 function _M0FPB33rev__find__code__unit__from__view(target, start, end, code) {
   const target_start = target.start;
@@ -19944,7 +19944,7 @@ function _M0MPC16string10StringView12trim_2einner(self, chars) {
 function _M0MPC16string10StringView4trim(self, chars$46$opt) {
   let chars;
   if (chars$46$opt === undefined) {
-    chars = _M0MPC16string10StringView4trimN6recordS3126;
+    chars = _M0MPC16string10StringView4trimN6recordS3127;
   } else {
     const _Some = chars$46$opt;
     chars = _Some;
@@ -19957,7 +19957,7 @@ function _M0MPC16string6String12trim_2einner(self, chars) {
 function _M0MPC16string6String4trim(self, chars$46$opt) {
   let chars;
   if (chars$46$opt === undefined) {
-    chars = _M0MPC16string6String4trimN6recordS3133;
+    chars = _M0MPC16string6String4trimN6recordS3134;
   } else {
     const _Some = chars$46$opt;
     chars = _Some;
@@ -19985,11 +19985,11 @@ function _M0MPC16string6String4iter(self) {
     }
   }, undefined);
 }
-function _M0MPB4Iter3mapGcRPC16string10StringViewE(self, f) {
-  return new _M0TPB4IterGRPC16string10StringViewE(() => {
-    const _bind$103 = _M0MPB4Iter4nextGcE(self);
-    if (_bind$103 === -1) {
-      return undefined;
+function _M0MPB4Iter3mapGiyE(self, f) {
+  return new _M0TPB4IterGyE(() => {
+    const _bind$103 = _M0MPB4Iter4nextGiE(self);
+    if (_bind$103 === undefined) {
+      return -1;
     } else {
       const _Some = _bind$103;
       const _x = _Some;
@@ -19997,11 +19997,11 @@ function _M0MPB4Iter3mapGcRPC16string10StringViewE(self, f) {
     }
   }, self.size_hint);
 }
-function _M0MPB4Iter3mapGiyE(self, f) {
-  return new _M0TPB4IterGyE(() => {
-    const _bind$103 = _M0MPB4Iter4nextGiE(self);
-    if (_bind$103 === undefined) {
-      return -1;
+function _M0MPB4Iter3mapGcRPC16string10StringViewE(self, f) {
+  return new _M0TPB4IterGRPC16string10StringViewE(() => {
+    const _bind$103 = _M0MPB4Iter4nextGcE(self);
+    if (_bind$103 === -1) {
+      return undefined;
     } else {
       const _Some = _bind$103;
       const _x = _Some;
@@ -20015,7 +20015,10 @@ function _M0IPC14char4CharPB4Show10to__string(self) {
 function _M0MPC16string10StringView5split(self, sep) {
   const sep_len = sep.end - sep.start | 0;
   if (sep_len === 0) {
-    return _M0MPB4Iter3mapGcRPC16string10StringViewE(_M0MPC16string10StringView4iter(self), (c) => _M0MPC16string6String12view_2einner(_M0IPC14char4CharPB4Show10to__string(c), 0, undefined));
+    return _M0MPB4Iter3mapGcRPC16string10StringViewE(_M0MPC16string10StringView4iter(self), (c) => {
+      const _bind$103 = _M0IPC14char4CharPB4Show10to__string(c);
+      return new _M0TPC16string10StringView(_bind$103, 0, _bind$103.length);
+    });
   }
   const remaining = new _M0TPB8MutLocalGORPC16string10StringViewE(self);
   return _M0MPB4Iter3newGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(() => {
@@ -20032,8 +20035,8 @@ function _M0MPC16string10StringView5split(self, sep) {
       } else {
         const _Some$2 = _bind$104;
         const _end = _Some$2;
-        remaining.val = _M0MPC16string10StringView12view_2einner(_view, _end + sep_len | 0, undefined);
-        return _M0MPC16string10StringView12view_2einner(_view, 0, _end);
+        remaining.val = _M0MPC16string10StringView12unsafe__view(_view, _end + sep_len | 0, _view.end - _view.start | 0);
+        return _M0MPC16string10StringView12unsafe__view(_view, 0, _end);
       }
     }
   }, undefined);
@@ -20062,7 +20065,7 @@ function _M0MPB4Iter9to__arrayGyE(self) {
   }
   return result;
 }
-function _M0MPB4Iter9to__arrayGURP39Milky201817selene_2dexamples5cards7CardNumiEE(self) {
+function _M0MPB4Iter9to__arrayGRPC16string10StringViewE(self) {
   const _bind$103 = self.size_hint;
   let result;
   if (_bind$103 === undefined) {
@@ -20115,9 +20118,9 @@ function _M0MPC16string6String9to__lower(self) {
     const _Some = _bind$103;
     const _idx = _Some;
     const buf = _M0MPB13StringBuilder21StringBuilder_2einner(self.length);
-    const head = _M0MPC16string6String12view_2einner(self, 0, _idx);
+    const head = _M0MPC16string6String12unsafe__view(self, 0, _idx);
     _M0IP016_24default__implPB6Logger16write__substringGRPB13StringBuilderE(buf, head.str, head.start, head.end - head.start | 0);
-    const _bind$104 = _M0MPC16string6String12view_2einner(self, _idx, undefined);
+    const _bind$104 = _M0MPC16string6String12unsafe__view(self, _idx, self.length);
     const _bind$105 = _bind$104.str;
     const _bind$106 = _bind$104.start;
     const _bind$107 = _bind$104.end;
@@ -20370,7 +20373,7 @@ function _M0MPC15array10FixedArray11from__arrayGdE(array) {
   }
 }
 function _M0MPC15array10FixedArray10from__iterGRP29Milky201811moon__swash6RecordE(iter) {
-  const _bind$103 = _M0MPB4Iter9to__arrayGURP39Milky201817selene_2dexamples5cards7CardNumiEE(iter);
+  const _bind$103 = _M0MPB4Iter9to__arrayGRPC16string10StringViewE(iter);
   return _M0MPC15array10FixedArray11from__arrayGsE(new _M0TPB9ArrayViewGRP29Milky201811moon__swash6RecordE(_bind$103, 0, _bind$103.length));
 }
 function _M0MPC15array13ReadOnlyArray10from__iterGRP29Milky201811moon__swash6RecordE(iter) {
@@ -20403,10 +20406,8 @@ function _M0MPC15array9ArrayView21clamped__view_2einnerGRP39Milky201812moon__skr
     const _end = _Some;
     hi = _end < 0 ? 0 : _end > len ? len : _end;
   }
-  const count = hi > lo ? hi - lo | 0 : 0;
-  const _bind$103 = self.buf;
-  const _bind$104 = self.start + lo | 0;
-  return new _M0TPB9ArrayViewGRP39Milky201812moon__skrifa7outline8BlueZoneE(_bind$103, _bind$104, _bind$104 + count | 0);
+  const hi$2 = hi > lo ? hi : lo;
+  return new _M0TPB9ArrayViewGRP39Milky201812moon__skrifa7outline8BlueZoneE(self.buf, self.start + lo | 0, self.start + hi$2 | 0);
 }
 function _M0IPC16option6OptionPB2Eq5equalGyE(self, other) {
   if (self === -1) {
@@ -20945,6 +20946,24 @@ function _M0MPC16option6Option3mapGRP39Milky201811moon__swash8internal11KerxForm
     return f(_t);
   }
 }
+function _M0MPC16option6Option3mapGRPC15bytes9BytesViewRP39Milky201811moon__swash8internal4HheaE(self, f) {
+  if (self === undefined) {
+    return undefined;
+  } else {
+    const _Some = self;
+    const _t = _Some;
+    return f(_t);
+  }
+}
+function _M0MPC16option6Option3mapGRPC15bytes9BytesViewRP39Milky201811moon__swash8internal4MaxpE(self, f) {
+  if (self === undefined) {
+    return undefined;
+  } else {
+    const _Some = self;
+    const _t = _Some;
+    return f(_t);
+  }
+}
 function _M0MPC16option6Option3mapGRP39Milky20186selene2ui8TabIndexiE(self, f) {
   if (self === undefined) {
     return undefined;
@@ -20999,24 +21018,6 @@ function _M0MPC16option6Option3mapGRP39Milky20186selene2ui12GlobalUiNodebE(self,
     return f(_t);
   }
 }
-function _M0MPC16option6Option3mapGRPC15bytes9BytesViewRP39Milky201811moon__swash8internal4HheaE(self, f) {
-  if (self === undefined) {
-    return undefined;
-  } else {
-    const _Some = self;
-    const _t = _Some;
-    return f(_t);
-  }
-}
-function _M0MPC16option6Option3mapGRPC15bytes9BytesViewRP39Milky201811moon__swash8internal4MaxpE(self, f) {
-  if (self === undefined) {
-    return undefined;
-  } else {
-    const _Some = self;
-    const _t = _Some;
-    return f(_t);
-  }
-}
 function _M0MPC16option6Option3mapGRP39Milky20186selene15render2d__types11TextStyle2DjE(self, f) {
   if (self === undefined) {
     return undefined;
@@ -21045,6 +21046,15 @@ function _M0MPC16option6Option3mapGRP39Milky20186selene2ui6ZIndexiE(self, f) {
   }
 }
 function _M0MPC16option6Option3mapGRP39Milky201811moon__swash8internal14MorxContextualRP39Milky201811moon__swash8internal16MorxSubtableKindE(self, f) {
+  if (self === undefined) {
+    return undefined;
+  } else {
+    const _Some = self;
+    const _t = _Some;
+    return f(_t);
+  }
+}
+function _M0MPC16option6Option3mapGRPC15bytes9BytesViewRP39Milky201811moon__swash8internal4VheaE(self, f) {
   if (self === undefined) {
     return undefined;
   } else {
@@ -21179,6 +21189,24 @@ function _M0MPC16option6Option3mapGRP39Milky201811moon__swash8internal13MorxInse
     return f(_t);
   }
 }
+function _M0MPC16option6Option3mapGRPC15bytes9BytesViewRP39Milky201811moon__swash8internal3Os2E(self, f) {
+  if (self === undefined) {
+    return undefined;
+  } else {
+    const _Some = self;
+    const _t = _Some;
+    return f(_t);
+  }
+}
+function _M0MPC16option6Option3mapGRPC15bytes9BytesViewRP39Milky201811moon__swash8internal4FvarE(self, f) {
+  if (self === undefined) {
+    return undefined;
+  } else {
+    const _Some = self;
+    const _t = _Some;
+    return f(_t);
+  }
+}
 function _M0MPC16option6Option3mapGRP39Milky20186selene15render2d__types13ImageRegion2DRP39Milky20186selene4math4RectE(self, f) {
   if (self === undefined) {
     return undefined;
@@ -21197,7 +21225,7 @@ function _M0MPC16option6Option3mapGRP39Milky20186selene2ui4NodebE(self, f) {
     return f(_t);
   }
 }
-function _M0MPC16option6Option3mapGRPC15bytes9BytesViewRP39Milky201811moon__swash8internal4VheaE(self, f) {
+function _M0MPC16option6Option3mapGRPC15bytes9BytesViewRP39Milky201811moon__swash8internal4PostE(self, f) {
   if (self === undefined) {
     return undefined;
   } else {
@@ -21296,15 +21324,6 @@ function _M0MPC16option6Option3mapGRP39Milky20186selene4math4RectRP39Milky20186s
     return f(_t);
   }
 }
-function _M0MPC16option6Option3mapGRPC15bytes9BytesViewRP39Milky201811moon__swash8internal3Os2E(self, f) {
-  if (self === undefined) {
-    return undefined;
-  } else {
-    const _Some = self;
-    const _t = _Some;
-    return f(_t);
-  }
-}
 function _M0MPC16option6Option3mapGRP39Milky20186selene6sprite12TextureAtlasdE(self, f) {
   if (self === undefined) {
     return _M0DTPC16option6OptionGdE4None__;
@@ -21314,16 +21333,7 @@ function _M0MPC16option6Option3mapGRP39Milky20186selene6sprite12TextureAtlasdE(s
     return new _M0DTPC16option6OptionGdE4Some(f(_t));
   }
 }
-function _M0MPC16option6Option3mapGRPC15bytes9BytesViewRP39Milky201811moon__swash8internal4FvarE(self, f) {
-  if (self === undefined) {
-    return undefined;
-  } else {
-    const _Some = self;
-    const _t = _Some;
-    return f(_t);
-  }
-}
-function _M0MPC16option6Option3mapGRPC15bytes9BytesViewRP39Milky201811moon__swash8internal4PostE(self, f) {
+function _M0MPC16option6Option3mapGRPC15bytes9BytesViewRP39Milky201811moon__swash8internal4HeadE(self, f) {
   if (self === undefined) {
     return undefined;
   } else {
@@ -21351,15 +21361,6 @@ function _M0MPC16option6Option3mapGRP39Milky201811moon__swash8internal11KernForm
   }
 }
 function _M0MPC16option6Option3mapGRP39Milky201811moon__swash8internal11KerxFormat0RP39Milky201811moon__swash8internal16KerxSubtableKindE(self, f) {
-  if (self === undefined) {
-    return undefined;
-  } else {
-    const _Some = self;
-    const _t = _Some;
-    return f(_t);
-  }
-}
-function _M0MPC16option6Option3mapGRPC15bytes9BytesViewRP39Milky201811moon__swash8internal4HeadE(self, f) {
   if (self === undefined) {
     return undefined;
   } else {
@@ -64771,6 +64772,85 @@ function _M0MPC16double6Double3max(self, other) {
 function _M0IPC16double6DoublePB4Show10to__string(self) {
   return String(self);
 }
+function _M0MPC16string10StringView12view_2einner(self, start_offset, end_offset) {
+  let end_offset$2;
+  if (end_offset === undefined) {
+    end_offset$2 = self.end - self.start | 0;
+  } else {
+    const _Some = end_offset;
+    end_offset$2 = _Some;
+  }
+  if (start_offset >= 0 && (start_offset <= end_offset$2 && end_offset$2 <= (self.end - self.start | 0))) {
+    return new _M0TPC16string10StringView(self.str, self.start + start_offset | 0, self.start + end_offset$2 | 0);
+  } else {
+    console.error("Invalid index for View");
+    return $panic();
+  }
+}
+function _M0MPC15array5Array2atGyE(self, index) {
+  const len = self.length;
+  return index >= 0 && index < len ? self[index] : $panic();
+}
+function _M0MPC15array5Array2atGUjkEE(self, index) {
+  const len = self.length;
+  return index >= 0 && index < len ? self[index] : $panic();
+}
+function _M0MPC15array5Array2atGjE(self, index) {
+  const len = self.length;
+  return index >= 0 && index < len ? self[index] : $panic();
+}
+function _M0MPC15array5Array2atGRPB5ArrayGRP39Milky201812moon__skrifa7outline20AutoHintUnscaledBlueEE(self, index) {
+  const len = self.length;
+  return index >= 0 && index < len ? self[index] : $panic();
+}
+function _M0MPC15array5Array2atGfE(self, index) {
+  const len = self.length;
+  return index >= 0 && index < len ? self[index] : $panic();
+}
+function _M0MPC15array5Array2atGRP39Milky20186chicle5style10AlignItemsE(self, index) {
+  const len = self.length;
+  return index >= 0 && index < len ? self[index] : $panic();
+}
+function _M0MPC15array5Array2atGRP29Milky201811moon__swash6ScriptE(self, index) {
+  const len = self.length;
+  return index >= 0 && index < len ? self[index] : $panic();
+}
+function _M0MPC15array5Array2atGdE(self, index) {
+  const len = self.length;
+  return index >= 0 && index < len ? self[index] : $panic();
+}
+function _M0MPC15array5Array2atGcE(self, index) {
+  const len = self.length;
+  return index >= 0 && index < len ? self[index] : $panic();
+}
+function _M0MPC15array5Array2atGbE(self, index) {
+  const len = self.length;
+  return index >= 0 && index < len ? self[index] : $panic();
+}
+function _M0MPC15array5Array2atGRP39Milky20186selene9animation18AnimationNodeIndexE(self, index) {
+  const len = self.length;
+  return index >= 0 && index < len ? self[index] : $panic();
+}
+function _M0MPC15array5Array2atGkE(self, index) {
+  const len = self.length;
+  return index >= 0 && index < len ? self[index] : $panic();
+}
+function _M0MPC15array5Array2atGOiE(self, index) {
+  const len = self.length;
+  return index >= 0 && index < len ? self[index] : $panic();
+}
+function _M0MPC15array5Array2atGRP29Milky201810moon__zeno4VerbE(self, index) {
+  const len = self.length;
+  return index >= 0 && index < len ? self[index] : $panic();
+}
+function _M0MPC15array5Array2atGRP29Milky201811moon__swash9BidiClassE(self, index) {
+  const len = self.length;
+  return index >= 0 && index < len ? self[index] : $panic();
+}
+function _M0MPC15array5Array2atGiE(self, index) {
+  const len = self.length;
+  return index >= 0 && index < len ? self[index] : $panic();
+}
 function _M0FPB7printlnGsE(input) {
   console.log(input);
 }
@@ -64788,8 +64868,8 @@ function _M0MPC15bytes5Bytes21clamped__view_2einner(self, start, end) {
     const _end = _Some;
     hi = _end < 0 ? 0 : _end > len ? len : _end;
   }
-  const count = hi > lo ? hi - lo | 0 : 0;
-  return new _M0TPC15bytes9BytesView(self, lo, lo + count | 0);
+  const hi$2 = hi > lo ? hi : lo;
+  return new _M0TPC15bytes9BytesView(self, lo, hi$2);
 }
 function _M0MPC15bytes9BytesView21clamped__view_2einner(self, start, end) {
   const len = self.end - self.start | 0;
@@ -64802,10 +64882,8 @@ function _M0MPC15bytes9BytesView21clamped__view_2einner(self, start, end) {
     const _end = _Some;
     hi = _end < 0 ? 0 : _end > len ? len : _end;
   }
-  const count = hi > lo ? hi - lo | 0 : 0;
-  const _bind$103 = self.buf;
-  const _bind$104 = self.start + lo | 0;
-  return new _M0TPC15bytes9BytesView(_bind$103, _bind$104, _bind$104 + count | 0);
+  const hi$2 = hi > lo ? hi : lo;
+  return new _M0TPC15bytes9BytesView(self.buf, self.start + lo | 0, self.start + hi$2 | 0);
 }
 function _M0MPC15bytes9BytesView4iter(self) {
   const i = new _M0TPB8MutLocalGiE(0);
@@ -64885,9 +64963,8 @@ function _M0MPC15array5Array21clamped__view_2einnerGkE(self, start, end) {
     const _end = _Some;
     hi = _end < 0 ? 0 : _end > len ? len : _end;
   }
-  const count = hi > lo ? hi - lo | 0 : 0;
-  const _bind$103 = self;
-  return new _M0TPB9ArrayViewGkE(_bind$103, lo, lo + count | 0);
+  const hi$2 = hi > lo ? hi : lo;
+  return new _M0TPB9ArrayViewGkE(self, lo, hi$2);
 }
 function _M0MPC15array5Array21clamped__view_2einnerGiE(self, start, end) {
   const len = self.length;
@@ -64900,9 +64977,8 @@ function _M0MPC15array5Array21clamped__view_2einnerGiE(self, start, end) {
     const _end = _Some;
     hi = _end < 0 ? 0 : _end > len ? len : _end;
   }
-  const count = hi > lo ? hi - lo | 0 : 0;
-  const _bind$103 = self;
-  return new _M0TPB9ArrayViewGiE(_bind$103, lo, lo + count | 0);
+  const hi$2 = hi > lo ? hi : lo;
+  return new _M0TPB9ArrayViewGiE(self, lo, hi$2);
 }
 function _M0MPC15array5Array21clamped__view_2einnerGRP39Milky201812moon__skrifa7outline8BlueZoneE(self, start, end) {
   const len = self.length;
@@ -64915,9 +64991,8 @@ function _M0MPC15array5Array21clamped__view_2einnerGRP39Milky201812moon__skrifa7
     const _end = _Some;
     hi = _end < 0 ? 0 : _end > len ? len : _end;
   }
-  const count = hi > lo ? hi - lo | 0 : 0;
-  const _bind$103 = self;
-  return new _M0TPB9ArrayViewGRP39Milky201812moon__skrifa7outline8BlueZoneE(_bind$103, lo, lo + count | 0);
+  const hi$2 = hi > lo ? hi : lo;
+  return new _M0TPB9ArrayViewGRP39Milky201812moon__skrifa7outline8BlueZoneE(self, lo, hi$2);
 }
 function _M0MPC15array5Array29unsafe__resize__with__defaultGUiRP39Milky201812moon__rapier8dynamics15MultibodyLinkIdEE(self, new_len, value) {
   const len = self.length;
@@ -65148,70 +65223,6 @@ function _M0MPC15array5Array4copyGiE(self) {
 }
 function _M0MPC15array5Array4copyGdE(self) {
   return _M0MPB7JSArray4copy(self);
-}
-function _M0MPC15array5Array2atGyE(self, index) {
-  const len = self.length;
-  return index >= 0 && index < len ? self[index] : $panic();
-}
-function _M0MPC15array5Array2atGUjkEE(self, index) {
-  const len = self.length;
-  return index >= 0 && index < len ? self[index] : $panic();
-}
-function _M0MPC15array5Array2atGjE(self, index) {
-  const len = self.length;
-  return index >= 0 && index < len ? self[index] : $panic();
-}
-function _M0MPC15array5Array2atGRPB5ArrayGRP39Milky201812moon__skrifa7outline20AutoHintUnscaledBlueEE(self, index) {
-  const len = self.length;
-  return index >= 0 && index < len ? self[index] : $panic();
-}
-function _M0MPC15array5Array2atGfE(self, index) {
-  const len = self.length;
-  return index >= 0 && index < len ? self[index] : $panic();
-}
-function _M0MPC15array5Array2atGRP39Milky20186chicle5style10AlignItemsE(self, index) {
-  const len = self.length;
-  return index >= 0 && index < len ? self[index] : $panic();
-}
-function _M0MPC15array5Array2atGRP29Milky201811moon__swash6ScriptE(self, index) {
-  const len = self.length;
-  return index >= 0 && index < len ? self[index] : $panic();
-}
-function _M0MPC15array5Array2atGdE(self, index) {
-  const len = self.length;
-  return index >= 0 && index < len ? self[index] : $panic();
-}
-function _M0MPC15array5Array2atGcE(self, index) {
-  const len = self.length;
-  return index >= 0 && index < len ? self[index] : $panic();
-}
-function _M0MPC15array5Array2atGbE(self, index) {
-  const len = self.length;
-  return index >= 0 && index < len ? self[index] : $panic();
-}
-function _M0MPC15array5Array2atGRP39Milky20186selene9animation18AnimationNodeIndexE(self, index) {
-  const len = self.length;
-  return index >= 0 && index < len ? self[index] : $panic();
-}
-function _M0MPC15array5Array2atGkE(self, index) {
-  const len = self.length;
-  return index >= 0 && index < len ? self[index] : $panic();
-}
-function _M0MPC15array5Array2atGOiE(self, index) {
-  const len = self.length;
-  return index >= 0 && index < len ? self[index] : $panic();
-}
-function _M0MPC15array5Array2atGRP29Milky201810moon__zeno4VerbE(self, index) {
-  const len = self.length;
-  return index >= 0 && index < len ? self[index] : $panic();
-}
-function _M0MPC15array5Array2atGRP29Milky201811moon__swash9BidiClassE(self, index) {
-  const len = self.length;
-  return index >= 0 && index < len ? self[index] : $panic();
-}
-function _M0MPC15array5Array2atGiE(self, index) {
-  const len = self.length;
-  return index >= 0 && index < len ? self[index] : $panic();
 }
 function _M0MPC15array12MutArrayView4swapGRP39Milky20186selene6entity6EntityE(arr, i, j) {
   const temp = arr.buf[arr.start + i | 0];
@@ -65772,9 +65783,9 @@ function _M0FPB23fixed__bubble__sort__byGjE(arr, cmp) {
   }
 }
 function _M0FPB24fixed__choose__pivot__byN7sort__2S38419GRP39Milky20186selene6entity6EntityE(_env, a, b) {
-  const cmp = _env._2;
-  const swaps = _env._1;
-  const arr = _env._0;
+  const arr = _env._2;
+  const cmp = _env._1;
+  const swaps = _env._0;
   if (cmp(arr.buf[arr.start + a | 0], arr.buf[arr.start + b | 0]) > 0) {
     _M0MPC15array12MutArrayView4swapGRP39Milky20186selene6entity6EntityE(arr, a, b);
     swaps.val = swaps.val + 1 | 0;
@@ -65789,9 +65800,9 @@ function _M0FPB24fixed__choose__pivot__byN7sort__3S38420GRP39Milky20186selene6en
   _M0FPB24fixed__choose__pivot__byN7sort__2S38419GRP39Milky20186selene6entity6EntityE(_env, a, b);
 }
 function _M0FPB24fixed__choose__pivot__byN7sort__2S38499GjE(_env, a, b) {
-  const cmp = _env._2;
-  const swaps = _env._1;
-  const arr = _env._0;
+  const arr = _env._2;
+  const cmp = _env._1;
+  const swaps = _env._0;
   if (cmp(arr.buf[arr.start + a | 0], arr.buf[arr.start + b | 0]) > 0) {
     _M0MPC15array12MutArrayView4swapGjE(arr, a, b);
     swaps.val = swaps.val + 1 | 0;
@@ -65812,7 +65823,7 @@ function _M0FPB24fixed__choose__pivot__byGRP39Milky20186selene6entity6EntityE(ar
   if (len >= 8) {
     const a = Math.imul(len / 4 | 0, 1) | 0;
     const c = Math.imul(len / 4 | 0, 3) | 0;
-    const _env = { _0: arr, _1: swaps, _2: cmp };
+    const _env = { _0: swaps, _1: cmp, _2: arr };
     if (len > 50) {
       _M0FPB24fixed__choose__pivot__byN7sort__3S38420GRP39Milky20186selene6entity6EntityE(_env, a - 1 | 0, a, a + 1 | 0);
       _M0FPB24fixed__choose__pivot__byN7sort__3S38420GRP39Milky20186selene6entity6EntityE(_env, b - 1 | 0, b, b + 1 | 0);
@@ -65834,7 +65845,7 @@ function _M0FPB24fixed__choose__pivot__byGjE(arr, cmp) {
   if (len >= 8) {
     const a = Math.imul(len / 4 | 0, 1) | 0;
     const c = Math.imul(len / 4 | 0, 3) | 0;
-    const _env = { _0: arr, _1: swaps, _2: cmp };
+    const _env = { _0: swaps, _1: cmp, _2: arr };
     if (len > 50) {
       _M0FPB24fixed__choose__pivot__byN7sort__3S38500GjE(_env, a - 1 | 0, a, a + 1 | 0);
       _M0FPB24fixed__choose__pivot__byN7sort__3S38500GjE(_env, b - 1 | 0, b, b + 1 | 0);
@@ -67593,46 +67604,46 @@ function _M0FPC28internal7strconv15parse__inf__nan(rest) {
     rest$2 = rest$3;
     break _L;
   }
-  let _cursor_295 = 0;
-  const _input_end_297 = rest$2.end - rest$2.start | 0;
-  const _start_296 = _cursor_295;
-  let _accept_state_298 = -1;
-  let _match_end_299 = -1;
-  let _state_300 = 2;
+  let _cursor_303 = 0;
+  const _input_end_305 = rest$2.end - rest$2.start | 0;
+  const _start_304 = _cursor_303;
+  let _accept_state_306 = -1;
+  let _match_end_307 = -1;
+  let _state_308 = 2;
   while (true) {
-    if (_state_300 !== 14) {
-      if (_state_300 < 2) {
-        _accept_state_298 = _state_300;
-        _match_end_299 = _cursor_295;
+    if (_state_308 !== 14) {
+      if (_state_308 < 2) {
+        _accept_state_306 = _state_308;
+        _match_end_307 = _cursor_303;
       }
-      const _tmp = Math.imul(_state_300, 8) | 0;
-      let _next_char_303;
-      if (_cursor_295 < _input_end_297) {
-        const _char_302 = rest$2.str.charCodeAt(rest$2.start + _cursor_295 | 0);
-        _cursor_295 = _cursor_295 + 1 | 0;
-        _next_char_303 = _char_302;
+      const _tmp = Math.imul(_state_308, 8) | 0;
+      let _next_char_311;
+      if (_cursor_303 < _input_end_305) {
+        const _char_310 = rest$2.str.charCodeAt(rest$2.start + _cursor_303 | 0);
+        _cursor_303 = _cursor_303 + 1 | 0;
+        _next_char_311 = _char_310;
       } else {
-        _next_char_303 = -1;
+        _next_char_311 = -1;
       }
-      const _p$3 = _tmp + (_next_char_303 < 90 ? (_next_char_303 < 73 ? (_next_char_303 < 66 ? (_next_char_303 < 0 ? 0 : _next_char_303 > 64 ? 1 : 7) : _next_char_303 > 69 ? (_next_char_303 < 71 ? 2 : 7) : 7) : _next_char_303 > 73 ? (_next_char_303 < 84 ? (_next_char_303 < 78 ? 7 : _next_char_303 > 78 ? 7 : 4) : _next_char_303 > 84 ? (_next_char_303 < 89 ? 7 : 6) : 5) : 3) : _next_char_303 > 96 ? (_next_char_303 < 110 ? (_next_char_303 < 103 ? (_next_char_303 < 98 ? 1 : _next_char_303 > 101 ? 2 : 7) : _next_char_303 > 104 ? (_next_char_303 < 106 ? 3 : 7) : 7) : _next_char_303 > 110 ? (_next_char_303 < 117 ? (_next_char_303 < 116 ? 7 : 5) : _next_char_303 > 120 ? (_next_char_303 < 122 ? 6 : 7) : 7) : 4) : 7) | 0;
-      _state_300 = _M0FPC28internal7strconv15parse__inf__nanN25_2atransition__table__304S39935[_p$3];
+      const _p$3 = _tmp + (_next_char_311 < 90 ? (_next_char_311 < 73 ? (_next_char_311 < 66 ? (_next_char_311 < 0 ? 0 : _next_char_311 > 64 ? 1 : 7) : _next_char_311 > 69 ? (_next_char_311 < 71 ? 2 : 7) : 7) : _next_char_311 > 73 ? (_next_char_311 < 84 ? (_next_char_311 < 78 ? 7 : _next_char_311 > 78 ? 7 : 4) : _next_char_311 > 84 ? (_next_char_311 < 89 ? 7 : 6) : 5) : 3) : _next_char_311 > 96 ? (_next_char_311 < 110 ? (_next_char_311 < 103 ? (_next_char_311 < 98 ? 1 : _next_char_311 > 101 ? 2 : 7) : _next_char_311 > 104 ? (_next_char_311 < 106 ? 3 : 7) : 7) : _next_char_311 > 110 ? (_next_char_311 < 117 ? (_next_char_311 < 116 ? 7 : 5) : _next_char_311 > 120 ? (_next_char_311 < 122 ? 6 : 7) : 7) : 4) : 7) | 0;
+      _state_308 = _M0FPC28internal7strconv15parse__inf__nanN25_2atransition__table__312S39935[_p$3];
       continue;
     } else {
       break;
     }
   }
-  const _bind$103 = _accept_state_298;
+  const _bind$103 = _accept_state_306;
   switch (_bind$103) {
     case 0: {
-      _cursor_295 = _match_end_299;
+      _cursor_303 = _match_end_307;
       return new _M0DTPC16result6ResultGdRPC15error5ErrorE2Ok(_M0FPC16double14not__a__number);
     }
     case 1: {
-      _cursor_295 = _match_end_299;
+      _cursor_303 = _match_end_307;
       return pos ? new _M0DTPC16result6ResultGdRPC15error5ErrorE2Ok(_M0FPC16double8infinity) : new _M0DTPC16result6ResultGdRPC15error5ErrorE2Ok(_M0FPC16double13neg__infinity);
     }
     default: {
-      _cursor_295 = _start_296;
+      _cursor_303 = _start_304;
       return _M0FPC28internal7strconv11syntax__errGdE();
     }
   }
@@ -67994,62 +68005,62 @@ function _M0FPC28internal7strconv17check__underscore(str) {
     let allow_underscore;
     let hex;
     _L: {
-      let _cursor_213 = 0;
-      const _input_end_215 = rest.end - rest.start | 0;
-      const _start_214 = _cursor_213;
-      let _accept_state_216 = -1;
-      let _match_end_217 = -1;
-      let _state_218 = 3;
+      let _cursor_221 = 0;
+      const _input_end_223 = rest.end - rest.start | 0;
+      const _start_222 = _cursor_221;
+      let _accept_state_224 = -1;
+      let _match_end_225 = -1;
+      let _state_226 = 3;
       while (true) {
-        if (_state_218 !== 5) {
-          if (_state_218 < 3) {
-            _accept_state_216 = _state_218;
-            _match_end_217 = _cursor_213;
+        if (_state_226 !== 5) {
+          if (_state_226 < 3) {
+            _accept_state_224 = _state_226;
+            _match_end_225 = _cursor_221;
           }
-          const _tmp = Math.imul(_state_218, 5) | 0;
-          let _next_char_221;
-          if (_cursor_213 < _input_end_215) {
-            const _char_220 = rest.str.charCodeAt(rest.start + _cursor_213 | 0);
-            _cursor_213 = _cursor_213 + 1 | 0;
-            _next_char_221 = _char_220;
+          const _tmp = Math.imul(_state_226, 5) | 0;
+          let _next_char_229;
+          if (_cursor_221 < _input_end_223) {
+            const _char_228 = rest.str.charCodeAt(rest.start + _cursor_221 | 0);
+            _cursor_221 = _cursor_221 + 1 | 0;
+            _next_char_229 = _char_228;
           } else {
-            _next_char_221 = -1;
+            _next_char_229 = -1;
           }
-          const _p$4 = _tmp + (_next_char_221 < 88 ? (_next_char_221 < 66 ? (_next_char_221 < 48 ? 4 : _next_char_221 > 48 ? 4 : 0) : _next_char_221 > 66 ? (_next_char_221 < 79 ? 4 : _next_char_221 > 79 ? 4 : 2) : 1) : _next_char_221 > 88 ? (_next_char_221 < 111 ? (_next_char_221 < 98 ? 4 : _next_char_221 > 98 ? 4 : 1) : _next_char_221 > 111 ? (_next_char_221 < 120 ? 4 : _next_char_221 > 120 ? 4 : 3) : 2) : 3) | 0;
-          _state_218 = _M0FPC28internal7strconv17check__underscoreN25_2atransition__table__222S40006[_p$4];
+          const _p$4 = _tmp + (_next_char_229 < 88 ? (_next_char_229 < 66 ? (_next_char_229 < 48 ? 4 : _next_char_229 > 48 ? 4 : 0) : _next_char_229 > 66 ? (_next_char_229 < 79 ? 4 : _next_char_229 > 79 ? 4 : 2) : 1) : _next_char_229 > 88 ? (_next_char_229 < 111 ? (_next_char_229 < 98 ? 4 : _next_char_229 > 98 ? 4 : 1) : _next_char_229 > 111 ? (_next_char_229 < 120 ? 4 : _next_char_229 > 120 ? 4 : 3) : 2) : 3) | 0;
+          _state_226 = _M0FPC28internal7strconv17check__underscoreN25_2atransition__table__230S40006[_p$4];
           continue;
         } else {
           break;
         }
       }
-      const _bind$103 = _accept_state_216;
+      const _bind$103 = _accept_state_224;
       switch (_bind$103) {
         case 0: {
-          _cursor_213 = _match_end_217;
-          const rest$3 = _M0MPC16string10StringView19exact__view_2einner(rest, _match_end_217, _input_end_215);
+          _cursor_221 = _match_end_225;
+          const rest$3 = _M0MPC16string10StringView19exact__view_2einner(rest, _match_end_225, _input_end_223);
           rest$2 = rest$3;
           allow_underscore = true;
           hex = false;
           break _L;
         }
         case 1: {
-          _cursor_213 = _match_end_217;
-          const rest$4 = _M0MPC16string10StringView19exact__view_2einner(rest, _match_end_217, _input_end_215);
+          _cursor_221 = _match_end_225;
+          const rest$4 = _M0MPC16string10StringView19exact__view_2einner(rest, _match_end_225, _input_end_223);
           rest$2 = rest$4;
           allow_underscore = true;
           hex = false;
           break _L;
         }
         case 2: {
-          _cursor_213 = _match_end_217;
-          const rest$5 = _M0MPC16string10StringView19exact__view_2einner(rest, _match_end_217, _input_end_215);
+          _cursor_221 = _match_end_225;
+          const rest$5 = _M0MPC16string10StringView19exact__view_2einner(rest, _match_end_225, _input_end_223);
           rest$2 = rest$5;
           allow_underscore = true;
           hex = true;
           break _L;
         }
         default: {
-          _cursor_213 = _start_214;
+          _cursor_221 = _start_222;
           rest$2 = rest;
           allow_underscore = false;
           hex = false;
@@ -121390,7 +121401,7 @@ function _M0MP39Milky201811moon__swash5scale13ScalerBuilder10variations(self, se
   if (self.proxy.val.coord_count === 0) {
     return self;
   }
-  const vars = _M0MPB4Iter9to__arrayGURP39Milky201817selene_2dexamples5cards7CardNumiEE(_M0MP29Milky201811moon__swash10Variations4iter(_M0MP29Milky201811moon__swash7FontRef10variations(self.font)));
+  const vars = _M0MPB4Iter9to__arrayGRPC16string10StringViewE(_M0MP29Milky201811moon__swash10Variations4iter(_M0MP29Milky201811moon__swash7FontRef10variations(self.font)));
   if (vars.length === 0) {
     return self;
   }
@@ -121609,7 +121620,7 @@ function _M0MP39Milky201811moon__swash5shape14EngineMetadata10from__font(font) {
   return new _M0TP39Milky201811moon__swash5shape14EngineMetadata(gdef, gsub, gpos, morx, kerx, ankr, kern, sub_mode, pos_mode);
 }
 function _M0MP39Milky201811moon__swash5shape9FontEntry9FontEntry(font) {
-  const coords = _M0MPB4Iter9to__arrayGURP39Milky201817selene_2dexamples5cards7CardNumiEE(_M0MP29Milky201811moon__swash10Variations4iter(_M0MP29Milky201811moon__swash7FontRef10variations(font)));
+  const coords = _M0MPB4Iter9to__arrayGRPC16string10StringViewE(_M0MP29Milky201811moon__swash10Variations4iter(_M0MP29Milky201811moon__swash7FontRef10variations(font)));
   return new _M0TP39Milky201811moon__swash5shape9FontEntry(_M0MP29Milky201811moon__swash12MetricsProxy10from__font(font), _M0MP29Milky201811moon__swash12CharmapProxy10from__font(font), coords.length & 65535, _M0MP39Milky201811moon__swash5shape14EngineMetadata10from__font(font));
 }
 function _M0MP39Milky201811moon__swash5shape12ShapeContext17builder__with__id(self, font, id) {
@@ -121663,7 +121674,7 @@ function _M0MP39Milky201811moon__swash5shape13ShaperBuilder8features(self, setti
 }
 function _M0MP39Milky201811moon__swash5shape13ShaperBuilder10variations(self, settings) {
   if (self.font_entry.val.coord_count !== 0) {
-    const vars = _M0MPB4Iter9to__arrayGURP39Milky201817selene_2dexamples5cards7CardNumiEE(_M0MP29Milky201811moon__swash10Variations4iter(_M0MP29Milky201811moon__swash7FontRef10variations(self.font)));
+    const vars = _M0MPB4Iter9to__arrayGRPC16string10StringViewE(_M0MP29Milky201811moon__swash10Variations4iter(_M0MP29Milky201811moon__swash7FontRef10variations(self.font)));
     _M0MPC15array5Array6resizeGiE(self.cx.val.coords, vars.length, 0);
     while (true) {
       const _bind$103 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(settings);
@@ -189830,7 +189841,7 @@ function _M0FP39Milky20186selene4ldtk27ldtk__parse__color__channel(source) {
 }
 function _M0FP39Milky20186selene4ldtk29ldtk__rgb__color__with__alpha(color, alpha) {
   const body = color.substring(4, color.length - 1 | 0);
-  const values = _M0MPB4Iter9to__arrayGURP39Milky201817selene_2dexamples5cards7CardNumiEE(_M0MPC16string6String5split(body, _M0FP39Milky20186selene4ldtk29ldtk__rgb__color__with__alphaN6recordS88124));
+  const values = _M0MPB4Iter9to__arrayGRPC16string10StringViewE(_M0MPC16string6String5split(body, _M0FP39Milky20186selene4ldtk29ldtk__rgb__color__with__alphaN6recordS88124));
   if (values.length !== 3) {
     return undefined;
   }
@@ -189890,7 +189901,7 @@ function _M0FP39Milky20186selene4ldtk27ldtk__parse__alpha__channel(source) {
 }
 function _M0FP39Milky20186selene4ldtk30ldtk__rgba__color__with__alpha(color, alpha) {
   const body = color.substring(5, color.length - 1 | 0);
-  const values = _M0MPB4Iter9to__arrayGURP39Milky201817selene_2dexamples5cards7CardNumiEE(_M0MPC16string6String5split(body, _M0FP39Milky20186selene4ldtk30ldtk__rgba__color__with__alphaN6recordS88144));
+  const values = _M0MPB4Iter9to__arrayGRPC16string10StringViewE(_M0MPC16string6String5split(body, _M0FP39Milky20186selene4ldtk30ldtk__rgba__color__with__alphaN6recordS88144));
   if (values.length !== 4) {
     return undefined;
   }
@@ -196068,7 +196079,7 @@ function _M0FP39Milky201817selene_2dexamples5cards10eval__rank(hand) {
     const _n = _Some;
     return new _M0DTP39Milky201817selene_2dexamples5cards8HandRank11ThreeOfKind(_n);
   }
-  const pairs = _M0MPB4Iter9to__arrayGURP39Milky201817selene_2dexamples5cards7CardNumiEE(_M0MPB4Iter6filterGURP39Milky201817selene_2dexamples5cards7CardNumiEE(_M0MPB3Map4iterGRP39Milky201817selene_2dexamples5cards7CardNumiE(nums), (entry) => entry._1 === 2));
+  const pairs = _M0MPB4Iter9to__arrayGRPC16string10StringViewE(_M0MPB4Iter6filterGURP39Milky201817selene_2dexamples5cards7CardNumiEE(_M0MPB3Map4iterGRP39Milky201817selene_2dexamples5cards7CardNumiE(nums), (entry) => entry._1 === 2));
   if (pairs.length >= 2) {
     const _p$3 = new Array(pairs.length);
     const _p$4 = pairs.length;
