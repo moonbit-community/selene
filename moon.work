@@ -1,8 +1,6 @@
 members = [
   "./selene-core",
   "./selene-webgpu",
-  "./selene-raylib",
   "./examples",
   "./examples-web",
-  "./examples-native",
 ]

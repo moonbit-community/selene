@@ -12,6 +12,8 @@
 
 ### Removed
 
+- Removed the deprecated raylib backend and its native example launchers from
+  the workspace, CI, and release pipeline.
 - Removed Rabbita and its async and server dependencies from the WebGPU backend
   by binding the browser APIs used by Selene directly.
 

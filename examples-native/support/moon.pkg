@@ -1,5 +1,0 @@
-import {
-  "moonbitlang/x/fs",
-}
-
-supported_targets = "native"

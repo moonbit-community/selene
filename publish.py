@@ -13,7 +13,6 @@ ROOT_DIR = Path(__file__).parent
 EXAMPLE_MODULE_DIRS = [
     ROOT_DIR / "examples",
     ROOT_DIR / "examples-web",
-    ROOT_DIR / "examples-native",
 ]
 CHANGELOG_REL_PATH = Path("docs/CHANGELOG.md")
 CHANGELOG_PATH = ROOT_DIR / CHANGELOG_REL_PATH
@@ -22,7 +21,6 @@ VERSION_RE = re.compile(r"^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$")
 INTERNAL_MODULES = {
     "Milky2018/selene",
     "Milky2018/selene_webgpu",
-    "Milky2018/selene_raylib",
 }
 
 
@@ -35,13 +33,11 @@ class ModuleConfig:
 RELEASE_MODULES = [
     ModuleConfig("selene-core", ROOT_DIR / "selene-core"),
     ModuleConfig("selene-webgpu", ROOT_DIR / "selene-webgpu"),
-    ModuleConfig("selene-raylib", ROOT_DIR / "selene-raylib"),
 ]
 
 PUBLISH_ORDER = [
     "selene-core",
     "selene-webgpu",
-    "selene-raylib",
 ]
 
 LEGACY_UI_CHECK_REL_PATH = Path("scripts/check_no_legacy_ui.sh")
@@ -154,8 +150,6 @@ def module_info_entries(module: ModuleConfig) -> list[tuple[str, str]]:
         ]
     if module.name == "selene-webgpu":
         return [(str(module.path / "src"), "js")]
-    if module.name == "selene-raylib":
-        return [(str(module.path / "src"), "native")]
     raise RuntimeError(f"Unknown module for info generation: {module.name}")
 
 
@@ -193,8 +187,6 @@ def run_module_quality_checks(module: ModuleConfig):
         check_targets = ["js", "native"]
     elif module.name == "selene-webgpu":
         check_targets = ["js"]
-    elif module.name == "selene-raylib":
-        check_targets = ["native"]
     else:
         raise RuntimeError(f"Unknown module for quality checks: {module.name}")
 

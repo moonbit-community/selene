@@ -92,12 +92,6 @@ moon add Milky2018/selene
 moon add Milky2018/selene_webgpu
 ```
 
-If you also need native backend:
-
-```bash
-moon add Milky2018/selene_raylib
-```
-
 Core gameplay package imports are module-based. Example from `examples/pixeladventure/moon.pkg`:
 
 ```moonbit

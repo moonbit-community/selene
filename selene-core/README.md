@@ -10,12 +10,9 @@ It includes app/runtime orchestration, ECS data flow, assets, scenes, animation,
 moon add Milky2018/selene
 ```
 
-## Backends
+## Web Backend
 
-Use this package together with:
-
-- `Milky2018/selene_webgpu` for web builds
-- `Milky2018/selene_raylib` for native builds
+Use this package with `Milky2018/selene_webgpu` for browser builds.
 
 ## Learn More
 

@@ -1,8 +1,0 @@
-import {
-  "Milky2018/selene/platform_runtime" @runtime,
-  "Milky2018/selene_raylib" @impl,
-}
-
-supported_targets = "native"
-
-virtual(implement: "Milky2018/selene/platform_window")

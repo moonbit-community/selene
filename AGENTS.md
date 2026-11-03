@@ -7,14 +7,14 @@
 
 ## `publish.py`
 - Release only: `python3 publish.py x.y.z`; it will fail if changelog has no matching version header.
-- Release order is fixed: `selene-core -> selene-webgpu -> selene-raylib`, all checks must be warning-free.
+- Publish `selene-core` before `selene-webgpu`. All checks must be warning-free.
 
 ## `publish_pages.py`
 - Pages: `python3 publish_pages.py` (or `python3 publish_pages.py clean`), with `examples-web` release build already in `_build`.
 
 ## Release Manifest Behavior
 - Publish flow rewrites each release module `moon.mod` version and internal Selene deps to `@x.y.z`.
-- Publish flow also syncs `examples`, `examples-web`, and `examples-native` internal Selene deps to `@x.y.z`.
+- Publish flow also syncs internal Selene dependencies in `examples` and `examples-web` to `@x.y.z`.
 - Release pipeline finishes with `moon update` for release modules and example modules; it does not restore old deps.
 
 ## Scope

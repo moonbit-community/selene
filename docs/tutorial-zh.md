@@ -92,12 +92,6 @@ moon add Milky2018/selene
 moon add Milky2018/selene_webgpu
 ```
 
-如果你需要原生后端，也可以添加：
-
-```bash
-moon add Milky2018/selene_raylib
-```
-
 核心逻辑包可按需导入模块。下面是 `examples/pixeladventure/moon.pkg` 的导入示例：
 
 ```moonbit
