@@ -12,6 +12,9 @@
 
 ### Removed
 
+- Removed Rabbita and its async and server dependencies from the WebGPU backend
+  by binding the browser APIs used by Selene directly.
+
 ## [0.39.1] - 2026-11-03
 
 ### Added
