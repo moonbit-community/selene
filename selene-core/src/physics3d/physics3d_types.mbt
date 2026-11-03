@@ -13,34 +13,29 @@
 // limitations under the License.
 
 ///|
-#derive(Eq, Debug)
 pub(all) enum RigidBody {
   Dynamic
   Fixed
   KinematicPositionBased
   KinematicVelocityBased
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct Velocity {
   linvel : @math.Vec3
   angvel : @math.Vec3
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct Damping {
   linear_damping : Double
   angular_damping : Double
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
-pub(all) struct GravityScale(Double)
+pub(all) struct GravityScale(Double) derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct LockedAxes {
   lock_translation_x : Bool
   lock_translation_y : Bool
@@ -48,15 +43,13 @@ pub(all) struct LockedAxes {
   lock_rotation_x : Bool
   lock_rotation_y : Bool
   lock_rotation_z : Bool
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
-pub(all) struct Ccd {}
+pub(all) struct Ccd {} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
-pub(all) struct Dominance(Int32)
+pub(all) struct Dominance(Int32) derive(Eq, Debug)
 
 ///|
 pub(all) enum AdditionalMassProperties {
@@ -65,7 +58,6 @@ pub(all) enum AdditionalMassProperties {
 }
 
 ///|
-#derive(Eq, Debug)
 pub(all) enum Collider {
   Cuboid(@math.Vec3)
   Ball(Double)
@@ -79,11 +71,10 @@ pub(all) enum Collider {
   ConvexHull(Array[@math.Vec3])
   TriMesh(Array[@math.Vec3], Array[(Int32, Int32, Int32)])
   Heightfield(Array[Double], Int32, Int32, @math.Vec3)
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
-pub(all) struct Sensor {}
+pub(all) struct Sensor {} derive(Eq, Debug)
 
 ///|
 #warnings("-unnecessary_annotation-unused_value")
@@ -92,36 +83,30 @@ fn Sensor::Sensor() -> Sensor {
 }
 
 ///|
-#derive(Eq, Debug)
-pub(all) struct Friction(Double)
+pub(all) struct Friction(Double) derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
-pub(all) struct Restitution(Double)
+pub(all) struct Restitution(Double) derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct CollisionGroups {
   memberships : Int32
   filters : Int32
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct SolverGroups {
   memberships : Int32
   filters : Int32
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
-pub(all) struct ContactForceEventThreshold(Double)
+pub(all) struct ContactForceEventThreshold(Double) derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) enum ColliderMassProperties {
   Density(Double)
-}
+} derive(Eq, Debug)
 
 ///|
 pub type RapierRigidBodyHandle = @dynamics.RigidBodyHandle
@@ -151,13 +136,12 @@ pub type CharacterLength = @control.CharacterLength
 pub type CharacterAutostep = @control.CharacterAutostep
 
 ///|
-#derive(Eq, Debug)
 pub(all) enum QueryFilterBody {
   All
   Dynamic
   Fixed
   Kinematic
-}
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct QueryFilter {

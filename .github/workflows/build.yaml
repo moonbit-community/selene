@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     env:
-      MOONBIT_INSTALL_VERSION: pre-release
+      MOONBIT_INSTALL_VERSION: latest
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -42,13 +42,13 @@ jobs:
       - name: Install MoonBit
         if: ${{ matrix.os != 'windows-latest' }}
         run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s pre-release
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s latest
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
       - name: Install MoonBit on Windows
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
-          $env:MOONBIT_INSTALL_VERSION = "pre-release"
+          $env:MOONBIT_INSTALL_VERSION = "latest"
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
           "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
@@ -106,3 +106,17 @@ jobs:
           cd examples-web
           moon update
           moon check --target js --deny-warn
+
+  check-pre-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MoonBit pre-release
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s pre-release
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: Check pre-release compatibility
+        # Keep deprecation warnings visible while latest still requires the old syntax.
+        run: moon check --target all

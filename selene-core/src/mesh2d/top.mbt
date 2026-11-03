@@ -1,25 +1,21 @@
 ///|
-#derive(Eq, Debug)
 pub(all) enum Mesh2dPrimitive {
   Rectangle(@math.Vec2)
   Circle(Double)
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct Mesh2dAsset {
   primitive : Mesh2dPrimitive
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug, Hash)
-pub(all) struct Mesh2dHandle(UInt32)
+pub(all) struct Mesh2dHandle(UInt32) derive(Eq, Debug, Hash)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct Mesh2d {
   mesh : Mesh2dHandle
-}
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct Mesh2dStorage {

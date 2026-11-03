@@ -16,29 +16,26 @@
 pub type AudioHandle = @asset.AudioHandle
 
 ///|
-#derive(Eq, Debug)
 pub(all) enum PlaybackMode {
   Once
   Loop
   Remove
   Despawn
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct PlaybackSettings {
   mode : PlaybackMode
   volume : Double
   speed : Double
   paused : Bool
   muted : Bool
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct AudioPlayer {
   source : AudioHandle
-}
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct AudioSink {
@@ -53,12 +50,11 @@ pub(all) struct AudioSink {
 }
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct AudioEvent {
   source : AudioHandle
   settings : PlaybackSettings
   target : @entity.Entity?
-}
+} derive(Eq, Debug)
 
 ///|
 priv struct AudioWorldStore {

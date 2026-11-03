@@ -16,22 +16,20 @@
 /// A collision group identifier.
 ///
 /// Groups are used by `CollisionFilter` to decide which entities can interact.
-#derive(Eq)
 pub struct CollisionGroup {
   value : UInt32
-}
+} derive(Eq)
 
 ///|
 /// A collision filter used by colliders and trigger areas.
 ///
 /// `group` defines which group the owner belongs to.
 /// `mask` defines which groups this owner can interact with.
-#derive(Eq)
 pub struct CollisionFilter {
   group : CollisionGroup
   mask : Array[CollisionGroup]
   match_all : Bool
-}
+} derive(Eq)
 
 ///|
 let collision_group_generator : Ref[UInt32] = { val: 0, }

@@ -41,20 +41,18 @@ pub fn stop_audio(@entity.Entity) -> Unit
 // Errors
 
 // Types and methods
-#derive(Eq, @debug.Debug)
 pub(all) struct AudioEvent {
   source : @asset_types.AudioHandle
   settings : PlaybackSettings
   target : @entity.Entity?
-}
+} derive(Eq, @debug.Debug)
 pub fn AudioEvent::equal(Self, Self) -> Bool
 pub fn AudioEvent::not_equal(Self, Self) -> Bool
 pub fn AudioEvent::to_repr(Self) -> @debug.Repr
 
-#derive(Eq, @debug.Debug)
 pub(all) struct AudioPlayer {
   source : @asset_types.AudioHandle
-}
+} derive(Eq, @debug.Debug)
 pub fn AudioPlayer::AudioPlayer(@asset_types.AudioHandle) -> Self
 pub fn AudioPlayer::equal(Self, Self) -> Bool
 pub fn AudioPlayer::from_path(String) -> Self
@@ -86,25 +84,23 @@ pub fn AudioSink::stop(Self) -> Unit
 pub fn AudioSink::stopped(Self) -> Bool
 pub fn AudioSink::volume(Self) -> Double
 
-#derive(Eq, @debug.Debug)
 pub(all) enum PlaybackMode {
   Once
   Loop
   Remove
   Despawn
-}
+} derive(Eq, @debug.Debug)
 pub fn PlaybackMode::equal(Self, Self) -> Bool
 pub fn PlaybackMode::not_equal(Self, Self) -> Bool
 pub fn PlaybackMode::to_repr(Self) -> @debug.Repr
 
-#derive(Eq, @debug.Debug)
 pub(all) struct PlaybackSettings {
   mode : PlaybackMode
   volume : Double
   speed : Double
   paused : Bool
   muted : Bool
-}
+} derive(Eq, @debug.Debug)
 pub fn PlaybackSettings::despawn() -> Self
 pub fn PlaybackSettings::equal(Self, Self) -> Bool
 pub fn PlaybackSettings::looped() -> Self

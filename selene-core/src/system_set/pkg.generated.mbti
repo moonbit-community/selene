@@ -28,10 +28,9 @@ pub fn SystemOrdering::with_after(Self, SystemSet) -> Self
 pub fn SystemOrdering::with_before(Self, SystemSet) -> Self
 pub fn SystemOrdering::with_set(Self, SystemSet) -> Self
 
-#derive(Eq, Hash, @debug.Debug)
 pub(all) struct SystemSet {
   name : String
-}
+} derive(Eq, Hash, @debug.Debug)
 pub fn SystemSet::SystemSet(String) -> Self
 pub fn SystemSet::equal(Self, Self) -> Bool
 pub fn SystemSet::hash(Self) -> Int32

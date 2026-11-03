@@ -10,32 +10,29 @@ import {
 // Errors
 
 // Types and methods
-#derive(Eq, @debug.Debug)
 pub(all) enum AlphaMode2D {
   Opaque
   Blend
-}
+} derive(Eq, @debug.Debug)
 pub fn AlphaMode2D::equal(Self, Self) -> Bool
 pub fn AlphaMode2D::not_equal(Self, Self) -> Bool
 pub fn AlphaMode2D::to_repr(Self) -> @debug.Repr
 
-#derive(Eq, @debug.Debug)
 pub(all) enum BlendMode2D {
   Alpha
   Additive
   Multiply
-}
+} derive(Eq, @debug.Debug)
 pub fn BlendMode2D::equal(Self, Self) -> Bool
 pub fn BlendMode2D::not_equal(Self, Self) -> Bool
 pub fn BlendMode2D::to_repr(Self) -> @debug.Repr
 
-#derive(Eq, @debug.Debug)
 pub(all) struct Color {
   r : UInt32
   g : UInt32
   b : UInt32
   a : Double
-}
+} derive(Eq, @debug.Debug)
 pub fn Color::equal(Self, Self) -> Bool
 pub fn Color::not_equal(Self, Self) -> Bool
 pub fn Color::to_repr(Self) -> @debug.Repr

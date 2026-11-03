@@ -85,7 +85,6 @@ priv enum GameResult {
 }
 
 ///|
-#derive(Eq)
 priv enum PlayerAnimationKey {
   IdleLeft
   IdleRight
@@ -97,7 +96,7 @@ priv enum PlayerAnimationKey {
   JumpRight
   HitLeft
   HitRight
-}
+} derive(Eq)
 
 ///|
 priv struct PlayerAnimationNodes {
@@ -114,13 +113,12 @@ priv struct PlayerAnimationNodes {
 }
 
 ///|
-#derive(Eq)
 priv enum BirdAnimationKey {
   FlyLeft
   FlyRight
   HitLeft
   HitRight
-}
+} derive(Eq)
 
 ///|
 priv struct BirdAnimationNodes {

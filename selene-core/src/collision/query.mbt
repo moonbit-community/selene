@@ -14,24 +14,22 @@
 
 ///|
 /// Body-type scope for spatial queries.
-#derive(Eq)
 pub enum SpatialQueryBodyFilter {
   All
   Dynamic
   Fixed
   Kinematic
-}
+} derive(Eq)
 
 ///|
 /// Spatial-query filter translated to Rapier query predicates.
-#derive(Eq)
 pub struct SpatialQueryFilter {
   groups : CollisionFilter?
   exclude_entity : @entity.Entity?
   exclude_sensors : Bool
   exclude_solids : Bool
   body_filter : SpatialQueryBodyFilter
-}
+} derive(Eq)
 
 ///|
 pub fn SpatialQueryFilter::default() -> SpatialQueryFilter {
@@ -61,20 +59,18 @@ pub fn SpatialQueryFilter::only_kinematic() -> SpatialQueryFilter {
 
 ///|
 /// Payload for a 2D raycast hit.
-#derive(Eq, Debug)
 pub struct RaycastHit {
   entity : @entity.Entity
   toi : Double
   point : @math.Vec2
   normal : @math.Vec2
-}
+} derive(Eq, Debug)
 
 ///|
 /// Payload for a 2D shape-cast hit.
-#derive(Eq, Debug)
 pub struct ShapeCastHit {
   entity : @entity.Entity
   toi : Double
   point : @math.Vec2
   normal : @math.Vec2
-}
+} derive(Eq, Debug)

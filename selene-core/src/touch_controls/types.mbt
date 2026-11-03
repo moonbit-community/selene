@@ -1,19 +1,17 @@
 ///|
-#derive(Eq, Debug)
 pub(all) enum TouchPlacement {
   BottomLeft
   BottomRight
   TopLeft
   TopRight
   Anchor(Double, Double, @math.Vec2)
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) enum StickMode {
   Fixed
   Floating
-}
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct TouchControlStyle {

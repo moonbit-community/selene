@@ -1,8 +1,7 @@
 ///|
-#derive(Eq, Debug, Hash)
 pub(all) struct InputAction {
   name : String
-}
+} derive(Eq, Debug, Hash)
 
 ///|
 pub(all) enum InputBinding {
@@ -25,29 +24,26 @@ pub(all) enum InputBinding {
 }
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct ActionState {
   mut pressed : Bool
   mut just_pressed : Bool
   mut just_released : Bool
   mut value : Double
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) enum ActionEventKind {
   Pressed
   Released
   ValueChanged
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct ActionEvent {
   action : InputAction
   kind : ActionEventKind
   value : Double
-}
+} derive(Eq, Debug)
 
 ///|
 let input_bindings : Map[InputAction, Array[InputBinding]] = Map([])

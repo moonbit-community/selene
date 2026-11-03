@@ -1,6 +1,5 @@
 ///|
-#derive(Eq, Debug, Hash)
-pub(all) struct AudioInstance(Int32)
+pub(all) struct AudioInstance(Int32) derive(Eq, Debug, Hash)
 
 ///|
 fn to_impl_instance(instance : AudioInstance) -> @impl.AudioInstance {

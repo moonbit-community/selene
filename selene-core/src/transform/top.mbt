@@ -13,18 +13,16 @@
 // limitations under the License.
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct Transform {
   translation : @math.Vec3
   rotation : @math.Quat
   scale : @math.Vec3
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct GlobalTransform {
   affine : @math.Affine3
-}
+} derive(Eq, Debug)
 
 ///|
 pub fn Transform::identity() -> Transform {

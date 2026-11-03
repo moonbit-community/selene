@@ -113,40 +113,35 @@ pub(all) struct WorldSnapshot {
 }
 
 ///|
-#derive(Eq, Debug, ToJson)
 pub(all) struct DebugVec2 {
   x : Double
   y : Double
-}
+} derive(Eq, Debug, ToJson)
 
 ///|
-#derive(Eq, Debug, ToJson)
 pub(all) struct DebugVec3 {
   x : Double
   y : Double
   z : Double
-}
+} derive(Eq, Debug, ToJson)
 
 ///|
-#derive(Eq, Debug, ToJson)
 pub(all) struct DebugRect {
   x : Double
   y : Double
   width : Double
   height : Double
-}
+} derive(Eq, Debug, ToJson)
 
 ///|
-#derive(Eq, Debug, ToJson)
 pub(all) struct DebugColor {
   r : UInt32
   g : UInt32
   b : UInt32
   a : Double
-}
+} derive(Eq, Debug, ToJson)
 
 ///|
-#derive(Debug, ToJson)
 pub(all) struct SpriteInspectorEntry {
   entity_id : UInt32
   entity_name : String?
@@ -159,20 +154,18 @@ pub(all) struct SpriteInspectorEntry {
   flip_y : Bool
   local_translation : DebugVec3?
   world_translation : DebugVec3?
-}
+} derive(Debug, ToJson)
 
 ///|
-#derive(Debug, ToJson)
 pub(all) struct AtlasOverlayEntry {
   entity_id : UInt32?
   layer : String
   texture_path : String
   source_rect : DebugRect
   destination_rect : DebugRect?
-}
+} derive(Debug, ToJson)
 
 ///|
-#derive(Debug, ToJson)
 pub(all) struct DrawSubmission2DMetadataEntry {
   entity_id : UInt32?
   layer : String
@@ -183,10 +176,9 @@ pub(all) struct DrawSubmission2DMetadataEntry {
   destination_rect : DebugRect?
   transform_translation : DebugVec2?
   color : DebugColor?
-}
+} derive(Debug, ToJson)
 
 ///|
-#derive(Eq, Debug, ToJson)
 pub(all) struct FramePerformanceMetricsExport {
   frame_index : UInt32
   fixed_step_index : UInt32
@@ -197,10 +189,9 @@ pub(all) struct FramePerformanceMetricsExport {
   entity_count : Int32
   draw2d_count : Int32
   draw3d_count : Int32
-}
+} derive(Eq, Debug, ToJson)
 
 ///|
-#derive(Debug, ToJson)
 pub(all) struct FrameCaptureMetadata {
   frame_index : UInt32
   fixed_step_index : UInt32
@@ -209,17 +200,16 @@ pub(all) struct FrameCaptureMetadata {
   draw3d_count : Int32
   sprites : Array[SpriteInspectorEntry]
   atlas_overlay : Array[AtlasOverlayEntry]
-}
+} derive(Debug, ToJson)
 
 ///|
-#derive(Debug)
 pub(all) struct FrameCaptureArtifact {
   frame_index : UInt32
   fixed_step_index : UInt32
   file_stem : String
   png : Bytes
   metadata_json : String
-}
+} derive(Debug)
 
 ///|
 pub type SnapshotProvider = (@ecs.World) -> String

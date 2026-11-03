@@ -13,7 +13,6 @@
 // limitations under the License.
 
 ///|
-#derive(Debug)
 enum HandRank {
   HighCard(Int32) // A-H
   OnePair(Int32) // A-H, A-D
@@ -24,7 +23,7 @@ enum HandRank {
   FullHouse(Int32, Int32) // A-H, A-D, 2-C, 2-D, 2-S
   FourOfKind(Int32) // A-H, A-D, A-C, A-S
   StraightFlush(Int32) // 10-D, J-D, Q-D, K-D, A-D
-}
+} derive(Debug)
 
 ///|
 /// Convert hand rank to display string

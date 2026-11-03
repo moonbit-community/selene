@@ -1,27 +1,23 @@
 ///|
-#derive(Eq, Debug)
 pub(all) enum Visibility {
   Visible
   Hidden
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct InheritedVisibility {
   visible : Bool
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct ViewVisibility {
   visible : Bool
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct RenderLayers {
   mask : UInt32
-}
+} derive(Eq, Debug)
 
 ///|
 priv struct VisibilityWorldStore {

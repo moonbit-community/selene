@@ -1,8 +1,7 @@
 ///|
-#derive(Eq, Debug, Hash)
 pub(all) struct SystemSet {
   name : String
-}
+} derive(Eq, Debug, Hash)
 
 ///|
 pub(all) struct SystemOrdering {

@@ -13,12 +13,11 @@
 // limitations under the License.
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct Vec3 {
   x : Double
   y : Double
   z : Double
-}
+} derive(Eq, Debug)
 
 ///|
 pub fn Vec3::Vec3(x : Double, y : Double, z : Double) -> Vec3 {
@@ -139,13 +138,12 @@ pub fn vec3_from_rapier(value : @rcore.Vec3) -> Vec3 {
 }
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct Quat {
   x : Double
   y : Double
   z : Double
   w : Double
-}
+} derive(Eq, Debug)
 
 ///|
 pub fn Quat::Quat(x : Double, y : Double, z : Double, w : Double) -> Quat {
@@ -303,7 +301,6 @@ pub fn quat_from_rapier(value : @rcore.Quat) -> Quat {
 }
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct Mat4 {
   m00 : Double
   m01 : Double
@@ -321,7 +318,7 @@ pub(all) struct Mat4 {
   m31 : Double
   m32 : Double
   m33 : Double
-}
+} derive(Eq, Debug)
 
 ///|
 pub fn Mat4::identity() -> Mat4 {
@@ -469,13 +466,12 @@ pub fn Mat4::transform_point(self : Mat4, point : Vec3) -> Vec3 {
 }
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct Affine3 {
   x_axis : Vec3
   y_axis : Vec3
   z_axis : Vec3
   translation : Vec3
-}
+} derive(Eq, Debug)
 
 ///|
 pub fn Affine3::identity() -> Affine3 {

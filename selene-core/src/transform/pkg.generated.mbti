@@ -23,10 +23,9 @@ pub fn transforms() -> Map[@entity.Entity, Transform]
 // Errors
 
 // Types and methods
-#derive(Eq, @debug.Debug)
 pub(all) struct GlobalTransform {
   affine : @math.Affine3
-}
+} derive(Eq, @debug.Debug)
 pub fn GlobalTransform::compute_transform(Self) -> Transform
 pub fn GlobalTransform::default() -> Self
 pub fn GlobalTransform::equal(Self, Self) -> Bool
@@ -39,12 +38,11 @@ pub fn GlobalTransform::transform_point(Self, @math.Vec3) -> @math.Vec3
 pub fn GlobalTransform::translation(Self) -> @math.Vec3
 pub impl Default for GlobalTransform
 
-#derive(Eq, @debug.Debug)
 pub(all) struct Transform {
   translation : @math.Vec3
   rotation : @math.Quat
   scale : @math.Vec3
-}
+} derive(Eq, @debug.Debug)
 pub fn Transform::compute_affine(Self) -> @math.Affine3
 pub fn Transform::default() -> Self
 pub fn Transform::equal(Self, Self) -> Bool

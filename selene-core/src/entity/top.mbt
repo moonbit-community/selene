@@ -13,20 +13,18 @@
 // limitations under the License.
 
 ///|
-#derive(Eq, Debug, Hash)
 struct Entity {
   value : UInt32
-}
+} derive(Eq, Debug, Hash)
 
 ///|
-#derive(Eq, Debug)
 enum EntityLifecycleState {
   Alive
   PendingSpawn
   PendingDespawn
   PendingRespawn
   Destroyed
-}
+} derive(Eq, Debug)
 
 ///|
 priv struct EntityWorldStore {

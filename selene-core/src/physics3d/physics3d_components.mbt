@@ -1,11 +1,10 @@
 ///|
-#derive(Eq, Debug)
 pub(all) struct FixedJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
   local_basis1 : @math.Quat
   local_basis2 : @math.Quat
-}
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct RevoluteJoint {
@@ -21,7 +20,6 @@ pub(all) struct RevoluteJoint {
 }
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct PrismaticJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
@@ -30,33 +28,30 @@ pub(all) struct PrismaticJoint {
   motor_position : (Double, Double, Double)?
   motor_velocity : (Double, Double)?
   max_force : Double?
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct RopeJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
   max_distance : Double
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct SpringJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
   rest_length : Double
   stiffness : Double
   damping : Double
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct SphericalJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
   motor_target : (@math.Quat, Double, Double)?
-}
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum Joint {
@@ -97,32 +92,28 @@ pub(all) struct KinematicCharacterController {
 }
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct KinematicCharacterControllerOutput {
   desired_translation : @math.Vec3
   effective_translation : @math.Vec3
   grounded : Bool
   is_sliding_down_slope : Bool
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct KinematicCharacterControllerCollision {
   entity : @entity.Entity?
   character_translation_applied : @math.Vec3
   character_translation_remaining : @math.Vec3
   toi : Double
   normal : @math.Vec3
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct KinematicCharacterControllerCollisions {
   collisions : Array[KinematicCharacterControllerCollision]
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct CollisionEvent {
   entity_a : @entity.Entity
   entity_b : @entity.Entity
@@ -130,18 +121,16 @@ pub(all) struct CollisionEvent {
   stopped : Bool
   sensor : Bool
   normal : @math.Vec3
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct SensorEvent {
   sensor : @entity.Entity
   other : @entity.Entity
   entered : Bool
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct ContactForceEvent {
   entity_a : @entity.Entity
   entity_b : @entity.Entity
@@ -149,31 +138,28 @@ pub(all) struct ContactForceEvent {
   total_force_magnitude : Double
   max_force_direction : @math.Vec3
   max_force_magnitude : Double
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct RaycastHit {
   entity : @entity.Entity
   toi : Double
   normal : @math.Vec3
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct ShapeCastHit {
   entity : @entity.Entity
   toi : Double
   normal : @math.Vec3
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct PointProjection {
   entity : @entity.Entity
   point : @math.Vec3
   is_inside : Bool
-}
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct RapierContext {}

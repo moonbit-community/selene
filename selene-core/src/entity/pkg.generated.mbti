@@ -17,8 +17,7 @@ pub fn iter_entities() -> Iter[Entity]
 // Errors
 
 // Types and methods
-#derive(Eq, Hash, @debug.Debug)
-type Entity
+type Entity derive(Eq, Hash, @debug.Debug)
 pub fn Entity::Entity() -> Self
 pub fn Entity::destroy(Self) -> Unit
 pub fn Entity::equal(Self, Self) -> Bool
@@ -37,8 +36,7 @@ pub fn Entity::set_parent(Self, Self) -> Unit
 pub fn Entity::spawn_child(Self) -> Self
 pub fn Entity::to_repr(Self) -> @debug.Repr
 
-#derive(Eq, @debug.Debug)
-type EntityLifecycleState
+type EntityLifecycleState derive(Eq, @debug.Debug)
 pub fn EntityLifecycleState::equal(Self, Self) -> Bool
 pub fn EntityLifecycleState::not_equal(Self, Self) -> Bool
 pub fn EntityLifecycleState::to_repr(Self) -> @debug.Repr

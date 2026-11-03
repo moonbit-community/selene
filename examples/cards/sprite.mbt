@@ -13,8 +13,7 @@
 // limitations under the License.
 
 ///|
-#derive(Eq, Hash)
-struct Card(CardNum, CardSuit)
+struct Card(CardNum, CardSuit) derive(Eq, Hash)
 
 ///|
 fn Card::to_path(self : Card) -> String {
@@ -30,7 +29,6 @@ fn Card::to_sprite(self : Card) -> @sprite.Sprite {
 }
 
 ///|
-#derive(Eq, Hash)
 enum CardNum {
   A
   N2
@@ -45,7 +43,7 @@ enum CardNum {
   J
   Q
   K
-}
+} derive(Eq, Hash)
 
 ///|
 fn CardNum::to_string(self : CardNum) -> String {
@@ -86,13 +84,12 @@ fn CardNum::to_int(self : CardNum) -> Int32 {
 }
 
 ///|
-#derive(Eq, Hash)
 enum CardSuit {
   H
   D
   C
   S
-}
+} derive(Eq, Hash)
 
 ///|
 fn CardSuit::to_string(self : CardSuit) -> String {

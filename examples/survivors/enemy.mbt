@@ -328,7 +328,6 @@ priv struct Enemy {
 }
 
 ///|
-#derive(Eq, Hash)
 enum EnemyType {
   Creeper
   Icecream
@@ -337,7 +336,7 @@ enum EnemyType {
   Teleman
   Devil
   Pirate
-}
+} derive(Eq, Hash)
 
 ///|
 let enemies : Map[@entity.Entity, Enemy] = Map([])

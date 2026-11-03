@@ -13,7 +13,6 @@
 // limitations under the License.
 
 ///|
-#derive(Eq)
 enum PowerupType {
   AttackLv1
   AttackLv2
@@ -25,7 +24,7 @@ enum PowerupType {
   CooldownLv1
   CooldownLv2
   Bandana
-}
+} derive(Eq)
 
 ///|
 priv struct Powerup {

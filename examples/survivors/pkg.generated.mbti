@@ -7,20 +7,17 @@ pub fn run() -> Unit
 // Errors
 
 // Types and methods
-#derive(Eq, Hash)
-type EnemyType
+type EnemyType derive(Eq, Hash)
 pub fn EnemyType::equal(Self, Self) -> Bool
 pub fn EnemyType::hash(Self) -> Int32
 pub fn EnemyType::hash_combine(Self, Hasher) -> Unit
 pub fn EnemyType::not_equal(Self, Self) -> Bool
 
-#derive(Eq)
-type PowerupType
+type PowerupType derive(Eq)
 pub fn PowerupType::equal(Self, Self) -> Bool
 pub fn PowerupType::not_equal(Self, Self) -> Bool
 
-#derive(Eq)
-type WeaponType
+type WeaponType derive(Eq)
 pub fn WeaponType::equal(Self, Self) -> Bool
 pub fn WeaponType::not_equal(Self, Self) -> Bool
 

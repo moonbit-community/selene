@@ -13,11 +13,10 @@
 // limitations under the License.
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct CameraViewport {
   position : @math.Vec2
   size : @math.Vec2
-}
+} derive(Eq, Debug)
 
 ///|
 pub fn CameraViewport::CameraViewport(
@@ -40,26 +39,23 @@ pub fn CameraViewport::rect(self : CameraViewport) -> @math.Rect {
 }
 
 ///|
-#derive(Eq, Debug)
 pub(all) enum CameraPassLoadOp2D {
   Load
   Clear
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) enum CameraPassTarget2D {
   Screen
   Offscreen(String)
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct CameraPass2D {
   load_op : CameraPassLoadOp2D
   clear_color : @render.Color
   target : CameraPassTarget2D
-}
+} derive(Eq, Debug)
 
 ///|
 fn default_camera_clear_color() -> @render.Color {
@@ -76,13 +72,12 @@ pub fn CameraPass2D::CameraPass2D(
 }
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct Camera {
   mut is_active : Bool
   order : Int32
   viewport : CameraViewport?
   pass : CameraPass2D
-}
+} derive(Eq, Debug)
 
 ///|
 pub fn Camera::Camera(
@@ -100,8 +95,7 @@ pub impl Default for Camera with fn default() -> Camera {
 }
 
 ///|
-#derive(Eq, Debug)
-pub(all) struct Camera2d {}
+pub(all) struct Camera2d {} derive(Eq, Debug)
 
 ///|
 #warnings("-unnecessary_annotation")
@@ -115,12 +109,11 @@ pub impl Default for Camera2d with fn default() -> Camera2d {
 }
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct OrthographicProjection {
   near : Double
   far : Double
   scale : Double
-}
+} derive(Eq, Debug)
 
 ///|
 pub fn OrthographicProjection::OrthographicProjection(

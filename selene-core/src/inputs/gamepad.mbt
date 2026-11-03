@@ -14,10 +14,9 @@
 
 ///|
 /// Stable gamepad identifier.
-#derive(Eq, Debug, Hash)
 pub(all) struct Gamepad {
   id : Int32
-}
+} derive(Eq, Debug, Hash)
 
 ///|
 pub fn Gamepad::Gamepad(id : Int32) -> Gamepad {
@@ -31,7 +30,6 @@ pub fn Gamepad::id(self : Gamepad) -> Int32 {
 
 ///|
 /// Logical gamepad button layout aligned with Bevy conventions.
-#derive(Eq, Debug, Hash)
 pub(all) enum GamepadButton {
   South
   East
@@ -52,11 +50,10 @@ pub(all) enum GamepadButton {
   DPadDown
   DPadLeft
   DPadRight
-}
+} derive(Eq, Debug, Hash)
 
 ///|
 /// Logical gamepad axis layout aligned with Bevy conventions.
-#derive(Eq, Debug, Hash)
 pub(all) enum GamepadAxis {
   LeftStickX
   LeftStickY
@@ -64,14 +61,13 @@ pub(all) enum GamepadAxis {
   RightStickY
   LeftZ
   RightZ
-}
+} derive(Eq, Debug, Hash)
 
 ///|
-#derive(Eq, Debug)
 pub(all) enum GamepadButtonInputState {
   Pressed
   Released
-}
+} derive(Eq, Debug)
 
 ///|
 pub struct GamepadConnectionEvent {
@@ -93,11 +89,10 @@ pub struct GamepadAxisEvent {
 }
 
 ///|
-#derive(Eq, Debug, Hash)
 pub(all) struct GamepadButtonInput {
   gamepad : Gamepad
   button : GamepadButton
-}
+} derive(Eq, Debug, Hash)
 
 ///|
 pub fn GamepadButtonInput::GamepadButtonInput(
@@ -108,11 +103,10 @@ pub fn GamepadButtonInput::GamepadButtonInput(
 }
 
 ///|
-#derive(Eq, Debug, Hash)
 pub(all) struct GamepadAxisInput {
   gamepad : Gamepad
   axis : GamepadAxis
-}
+} derive(Eq, Debug, Hash)
 
 ///|
 pub fn GamepadAxisInput::GamepadAxisInput(

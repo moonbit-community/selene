@@ -32,7 +32,6 @@
 /// }
 /// ```
 ///
-#derive(Eq, Debug, Hash)
 pub(all) enum Code {
   KeyA
   KeyB
@@ -69,14 +68,13 @@ pub(all) enum Code {
   Space
   Enter
   Escape
-}
+} derive(Eq, Debug, Hash)
 
 ///|
-#derive(Eq, Debug)
 pub(all) enum KeyInputState {
   Pressed
   Released
-}
+} derive(Eq, Debug)
 
 ///|
 pub struct KeyInputEvent {

@@ -88,12 +88,11 @@ const TEXTURED_SPHERE_STACKS : Int32 = 16
 const WEBGPU_PRIMITIVE_MESH_RESOURCE_TTL_FRAMES : Int32 = 120
 
 ///|
-#derive(Eq, Debug)
 pub(all) enum Render3DLightingMode {
   Full
   Cheap
   Unlit
-}
+} derive(Eq, Debug)
 
 ///|
 let synced_mesh_assets : Map[
@@ -167,7 +166,6 @@ priv struct Render3DSubmissionStats {
 }
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct Render3DSubmissionStatsSnapshot {
   sections : Int32
   submitted_items : Int32
@@ -178,17 +176,16 @@ pub(all) struct Render3DSubmissionStatsSnapshot {
   textured_triangle_commands : Int32
   uploaded_vertex_bytes : Int32
   render_bind_group_creations : Int32
-}
+} derive(Eq, Debug)
 
 ///|
-#derive(Eq, Debug)
 pub(all) struct WebGpuRender3DTimingSnapshot {
   setup_ms : Double
   items_ms : Double
   flush_ms : Double
   cleanup_ms : Double
   submit_total_ms : Double
-}
+} derive(Eq, Debug)
 
 ///|
 priv struct LitPrimitiveMeshBatchAccumulator {
@@ -198,13 +195,12 @@ priv struct LitPrimitiveMeshBatchAccumulator {
 }
 
 ///|
-#derive(Eq, Hash)
 priv struct LitPrimitiveMeshBatchKey {
   mesh : @render3d_types.MeshHandle
   material : @render3d_types.MaterialHandle
   cast_shadows : Bool
   receive_shadows : Bool
-}
+} derive(Eq, Hash)
 
 ///|
 priv struct LitPrimitiveMeshBatch {

@@ -1,8 +1,7 @@
 ///|
-#derive(Eq, Debug)
 pub(all) struct Name {
   value : String
-}
+} derive(Eq, Debug)
 
 ///|
 priv struct NameWorldStore {

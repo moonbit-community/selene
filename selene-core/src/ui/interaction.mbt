@@ -29,7 +29,6 @@ pub(all) struct UiClickEvent {
 }
 
 ///|
-#derive(Eq, Debug)
 pub(all) enum UiNavigationDirection {
   Up
   Down
@@ -37,7 +36,7 @@ pub(all) enum UiNavigationDirection {
   Right
   Activate
   Cancel
-}
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct UiNavigationEvent {

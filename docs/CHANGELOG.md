@@ -10,6 +10,20 @@
 
 ### Removed
 
+## [0.39.1] - 2026-11-03
+
+### Added
+
+### Changed
+
+### Fixed
+
+- Restored compatibility with MoonBit `latest` by retaining `derive(...)` syntax
+  supported by both toolchain channels. Pre-release syntax deprecation warnings
+  remain visible; CI and Pages use `latest` again.
+
+### Removed
+
 ## [0.39.0] - 2026-11-03
 
 ### Added

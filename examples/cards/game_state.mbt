@@ -27,7 +27,6 @@ const BIG_BLIND : Int32 = 20
 
 ///|
 /// Game phases
-#derive(Eq)
 enum GamePhase {
   PreFlop
   Flop
@@ -35,7 +34,7 @@ enum GamePhase {
   River
   Showdown
   GameOver
-}
+} derive(Eq)
 
 ///|
 /// Player information

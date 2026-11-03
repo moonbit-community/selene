@@ -31,12 +31,11 @@ pub fn[T] unobserve(Events[T], ObserverHandle) -> Unit
 // Errors
 
 // Types and methods
-#derive(Eq, @debug.Debug)
 pub(all) enum EventDomain {
   Frame
   Fixed
   Render
-}
+} derive(Eq, @debug.Debug)
 pub fn EventDomain::equal(Self, Self) -> Bool
 pub fn EventDomain::not_equal(Self, Self) -> Bool
 pub fn EventDomain::to_repr(Self) -> @debug.Repr
@@ -76,8 +75,7 @@ pub fn[T] Events::unobserve(Self[T], ObserverHandle) -> Unit
 pub fn[T] Events::update(Self[T]) -> Unit
 pub fn[T] Events::writer(Self[T]) -> EventWriter[T]
 
-#derive(Eq, Hash, @debug.Debug)
-pub(all) struct ObserverHandle(Int32)
+pub(all) struct ObserverHandle(Int32) derive(Eq, Hash, @debug.Debug)
 pub fn ObserverHandle::equal(Self, Self) -> Bool
 pub fn ObserverHandle::hash(Self) -> Int32
 pub fn ObserverHandle::hash_combine(Self, Hasher) -> Unit

@@ -14,17 +14,15 @@
 
 ///|
 /// Supported rigid-body modes for 2D physics.
-#derive(Eq, Debug)
 pub(all) enum RigidBodyType {
   Dynamic
   Fixed
   KinematicPositionBased
   KinematicVelocityBased
-}
+} derive(Eq, Debug)
 
 ///|
 /// 2D rigid-body configuration synchronized into Rapier.
-#derive(Eq, Debug)
 pub(all) struct RigidBody {
   body_type : RigidBodyType
   gravity_scale : Double
@@ -32,7 +30,7 @@ pub(all) struct RigidBody {
   angular_damping : Double
   ccd_enabled : Bool
   lock_rotation : Bool
-}
+} derive(Eq, Debug)
 
 ///|
 /// Native Rapier rigid-body handle.

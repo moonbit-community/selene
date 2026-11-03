@@ -12,7 +12,8 @@ Selene 是一个面向 MoonBit 的 ECS 游戏引擎，采用 WebGPU 作为 Web �
 
 ## 快速开始
 
-当前源码使用 `#derive` 语法，需要 MoonBit `pre-release` 工具链。
+请使用 MoonBit `latest` 工具链。源码也支持 `pre-release`；在 `latest` 支持替代语法之前，
+保留 `pre-release` 的语法弃用警告。
 
 ```bash
 moon update
