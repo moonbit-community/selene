@@ -23,6 +23,8 @@ pub fn iter_entities() -> Iter[Entity]
 type ArchetypeQuery2[A, B]
 pub fn[A, B] ArchetypeQuery2::ArchetypeQuery2(ComponentStore[A], ComponentStore[B]) -> Self[A, B]
 pub fn[A, B] ArchetypeQuery2::for_each(Self[A, B], (Entity, A, B) -> Unit) -> Unit
+pub fn[A, B] ArchetypeQuery2::for_each_batch(Self[A, B], (ArrayView[Entity], ArrayView[A], ArrayView[B]) -> Unit) -> Unit
+pub fn[A, B] ArchetypeQuery2::for_each_batch_mut_a(Self[A, B], (ArrayView[Entity], MutArrayView[A], ArrayView[B]) -> Unit) -> Unit
 
 type ComponentStore[T]
 pub fn[T] ComponentStore::ComponentStore(@ecs.World) -> Self[T]

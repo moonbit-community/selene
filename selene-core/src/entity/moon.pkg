@@ -3,3 +3,7 @@ import {
   "Milky2018/selene/ecs",
   "moonbitlang/core/set",
 }
+
+import {
+  "moonbitlang/core/bench",
+} for "wbtest"

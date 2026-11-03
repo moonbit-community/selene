@@ -7,6 +7,7 @@
 - Added typed World-local storage and streaming ECS query traversal.
 - Added World-local archetypes with typed columns, dynamic component migration,
   and cached two-component queries.
+- Added zero-copy batch reads and in-place writes for archetype queries.
 
 ### Changed
 

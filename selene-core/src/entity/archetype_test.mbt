@@ -59,3 +59,42 @@ test "archetype signatures support more than 64 components and isolate worlds" {
   query.for_each((_, first, last) => result.push((first, last)))
   assert_eq(result, [(0, 69)])
 }
+
+///|
+test "batch views stay aligned across tables and write only the first column" {
+  let world = @ecs.World()
+  let a : @entity.ComponentStore[Int32] = ComponentStore(world)
+  let b : @entity.ComponentStore[Int32] = ComponentStore(world)
+  let tag : @entity.ComponentStore[Unit] = ComponentStore(world)
+  let first = @entity.Entity::reserve_spawn_in(world)
+  let second = @entity.Entity::reserve_spawn_in(world)
+  let unmatched = @entity.Entity::reserve_spawn_in(world)
+  a.set(first, 2)
+  b.set(first, 3)
+  a.set(second, 5)
+  b.set(second, 7)
+  tag.set(second, ())
+  a.set(unmatched, 11)
+  let query = @entity.ArchetypeQuery2(a, b)
+  let batches = []
+  query.for_each_batch_mut_a((entities, left, right) => {
+    batches.push(entities.length())
+    for row in 0..<entities.length() {
+      left[row] = left[row] + right[row]
+    }
+  })
+  assert_eq(batches, [1, 1])
+  assert_eq(a.get(first), Some(5))
+  assert_eq(a.get(second), Some(12))
+  assert_eq(a.get(unmatched), Some(11))
+  assert_eq(b.get(first), Some(3))
+  assert_eq(b.get(second), Some(7))
+  b.remove(first)
+  let entries = []
+  query.for_each_batch((entities, left, right) => {
+    for row in 0..<entities.length() {
+      entries.push((entities[row].id(), left[row], right[row]))
+    }
+  })
+  assert_eq(entries, [(second.id(), 12, 7)])
+}

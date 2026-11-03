@@ -19,10 +19,9 @@ pub fn[A, B] ArchetypeQuery2::ArchetypeQuery2(
 }
 
 ///|
-/// Binds matching columns once per archetype. Queue structural changes after traversal.
-pub fn[A, B] ArchetypeQuery2::for_each(
+fn[A, B] ArchetypeQuery2::for_each_columns(
   self : ArchetypeQuery2[A, B],
-  visit : (Entity, A, B) -> Unit,
+  visit : (Array[Entity], Array[A], Array[B]) -> Unit,
 ) -> Unit {
   let storage = self.a.storage
   for id in self.scanned..<storage.tables.length() {
@@ -37,10 +36,44 @@ pub fn[A, B] ArchetypeQuery2::for_each(
   }
   for id in self.matches {
     let entities = storage.tables[id].entities
-    let a = self.a.columns[id].unwrap()
-    let b = self.b.columns[id].unwrap()
+    if !entities.is_empty() {
+      visit(entities, self.a.columns[id].unwrap(), self.b.columns[id].unwrap())
+    }
+  }
+}
+
+///|
+/// Visits matching rows. Queue structural changes after traversal.
+pub fn[A, B] ArchetypeQuery2::for_each(
+  self : ArchetypeQuery2[A, B],
+  visit : (Entity, A, B) -> Unit,
+) -> Unit {
+  self.for_each_columns((entities, a, b) => {
     for row in 0..<entities.length() {
       visit(entities[row], a[row], b[row])
     }
-  }
+  })
+}
+
+///|
+/// Visits each nonempty matching archetype with aligned, zero-copy columns.
+/// Views are valid only during the callback. Defer structural changes until traversal finishes.
+pub fn[A, B] ArchetypeQuery2::for_each_batch(
+  self : ArchetypeQuery2[A, B],
+  visit : (ArrayView[Entity], ArrayView[A], ArrayView[B]) -> Unit,
+) -> Unit {
+  self.for_each_columns((entities, a, b) => visit(entities[:], a[:], b[:]))
+}
+
+///|
+/// Visits each batch with write access to its first component column.
+/// Views are valid only during the callback. Defer structural changes until traversal finishes.
+/// If both query inputs are the same store, the second view observes the writes.
+pub fn[A, B] ArchetypeQuery2::for_each_batch_mut_a(
+  self : ArchetypeQuery2[A, B],
+  visit : (ArrayView[Entity], MutArrayView[A], ArrayView[B]) -> Unit,
+) -> Unit {
+  self.for_each_columns((entities, a, b) => {
+    visit(entities[:], a.mut_view(), b[:])
+  })
 }
