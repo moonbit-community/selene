@@ -21,6 +21,8 @@
 
 ### Changed
 
+- Run workspace tests in CI with MoonBit's default target selection.
+
 - Moved built-in ECS components and hierarchy relations into World-owned
   archetype storage. Component accessors, queries, and LDtk registration
   helpers now take or return typed component stores.
