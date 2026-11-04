@@ -430,6 +430,7 @@ pub fn default_overflow_clip_margin() -> OverflowClipMargin {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Node {
   width : Val
   height : Val
@@ -607,6 +608,7 @@ pub fn Node::absolute(
 }
 
 ///|
+#selene.component
 pub(all) struct ComputedUiNode {
   position : @math.Vec2
   size : @math.Vec2
@@ -618,6 +620,7 @@ pub(all) struct ComputedUiNode {
 }
 
 ///|
+#selene.component
 pub(all) struct GlobalUiNode {
   logical_rect : @math.Rect
   screen_rect : @math.Rect
@@ -629,6 +632,7 @@ pub(all) struct GlobalUiNode {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct UiTargetCamera {
   camera : @ecs.Entity
 }
@@ -653,6 +657,7 @@ pub fn UiLayoutSpace::UiLayoutSpace(
 }
 
 ///|
+#selene.component
 pub(all) struct CalculatedClip {
   clip : @math.Rect
 }
@@ -664,6 +669,7 @@ pub fn CalculatedClip::CalculatedClip(clip : @math.Rect) -> CalculatedClip {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct LayoutConfig {
   use_rounding : Bool
 }
@@ -677,6 +683,7 @@ pub fn LayoutConfig::LayoutConfig(use_rounding~ : Bool = true) -> LayoutConfig {
 /// Orders sibling UI nodes while keeping each sibling's ordinary descendant
 /// subtree contiguous in the final UI stack.
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct ZIndex {
   value : Int32
 }
@@ -690,6 +697,7 @@ pub fn ZIndex::ZIndex(value : Int32) -> ZIndex {
 /// Lifts a UI node and its ordinary descendants into the global UI root order.
 /// A descendant with its own `GlobalZIndex` becomes another global root.
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct GlobalZIndex {
   value : Int32
 }
@@ -701,6 +709,7 @@ pub fn GlobalZIndex::GlobalZIndex(value : Int32) -> GlobalZIndex {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct ScrollPosition {
   mut x : Double
   mut y : Double
@@ -713,6 +722,7 @@ pub fn ScrollPosition::zero() -> ScrollPosition {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct TabIndex {
   value : Int32
 }
@@ -724,12 +734,14 @@ pub fn TabIndex::TabIndex(value : Int32) -> TabIndex {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) enum FocusPolicy {
   Block
   Pass
 }
 
 ///|
+#selene.component
 pub(all) struct Focused {
   _tag : Unit
 }
@@ -740,6 +752,7 @@ pub fn Focused::Focused() -> Focused {
 }
 
 ///|
+#selene.component
 pub(all) struct Focusable {
   _tag : Unit
 }
@@ -751,6 +764,7 @@ pub fn Focusable::Focusable() -> Focusable {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct OverrideClip {
   _tag : Unit
 }
@@ -762,6 +776,7 @@ pub fn OverrideClip::OverrideClip() -> OverrideClip {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct RelativeCursorPosition {
   mut normalized : @math.Vec2?
   mut cursor_over : Bool
@@ -781,42 +796,12 @@ pub fn RelativeCursorPosition::mouse_over(
 
 ///|
 priv struct UiModelWorldStore {
-  nodes : @ecs.ComponentStore[Node]
-  computed_ui_nodes : @ecs.ComponentStore[ComputedUiNode]
-  global_ui_nodes : @ecs.ComponentStore[GlobalUiNode]
-  ui_target_cameras : @ecs.ComponentStore[UiTargetCamera]
-  calculated_clips : @ecs.ComponentStore[CalculatedClip]
-  layout_configs : @ecs.ComponentStore[LayoutConfig]
-  z_indexes : @ecs.ComponentStore[ZIndex]
-  global_zindexes : @ecs.ComponentStore[GlobalZIndex]
-  scroll_positions : @ecs.ComponentStore[ScrollPosition]
-  tab_indexes : @ecs.ComponentStore[TabIndex]
-  focus_policies : @ecs.ComponentStore[FocusPolicy]
-  focusables : @ecs.ComponentStore[Focusable]
-  focuseds : @ecs.ComponentStore[Focused]
-  override_clips : @ecs.ComponentStore[OverrideClip]
-  relative_cursor_positions : @ecs.ComponentStore[RelativeCursorPosition]
   tree_orders : @ecs.ComponentStore[Int32]
   ui_stack_entities : Array[@ecs.Entity]
 }
 
 ///|
 let ui_model_world_store_key : @ecs.ResourceKey[UiModelWorldStore] = ResourceKey(world => {
-    nodes: ComponentStore(world),
-    computed_ui_nodes: ComponentStore(world),
-    global_ui_nodes: ComponentStore(world),
-    ui_target_cameras: ComponentStore(world),
-    calculated_clips: ComponentStore(world),
-    layout_configs: ComponentStore(world),
-    z_indexes: ComponentStore(world),
-    global_zindexes: ComponentStore(world),
-    scroll_positions: ComponentStore(world),
-    tab_indexes: ComponentStore(world),
-    focus_policies: ComponentStore(world),
-    focusables: ComponentStore(world),
-    focuseds: ComponentStore(world),
-    override_clips: ComponentStore(world),
-    relative_cursor_positions: ComponentStore(world),
     tree_orders: ComponentStore(world),
     ui_stack_entities: [],
   },
@@ -829,79 +814,79 @@ fn ui_model_world_store() -> UiModelWorldStore {
 
 ///|
 pub fn nodes() -> @ecs.ComponentStore[Node] {
-  ui_model_world_store().nodes
+  @ecs.components()
 }
 
 ///|
 pub fn computed_ui_nodes() -> @ecs.ComponentStore[ComputedUiNode] {
-  ui_model_world_store().computed_ui_nodes
+  @ecs.components()
 }
 
 ///|
 pub fn global_ui_nodes() -> @ecs.ComponentStore[GlobalUiNode] {
-  ui_model_world_store().global_ui_nodes
+  @ecs.components()
 }
 
 ///|
 pub fn ui_target_cameras() -> @ecs.ComponentStore[UiTargetCamera] {
-  ui_model_world_store().ui_target_cameras
+  @ecs.components()
 }
 
 ///|
 pub fn calculated_clips() -> @ecs.ComponentStore[CalculatedClip] {
-  ui_model_world_store().calculated_clips
+  @ecs.components()
 }
 
 ///|
 pub fn layout_configs() -> @ecs.ComponentStore[LayoutConfig] {
-  ui_model_world_store().layout_configs
+  @ecs.components()
 }
 
 ///|
 pub fn z_indexes() -> @ecs.ComponentStore[ZIndex] {
-  ui_model_world_store().z_indexes
+  @ecs.components()
 }
 
 ///|
 pub fn global_zindexes() -> @ecs.ComponentStore[GlobalZIndex] {
-  ui_model_world_store().global_zindexes
+  @ecs.components()
 }
 
 ///|
 pub fn scroll_positions() -> @ecs.ComponentStore[ScrollPosition] {
-  ui_model_world_store().scroll_positions
+  @ecs.components()
 }
 
 ///|
 pub fn tab_indexes() -> @ecs.ComponentStore[TabIndex] {
-  ui_model_world_store().tab_indexes
+  @ecs.components()
 }
 
 ///|
 pub fn focus_policies() -> @ecs.ComponentStore[FocusPolicy] {
-  ui_model_world_store().focus_policies
+  @ecs.components()
 }
 
 ///|
 pub fn focusables() -> @ecs.ComponentStore[Focusable] {
-  ui_model_world_store().focusables
+  @ecs.components()
 }
 
 ///|
 pub fn focuseds() -> @ecs.ComponentStore[Focused] {
-  ui_model_world_store().focuseds
+  @ecs.components()
 }
 
 ///|
 pub fn override_clips() -> @ecs.ComponentStore[OverrideClip] {
-  ui_model_world_store().override_clips
+  @ecs.components()
 }
 
 ///|
 pub fn relative_cursor_positions() -> @ecs.ComponentStore[
   RelativeCursorPosition,
 ] {
-  ui_model_world_store().relative_cursor_positions
+  @ecs.components()
 }
 
 ///|

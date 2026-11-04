@@ -19,16 +19,14 @@ pub(all) enum Material2dHandle {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct MeshMaterial2d {
   material : Material2dHandle
 }
 
 ///|
-let material2d_component_key : @ecs.ComponentKey[MeshMaterial2d] = ComponentKey()
-
-///|
 pub fn mesh_material2ds() -> @ecs.ComponentStore[MeshMaterial2d] {
-  material2d_component_key.store()
+  @ecs.components()
 }
 
 ///|

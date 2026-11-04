@@ -15,6 +15,7 @@
 ///|
 /// Component that controls whether an entity participates in world collisions.
 #derive(Eq)
+#selene.component
 pub(all) struct Collider {
   mut active : Bool
   filter : CollisionFilter
@@ -39,14 +40,12 @@ pub fn Collider::with_material(
 
 ///|
 priv struct ColliderWorldStore {
-  colliders : @ecs.ComponentStore[Collider]
   resolved_velocities : @ecs.ComponentStore[@velocity.Velocity]
   grounded_entities : Set[@ecs.Entity]
 }
 
 ///|
 let collider_world_store_key : @ecs.ResourceKey[ColliderWorldStore] = ResourceKey(world => {
-    colliders: ComponentStore(world),
     resolved_velocities: ComponentStore(world),
     grounded_entities: Set([]),
   },
@@ -60,7 +59,7 @@ fn collider_world_store() -> ColliderWorldStore {
 ///|
 /// World collider components.
 pub fn colliders() -> @ecs.ComponentStore[Collider] {
-  collider_world_store().colliders
+  @ecs.components()
 }
 
 ///|

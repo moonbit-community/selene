@@ -44,6 +44,7 @@ pub(all) struct TiledPhysicsSettings {
 }
 
 ///|
+#selene.component
 pub struct TiledColliders {
   entities : Array[@ecs.Entity]
 }
@@ -56,6 +57,7 @@ pub fn TiledColliders::alive_entities(
 }
 
 ///|
+#selene.component
 pub struct TiledColliderOrigin {
   map_entity : @ecs.Entity
   source_entity : @ecs.Entity
@@ -74,31 +76,13 @@ pub struct TiledColliderSpawnedEvent {
 }
 
 ///|
-priv struct TiledPhysicsWorldStore {
-  tiled_colliders : @ecs.ComponentStore[TiledColliders]
-  tiled_collider_origins : @ecs.ComponentStore[TiledColliderOrigin]
-}
-
-///|
-let tiled_physics_world_store_key : @ecs.ResourceKey[TiledPhysicsWorldStore] = ResourceKey(world => {
-    tiled_colliders: ComponentStore(world),
-    tiled_collider_origins: ComponentStore(world),
-  },
-)
-
-///|
-fn tiled_physics_world_store() -> TiledPhysicsWorldStore {
-  tiled_physics_world_store_key.get()
-}
-
-///|
 pub fn tiled_colliders() -> @ecs.ComponentStore[TiledColliders] {
-  tiled_physics_world_store().tiled_colliders
+  @ecs.components()
 }
 
 ///|
 pub fn tiled_collider_origins() -> @ecs.ComponentStore[TiledColliderOrigin] {
-  tiled_physics_world_store().tiled_collider_origins
+  @ecs.components()
 }
 
 ///|

@@ -10,3 +10,5 @@ import {
 import {
   "Milky2018/selene/render",
 } for "wbtest"
+
+formatter(ignore: [ "top.g.mbt" ])

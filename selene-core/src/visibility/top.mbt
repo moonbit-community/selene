@@ -1,5 +1,6 @@
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) enum Visibility {
   Visible
   Hidden
@@ -7,62 +8,43 @@ pub(all) enum Visibility {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct InheritedVisibility {
   visible : Bool
 }
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct ViewVisibility {
   visible : Bool
 }
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct RenderLayers {
   mask : UInt32
 }
 
 ///|
-priv struct VisibilityWorldStore {
-  visibilities : @ecs.ComponentStore[Visibility]
-  inherited_visibilities : @ecs.ComponentStore[InheritedVisibility]
-  view_visibilities : @ecs.ComponentStore[ViewVisibility]
-  render_layers : @ecs.ComponentStore[RenderLayers]
-}
-
-///|
-let visibility_world_store_key : @ecs.ResourceKey[VisibilityWorldStore] = ResourceKey(world => {
-    visibilities: ComponentStore(world),
-    inherited_visibilities: ComponentStore(world),
-    view_visibilities: ComponentStore(world),
-    render_layers: ComponentStore(world),
-  },
-)
-
-///|
-fn visibility_world_store() -> VisibilityWorldStore {
-  visibility_world_store_key.get()
-}
-
-///|
 pub fn visibilities() -> @ecs.ComponentStore[Visibility] {
-  visibility_world_store().visibilities
+  @ecs.components()
 }
 
 ///|
 pub fn inherited_visibilities() -> @ecs.ComponentStore[InheritedVisibility] {
-  visibility_world_store().inherited_visibilities
+  @ecs.components()
 }
 
 ///|
 pub fn view_visibilities() -> @ecs.ComponentStore[ViewVisibility] {
-  visibility_world_store().view_visibilities
+  @ecs.components()
 }
 
 ///|
 pub fn render_layers() -> @ecs.ComponentStore[RenderLayers] {
-  visibility_world_store().render_layers
+  @ecs.components()
 }
 
 ///|

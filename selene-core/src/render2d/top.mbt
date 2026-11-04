@@ -28,6 +28,7 @@ pub(all) enum SortMode2D {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Sorting2d {
   layer : Int32
   group : Int32
@@ -58,9 +59,6 @@ priv struct RenderFrameState2D {
 let frame2d_by_world : Map[UInt32, RenderFrameState2D] = Map([])
 
 ///|
-let sorting2d_component_key : @ecs.ComponentKey[Sorting2d] = ComponentKey()
-
-///|
 fn frame2d() -> RenderFrameState2D {
   let world_id = @ecs.require_current_world().id()
   frame2d_by_world.get_or_init(world_id, fn() {
@@ -76,7 +74,7 @@ fn frame2d() -> RenderFrameState2D {
 
 ///|
 pub fn sorting2ds() -> @ecs.ComponentStore[Sorting2d] {
-  sorting2d_component_key.store()
+  @ecs.components()
 }
 
 ///|

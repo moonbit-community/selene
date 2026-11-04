@@ -1,11 +1,9 @@
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Name {
   value : String
 }
-
-///|
-let name_component_key : @ecs.ComponentKey[Name] = ComponentKey()
 
 ///|
 pub fn Name::Name(value : String) -> Name {
@@ -14,7 +12,7 @@ pub fn Name::Name(value : String) -> Name {
 
 ///|
 pub fn names() -> @ecs.ComponentStore[Name] {
-  name_component_key.store()
+  @ecs.components()
 }
 
 ///|

@@ -115,6 +115,7 @@ pub(all) struct Area {
 pub fn Area::Area(CollisionFilter) -> Self
 pub fn Area::equal(Self, Self) -> Bool
 pub fn Area::not_equal(Self, Self) -> Bool
+pub impl @ecs.Component for Area
 
 #derive(Eq)
 pub(all) struct Collider {
@@ -127,6 +128,7 @@ pub fn Collider::Collider(CollisionFilter) -> Self
 pub fn Collider::equal(Self, Self) -> Bool
 pub fn Collider::not_equal(Self, Self) -> Bool
 pub fn Collider::with_material(CollisionFilter, friction? : Double, restitution? : Double, active? : Bool) -> Self
+pub impl @ecs.Component for Collider
 
 #derive(Eq)
 pub struct CollisionFilter {
@@ -158,6 +160,7 @@ pub(all) enum CollisionShape {
 pub fn CollisionShape::equal(Self, Self) -> Bool
 pub fn CollisionShape::not_equal(Self, Self) -> Bool
 pub fn CollisionShape::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for CollisionShape
 
 pub struct ContactEvent {
   entity : @ecs.Entity
@@ -182,6 +185,7 @@ pub fn Joint::revolute(@ecs.Entity, @ecs.Entity, local_anchor1? : @math.Vec2, lo
 pub fn Joint::rope(@ecs.Entity, @ecs.Entity, Double, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, active? : Bool, contacts_enabled? : Bool) -> Self
 pub fn Joint::spring(@ecs.Entity, @ecs.Entity, Double, Double, Double, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, model? : JointMotorModel, active? : Bool, contacts_enabled? : Bool) -> Self
 pub fn Joint::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for Joint
 
 #derive(Eq, @debug.Debug)
 pub enum JointKind {
@@ -247,6 +251,7 @@ pub fn MultibodyJoint::equal(Self, Self) -> Bool
 pub fn MultibodyJoint::not_equal(Self, Self) -> Bool
 pub fn MultibodyJoint::revolute(@ecs.Entity, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, limits? : JointLimits, motor? : JointMotor, softness? : JointSoftness, active? : Bool) -> Self
 pub fn MultibodyJoint::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for MultibodyJoint
 
 #derive(Eq, @debug.Debug)
 pub enum MultibodyJointKind {
@@ -266,6 +271,7 @@ pub(all) struct Pickable {
   mut active : Bool
 }
 pub fn Pickable::Pickable() -> Self
+pub impl @ecs.Component for Pickable
 
 pub struct PointerEvent {
   entity : @ecs.Entity
@@ -310,6 +316,7 @@ pub fn RigidBody::kinematic_position_based() -> Self
 pub fn RigidBody::kinematic_velocity_based() -> Self
 pub fn RigidBody::not_equal(Self, Self) -> Bool
 pub fn RigidBody::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for RigidBody
 
 #derive(Eq, @debug.Debug)
 pub(all) enum RigidBodyType {

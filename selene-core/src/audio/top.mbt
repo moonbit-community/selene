@@ -26,6 +26,7 @@ pub(all) enum PlaybackMode {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct PlaybackSettings {
   mode : PlaybackMode
   volume : Double
@@ -36,11 +37,13 @@ pub(all) struct PlaybackSettings {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct AudioPlayer {
   source : AudioHandle
 }
 
 ///|
+#selene.component
 pub(all) struct AudioSink {
   instance : @platform_audio.AudioInstance
   mode : PlaybackMode
@@ -61,37 +64,18 @@ pub(all) struct AudioEvent {
 }
 
 ///|
-priv struct AudioWorldStore {
-  audio_players : @ecs.ComponentStore[AudioPlayer]
-  audio_playback_settings : @ecs.ComponentStore[PlaybackSettings]
-  audio_sinks : @ecs.ComponentStore[AudioSink]
-}
-
-///|
-let audio_world_store_key : @ecs.ResourceKey[AudioWorldStore] = ResourceKey(world => {
-  audio_players: ComponentStore(world),
-  audio_playback_settings: ComponentStore(world),
-  audio_sinks: ComponentStore(world),
-})
-
-///|
-fn audio_world_store() -> AudioWorldStore {
-  audio_world_store_key.get()
-}
-
-///|
 pub fn audio_players() -> @ecs.ComponentStore[AudioPlayer] {
-  audio_world_store().audio_players
+  @ecs.components()
 }
 
 ///|
 pub fn audio_playback_settings() -> @ecs.ComponentStore[PlaybackSettings] {
-  audio_world_store().audio_playback_settings
+  @ecs.components()
 }
 
 ///|
 pub fn audio_sinks() -> @ecs.ComponentStore[AudioSink] {
-  audio_world_store().audio_sinks
+  @ecs.components()
 }
 
 ///|

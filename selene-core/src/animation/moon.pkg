@@ -11,3 +11,5 @@ import {
   "Milky2018/selene/transform",
   "moonbitlang/core/cmp",
 }
+
+formatter(ignore: [ "animation_assets.g.mbt", "animation_types.g.mbt" ])

@@ -81,9 +81,11 @@ pub(all) enum VariableCurve {
 
 ///|
 #derive(Eq, Debug, Hash)
+#selene.component
 pub(all) struct AnimationTargetId(String)
 
 ///|
+#selene.component
 pub(all) struct AnimatedBy {
   player : @ecs.Entity
 }
@@ -161,6 +163,7 @@ pub(all) struct AnimationGraph {
 
 ///|
 #derive(Eq, Debug, Hash)
+#selene.component
 pub(all) struct AnimationGraphHandle(UInt32)
 
 ///|
@@ -184,6 +187,7 @@ pub(all) struct ActiveAnimation {
 }
 
 ///|
+#selene.component
 pub(all) struct AnimationPlayer {
   active_animations : Map[AnimationNodeIndex, ActiveAnimation]
 }

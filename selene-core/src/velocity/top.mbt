@@ -27,10 +27,8 @@
 /// ```
 ///
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Velocity(@math.Vec2)
-
-///|
-let velocity_component_key : @ecs.ComponentKey[Velocity] = ComponentKey()
 
 ///|
 /// Returns the current world's velocity component store.
@@ -51,5 +49,5 @@ let velocity_component_key : @ecs.ComponentKey[Velocity] = ComponentKey()
 /// ```
 ///
 pub fn velocities() -> @ecs.ComponentStore[Velocity] {
-  velocity_component_key.store()
+  @ecs.components()
 }

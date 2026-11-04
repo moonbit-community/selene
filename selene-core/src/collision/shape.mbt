@@ -15,15 +15,13 @@
 ///|
 /// Collision geometry used by 2D colliders and trigger areas.
 #derive(Eq, Debug)
+#selene.component
 pub(all) enum CollisionShape {
   Rect(size~ : @math.Vec2, offset~ : @math.Vec2)
   Ball(radius~ : Double, offset~ : @math.Vec2)
   Polygon(points~ : Array[@math.Vec2], offset~ : @math.Vec2)
   Polyline(points~ : Array[@math.Vec2], offset~ : @math.Vec2, closed~ : Bool)
 }
-
-///|
-let shape_component_key : @ecs.ComponentKey[CollisionShape] = ComponentKey()
 
 ///|
 /// Stores collision shapes for entities in the current world.
@@ -42,5 +40,5 @@ let shape_component_key : @ecs.ComponentKey[CollisionShape] = ComponentKey()
 /// )
 /// ```
 pub fn shapes() -> @ecs.ComponentStore[CollisionShape] {
-  shape_component_key.store()
+  @ecs.components()
 }

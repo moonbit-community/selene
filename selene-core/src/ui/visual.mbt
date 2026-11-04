@@ -1,4 +1,5 @@
 ///|
+#selene.component
 pub(all) struct BackgroundColor {
   color : @render.Color
 }
@@ -16,6 +17,7 @@ pub fn BackgroundColor::from_css(color : String) -> BackgroundColor {
 }
 
 ///|
+#selene.component
 pub(all) struct BorderColor {
   color : @render.Color
 }
@@ -32,6 +34,7 @@ pub fn BorderColor::from_css(color : String) -> BorderColor {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct BorderRadius {
   top_left : Val
   top_right : Val
@@ -60,6 +63,7 @@ pub fn BorderRadius::BorderRadius(
 }
 
 ///|
+#selene.component
 pub(all) struct Outline {
   width : Val
   offset : Val
@@ -98,6 +102,7 @@ pub fn ShadowStyle::ShadowStyle(
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct BoxShadow {
   layers : Array[ShadowStyle]
 }
@@ -131,6 +136,7 @@ pub(all) enum ImageFit {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct UiImage {
   size : @math.Vec2
   image : @asset.ImageHandle
@@ -164,6 +170,7 @@ pub(all) struct UiMaterialHandle(UInt32)
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct MaterialNode {
   material : UiMaterialHandle
 }
@@ -266,6 +273,7 @@ pub fn UiMaterialAsset::UiMaterialAsset(
 }
 
 ///|
+#selene.component
 pub(all) struct Text {
   mut content : String
 }
@@ -276,6 +284,7 @@ pub fn Text::Text(content : String) -> Text {
 }
 
 ///|
+#selene.component
 pub(all) struct TextFont {
   mut family : String
   mut size : Double
@@ -336,6 +345,7 @@ pub fn TextFont::from_css(font : String) -> TextFont {
 }
 
 ///|
+#selene.component
 pub(all) struct TextColor {
   mut color : @render.Color
 }
@@ -365,6 +375,7 @@ pub(all) enum TextOverflow {
 }
 
 ///|
+#selene.component
 pub(all) struct TextLayout {
   mut align : @math.HAlign
   mut baseline : @math.VAlign
@@ -386,6 +397,7 @@ pub fn TextLayout::TextLayout(
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Button {
   enabled : Bool
 }
@@ -397,6 +409,7 @@ pub fn Button::Button(enabled~ : Bool = true) -> Button {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) enum Interaction {
   None
   Hovered
@@ -404,78 +417,38 @@ pub(all) enum Interaction {
 }
 
 ///|
-priv struct UiVisualWorldStore {
-  background_colors : @ecs.ComponentStore[BackgroundColor]
-  border_colors : @ecs.ComponentStore[BorderColor]
-  border_radii : @ecs.ComponentStore[BorderRadius]
-  box_shadows : @ecs.ComponentStore[BoxShadow]
-  outlines : @ecs.ComponentStore[Outline]
-  ui_images : @ecs.ComponentStore[UiImage]
-  material_nodes : @ecs.ComponentStore[MaterialNode]
-  texts : @ecs.ComponentStore[Text]
-  text_fonts : @ecs.ComponentStore[TextFont]
-  text_colors : @ecs.ComponentStore[TextColor]
-  text_layouts : @ecs.ComponentStore[TextLayout]
-  buttons : @ecs.ComponentStore[Button]
-  interactions : @ecs.ComponentStore[Interaction]
-}
-
-///|
-let ui_visual_world_store_key : @ecs.ResourceKey[UiVisualWorldStore] = ResourceKey(world => {
-    background_colors: ComponentStore(world),
-    border_colors: ComponentStore(world),
-    border_radii: ComponentStore(world),
-    box_shadows: ComponentStore(world),
-    outlines: ComponentStore(world),
-    ui_images: ComponentStore(world),
-    material_nodes: ComponentStore(world),
-    texts: ComponentStore(world),
-    text_fonts: ComponentStore(world),
-    text_colors: ComponentStore(world),
-    text_layouts: ComponentStore(world),
-    buttons: ComponentStore(world),
-    interactions: ComponentStore(world),
-  },
-)
-
-///|
-fn ui_visual_world_store() -> UiVisualWorldStore {
-  ui_visual_world_store_key.get()
-}
-
-///|
 pub fn background_colors() -> @ecs.ComponentStore[BackgroundColor] {
-  ui_visual_world_store().background_colors
+  @ecs.components()
 }
 
 ///|
 pub fn border_colors() -> @ecs.ComponentStore[BorderColor] {
-  ui_visual_world_store().border_colors
+  @ecs.components()
 }
 
 ///|
 pub fn border_radii() -> @ecs.ComponentStore[BorderRadius] {
-  ui_visual_world_store().border_radii
+  @ecs.components()
 }
 
 ///|
 pub fn box_shadows() -> @ecs.ComponentStore[BoxShadow] {
-  ui_visual_world_store().box_shadows
+  @ecs.components()
 }
 
 ///|
 pub fn outlines() -> @ecs.ComponentStore[Outline] {
-  ui_visual_world_store().outlines
+  @ecs.components()
 }
 
 ///|
 pub fn ui_images() -> @ecs.ComponentStore[UiImage] {
-  ui_visual_world_store().ui_images
+  @ecs.components()
 }
 
 ///|
 pub fn material_nodes() -> @ecs.ComponentStore[MaterialNode] {
-  ui_visual_world_store().material_nodes
+  @ecs.components()
 }
 
 ///|
@@ -486,32 +459,32 @@ let next_ui_material_id : Ref[UInt32] = Ref(0)
 
 ///|
 pub fn texts() -> @ecs.ComponentStore[Text] {
-  ui_visual_world_store().texts
+  @ecs.components()
 }
 
 ///|
 pub fn text_fonts() -> @ecs.ComponentStore[TextFont] {
-  ui_visual_world_store().text_fonts
+  @ecs.components()
 }
 
 ///|
 pub fn text_colors() -> @ecs.ComponentStore[TextColor] {
-  ui_visual_world_store().text_colors
+  @ecs.components()
 }
 
 ///|
 pub fn text_layouts() -> @ecs.ComponentStore[TextLayout] {
-  ui_visual_world_store().text_layouts
+  @ecs.components()
 }
 
 ///|
 pub fn buttons() -> @ecs.ComponentStore[Button] {
-  ui_visual_world_store().buttons
+  @ecs.components()
 }
 
 ///|
 pub fn interactions() -> @ecs.ComponentStore[Interaction] {
-  ui_visual_world_store().interactions
+  @ecs.components()
 }
 
 ///|

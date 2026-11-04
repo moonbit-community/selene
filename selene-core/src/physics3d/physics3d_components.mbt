@@ -69,6 +69,7 @@ pub(all) enum Joint {
 }
 
 ///|
+#selene.component
 pub(all) struct ImpulseJoint {
   parent : @ecs.Entity
   data : Joint
@@ -76,6 +77,7 @@ pub(all) struct ImpulseJoint {
 }
 
 ///|
+#selene.component
 pub(all) struct MultibodyJoint {
   parent : @ecs.Entity
   data : Joint
@@ -83,6 +85,7 @@ pub(all) struct MultibodyJoint {
 }
 
 ///|
+#selene.component
 pub(all) struct KinematicCharacterController {
   translation : @math.Vec3?
   offset : CharacterLength
@@ -98,6 +101,7 @@ pub(all) struct KinematicCharacterController {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct KinematicCharacterControllerOutput {
   desired_translation : @math.Vec3
   effective_translation : @math.Vec3
@@ -117,6 +121,7 @@ pub(all) struct KinematicCharacterControllerCollision {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct KinematicCharacterControllerCollisions {
   collisions : Array[KinematicCharacterControllerCollision]
 }

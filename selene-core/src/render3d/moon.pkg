@@ -10,3 +10,5 @@ import {
   "Milky2018/selene/visibility",
   "moonbitlang/core/math" @cmath,
 }
+
+formatter(ignore: [ "top.g.mbt" ])

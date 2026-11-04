@@ -15,6 +15,7 @@
 ///|
 /// Sensor area component.
 #derive(Eq)
+#selene.component
 pub(all) struct Area {
   mut active : Bool
   filter : CollisionFilter
@@ -27,12 +28,9 @@ pub fn Area::Area(filter : CollisionFilter) -> Area {
 }
 
 ///|
-let area_component_key : @ecs.ComponentKey[Area] = ComponentKey()
-
-///|
 /// All area components.
 pub fn areas() -> @ecs.ComponentStore[Area] {
-  area_component_key.store()
+  @ecs.components()
 }
 
 ///|

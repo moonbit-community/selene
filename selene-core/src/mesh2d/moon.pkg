@@ -12,3 +12,5 @@ import {
   "Milky2018/selene/visibility",
   "Milky2018/selene/system",
 }
+
+formatter(ignore: [ "top.g.mbt" ])

@@ -24,6 +24,7 @@ pub(all) enum A11yRole {
 }
 
 ///|
+#selene.component
 pub(all) struct A11y {
   role : A11yRole
   mut label : String?
@@ -73,11 +74,8 @@ pub fn A11y::on_click(self : A11y, callback : () -> Unit) -> Unit {
 }
 
 ///|
-let a11y_component_key : @ecs.ComponentKey[A11y] = ComponentKey()
-
-///|
 pub fn a11ys() -> @ecs.ComponentStore[A11y] {
-  a11y_component_key.store()
+  @ecs.components()
 }
 
 ///|

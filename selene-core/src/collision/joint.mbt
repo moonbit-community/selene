@@ -135,6 +135,7 @@ pub enum JointKind {
 ///|
 /// Authored 2D joint component that connects two rigid-body entities.
 #derive(Eq, Debug)
+#selene.component
 pub struct Joint {
   entity1 : @ecs.Entity
   entity2 : @ecs.Entity
@@ -163,6 +164,7 @@ pub enum MultibodyJointKind {
 ///|
 /// Authored 2D multibody joint attached to the child rigid-body entity.
 #derive(Eq, Debug)
+#selene.component
 pub struct MultibodyJoint {
   parent : @ecs.Entity
   kind : MultibodyJointKind
@@ -302,30 +304,13 @@ pub fn MultibodyJoint::revolute(
 }
 
 ///|
-priv struct JointWorldStore {
-  joints : @ecs.ComponentStore[Joint]
-  multibody_joints : @ecs.ComponentStore[MultibodyJoint]
-}
-
-///|
-let joint_world_store_key : @ecs.ResourceKey[JointWorldStore] = ResourceKey(world => {
-  joints: ComponentStore(world),
-  multibody_joints: ComponentStore(world),
-})
-
-///|
-fn joint_world_store() -> JointWorldStore {
-  joint_world_store_key.get()
-}
-
-///|
 /// Authored 2D joint components.
 pub fn joints() -> @ecs.ComponentStore[Joint] {
-  joint_world_store().joints
+  @ecs.components()
 }
 
 ///|
 /// Authored 2D multibody joint components keyed by the child rigid-body entity.
 pub fn multibody_joints() -> @ecs.ComponentStore[MultibodyJoint] {
-  joint_world_store().multibody_joints
+  @ecs.components()
 }

@@ -58,6 +58,7 @@ pub struct LdtkWorldSpawnSettings {
 }
 
 ///|
+#selene.component
 pub struct LdtkWorldInstance {
   project : LdtkProject
   mut settings : LdtkWorldSpawnSettings
@@ -66,6 +67,7 @@ pub struct LdtkWorldInstance {
 }
 
 ///|
+#selene.component
 pub struct LdtkLevelInstance {
   world_entity : @ecs.Entity
   indices : LdtkLevelIndices
@@ -73,6 +75,7 @@ pub struct LdtkLevelInstance {
 }
 
 ///|
+#selene.component
 pub struct LdtkLayerMetadata {
   c_hei : Int32
   c_wid : Int32
@@ -96,6 +99,7 @@ pub struct LdtkLayerMetadata {
 }
 
 ///|
+#selene.component
 pub struct LdtkLevelBackground {
   world_entity : @ecs.Entity
   level_entity : @ecs.Entity
@@ -106,27 +110,32 @@ pub struct LdtkLevelBackground {
 }
 
 ///|
+#selene.component
 pub struct LdtkLevelIid {
   iid : String
 }
 
 ///|
+#selene.component
 pub struct LdtkEntityIid {
   iid : String
 }
 
 ///|
+#selene.component
 pub struct LdtkGridCoords {
   x : Int32
   y : Int32
 }
 
 ///|
+#selene.component
 pub struct LdtkIntGridCell {
   value : Int32
 }
 
 ///|
+#selene.component
 pub struct LdtkTileMetadata {
   tile_id : Int32
   src : @math.Vec2
@@ -138,11 +147,13 @@ pub struct LdtkTileMetadata {
 }
 
 ///|
+#selene.component
 pub struct LdtkIntGridCollider {
   sensor : Bool
 }
 
 ///|
+#selene.component
 pub struct LdtkWorldly {
   world_entity : @ecs.Entity
   level_iid : String
@@ -150,11 +161,13 @@ pub struct LdtkWorldly {
 }
 
 ///|
+#selene.component
 pub struct LdtkRespawn {
   requested : Bool
 }
 
 ///|
+#selene.component
 pub struct LdtkSpawnedLayerInstance {
   world_entity : @ecs.Entity
   level_entity : @ecs.Entity
@@ -164,6 +177,7 @@ pub struct LdtkSpawnedLayerInstance {
 }
 
 ///|
+#selene.component
 pub struct LdtkSpawnedTileInstance {
   world_entity : @ecs.Entity
   level_entity : @ecs.Entity
@@ -174,6 +188,7 @@ pub struct LdtkSpawnedTileInstance {
 }
 
 ///|
+#selene.component
 pub struct LdtkSpawnedEntityInstance {
   world_entity : @ecs.Entity
   level_entity : @ecs.Entity
@@ -184,6 +199,7 @@ pub struct LdtkSpawnedEntityInstance {
 }
 
 ///|
+#selene.component
 pub struct LdtkSpawnedIntGridCell {
   world_entity : @ecs.Entity
   level_entity : @ecs.Entity
@@ -197,22 +213,6 @@ pub struct LdtkSpawnedIntGridCell {
 
 ///|
 priv struct LdtkWorldStore {
-  ldtk_world_instances : @ecs.ComponentStore[LdtkWorldInstance]
-  ldtk_level_instances : @ecs.ComponentStore[LdtkLevelInstance]
-  ldtk_layer_metadata : @ecs.ComponentStore[LdtkLayerMetadata]
-  ldtk_level_backgrounds : @ecs.ComponentStore[LdtkLevelBackground]
-  ldtk_level_iids : @ecs.ComponentStore[LdtkLevelIid]
-  ldtk_entity_iids : @ecs.ComponentStore[LdtkEntityIid]
-  ldtk_grid_coords : @ecs.ComponentStore[LdtkGridCoords]
-  ldtk_int_grid_cells : @ecs.ComponentStore[LdtkIntGridCell]
-  ldtk_tile_metadata : @ecs.ComponentStore[LdtkTileMetadata]
-  ldtk_int_grid_colliders : @ecs.ComponentStore[LdtkIntGridCollider]
-  ldtk_worldly_entities : @ecs.ComponentStore[LdtkWorldly]
-  ldtk_respawns : @ecs.ComponentStore[LdtkRespawn]
-  ldtk_spawned_layer_instances : @ecs.ComponentStore[LdtkSpawnedLayerInstance]
-  ldtk_spawned_tile_instances : @ecs.ComponentStore[LdtkSpawnedTileInstance]
-  ldtk_spawned_entity_instances : @ecs.ComponentStore[LdtkSpawnedEntityInstance]
-  ldtk_spawned_int_grid_cells : @ecs.ComponentStore[LdtkSpawnedIntGridCell]
   ldtk_entity_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit]
   ldtk_entity_layer_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit]
   ldtk_entity_layer_identifier_spawn_hooks : Map[
@@ -247,23 +247,7 @@ priv struct LdtkWorldStore {
 }
 
 ///|
-let ldtk_world_store_key : @ecs.ResourceKey[LdtkWorldStore] = ResourceKey(world => {
-  ldtk_world_instances: ComponentStore(world),
-  ldtk_level_instances: ComponentStore(world),
-  ldtk_layer_metadata: ComponentStore(world),
-  ldtk_level_backgrounds: ComponentStore(world),
-  ldtk_level_iids: ComponentStore(world),
-  ldtk_entity_iids: ComponentStore(world),
-  ldtk_grid_coords: ComponentStore(world),
-  ldtk_int_grid_cells: ComponentStore(world),
-  ldtk_tile_metadata: ComponentStore(world),
-  ldtk_int_grid_colliders: ComponentStore(world),
-  ldtk_worldly_entities: ComponentStore(world),
-  ldtk_respawns: ComponentStore(world),
-  ldtk_spawned_layer_instances: ComponentStore(world),
-  ldtk_spawned_tile_instances: ComponentStore(world),
-  ldtk_spawned_entity_instances: ComponentStore(world),
-  ldtk_spawned_int_grid_cells: ComponentStore(world),
+let ldtk_world_store_key : @ecs.ResourceKey[LdtkWorldStore] = ResourceKey(_ => {
   ldtk_entity_spawn_hooks: Map([]),
   ldtk_entity_layer_spawn_hooks: Map([]),
   ldtk_entity_layer_identifier_spawn_hooks: Map([]),
@@ -284,5 +268,5 @@ fn ldtk_world_store() -> LdtkWorldStore {
 
 ///|
 pub fn ldtk_world_instances() -> @ecs.ComponentStore[LdtkWorldInstance] {
-  ldtk_world_store().ldtk_world_instances
+  @ecs.components()
 }

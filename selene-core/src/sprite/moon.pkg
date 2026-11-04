@@ -20,4 +20,4 @@ import {
   "moonbitlang/core/bench",
 } for "test"
 
-formatter(ignore: [ "top.g.mbt" ])
+formatter(ignore: [ "anchor.g.mbt", "top.g.mbt" ])

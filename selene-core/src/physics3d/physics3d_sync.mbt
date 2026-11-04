@@ -12,43 +12,43 @@ pub fn active_hooks() -> @ecs.ComponentStore[@collision.ActiveHooks] {
 pub fn contact_force_event_thresholds() -> @ecs.ComponentStore[
   ContactForceEventThreshold,
 ] {
-  physics3d_component_world_store().contact_force_event_thresholds
+  @ecs.components()
 }
 
 ///|
 pub fn collider_mass_properties() -> @ecs.ComponentStore[ColliderMassProperties] {
-  physics3d_component_world_store().collider_mass_properties
+  @ecs.components()
 }
 
 ///|
 pub fn impulse_joints() -> @ecs.ComponentStore[ImpulseJoint] {
-  physics3d_component_world_store().impulse_joints
+  @ecs.components()
 }
 
 ///|
 pub fn multibody_joints() -> @ecs.ComponentStore[MultibodyJoint] {
-  physics3d_component_world_store().multibody_joints
+  @ecs.components()
 }
 
 ///|
 pub fn kinematic_character_controllers() -> @ecs.ComponentStore[
   KinematicCharacterController,
 ] {
-  physics3d_component_world_store().kinematic_character_controllers
+  @ecs.components()
 }
 
 ///|
 pub fn kinematic_character_controller_outputs() -> @ecs.ComponentStore[
   KinematicCharacterControllerOutput,
 ] {
-  physics3d_component_world_store().kinematic_character_controller_outputs
+  @ecs.components()
 }
 
 ///|
 pub fn kinematic_character_controller_collisions() -> @ecs.ComponentStore[
   KinematicCharacterControllerCollisions,
 ] {
-  physics3d_component_world_store().kinematic_character_controller_collisions
+  @ecs.components()
 }
 
 ///|

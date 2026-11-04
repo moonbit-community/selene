@@ -2,3 +2,5 @@ import {
   "moonbitlang/core/debug",
   "Milky2018/selene/ecs",
 }
+
+formatter(ignore: [ "top.g.mbt" ])

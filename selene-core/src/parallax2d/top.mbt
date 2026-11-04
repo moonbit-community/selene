@@ -18,14 +18,12 @@ pub fn Parallax2dReference::view_center(
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Parallax2d {
   base_offset : @math.Vec2
   factor : @math.Vec2
   reference : Parallax2dReference
 }
-
-///|
-let parallax2d_component_key : @ecs.ComponentKey[Parallax2d] = ComponentKey()
 
 ///|
 fn clamped_parallax_factor(factor : @math.Vec2) -> @math.Vec2 {
@@ -54,7 +52,7 @@ pub fn Parallax2d::Parallax2d(
 
 ///|
 pub fn parallax2ds() -> @ecs.ComponentStore[Parallax2d] {
-  parallax2d_component_key.store()
+  @ecs.components()
 }
 
 ///|

@@ -2,6 +2,7 @@
 package "Milky2018/selene/render3d_types"
 
 import {
+  "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
   "moonbitlang/core/debug",
@@ -127,6 +128,7 @@ pub(all) struct DirectionalLight3D {
   shadow_normal_bias : Double
   cascade_shadow_config : CascadeShadowConfig3D
 }
+pub impl @ecs.Component for DirectionalLight3D
 
 #derive(Eq, @debug.Debug)
 pub(all) struct DirectionalLightShadowMap3D {
@@ -244,6 +246,7 @@ pub(all) struct PointLight3D {
   shadow_normal_bias : Double
   shadow_map_near_z : Double
 }
+pub impl @ecs.Component for PointLight3D
 
 #derive(Eq, @debug.Debug)
 pub(all) struct PointLightShadowMap3D {
@@ -293,6 +296,7 @@ pub fn SceneHandle::hash(Self) -> Int32
 pub fn SceneHandle::hash_combine(Self, Hasher) -> Unit
 pub fn SceneHandle::not_equal(Self, Self) -> Bool
 pub fn SceneHandle::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for SceneHandle
 
 #derive(Eq, @debug.Debug)
 pub(all) struct Skybox3D {
@@ -303,6 +307,7 @@ pub(all) struct Skybox3D {
 pub fn Skybox3D::equal(Self, Self) -> Bool
 pub fn Skybox3D::not_equal(Self, Self) -> Bool
 pub fn Skybox3D::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for Skybox3D
 
 pub(all) struct SpotLight3D {
   direction : @math.Vec3
@@ -316,6 +321,7 @@ pub(all) struct SpotLight3D {
   inner_angle : Double
   outer_angle : Double
 }
+pub impl @ecs.Component for SpotLight3D
 
 pub(all) struct StandardMaterial3D {
   base_color : @render.Color

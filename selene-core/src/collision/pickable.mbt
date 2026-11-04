@@ -14,6 +14,7 @@
 
 ///|
 /// Marker component for pointer-interactive entities.
+#selene.component
 pub(all) struct Pickable {
   mut active : Bool
 }
@@ -24,12 +25,9 @@ pub fn Pickable::Pickable() -> Pickable {
 }
 
 ///|
-let pickable_component_key : @ecs.ComponentKey[Pickable] = ComponentKey()
-
-///|
 /// All pickable components.
 pub fn pickables() -> @ecs.ComponentStore[Pickable] {
-  pickable_component_key.store()
+  @ecs.components()
 }
 
 ///|

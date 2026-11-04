@@ -113,6 +113,7 @@ pub type RenderFrame3D = @render3d_types.RenderFrame3D
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Mesh3DRenderer {
   mesh : MeshHandle
   material : MaterialHandle
@@ -122,53 +123,28 @@ pub(all) struct Mesh3DRenderer {
 }
 
 ///|
-priv struct Render3DComponentWorldStore {
-  mesh3d_renderers : @ecs.ComponentStore[Mesh3DRenderer]
-  directional_lights3d : @ecs.ComponentStore[DirectionalLight3D]
-  point_lights3d : @ecs.ComponentStore[PointLight3D]
-  spot_lights3d : @ecs.ComponentStore[SpotLight3D]
-  camera_skyboxes3d : @ecs.ComponentStore[Skybox3D]
-}
-
-///|
-let render3d_component_world_store_key : @ecs.ResourceKey[
-  Render3DComponentWorldStore,
-] = ResourceKey(world => {
-  mesh3d_renderers: ComponentStore(world),
-  directional_lights3d: ComponentStore(world),
-  point_lights3d: ComponentStore(world),
-  spot_lights3d: ComponentStore(world),
-  camera_skyboxes3d: ComponentStore(world),
-})
-
-///|
-fn render3d_component_world_store() -> Render3DComponentWorldStore {
-  render3d_component_world_store_key.get()
-}
-
-///|
 pub fn mesh3d_renderers() -> @ecs.ComponentStore[Mesh3DRenderer] {
-  render3d_component_world_store().mesh3d_renderers
+  @ecs.components()
 }
 
 ///|
 pub fn directional_lights3d() -> @ecs.ComponentStore[DirectionalLight3D] {
-  render3d_component_world_store().directional_lights3d
+  @ecs.components()
 }
 
 ///|
 pub fn point_lights3d() -> @ecs.ComponentStore[PointLight3D] {
-  render3d_component_world_store().point_lights3d
+  @ecs.components()
 }
 
 ///|
 pub fn spot_lights3d() -> @ecs.ComponentStore[SpotLight3D] {
-  render3d_component_world_store().spot_lights3d
+  @ecs.components()
 }
 
 ///|
 pub fn camera_skyboxes3d() -> @ecs.ComponentStore[Skybox3D] {
-  render3d_component_world_store().camera_skyboxes3d
+  @ecs.components()
 }
 
 ///|

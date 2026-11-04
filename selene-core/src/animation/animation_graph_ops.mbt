@@ -1,26 +1,26 @@
 ///|
 pub fn animation_transitions() -> @ecs.ComponentStore[AnimationTransitions] {
-  animation_world_store().animation_transitions
+  @ecs.components()
 }
 
 ///|
 pub fn animation_target_ids() -> @ecs.ComponentStore[AnimationTargetId] {
-  animation_world_store().animation_target_ids
+  @ecs.components()
 }
 
 ///|
 pub fn animated_bys() -> @ecs.ComponentStore[AnimatedBy] {
-  animation_world_store().animated_bys
+  @ecs.components()
 }
 
 ///|
 fn skinned_meshes() -> @ecs.ComponentStore[SkinnedMeshBinding3D] {
-  animation_world_store().skinned_meshes
+  @ecs.components()
 }
 
 ///|
 fn morphed_meshes() -> @ecs.ComponentStore[MorphMeshBinding3D] {
-  animation_world_store().morphed_meshes
+  @ecs.components()
 }
 
 ///|

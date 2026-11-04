@@ -55,6 +55,7 @@ pub struct TiledWorldLoadedMap {
 }
 
 ///|
+#selene.component
 pub struct TiledWorldInstance {
   world : TiledWorld
   settings : TiledWorldSpawnSettings
@@ -63,6 +64,7 @@ pub struct TiledWorldInstance {
 }
 
 ///|
+#selene.component
 pub struct TiledWorldMapInstance {
   world_entity : @ecs.Entity
   map_entity : @ecs.Entity
@@ -82,31 +84,13 @@ pub(all) struct TiledWorldSpawnSettings {
 }
 
 ///|
-priv struct TiledWorldRuntimeStore {
-  tiled_world_instances : @ecs.ComponentStore[TiledWorldInstance]
-  tiled_world_map_instances : @ecs.ComponentStore[TiledWorldMapInstance]
-}
-
-///|
-let tiled_world_runtime_store_key : @ecs.ResourceKey[TiledWorldRuntimeStore] = ResourceKey(world => {
-    tiled_world_instances: ComponentStore(world),
-    tiled_world_map_instances: ComponentStore(world),
-  },
-)
-
-///|
-fn tiled_world_runtime_store() -> TiledWorldRuntimeStore {
-  tiled_world_runtime_store_key.get()
-}
-
-///|
 pub fn tiled_world_instances() -> @ecs.ComponentStore[TiledWorldInstance] {
-  tiled_world_runtime_store().tiled_world_instances
+  @ecs.components()
 }
 
 ///|
 pub fn tiled_world_map_instances() -> @ecs.ComponentStore[TiledWorldMapInstance] {
-  tiled_world_runtime_store().tiled_world_map_instances
+  @ecs.components()
 }
 
 ///|

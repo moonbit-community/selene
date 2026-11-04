@@ -21,3 +21,14 @@ import {
   "moonbitlang/core/math" @cmath,
   "moonbitlang/core/cmp",
 }
+
+formatter(
+  ignore: [
+    "area.g.mbt",
+    "body.g.mbt",
+    "collider.g.mbt",
+    "joint.g.mbt",
+    "pickable.g.mbt",
+    "shape.g.mbt",
+  ],
+)

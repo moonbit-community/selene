@@ -17,11 +17,8 @@ pub(all) struct SceneInstanceReadyEvent {
 }
 
 ///|
-let scene_instances_key : @ecs.ComponentKey[SceneHandle] = ComponentKey()
-
-///|
 fn scene_instances() -> @ecs.ComponentStore[SceneHandle] {
-  scene_instances_key.store()
+  @ecs.components()
 }
 
 ///|

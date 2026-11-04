@@ -125,6 +125,7 @@ pub struct TiledColliderOrigin {
   source_kind : TiledColliderSourceKind
   layer : TiledLayer
 }
+pub impl @ecs.Component for TiledColliderOrigin
 
 #derive(Eq)
 pub enum TiledColliderSourceKind {
@@ -146,6 +147,7 @@ pub struct TiledColliders {
   entities : Array[@ecs.Entity]
 }
 pub fn TiledColliders::alive_entities(Self) -> Array[@ecs.Entity]
+pub impl @ecs.Component for TiledColliders
 
 pub struct TiledGid {
   raw : Int32
@@ -171,6 +173,7 @@ pub struct TiledImageLayerInstance {
   image_layer : TiledImageLayer
   resolved_image_path : String?
 }
+pub impl @ecs.Component for TiledImageLayerInstance
 
 pub struct TiledImageLayerSpawnedEvent {
   map_entity : @ecs.Entity
@@ -203,6 +206,7 @@ pub struct TiledLayerInstance {
   effective_visible : Bool
   zindex : Int32
 }
+pub impl @ecs.Component for TiledLayerInstance
 
 pub enum TiledLayerKind {
   TileLayer(TiledTileLayer)
@@ -255,6 +259,7 @@ pub fn TiledMap::tileset_for_gid(Self, Int32) -> TiledTileset?
 pub struct TiledMapInstance {
   map : TiledMap
 }
+pub impl @ecs.Component for TiledMapInstance
 
 pub struct TiledMapSpawnedEvent {
   map_entity : @ecs.Entity
@@ -269,6 +274,7 @@ pub struct TiledMapStorage {
 pub fn TiledMapStorage::layer_entity(Self, Int32) -> @ecs.Entity?
 pub fn TiledMapStorage::object_entity(Self, Int32) -> @ecs.Entity?
 pub fn TiledMapStorage::tile_entities(Self, Int32) -> Array[@ecs.Entity]
+pub impl @ecs.Component for TiledMapStorage
 
 pub enum TiledNameFilter {
   All
@@ -306,6 +312,7 @@ pub struct TiledObjectInstance {
   layer : TiledLayer
   object : TiledObject
 }
+pub impl @ecs.Component for TiledObjectInstance
 
 pub struct TiledObjectLayer {
   draw_order : String
@@ -326,6 +333,7 @@ pub struct TiledParallaxLayer {
   parallax_x : Double
   parallax_y : Double
 }
+pub impl @ecs.Component for TiledParallaxLayer
 
 pub(all) struct TiledPhysicsSettings {
   objects_filter : TiledNameFilter
@@ -347,6 +355,7 @@ pub struct TiledProperties {
   values : Map[String, TiledPropertyValue]
 }
 pub fn TiledProperties::get(Self, String) -> TiledPropertyValue?
+pub impl @ecs.Component for TiledProperties
 
 pub struct TiledProperty {
   name : String
@@ -411,6 +420,7 @@ pub struct TiledTileInstance {
   tileset : TiledTileset
   cell : TiledCell
 }
+pub impl @ecs.Component for TiledTileInstance
 
 pub struct TiledTileLayer {
   width : Int32
@@ -472,6 +482,7 @@ pub struct TiledWorldInstance {
   loaded_maps : Array[TiledWorldLoadedMap]
   spawned_maps : Map[Int32, @ecs.Entity]
 }
+pub impl @ecs.Component for TiledWorldInstance
 
 pub struct TiledWorldLoadedMap {
   index : Int32
@@ -495,6 +506,7 @@ pub struct TiledWorldMapInstance {
   world_map : TiledWorldMap
   resolved_map_path : String
 }
+pub impl @ecs.Component for TiledWorldMapInstance
 
 pub struct TiledWorldMapSpawnedEvent {
   world_entity : @ecs.Entity

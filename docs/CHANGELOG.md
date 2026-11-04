@@ -24,6 +24,9 @@
 
 ### Changed
 
+- Migrated built-in engine components to `#selene.component`. Named accessors
+  and typed ECS queries now use the same per-World component stores.
+
 - Migrated Pixel Adventure's components and per-World UI reader to generated
   ECS declarations.
 - Migrated Cards, Survivors, Scene3D, Tank3D, and Perf3D demo state to generated

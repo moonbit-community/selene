@@ -1,84 +1,84 @@
 ///|
 pub fn ldtk_level_instances() -> @ecs.ComponentStore[LdtkLevelInstance] {
-  ldtk_world_store().ldtk_level_instances
+  @ecs.components()
 }
 
 ///|
 pub fn ldtk_layer_metadata() -> @ecs.ComponentStore[LdtkLayerMetadata] {
-  ldtk_world_store().ldtk_layer_metadata
+  @ecs.components()
 }
 
 ///|
 pub fn ldtk_level_backgrounds() -> @ecs.ComponentStore[LdtkLevelBackground] {
-  ldtk_world_store().ldtk_level_backgrounds
+  @ecs.components()
 }
 
 ///|
 pub fn ldtk_level_iids() -> @ecs.ComponentStore[LdtkLevelIid] {
-  ldtk_world_store().ldtk_level_iids
+  @ecs.components()
 }
 
 ///|
 pub fn ldtk_entity_iids() -> @ecs.ComponentStore[LdtkEntityIid] {
-  ldtk_world_store().ldtk_entity_iids
+  @ecs.components()
 }
 
 ///|
 pub fn ldtk_grid_coords() -> @ecs.ComponentStore[LdtkGridCoords] {
-  ldtk_world_store().ldtk_grid_coords
+  @ecs.components()
 }
 
 ///|
 pub fn ldtk_int_grid_cells() -> @ecs.ComponentStore[LdtkIntGridCell] {
-  ldtk_world_store().ldtk_int_grid_cells
+  @ecs.components()
 }
 
 ///|
 pub fn ldtk_tile_metadata() -> @ecs.ComponentStore[LdtkTileMetadata] {
-  ldtk_world_store().ldtk_tile_metadata
+  @ecs.components()
 }
 
 ///|
 pub fn ldtk_int_grid_colliders() -> @ecs.ComponentStore[LdtkIntGridCollider] {
-  ldtk_world_store().ldtk_int_grid_colliders
+  @ecs.components()
 }
 
 ///|
 pub fn ldtk_worldly_entities() -> @ecs.ComponentStore[LdtkWorldly] {
-  ldtk_world_store().ldtk_worldly_entities
+  @ecs.components()
 }
 
 ///|
 pub fn ldtk_respawns() -> @ecs.ComponentStore[LdtkRespawn] {
-  ldtk_world_store().ldtk_respawns
+  @ecs.components()
 }
 
 ///|
 pub fn ldtk_spawned_layer_instances() -> @ecs.ComponentStore[
   LdtkSpawnedLayerInstance,
 ] {
-  ldtk_world_store().ldtk_spawned_layer_instances
+  @ecs.components()
 }
 
 ///|
 pub fn ldtk_spawned_tile_instances() -> @ecs.ComponentStore[
   LdtkSpawnedTileInstance,
 ] {
-  ldtk_world_store().ldtk_spawned_tile_instances
+  @ecs.components()
 }
 
 ///|
 pub fn ldtk_spawned_entity_instances() -> @ecs.ComponentStore[
   LdtkSpawnedEntityInstance,
 ] {
-  ldtk_world_store().ldtk_spawned_entity_instances
+  @ecs.components()
 }
 
 ///|
 pub fn ldtk_spawned_int_grid_cells() -> @ecs.ComponentStore[
   LdtkSpawnedIntGridCell,
 ] {
-  ldtk_world_store().ldtk_spawned_int_grid_cells
+  @ecs.components()
 }
 
 ///|

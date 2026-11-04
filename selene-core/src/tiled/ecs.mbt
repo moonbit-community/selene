@@ -174,11 +174,13 @@ pub(all) struct TiledSpawnSettings {
 }
 
 ///|
+#selene.component
 pub struct TiledMapInstance {
   map : TiledMap
 }
 
 ///|
+#selene.component
 pub struct TiledLayerInstance {
   map_entity : @ecs.Entity
   layer : TiledLayer
@@ -187,6 +189,7 @@ pub struct TiledLayerInstance {
 }
 
 ///|
+#selene.component
 pub struct TiledTileInstance {
   map_entity : @ecs.Entity
   layer_entity : @ecs.Entity
@@ -196,6 +199,7 @@ pub struct TiledTileInstance {
 }
 
 ///|
+#selene.component
 pub struct TiledObjectInstance {
   map_entity : @ecs.Entity
   layer_entity : @ecs.Entity
@@ -204,6 +208,7 @@ pub struct TiledObjectInstance {
 }
 
 ///|
+#selene.component
 pub struct TiledImageLayerInstance {
   map_entity : @ecs.Entity
   layer : TiledLayer
@@ -212,6 +217,7 @@ pub struct TiledImageLayerInstance {
 }
 
 ///|
+#selene.component
 pub struct TiledProperties {
   values : Map[String, TiledPropertyValue]
 }
@@ -225,6 +231,7 @@ pub fn TiledProperties::get(
 }
 
 ///|
+#selene.component
 pub struct TiledMapStorage {
   layers : Map[Int32, @ecs.Entity]
   objects : Map[Int32, @ecs.Entity]
@@ -232,6 +239,7 @@ pub struct TiledMapStorage {
 }
 
 ///|
+#selene.component
 pub struct TiledParallaxLayer {
   base_offset : @math.Vec2
   parallax_x : Double
@@ -268,75 +276,45 @@ pub fn TiledMapStorage::tile_entities(
 }
 
 ///|
-priv struct TiledEcsWorldStore {
-  tiled_map_instances : @ecs.ComponentStore[TiledMapInstance]
-  tiled_layer_instances : @ecs.ComponentStore[TiledLayerInstance]
-  tiled_tile_instances : @ecs.ComponentStore[TiledTileInstance]
-  tiled_object_instances : @ecs.ComponentStore[TiledObjectInstance]
-  tiled_image_layer_instances : @ecs.ComponentStore[TiledImageLayerInstance]
-  tiled_properties : @ecs.ComponentStore[TiledProperties]
-  tiled_map_storages : @ecs.ComponentStore[TiledMapStorage]
-  tiled_parallax_layers : @ecs.ComponentStore[TiledParallaxLayer]
-}
-
-///|
-let tiled_ecs_world_store_key : @ecs.ResourceKey[TiledEcsWorldStore] = ResourceKey(world => {
-    tiled_map_instances: ComponentStore(world),
-    tiled_layer_instances: ComponentStore(world),
-    tiled_tile_instances: ComponentStore(world),
-    tiled_object_instances: ComponentStore(world),
-    tiled_image_layer_instances: ComponentStore(world),
-    tiled_properties: ComponentStore(world),
-    tiled_map_storages: ComponentStore(world),
-    tiled_parallax_layers: ComponentStore(world),
-  },
-)
-
-///|
-fn tiled_ecs_world_store() -> TiledEcsWorldStore {
-  tiled_ecs_world_store_key.get()
-}
-
-///|
 pub fn tiled_map_instances() -> @ecs.ComponentStore[TiledMapInstance] {
-  tiled_ecs_world_store().tiled_map_instances
+  @ecs.components()
 }
 
 ///|
 pub fn tiled_layer_instances() -> @ecs.ComponentStore[TiledLayerInstance] {
-  tiled_ecs_world_store().tiled_layer_instances
+  @ecs.components()
 }
 
 ///|
 pub fn tiled_tile_instances() -> @ecs.ComponentStore[TiledTileInstance] {
-  tiled_ecs_world_store().tiled_tile_instances
+  @ecs.components()
 }
 
 ///|
 pub fn tiled_object_instances() -> @ecs.ComponentStore[TiledObjectInstance] {
-  tiled_ecs_world_store().tiled_object_instances
+  @ecs.components()
 }
 
 ///|
 pub fn tiled_image_layer_instances() -> @ecs.ComponentStore[
   TiledImageLayerInstance,
 ] {
-  tiled_ecs_world_store().tiled_image_layer_instances
+  @ecs.components()
 }
 
 ///|
 pub fn tiled_properties() -> @ecs.ComponentStore[TiledProperties] {
-  tiled_ecs_world_store().tiled_properties
+  @ecs.components()
 }
 
 ///|
 pub fn tiled_map_storages() -> @ecs.ComponentStore[TiledMapStorage] {
-  tiled_ecs_world_store().tiled_map_storages
+  @ecs.components()
 }
 
 ///|
 pub fn tiled_parallax_layers() -> @ecs.ComponentStore[TiledParallaxLayer] {
-  tiled_ecs_world_store().tiled_parallax_layers
+  @ecs.components()
 }
 
 ///|

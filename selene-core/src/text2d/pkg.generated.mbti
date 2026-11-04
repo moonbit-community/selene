@@ -28,6 +28,7 @@ pub fn Text2d::Text2d(blend_mode? : @render.BlendMode2D) -> Self
 pub fn Text2d::equal(Self, Self) -> Bool
 pub fn Text2d::not_equal(Self, Self) -> Bool
 pub fn Text2d::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for Text2d
 
 #derive(Eq, @debug.Debug)
 pub(all) struct TextBounds {
@@ -38,6 +39,7 @@ pub fn TextBounds::TextBounds(Double, Double) -> Self
 pub fn TextBounds::equal(Self, Self) -> Bool
 pub fn TextBounds::not_equal(Self, Self) -> Bool
 pub fn TextBounds::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for TextBounds
 
 // Type aliases
 

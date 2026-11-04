@@ -17,3 +17,5 @@ import {
   "Milky2018/selene/visibility",
   "moonbitlang/core/cmp",
 }
+
+formatter(ignore: [ "top.g.mbt" ])

@@ -17,6 +17,7 @@ pub(all) struct Mesh2dHandle(UInt32)
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Mesh2d {
   mesh : Mesh2dHandle
 }
@@ -27,11 +28,8 @@ pub(all) struct Mesh2dStorage {
 }
 
 ///|
-let mesh2d_component_key : @ecs.ComponentKey[Mesh2d] = ComponentKey()
-
-///|
 pub fn mesh2ds() -> @ecs.ComponentStore[Mesh2d] {
-  mesh2d_component_key.store()
+  @ecs.components()
 }
 
 ///|

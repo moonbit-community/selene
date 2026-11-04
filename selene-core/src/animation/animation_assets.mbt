@@ -6,6 +6,7 @@ pub(all) struct TransitionEntry {
 }
 
 ///|
+#selene.component
 pub(all) struct AnimationTransitions {
   mut main : AnimationNodeIndex?
   fading : Map[AnimationNodeIndex, TransitionEntry]
@@ -31,6 +32,7 @@ pub(all) struct SkinVertexInfluence3D {
 }
 
 ///|
+#selene.component
 pub(all) struct SkinnedMeshBinding3D {
   target_entity : @ecs.Entity
   mesh : @render3d.MeshHandle
@@ -49,6 +51,7 @@ pub(all) struct SkinnedMeshBinding3D {
 }
 
 ///|
+#selene.component
 pub(all) struct MorphMeshBinding3D {
   target_entity : @ecs.Entity
   mesh : @render3d.MeshHandle
@@ -61,34 +64,6 @@ pub(all) struct MorphMeshBinding3D {
   tangents : Array[@render3d.Tangent3D]?
   morph_targets : Array[MorphTargetBinding3D]
   mut morph_weights : Array[Double]
-}
-
-///|
-priv struct AnimationWorldStore {
-  animation_players : @ecs.ComponentStore[AnimationPlayer]
-  animation_graph_handles : @ecs.ComponentStore[AnimationGraphHandle]
-  animation_transitions : @ecs.ComponentStore[AnimationTransitions]
-  animation_target_ids : @ecs.ComponentStore[AnimationTargetId]
-  animated_bys : @ecs.ComponentStore[AnimatedBy]
-  skinned_meshes : @ecs.ComponentStore[SkinnedMeshBinding3D]
-  morphed_meshes : @ecs.ComponentStore[MorphMeshBinding3D]
-}
-
-///|
-let animation_world_store_key : @ecs.ResourceKey[AnimationWorldStore] = ResourceKey(world => {
-    animation_players: ComponentStore(world),
-    animation_graph_handles: ComponentStore(world),
-    animation_transitions: ComponentStore(world),
-    animation_target_ids: ComponentStore(world),
-    animated_bys: ComponentStore(world),
-    skinned_meshes: ComponentStore(world),
-    morphed_meshes: ComponentStore(world),
-  },
-)
-
-///|
-fn animation_world_store() -> AnimationWorldStore {
-  animation_world_store_key.get()
 }
 
 ///|
@@ -152,10 +127,10 @@ pub let animation_graph_asset_events : @event.Events[
 
 ///|
 pub fn animation_players() -> @ecs.ComponentStore[AnimationPlayer] {
-  animation_world_store().animation_players
+  @ecs.components()
 }
 
 ///|
 pub fn animation_graph_handles() -> @ecs.ComponentStore[AnimationGraphHandle] {
-  animation_world_store().animation_graph_handles
+  @ecs.components()
 }

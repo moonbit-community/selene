@@ -50,6 +50,7 @@ pub fn Anchor::as_vec(Self) -> @math.Vec2
 pub fn Anchor::equal(Self, Self) -> Bool
 pub fn Anchor::not_equal(Self, Self) -> Bool
 pub fn Anchor::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for Anchor
 
 pub(all) struct Sprite {
   image : @asset_types.ImageHandle?

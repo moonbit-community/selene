@@ -22,6 +22,7 @@ pub fn Name::Name(String) -> Self
 pub fn Name::equal(Self, Self) -> Bool
 pub fn Name::not_equal(Self, Self) -> Bool
 pub fn Name::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for Name
 
 // Type aliases
 

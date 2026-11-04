@@ -25,6 +25,7 @@ pub(all) enum RigidBodyType {
 ///|
 /// 2D rigid-body configuration synchronized into Rapier.
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct RigidBody {
   body_type : RigidBodyType
   gravity_scale : Double
@@ -72,10 +73,7 @@ pub fn RigidBody::kinematic_velocity_based() -> RigidBody {
 }
 
 ///|
-let rigid_body_component_key : @ecs.ComponentKey[RigidBody] = ComponentKey()
-
-///|
 /// Explicit rigid-body descriptors for entities that participate in 2D physics.
 pub fn rigid_bodies() -> @ecs.ComponentStore[RigidBody] {
-  rigid_body_component_key.store()
+  @ecs.components()
 }

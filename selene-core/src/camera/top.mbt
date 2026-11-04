@@ -77,6 +77,7 @@ pub fn CameraPass2D::CameraPass2D(
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Camera {
   mut is_active : Bool
   order : Int32
@@ -101,6 +102,7 @@ pub impl Default for Camera with fn default() -> Camera {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Camera2d {}
 
 ///|
@@ -116,6 +118,7 @@ pub impl Default for Camera2d with fn default() -> Camera2d {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct OrthographicProjection {
   near : Double
   far : Double
@@ -137,37 +140,18 @@ pub impl Default for OrthographicProjection with fn default() -> OrthographicPro
 }
 
 ///|
-priv struct CameraWorldStore {
-  cameras : @ecs.ComponentStore[Camera]
-  camera2ds : @ecs.ComponentStore[Camera2d]
-  orthographic_projections : @ecs.ComponentStore[OrthographicProjection]
-}
-
-///|
-let camera_world_store_key : @ecs.ResourceKey[CameraWorldStore] = ResourceKey(world => {
-  cameras: ComponentStore(world),
-  camera2ds: ComponentStore(world),
-  orthographic_projections: ComponentStore(world),
-})
-
-///|
-fn camera_world_store() -> CameraWorldStore {
-  camera_world_store_key.get()
-}
-
-///|
 pub fn cameras() -> @ecs.ComponentStore[Camera] {
-  camera_world_store().cameras
+  @ecs.components()
 }
 
 ///|
 pub fn camera2ds() -> @ecs.ComponentStore[Camera2d] {
-  camera_world_store().camera2ds
+  @ecs.components()
 }
 
 ///|
 pub fn orthographic_projections() -> @ecs.ComponentStore[OrthographicProjection] {
-  camera_world_store().orthographic_projections
+  @ecs.components()
 }
 
 ///|

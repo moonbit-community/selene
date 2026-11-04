@@ -26,6 +26,7 @@ pub(all) struct ImageHandle(UInt32)
 
 ///|
 #derive(Eq, Debug, Hash)
+#selene.component
 pub(all) struct SceneHandle(UInt32)
 
 ///|
@@ -159,6 +160,7 @@ pub(all) enum CubemapAsset3D {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Skybox3D {
   cubemap : CubemapHandle
   brightness : Double
@@ -185,6 +187,7 @@ pub(all) struct StandardMaterial3D {
 }
 
 ///|
+#selene.component
 pub(all) struct DirectionalLight3D {
   direction : @math.Vec3
   color : @render.Color
@@ -196,6 +199,7 @@ pub(all) struct DirectionalLight3D {
 }
 
 ///|
+#selene.component
 pub(all) struct PointLight3D {
   color : @render.Color
   intensity : Double
@@ -234,6 +238,7 @@ pub(all) struct FrameSpotLight3D {
 }
 
 ///|
+#selene.component
 pub(all) struct SpotLight3D {
   direction : @math.Vec3
   color : @render.Color

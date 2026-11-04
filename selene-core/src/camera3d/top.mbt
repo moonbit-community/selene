@@ -13,6 +13,7 @@
 // limitations under the License.
 
 ///|
+#selene.component
 pub(all) struct Camera3DComponent {
   projection : @render3d_types.CameraProjection3D
   orthographic_size : @math.Vec2?
@@ -45,11 +46,8 @@ pub fn Camera3DComponent::default() -> Camera3DComponent {
 }
 
 ///|
-let camera3d_component_key : @ecs.ComponentKey[Camera3DComponent] = ComponentKey()
-
-///|
 pub fn cameras3d() -> @ecs.ComponentStore[Camera3DComponent] {
-  camera3d_component_key.store()
+  @ecs.components()
 }
 
 ///|

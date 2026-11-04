@@ -1,11 +1,13 @@
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Text2d {
   blend_mode : @render.BlendMode2D
 }
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct TextBounds {
   width : Double
   height : Double
@@ -37,17 +39,11 @@ priv struct CachedTextLayout2d {
 
 ///|
 priv struct Text2dWorldStore {
-  text2ds : @ecs.ComponentStore[Text2d]
-  text_bounds : @ecs.ComponentStore[TextBounds]
-  text_anchors : @ecs.ComponentStore[@sprite.Anchor]
   text_layout_caches : Map[@ecs.Entity, CachedTextLayout2d]
 }
 
 ///|
-let text2d_world_store_key : @ecs.ResourceKey[Text2dWorldStore] = ResourceKey(world => {
-  text2ds: ComponentStore(world),
-  text_bounds: ComponentStore(world),
-  text_anchors: ComponentStore(world),
+let text2d_world_store_key : @ecs.ResourceKey[Text2dWorldStore] = ResourceKey(_ => {
   text_layout_caches: Map([]),
 })
 
@@ -58,17 +54,17 @@ fn text2d_world_store() -> Text2dWorldStore {
 
 ///|
 pub fn text2ds() -> @ecs.ComponentStore[Text2d] {
-  text2d_world_store().text2ds
+  @ecs.components()
 }
 
 ///|
 pub fn text_bounds() -> @ecs.ComponentStore[TextBounds] {
-  text2d_world_store().text_bounds
+  @ecs.components()
 }
 
 ///|
 pub fn text_anchors() -> @ecs.ComponentStore[@sprite.Anchor] {
-  text2d_world_store().text_anchors
+  @ecs.components()
 }
 
 ///|

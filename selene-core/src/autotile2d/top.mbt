@@ -542,6 +542,7 @@ pub fn update_cell_and_resolve_diff(
 }
 
 ///|
+#selene.component
 priv struct RuntimeLayerState {
   source : AutoTileLayerSource
   tile_entities : Map[String, @ecs.Entity]
@@ -549,19 +550,8 @@ priv struct RuntimeLayerState {
 }
 
 ///|
-priv struct AutoTileWorldStore {
-  layers : @ecs.ComponentStore[RuntimeLayerState]
-}
-
-///|
-let autotile_world_store_key : @ecs.ResourceKey[AutoTileWorldStore] = ResourceKey(world => {
-    layers: ComponentStore(world),
-  },
-)
-
-///|
-fn autotile_world_store() -> AutoTileWorldStore {
-  autotile_world_store_key.get()
+fn runtime_layers() -> @ecs.ComponentStore[RuntimeLayerState] {
+  @ecs.components()
 }
 
 ///|
@@ -620,10 +610,10 @@ pub fn register_runtime_layer(
   source : AutoTileLayerSource,
   context~ : AutoTileRuntimeContext = autotile_runtime_context(),
 ) -> Unit {
-  let store = autotile_world_store()
-  if store.layers.get(layer_entity) is Some(previous) {
+  let layers = runtime_layers()
+  if layers.get(layer_entity) is Some(previous) {
     destroy_layer_tiles(previous)
-    ignore(store.layers.remove(layer_entity))
+    ignore(layers.remove(layer_entity))
   }
   let state : RuntimeLayerState = { source, tile_entities: Map([]), context, }
   for solved in solve_autotile_layer(source) {
@@ -633,7 +623,7 @@ pub fn register_runtime_layer(
       state.tile_entities.set(key, tile_entity)
     }
   }
-  store.layers.set(layer_entity, state)
+  layers.set(layer_entity, state)
 }
 
 ///|
@@ -674,13 +664,10 @@ pub fn set_runtime_cell(
   y : Int32,
   terrain : Int32,
 ) -> Unit {
-  let store = autotile_world_store()
-  guard store.layers.get(layer_entity) is Some(state) else { return }
+  let layers = runtime_layers()
+  guard layers.get(layer_entity) is Some(state) else { return }
   let diff = update_cell_and_resolve_diff(state.source, x, y, Some(terrain))
-  store.layers.set(
-    layer_entity,
-    apply_diff_to_runtime(layer_entity, state, diff),
-  )
+  layers.set(layer_entity, apply_diff_to_runtime(layer_entity, state, diff))
 }
 
 ///|
@@ -689,25 +676,20 @@ pub fn remove_runtime_cell(
   x : Int32,
   y : Int32,
 ) -> Unit {
-  let store = autotile_world_store()
-  guard store.layers.get(layer_entity) is Some(state) else { return }
+  let layers = runtime_layers()
+  guard layers.get(layer_entity) is Some(state) else { return }
   let diff = update_cell_and_resolve_diff(state.source, x, y, None)
-  store.layers.set(
-    layer_entity,
-    apply_diff_to_runtime(layer_entity, state, diff),
-  )
+  layers.set(layer_entity, apply_diff_to_runtime(layer_entity, state, diff))
 }
 
 ///|
 pub fn rebuild_runtime_layer(layer_entity : @ecs.Entity) -> Unit {
-  let store = autotile_world_store()
-  guard store.layers.get(layer_entity) is Some(state) else { return }
+  let layers = runtime_layers()
+  guard layers.get(layer_entity) is Some(state) else { return }
   register_runtime_layer(layer_entity, state.source, context=state.context)
 }
 
 ///|
 pub fn runtime_layer_source(layer_entity : @ecs.Entity) -> AutoTileLayerSource? {
-  autotile_world_store().layers
-  .get(layer_entity)
-  .map(fn(state) { state.source })
+  runtime_layers().get(layer_entity).map(fn(state) { state.source })
 }

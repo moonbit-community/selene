@@ -7,3 +7,5 @@ import {
   "Milky2018/selene/system",
   "moonbitlang/core/cmp",
 }
+
+formatter(ignore: [ "top.g.mbt" ])

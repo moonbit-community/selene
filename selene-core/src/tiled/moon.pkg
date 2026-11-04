@@ -23,3 +23,5 @@ import {
   "moonbitlang/core/string",
   "moonbitlang/x/fs",
 }
+
+formatter(ignore: [ "ecs.g.mbt", "physics.g.mbt", "world.g.mbt" ])

@@ -1,5 +1,6 @@
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Anchor(@math.Vec2)
 
 ///|

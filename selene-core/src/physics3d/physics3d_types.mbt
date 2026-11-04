@@ -14,6 +14,7 @@
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) enum RigidBody {
   Dynamic
   Fixed
@@ -23,6 +24,7 @@ pub(all) enum RigidBody {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Velocity {
   linvel : @math.Vec3
   angvel : @math.Vec3
@@ -30,6 +32,7 @@ pub(all) struct Velocity {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Damping {
   linear_damping : Double
   angular_damping : Double
@@ -37,10 +40,12 @@ pub(all) struct Damping {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct GravityScale(Double)
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct LockedAxes {
   lock_translation_x : Bool
   lock_translation_y : Bool
@@ -52,13 +57,16 @@ pub(all) struct LockedAxes {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Ccd {}
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Dominance(Int32)
 
 ///|
+#selene.component
 pub(all) enum AdditionalMassProperties {
   Mass(Double)
   MassProperties(@core.MassProperties3)
@@ -66,6 +74,7 @@ pub(all) enum AdditionalMassProperties {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) enum Collider {
   Cuboid(@math.Vec3)
   Ball(Double)
@@ -83,6 +92,7 @@ pub(all) enum Collider {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Sensor {}
 
 ///|
@@ -93,14 +103,17 @@ fn Sensor::Sensor() -> Sensor {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Friction(Double)
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Restitution(Double)
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct CollisionGroups {
   memberships : Int32
   filters : Int32
@@ -108,6 +121,7 @@ pub(all) struct CollisionGroups {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct SolverGroups {
   memberships : Int32
   filters : Int32
@@ -115,10 +129,12 @@ pub(all) struct SolverGroups {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct ContactForceEventThreshold(Double)
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) enum ColliderMassProperties {
   Density(Double)
 }

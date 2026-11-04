@@ -383,6 +383,7 @@ pub struct LdtkEntityDefinition {
 pub struct LdtkEntityIid {
   iid : String
 }
+pub impl @ecs.Component for LdtkEntityIid
 
 pub struct LdtkEntityInstance {
   iid : String
@@ -496,6 +497,7 @@ pub struct LdtkGridCoords {
   x : Int32
   y : Int32
 }
+pub impl @ecs.Component for LdtkGridCoords
 
 pub struct LdtkIndexedLevel {
   indices : LdtkLevelIndices
@@ -505,6 +507,7 @@ pub struct LdtkIndexedLevel {
 pub struct LdtkIntGridCell {
   value : Int32
 }
+pub impl @ecs.Component for LdtkIntGridCell
 
 pub struct LdtkIntGridCellSpawnedEvent {
   world_entity : @ecs.Entity
@@ -522,6 +525,7 @@ pub struct LdtkIntGridCellSpawnedEvent {
 pub struct LdtkIntGridCollider {
   sensor : Bool
 }
+pub impl @ecs.Component for LdtkIntGridCollider
 
 pub struct LdtkIntGridColliderSpawnedEvent {
   world_entity : @ecs.Entity
@@ -617,6 +621,7 @@ pub struct LdtkLayerMetadata {
   seed : Int32
   visible : Bool
 }
+pub impl @ecs.Component for LdtkLayerMetadata
 
 pub struct LdtkLayerSpawnedEvent {
   world_entity : @ecs.Entity
@@ -676,6 +681,7 @@ pub struct LdtkLevelBackground {
   rel_path : String?
   zindex : Int32
 }
+pub impl @ecs.Component for LdtkLevelBackground
 
 pub struct LdtkLevelBackgroundPosition {
   crop_x : Double
@@ -696,6 +702,7 @@ pub enum LdtkLevelEvent {
 pub struct LdtkLevelIid {
   iid : String
 }
+pub impl @ecs.Component for LdtkLevelIid
 
 pub struct LdtkLevelIndices {
   world : Int32?
@@ -710,6 +717,7 @@ pub struct LdtkLevelInstance {
   indices : LdtkLevelIndices
   level : LdtkLevel
 }
+pub impl @ecs.Component for LdtkLevelInstance
 
 pub enum LdtkLevelSelection {
   Identifier(String)
@@ -788,6 +796,7 @@ pub struct LdtkProjectDefinitions {
 pub struct LdtkRespawn {
   requested : Bool
 }
+pub impl @ecs.Component for LdtkRespawn
 
 pub struct LdtkSettings {
   level_spawn_behavior : LdtkLevelSpawnBehavior
@@ -808,6 +817,7 @@ pub struct LdtkSpawnedEntityInstance {
   instance : LdtkEntityInstance
   zindex : Int32
 }
+pub impl @ecs.Component for LdtkSpawnedEntityInstance
 
 pub struct LdtkSpawnedIntGridCell {
   world_entity : @ecs.Entity
@@ -819,6 +829,7 @@ pub struct LdtkSpawnedIntGridCell {
   grid_y : Int32
   zindex : Int32
 }
+pub impl @ecs.Component for LdtkSpawnedIntGridCell
 
 pub struct LdtkSpawnedLayerInstance {
   world_entity : @ecs.Entity
@@ -827,6 +838,7 @@ pub struct LdtkSpawnedLayerInstance {
   effective_visible : Bool
   zindex : Int32
 }
+pub impl @ecs.Component for LdtkSpawnedLayerInstance
 
 pub struct LdtkSpawnedTileInstance {
   world_entity : @ecs.Entity
@@ -836,6 +848,7 @@ pub struct LdtkSpawnedTileInstance {
   tile : LdtkTileInstance
   zindex : Int32
 }
+pub impl @ecs.Component for LdtkSpawnedTileInstance
 
 pub struct LdtkTileInstance {
   tile_id : Int32
@@ -856,6 +869,7 @@ pub struct LdtkTileMetadata {
   custom_data : String?
   enum_tags : Array[String]
 }
+pub impl @ecs.Component for LdtkTileMetadata
 
 pub struct LdtkTileSpawnedEvent {
   world_entity : @ecs.Entity
@@ -916,6 +930,7 @@ pub struct LdtkWorldInstance {
   mut level_set : LdtkLevelSet
   spawned_levels : Map[String, @ecs.Entity]
 }
+pub impl @ecs.Component for LdtkWorldInstance
 
 pub struct LdtkWorldSpawnSettings {
   position : @math.Vec2
@@ -944,6 +959,7 @@ pub struct LdtkWorldly {
   level_iid : String
   entity_iid : String
 }
+pub impl @ecs.Component for LdtkWorldly
 
 // Type aliases
 
