@@ -99,7 +99,8 @@ package. Import `Milky2018/selene/ecs` as `@ecs` in packages with generated file
 
 The generator lives in the separate `selene-codegen` module. The core module
 ships its generated sources and can build independently. CI regenerates those
-sources to check that they are current. The examples use a local `dev_build`
+sources in memory to verify that the checked-in companions are current and
+catch missing files before the build. The examples use a local `dev_build`
 rule with a separate build directory. To regenerate a file from the workspace
 root, run:
 

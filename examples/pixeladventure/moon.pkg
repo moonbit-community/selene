@@ -20,3 +20,7 @@ import {
 }
 
 supported_targets = "all"
+
+dev_build(rule: "selene_codegen", input: "model.mbt", output: "model.g.mbt")
+
+formatter(ignore: [ "model.g.mbt" ])

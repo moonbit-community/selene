@@ -10,3 +10,6 @@ moonx Milky2018/selene_codegen@VERSION movement.mbt movement.g.mbt
 Use the generator version that matches your Selene release. See the
 [Selene ECS guide](https://github.com/moonbit-community/selene/blob/main/selene-core/src/ecs/README.md)
 for package imports and `dev_build` configuration.
+
+Use `--check source.mbt ...` to verify the generated companions without writing
+files. CI can pass all tracked MoonBit sources to detect missing companions.

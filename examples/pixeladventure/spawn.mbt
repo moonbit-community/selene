@@ -20,11 +20,11 @@ fn game_start(_world : @ecs.World) -> Unit {
   reset_pixeladventure_world_store()
   let loaded_level = load_level_scene()
 
-  let session_entity = @ecs.Entity()
-  let result_box = @ecs.Entity()
-  let score_box = @ecs.Entity()
-  let health_box = @ecs.Entity()
-  let volume_button = @ecs.Entity()
+  let session_entity = spawn_game_entity()
+  let result_box = spawn_game_entity()
+  let score_box = spawn_game_entity()
+  let health_box = spawn_game_entity()
+  let volume_button = spawn_game_entity()
 
   spawn_background(loaded_level.world_size)
   spawn_hud(result_box, score_box, health_box, volume_button)
@@ -224,7 +224,7 @@ fn configure_bird_entity(entity : @ecs.Entity) -> Unit {
 
 ///|
 fn spawn_background(size : @math.Vec2) -> Unit {
-  let background = @ecs.Entity()
+  let background = spawn_game_entity()
   @sprite.sprites().set(
     background,
     Sprite(
@@ -242,7 +242,7 @@ fn spawn_background(size : @math.Vec2) -> Unit {
 
 ///|
 fn spawn_terrain_collider(pos : @math.Vec2, size : @math.Vec2) -> Unit {
-  let terrain = @ecs.Entity()
+  let terrain = spawn_game_entity()
   @transform.transforms().set(
     terrain,
     @transform.Transform::from_xyz(pos[X], pos[Y], 0.0),
@@ -333,7 +333,7 @@ fn configure_flag_entity(entity : @ecs.Entity) -> Unit {
       ]),
     ),
   )
-  flags().set(entity, ())
+  flags().set(entity, FlagTag::{ })
 }
 
 ///|
@@ -353,5 +353,5 @@ fn configure_apple_entity(entity : @ecs.Entity) -> Unit {
       ]),
     ),
   )
-  apples().set(entity, ())
+  apples().set(entity, AppleTag::{ })
 }

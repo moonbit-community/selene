@@ -144,6 +144,7 @@ priv struct SpriteAnimationDef {
 }
 
 ///|
+#selene.component
 priv struct GameSession {
   player : @ecs.Entity
   camera : @ecs.Entity
@@ -159,6 +160,7 @@ priv struct GameSession {
 }
 
 ///|
+#selene.component
 priv struct PlayerController {
   mut facing : Direction2
   mut state : PlayerState
@@ -169,6 +171,7 @@ priv struct PlayerController {
 }
 
 ///|
+#selene.component
 priv struct BirdController {
   mut direction : Direction2
   mut is_hurt : Bool
@@ -177,70 +180,77 @@ priv struct BirdController {
 }
 
 ///|
-priv struct PixelAdventureWorldStore {
-  sessions : @ecs.ComponentStore[GameSession]
-  players : @ecs.ComponentStore[PlayerController]
-  birds : @ecs.ComponentStore[BirdController]
-  apples : @ecs.ComponentStore[Unit]
-  flags : @ecs.ComponentStore[Unit]
-  mut ui_click_reader : @event.EventReader[@ui.UiClickEvent]
+#selene.component
+priv struct AppleTag {}
+
+///|
+#selene.component
+priv struct FlagTag {}
+
+///|
+#selene.resource(new_pixeladventure_world_state)
+priv struct PixelAdventureWorldState {
+  entities : Array[@ecs.Entity]
+  mut click_reader : @event.EventReader[@ui.UiClickEvent]
 }
 
 ///|
-let pixeladventure_world_store_key : @ecs.ResourceKey[PixelAdventureWorldStore] = ResourceKey(world => {
-    sessions: ComponentStore(world),
-    players: ComponentStore(world),
-    birds: ComponentStore(world),
-    apples: ComponentStore(world),
-    flags: ComponentStore(world),
-    ui_click_reader: EventReader(),
-  },
-)
+fn new_pixeladventure_world_state(
+  _world : @ecs.World,
+) -> PixelAdventureWorldState {
+  { entities: [], click_reader: EventReader(), }
+}
 
 ///|
-fn pixeladventure_world_store() -> PixelAdventureWorldStore {
-  pixeladventure_world_store_key.get()
+fn pixeladventure_world_state() -> PixelAdventureWorldState {
+  @ecs.resource()
+}
+
+///|
+fn spawn_game_entity() -> @ecs.Entity {
+  let entity = @ecs.Entity()
+  pixeladventure_world_state().entities.push(entity)
+  entity
 }
 
 ///|
 fn reset_pixeladventure_world_store() -> Unit {
-  let store = pixeladventure_world_store()
-  store.sessions.clear()
-  store.players.clear()
-  store.birds.clear()
-  store.apples.clear()
-  store.flags.clear()
-  store.ui_click_reader = EventReader()
+  let state = pixeladventure_world_state()
+  for entity in state.entities {
+    ignore(entity.delete())
+  }
+  state.entities.clear()
+  state.click_reader = EventReader()
 }
 
 ///|
 fn sessions() -> @ecs.ComponentStore[GameSession] {
-  pixeladventure_world_store().sessions
+  @ecs.components()
 }
 
 ///|
 fn players() -> @ecs.ComponentStore[PlayerController] {
-  pixeladventure_world_store().players
+  @ecs.components()
 }
 
 ///|
 fn birds() -> @ecs.ComponentStore[BirdController] {
-  pixeladventure_world_store().birds
+  @ecs.components()
 }
 
 ///|
-fn apples() -> @ecs.ComponentStore[Unit] {
-  pixeladventure_world_store().apples
+fn apples() -> @ecs.ComponentStore[AppleTag] {
+  @ecs.components()
 }
 
 ///|
-fn flags() -> @ecs.ComponentStore[Unit] {
-  pixeladventure_world_store().flags
+fn flags() -> @ecs.ComponentStore[FlagTag] {
+  @ecs.components()
 }
 
 ///|
 fn ui_click_reader() -> @event.EventReader[@ui.UiClickEvent] {
-  pixeladventure_world_store().ui_click_reader
+  pixeladventure_world_state().click_reader
 }
 
 ///|

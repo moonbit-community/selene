@@ -23,7 +23,7 @@ fn set_entity_z(entity : @ecs.Entity, z : Double) -> Unit {
 
 ///|
 fn spawn_level_entity(x : Double, y : Double) -> @ecs.Entity {
-  let entity = @ecs.Entity()
+  let entity = spawn_game_entity()
   @transform.transforms().set(entity, @transform.Transform::from_xyz(x, y, 0.0))
   entity
 }

@@ -24,6 +24,8 @@
 
 ### Changed
 
+- Migrated Pixel Adventure's components and per-World UI reader to generated
+  ECS declarations.
 - Consolidated entities, components, resources, queries, and deferred commands
   under `@ecs`. App stages run through the ECS scheduler, which applies
   commands and lifecycle changes at the end of each update schedule.
@@ -46,6 +48,9 @@
 
 ### Fixed
 
+- Reclaim Pixel Adventure entities when restarting in the same World.
+- Diagnose misplaced Selene attributes and check generated companions from
+  tracked source files before CI builds.
 - Updated derive declarations to match the latest MoonBit formatter.
 - Isolated timeout queues by World and preserved zero-delay timeouts scheduled
   by callbacks for the next timer tick.
