@@ -77,8 +77,8 @@ test "events: trigger dispatches observers while send does not" {
 ///|
 test "events: entity observer only receives targeted trigger" {
   let events : Events[Int32] = Events()
-  let target = @entity.Entity()
-  let other = @entity.Entity()
+  let target = @ecs.Entity()
+  let other = @ecs.Entity()
   let received : Array[Int32] = []
   events.observe_entity(target, fn(item) { received.push(item.event) })
   |> ignore

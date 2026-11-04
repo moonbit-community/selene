@@ -14,10 +14,11 @@
 
 ///|
 /// Motor model used by joint motors and springs.
+#derive(Eq, Debug)
 pub enum JointMotorModel {
   AccelerationBased
   ForceBased
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn JointMotorModel::acceleration_based() -> JointMotorModel {
@@ -31,10 +32,11 @@ pub fn JointMotorModel::force_based() -> JointMotorModel {
 
 ///|
 /// Optional scalar lower/upper limits for a 2D joint axis.
+#derive(Eq, Debug)
 pub struct JointLimits {
   min : Double
   max : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn JointLimits::JointLimits(min : Double, max : Double) -> JointLimits {
@@ -43,10 +45,11 @@ pub fn JointLimits::JointLimits(min : Double, max : Double) -> JointLimits {
 
 ///|
 /// Softness parameters forwarded to Rapier spring-style joints.
+#derive(Eq, Debug)
 pub struct JointSoftness {
   damping_ratio : Double
   natural_frequency : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn JointSoftness::JointSoftness(
@@ -58,6 +61,7 @@ pub fn JointSoftness::JointSoftness(
 
 ///|
 /// Motor parameters for revolute joints.
+#derive(Eq, Debug)
 pub enum JointMotor {
   Position(
     target_position~ : Double,
@@ -72,7 +76,7 @@ pub enum JointMotor {
     max_force~ : Double?,
     model~ : JointMotorModel
   )
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn JointMotor::position(
@@ -97,6 +101,7 @@ pub fn JointMotor::velocity(
 
 ///|
 /// Supported 2D joint descriptors backed by Rapier impulse joints.
+#derive(Eq, Debug)
 pub enum JointKind {
   Fixed(local_anchor1~ : @math.Vec2, local_anchor2~ : @math.Vec2)
   Revolute(
@@ -125,17 +130,19 @@ pub enum JointKind {
     local_anchor2~ : @math.Vec2,
     model~ : JointMotorModel
   )
-} derive(Eq, Debug)
+}
 
 ///|
 /// Authored 2D joint component that connects two rigid-body entities.
+#derive(Eq, Debug)
+#selene.component
 pub struct Joint {
-  entity1 : @entity.Entity
-  entity2 : @entity.Entity
+  entity1 : @ecs.Entity
+  entity2 : @ecs.Entity
   kind : JointKind
   active : Bool
   contacts_enabled : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 /// Native Rapier impulse-joint handle.
@@ -143,6 +150,7 @@ pub type JointHandle = @rapier_dynamics.ImpulseJointHandle
 
 ///|
 /// Supported 2D multibody-joint descriptors backed by Rapier articulations.
+#derive(Eq, Debug)
 pub enum MultibodyJointKind {
   Revolute(
     local_anchor1~ : @math.Vec2,
@@ -151,15 +159,17 @@ pub enum MultibodyJointKind {
     motor~ : JointMotor?,
     softness~ : JointSoftness?
   )
-} derive(Eq, Debug)
+}
 
 ///|
 /// Authored 2D multibody joint attached to the child rigid-body entity.
+#derive(Eq, Debug)
+#selene.component
 pub struct MultibodyJoint {
-  parent : @entity.Entity
+  parent : @ecs.Entity
   kind : MultibodyJointKind
   active : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 /// Native Rapier multibody-joint handle.
@@ -171,8 +181,8 @@ pub type MultibodyLinkId = @rapier_dynamics.MultibodyLinkId
 
 ///|
 pub fn Joint::fixed(
-  entity1 : @entity.Entity,
-  entity2 : @entity.Entity,
+  entity1 : @ecs.Entity,
+  entity2 : @ecs.Entity,
   local_anchor1~ : @math.Vec2 = @math.Vec2::zero(),
   local_anchor2~ : @math.Vec2 = @math.Vec2::zero(),
   active~ : Bool = true,
@@ -189,8 +199,8 @@ pub fn Joint::fixed(
 
 ///|
 pub fn Joint::revolute(
-  entity1 : @entity.Entity,
-  entity2 : @entity.Entity,
+  entity1 : @ecs.Entity,
+  entity2 : @ecs.Entity,
   local_anchor1~ : @math.Vec2 = @math.Vec2::zero(),
   local_anchor2~ : @math.Vec2 = @math.Vec2::zero(),
   limits? : JointLimits,
@@ -210,8 +220,8 @@ pub fn Joint::revolute(
 
 ///|
 pub fn Joint::prismatic(
-  entity1 : @entity.Entity,
-  entity2 : @entity.Entity,
+  entity1 : @ecs.Entity,
+  entity2 : @ecs.Entity,
   axis : @math.Vec2,
   local_anchor1~ : @math.Vec2 = @math.Vec2::zero(),
   local_anchor2~ : @math.Vec2 = @math.Vec2::zero(),
@@ -230,8 +240,8 @@ pub fn Joint::prismatic(
 
 ///|
 pub fn Joint::rope(
-  entity1 : @entity.Entity,
-  entity2 : @entity.Entity,
+  entity1 : @ecs.Entity,
+  entity2 : @ecs.Entity,
   max_distance : Double,
   local_anchor1~ : @math.Vec2 = @math.Vec2::zero(),
   local_anchor2~ : @math.Vec2 = @math.Vec2::zero(),
@@ -249,8 +259,8 @@ pub fn Joint::rope(
 
 ///|
 pub fn Joint::spring(
-  entity1 : @entity.Entity,
-  entity2 : @entity.Entity,
+  entity1 : @ecs.Entity,
+  entity2 : @ecs.Entity,
   rest_length : Double,
   stiffness : Double,
   damping : Double,
@@ -278,7 +288,7 @@ pub fn Joint::spring(
 
 ///|
 pub fn MultibodyJoint::revolute(
-  parent : @entity.Entity,
+  parent : @ecs.Entity,
   local_anchor1~ : @math.Vec2 = @math.Vec2::zero(),
   local_anchor2~ : @math.Vec2 = @math.Vec2::zero(),
   limits? : JointLimits,
@@ -294,31 +304,13 @@ pub fn MultibodyJoint::revolute(
 }
 
 ///|
-priv struct JointWorldStore {
-  joints : Map[@entity.Entity, Joint]
-  multibody_joints : Map[@entity.Entity, MultibodyJoint]
-}
-
-///|
-let joint_world_stores : Map[UInt32, JointWorldStore] = Map([])
-
-///|
-fn joint_world_store() -> JointWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  joint_world_stores.get_or_init(world_id, () => {
-    joints: Map([]),
-    multibody_joints: Map([]),
-  })
-}
-
-///|
 /// Authored 2D joint components.
-pub fn joints() -> Map[@entity.Entity, Joint] {
-  joint_world_store().joints
+pub fn joints() -> @ecs.ComponentStore[Joint] {
+  @ecs.components()
 }
 
 ///|
 /// Authored 2D multibody joint components keyed by the child rigid-body entity.
-pub fn multibody_joints() -> Map[@entity.Entity, MultibodyJoint] {
-  joint_world_store().multibody_joints
+pub fn multibody_joints() -> @ecs.ComponentStore[MultibodyJoint] {
+  @ecs.components()
 }

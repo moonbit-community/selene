@@ -101,7 +101,6 @@ import {
   "Milky2018/selene/asset",
   "Milky2018/selene/audio",
   "Milky2018/selene/ecs",
-  "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
@@ -173,37 +172,54 @@ pub fn run() -> Unit {
 
 ### 游戏状态管理
 
-全局游戏状态包含玩家引用、分数、音量设置等。当前示例把 session 数据和玩家控制器数据拆开存放：
+Pixel Adventure 在每个 World 中分别保存会话组件和玩家控制器组件。
 
 ```moonbit
-struct GameSession {
-  player : @entity.Entity
-  camera : @entity.Entity
-  result_box : @entity.Entity
-  score_box : @entity.Entity
-  health_box : @entity.Entity
-  volume_button : @entity.Entity
-  mut score : Int
+#selene.component
+priv struct GameSession {
+  player : @ecs.Entity
+  camera : @ecs.Entity
+  result_box : @ecs.Entity
+  score_box : @ecs.Entity
+  health_box : @ecs.Entity
+  volume_button : @ecs.Entity
+  mut score : Int32
+  mut health : Int32
   mut volume_on : Bool
-  mut health : Int
   mut result : GameResult?
   world_size : @math.Vec2
 }
 
-struct PlayerController {
+#selene.component
+priv struct PlayerController {
   mut facing : Direction2
   mut state : PlayerState
   mut hurt_cooldown : Double
   mut pending_bounce_velocity_y : Double?
+  animations : PlayerAnimationNodes
+  mut active_animation : PlayerAnimationKey?
 }
 ```
+
+`#selene.component` 让生成器为类型注册组件键，代码可以通过
+`@ecs.components()` 访问该列。示例还用
+`#selene.resource(new_pixeladventure_world_state)` 为每个 World 初始化点击读取器。
+示例包对 `model.mbt` 应用生成规则：
+
+```moonbit
+dev_build(rule: "selene_codegen", input: "model.mbt", output: "model.g.mbt")
+formatter(ignore: ["model.g.mbt"])
+```
+
+把 `model.g.mbt` 和源文件一起提交。模块级规则和独立生成器的调用方式见
+[ECS 指南](../selene-core/src/ecs/README.md#code-generation)。
 
 ### 实体和组件
 
 游戏对象由实体（Entity）和组件（Component）表示。实体是唯一标识符，组件存放数据。创建玩家实体示例：
 
 ```moonbit
-let player = @entity.Entity()
+let player = @ecs.Entity()
 @transform.transforms().set(player, @transform.Transform::from_xyz(100.0, 100.0, 0.0))
 @physics2d.linear_velocities().set(player, @math.Vec2::zero())
 ```
@@ -214,7 +230,7 @@ let player = @entity.Entity()
 2. 设置位置组件
 3. 设置速度组件
 
-Entity 类似引用，组件通过 `Map[K, V]::set` 关联到实体上。`@transform.transforms()` 和 `@sprite.sprites()` 都是组件存储映射。
+通过 `@transform.transforms()` 和 `@sprite.sprites()` 等类型化存储访问组件列。这些存储属于当前 World。
 
 这类初始化逻辑应放在 `Startup` 阶段系统中执行一次。
 

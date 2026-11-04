@@ -1,7 +1,8 @@
 ///|
+#derive(Eq, Hash, Debug)
 pub(all) struct TouchId {
   value : Int32
-} derive(Eq, Hash, Debug)
+}
 
 ///|
 pub fn TouchId::TouchId(value : Int32) -> TouchId {
@@ -14,12 +15,13 @@ pub fn TouchId::value(self : TouchId) -> Int32 {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum TouchPhase {
   Started
   Moved
   Ended
   Cancelled
-} derive(Eq, Debug)
+}
 
 ///|
 pub(all) struct TouchPoint {
@@ -43,25 +45,28 @@ pub(all) struct TouchEvent {
 }
 
 ///|
+#derive(Eq, Hash, Debug)
 pub(all) enum PointerSource {
   PointerMouse
   PointerTouch
   PointerPen
-} derive(Eq, Hash, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum PointerPhase {
   Down
   Move
   Up
   Cancel
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Hash, Debug)
 pub(all) struct PointerId {
   source : PointerSource
   value : Int32
-} derive(Eq, Hash, Debug)
+}
 
 ///|
 pub(all) struct PointerEvent {
@@ -75,6 +80,7 @@ pub(all) struct PointerEvent {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum TouchGestureKind {
   Tap
   LongPress
@@ -86,7 +92,7 @@ pub(all) enum TouchGestureKind {
   PinchMove
   PinchEnd
   PinchCancel
-} derive(Eq, Debug)
+}
 
 ///|
 pub(all) struct TouchGestureEvent {

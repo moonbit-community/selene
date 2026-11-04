@@ -101,7 +101,6 @@ import {
   "Milky2018/selene/asset",
   "Milky2018/selene/audio",
   "Milky2018/selene/ecs",
-  "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
@@ -173,37 +172,54 @@ Systems are executed by schedule, and each system owns a specific responsibility
 
 ### Game State Management
 
-Global game state can store player references, score, volume status, and UI entities. The current example separates session data from per-player controller data:
+Pixel Adventure keeps session data and player controllers in separate component columns for each World.
 
 ```moonbit
-struct GameSession {
-  player : @entity.Entity
-  camera : @entity.Entity
-  result_box : @entity.Entity
-  score_box : @entity.Entity
-  health_box : @entity.Entity
-  volume_button : @entity.Entity
-  mut score : Int
+#selene.component
+priv struct GameSession {
+  player : @ecs.Entity
+  camera : @ecs.Entity
+  result_box : @ecs.Entity
+  score_box : @ecs.Entity
+  health_box : @ecs.Entity
+  volume_button : @ecs.Entity
+  mut score : Int32
+  mut health : Int32
   mut volume_on : Bool
-  mut health : Int
   mut result : GameResult?
   world_size : @math.Vec2
 }
 
-struct PlayerController {
+#selene.component
+priv struct PlayerController {
   mut facing : Direction2
   mut state : PlayerState
   mut hurt_cooldown : Double
   mut pending_bounce_velocity_y : Double?
+  animations : PlayerAnimationNodes
+  mut active_animation : PlayerAnimationKey?
 }
 ```
+
+The `#selene.component` markers let the generator register each type for
+`@ecs.components()`. Pixel Adventure also uses `#selene.resource(new_pixeladventure_world_state)`
+for its per-World click reader. Its package applies the generation rule to
+`model.mbt`:
+
+```moonbit
+dev_build(rule: "selene_codegen", input: "model.mbt", output: "model.g.mbt")
+formatter(ignore: ["model.g.mbt"])
+```
+
+Commit `model.g.mbt` alongside its source. See the [ECS guide](../selene-core/src/ecs/README.md#code-generation)
+for the module rule and the standalone generator.
 
 ### Entities and Components
 
 Game objects are represented by Entity + Component data. Example:
 
 ```moonbit
-let player = @entity.Entity()
+let player = @ecs.Entity()
 @transform.transforms().set(player, @transform.Transform::from_xyz(100.0, 100.0, 0.0))
 @physics2d.linear_velocities().set(player, @math.Vec2::zero())
 ```
@@ -214,7 +230,7 @@ This does three things:
 2. Attach position
 3. Attach velocity
 
-Components are stored in maps such as `@transform.transforms()` and `@sprite.sprites()`, keyed by entity ID.
+Access typed component columns through stores such as `@transform.transforms()` and `@sprite.sprites()`. The stores use the current World.
 
 Initialization behavior should run once in `Startup` systems.
 

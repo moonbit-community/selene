@@ -1,21 +1,26 @@
 ///|
+#derive(Eq, Debug)
 pub(all) enum Mesh2dPrimitive {
   Rectangle(@math.Vec2)
   Circle(Double)
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct Mesh2dAsset {
   primitive : Mesh2dPrimitive
-} derive(Eq, Debug)
+}
 
 ///|
-pub(all) struct Mesh2dHandle(UInt32) derive(Eq, Debug, Hash)
+#derive(Eq, Debug, Hash)
+pub(all) struct Mesh2dHandle(UInt32)
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct Mesh2d {
   mesh : Mesh2dHandle
-} derive(Eq, Debug)
+}
 
 ///|
 pub(all) struct Mesh2dStorage {
@@ -23,22 +28,8 @@ pub(all) struct Mesh2dStorage {
 }
 
 ///|
-priv struct Mesh2dWorldStore {
-  mesh2ds : Map[@entity.Entity, Mesh2d]
-}
-
-///|
-let mesh2d_world_stores : Map[UInt32, Mesh2dWorldStore] = Map([])
-
-///|
-fn mesh2d_world_store() -> Mesh2dWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  mesh2d_world_stores.get_or_init(world_id, fn() { { mesh2ds: Map([]), } })
-}
-
-///|
-pub fn mesh2ds() -> Map[@entity.Entity, Mesh2d] {
-  mesh2d_world_store().mesh2ds
+pub fn mesh2ds() -> @ecs.ComponentStore[Mesh2d] {
+  @ecs.components()
 }
 
 ///|
@@ -196,7 +187,7 @@ pub fn render_mesh2d_system(delta : Double) -> Unit {
 
 ///|
 fn push_mesh2d_draw_command(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   mesh_asset : Mesh2dAsset,
   material : @material2d.ColorMaterial,
   depth : Double,

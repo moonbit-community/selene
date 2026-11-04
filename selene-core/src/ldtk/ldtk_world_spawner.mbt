@@ -24,12 +24,12 @@ pub fn default_ldtk_world_spawn_settings() -> LdtkWorldSpawnSettings {
 }
 
 ///|
-pub fn mark_ldtk_respawn(entity : @entity.Entity) -> Unit {
+pub fn mark_ldtk_respawn(entity : @ecs.Entity) -> Unit {
   ldtk_respawns().set(entity, { requested: true, })
 }
 
 ///|
-pub fn clear_ldtk_respawn(entity : @entity.Entity) -> Unit {
+pub fn clear_ldtk_respawn(entity : @ecs.Entity) -> Unit {
   ldtk_respawns().remove(entity)
 }
 

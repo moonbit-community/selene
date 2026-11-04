@@ -3,18 +3,19 @@ package "Milky2018/selene/ldtk"
 
 import {
   "Milky2018/selene/collision",
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
   "Milky2018/selene/sprite",
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
   "moonbitlang/core/ref",
 }
 
 // Values
-pub fn[T] add_default_ldtk_entity_component(Map[@entity.Entity, T], (LdtkEntitySpawnedEvent) -> T) -> Unit
+pub fn[T] add_default_ldtk_entity_component(@ecs.ComponentStore[T], (LdtkEntitySpawnedEvent) -> T) -> Unit
 
-pub fn[T] add_default_ldtk_entity_component_for_layer(String, Map[@entity.Entity, T], (LdtkEntitySpawnedEvent) -> T) -> Unit
+pub fn[T] add_default_ldtk_entity_component_for_layer(String, @ecs.ComponentStore[T], (LdtkEntitySpawnedEvent) -> T) -> Unit
 
 pub fn add_default_ldtk_entity_registration((LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
@@ -24,19 +25,19 @@ pub fn add_default_ldtk_entity_tile_sprite(zindex_offset? : Int32) -> Unit
 
 pub fn add_default_ldtk_entity_tile_sprite_for_layer(String, zindex_offset? : Int32) -> Unit
 
-pub fn[T] add_default_ldtk_int_cell_component(Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+pub fn[T] add_default_ldtk_int_cell_component(@ecs.ComponentStore[T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
 
-pub fn[T] add_default_ldtk_int_cell_component_for_layer(String, Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+pub fn[T] add_default_ldtk_int_cell_component_for_layer(String, @ecs.ComponentStore[T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
 
 pub fn add_default_ldtk_int_cell_registration((LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
 pub fn add_default_ldtk_int_cell_registration_for_layer(String, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
-pub fn[T] add_ldtk_entity_component(String, Map[@entity.Entity, T], (LdtkEntitySpawnedEvent) -> T) -> Unit
+pub fn[T] add_ldtk_entity_component(String, @ecs.ComponentStore[T], (LdtkEntitySpawnedEvent) -> T) -> Unit
 
-pub fn[T] add_ldtk_entity_component_for_layer(String, String, Map[@entity.Entity, T], (LdtkEntitySpawnedEvent) -> T) -> Unit
+pub fn[T] add_ldtk_entity_component_for_layer(String, String, @ecs.ComponentStore[T], (LdtkEntitySpawnedEvent) -> T) -> Unit
 
-pub fn[T] add_ldtk_entity_component_for_layer_optional(String?, String?, Map[@entity.Entity, T], (LdtkEntitySpawnedEvent) -> T) -> Unit
+pub fn[T] add_ldtk_entity_component_for_layer_optional(String?, String?, @ecs.ComponentStore[T], (LdtkEntitySpawnedEvent) -> T) -> Unit
 
 pub fn add_ldtk_entity_registration(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
@@ -50,11 +51,11 @@ pub fn add_ldtk_entity_tile_sprite_for_layer(String, String, zindex_offset? : In
 
 pub fn add_ldtk_entity_tile_sprite_for_layer_optional(String?, String?, zindex_offset? : Int32) -> Unit
 
-pub fn[T] add_ldtk_int_cell_component(Int32, Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+pub fn[T] add_ldtk_int_cell_component(Int32, @ecs.ComponentStore[T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
 
-pub fn[T] add_ldtk_int_cell_component_for_layer(String, Int32, Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+pub fn[T] add_ldtk_int_cell_component_for_layer(String, Int32, @ecs.ComponentStore[T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
 
-pub fn[T] add_ldtk_int_cell_component_for_layer_optional(String?, Int32?, Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+pub fn[T] add_ldtk_int_cell_component_for_layer_optional(String?, Int32?, @ecs.ComponentStore[T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
 
 pub fn add_ldtk_int_cell_registration(Int32, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
@@ -62,7 +63,7 @@ pub fn add_ldtk_int_cell_registration_for_layer(String, Int32, (LdtkIntGridCellS
 
 pub fn add_ldtk_int_cell_registration_for_layer_optional(String?, Int32?, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
-pub fn clear_ldtk_children(@entity.Entity) -> Unit
+pub fn clear_ldtk_children(@ecs.Entity) -> Unit
 
 pub fn clear_ldtk_entity_default_spawn_hook() -> Unit
 
@@ -80,7 +81,7 @@ pub fn clear_ldtk_int_grid_layer_spawn_hooks() -> Unit
 
 pub fn clear_ldtk_int_grid_value_spawn_hooks() -> Unit
 
-pub fn clear_ldtk_respawn(@entity.Entity) -> Unit
+pub fn clear_ldtk_respawn(@ecs.Entity) -> Unit
 
 pub fn default_ldtk_int_grid_physics_settings() -> LdtkIntGridPhysicsSettings
 
@@ -92,7 +93,7 @@ pub fn default_ldtk_spawn_exclusions() -> LdtkSpawnExclusions
 
 pub fn default_ldtk_world_spawn_settings() -> LdtkWorldSpawnSettings
 
-pub fn despawn_ldtk_tree(@entity.Entity) -> Unit
+pub fn despawn_ldtk_tree(@ecs.Entity) -> Unit
 
 pub fn empty_ldtk_entity_reference() -> LdtkEntityReference
 
@@ -108,11 +109,11 @@ pub fn empty_ldtk_tileset_rect() -> LdtkTilesetRect
 
 pub fn insert_ldtk_entity_tile_sprite(LdtkEntitySpawnedEvent, zindex? : Int32) -> Bool
 
-pub fn ldtk_entity_by_iid(@entity.Entity, String) -> @entity.Entity?
+pub fn ldtk_entity_by_iid(@ecs.Entity, String) -> @ecs.Entity?
 
 pub fn ldtk_entity_default_spawn_hook() -> @ref.Ref[((LdtkEntitySpawnedEvent) -> Unit)?]
 
-pub fn ldtk_entity_iids() -> Map[@entity.Entity, LdtkEntityIid]
+pub fn ldtk_entity_iids() -> @ecs.ComponentStore[LdtkEntityIid]
 
 pub fn ldtk_entity_layer_identifier_spawn_hooks() -> Map[String, (LdtkEntitySpawnedEvent) -> Unit]
 
@@ -172,7 +173,7 @@ pub fn ldtk_field_vec2(Array[LdtkFieldInstance], String) -> @math.Vec2?
 
 pub fn ldtk_field_vec2_array(Array[LdtkFieldInstance], String) -> Array[@math.Vec2]?
 
-pub fn ldtk_grid_coords() -> Map[@entity.Entity, LdtkGridCoords]
+pub fn ldtk_grid_coords() -> @ecs.ComponentStore[LdtkGridCoords]
 
 pub fn ldtk_int_cell_typed_registrations() -> Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
 
@@ -180,11 +181,11 @@ pub fn ldtk_int_grid_cell_spawn_hooks() -> Map[String, (LdtkIntGridCellSpawnedEv
 
 pub let ldtk_int_grid_cell_spawned_event_bus : @event.Events[LdtkIntGridCellSpawnedEvent]
 
-pub fn ldtk_int_grid_cells() -> Map[@entity.Entity, LdtkIntGridCell]
+pub fn ldtk_int_grid_cells() -> @ecs.ComponentStore[LdtkIntGridCell]
 
 pub let ldtk_int_grid_collider_spawned_event_bus : @event.Events[LdtkIntGridColliderSpawnedEvent]
 
-pub fn ldtk_int_grid_colliders() -> Map[@entity.Entity, LdtkIntGridCollider]
+pub fn ldtk_int_grid_colliders() -> @ecs.ComponentStore[LdtkIntGridCollider]
 
 pub fn ldtk_int_grid_default_spawn_hook() -> @ref.Ref[((LdtkIntGridCellSpawnedEvent) -> Unit)?]
 
@@ -194,19 +195,19 @@ pub let ldtk_int_grid_physics_settings : @ref.Ref[LdtkIntGridPhysicsSettings]
 
 pub fn ldtk_int_grid_value_spawn_hooks() -> Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
 
-pub fn ldtk_layer_metadata() -> Map[@entity.Entity, LdtkLayerMetadata]
+pub fn ldtk_layer_metadata() -> @ecs.ComponentStore[LdtkLayerMetadata]
 
 pub let ldtk_layer_spawned_event_bus : @event.Events[LdtkLayerSpawnedEvent]
 
-pub fn ldtk_level_backgrounds() -> Map[@entity.Entity, LdtkLevelBackground]
+pub fn ldtk_level_backgrounds() -> @ecs.ComponentStore[LdtkLevelBackground]
 
-pub fn ldtk_level_entity(@entity.Entity, String) -> @entity.Entity?
+pub fn ldtk_level_entity(@ecs.Entity, String) -> @ecs.Entity?
 
 pub let ldtk_level_event_bus : @event.Events[LdtkLevelEvent]
 
-pub fn ldtk_level_iids() -> Map[@entity.Entity, LdtkLevelIid]
+pub fn ldtk_level_iids() -> @ecs.ComponentStore[LdtkLevelIid]
 
-pub fn ldtk_level_instances() -> Map[@entity.Entity, LdtkLevelInstance]
+pub fn ldtk_level_instances() -> @ecs.ComponentStore[LdtkLevelInstance]
 
 pub let ldtk_level_selection : @ref.Ref[LdtkLevelSelection]
 
@@ -230,39 +231,39 @@ pub let ldtk_level_spawned_event_bus : @event.Events[LdtkLevelSpawnedEvent]
 
 pub fn ldtk_pending_transformed_level_iids() -> Map[String, Bool]
 
-pub fn ldtk_respawns() -> Map[@entity.Entity, LdtkRespawn]
+pub fn ldtk_respawns() -> @ecs.ComponentStore[LdtkRespawn]
 
 pub let ldtk_settings : @ref.Ref[LdtkSettings]
 
-pub fn ldtk_spawned_entity_instances() -> Map[@entity.Entity, LdtkSpawnedEntityInstance]
+pub fn ldtk_spawned_entity_instances() -> @ecs.ComponentStore[LdtkSpawnedEntityInstance]
 
-pub fn ldtk_spawned_int_grid_cells() -> Map[@entity.Entity, LdtkSpawnedIntGridCell]
+pub fn ldtk_spawned_int_grid_cells() -> @ecs.ComponentStore[LdtkSpawnedIntGridCell]
 
-pub fn ldtk_spawned_layer_instances() -> Map[@entity.Entity, LdtkSpawnedLayerInstance]
+pub fn ldtk_spawned_layer_instances() -> @ecs.ComponentStore[LdtkSpawnedLayerInstance]
 
-pub fn ldtk_spawned_tile_instances() -> Map[@entity.Entity, LdtkSpawnedTileInstance]
+pub fn ldtk_spawned_tile_instances() -> @ecs.ComponentStore[LdtkSpawnedTileInstance]
 
-pub fn ldtk_tile_metadata() -> Map[@entity.Entity, LdtkTileMetadata]
+pub fn ldtk_tile_metadata() -> @ecs.ComponentStore[LdtkTileMetadata]
 
 pub let ldtk_tile_spawned_event_bus : @event.Events[LdtkTileSpawnedEvent]
 
-pub fn ldtk_world_instances() -> Map[@entity.Entity, LdtkWorldInstance]
+pub fn ldtk_world_instances() -> @ecs.ComponentStore[LdtkWorldInstance]
 
 pub let ldtk_world_spawned_event_bus : @event.Events[LdtkWorldSpawnedEvent]
 
 pub fn ldtk_world_sync_system(Double) -> Unit
 
-pub fn ldtk_worldly_entities() -> Map[@entity.Entity, LdtkWorldly]
+pub fn ldtk_worldly_entities() -> @ecs.ComponentStore[LdtkWorldly]
 
-pub fn ldtk_worldly_entity(@entity.Entity, String) -> @entity.Entity?
+pub fn ldtk_worldly_entity(@ecs.Entity, String) -> @ecs.Entity?
 
-pub fn load_and_spawn_ldtk_world(String, settings? : LdtkWorldSpawnSettings) -> @entity.Entity
+pub fn load_and_spawn_ldtk_world(String, settings? : LdtkWorldSpawnSettings) -> @ecs.Entity
 
 pub fn load_ldtk_project(String) -> LdtkProject
 
 pub fn load_ldtk_project_raw(String) -> LdtkProject
 
-pub fn mark_ldtk_respawn(@entity.Entity) -> Unit
+pub fn mark_ldtk_respawn(@ecs.Entity) -> Unit
 
 pub fn register_default_ldtk_entity((LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
@@ -314,21 +315,21 @@ pub fn register_ldtk_int_grid_spawn_hook_optional(String?, Int32?, (LdtkIntGridC
 
 pub fn register_ldtk_int_grid_value_spawn_hook(Int32, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
-pub fn respawn_ldtk_world_into_entity(@entity.Entity, LdtkProject, settings? : LdtkWorldSpawnSettings) -> Unit
+pub fn respawn_ldtk_world_into_entity(@ecs.Entity, LdtkProject, settings? : LdtkWorldSpawnSettings) -> Unit
 
 pub fn set_ldtk_int_grid_physics_settings(LdtkIntGridPhysicsSettings) -> Unit
 
 pub fn set_ldtk_level_selection(LdtkLevelSelection) -> Unit
 
-pub fn set_ldtk_level_set(@entity.Entity, LdtkLevelSet) -> Unit
+pub fn set_ldtk_level_set(@ecs.Entity, LdtkLevelSet) -> Unit
 
 pub fn set_ldtk_settings(LdtkSettings) -> Unit
 
-pub fn set_ldtk_world_follow_level_selection(@entity.Entity, Bool) -> Unit
+pub fn set_ldtk_world_follow_level_selection(@ecs.Entity, Bool) -> Unit
 
-pub fn spawn_ldtk_world(LdtkProject, settings? : LdtkWorldSpawnSettings) -> @entity.Entity
+pub fn spawn_ldtk_world(LdtkProject, settings? : LdtkWorldSpawnSettings) -> @ecs.Entity
 
-pub fn spawn_ldtk_world_into_entity(@entity.Entity, LdtkProject, settings? : LdtkWorldSpawnSettings) -> Unit
+pub fn spawn_ldtk_world_into_entity(@ecs.Entity, LdtkProject, settings? : LdtkWorldSpawnSettings) -> Unit
 
 pub fn unregister_default_ldtk_entity() -> Unit
 
@@ -382,6 +383,7 @@ pub struct LdtkEntityDefinition {
 pub struct LdtkEntityIid {
   iid : String
 }
+pub impl @ecs.Component for LdtkEntityIid
 
 pub struct LdtkEntityInstance {
   iid : String
@@ -430,10 +432,10 @@ pub struct LdtkEntityReference {
 }
 
 pub struct LdtkEntitySpawnedEvent {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
-  layer_entity : @entity.Entity
-  entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
+  entity : @ecs.Entity
   level : LdtkLevel
   layer : LdtkLayerInstance
   instance : LdtkEntityInstance
@@ -459,13 +461,13 @@ pub struct LdtkFieldDefinition {
   field_type : String
   is_array : Bool
   can_be_null : Bool
-  default_override : Json?
+  default_override : @json.Json?
 }
 
 pub struct LdtkFieldInstance {
   identifier : String
   value_type : String
-  value : Json?
+  value : @json.Json?
   def_uid : Int32?
 }
 pub fn LdtkFieldInstance::bool_array_value(Self) -> Array[Bool]?
@@ -495,6 +497,7 @@ pub struct LdtkGridCoords {
   x : Int32
   y : Int32
 }
+pub impl @ecs.Component for LdtkGridCoords
 
 pub struct LdtkIndexedLevel {
   indices : LdtkLevelIndices
@@ -504,12 +507,13 @@ pub struct LdtkIndexedLevel {
 pub struct LdtkIntGridCell {
   value : Int32
 }
+pub impl @ecs.Component for LdtkIntGridCell
 
 pub struct LdtkIntGridCellSpawnedEvent {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
-  layer_entity : @entity.Entity
-  cell_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
+  cell_entity : @ecs.Entity
   level : LdtkLevel
   layer : LdtkLayerInstance
   value : Int32
@@ -521,13 +525,14 @@ pub struct LdtkIntGridCellSpawnedEvent {
 pub struct LdtkIntGridCollider {
   sensor : Bool
 }
+pub impl @ecs.Component for LdtkIntGridCollider
 
 pub struct LdtkIntGridColliderSpawnedEvent {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
-  layer_entity : @entity.Entity
-  cell_entity : @entity.Entity
-  collider_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
+  cell_entity : @ecs.Entity
+  collider_entity : @ecs.Entity
   level : LdtkLevel
   layer : LdtkLayerInstance
   value : Int32
@@ -547,10 +552,11 @@ pub struct LdtkIntGridPhysicsSettings {
 }
 pub fn LdtkIntGridPhysicsSettings::matches(Self, String, Int32) -> Bool
 
+#derive(Eq, @debug.Debug)
 pub enum LdtkIntGridRendering {
   Colorful
   Invisible
-} derive(Eq, @debug.Debug)
+}
 pub fn LdtkIntGridRendering::equal(Self, Self) -> Bool
 pub fn LdtkIntGridRendering::not_equal(Self, Self) -> Bool
 pub fn LdtkIntGridRendering::to_repr(Self) -> @debug.Repr
@@ -615,11 +621,12 @@ pub struct LdtkLayerMetadata {
   seed : Int32
   visible : Bool
 }
+pub impl @ecs.Component for LdtkLayerMetadata
 
 pub struct LdtkLayerSpawnedEvent {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
-  layer_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
   level : LdtkLevel
   layer : LdtkLayerInstance
   effective_visible : Bool
@@ -667,13 +674,14 @@ pub fn LdtkLevel::field_vec2(Self, String) -> @math.Vec2?
 pub fn LdtkLevel::field_vec2_array(Self, String) -> Array[@math.Vec2]?
 
 pub struct LdtkLevelBackground {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
   level_iid : String
   color : String?
   rel_path : String?
   zindex : Int32
 }
+pub impl @ecs.Component for LdtkLevelBackground
 
 pub struct LdtkLevelBackgroundPosition {
   crop_x : Double
@@ -694,6 +702,7 @@ pub enum LdtkLevelEvent {
 pub struct LdtkLevelIid {
   iid : String
 }
+pub impl @ecs.Component for LdtkLevelIid
 
 pub struct LdtkLevelIndices {
   world : Int32?
@@ -704,10 +713,11 @@ pub fn LdtkLevelIndices::in_root(Int32) -> Self
 pub fn LdtkLevelIndices::in_world(Int32, Int32) -> Self
 
 pub struct LdtkLevelInstance {
-  world_entity : @entity.Entity
+  world_entity : @ecs.Entity
   indices : LdtkLevelIndices
   level : LdtkLevel
 }
+pub impl @ecs.Component for LdtkLevelInstance
 
 pub enum LdtkLevelSelection {
   Identifier(String)
@@ -729,8 +739,8 @@ pub enum LdtkLevelSpawnBehavior {
 }
 
 pub struct LdtkLevelSpawnedEvent {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
   indices : LdtkLevelIndices
   level : LdtkLevel
 }
@@ -758,7 +768,7 @@ pub fn LdtkProject::enum_definition_by_uid(Self, Int32) -> LdtkEnumDefinition?
 pub fn LdtkProject::external_enum_definition_by_identifier(Self, String) -> LdtkEnumDefinition?
 pub fn LdtkProject::external_enum_definition_by_uid(Self, Int32) -> LdtkEnumDefinition?
 pub fn LdtkProject::find_level_by_selection(Self, LdtkLevelSelection) -> LdtkIndexedLevel?
-pub fn LdtkProject::from_ldtk_json(Json) -> Self
+pub fn LdtkProject::from_ldtk_json(@json.Json) -> Self
 pub fn LdtkProject::indexed_levels(Self) -> Array[LdtkIndexedLevel]
 pub fn LdtkProject::int_grid_color(Self, String, Int32) -> String?
 pub fn LdtkProject::layer_definition_by_identifier(Self, String) -> LdtkLayerDefinition?
@@ -786,6 +796,7 @@ pub struct LdtkProjectDefinitions {
 pub struct LdtkRespawn {
   requested : Bool
 }
+pub impl @ecs.Component for LdtkRespawn
 
 pub struct LdtkSettings {
   level_spawn_behavior : LdtkLevelSpawnBehavior
@@ -799,41 +810,45 @@ pub struct LdtkSpawnExclusions {
 pub fn LdtkSpawnExclusions::excludes_layer(Self, String) -> Bool
 
 pub struct LdtkSpawnedEntityInstance {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
-  layer_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
   layer : LdtkLayerInstance
   instance : LdtkEntityInstance
   zindex : Int32
 }
+pub impl @ecs.Component for LdtkSpawnedEntityInstance
 
 pub struct LdtkSpawnedIntGridCell {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
-  layer_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
   layer : LdtkLayerInstance
   value : Int32
   grid_x : Int32
   grid_y : Int32
   zindex : Int32
 }
+pub impl @ecs.Component for LdtkSpawnedIntGridCell
 
 pub struct LdtkSpawnedLayerInstance {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
   layer : LdtkLayerInstance
   effective_visible : Bool
   zindex : Int32
 }
+pub impl @ecs.Component for LdtkSpawnedLayerInstance
 
 pub struct LdtkSpawnedTileInstance {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
-  layer_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
   layer : LdtkLayerInstance
   tile : LdtkTileInstance
   zindex : Int32
 }
+pub impl @ecs.Component for LdtkSpawnedTileInstance
 
 pub struct LdtkTileInstance {
   tile_id : Int32
@@ -854,12 +869,13 @@ pub struct LdtkTileMetadata {
   custom_data : String?
   enum_tags : Array[String]
 }
+pub impl @ecs.Component for LdtkTileMetadata
 
 pub struct LdtkTileSpawnedEvent {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
-  layer_entity : @entity.Entity
-  tile_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
+  tile_entity : @ecs.Entity
   level : LdtkLevel
   layer : LdtkLayerInstance
   tile : LdtkTileInstance
@@ -912,8 +928,9 @@ pub struct LdtkWorldInstance {
   project : LdtkProject
   mut settings : LdtkWorldSpawnSettings
   mut level_set : LdtkLevelSet
-  spawned_levels : Map[String, @entity.Entity]
+  spawned_levels : Map[String, @ecs.Entity]
 }
+pub impl @ecs.Component for LdtkWorldInstance
 
 pub struct LdtkWorldSpawnSettings {
   position : @math.Vec2
@@ -933,15 +950,16 @@ pub struct LdtkWorldSpawnSettings {
 }
 
 pub struct LdtkWorldSpawnedEvent {
-  world_entity : @entity.Entity
+  world_entity : @ecs.Entity
   project : LdtkProject
 }
 
 pub struct LdtkWorldly {
-  world_entity : @entity.Entity
+  world_entity : @ecs.Entity
   level_iid : String
   entity_iid : String
 }
+pub impl @ecs.Component for LdtkWorldly
 
 // Type aliases
 

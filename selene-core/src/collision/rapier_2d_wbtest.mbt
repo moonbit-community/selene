@@ -9,7 +9,7 @@ fn collision_test_shape() -> CollisionShape {
 }
 
 ///|
-fn set_test_translation(entity : @entity.Entity, position : @math.Vec2) -> Unit {
+fn set_test_translation(entity : @ecs.Entity, position : @math.Vec2) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
@@ -18,18 +18,18 @@ fn set_test_translation(entity : @entity.Entity, position : @math.Vec2) -> Unit 
 }
 
 ///|
-fn remove_test_transform(entity : @entity.Entity) -> Unit {
+fn remove_test_transform(entity : @ecs.Entity) -> Unit {
   @transform.transforms().remove(entity)
 }
 
 ///|
-fn test_translation(entity : @entity.Entity) -> @math.Vec2 {
+fn test_translation(entity : @ecs.Entity) -> @math.Vec2 {
   let transform = @transform.transforms().get(entity).unwrap_or_default()
   Vec2(transform.translation.x, transform.translation.y)
 }
 
 ///|
-fn collision_test_cleanup(entities : Array[@entity.Entity]) -> Unit {
+fn collision_test_cleanup(entities : Array[@ecs.Entity]) -> Unit {
   for entity in entities {
     colliders().remove(entity)
     areas().remove(entity)
@@ -44,7 +44,7 @@ fn collision_test_cleanup(entities : Array[@entity.Entity]) -> Unit {
     entity.destroy()
   }
   rapier_fixed_step(0.016)
-  @entity.entity_flush_system(0.0)
+  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
   configure_physics(
     gravity=@math.Vec2::zero(),
     pixels_per_meter=100.0,
@@ -64,7 +64,7 @@ test "explicit rigid body syncs material and rapier handles" {
     pixels_per_meter=100.0,
     max_ccd_substeps=4,
   )
-  let entity = @entity.Entity()
+  let entity = @ecs.Entity()
   defer collision_test_cleanup([entity])
 
   set_test_translation(entity, @math.Vec2::zero())
@@ -139,7 +139,7 @@ test "dynamic rigid body moves under gravity without legacy velocity component" 
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let entity = @entity.Entity()
+  let entity = @ecs.Entity()
   defer collision_test_cleanup([entity])
 
   set_test_translation(entity, @math.Vec2::zero())
@@ -165,8 +165,8 @@ test "explicit body type overrides legacy velocity heuristic" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let fixed_entity = @entity.Entity()
-  let kinematic_entity = @entity.Entity()
+  let fixed_entity = @ecs.Entity()
+  let kinematic_entity = @ecs.Entity()
   defer collision_test_cleanup([fixed_entity, kinematic_entity])
 
   for entity in [fixed_entity, kinematic_entity] {
@@ -197,9 +197,9 @@ test "spatial queries resolve hits, overlaps, and body filters" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let fixed_entity = @entity.Entity()
-  let dynamic_entity = @entity.Entity()
-  let kinematic_entity = @entity.Entity()
+  let fixed_entity = @ecs.Entity()
+  let dynamic_entity = @ecs.Entity()
+  let kinematic_entity = @ecs.Entity()
   defer collision_test_cleanup([fixed_entity, dynamic_entity, kinematic_entity])
 
   set_test_translation(fixed_entity, Vec2(120.0, 80.0))
@@ -298,7 +298,7 @@ test "rigid body setters and getters work before insertion" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let entity = @entity.Entity()
+  let entity = @ecs.Entity()
   defer collision_test_cleanup([entity])
 
   set_test_translation(entity, @math.Vec2::zero())
@@ -356,7 +356,7 @@ test "force and impulse helpers apply before and after body creation" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let entity = @entity.Entity()
+  let entity = @ecs.Entity()
   defer collision_test_cleanup([entity])
 
   set_test_translation(entity, @math.Vec2::zero())
@@ -402,9 +402,9 @@ test "impulse joints insert and accept all supported joint kinds" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let body_a = @entity.Entity()
-  let body_b = @entity.Entity()
-  let joint_entity = @entity.Entity()
+  let body_a = @ecs.Entity()
+  let body_b = @ecs.Entity()
+  let joint_entity = @ecs.Entity()
   defer collision_test_cleanup([body_a, body_b, joint_entity])
 
   set_test_translation(body_a, @math.Vec2::zero())
@@ -486,9 +486,9 @@ test "impulse joints are removed when endpoints disappear" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let body_a = @entity.Entity()
-  let body_b = @entity.Entity()
-  let joint_entity = @entity.Entity()
+  let body_a = @ecs.Entity()
+  let body_b = @ecs.Entity()
+  let joint_entity = @ecs.Entity()
   defer collision_test_cleanup([body_a, body_b, joint_entity])
 
   for entry in [(body_a, @math.Vec2::zero()), (body_b, Vec2(32.0, 0.0))] {
@@ -520,9 +520,9 @@ test "multibody joints insert, expose handles, and rebuild chains" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let parent = @entity.Entity()
-  let child = @entity.Entity()
-  let grandchild = @entity.Entity()
+  let parent = @ecs.Entity()
+  let child = @ecs.Entity()
+  let grandchild = @ecs.Entity()
   defer collision_test_cleanup([parent, child, grandchild])
 
   for
@@ -651,8 +651,8 @@ test "multibody joints are removed when endpoints disappear" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let parent = @entity.Entity()
-  let child = @entity.Entity()
+  let parent = @ecs.Entity()
+  let child = @ecs.Entity()
   defer collision_test_cleanup([parent, child])
 
   for entry in [(parent, @math.Vec2::zero()), (child, Vec2(32.0, 0.0))] {

@@ -3,61 +3,64 @@ package "Milky2018/selene/audio"
 
 import {
   "Milky2018/selene/asset_types",
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/event",
   "Milky2018/selene/platform_audio",
   "moonbitlang/core/debug",
 }
 
 // Values
-pub fn attach_audio(@entity.Entity, AudioPlayer, settings? : PlaybackSettings) -> Unit
+pub fn attach_audio(@ecs.Entity, AudioPlayer, settings? : PlaybackSettings) -> Unit
 
 pub let audio_event_bus : @event.Events[AudioEvent]
 
 pub fn audio_event_playback_system(Double) -> Unit
 
-pub fn audio_playback_settings() -> Map[@entity.Entity, PlaybackSettings]
+pub fn audio_playback_settings() -> @ecs.ComponentStore[PlaybackSettings]
 
 pub fn audio_playback_system(Double) -> Unit
 
-pub fn audio_players() -> Map[@entity.Entity, AudioPlayer]
+pub fn audio_players() -> @ecs.ComponentStore[AudioPlayer]
 
-pub fn audio_sinks() -> Map[@entity.Entity, AudioSink]
+pub fn audio_sinks() -> @ecs.ComponentStore[AudioSink]
 
 pub fn global_volume() -> Double
 
 pub fn play_one_shot(@asset_types.AudioHandle, volume? : Double) -> Unit
 
-pub fn restart_audio(@entity.Entity) -> Unit
+pub fn restart_audio(@ecs.Entity) -> Unit
 
-pub fn send_audio_event(@asset_types.AudioHandle, settings? : PlaybackSettings, target? : @entity.Entity) -> Unit
+pub fn send_audio_event(@asset_types.AudioHandle, settings? : PlaybackSettings, target? : @ecs.Entity) -> Unit
 
 pub fn set_global_volume(Double) -> Unit
 
-pub fn spawn_audio(@asset_types.AudioHandle, settings? : PlaybackSettings) -> @entity.Entity
+pub fn spawn_audio(@asset_types.AudioHandle, settings? : PlaybackSettings) -> @ecs.Entity
 
-pub fn stop_audio(@entity.Entity) -> Unit
+pub fn stop_audio(@ecs.Entity) -> Unit
 
 // Errors
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) struct AudioEvent {
   source : @asset_types.AudioHandle
   settings : PlaybackSettings
-  target : @entity.Entity?
-} derive(Eq, @debug.Debug)
+  target : @ecs.Entity?
+}
 pub fn AudioEvent::equal(Self, Self) -> Bool
 pub fn AudioEvent::not_equal(Self, Self) -> Bool
 pub fn AudioEvent::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct AudioPlayer {
   source : @asset_types.AudioHandle
-} derive(Eq, @debug.Debug)
+}
 pub fn AudioPlayer::AudioPlayer(@asset_types.AudioHandle) -> Self
 pub fn AudioPlayer::equal(Self, Self) -> Bool
 pub fn AudioPlayer::from_path(String) -> Self
 pub fn AudioPlayer::not_equal(Self, Self) -> Bool
 pub fn AudioPlayer::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for AudioPlayer
 
 pub(all) struct AudioSink {
   instance : @platform_audio.AudioInstance
@@ -83,24 +86,27 @@ pub fn AudioSink::speed(Self) -> Double
 pub fn AudioSink::stop(Self) -> Unit
 pub fn AudioSink::stopped(Self) -> Bool
 pub fn AudioSink::volume(Self) -> Double
+pub impl @ecs.Component for AudioSink
 
+#derive(Eq, @debug.Debug)
 pub(all) enum PlaybackMode {
   Once
   Loop
   Remove
   Despawn
-} derive(Eq, @debug.Debug)
+}
 pub fn PlaybackMode::equal(Self, Self) -> Bool
 pub fn PlaybackMode::not_equal(Self, Self) -> Bool
 pub fn PlaybackMode::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct PlaybackSettings {
   mode : PlaybackMode
   volume : Double
   speed : Double
   paused : Bool
   muted : Bool
-} derive(Eq, @debug.Debug)
+}
 pub fn PlaybackSettings::despawn() -> Self
 pub fn PlaybackSettings::equal(Self, Self) -> Bool
 pub fn PlaybackSettings::looped() -> Self
@@ -113,6 +119,7 @@ pub fn PlaybackSettings::with_muted(Self, Bool) -> Self
 pub fn PlaybackSettings::with_paused(Self, Bool) -> Self
 pub fn PlaybackSettings::with_speed(Self, Double) -> Self
 pub fn PlaybackSettings::with_volume(Self, Double) -> Self
+pub impl @ecs.Component for PlaybackSettings
 
 // Type aliases
 pub using @asset_types {type AudioHandle}

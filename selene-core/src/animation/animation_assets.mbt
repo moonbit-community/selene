@@ -6,16 +6,18 @@ pub(all) struct TransitionEntry {
 }
 
 ///|
+#selene.component
 pub(all) struct AnimationTransitions {
   mut main : AnimationNodeIndex?
   fading : Map[AnimationNodeIndex, TransitionEntry]
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct MorphTargetBinding3D {
   position_deltas : Array[@math.Vec3]?
   normal_deltas : Array[@math.Vec3]?
-} derive(Eq, Debug)
+}
 
 ///|
 pub(all) struct SkinVertexInfluence3D {
@@ -30,8 +32,9 @@ pub(all) struct SkinVertexInfluence3D {
 }
 
 ///|
+#selene.component
 pub(all) struct SkinnedMeshBinding3D {
-  target_entity : @entity.Entity
+  target_entity : @ecs.Entity
   mesh : @render3d.MeshHandle
   base_positions : Array[@math.Vec3]
   indices : Array[Int32]?
@@ -43,13 +46,14 @@ pub(all) struct SkinnedMeshBinding3D {
   morph_targets : Array[MorphTargetBinding3D]
   mut morph_weights : Array[Double]
   influences : Array[SkinVertexInfluence3D]
-  joint_entities : Array[@entity.Entity]
+  joint_entities : Array[@ecs.Entity]
   inverse_bind_matrices : Array[@math.Mat4]
 }
 
 ///|
+#selene.component
 pub(all) struct MorphMeshBinding3D {
-  target_entity : @entity.Entity
+  target_entity : @ecs.Entity
   mesh : @render3d.MeshHandle
   base_positions : Array[@math.Vec3]
   indices : Array[Int32]?
@@ -60,34 +64,6 @@ pub(all) struct MorphMeshBinding3D {
   tangents : Array[@render3d.Tangent3D]?
   morph_targets : Array[MorphTargetBinding3D]
   mut morph_weights : Array[Double]
-}
-
-///|
-priv struct AnimationWorldStore {
-  animation_players : Map[@entity.Entity, AnimationPlayer]
-  animation_graph_handles : Map[@entity.Entity, AnimationGraphHandle]
-  animation_transitions : Map[@entity.Entity, AnimationTransitions]
-  animation_target_ids : Map[@entity.Entity, AnimationTargetId]
-  animated_bys : Map[@entity.Entity, AnimatedBy]
-  skinned_meshes : Map[@entity.Entity, SkinnedMeshBinding3D]
-  morphed_meshes : Map[@entity.Entity, MorphMeshBinding3D]
-}
-
-///|
-let animation_world_stores : Map[UInt32, AnimationWorldStore] = Map([])
-
-///|
-fn animation_world_store() -> AnimationWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  animation_world_stores.get_or_init(world_id, () => {
-    animation_players: Map([]),
-    animation_graph_handles: Map([]),
-    animation_transitions: Map([]),
-    animation_target_ids: Map([]),
-    animated_bys: Map([]),
-    skinned_meshes: Map([]),
-    morphed_meshes: Map([]),
-  })
 }
 
 ///|
@@ -116,7 +92,7 @@ let discrete_animated_fields : Set[AnimatedFieldHandle] = Set([])
 
 ///|
 priv struct AnimationEventDescriptor {
-  dispatch : (AnimationEventContext, @entity.Entity?) -> Unit
+  dispatch : (AnimationEventContext, @ecs.Entity?) -> Unit
 }
 
 ///|
@@ -150,11 +126,11 @@ pub let animation_graph_asset_events : @event.Events[
 ] = Events()
 
 ///|
-pub fn animation_players() -> Map[@entity.Entity, AnimationPlayer] {
-  animation_world_store().animation_players
+pub fn animation_players() -> @ecs.ComponentStore[AnimationPlayer] {
+  @ecs.components()
 }
 
 ///|
-pub fn animation_graph_handles() -> Map[@entity.Entity, AnimationGraphHandle] {
-  animation_world_store().animation_graph_handles
+pub fn animation_graph_handles() -> @ecs.ComponentStore[AnimationGraphHandle] {
+  @ecs.components()
 }

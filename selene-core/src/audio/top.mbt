@@ -16,28 +16,34 @@
 pub type AudioHandle = @asset.AudioHandle
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum PlaybackMode {
   Once
   Loop
   Remove
   Despawn
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct PlaybackSettings {
   mode : PlaybackMode
   volume : Double
   speed : Double
   paused : Bool
   muted : Bool
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct AudioPlayer {
   source : AudioHandle
-} derive(Eq, Debug)
+}
 
 ///|
+#selene.component
 pub(all) struct AudioSink {
   instance : @platform_audio.AudioInstance
   mode : PlaybackMode
@@ -50,45 +56,26 @@ pub(all) struct AudioSink {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct AudioEvent {
   source : AudioHandle
   settings : PlaybackSettings
-  target : @entity.Entity?
-} derive(Eq, Debug)
-
-///|
-priv struct AudioWorldStore {
-  audio_players : Map[@entity.Entity, AudioPlayer]
-  audio_playback_settings : Map[@entity.Entity, PlaybackSettings]
-  audio_sinks : Map[@entity.Entity, AudioSink]
+  target : @ecs.Entity?
 }
 
 ///|
-let audio_world_stores : Map[UInt32, AudioWorldStore] = Map([])
-
-///|
-fn audio_world_store() -> AudioWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  audio_world_stores.get_or_init(world_id, () => {
-    audio_players: Map([]),
-    audio_playback_settings: Map([]),
-    audio_sinks: Map([]),
-  })
+pub fn audio_players() -> @ecs.ComponentStore[AudioPlayer] {
+  @ecs.components()
 }
 
 ///|
-pub fn audio_players() -> Map[@entity.Entity, AudioPlayer] {
-  audio_world_store().audio_players
+pub fn audio_playback_settings() -> @ecs.ComponentStore[PlaybackSettings] {
+  @ecs.components()
 }
 
 ///|
-pub fn audio_playback_settings() -> Map[@entity.Entity, PlaybackSettings] {
-  audio_world_store().audio_playback_settings
-}
-
-///|
-pub fn audio_sinks() -> Map[@entity.Entity, AudioSink] {
-  audio_world_store().audio_sinks
+pub fn audio_sinks() -> @ecs.ComponentStore[AudioSink] {
+  @ecs.components()
 }
 
 ///|
@@ -299,7 +286,7 @@ pub fn global_volume() -> Double {
 
 ///|
 pub fn attach_audio(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   player : AudioPlayer,
   settings~ : PlaybackSettings = PlaybackSettings::once(),
 ) -> Unit {
@@ -315,8 +302,8 @@ pub fn attach_audio(
 pub fn spawn_audio(
   source : AudioHandle,
   settings~ : PlaybackSettings = PlaybackSettings::once(),
-) -> @entity.Entity {
-  let entity = @entity.Entity()
+) -> @ecs.Entity {
+  let entity = @ecs.Entity()
   attach_audio(entity, AudioPlayer(source), settings~)
   entity
 }
@@ -325,7 +312,7 @@ pub fn spawn_audio(
 pub fn send_audio_event(
   source : AudioHandle,
   settings~ : PlaybackSettings = PlaybackSettings::once(),
-  target? : @entity.Entity,
+  target? : @ecs.Entity,
 ) -> Unit {
   audio_event_bus.send({ source, settings, target, })
 }
@@ -339,7 +326,7 @@ pub fn play_one_shot(source : AudioHandle, volume~ : Double = 1.0) -> Unit {
 }
 
 ///|
-pub fn restart_audio(entity : @entity.Entity) -> Unit {
+pub fn restart_audio(entity : @ecs.Entity) -> Unit {
   if audio_sinks().get(entity) is Some(sink) {
     @platform_audio.stop(instance=sink.instance)
     audio_sinks().remove(entity)
@@ -347,7 +334,7 @@ pub fn restart_audio(entity : @entity.Entity) -> Unit {
 }
 
 ///|
-pub fn stop_audio(entity : @entity.Entity) -> Unit {
+pub fn stop_audio(entity : @ecs.Entity) -> Unit {
   if audio_sinks().get(entity) is Some(sink) {
     @platform_audio.stop(instance=sink.instance)
     audio_sinks().remove(entity)
@@ -378,7 +365,7 @@ fn cleanup_orphaned_audio() -> Unit {
 
 ///|
 fn start_audio_sink(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   player : AudioPlayer,
   settings : PlaybackSettings,
 ) -> Unit {
@@ -407,7 +394,7 @@ fn start_audio_sink(
 }
 
 ///|
-fn finish_audio_sink(entity : @entity.Entity) -> Unit {
+fn finish_audio_sink(entity : @ecs.Entity) -> Unit {
   guard audio_sinks().get(entity) is Some(sink) else { return }
   match sink.mode {
     Once => sink.finished = true
@@ -424,7 +411,7 @@ fn finish_audio_sink(entity : @entity.Entity) -> Unit {
 }
 
 ///|
-fn sync_audio_sink(entity : @entity.Entity, sink : AudioSink) -> Unit {
+fn sync_audio_sink(entity : @ecs.Entity, sink : AudioSink) -> Unit {
   if sink.stopped {
     if !sink.finished {
       @platform_audio.stop(instance=sink.instance)

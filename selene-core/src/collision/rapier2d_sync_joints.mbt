@@ -92,8 +92,8 @@ fn make_query_pipeline(
 ///|
 fn intersecting_entities(
   handles : Array[@rapier_collision.ColliderHandle],
-) -> Array[@entity.Entity] {
-  let entities : Array[@entity.Entity] = []
+) -> Array[@ecs.Entity] {
+  let entities : Array[@ecs.Entity] = []
   for handle in handles {
     guard entity_from_collider_handle(handle) is Some(entity) else { continue }
     if !entities.contains(entity) {
@@ -111,8 +111,8 @@ fn refresh_query_world() -> Unit {
 
 ///|
 fn accumulate_pending_vec2(
-  pending : Map[@entity.Entity, @math.Vec2],
-  entity : @entity.Entity,
+  pending : Map[@ecs.Entity, @math.Vec2],
+  entity : @ecs.Entity,
   value : @math.Vec2,
 ) -> Unit {
   pending.set(entity, pending.get(entity).unwrap_or(@math.Vec2::zero()) + value)
@@ -120,8 +120,8 @@ fn accumulate_pending_vec2(
 
 ///|
 fn accumulate_pending_scalar(
-  pending : Map[@entity.Entity, Double],
-  entity : @entity.Entity,
+  pending : Map[@ecs.Entity, Double],
+  entity : @ecs.Entity,
   value : Double,
 ) -> Unit {
   pending.set(entity, pending.get(entity).unwrap_or(0.0) + value)
@@ -129,8 +129,8 @@ fn accumulate_pending_scalar(
 
 ///|
 fn push_pending_force_point(
-  pending : Map[@entity.Entity, Array[(@math.Vec2, @math.Vec2)]],
-  entity : @entity.Entity,
+  pending : Map[@ecs.Entity, Array[(@math.Vec2, @math.Vec2)]],
+  entity : @ecs.Entity,
   value : (@math.Vec2, @math.Vec2),
 ) -> Unit {
   let values = pending.get(entity).unwrap_or([])
@@ -140,7 +140,7 @@ fn push_pending_force_point(
 
 ///|
 fn apply_force_now(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   force : @math.Vec2,
   wake_up : Bool,
 ) -> Bool {
@@ -155,7 +155,7 @@ fn apply_force_now(
 
 ///|
 fn apply_force_at_point_now(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   force : @math.Vec2,
   point : @math.Vec2,
   wake_up : Bool,
@@ -176,7 +176,7 @@ fn apply_force_at_point_now(
 
 ///|
 fn apply_torque_now(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   torque : Double,
   wake_up : Bool,
 ) -> Bool {
@@ -191,7 +191,7 @@ fn apply_torque_now(
 
 ///|
 fn apply_impulse_now(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   impulse : @math.Vec2,
   wake_up : Bool,
 ) -> Bool {
@@ -206,7 +206,7 @@ fn apply_impulse_now(
 
 ///|
 fn apply_impulse_at_point_now(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   impulse : @math.Vec2,
   point : @math.Vec2,
   wake_up : Bool,
@@ -227,7 +227,7 @@ fn apply_impulse_at_point_now(
 
 ///|
 fn apply_torque_impulse_now(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   impulse : Double,
   wake_up : Bool,
 ) -> Bool {
@@ -241,7 +241,7 @@ fn apply_torque_impulse_now(
 }
 
 ///|
-fn has_pending_body_actions(entity : @entity.Entity) -> Bool {
+fn has_pending_body_actions(entity : @ecs.Entity) -> Bool {
   pending_body_forces().contains(entity) ||
   pending_body_force_points().contains(entity) ||
   pending_body_torques().contains(entity) ||

@@ -162,73 +162,73 @@ pub type PointerEvent = @collision.PointerEvent
 
 ///|
 /// Linear velocities in world space.
-pub fn linear_velocities() -> Map[@entity.Entity, LinearVelocity] {
+pub fn linear_velocities() -> @ecs.ComponentStore[LinearVelocity] {
   @velocity.velocities()
 }
 
 ///|
 /// Backward-compatible velocity store alias.
-pub fn velocities() -> Map[@entity.Entity, Velocity] {
+pub fn velocities() -> @ecs.ComponentStore[Velocity] {
   @velocity.velocities()
 }
 
 ///|
 /// Collider components.
-pub fn colliders() -> Map[@entity.Entity, Collider] {
+pub fn colliders() -> @ecs.ComponentStore[Collider] {
   @collision.colliders()
 }
 
 ///|
 /// Explicit rigid-body descriptors.
-pub fn rigid_bodies() -> Map[@entity.Entity, RigidBody] {
+pub fn rigid_bodies() -> @ecs.ComponentStore[RigidBody] {
   @collision.rigid_bodies()
 }
 
 ///|
 /// Authored 2D joint descriptors.
-pub fn joints() -> Map[@entity.Entity, Joint] {
+pub fn joints() -> @ecs.ComponentStore[Joint] {
   @collision.joints()
 }
 
 ///|
 /// Authored 2D multibody joint descriptors keyed by the child rigid-body entity.
-pub fn multibody_joints() -> Map[@entity.Entity, MultibodyJoint] {
+pub fn multibody_joints() -> @ecs.ComponentStore[MultibodyJoint] {
   @collision.multibody_joints()
 }
 
 ///|
 /// Sensor/area components.
-pub fn sensors() -> Map[@entity.Entity, Sensor] {
+pub fn sensors() -> @ecs.ComponentStore[Sensor] {
   @collision.areas()
 }
 
 ///|
 /// Backward-compatible area store alias.
-pub fn areas() -> Map[@entity.Entity, Area] {
+pub fn areas() -> @ecs.ComponentStore[Area] {
   @collision.areas()
 }
 
 ///|
 /// Collider shape components.
-pub fn shapes() -> Map[@entity.Entity, ColliderShape] {
+pub fn shapes() -> @ecs.ComponentStore[ColliderShape] {
   @collision.shapes()
 }
 
 ///|
 /// Frame-local resolved velocities after physics step.
-pub fn resolved_velocities() -> Map[@entity.Entity, LinearVelocity] {
+pub fn resolved_velocities() -> @ecs.ComponentStore[LinearVelocity] {
   @collision.resolved_velocities()
 }
 
 ///|
 /// Grounded entities from latest fixed step.
-pub fn grounded_entities() -> @set.Set[@entity.Entity] {
+pub fn grounded_entities() -> @set.Set[@ecs.Entity] {
   @collision.grounded_entities()
 }
 
 ///|
 /// Pointer-interactive components.
-pub fn pickables() -> Map[@entity.Entity, Pickable] {
+pub fn pickables() -> @ecs.ComponentStore[Pickable] {
   @collision.pickables()
 }
 
@@ -302,27 +302,27 @@ pub fn new_sensor(filter : CollisionLayers) -> Sensor {
 }
 
 ///|
-pub fn rigid_body_handle(entity : @entity.Entity) -> RigidBodyHandle? {
+pub fn rigid_body_handle(entity : @ecs.Entity) -> RigidBodyHandle? {
   @collision.rigid_body_handle(entity)
 }
 
 ///|
-pub fn collider_handle(entity : @entity.Entity) -> ColliderHandle? {
+pub fn collider_handle(entity : @ecs.Entity) -> ColliderHandle? {
   @collision.collider_handle(entity)
 }
 
 ///|
-pub fn joint_handle(entity : @entity.Entity) -> JointHandle? {
+pub fn joint_handle(entity : @ecs.Entity) -> JointHandle? {
   @collision.joint_handle(entity)
 }
 
 ///|
-pub fn multibody_joint_handle(entity : @entity.Entity) -> MultibodyJointHandle? {
+pub fn multibody_joint_handle(entity : @ecs.Entity) -> MultibodyJointHandle? {
   @collision.multibody_joint_handle(entity)
 }
 
 ///|
-pub fn multibody_link(entity : @entity.Entity) -> MultibodyLinkId? {
+pub fn multibody_link(entity : @ecs.Entity) -> MultibodyLinkId? {
   @collision.multibody_link(entity)
 }
 
@@ -362,7 +362,7 @@ pub fn shape_cast(
 pub fn intersect_point(
   point : @math.Vec2,
   query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
-) -> Array[@entity.Entity] {
+) -> Array[@ecs.Entity] {
   @collision.intersect_point(point, query_filter~)
 }
 
@@ -372,57 +372,54 @@ pub fn intersect_shape(
   origin : @math.Vec2,
   rotation~ : Double = 0.0,
   query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
-) -> Array[@entity.Entity] {
+) -> Array[@ecs.Entity] {
   @collision.intersect_shape(shape, origin, rotation~, query_filter~)
 }
 
 ///|
-pub fn rigid_body_translation(entity : @entity.Entity) -> @math.Vec2? {
+pub fn rigid_body_translation(entity : @ecs.Entity) -> @math.Vec2? {
   @collision.rigid_body_translation(entity)
 }
 
 ///|
 pub fn set_rigid_body_translation(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   translation : @math.Vec2,
 ) -> Unit {
   @collision.set_rigid_body_translation(entity, translation)
 }
 
 ///|
-pub fn rigid_body_rotation(entity : @entity.Entity) -> Double? {
+pub fn rigid_body_rotation(entity : @ecs.Entity) -> Double? {
   @collision.rigid_body_rotation(entity)
 }
 
 ///|
-pub fn set_rigid_body_rotation(
-  entity : @entity.Entity,
-  rotation : Double,
-) -> Unit {
+pub fn set_rigid_body_rotation(entity : @ecs.Entity, rotation : Double) -> Unit {
   @collision.set_rigid_body_rotation(entity, rotation)
 }
 
 ///|
-pub fn rigid_body_linear_velocity(entity : @entity.Entity) -> @math.Vec2? {
+pub fn rigid_body_linear_velocity(entity : @ecs.Entity) -> @math.Vec2? {
   @collision.rigid_body_linear_velocity(entity)
 }
 
 ///|
 pub fn set_rigid_body_linear_velocity(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   linear_velocity : @math.Vec2,
 ) -> Unit {
   @collision.set_rigid_body_linear_velocity(entity, linear_velocity)
 }
 
 ///|
-pub fn rigid_body_angular_velocity(entity : @entity.Entity) -> Double? {
+pub fn rigid_body_angular_velocity(entity : @ecs.Entity) -> Double? {
   @collision.rigid_body_angular_velocity(entity)
 }
 
 ///|
 pub fn set_rigid_body_angular_velocity(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   angular_velocity : Double,
 ) -> Unit {
   @collision.set_rigid_body_angular_velocity(entity, angular_velocity)
@@ -430,7 +427,7 @@ pub fn set_rigid_body_angular_velocity(
 
 ///|
 pub fn add_force(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   force : @math.Vec2,
   wake_up~ : Bool = true,
 ) -> Unit {
@@ -439,7 +436,7 @@ pub fn add_force(
 
 ///|
 pub fn add_force_at_point(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   force : @math.Vec2,
   point : @math.Vec2,
   wake_up~ : Bool = true,
@@ -449,7 +446,7 @@ pub fn add_force_at_point(
 
 ///|
 pub fn add_torque(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   torque : Double,
   wake_up~ : Bool = true,
 ) -> Unit {
@@ -458,7 +455,7 @@ pub fn add_torque(
 
 ///|
 pub fn apply_impulse(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   impulse : @math.Vec2,
   wake_up~ : Bool = true,
 ) -> Unit {
@@ -467,7 +464,7 @@ pub fn apply_impulse(
 
 ///|
 pub fn apply_impulse_at_point(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   impulse : @math.Vec2,
   point : @math.Vec2,
   wake_up~ : Bool = true,
@@ -477,7 +474,7 @@ pub fn apply_impulse_at_point(
 
 ///|
 pub fn apply_torque_impulse(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   impulse : Double,
   wake_up~ : Bool = true,
 ) -> Unit {
@@ -485,12 +482,12 @@ pub fn apply_torque_impulse(
 }
 
 ///|
-pub fn reset_forces(entity : @entity.Entity, wake_up~ : Bool = true) -> Unit {
+pub fn reset_forces(entity : @ecs.Entity, wake_up~ : Bool = true) -> Unit {
   @collision.reset_forces(entity, wake_up~)
 }
 
 ///|
-pub fn reset_torques(entity : @entity.Entity, wake_up~ : Bool = true) -> Unit {
+pub fn reset_torques(entity : @ecs.Entity, wake_up~ : Bool = true) -> Unit {
   @collision.reset_torques(entity, wake_up~)
 }
 
@@ -522,18 +519,18 @@ pub fn configure_physics(
 }
 
 ///|
-pub fn is_grounded(entity : @entity.Entity) -> Bool {
+pub fn is_grounded(entity : @ecs.Entity) -> Bool {
   @collision.is_grounded(entity)
 }
 
 ///|
-pub fn get_contains(area : @entity.Entity) -> @set.Set[@entity.Entity] {
+pub fn get_contains(area : @ecs.Entity) -> @set.Set[@ecs.Entity] {
   @collision.get_contains(area)
 }
 
 ///|
 pub fn emit_pickable_just_pressed(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   button~ : @inputs.MouseButton = Left,
 ) -> Unit {
   @collision.emit_pickable_just_pressed(entity, button~)

@@ -3,7 +3,7 @@ package "Milky2018/selene/animation"
 
 import {
   "Milky2018/selene/asset",
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
@@ -12,7 +12,7 @@ import {
 }
 
 // Values
-pub fn animated_bys() -> Map[@entity.Entity, AnimatedBy]
+pub fn animated_bys() -> @ecs.ComponentStore[AnimatedBy]
 
 pub fn animated_field(AnimatedFieldHandle) -> AnimatedField?
 
@@ -26,29 +26,29 @@ pub fn animation_graph_asset(AnimationGraphHandle) -> AnimationGraph?
 
 pub let animation_graph_asset_events : @event.Events[@asset.AssetEvent[AnimationGraphHandle]]
 
-pub fn animation_graph_handles() -> Map[@entity.Entity, AnimationGraphHandle]
+pub fn animation_graph_handles() -> @ecs.ComponentStore[AnimationGraphHandle]
 
 pub fn animation_player_system(Double) -> Unit
 
-pub fn animation_players() -> Map[@entity.Entity, AnimationPlayer]
+pub fn animation_players() -> @ecs.ComponentStore[AnimationPlayer]
 
 pub fn animation_skinning_system(Double) -> Unit
 
-pub fn animation_target_id_of(@entity.Entity) -> AnimationTargetId?
+pub fn animation_target_id_of(@ecs.Entity) -> AnimationTargetId?
 
-pub fn animation_target_ids() -> Map[@entity.Entity, AnimationTargetId]
+pub fn animation_target_ids() -> @ecs.ComponentStore[AnimationTargetId]
 
 pub fn animation_transition_system(Double) -> Unit
 
-pub fn animation_transitions() -> Map[@entity.Entity, AnimationTransitions]
+pub fn animation_transitions() -> @ecs.ComponentStore[AnimationTransitions]
 
-pub fn bind_morph_mesh(@entity.Entity, MorphMeshBinding3D) -> Unit
+pub fn bind_morph_mesh(@ecs.Entity, MorphMeshBinding3D) -> Unit
 
-pub fn bind_skinned_mesh(@entity.Entity, SkinnedMeshBinding3D) -> Unit
+pub fn bind_skinned_mesh(@ecs.Entity, SkinnedMeshBinding3D) -> Unit
 
-pub fn clear_morph_mesh(@entity.Entity) -> Unit
+pub fn clear_morph_mesh(@ecs.Entity) -> Unit
 
-pub fn clear_skinned_mesh(@entity.Entity) -> Unit
+pub fn clear_skinned_mesh(@ecs.Entity) -> Unit
 
 pub fn morph_weights_field() -> AnimatedFieldHandle
 
@@ -117,18 +117,20 @@ pub fn ActiveAnimation::unpause(Self) -> Self
 pub fn ActiveAnimation::weight(Self) -> Double
 
 pub(all) struct AnimatedBy {
-  player : @entity.Entity
+  player : @ecs.Entity
 }
-pub fn AnimatedBy::AnimatedBy(@entity.Entity) -> Self
+pub fn AnimatedBy::AnimatedBy(@ecs.Entity) -> Self
+pub impl @ecs.Component for AnimatedBy
 
 pub(all) struct AnimatedField {
   name : String
   kind : AnimationValueKind
-  sample : (@entity.Entity) -> AnimatedValue
-  apply : (@entity.Entity, AnimatedValue) -> Unit
+  sample : (@ecs.Entity) -> AnimatedValue
+  apply : (@ecs.Entity, AnimatedValue) -> Unit
 }
 
-pub(all) struct AnimatedFieldHandle(UInt32) derive(Eq, Hash, @debug.Debug)
+#derive(Eq, Hash, @debug.Debug)
+pub(all) struct AnimatedFieldHandle(UInt32)
 pub fn AnimatedFieldHandle::equal(Self, Self) -> Bool
 pub fn AnimatedFieldHandle::hash(Self) -> Int32
 pub fn AnimatedFieldHandle::hash_combine(Self, Hasher) -> Unit
@@ -152,40 +154,45 @@ pub fn AnimationClip::AnimationClip(String) -> Self
 pub fn AnimationClip::add_curve_to_target(Self, AnimationTargetId, VariableCurve) -> Unit
 pub fn AnimationClip::add_event(Self, Double, AnimationEventDescriptorHandle, dispatch? : AnimationClipEventDispatch) -> Unit
 
+#derive(Eq, @debug.Debug)
 pub(all) struct AnimationClipEventDispatch {
   target : AnimationTargetId?
-} derive(Eq, @debug.Debug)
+}
 pub fn AnimationClipEventDispatch::equal(Self, Self) -> Bool
 pub fn AnimationClipEventDispatch::not_equal(Self, Self) -> Bool
 pub fn AnimationClipEventDispatch::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct AnimationClipEventKeyframe {
   time : Double
   descriptor : AnimationEventDescriptorHandle
   dispatch : AnimationClipEventDispatch
-} derive(Eq, @debug.Debug)
+}
 pub fn AnimationClipEventKeyframe::equal(Self, Self) -> Bool
 pub fn AnimationClipEventKeyframe::not_equal(Self, Self) -> Bool
 pub fn AnimationClipEventKeyframe::to_repr(Self) -> @debug.Repr
 
-pub(all) struct AnimationClipHandle(UInt32) derive(Eq, Hash, @debug.Debug)
+#derive(Eq, Hash, @debug.Debug)
+pub(all) struct AnimationClipHandle(UInt32)
 pub fn AnimationClipHandle::equal(Self, Self) -> Bool
 pub fn AnimationClipHandle::hash(Self) -> Int32
 pub fn AnimationClipHandle::hash_combine(Self, Hasher) -> Unit
 pub fn AnimationClipHandle::not_equal(Self, Self) -> Bool
 pub fn AnimationClipHandle::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct AnimationEventContext {
   clip : AnimationClipHandle
-  player : @entity.Entity
-  target : @entity.Entity?
+  player : @ecs.Entity
+  target : @ecs.Entity?
   time : Double
-} derive(Eq, @debug.Debug)
+}
 pub fn AnimationEventContext::equal(Self, Self) -> Bool
 pub fn AnimationEventContext::not_equal(Self, Self) -> Bool
 pub fn AnimationEventContext::to_repr(Self) -> @debug.Repr
 
-pub(all) struct AnimationEventDescriptorHandle(UInt32) derive(Eq, Hash, @debug.Debug)
+#derive(Eq, Hash, @debug.Debug)
+pub(all) struct AnimationEventDescriptorHandle(UInt32)
 pub fn AnimationEventDescriptorHandle::equal(Self, Self) -> Bool
 pub fn AnimationEventDescriptorHandle::hash(Self) -> Int32
 pub fn AnimationEventDescriptorHandle::hash_combine(Self, Hasher) -> Unit
@@ -216,12 +223,14 @@ pub(all) struct AnimationGraphEdge {
   mut weight : Double
 }
 
-pub(all) struct AnimationGraphHandle(UInt32) derive(Eq, Hash, @debug.Debug)
+#derive(Eq, Hash, @debug.Debug)
+pub(all) struct AnimationGraphHandle(UInt32)
 pub fn AnimationGraphHandle::equal(Self, Self) -> Bool
 pub fn AnimationGraphHandle::hash(Self) -> Int32
 pub fn AnimationGraphHandle::hash_combine(Self, Hasher) -> Unit
 pub fn AnimationGraphHandle::not_equal(Self, Self) -> Bool
 pub fn AnimationGraphHandle::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for AnimationGraphHandle
 
 pub(all) struct AnimationGraphNode {
   node_type : AnimationGraphNodeType
@@ -235,7 +244,8 @@ pub(all) enum AnimationGraphNodeType {
   Clip(AnimationClipHandle)
 }
 
-pub(all) struct AnimationNodeIndex(UInt32) derive(Eq, Hash, @debug.Debug)
+#derive(Eq, Hash, @debug.Debug)
+pub(all) struct AnimationNodeIndex(UInt32)
 pub fn AnimationNodeIndex::equal(Self, Self) -> Bool
 pub fn AnimationNodeIndex::hash(Self) -> Int32
 pub fn AnimationNodeIndex::hash_combine(Self, Hasher) -> Unit
@@ -260,8 +270,10 @@ pub fn AnimationPlayer::seek_all_by(Self, Double) -> Self
 pub fn AnimationPlayer::start(Self, AnimationNodeIndex, repeat? : RepeatAnimation) -> ActiveAnimation
 pub fn AnimationPlayer::stop(Self, AnimationNodeIndex) -> Self
 pub fn AnimationPlayer::stop_all(Self) -> Self
+pub impl @ecs.Component for AnimationPlayer
 
-pub(all) struct AnimationTargetId(String) derive(Eq, Hash, @debug.Debug)
+#derive(Eq, Hash, @debug.Debug)
+pub(all) struct AnimationTargetId(String)
 pub fn AnimationTargetId::equal(Self, Self) -> Bool
 pub fn AnimationTargetId::from_names(Array[String]) -> Self
 pub fn AnimationTargetId::hash(Self) -> Int32
@@ -269,6 +281,7 @@ pub fn AnimationTargetId::hash_combine(Self, Hasher) -> Unit
 pub fn AnimationTargetId::not_equal(Self, Self) -> Bool
 pub fn AnimationTargetId::path(Self) -> String
 pub fn AnimationTargetId::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for AnimationTargetId
 
 pub(all) struct AnimationTransitions {
   mut main : AnimationNodeIndex?
@@ -277,28 +290,31 @@ pub(all) struct AnimationTransitions {
 pub fn AnimationTransitions::AnimationTransitions() -> Self
 pub fn AnimationTransitions::get_main_animation(Self) -> AnimationNodeIndex?
 pub fn AnimationTransitions::play(Self, AnimationPlayer, AnimationNodeIndex, Double, repeat? : RepeatAnimation) -> ActiveAnimation
+pub impl @ecs.Component for AnimationTransitions
 
+#derive(Eq, @debug.Debug)
 pub(all) enum AnimationValueKind {
   Scalar
   Vec3
   Quat
   Weights
-} derive(Eq, @debug.Debug)
+}
 pub fn AnimationValueKind::equal(Self, Self) -> Bool
 pub fn AnimationValueKind::not_equal(Self, Self) -> Bool
 pub fn AnimationValueKind::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) enum ChannelInterpolation {
   Step
   Linear
   CubicSpline
-} derive(Eq, @debug.Debug)
+}
 pub fn ChannelInterpolation::equal(Self, Self) -> Bool
 pub fn ChannelInterpolation::not_equal(Self, Self) -> Bool
 pub fn ChannelInterpolation::to_repr(Self) -> @debug.Repr
 
 pub(all) struct MorphMeshBinding3D {
-  target_entity : @entity.Entity
+  target_entity : @ecs.Entity
   mesh : @render3d_types.MeshHandle
   base_positions : Array[@math.Vec3]
   indices : Array[Int32]?
@@ -310,40 +326,45 @@ pub(all) struct MorphMeshBinding3D {
   morph_targets : Array[MorphTargetBinding3D]
   mut morph_weights : Array[Double]
 }
+pub impl @ecs.Component for MorphMeshBinding3D
 
+#derive(Eq, @debug.Debug)
 pub(all) struct MorphTargetBinding3D {
   position_deltas : Array[@math.Vec3]?
   normal_deltas : Array[@math.Vec3]?
-} derive(Eq, @debug.Debug)
+}
 pub fn MorphTargetBinding3D::equal(Self, Self) -> Bool
 pub fn MorphTargetBinding3D::not_equal(Self, Self) -> Bool
 pub fn MorphTargetBinding3D::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct QuatKeyframe {
   time : Double
   value : @math.Quat
   in_tangent : @math.Quat?
   out_tangent : @math.Quat?
-} derive(Eq, @debug.Debug)
+}
 pub fn QuatKeyframe::equal(Self, Self) -> Bool
 pub fn QuatKeyframe::not_equal(Self, Self) -> Bool
 pub fn QuatKeyframe::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) enum RepeatAnimation {
   Never
   Forever
   Count(UInt32)
-} derive(Eq, @debug.Debug)
+}
 pub fn RepeatAnimation::equal(Self, Self) -> Bool
 pub fn RepeatAnimation::not_equal(Self, Self) -> Bool
 pub fn RepeatAnimation::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct ScalarKeyframe {
   time : Double
   value : Double
   in_tangent : Double?
   out_tangent : Double?
-} derive(Eq, @debug.Debug)
+}
 pub fn ScalarKeyframe::equal(Self, Self) -> Bool
 pub fn ScalarKeyframe::not_equal(Self, Self) -> Bool
 pub fn ScalarKeyframe::to_repr(Self) -> @debug.Repr
@@ -360,7 +381,7 @@ pub(all) struct SkinVertexInfluence3D {
 }
 
 pub(all) struct SkinnedMeshBinding3D {
-  target_entity : @entity.Entity
+  target_entity : @ecs.Entity
   mesh : @render3d_types.MeshHandle
   base_positions : Array[@math.Vec3]
   indices : Array[Int32]?
@@ -372,9 +393,10 @@ pub(all) struct SkinnedMeshBinding3D {
   morph_targets : Array[MorphTargetBinding3D]
   mut morph_weights : Array[Double]
   influences : Array[SkinVertexInfluence3D]
-  joint_entities : Array[@entity.Entity]
+  joint_entities : Array[@ecs.Entity]
   inverse_bind_matrices : Array[@math.Mat4]
 }
+pub impl @ecs.Component for SkinnedMeshBinding3D
 
 pub(all) struct TransitionEntry {
   mut remaining : Double
@@ -393,22 +415,24 @@ pub fn VariableCurve::scalar(AnimatedFieldHandle, Array[ScalarKeyframe], interpo
 pub fn VariableCurve::vec3(AnimatedFieldHandle, Array[Vec3Keyframe], interpolation? : ChannelInterpolation) -> Self
 pub fn VariableCurve::weights(AnimatedFieldHandle, Array[WeightKeyframe], interpolation? : ChannelInterpolation) -> Self
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Vec3Keyframe {
   time : Double
   value : @math.Vec3
   in_tangent : @math.Vec3?
   out_tangent : @math.Vec3?
-} derive(Eq, @debug.Debug)
+}
 pub fn Vec3Keyframe::equal(Self, Self) -> Bool
 pub fn Vec3Keyframe::not_equal(Self, Self) -> Bool
 pub fn Vec3Keyframe::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct WeightKeyframe {
   time : Double
   value : Array[Double]
   in_tangent : Array[Double]?
   out_tangent : Array[Double]?
-} derive(Eq, @debug.Debug)
+}
 pub fn WeightKeyframe::equal(Self, Self) -> Bool
 pub fn WeightKeyframe::not_equal(Self, Self) -> Bool
 pub fn WeightKeyframe::to_repr(Self) -> @debug.Repr

@@ -24,13 +24,14 @@ struct WebGpuBackend {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct WebGpuFrameTimingSnapshot {
   service_before_ms : Double
   game_ms : Double
   render_ms : Double
   service_after_ms : Double
   total_work_ms : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn WebGpuBackend::WebGpuBackend() -> WebGpuBackend {

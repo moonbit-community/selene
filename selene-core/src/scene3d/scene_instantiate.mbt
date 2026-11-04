@@ -1,7 +1,7 @@
 ///|
 fn resolve_scene_skin_bindings(
   template : SceneTemplate,
-  node_entities : Map[Int32, @entity.Entity],
+  node_entities : Map[Int32, @ecs.Entity],
   pending_skin_bindings : Array[PendingSkinBinding],
 ) -> Unit {
   for pending in pending_skin_bindings {
@@ -10,7 +10,7 @@ fn resolve_scene_skin_bindings(
       continue
     }
     let skin = template.skins[pending.skin_index]
-    let joint_entities : Array[@entity.Entity] = []
+    let joint_entities : Array[@ecs.Entity] = []
     let mut complete = true
     for joint_node_index in skin.joints {
       guard node_entities.get(joint_node_index) is Some(joint_entity) else {
@@ -68,8 +68,8 @@ fn to_animation_morph_targets(
 
 ///|
 fn bind_instantiated_morph_mesh(
-  entity : @entity.Entity,
-  target_entity : @entity.Entity,
+  entity : @ecs.Entity,
+  target_entity : @ecs.Entity,
   mesh : @render3d.MeshHandle,
   binding : SkinnedPrimitiveTemplate,
   morph_weights : Array[Double],
@@ -96,11 +96,11 @@ fn bind_instantiated_morph_mesh(
 fn instantiate_scene_node(
   template : SceneTemplate,
   node_index : Int32,
-  parent : @entity.Entity,
-  root_entity : @entity.Entity,
-  node_entities : Map[Int32, @entity.Entity],
+  parent : @ecs.Entity,
+  root_entity : @ecs.Entity,
+  node_entities : Map[Int32, @ecs.Entity],
   pending_skin_bindings : Array[PendingSkinBinding],
-  parts : Map[String, @entity.Entity],
+  parts : Map[String, @ecs.Entity],
   parent_path : String,
   depth : Int32,
 ) -> Unit {

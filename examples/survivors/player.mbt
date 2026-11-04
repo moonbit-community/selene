@@ -22,6 +22,7 @@ const PLAYER_SPEED : Double = 150
 const INVINCIBLE_TIME : Double = 1.0
 
 ///|
+#selene.component
 priv struct PlayerAnimationController {
   idle_left : @animation.AnimationNodeIndex
   idle_right : @animation.AnimationNodeIndex
@@ -35,14 +36,15 @@ priv struct PlayerAnimationController {
 }
 
 ///|
-let player_animation_controllers : Map[
-  @entity.Entity,
+fn player_animation_controllers() -> @ecs.ComponentStore[
   PlayerAnimationController,
-] = Map([])
+] {
+  @ecs.components()
+}
 
 ///|
 fn player_input_vector() -> @math.Vec2 {
-  if !game_state.level_up_panel.available_selections.is_empty() {
+  if !game_state().level_up_panel.available_selections.is_empty() {
     return @math.Vec2::zero()
   }
   let input = @math.Vec2(
@@ -59,7 +61,7 @@ fn player_input_vector() -> @math.Vec2 {
 }
 
 ///|
-fn ensure_sprite_animation_binding(entity : @entity.Entity) -> Unit {
+fn ensure_sprite_animation_binding(entity : @ecs.Entity) -> Unit {
   ignore(
     @animation.animation_players().get_or_init(entity, fn() {
       AnimationPlayer()
@@ -124,7 +126,7 @@ fn register_sprite_animation_node(
 
 ///|
 fn create_player_animation_controller(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
 ) -> PlayerAnimationController {
   let graph = @animation.AnimationGraph()
   let controller = {
@@ -150,11 +152,11 @@ fn create_player_animation_controller(
 
 ///|
 fn play_player_animation_state(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   animation : SpriteAnimationDef,
   node : @animation.AnimationNodeIndex,
 ) -> Unit {
-  guard player_animation_controllers.get(entity) is Some(controller) else {
+  guard player_animation_controllers().get(entity) is Some(controller) else {
     return
   }
   if controller.current == Some(node) {
@@ -170,9 +172,9 @@ fn play_player_animation_state(
 
 ///|
 fn add_player() -> Unit {
-  let entity = game_state.player_entity
+  let entity = game_state().player_entity
   let animation_controller = create_player_animation_controller(entity)
-  player_animation_controllers.set(entity, animation_controller)
+  player_animation_controllers().set(entity, animation_controller)
   @sprite.sprites().set(
     entity,
     sprite_animation_sprite(player_idle_right_animation),
@@ -208,31 +210,32 @@ fn add_player() -> Unit {
 
 ///|
 fn player_update_system(_world : @ecs.World) -> Unit {
+  let game = game_state()
   let delta = @time.delta()
-  if game_state.game_over || delta == 0 {
+  if game.game_over || delta == 0 {
     return
   }
-  let entity = game_state.player_entity
-  let speed = if game_state.player_stats.speed < 0.0 {
+  let entity = game.player_entity
+  let speed = if game.player_stats.speed < 0.0 {
     0.0
   } else {
-    game_state.player_stats.speed
+    game.player_stats.speed
   }
   let vel = player_input_vector().normalize().scalar_mul(speed)
   @physics2d.linear_velocities().set(entity, vel)
   if vel[X] > 0.0 {
-    game_state.player_direction = Right
+    game.player_direction = Right
   } else if vel[X] < 0.0 {
-    game_state.player_direction = Left
+    game.player_direction = Left
   } else if vel[Y] > 0.0 {
-    game_state.player_direction = Down
+    game.player_direction = Down
   } else if vel[Y] < 0.0 {
-    game_state.player_direction = Up
+    game.player_direction = Up
   }
-  guard player_animation_controllers.get(entity) is Some(animation_controller) else {
+  guard player_animation_controllers().get(entity) is Some(animation_controller) else {
     return
   }
-  match (vel == @math.Vec2::zero(), game_state.player_direction) {
+  match (vel == @math.Vec2::zero(), game.player_direction) {
     (true, Left) =>
       play_player_animation_state(
         entity,
@@ -286,11 +289,12 @@ fn player_update_system(_world : @ecs.World) -> Unit {
 
 ///|
 fn player_shooting_system(_world : @ecs.World) -> Unit {
+  let game = game_state()
   let delta = @time.delta()
-  if game_state.game_over {
+  if game.game_over {
     return
   }
-  guard @transform.transforms().get(game_state.player_entity)
+  guard @transform.transforms().get(game.player_entity)
     is Some(player_transform) else {
     return
   }
@@ -300,28 +304,28 @@ fn player_shooting_system(_world : @ecs.World) -> Unit {
   )
 
   // Clamp stats to at least 0
-  let attack_speed = if game_state.player_stats.attack_speed < 0.0 {
+  let attack_speed = if game.player_stats.attack_speed < 0.0 {
     0.0
   } else {
-    game_state.player_stats.attack_speed
+    game.player_stats.attack_speed
   }
-  let attack = if game_state.player_stats.attack < 0.0 {
+  let attack = if game.player_stats.attack < 0.0 {
     0.0
   } else {
-    game_state.player_stats.attack
+    game.player_stats.attack
   }
-  let range = if game_state.player_stats.range < 0.0 {
+  let range = if game.player_stats.range < 0.0 {
     0.0
   } else {
-    game_state.player_stats.range
+    game.player_stats.range
   }
-  let penetration = if game_state.player_stats.penetration < 0 {
+  let penetration = if game.player_stats.penetration < 0 {
     0
   } else {
-    game_state.player_stats.penetration
+    game.player_stats.penetration
   }
   update_weapon_timers(
-    game_state.player_stats.weapon_instances,
+    game.player_stats.weapon_instances,
     delta,
     attack_speed,
     attack,
@@ -338,7 +342,7 @@ fn find_nearest_enemy_in_range(
 ) -> @math.Vec2? {
   let mut min = weapon_range
   let mut res : @math.Vec2? = None
-  for e, _enemy in enemies {
+  for e, _enemy in enemies() {
     guard e.is_alive() else { continue }
     guard @transform.transforms().get(e) is Some(enemy_transform) else {
       continue

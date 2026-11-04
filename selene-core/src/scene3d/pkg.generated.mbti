@@ -3,26 +3,26 @@ package "Milky2018/selene/scene3d"
 
 import {
   "Milky2018/selene/animation",
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/render3d_types",
   "Milky2018/selene/transform",
 }
 
 // Values
-pub fn instantiate_scene(@render3d_types.SceneHandle, @transform.Transform) -> @entity.Entity
+pub fn instantiate_scene(@render3d_types.SceneHandle, @transform.Transform) -> @ecs.Entity
 
 pub fn instantiate_scene_instance(@render3d_types.SceneHandle, @transform.Transform) -> SceneInstance
 
 pub fn load_scene_gltf(String) -> @render3d_types.SceneHandle
 
-pub fn scene_instance_part(SceneInstance, String) -> @entity.Entity?
+pub fn scene_instance_part(SceneInstance, String) -> @ecs.Entity?
 
 // Errors
 
 // Types and methods
 pub(all) struct SceneInstance {
-  root : @entity.Entity
-  parts : Map[String, @entity.Entity]
+  root : @ecs.Entity
+  parts : Map[String, @ecs.Entity]
   animations : Map[String, @animation.AnimationNodeIndex]
 }
 

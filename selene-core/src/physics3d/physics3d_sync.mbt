@@ -1,58 +1,54 @@
 ///|
-pub fn active_events() -> Map[@entity.Entity, @collision.ActiveEvents] {
+pub fn active_events() -> @ecs.ComponentStore[@collision.ActiveEvents] {
   physics3d_component_world_store().active_events
 }
 
 ///|
-pub fn active_hooks() -> Map[@entity.Entity, @collision.ActiveHooks] {
+pub fn active_hooks() -> @ecs.ComponentStore[@collision.ActiveHooks] {
   physics3d_component_world_store().active_hooks
 }
 
 ///|
-pub fn contact_force_event_thresholds() -> Map[
-  @entity.Entity,
+pub fn contact_force_event_thresholds() -> @ecs.ComponentStore[
   ContactForceEventThreshold,
 ] {
-  physics3d_component_world_store().contact_force_event_thresholds
+  @ecs.components()
 }
 
 ///|
-pub fn collider_mass_properties() -> Map[@entity.Entity, ColliderMassProperties] {
-  physics3d_component_world_store().collider_mass_properties
+pub fn collider_mass_properties() -> @ecs.ComponentStore[ColliderMassProperties] {
+  @ecs.components()
 }
 
 ///|
-pub fn impulse_joints() -> Map[@entity.Entity, ImpulseJoint] {
-  physics3d_component_world_store().impulse_joints
+pub fn impulse_joints() -> @ecs.ComponentStore[ImpulseJoint] {
+  @ecs.components()
 }
 
 ///|
-pub fn multibody_joints() -> Map[@entity.Entity, MultibodyJoint] {
-  physics3d_component_world_store().multibody_joints
+pub fn multibody_joints() -> @ecs.ComponentStore[MultibodyJoint] {
+  @ecs.components()
 }
 
 ///|
-pub fn kinematic_character_controllers() -> Map[
-  @entity.Entity,
+pub fn kinematic_character_controllers() -> @ecs.ComponentStore[
   KinematicCharacterController,
 ] {
-  physics3d_component_world_store().kinematic_character_controllers
+  @ecs.components()
 }
 
 ///|
-pub fn kinematic_character_controller_outputs() -> Map[
-  @entity.Entity,
+pub fn kinematic_character_controller_outputs() -> @ecs.ComponentStore[
   KinematicCharacterControllerOutput,
 ] {
-  physics3d_component_world_store().kinematic_character_controller_outputs
+  @ecs.components()
 }
 
 ///|
-pub fn kinematic_character_controller_collisions() -> Map[
-  @entity.Entity,
+pub fn kinematic_character_controller_collisions() -> @ecs.ComponentStore[
   KinematicCharacterControllerCollisions,
 ] {
-  physics3d_component_world_store().kinematic_character_controller_collisions
+  @ecs.components()
 }
 
 ///|
@@ -73,11 +69,11 @@ priv struct Physics3DWorld {
 ///|
 priv struct Physics3DWorldStore {
   world : Physics3DWorld
-  body_handles : Map[@entity.Entity, RapierRigidBodyHandle]
-  collider_handles : Map[@entity.Entity, RapierColliderHandle]
-  impulse_joint_handles : Map[@entity.Entity, RapierImpulseJointHandle]
-  multibody_joint_handles : Map[@entity.Entity, RapierMultibodyJointHandle]
-  collider_entities_by_key : Map[String, @entity.Entity]
+  body_handles : Map[@ecs.Entity, RapierRigidBodyHandle]
+  collider_handles : Map[@ecs.Entity, RapierColliderHandle]
+  impulse_joint_handles : Map[@ecs.Entity, RapierImpulseJointHandle]
+  multibody_joint_handles : Map[@ecs.Entity, RapierMultibodyJointHandle]
+  collider_entities_by_key : Map[String, @ecs.Entity]
 }
 
 ///|
@@ -114,27 +110,27 @@ fn physics3d_world() -> Physics3DWorld {
 }
 
 ///|
-fn body_handles() -> Map[@entity.Entity, RapierRigidBodyHandle] {
+fn body_handles() -> Map[@ecs.Entity, RapierRigidBodyHandle] {
   physics3d_world_store().body_handles
 }
 
 ///|
-fn collider_handles() -> Map[@entity.Entity, RapierColliderHandle] {
+fn collider_handles() -> Map[@ecs.Entity, RapierColliderHandle] {
   physics3d_world_store().collider_handles
 }
 
 ///|
-fn collider_entities_by_key() -> Map[String, @entity.Entity] {
+fn collider_entities_by_key() -> Map[String, @ecs.Entity] {
   physics3d_world_store().collider_entities_by_key
 }
 
 ///|
-fn impulse_joint_handles() -> Map[@entity.Entity, RapierImpulseJointHandle] {
+fn impulse_joint_handles() -> Map[@ecs.Entity, RapierImpulseJointHandle] {
   physics3d_world_store().impulse_joint_handles
 }
 
 ///|
-fn multibody_joint_handles() -> Map[@entity.Entity, RapierMultibodyJointHandle] {
+fn multibody_joint_handles() -> Map[@ecs.Entity, RapierMultibodyJointHandle] {
   physics3d_world_store().multibody_joint_handles
 }
 
@@ -159,25 +155,23 @@ pub fn set_gravity(gravity : @math.Vec3) -> Unit {
 }
 
 ///|
-pub fn rigid_body_handle(entity : @entity.Entity) -> RapierRigidBodyHandle? {
+pub fn rigid_body_handle(entity : @ecs.Entity) -> RapierRigidBodyHandle? {
   body_handles().get(entity)
 }
 
 ///|
-pub fn collider_handle(entity : @entity.Entity) -> RapierColliderHandle? {
+pub fn collider_handle(entity : @ecs.Entity) -> RapierColliderHandle? {
   collider_handles().get(entity)
 }
 
 ///|
-pub fn impulse_joint_handle(
-  entity : @entity.Entity,
-) -> RapierImpulseJointHandle? {
+pub fn impulse_joint_handle(entity : @ecs.Entity) -> RapierImpulseJointHandle? {
   impulse_joint_handles().get(entity)
 }
 
 ///|
 pub fn multibody_joint_handle(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
 ) -> RapierMultibodyJointHandle? {
   multibody_joint_handles().get(entity)
 }

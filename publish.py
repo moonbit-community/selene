@@ -33,11 +33,13 @@ class ModuleConfig:
 RELEASE_MODULES = [
     ModuleConfig("selene-core", ROOT_DIR / "selene-core"),
     ModuleConfig("selene-webgpu", ROOT_DIR / "selene-webgpu"),
+    ModuleConfig("selene-codegen", ROOT_DIR / "selene-codegen"),
 ]
 
 PUBLISH_ORDER = [
     "selene-core",
     "selene-webgpu",
+    "selene-codegen",
 ]
 
 LEGACY_UI_CHECK_REL_PATH = Path("scripts/check_no_legacy_ui.sh")
@@ -150,6 +152,8 @@ def module_info_entries(module: ModuleConfig) -> list[tuple[str, str]]:
         ]
     if module.name == "selene-webgpu":
         return [(str(module.path / "src"), "js")]
+    if module.name == "selene-codegen":
+        return [(str(module.path), "wasm")]
     raise RuntimeError(f"Unknown module for info generation: {module.name}")
 
 
@@ -187,6 +191,8 @@ def run_module_quality_checks(module: ModuleConfig):
         check_targets = ["js", "native"]
     elif module.name == "selene-webgpu":
         check_targets = ["js"]
+    elif module.name == "selene-codegen":
+        check_targets = ["wasm"]
     else:
         raise RuntimeError(f"Unknown module for quality checks: {module.name}")
 

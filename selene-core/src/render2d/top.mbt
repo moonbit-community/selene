@@ -20,18 +20,21 @@ pub(all) struct DrawCommandWithDepth2D {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum SortMode2D {
   Depth
   Y
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct Sorting2d {
   layer : Int32
   group : Int32
   order : Int32
   mode : SortMode2D
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn Sorting2d::Sorting2d(
@@ -41,11 +44,6 @@ pub fn Sorting2d::Sorting2d(
   mode~ : SortMode2D = Depth,
 ) -> Sorting2d {
   { layer, group, order, mode, }
-}
-
-///|
-priv struct Sorting2dWorldStore {
-  sorting2ds : Map[@entity.Entity, Sorting2d]
 }
 
 ///|
@@ -59,9 +57,6 @@ priv struct RenderFrameState2D {
 
 ///|
 let frame2d_by_world : Map[UInt32, RenderFrameState2D] = Map([])
-
-///|
-let sorting2d_by_world : Map[UInt32, Sorting2dWorldStore] = Map([])
 
 ///|
 fn frame2d() -> RenderFrameState2D {
@@ -78,14 +73,8 @@ fn frame2d() -> RenderFrameState2D {
 }
 
 ///|
-fn sorting2d_store() -> Sorting2dWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  sorting2d_by_world.get_or_init(world_id, fn() { { sorting2ds: Map([]), } })
-}
-
-///|
-pub fn sorting2ds() -> Map[@entity.Entity, Sorting2d] {
-  sorting2d_store().sorting2ds
+pub fn sorting2ds() -> @ecs.ComponentStore[Sorting2d] {
+  @ecs.components()
 }
 
 ///|
@@ -97,17 +86,11 @@ pub fn begin_frame2d_system(_delta : Double) -> Unit {
     camera_ui_commands: Map([]),
     next_order: 0,
   })
-  let sorting = sorting2ds()
-  for pair in sorting.to_array() {
-    let entity = pair.0
-    if !entity.is_alive() {
-      sorting.remove(entity)
-    }
-  }
+  sorting2ds().retain(@ecs.alive_in_world(@ecs.require_current_world()))
 }
 
 ///|
-pub fn entity_sorting2d(entity : @entity.Entity) -> Sorting2d {
+pub fn entity_sorting2d(entity : @ecs.Entity) -> Sorting2d {
   sorting2ds().get(entity).unwrap_or(Sorting2d())
 }
 
@@ -155,17 +138,36 @@ fn push_ui_command(
 }
 
 ///|
-fn push_world_command(
+/// Reserves a range of draw-order keys for one batch in the active frame.
+pub fn reserve_world_command_order(count : Int32) -> Int32 {
+  let frame = frame2d()
+  let start = frame.next_order
+  frame.next_order += count
+  start
+}
+
+///|
+/// Submits a world draw. An explicit order must belong to a reserved range.
+pub fn push_world_command(
   depth : Double,
   entity_id : UInt32?,
   command : @render2d_types.DrawCommand2D,
   camera_entity_id~ : UInt32? = None,
   sorting~ : Sorting2d = Sorting2d(),
+  order~ : Int32? = None,
 ) -> Unit {
   let frame = frame2d()
+  let order = match order {
+    Some(order) => order
+    None => {
+      let order = frame.next_order
+      frame.next_order += 1
+      order
+    }
+  }
   world_command_bucket(frame, camera_entity_id).push({
     depth,
-    order: frame.next_order,
+    order,
     camera_entity_id,
     entity_id,
     sorting_layer: sorting.layer,
@@ -173,7 +175,6 @@ fn push_world_command(
     sorting_order: sorting.order,
     command,
   })
-  frame.next_order += 1
 }
 
 ///|

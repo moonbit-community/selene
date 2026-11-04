@@ -4,13 +4,78 @@
 
 ### Added
 
+- Added typed component and resource declarations, a code generator for
+  `#selene.component` and `#selene.resource`, and World-local typed query systems.
+  The generator ships as a separate `Milky2018/selene_codegen` module.
+- `timeout` now returns a `TimerHandle` that can cancel a pending callback.
+  Use `ignore(timeout(...))` when discarding the handle.
+- Added typed World-local storage and streaming ECS query traversal.
+- Added World-local archetypes with typed columns, dynamic component migration,
+  and cached two-component queries.
+- Added zero-copy batch reads and in-place writes for archetype queries.
+- Added reusable spawn bundles that insert an entity directly into its final
+  archetype, including through deferred commands.
+- Added permanent entity deletion with generation-checked slot recycling,
+  including through deferred commands. Destroyed entities remain recoverable
+  through respawn until permanently deleted. Public entity IDs remain unique
+  within a World as storage slots are reused. Handles from earlier generations
+  cannot access the current occupant. Added benchmarks for churn and component
+  updates in long-running Worlds with a fixed live population.
+
 ### Changed
 
+- Migrated built-in engine components to `#selene.component`. Named accessors
+  and typed ECS queries now use the same per-World component stores.
+
+- Migrated Pixel Adventure's components and per-World UI reader to generated
+  ECS declarations.
+- Migrated Cards, Survivors, Scene3D, Tank3D, and Perf3D demo state to generated
+  World resources. Repeated startup replaces owned entities, and restarting
+  Survivors cancels the previous run’s timers.
+- Consolidated entities, components, resources, queries, and deferred commands
+  under `@ecs`. App stages run through the ECS scheduler, which applies
+  commands and lifecycle changes at the end of each update schedule.
+- Migrated ECS storage declarations to component and resource keys. Resource
+  initializers receive the World that owns the value.
+- Run workspace tests in CI with MoonBit's default target selection.
+
+- Moved built-in ECS components and hierarchy relations into World-owned
+  archetype storage. Component accessors, queries, and LDtk registration
+  helpers now take or return typed component stores.
+
+- Moved entity, hierarchy, transform, and sprite storage into their owning
+  Worlds.
+- Sprite extraction walks matching Sprite and GlobalTransform columns directly.
+  GlobalTransform propagation updates existing rows and removes stale globals.
+- `sprites()` and `global_transforms()` now return typed component stores.
+  Point access with `.get()`, `.set()`, `.remove()`, and `.contains()` keeps
+  the same call shape. Use `Commands::insert_component` and
+  `Commands::remove_component` to queue structural changes to these stores.
+
 ### Fixed
+
+- Reclaim Pixel Adventure entities when restarting in the same World.
+- Diagnose misplaced Selene attributes and check generated companions from
+  tracked source files before CI builds.
+- Updated derive declarations to match the latest MoonBit formatter.
+- Isolated timeout queues by World and preserved zero-delay timeouts scheduled
+  by callbacks for the next timer tick.
+- Guarded command flushes against reentry and active queries. Commands queued
+  during a flush run in FIFO order at the next scheduler flush.
+- Isolated entity identity, deferred commands, and query snapshots across Worlds.
 
 - Initialized the registry index before the pre-release CI compatibility check.
 
 ### Removed
+
+- Removed the separate `entity`, `query`, and `commands` packages. Import
+  `Milky2018/selene/ecs` for these APIs.
+- Removed direct access to the World's command queue. Use `Commands::add` and
+  `@ecs.has_pending_commands` to enqueue and inspect pending work. The app
+  scheduler flushes after startup, after each fixed step, and at the end of the
+  game frame.
+- Removed the Map-based ECS command insertion and removal APIs. Use
+  `Commands::insert_component` and `Commands::remove_component`.
 
 - Removed the deprecated raylib backend and its native example launchers from
   the workspace, CI, and release pipeline.

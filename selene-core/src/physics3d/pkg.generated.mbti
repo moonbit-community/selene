@@ -6,100 +6,100 @@ import {
   "Milky2018/moon_rapier/control",
   "Milky2018/moon_rapier/core",
   "Milky2018/moon_rapier/dynamics",
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
   "moonbitlang/core/debug",
 }
 
 // Values
-pub fn active_collision_types() -> Map[@entity.Entity, @collision.ActiveCollisionTypes]
+pub fn active_collision_types() -> @ecs.ComponentStore[@collision.ActiveCollisionTypes]
 
-pub fn active_events() -> Map[@entity.Entity, @collision.ActiveEvents]
+pub fn active_events() -> @ecs.ComponentStore[@collision.ActiveEvents]
 
-pub fn active_hooks() -> Map[@entity.Entity, @collision.ActiveHooks]
+pub fn active_hooks() -> @ecs.ComponentStore[@collision.ActiveHooks]
 
-pub fn additional_mass_properties() -> Map[@entity.Entity, AdditionalMassProperties]
+pub fn additional_mass_properties() -> @ecs.ComponentStore[AdditionalMassProperties]
 
-pub fn ccds() -> Map[@entity.Entity, Ccd]
+pub fn ccds() -> @ecs.ComponentStore[Ccd]
 
-pub fn collider_handle(@entity.Entity) -> @collision.ColliderHandle3D?
+pub fn collider_handle(@ecs.Entity) -> @collision.ColliderHandle3D?
 
-pub fn collider_mass_properties() -> Map[@entity.Entity, ColliderMassProperties]
+pub fn collider_mass_properties() -> @ecs.ComponentStore[ColliderMassProperties]
 
-pub fn colliders() -> Map[@entity.Entity, Collider]
+pub fn colliders() -> @ecs.ComponentStore[Collider]
 
 pub let collision_event_bus : @event.Events[CollisionEvent]
 
-pub fn collision_groups() -> Map[@entity.Entity, CollisionGroups]
+pub fn collision_groups() -> @ecs.ComponentStore[CollisionGroups]
 
 pub let config : Physics3DConfig
 
 pub let contact_force_event_bus : @event.Events[ContactForceEvent]
 
-pub fn contact_force_event_thresholds() -> Map[@entity.Entity, ContactForceEventThreshold]
+pub fn contact_force_event_thresholds() -> @ecs.ComponentStore[ContactForceEventThreshold]
 
 pub fn context() -> RapierContext
 
-pub fn dampings() -> Map[@entity.Entity, Damping]
+pub fn dampings() -> @ecs.ComponentStore[Damping]
 
 pub fn debug_colliders_system(Double) -> Unit
 
-pub fn dominances() -> Map[@entity.Entity, Dominance]
+pub fn dominances() -> @ecs.ComponentStore[Dominance]
 
-pub fn frictions() -> Map[@entity.Entity, Friction]
+pub fn frictions() -> @ecs.ComponentStore[Friction]
 
-pub fn gravity_scales() -> Map[@entity.Entity, GravityScale]
+pub fn gravity_scales() -> @ecs.ComponentStore[GravityScale]
 
-pub fn impulse_joint_handle(@entity.Entity) -> @dynamics.JointHandle3DReal?
+pub fn impulse_joint_handle(@ecs.Entity) -> @dynamics.JointHandle3DReal?
 
-pub fn impulse_joints() -> Map[@entity.Entity, ImpulseJoint]
+pub fn impulse_joints() -> @ecs.ComponentStore[ImpulseJoint]
 
-pub fn kinematic_character_controller_collisions() -> Map[@entity.Entity, KinematicCharacterControllerCollisions]
+pub fn kinematic_character_controller_collisions() -> @ecs.ComponentStore[KinematicCharacterControllerCollisions]
 
-pub fn kinematic_character_controller_outputs() -> Map[@entity.Entity, KinematicCharacterControllerOutput]
+pub fn kinematic_character_controller_outputs() -> @ecs.ComponentStore[KinematicCharacterControllerOutput]
 
-pub fn kinematic_character_controllers() -> Map[@entity.Entity, KinematicCharacterController]
+pub fn kinematic_character_controllers() -> @ecs.ComponentStore[KinematicCharacterController]
 
-pub fn locked_axes() -> Map[@entity.Entity, LockedAxes]
+pub fn locked_axes() -> @ecs.ComponentStore[LockedAxes]
 
-pub fn multibody_joint_handle(@entity.Entity) -> @dynamics.MultibodyJointHandle?
+pub fn multibody_joint_handle(@ecs.Entity) -> @dynamics.MultibodyJointHandle?
 
-pub fn multibody_joints() -> Map[@entity.Entity, MultibodyJoint]
+pub fn multibody_joints() -> @ecs.ComponentStore[MultibodyJoint]
 
 pub fn physics_step_system(Double) -> Unit
 
-pub fn restitutions() -> Map[@entity.Entity, Restitution]
+pub fn restitutions() -> @ecs.ComponentStore[Restitution]
 
-pub fn rigid_bodies() -> Map[@entity.Entity, RigidBody]
+pub fn rigid_bodies() -> @ecs.ComponentStore[RigidBody]
 
-pub fn rigid_body_angular_velocity(@entity.Entity) -> @math.Vec3?
+pub fn rigid_body_angular_velocity(@ecs.Entity) -> @math.Vec3?
 
-pub fn rigid_body_handle(@entity.Entity) -> @dynamics.RigidBodyHandle?
+pub fn rigid_body_handle(@ecs.Entity) -> @dynamics.RigidBodyHandle?
 
-pub fn rigid_body_linear_velocity(@entity.Entity) -> @math.Vec3?
+pub fn rigid_body_linear_velocity(@ecs.Entity) -> @math.Vec3?
 
-pub fn rigid_body_rotation(@entity.Entity) -> @math.Quat?
+pub fn rigid_body_rotation(@ecs.Entity) -> @math.Quat?
 
-pub fn rigid_body_translation(@entity.Entity) -> @math.Vec3?
+pub fn rigid_body_translation(@ecs.Entity) -> @math.Vec3?
 
 pub let sensor_event_bus : @event.Events[SensorEvent]
 
-pub fn sensors() -> Map[@entity.Entity, Sensor]
+pub fn sensors() -> @ecs.ComponentStore[Sensor]
 
 pub fn set_gravity(@math.Vec3) -> Unit
 
-pub fn set_rigid_body_angular_velocity(@entity.Entity, @math.Vec3) -> Unit
+pub fn set_rigid_body_angular_velocity(@ecs.Entity, @math.Vec3) -> Unit
 
-pub fn set_rigid_body_linear_velocity(@entity.Entity, @math.Vec3) -> Unit
+pub fn set_rigid_body_linear_velocity(@ecs.Entity, @math.Vec3) -> Unit
 
-pub fn set_rigid_body_rotation(@entity.Entity, @math.Quat) -> Unit
+pub fn set_rigid_body_rotation(@ecs.Entity, @math.Quat) -> Unit
 
-pub fn set_rigid_body_translation(@entity.Entity, @math.Vec3) -> Unit
+pub fn set_rigid_body_translation(@ecs.Entity, @math.Vec3) -> Unit
 
-pub fn solver_groups() -> Map[@entity.Entity, SolverGroups]
+pub fn solver_groups() -> @ecs.ComponentStore[SolverGroups]
 
-pub fn velocities() -> Map[@entity.Entity, Velocity]
+pub fn velocities() -> @ecs.ComponentStore[Velocity]
 
 // Errors
 
@@ -110,13 +110,17 @@ pub(all) enum AdditionalMassProperties {
 }
 pub fn AdditionalMassProperties::mass(Double) -> Self
 pub fn AdditionalMassProperties::mass_properties(@core.MassProperties3) -> Self
+pub impl @ecs.Component for AdditionalMassProperties
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Ccd {
-} derive(Eq, @debug.Debug)
+}
 pub fn Ccd::equal(Self, Self) -> Bool
 pub fn Ccd::not_equal(Self, Self) -> Bool
 pub fn Ccd::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for Ccd
 
+#derive(Eq, @debug.Debug)
 pub(all) enum Collider {
   Cuboid(@math.Vec3)
   Ball(Double)
@@ -130,7 +134,7 @@ pub(all) enum Collider {
   ConvexHull(Array[@math.Vec3])
   TriMesh(Array[@math.Vec3], Array[(Int32, Int32, Int32)])
   Heightfield(Array[Double], Int32, Int32, @math.Vec3)
-} derive(Eq, @debug.Debug)
+}
 pub fn Collider::ball(Double) -> Self
 pub fn Collider::capsule_x(Double, Double) -> Self
 pub fn Collider::capsule_y(Double, Double) -> Self
@@ -146,96 +150,115 @@ pub fn Collider::not_equal(Self, Self) -> Bool
 pub fn Collider::round_cylinder(Double, Double, Double) -> Self
 pub fn Collider::to_repr(Self) -> @debug.Repr
 pub fn Collider::trimesh(Array[@math.Vec3], Array[(Int32, Int32, Int32)]) -> Self
+pub impl @ecs.Component for Collider
 
+#derive(Eq, @debug.Debug)
 pub(all) enum ColliderMassProperties {
   Density(Double)
-} derive(Eq, @debug.Debug)
+}
 pub fn ColliderMassProperties::density(Double) -> Self
 pub fn ColliderMassProperties::equal(Self, Self) -> Bool
 pub fn ColliderMassProperties::not_equal(Self, Self) -> Bool
 pub fn ColliderMassProperties::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for ColliderMassProperties
 
+#derive(Eq, @debug.Debug)
 pub(all) struct CollisionEvent {
-  entity_a : @entity.Entity
-  entity_b : @entity.Entity
+  entity_a : @ecs.Entity
+  entity_b : @ecs.Entity
   started : Bool
   stopped : Bool
   sensor : Bool
   normal : @math.Vec3
-} derive(Eq, @debug.Debug)
+}
 pub fn CollisionEvent::equal(Self, Self) -> Bool
 pub fn CollisionEvent::not_equal(Self, Self) -> Bool
 pub fn CollisionEvent::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct CollisionGroups {
   memberships : Int32
   filters : Int32
-} derive(Eq, @debug.Debug)
+}
 pub fn CollisionGroups::CollisionGroups(Int32, Int32) -> Self
 pub fn CollisionGroups::all() -> Self
 pub fn CollisionGroups::equal(Self, Self) -> Bool
 pub fn CollisionGroups::not_equal(Self, Self) -> Bool
 pub fn CollisionGroups::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for CollisionGroups
 
+#derive(Eq, @debug.Debug)
 pub(all) struct ContactForceEvent {
-  entity_a : @entity.Entity
-  entity_b : @entity.Entity
+  entity_a : @ecs.Entity
+  entity_b : @ecs.Entity
   total_force : @math.Vec3
   total_force_magnitude : Double
   max_force_direction : @math.Vec3
   max_force_magnitude : Double
-} derive(Eq, @debug.Debug)
+}
 pub fn ContactForceEvent::equal(Self, Self) -> Bool
 pub fn ContactForceEvent::not_equal(Self, Self) -> Bool
 pub fn ContactForceEvent::to_repr(Self) -> @debug.Repr
 
-pub(all) struct ContactForceEventThreshold(Double) derive(Eq, @debug.Debug)
+#derive(Eq, @debug.Debug)
+pub(all) struct ContactForceEventThreshold(Double)
 pub fn ContactForceEventThreshold::default() -> Self
 pub fn ContactForceEventThreshold::equal(Self, Self) -> Bool
 pub fn ContactForceEventThreshold::not_equal(Self, Self) -> Bool
 pub fn ContactForceEventThreshold::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for ContactForceEventThreshold
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Damping {
   linear_damping : Double
   angular_damping : Double
-} derive(Eq, @debug.Debug)
+}
 pub fn Damping::default() -> Self
 pub fn Damping::equal(Self, Self) -> Bool
 pub fn Damping::not_equal(Self, Self) -> Bool
 pub fn Damping::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for Damping
 
-pub(all) struct Dominance(Int32) derive(Eq, @debug.Debug)
+#derive(Eq, @debug.Debug)
+pub(all) struct Dominance(Int32)
 pub fn Dominance::equal(Self, Self) -> Bool
 pub fn Dominance::not_equal(Self, Self) -> Bool
 pub fn Dominance::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for Dominance
 
+#derive(Eq, @debug.Debug)
 pub(all) struct FixedJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
   local_basis1 : @math.Quat
   local_basis2 : @math.Quat
-} derive(Eq, @debug.Debug)
+}
 pub fn FixedJoint::FixedJoint() -> Self
 pub fn FixedJoint::equal(Self, Self) -> Bool
 pub fn FixedJoint::not_equal(Self, Self) -> Bool
 pub fn FixedJoint::to_repr(Self) -> @debug.Repr
 
-pub(all) struct Friction(Double) derive(Eq, @debug.Debug)
+#derive(Eq, @debug.Debug)
+pub(all) struct Friction(Double)
 pub fn Friction::equal(Self, Self) -> Bool
 pub fn Friction::not_equal(Self, Self) -> Bool
 pub fn Friction::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for Friction
 
-pub(all) struct GravityScale(Double) derive(Eq, @debug.Debug)
+#derive(Eq, @debug.Debug)
+pub(all) struct GravityScale(Double)
 pub fn GravityScale::default() -> Self
 pub fn GravityScale::equal(Self, Self) -> Bool
 pub fn GravityScale::not_equal(Self, Self) -> Bool
 pub fn GravityScale::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for GravityScale
 
 pub(all) struct ImpulseJoint {
-  parent : @entity.Entity
+  parent : @ecs.Entity
   data : Joint
   contacts_enabled : Bool
 }
+pub impl @ecs.Component for ImpulseJoint
 
 pub(all) enum Joint {
   Fixed(FixedJoint)
@@ -259,36 +282,43 @@ pub(all) struct KinematicCharacterController {
   apply_impulses_to_dynamic_bodies : Bool
 }
 pub fn KinematicCharacterController::default() -> Self
+pub impl @ecs.Component for KinematicCharacterController
 
+#derive(Eq, @debug.Debug)
 pub(all) struct KinematicCharacterControllerCollision {
-  entity : @entity.Entity?
+  entity : @ecs.Entity?
   character_translation_applied : @math.Vec3
   character_translation_remaining : @math.Vec3
   toi : Double
   normal : @math.Vec3
-} derive(Eq, @debug.Debug)
+}
 pub fn KinematicCharacterControllerCollision::equal(Self, Self) -> Bool
 pub fn KinematicCharacterControllerCollision::not_equal(Self, Self) -> Bool
 pub fn KinematicCharacterControllerCollision::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct KinematicCharacterControllerCollisions {
   collisions : Array[KinematicCharacterControllerCollision]
-} derive(Eq, @debug.Debug)
+}
 pub fn KinematicCharacterControllerCollisions::empty() -> Self
 pub fn KinematicCharacterControllerCollisions::equal(Self, Self) -> Bool
 pub fn KinematicCharacterControllerCollisions::not_equal(Self, Self) -> Bool
 pub fn KinematicCharacterControllerCollisions::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for KinematicCharacterControllerCollisions
 
+#derive(Eq, @debug.Debug)
 pub(all) struct KinematicCharacterControllerOutput {
   desired_translation : @math.Vec3
   effective_translation : @math.Vec3
   grounded : Bool
   is_sliding_down_slope : Bool
-} derive(Eq, @debug.Debug)
+}
 pub fn KinematicCharacterControllerOutput::equal(Self, Self) -> Bool
 pub fn KinematicCharacterControllerOutput::not_equal(Self, Self) -> Bool
 pub fn KinematicCharacterControllerOutput::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for KinematicCharacterControllerOutput
 
+#derive(Eq, @debug.Debug)
 pub(all) struct LockedAxes {
   lock_translation_x : Bool
   lock_translation_y : Bool
@@ -296,33 +326,37 @@ pub(all) struct LockedAxes {
   lock_rotation_x : Bool
   lock_rotation_y : Bool
   lock_rotation_z : Bool
-} derive(Eq, @debug.Debug)
+}
 pub fn LockedAxes::default() -> Self
 pub fn LockedAxes::equal(Self, Self) -> Bool
 pub fn LockedAxes::lock_rotations() -> Self
 pub fn LockedAxes::lock_translations() -> Self
 pub fn LockedAxes::not_equal(Self, Self) -> Bool
 pub fn LockedAxes::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for LockedAxes
 
 pub(all) struct MultibodyJoint {
-  parent : @entity.Entity
+  parent : @ecs.Entity
   data : Joint
   contacts_enabled : Bool
 }
+pub impl @ecs.Component for MultibodyJoint
 
 pub(all) struct Physics3DConfig {
   mut gravity : @math.Vec3
 }
 
+#derive(Eq, @debug.Debug)
 pub(all) struct PointProjection {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   point : @math.Vec3
   is_inside : Bool
-} derive(Eq, @debug.Debug)
+}
 pub fn PointProjection::equal(Self, Self) -> Bool
 pub fn PointProjection::not_equal(Self, Self) -> Bool
 pub fn PointProjection::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct PrismaticJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
@@ -331,7 +365,7 @@ pub(all) struct PrismaticJoint {
   motor_position : (Double, Double, Double)?
   motor_velocity : (Double, Double)?
   max_force : Double?
-} derive(Eq, @debug.Debug)
+}
 pub fn PrismaticJoint::PrismaticJoint(@math.Vec3) -> Self
 pub fn PrismaticJoint::equal(Self, Self) -> Bool
 pub fn PrismaticJoint::not_equal(Self, Self) -> Bool
@@ -339,7 +373,7 @@ pub fn PrismaticJoint::to_repr(Self) -> @debug.Repr
 
 pub(all) struct QueryFilter {
   groups : CollisionGroups?
-  exclude_entity : @entity.Entity?
+  exclude_entity : @ecs.Entity?
   exclude_collider : @collision.ColliderHandle3D?
   exclude_rigid_body : @dynamics.RigidBodyHandle?
   exclude_sensors : Bool
@@ -352,12 +386,13 @@ pub fn QueryFilter::only_dynamic() -> Self
 pub fn QueryFilter::only_fixed() -> Self
 pub fn QueryFilter::only_kinematic() -> Self
 
+#derive(Eq, @debug.Debug)
 pub(all) enum QueryFilterBody {
   All
   Dynamic
   Fixed
   Kinematic
-} derive(Eq, @debug.Debug)
+}
 pub fn QueryFilterBody::equal(Self, Self) -> Bool
 pub fn QueryFilterBody::not_equal(Self, Self) -> Bool
 pub fn QueryFilterBody::to_repr(Self) -> @debug.Repr
@@ -366,23 +401,26 @@ pub(all) struct RapierContext {
 }
 pub fn RapierContext::cast_ray(Self, @math.Vec3, @math.Vec3, max_toi? : Double, solid? : Bool, query_filter? : QueryFilter) -> RaycastHit?
 pub fn RapierContext::cast_shape(Self, Collider, @math.Vec3, rotation? : @math.Quat, direction? : @math.Vec3, max_toi? : Double, stop_at_penetration? : Bool, query_filter? : QueryFilter) -> ShapeCastHit?
-pub fn RapierContext::intersections_with_point(Self, @math.Vec3, query_filter? : QueryFilter) -> Array[@entity.Entity]
-pub fn RapierContext::intersections_with_shape(Self, Collider, @math.Vec3, rotation? : @math.Quat, query_filter? : QueryFilter) -> Array[@entity.Entity]
+pub fn RapierContext::intersections_with_point(Self, @math.Vec3, query_filter? : QueryFilter) -> Array[@ecs.Entity]
+pub fn RapierContext::intersections_with_shape(Self, Collider, @math.Vec3, rotation? : @math.Quat, query_filter? : QueryFilter) -> Array[@ecs.Entity]
 pub fn RapierContext::project_point(Self, @math.Vec3, solid? : Bool, query_filter? : QueryFilter) -> PointProjection?
 
+#derive(Eq, @debug.Debug)
 pub(all) struct RaycastHit {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   toi : Double
   normal : @math.Vec3
-} derive(Eq, @debug.Debug)
+}
 pub fn RaycastHit::equal(Self, Self) -> Bool
 pub fn RaycastHit::not_equal(Self, Self) -> Bool
 pub fn RaycastHit::to_repr(Self) -> @debug.Repr
 
-pub(all) struct Restitution(Double) derive(Eq, @debug.Debug)
+#derive(Eq, @debug.Debug)
+pub(all) struct Restitution(Double)
 pub fn Restitution::equal(Self, Self) -> Bool
 pub fn Restitution::not_equal(Self, Self) -> Bool
 pub fn Restitution::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for Restitution
 
 pub(all) struct RevoluteJoint {
   local_anchor1 : @math.Vec3
@@ -397,90 +435,103 @@ pub(all) struct RevoluteJoint {
 }
 pub fn RevoluteJoint::RevoluteJoint(@math.Vec3) -> Self
 
+#derive(Eq, @debug.Debug)
 pub(all) enum RigidBody {
   Dynamic
   Fixed
   KinematicPositionBased
   KinematicVelocityBased
-} derive(Eq, @debug.Debug)
+}
 pub fn RigidBody::equal(Self, Self) -> Bool
 pub fn RigidBody::not_equal(Self, Self) -> Bool
 pub fn RigidBody::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for RigidBody
 
+#derive(Eq, @debug.Debug)
 pub(all) struct RopeJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
   max_distance : Double
-} derive(Eq, @debug.Debug)
+}
 pub fn RopeJoint::RopeJoint(Double) -> Self
 pub fn RopeJoint::equal(Self, Self) -> Bool
 pub fn RopeJoint::not_equal(Self, Self) -> Bool
 pub fn RopeJoint::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Sensor {
-} derive(Eq, @debug.Debug)
+}
 pub fn Sensor::equal(Self, Self) -> Bool
 pub fn Sensor::not_equal(Self, Self) -> Bool
 pub fn Sensor::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for Sensor
 
+#derive(Eq, @debug.Debug)
 pub(all) struct SensorEvent {
-  sensor : @entity.Entity
-  other : @entity.Entity
+  sensor : @ecs.Entity
+  other : @ecs.Entity
   entered : Bool
-} derive(Eq, @debug.Debug)
+}
 pub fn SensorEvent::equal(Self, Self) -> Bool
 pub fn SensorEvent::not_equal(Self, Self) -> Bool
 pub fn SensorEvent::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct ShapeCastHit {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   toi : Double
   normal : @math.Vec3
-} derive(Eq, @debug.Debug)
+}
 pub fn ShapeCastHit::equal(Self, Self) -> Bool
 pub fn ShapeCastHit::not_equal(Self, Self) -> Bool
 pub fn ShapeCastHit::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct SolverGroups {
   memberships : Int32
   filters : Int32
-} derive(Eq, @debug.Debug)
+}
 pub fn SolverGroups::SolverGroups(Int32, Int32) -> Self
 pub fn SolverGroups::all() -> Self
 pub fn SolverGroups::equal(Self, Self) -> Bool
 pub fn SolverGroups::not_equal(Self, Self) -> Bool
 pub fn SolverGroups::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for SolverGroups
 
+#derive(Eq, @debug.Debug)
 pub(all) struct SphericalJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
   motor_target : (@math.Quat, Double, Double)?
-} derive(Eq, @debug.Debug)
+}
 pub fn SphericalJoint::SphericalJoint() -> Self
 pub fn SphericalJoint::equal(Self, Self) -> Bool
 pub fn SphericalJoint::not_equal(Self, Self) -> Bool
 pub fn SphericalJoint::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct SpringJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
   rest_length : Double
   stiffness : Double
   damping : Double
-} derive(Eq, @debug.Debug)
+}
 pub fn SpringJoint::SpringJoint(Double, Double, Double) -> Self
 pub fn SpringJoint::equal(Self, Self) -> Bool
 pub fn SpringJoint::not_equal(Self, Self) -> Bool
 pub fn SpringJoint::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Velocity {
   linvel : @math.Vec3
   angvel : @math.Vec3
-} derive(Eq, @debug.Debug)
+}
 pub fn Velocity::equal(Self, Self) -> Bool
 pub fn Velocity::not_equal(Self, Self) -> Bool
 pub fn Velocity::to_repr(Self) -> @debug.Repr
 pub fn Velocity::zero() -> Self
+pub impl @ecs.Component for Velocity
 
 // Type aliases
 pub using @control {type CharacterAutostep}

@@ -1,9 +1,10 @@
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub enum AutoTileRuleSetKind {
   Bitmask4
   Bitmask8
   Wang
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_rule_set_bitmask4() -> AutoTileRuleSetKind {
@@ -21,11 +22,12 @@ pub fn autotile_rule_set_wang() -> AutoTileRuleSetKind {
 }
 
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub struct AutoTileCell {
   x : Int32
   y : Int32
   terrain : Int32
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_cell(x : Int32, y : Int32, terrain : Int32) -> AutoTileCell {
@@ -33,11 +35,12 @@ pub fn autotile_cell(x : Int32, y : Int32, terrain : Int32) -> AutoTileCell {
 }
 
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub struct AutoTileMaskRule {
   mask : Int32
   region_name : String
   atlas_index : Int32
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_mask_rule(
@@ -49,6 +52,7 @@ pub fn autotile_mask_rule(
 }
 
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub struct AutoTileWangRule {
   north : Int32
   east : Int32
@@ -56,7 +60,7 @@ pub struct AutoTileWangRule {
   west : Int32
   region_name : String
   atlas_index : Int32
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_wang_rule(
@@ -71,6 +75,7 @@ pub fn autotile_wang_rule(
 }
 
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub struct AutoTilePaletteEntry {
   terrain : Int32
   fallback_region_name : String
@@ -78,7 +83,7 @@ pub struct AutoTilePaletteEntry {
   bitmask4_rules : Array[AutoTileMaskRule]
   bitmask8_rules : Array[AutoTileMaskRule]
   wang_rules : Array[AutoTileWangRule]
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_palette_entry(
@@ -100,6 +105,7 @@ pub fn autotile_palette_entry(
 }
 
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub struct AutoTileLayerSource {
   tile_width : Double
   tile_height : Double
@@ -109,7 +115,7 @@ pub struct AutoTileLayerSource {
   rule_set : AutoTileRuleSetKind
   palette : Array[AutoTilePaletteEntry]
   cells : Array[AutoTileCell]
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_layer_source(
@@ -135,12 +141,13 @@ pub fn autotile_layer_source(
 }
 
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub struct AutoTileSolvedTile {
   x : Int32
   y : Int32
   region_name : String
   atlas_index : Int32
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_solved_tile(
@@ -153,10 +160,11 @@ pub fn autotile_solved_tile(
 }
 
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub struct AutoTileGridPos {
   x : Int32
   y : Int32
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_grid_pos(x : Int32, y : Int32) -> AutoTileGridPos {
@@ -164,11 +172,12 @@ pub fn autotile_grid_pos(x : Int32, y : Int32) -> AutoTileGridPos {
 }
 
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub struct AutoTileDiff {
   source : AutoTileLayerSource
   changed_tiles : Array[AutoTileSolvedTile]
   removed_tiles : Array[AutoTileGridPos]
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_diff(
@@ -533,24 +542,16 @@ pub fn update_cell_and_resolve_diff(
 }
 
 ///|
+#selene.component
 priv struct RuntimeLayerState {
   source : AutoTileLayerSource
-  tile_entities : Map[String, @entity.Entity]
+  tile_entities : Map[String, @ecs.Entity]
   context : AutoTileRuntimeContext
 }
 
 ///|
-priv struct AutoTileWorldStore {
-  layers : Map[@entity.Entity, RuntimeLayerState]
-}
-
-///|
-let autotile_world_stores : Map[UInt32, AutoTileWorldStore] = Map([])
-
-///|
-fn autotile_world_store() -> AutoTileWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  autotile_world_stores.get_or_init(world_id, fn() { { layers: Map([]), } })
+fn runtime_layers() -> @ecs.ComponentStore[RuntimeLayerState] {
+  @ecs.components()
 }
 
 ///|
@@ -567,17 +568,17 @@ fn tile_position(
 
 ///|
 fn apply_tile_visual(
-  layer_entity : @entity.Entity,
+  layer_entity : @ecs.Entity,
   source : AutoTileLayerSource,
   solved : AutoTileSolvedTile,
   context : AutoTileRuntimeContext,
-) -> @entity.Entity? {
+) -> @ecs.Entity? {
   let visual = match context.visual_resolver {
     Some(resolve) => resolve(source, solved)
     None => None
   }
   guard visual is Some(visual) else { return None }
-  let tile_entity = @entity.Entity()
+  let tile_entity = @ecs.Entity()
   tile_entity.set_parent(layer_entity)
   let position = tile_position(source, solved.x, solved.y)
   @transform.transforms().set(
@@ -605,14 +606,14 @@ fn destroy_layer_tiles(state : RuntimeLayerState) -> Unit {
 
 ///|
 pub fn register_runtime_layer(
-  layer_entity : @entity.Entity,
+  layer_entity : @ecs.Entity,
   source : AutoTileLayerSource,
   context~ : AutoTileRuntimeContext = autotile_runtime_context(),
 ) -> Unit {
-  let store = autotile_world_store()
-  if store.layers.get(layer_entity) is Some(previous) {
+  let layers = runtime_layers()
+  if layers.get(layer_entity) is Some(previous) {
     destroy_layer_tiles(previous)
-    ignore(store.layers.remove(layer_entity))
+    ignore(layers.remove(layer_entity))
   }
   let state : RuntimeLayerState = { source, tile_entities: Map([]), context, }
   for solved in solve_autotile_layer(source) {
@@ -622,16 +623,16 @@ pub fn register_runtime_layer(
       state.tile_entities.set(key, tile_entity)
     }
   }
-  store.layers.set(layer_entity, state)
+  layers.set(layer_entity, state)
 }
 
 ///|
 fn apply_diff_to_runtime(
-  layer_entity : @entity.Entity,
+  layer_entity : @ecs.Entity,
   state : RuntimeLayerState,
   diff : AutoTileDiff,
 ) -> RuntimeLayerState {
-  let tile_entities : Map[String, @entity.Entity] = Map([])
+  let tile_entities : Map[String, @ecs.Entity] = Map([])
   for key, value in state.tile_entities {
     tile_entities.set(key, value)
   }
@@ -658,47 +659,37 @@ fn apply_diff_to_runtime(
 
 ///|
 pub fn set_runtime_cell(
-  layer_entity : @entity.Entity,
+  layer_entity : @ecs.Entity,
   x : Int32,
   y : Int32,
   terrain : Int32,
 ) -> Unit {
-  let store = autotile_world_store()
-  guard store.layers.get(layer_entity) is Some(state) else { return }
+  let layers = runtime_layers()
+  guard layers.get(layer_entity) is Some(state) else { return }
   let diff = update_cell_and_resolve_diff(state.source, x, y, Some(terrain))
-  store.layers.set(
-    layer_entity,
-    apply_diff_to_runtime(layer_entity, state, diff),
-  )
+  layers.set(layer_entity, apply_diff_to_runtime(layer_entity, state, diff))
 }
 
 ///|
 pub fn remove_runtime_cell(
-  layer_entity : @entity.Entity,
+  layer_entity : @ecs.Entity,
   x : Int32,
   y : Int32,
 ) -> Unit {
-  let store = autotile_world_store()
-  guard store.layers.get(layer_entity) is Some(state) else { return }
+  let layers = runtime_layers()
+  guard layers.get(layer_entity) is Some(state) else { return }
   let diff = update_cell_and_resolve_diff(state.source, x, y, None)
-  store.layers.set(
-    layer_entity,
-    apply_diff_to_runtime(layer_entity, state, diff),
-  )
+  layers.set(layer_entity, apply_diff_to_runtime(layer_entity, state, diff))
 }
 
 ///|
-pub fn rebuild_runtime_layer(layer_entity : @entity.Entity) -> Unit {
-  let store = autotile_world_store()
-  guard store.layers.get(layer_entity) is Some(state) else { return }
+pub fn rebuild_runtime_layer(layer_entity : @ecs.Entity) -> Unit {
+  let layers = runtime_layers()
+  guard layers.get(layer_entity) is Some(state) else { return }
   register_runtime_layer(layer_entity, state.source, context=state.context)
 }
 
 ///|
-pub fn runtime_layer_source(
-  layer_entity : @entity.Entity,
-) -> AutoTileLayerSource? {
-  autotile_world_store().layers
-  .get(layer_entity)
-  .map(fn(state) { state.source })
+pub fn runtime_layer_source(layer_entity : @ecs.Entity) -> AutoTileLayerSource? {
+  runtime_layers().get(layer_entity).map(fn(state) { state.source })
 }

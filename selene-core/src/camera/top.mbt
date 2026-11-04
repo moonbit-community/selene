@@ -13,10 +13,11 @@
 // limitations under the License.
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct CameraViewport {
   position : @math.Vec2
   size : @math.Vec2
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn CameraViewport::CameraViewport(
@@ -39,23 +40,26 @@ pub fn CameraViewport::rect(self : CameraViewport) -> @math.Rect {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum CameraPassLoadOp2D {
   Load
   Clear
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum CameraPassTarget2D {
   Screen
   Offscreen(String)
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct CameraPass2D {
   load_op : CameraPassLoadOp2D
   clear_color : @render.Color
   target : CameraPassTarget2D
-} derive(Eq, Debug)
+}
 
 ///|
 fn default_camera_clear_color() -> @render.Color {
@@ -72,12 +76,14 @@ pub fn CameraPass2D::CameraPass2D(
 }
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct Camera {
   mut is_active : Bool
   order : Int32
   viewport : CameraViewport?
   pass : CameraPass2D
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn Camera::Camera(
@@ -95,7 +101,9 @@ pub impl Default for Camera with fn default() -> Camera {
 }
 
 ///|
-pub(all) struct Camera2d {} derive(Eq, Debug)
+#derive(Eq, Debug)
+#selene.component
+pub(all) struct Camera2d {}
 
 ///|
 #warnings("-unnecessary_annotation")
@@ -109,11 +117,13 @@ pub impl Default for Camera2d with fn default() -> Camera2d {
 }
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct OrthographicProjection {
   near : Double
   far : Double
   scale : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn OrthographicProjection::OrthographicProjection(
@@ -130,38 +140,18 @@ pub impl Default for OrthographicProjection with fn default() -> OrthographicPro
 }
 
 ///|
-priv struct CameraWorldStore {
-  cameras : Map[@entity.Entity, Camera]
-  camera2ds : Map[@entity.Entity, Camera2d]
-  orthographic_projections : Map[@entity.Entity, OrthographicProjection]
+pub fn cameras() -> @ecs.ComponentStore[Camera] {
+  @ecs.components()
 }
 
 ///|
-let camera_world_stores : Map[UInt32, CameraWorldStore] = Map([])
-
-///|
-fn camera_world_store() -> CameraWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  camera_world_stores.get_or_init(world_id, () => {
-    cameras: Map([]),
-    camera2ds: Map([]),
-    orthographic_projections: Map([]),
-  })
+pub fn camera2ds() -> @ecs.ComponentStore[Camera2d] {
+  @ecs.components()
 }
 
 ///|
-pub fn cameras() -> Map[@entity.Entity, Camera] {
-  camera_world_store().cameras
-}
-
-///|
-pub fn camera2ds() -> Map[@entity.Entity, Camera2d] {
-  camera_world_store().camera2ds
-}
-
-///|
-pub fn orthographic_projections() -> Map[@entity.Entity, OrthographicProjection] {
-  camera_world_store().orthographic_projections
+pub fn orthographic_projections() -> @ecs.ComponentStore[OrthographicProjection] {
+  @ecs.components()
 }
 
 ///|

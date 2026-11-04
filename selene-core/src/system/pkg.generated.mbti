@@ -36,9 +36,11 @@ pub fn set_render_alpha(Double) -> Unit
 
 pub fn sync_mouse_lock_system(Double) -> Unit
 
-pub fn timeout(Double, () -> Unit, pausible? : Bool) -> Unit
+pub fn timeout(Double, () -> Unit, pausible? : Bool) -> TimerHandle
 
 pub fn timer_system(Double) -> Unit
+
+pub fn timers_system(Double) -> Unit
 
 pub fn ui_virtual_to_screen(@math.Vec2) -> @math.Vec2
 
@@ -68,6 +70,9 @@ pub(all) enum Schedule {
   Render
   RenderCleanup
 }
+
+type TimerHandle
+pub fn TimerHandle::cancel(Self) -> Bool
 
 // Type aliases
 

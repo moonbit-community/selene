@@ -2,7 +2,7 @@
 package "Milky2018/selene/render2d"
 
 import {
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "Milky2018/selene/render2d_types",
   "Milky2018/selene/transform",
@@ -12,7 +12,7 @@ import {
 // Values
 pub fn begin_frame2d_system(Double) -> Unit
 
-pub fn entity_sorting2d(@entity.Entity) -> Sorting2d
+pub fn entity_sorting2d(@ecs.Entity) -> Sorting2d
 
 pub fn get_camera_ui_commands(UInt32) -> Array[@render2d_types.DrawCommand2D]
 
@@ -96,9 +96,13 @@ pub fn push_ui_text(@render2d_types.TextDrawCommand2D) -> Unit
 
 pub fn push_ui_text_to_camera(UInt32?, @render2d_types.TextDrawCommand2D) -> Unit
 
+pub fn push_world_command(Double, UInt32?, @render2d_types.DrawCommand2D, camera_entity_id? : UInt32?, sorting? : Sorting2d, order? : Int32?) -> Unit
+
+pub fn reserve_world_command_order(Int32) -> Int32
+
 pub fn sort_depth_for_transform(@transform.GlobalTransform, Sorting2d) -> Double
 
-pub fn sorting2ds() -> Map[@entity.Entity, Sorting2d]
+pub fn sorting2ds() -> @ecs.ComponentStore[Sorting2d]
 
 // Errors
 
@@ -111,24 +115,27 @@ pub(all) struct DrawCommandWithDepth2D {
   command : @render2d_types.DrawCommand2D
 }
 
+#derive(Eq, @debug.Debug)
 pub(all) enum SortMode2D {
   Depth
   Y
-} derive(Eq, @debug.Debug)
+}
 pub fn SortMode2D::equal(Self, Self) -> Bool
 pub fn SortMode2D::not_equal(Self, Self) -> Bool
 pub fn SortMode2D::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Sorting2d {
   layer : Int32
   group : Int32
   order : Int32
   mode : SortMode2D
-} derive(Eq, @debug.Debug)
+}
 pub fn Sorting2d::Sorting2d(layer? : Int32, group? : Int32, order? : Int32, mode? : SortMode2D) -> Self
 pub fn Sorting2d::equal(Self, Self) -> Bool
 pub fn Sorting2d::not_equal(Self, Self) -> Bool
 pub fn Sorting2d::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for Sorting2d
 
 // Type aliases
 

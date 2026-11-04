@@ -32,7 +32,7 @@ fn player_is_frozen(result : GameResult?) -> Bool {
 }
 
 ///|
-fn set_ui_text(entity : @entity.Entity, content : String) -> Unit {
+fn set_ui_text(entity : @ecs.Entity, content : String) -> Unit {
   let text = @ui.texts().get_or_init(entity, fn() { Text(content) })
   if text.content != content {
     text.content = content
@@ -40,7 +40,7 @@ fn set_ui_text(entity : @entity.Entity, content : String) -> Unit {
 }
 
 ///|
-fn set_ui_text_color(entity : @entity.Entity, color : String) -> Unit {
+fn set_ui_text_color(entity : @ecs.Entity, color : String) -> Unit {
   let next_color = @ui.TextColor::from_css(color)
   if @ui.text_colors().get(entity) is Some(current) {
     if current.color != next_color.color {
@@ -52,7 +52,7 @@ fn set_ui_text_color(entity : @entity.Entity, color : String) -> Unit {
 }
 
 ///|
-fn set_ui_image(entity : @entity.Entity, image : @ui.UiImage) -> Unit {
+fn set_ui_image(entity : @ecs.Entity, image : @ui.UiImage) -> Unit {
   if @ui.ui_images().get(entity) is Some(current) {
     if current != image {
       @ui.ui_images().set(entity, image)
@@ -90,7 +90,7 @@ fn volume_image(volume_on : Bool) -> @ui.UiImage {
 }
 
 ///|
-fn ensure_sprite_animation_binding(entity : @entity.Entity) -> Unit {
+fn ensure_sprite_animation_binding(entity : @ecs.Entity) -> Unit {
   ignore(
     @animation.animation_players().get_or_init(entity, fn() {
       AnimationPlayer()
@@ -147,7 +147,7 @@ fn build_sprite_animation_clip_asset(
 
 ///|
 fn install_sprite_animation_player(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   animation : SpriteAnimationDef,
   repeat~ : @animation.RepeatAnimation = Forever,
 ) -> (@animation.AnimationGraphHandle, @animation.AnimationNodeIndex) {
@@ -166,7 +166,7 @@ fn install_sprite_animation_player(
 
 ///|
 fn play_player_animation(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   controller : PlayerController,
 ) -> Unit {
   let (key, node, animation, repeat) = match
@@ -255,7 +255,7 @@ fn play_player_animation(
 }
 
 ///|
-fn play_bird_animation(entity : @entity.Entity, bird : BirdController) -> Unit {
+fn play_bird_animation(entity : @ecs.Entity, bird : BirdController) -> Unit {
   let (key, node, animation, repeat) = match (bird.is_hurt, bird.direction) {
     (false, Left) =>
       (
@@ -284,14 +284,14 @@ fn play_bird_animation(entity : @entity.Entity, bird : BirdController) -> Unit {
 }
 
 ///|
-fn sprite_animation_finished(entity : @entity.Entity) -> Bool {
+fn sprite_animation_finished(entity : @ecs.Entity) -> Bool {
   @animation.animation_players()
   .get(entity)
   .map_or(false, fn(player) { player.all_finished() })
 }
 
 ///|
-fn entity_rect(entity : @entity.Entity) -> @math.Rect? {
+fn entity_rect(entity : @ecs.Entity) -> @math.Rect? {
   guard @transform.transforms().get(entity) is Some(transform) else {
     return None
   }
@@ -361,7 +361,7 @@ fn classify_bird_contact(
 
 ///|
 fn apply_stomp_bounce(
-  player_entity : @entity.Entity,
+  player_entity : @ecs.Entity,
   controller : PlayerController,
   player_rect : @math.Rect,
   bird_rect : @math.Rect,

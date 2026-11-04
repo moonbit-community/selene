@@ -13,16 +13,20 @@
 // limitations under the License.
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct Transform {
   translation : @math.Vec3
   rotation : @math.Quat
   scale : @math.Vec3
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct GlobalTransform {
   affine : @math.Affine3
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn Transform::identity() -> Transform {
@@ -163,34 +167,35 @@ pub fn GlobalTransform::reparented_to(
 
 ///|
 priv struct TransformWorldStore {
-  transforms : Map[@entity.Entity, Transform]
-  global_transforms : Map[@entity.Entity, GlobalTransform]
+  transforms : @ecs.ComponentStore[Transform]
+  global_transforms : @ecs.ComponentStore[GlobalTransform]
+  propagated : Array[Bool]
 }
 
 ///|
-let transform_world_stores : Map[UInt32, TransformWorldStore] = Map([])
+let transform_store_key : @ecs.ResourceKey[TransformWorldStore] = ResourceKey(world => {
+  transforms: @ecs.components_in(world),
+  global_transforms: @ecs.components_in(world),
+  propagated: [],
+})
 
 ///|
 fn transform_world_store() -> TransformWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  transform_world_stores.get_or_init(world_id, () => {
-    transforms: Map([]),
-    global_transforms: Map([]),
-  })
+  transform_store_key.get()
 }
 
 ///|
-pub fn transforms() -> Map[@entity.Entity, Transform] {
+pub fn transforms() -> @ecs.ComponentStore[Transform] {
   transform_world_store().transforms
 }
 
 ///|
-pub fn global_transforms() -> Map[@entity.Entity, GlobalTransform] {
+pub fn global_transforms() -> @ecs.ComponentStore[GlobalTransform] {
   transform_world_store().global_transforms
 }
 
 ///|
-pub fn compute_global_transform(entity : @entity.Entity) -> GlobalTransform? {
+pub fn compute_global_transform(entity : @ecs.Entity) -> GlobalTransform? {
   guard entity.is_alive() else { None }
   let local_global = GlobalTransform::from_transform(
     transforms().get(entity).unwrap_or_default(),
@@ -207,10 +212,9 @@ pub fn compute_global_transform(entity : @entity.Entity) -> GlobalTransform? {
 }
 
 ///|
-pub fn set_parent_in_place(
-  child : @entity.Entity,
-  parent : @entity.Entity,
-) -> Unit {
+pub fn set_parent_in_place(child : @ecs.Entity, parent : @ecs.Entity) -> Unit {
+  let world = @ecs.require_current_world()
+  guard child.belongs_to(world) && parent.belongs_to(world) else { return }
   guard child != parent else { return }
   let current_global = compute_global_transform(child)
   let parent_global = compute_global_transform(parent)
@@ -225,7 +229,7 @@ pub fn set_parent_in_place(
 }
 
 ///|
-pub fn remove_parent_in_place(child : @entity.Entity) -> Unit {
+pub fn remove_parent_in_place(child : @ecs.Entity) -> Unit {
   let current_global = compute_global_transform(child)
   child.remove_parent()
   match current_global {
@@ -237,40 +241,65 @@ pub fn remove_parent_in_place(child : @entity.Entity) -> Unit {
 
 ///|
 pub fn transform_propagate_system(_delta : Double) -> Unit {
-  let globals = global_transforms()
-  globals.clear()
-  for entity in @entity.iter_entities() {
-    if !entity.is_alive() || entity.get_parent() is Some(_) {
+  let is_alive = @ecs.alive_in_world(@ecs.require_current_world())
+  let store = transform_world_store()
+  let globals = store.global_transforms
+  let locals = store.transforms
+  let propagated = store.propagated
+  propagated.fill(false)
+  let write_global = (entity : @ecs.Entity, global : GlobalTransform) => {
+    let index = entity.slot_index()
+    while propagated.length() <= index {
+      propagated.push(false)
+    }
+    propagated[index] = true
+    globals.set(entity, global)
+  }
+  for entity in @ecs.iter_entities() {
+    if !is_alive(entity) || entity.get_parent() is Some(_) {
       continue
     }
     let global = GlobalTransform::from_transform(
-      transforms().get(entity).unwrap_or_default(),
+      locals.get(entity).unwrap_or_default(),
     )
-    globals.set(entity, global)
-    propagate_children(entity, global)
+    write_global(entity, global)
+    propagate_children(entity, global, locals, write_global, is_alive)
   }
-  for entity, transform in transforms() {
-    if !entity.is_alive() || globals.contains(entity) {
+  for entity, transform in locals {
+    if !is_alive(entity) || propagated.get(entity.slot_index()).unwrap_or(false) {
       continue
     }
-    globals.set(entity, GlobalTransform::from_transform(transform))
+    write_global(entity, GlobalTransform::from_transform(transform))
+  }
+  // Keep existing rows in place across frames. Only stale globals migrate.
+  let stale = []
+  for entity, _ in globals {
+    if !propagated.get(entity.slot_index()).unwrap_or(false) {
+      stale.push(entity)
+    }
+  }
+  for entity in stale {
+    globals.remove(entity)
   }
 }
 
 ///|
 fn propagate_children(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   parent_global : GlobalTransform,
+  locals : @ecs.ComponentStore[Transform],
+  write_global : (@ecs.Entity, GlobalTransform) -> Unit,
+  is_alive : (@ecs.Entity) -> Bool,
 ) -> Unit {
   for child in entity.get_children() {
-    if !child.is_alive() {
+    if !is_alive(child) {
       continue
     }
-    let local_transform = transforms().get(child).unwrap_or_default()
+    let local_transform = locals.get(child).unwrap_or_default()
     let global = {
       affine: parent_global.affine * local_transform.compute_affine(),
     }
-    global_transforms().set(child, global)
-    propagate_children(child, global)
+    write_global(child, global)
+    propagate_children(child, global, locals, write_global, is_alive)
   }
 }

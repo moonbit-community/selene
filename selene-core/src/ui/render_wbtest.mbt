@@ -24,7 +24,7 @@ fn test_global_node(
 }
 
 ///|
-fn cleanup_test_ui_entity(entity : @entity.Entity) -> Unit {
+fn cleanup_test_ui_entity(entity : @ecs.Entity) -> Unit {
   nodes().remove(entity)
   computed_ui_nodes().remove(entity)
   global_ui_nodes().remove(entity)
@@ -52,8 +52,8 @@ fn cleanup_test_ui_entity(entity : @entity.Entity) -> Unit {
 
 ///|
 fn test_entity_index(
-  entities : Array[@entity.Entity],
-  target : @entity.Entity,
+  entities : Array[@ecs.Entity],
+  target : @ecs.Entity,
 ) -> Int32 {
   for index, entity in entities {
     if entity == target {
@@ -66,7 +66,7 @@ fn test_entity_index(
 ///|
 test "ui rounded backgrounds emit quarter-circle fill commands" {
   @render2d.begin_frame2d_system(0.0)
-  let entity = @entity.Entity()
+  let entity = @ecs.Entity()
   let rect = test_rect(10.0, 20.0, 100.0, 60.0)
   global_ui_nodes().set(entity, test_global_node(rect, rect))
   background_colors().set(entity, BackgroundColor(rgba(20, 40, 60, 1.0)))
@@ -99,7 +99,7 @@ test "ui rounded backgrounds emit quarter-circle fill commands" {
 ///|
 test "ui material nodes render gradient materials ahead of legacy background fills" {
   @render2d.begin_frame2d_system(0.0)
-  let entity = @entity.Entity()
+  let entity = @ecs.Entity()
   let rect = test_rect(8.0, 12.0, 80.0, 40.0)
   let handle = register_ui_material_asset(
     UiMaterialAsset::gradient(rgba(255, 0, 0, 1.0), rgba(0, 0, 255, 1.0)),
@@ -132,7 +132,7 @@ test "ui material nodes render gradient materials ahead of legacy background fil
 ///|
 test "ui material assets can render through custom draw callbacks" {
   @render2d.begin_frame2d_system(0.0)
-  let entity = @entity.Entity()
+  let entity = @ecs.Entity()
   let screen_rect = test_rect(4.0, 6.0, 120.0, 80.0)
   let content_rect = test_rect(12.0, 18.0, 64.0, 24.0)
   let handle = register_ui_material_asset(
@@ -185,7 +185,7 @@ test "ui border radii resolve percent values against node size" {
 ///|
 test "ui box shadows emit layered rounded shadow commands" {
   @render2d.begin_frame2d_system(0.0)
-  let entity = @entity.Entity()
+  let entity = @ecs.Entity()
   let rect = test_rect(16.0, 24.0, 96.0, 48.0)
   global_ui_nodes().set(entity, test_global_node(rect, rect))
   border_radii().set(entity, BorderRadius::all(Val::px(8.0)))
@@ -221,7 +221,7 @@ test "ui box shadows emit layered rounded shadow commands" {
 ///|
 test "ui outlines resolve width and offset into outer bands" {
   @render2d.begin_frame2d_system(0.0)
-  let entity = @entity.Entity()
+  let entity = @ecs.Entity()
   let rect = test_rect(20.0, 30.0, 100.0, 60.0)
   global_ui_nodes().set(entity, test_global_node(rect, rect))
   outlines().set(
@@ -262,7 +262,7 @@ test "ui outlines resolve width and offset into outer bands" {
 ///|
 test "ui overflow clipping applies after node decorations" {
   @render2d.begin_frame2d_system(0.0)
-  let entity = @entity.Entity()
+  let entity = @ecs.Entity()
   let screen_rect = test_rect(0.0, 0.0, 120.0, 80.0)
   let content_rect = test_rect(12.0, 10.0, 96.0, 54.0)
   nodes().set(entity, Node(overflow_y=Scroll))
@@ -311,7 +311,7 @@ test "ui overflow clipping applies after node decorations" {
 ///|
 test "ui override clip removes inherited clip from child rendering" {
   @render2d.begin_frame2d_system(0.0)
-  let parent = @entity.Entity()
+  let parent = @ecs.Entity()
   let child = parent.spawn_child()
   nodes().set(parent, Node(overflow_x=Hidden, overflow_y=Hidden))
   nodes().set(child, Node())
@@ -371,7 +371,7 @@ test "ui override clip removes inherited clip from child rendering" {
 
 ///|
 test "ui stacking keeps a pause menu subtree above the HUD" {
-  let root = @entity.Entity()
+  let root = @ecs.Entity()
   let hud = root.spawn_child()
   let minimap = hud.spawn_child()
   let pause_menu = root.spawn_child()
@@ -412,7 +412,7 @@ test "ui stacking keeps a pause menu subtree above the HUD" {
 
 ///|
 test "global z index lifts a descendant out of its parent stack" {
-  let root = @entity.Entity()
+  let root = @ecs.Entity()
   let hud = root.spawn_child()
   let minimap = hud.spawn_child()
   let pause_menu = root.spawn_child()
@@ -446,8 +446,8 @@ test "global z index lifts a descendant out of its parent stack" {
 
 ///|
 test "global z index orders separate UI roots before local z index" {
-  let local_front = @entity.Entity()
-  let global_front = @entity.Entity()
+  let local_front = @ecs.Entity()
+  let global_front = @ecs.Entity()
   let entities = [local_front, global_front]
   for entity in entities {
     nodes().set(entity, Node(width=Val::px(100.0), height=Val::px(100.0)))
@@ -474,7 +474,7 @@ test "global z index orders separate UI roots before local z index" {
 
 ///|
 test "ui extraction reuses the stack snapshot produced by layout" {
-  let root = @entity.Entity()
+  let root = @ecs.Entity()
   let first = root.spawn_child()
   let second = root.spawn_child()
   let entities = [root, first, second]

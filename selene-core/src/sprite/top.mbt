@@ -5,6 +5,7 @@ pub(all) enum SpriteImageMode {
 }
 
 ///|
+#selene.component
 pub(all) struct Sprite {
   image : @asset.ImageHandle?
   mut texture_atlas : TextureAtlas?
@@ -19,22 +20,8 @@ pub(all) struct Sprite {
 }
 
 ///|
-priv struct SpriteWorldStore {
-  sprites : Map[@entity.Entity, Sprite]
-}
-
-///|
-let sprite_world_stores : Map[UInt32, SpriteWorldStore] = Map([])
-
-///|
-fn sprite_world_store() -> SpriteWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  sprite_world_stores.get_or_init(world_id, fn() { { sprites: Map([]), } })
-}
-
-///|
-pub fn sprites() -> Map[@entity.Entity, Sprite] {
-  sprite_world_store().sprites
+pub fn sprites() -> @ecs.ComponentStore[Sprite] {
+  @ecs.components()
 }
 
 ///|
@@ -95,18 +82,40 @@ pub fn Sprite::from_color(
 }
 
 ///|
+let sprite_query_key : @ecs.ResourceKey[
+  @ecs.Query2[Sprite, @transform.GlobalTransform],
+] = ResourceKey(world => {
+  let sprites : @ecs.ComponentStore[Sprite] = @ecs.components_in(world)
+  let transforms : @ecs.ComponentStore[@transform.GlobalTransform] = @ecs.components_in(
+    world,
+  )
+  Query2(sprites, transforms)
+})
+
+///|
+/// Visits Sprites with a GlobalTransform in contiguous archetype rows.
+pub fn for_each_sprite_transform(
+  visit : (@ecs.Entity, Sprite, @transform.GlobalTransform) -> Unit,
+) -> Unit {
+  sprite_query_key.get().for_each(visit)
+}
+
+///|
 pub fn render_sprite_system(delta : Double) -> Unit {
   ignore(delta)
   let camera_views = @camera.active_camera2d_views()
   let camera_extract = @culling2d.build_camera_extract2d_context(camera_views)
-  for entity, sprite in sprites() {
-    guard entity.is_alive() else { continue }
-    guard @visibility.is_visible(entity) else { continue }
-    guard @transform.global_transforms().get(entity) is Some(global_transform) else {
-      continue
-    }
-    guard sprite_size(sprite) is Some(size) else { continue }
-    let sorting = @render2d.entity_sorting2d(entity)
+  let is_alive = @ecs.alive_in_world(@ecs.require_current_world())
+  let sprites = sprites()
+  let sorting2ds = @render2d.sorting2ds()
+  // Draw ties retain Sprite insertion order even when a row moves tables.
+  let order_base = @render2d.reserve_world_command_order(sprites.order_span())
+  for_each_sprite_transform((entity, sprite, global_transform) => {
+    guard is_alive(entity) else { return }
+    guard @visibility.is_visible(entity) else { return }
+    guard sprite_size(sprite) is Some(size) else { return }
+    let order = order_base + sprites.insertion_order(entity)
+    let sorting = sorting2ds.get(entity).unwrap_or(Sorting2d())
     let depth = @render2d.sort_depth_for_transform(global_transform, sorting)
     let transform = global_transform.compute_transform()
     let base_pos = @math.Vec2(transform.translation.x, transform.translation.y)
@@ -128,8 +137,9 @@ pub fn render_sprite_system(delta : Double) -> Unit {
         local_transform,
         None,
         sorting,
+        order,
       )
-      continue
+      return
     }
     let world_pos = @parallax2d.parallax_world_position(
       base_pos,
@@ -146,9 +156,6 @@ pub fn render_sprite_system(delta : Double) -> Unit {
       @visibility.entity_render_layers(entity),
       @parallax2d.parallax_depends_on_camera(parallax),
     )
-    if camera_views_for_entity.is_empty() {
-      continue
-    }
     for camera_view in camera_views_for_entity {
       let raw_pos = @parallax2d.parallax_world_position(
         base_pos,
@@ -178,14 +185,15 @@ pub fn render_sprite_system(delta : Double) -> Unit {
         screen_transform,
         Some(camera_view.entity.id()),
         sorting,
+        order,
       )
     }
-  }
+  })
 }
 
 ///|
 fn push_sprite_draw_command(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   sprite : Sprite,
   size : @math.Vec2,
   depth : Double,
@@ -193,10 +201,11 @@ fn push_sprite_draw_command(
   transform : @math.Transform,
   camera_entity_id : UInt32?,
   sorting : @render2d.Sorting2d,
+  order : Int32,
 ) -> Unit {
-  match sprite.image {
-    Some(image) => {
-      let command : @render2d_types.ImageDrawCommand2D = {
+  let command : @render2d_types.DrawCommand2D = match sprite.image {
+    Some(image) =>
+      Image({
         image,
         destination: { position: snapped_pos, size, },
         source: sprite_image_region(sprite),
@@ -206,53 +215,25 @@ fn push_sprite_draw_command(
         alpha_mode: sprite_alpha_mode(sprite),
         blend_mode: sprite_blend_mode(sprite),
         color: sprite.color,
-      }
-      match camera_entity_id {
-        Some(camera_entity_id) =>
-          @render2d.push_image_with_depth_to_camera(
-            camera_entity_id,
-            depth,
-            command,
-            entity_id=Some(entity.id()),
-            sorting~,
-          )
-        None =>
-          @render2d.push_image_with_depth_for_entity(
-            depth,
-            Some(entity.id()),
-            command,
-            sorting~,
-          )
-      }
-    }
-    None => {
-      let command : @render2d_types.RectDrawCommand2D = {
+      })
+    None =>
+      Rect({
         rect: { position: snapped_pos, size, },
         transform,
         alpha_mode: sprite_alpha_mode(sprite),
         blend_mode: sprite_blend_mode(sprite),
         fill_color: sprite.color,
         stroke_color: None,
-      }
-      match camera_entity_id {
-        Some(camera_entity_id) =>
-          @render2d.push_rect_with_depth_to_camera(
-            camera_entity_id,
-            depth,
-            command,
-            entity_id=Some(entity.id()),
-            sorting~,
-          )
-        None =>
-          @render2d.push_rect_with_depth_for_entity(
-            depth,
-            Some(entity.id()),
-            command,
-            sorting~,
-          )
-      }
-    }
+      })
   }
+  @render2d.push_world_command(
+    depth,
+    Some(entity.id()),
+    command,
+    camera_entity_id~,
+    sorting~,
+    order=Some(order),
+  )
 }
 
 ///|

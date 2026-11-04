@@ -148,6 +148,7 @@ let wave_spawn_plans : Array[WaveSpawnPlan] = [
 ]
 
 ///|
+#selene.resource(new_wave_state)
 priv struct WaveState {
   mut creeper_spawned : Int32
   mut icecream_spawned : Int32
@@ -159,25 +160,33 @@ priv struct WaveState {
 }
 
 ///|
-let wave_state : WaveState = {
-  creeper_spawned: 0,
-  icecream_spawned: 0,
-  orc_spawned: 0,
-  skull_spawned: 0,
-  teleman_spawned: 0,
-  devil_spawned: 0,
-  pirate_spawned: 0,
+fn new_wave_state(_world : @ecs.World) -> WaveState {
+  {
+    creeper_spawned: 0,
+    icecream_spawned: 0,
+    orc_spawned: 0,
+    skull_spawned: 0,
+    teleman_spawned: 0,
+    devil_spawned: 0,
+    pirate_spawned: 0,
+  }
+}
+
+///|
+fn wave_state() -> WaveState {
+  @ecs.resource()
 }
 
 ///|
 fn reset_wave_state() -> Unit {
-  wave_state.creeper_spawned = 0
-  wave_state.icecream_spawned = 0
-  wave_state.orc_spawned = 0
-  wave_state.skull_spawned = 0
-  wave_state.teleman_spawned = 0
-  wave_state.devil_spawned = 0
-  wave_state.pirate_spawned = 0
+  let state = wave_state()
+  state.creeper_spawned = 0
+  state.icecream_spawned = 0
+  state.orc_spawned = 0
+  state.skull_spawned = 0
+  state.teleman_spawned = 0
+  state.devil_spawned = 0
+  state.pirate_spawned = 0
 }
 
 ///|
@@ -246,13 +255,14 @@ let spawners : Array[@math.Vec2] = [
 ///|
 fn spawn_enemy_system(_world : @ecs.World) -> Unit {
   fn spawn_enemy() -> Unit {
-    if game_state.game_over {
+    let game = game_state()
+    if game.game_over {
       return
     }
-    let rand = game_state.rand
+    let rand = game.rand
 
     // Get spawn interval for current wave
-    let wave = game_state.current_wave
+    let wave = game.current_wave
     let spawn_interval = if wave >= 1 && wave <= 10 {
       wave_spawn_plans[wave - 1].spawn_interval
     } else {
@@ -262,7 +272,7 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
     // Try to select an enemy type for the current wave
     match select_enemy_type_for_wave(rand) {
       Some(enemy_type) => {
-        let enemy = @entity.Entity()
+        let enemy = spawn_survivors_entity()
         let pos = spawners[rand.int(limit=spawners.length())]
         @transform.transforms().set(
           enemy,
@@ -300,7 +310,7 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
             ]),
           ),
         )
-        enemies.set(enemy, enemy_state)
+        enemies().set(enemy, enemy_state)
         play_enemy_animation_state(
           enemy,
           enemy_state,
@@ -310,13 +320,14 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
       }
       None => () // No more enemies to spawn in this wave
     }
-    @system.timeout(spawn_interval, spawn_enemy)
+    survivors_timeout(spawn_interval, spawn_enemy)
   }
 
   spawn_enemy()
 }
 
 ///|
+#selene.component
 priv struct Enemy {
   enemy_type : EnemyType
   speed : Double
@@ -328,6 +339,7 @@ priv struct Enemy {
 }
 
 ///|
+#derive(Eq, Hash)
 enum EnemyType {
   Creeper
   Icecream
@@ -336,23 +348,16 @@ enum EnemyType {
   Teleman
   Devil
   Pirate
-} derive(Eq, Hash)
+}
 
 ///|
-let enemies : Map[@entity.Entity, Enemy] = Map([])
-
-///|
-let enemy_bullets : Set[@entity.Entity] = Set([])
-
-///|
-let enemy_contact_event_reader : @event.EventReader[@physics2d.ContactEvent] = EventReader()
-
-///|
-let enemy_trigger_event_reader : @event.EventReader[@physics2d.TriggerEvent] = EventReader()
+fn enemies() -> @ecs.ComponentStore[Enemy] {
+  @ecs.components()
+}
 
 ///|
 fn create_enemy_animation_nodes(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   data : EnemyData,
 ) -> (@animation.AnimationNodeIndex, @animation.AnimationNodeIndex) {
   let graph = @animation.AnimationGraph()
@@ -368,7 +373,7 @@ fn create_enemy_animation_nodes(
 
 ///|
 fn play_enemy_animation_state(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   state : Enemy,
   animation : SpriteAnimationDef,
   node : @animation.AnimationNodeIndex,
@@ -394,7 +399,8 @@ fn get_enemy_data(enemy_type : EnemyType) -> EnemyData {
 
 ///|
 fn select_enemy_type_for_wave(rand : @random.Rand) -> EnemyType? {
-  let wave = game_state.current_wave
+  let state = wave_state()
+  let wave = game_state().current_wave
   if wave < 1 || wave > 10 {
     return None
   }
@@ -402,25 +408,25 @@ fn select_enemy_type_for_wave(rand : @random.Rand) -> EnemyType? {
   let available_types = []
 
   // Build list of available enemy types based on what hasn't been fully spawned
-  if wave_state.creeper_spawned < plan.creeper_count {
+  if state.creeper_spawned < plan.creeper_count {
     available_types.push(Creeper)
   }
-  if wave_state.icecream_spawned < plan.icecream_count {
+  if state.icecream_spawned < plan.icecream_count {
     available_types.push(Icecream)
   }
-  if wave_state.orc_spawned < plan.orc_count {
+  if state.orc_spawned < plan.orc_count {
     available_types.push(Orc)
   }
-  if wave_state.skull_spawned < plan.skull_count {
+  if state.skull_spawned < plan.skull_count {
     available_types.push(Skull)
   }
-  if wave_state.teleman_spawned < plan.teleman_count {
+  if state.teleman_spawned < plan.teleman_count {
     available_types.push(Teleman)
   }
-  if wave_state.devil_spawned < plan.devil_count {
+  if state.devil_spawned < plan.devil_count {
     available_types.push(Devil)
   }
-  if wave_state.pirate_spawned < plan.pirate_count {
+  if state.pirate_spawned < plan.pirate_count {
     available_types.push(Pirate)
   }
 
@@ -435,25 +441,26 @@ fn select_enemy_type_for_wave(rand : @random.Rand) -> EnemyType? {
 
   // Increment the counter for the selected type
   match enemy_type {
-    Creeper => wave_state.creeper_spawned += 1
-    Icecream => wave_state.icecream_spawned += 1
-    Orc => wave_state.orc_spawned += 1
-    Skull => wave_state.skull_spawned += 1
-    Teleman => wave_state.teleman_spawned += 1
-    Devil => wave_state.devil_spawned += 1
-    Pirate => wave_state.pirate_spawned += 1
+    Creeper => state.creeper_spawned += 1
+    Icecream => state.icecream_spawned += 1
+    Orc => state.orc_spawned += 1
+    Skull => state.skull_spawned += 1
+    Teleman => state.teleman_spawned += 1
+    Devil => state.devil_spawned += 1
+    Pirate => state.pirate_spawned += 1
   }
   Some(enemy_type)
 }
 
 ///|
 fn enemy_ai_system(_world : @ecs.World) -> Unit {
-  if game_state.game_over {
+  let game = game_state()
+  if game.game_over {
     return
   }
-  for e, state in enemies {
+  for e, state in enemies() {
     guard e.is_alive() else { continue }
-    guard @transform.transforms().get(game_state.player_entity)
+    guard @transform.transforms().get(game.player_entity)
       is Some(player_transform) else {
       return
     }
@@ -489,11 +496,12 @@ fn enemy_ai_system(_world : @ecs.World) -> Unit {
 
 ///|
 fn devil_shooting_system(_world : @ecs.World) -> Unit {
+  let game = game_state()
   let delta = @time.delta()
-  if game_state.game_over {
+  if game.game_over {
     return
   }
-  for e, state in enemies {
+  for e, state in enemies() {
     guard e.is_alive() else { continue }
     // Only Devil enemies shoot
     if state.enemy_type != Devil {
@@ -502,7 +510,7 @@ fn devil_shooting_system(_world : @ecs.World) -> Unit {
     guard @transform.transforms().get(e) is Some(enemy_transform) else {
       continue
     }
-    guard @transform.transforms().get(game_state.player_entity)
+    guard @transform.transforms().get(game.player_entity)
       is Some(player_transform) else {
       return
     }
@@ -530,7 +538,8 @@ fn devil_shooting_system(_world : @ecs.World) -> Unit {
 
 ///|
 fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
-  let bullet_entity = @entity.Entity()
+  let runtime = survivors_runtime()
+  let bullet_entity = spawn_survivors_entity()
   @sprite.sprites().set(
     bullet_entity,
     Sprite(
@@ -558,61 +567,71 @@ fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
     ]),
   )
   @physics2d.areas().set(bullet_entity, area)
-  enemy_bullets.add(bullet_entity)
-  @system.timeout(5.0, fn() {
+  runtime.enemy_bullets.add(bullet_entity)
+  survivors_timeout(5.0, fn() {
     bullet_entity.destroy()
-    enemy_bullets.remove(bullet_entity)
+    runtime.enemy_bullets.remove(bullet_entity)
   })
 }
 
 ///|
 fn apply_player_damage() -> Unit {
-  if game_state.invincible {
+  let game = game_state()
+  if game.invincible {
     return
   }
-  game_state.invincible = true
-  let penalty = 250 * game_state.current_wave
-  let new_score = (game_state.score - penalty).max(0)
+  game.invincible = true
+  let penalty = 250 * game.current_wave
+  let new_score = (game.score - penalty).max(0)
   set_score(new_score)
   trigger_damage_effect()
-  @system.timeout(INVINCIBLE_TIME, fn() { game_state.invincible = false })
+  survivors_timeout(INVINCIBLE_TIME, fn() { game.invincible = false })
 }
 
 ///|
 fn enemy_collision_system(_world : @ecs.World) -> Unit {
-  for event in @physics2d.contact_event_bus.read(enemy_contact_event_reader) {
+  let runtime = survivors_runtime()
+  let game = game_state()
+  for
+    event in @physics2d.contact_event_bus.read(
+      runtime.enemy_contact_event_reader,
+    ) {
     guard event.started else { continue }
-    guard event.entity == game_state.player_entity else { continue }
-    if enemies.contains(event.other) {
+    guard event.entity == game.player_entity else { continue }
+    if enemies().contains(event.other) {
       apply_player_damage()
     }
   }
-  for event in @physics2d.trigger_event_bus.read(enemy_trigger_event_reader) {
+  for
+    event in @physics2d.trigger_event_bus.read(
+      runtime.enemy_trigger_event_reader,
+    ) {
     guard event.entered else { continue }
-    guard enemy_bullets.contains(event.area) else { continue }
-    if event.other == game_state.player_entity {
+    guard runtime.enemy_bullets.contains(event.area) else { continue }
+    if event.other == game.player_entity {
       apply_player_damage()
     }
     event.area.destroy()
-    enemy_bullets.remove(event.area)
+    runtime.enemy_bullets.remove(event.area)
   }
 }
 
 ///|
 fn check_victory_system(_world : @ecs.World) -> Unit {
+  let game = game_state()
   // Don't check if already game over
-  if game_state.game_over {
+  if game.game_over {
     return
   }
 
   // Only check after timer has reached 0 (all 10 waves completed)
-  if game_state.game_timer > 0.0 {
+  if game.game_timer > 0.0 {
     return
   }
 
   // Count alive enemies
   let mut alive_count = 0
-  for e, _state in enemies {
+  for e, _state in enemies() {
     if e.is_alive() {
       alive_count += 1
     }
@@ -620,6 +639,6 @@ fn check_victory_system(_world : @ecs.World) -> Unit {
 
   // If no enemies left, trigger victory
   if alive_count == 0 {
-    game_state.game_over = true
+    game.game_over = true
   }
 }

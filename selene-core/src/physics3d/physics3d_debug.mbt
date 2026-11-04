@@ -26,7 +26,7 @@ pub fn debug_colliders_system(_delta : Double) -> Unit {
 }
 
 ///|
-fn debug_collider_color(entity : @entity.Entity) -> @render.Color {
+fn debug_collider_color(entity : @ecs.Entity) -> @render.Color {
   if !debug_collider_enabled(entity) {
     debug_disabled_color()
   } else if sensors().contains(entity) {
@@ -43,7 +43,7 @@ fn debug_collider_color(entity : @entity.Entity) -> @render.Color {
 }
 
 ///|
-fn debug_collider_enabled(entity : @entity.Entity) -> Bool {
+fn debug_collider_enabled(entity : @ecs.Entity) -> Bool {
   match collider_handle(entity) {
     Some(handle) =>
       match physics3d_world().colliders.get(handle) {

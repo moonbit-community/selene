@@ -1,0 +1,245 @@
+// Copyright 2025 International Digital Economy Academy
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+///|
+#derive(Eq, Debug, Hash)
+struct Entity {
+  world_id : UInt32
+  value : UInt32
+  slot : Int32
+  generation : UInt32
+}
+
+///|
+priv enum EntityLifecycleState {
+  Alive
+  PendingSpawn
+  PendingDespawn
+  PendingRespawn
+  Destroyed
+}
+
+///|
+priv struct EntitySlot {
+  mut generation : UInt32
+  mut state : EntityLifecycleState?
+  mut location : (Int32, Int32)?
+}
+
+///|
+priv struct EntityWorldStore {
+  mut entity_generator : UInt32
+  mut alive_count : Int32
+  all_entities : @set.Set[Entity]
+  archetypes : ArchetypeWorld
+  free_slots : Array[Int32]
+  pending_state_changes : @set.Set[Entity]
+}
+
+///|
+let entity_store_key : ResourceKey[EntityWorldStore] = ResourceKey(_ => {
+  entity_generator: 0U,
+  alive_count: 0,
+  all_entities: Set([]),
+  archetypes: make_archetype_world([]),
+  free_slots: [],
+  pending_state_changes: Set([]),
+})
+
+///|
+fn entity_store() -> EntityWorldStore {
+  entity_store_key.get()
+}
+
+///|
+pub fn iter_entities() -> Iter[Entity] {
+  entity_store().all_entities.iter()
+}
+
+///|
+pub fn alive_entity_count() -> Int32 {
+  entity_store().alive_count
+}
+
+///|
+pub fn Entity::is_alive(e : Entity) -> Bool {
+  let world = require_current_world()
+  guard e.belongs_to(world) else { false }
+  entity_store_key.get_in(world).is_alive(e)
+}
+
+///|
+fn EntityWorldStore::is_alive(self : EntityWorldStore, entity : Entity) -> Bool {
+  guard self.archetypes.slot(entity) is Some(slot) else { false }
+  slot.state is Some(Alive) || slot.state is Some(PendingRespawn)
+}
+
+///|
+/// Binds a live-state check to a World for repeated use during a traversal.
+pub fn alive_in_world(world : World) -> (Entity) -> Bool {
+  let store = entity_store_key.get_in(world)
+  let world_id = world.id()
+  entity => entity.world_id == world_id && store.is_alive(entity)
+}
+
+///|
+/// Checks whether this handle still owns its slot in the specified World.
+pub fn Entity::is_valid_in(self : Entity, world : World) -> Bool {
+  self.belongs_to(world) &&
+  entity_store_key.get_in(world).archetypes.slot(self) is Some(_)
+}
+
+///|
+fn EntityWorldStore::allocate(
+  self : EntityWorldStore,
+  world_id : UInt32,
+  state : EntityLifecycleState,
+) -> Entity {
+  let value = self.entity_generator
+  guard value != 0xffffffffU else {
+    abort("entity IDs exhausted for this world")
+  }
+  self.entity_generator += 1U
+  let slots = self.archetypes.slots
+  let slot = match self.free_slots.pop() {
+    Some(index) => {
+      slots[index].state = Some(state)
+      index
+    }
+    None => {
+      let index = slots.length()
+      slots.push({ generation: 0U, state: Some(state), location: None, })
+      index
+    }
+  }
+  { world_id, value, slot, generation: slots[slot].generation, }
+}
+
+///|
+pub fn Entity::Entity() -> Entity {
+  spawn_in(require_current_world())
+}
+
+///|
+fn spawn_in(world : World) -> Entity {
+  let store = entity_store_key.get_in(world)
+  let entity = store.allocate(world.id(), Alive)
+  store.all_entities.add(entity)
+  store.alive_count += 1
+  entity
+}
+
+///|
+/// A stable World-local ID. The ID stays unique when a storage slot is reused.
+pub fn Entity::id(self : Entity) -> UInt32 {
+  self.value
+}
+
+///|
+/// The reusable slot index, suitable for World-local traversal scratch space.
+pub fn Entity::slot_index(self : Entity) -> Int32 {
+  self.slot
+}
+
+///|
+/// Checks ownership independently of the entity's lifecycle state.
+pub fn Entity::belongs_to(self : Entity, world : World) -> Bool {
+  self.world_id == world.id()
+}
+
+///|
+fn queue_entity_spawn(world : World, initialize : (Entity) -> Unit) -> Entity {
+  let store = entity_store_key.get_in(world)
+  let entity = store.allocate(world.id(), PendingSpawn)
+  enqueue(world, _ => {
+    guard store.archetypes.slot(entity) is Some(_) else { return }
+    initialize(entity)
+    store.pending_state_changes.add(entity)
+  })
+  entity
+}
+
+///|
+/// Despawns this entity while retaining its slot and components for respawn.
+pub fn Entity::destroy(e : Entity) -> Unit {
+  let world = require_current_world()
+  guard e.belongs_to(world) else { return }
+  let store = entity_store_key.get_in(world)
+  guard store.archetypes.slot(e) is Some(slot) else { return }
+  match slot.state.unwrap() {
+    Destroyed | PendingDespawn => ()
+    PendingSpawn => {
+      slot.state = Some(PendingDespawn)
+      store.pending_state_changes.add(e)
+    }
+    Alive | PendingRespawn => {
+      if store.all_entities.contains(e) && store.alive_count > 0 {
+        store.alive_count -= 1
+      }
+      slot.state = Some(PendingDespawn)
+      store.pending_state_changes.add(e)
+      if hierarchy_parents().get(e) is Some(p) {
+        for c in p.children {
+          c.destroy()
+        }
+      }
+    }
+  }
+}
+
+///|
+pub fn Entity::respawn(e : Entity) -> Unit {
+  let world = require_current_world()
+  guard e.belongs_to(world) else { return }
+  let store = entity_store_key.get_in(world)
+  guard store.archetypes.slot(e) is Some(slot) else { return }
+  match slot.state.unwrap() {
+    Alive | PendingRespawn => ()
+    Destroyed | PendingDespawn | PendingSpawn => {
+      if slot.state is Some(PendingDespawn) && store.all_entities.contains(e) {
+        store.alive_count += 1
+      }
+      slot.state = Some(PendingRespawn)
+      store.pending_state_changes.add(e)
+      if hierarchy_parents().get(e) is Some(p) {
+        for c in p.children {
+          c.respawn()
+        }
+      }
+    }
+  }
+}
+
+///|
+fn flush_entity_lifecycle(world : World) -> Unit {
+  let store = entity_store_key.get_in(world)
+  for entity in store.pending_state_changes.to_array() {
+    store.pending_state_changes.remove(entity)
+    guard store.archetypes.slot(entity) is Some(slot) else { continue }
+    match slot.state.unwrap() {
+      PendingSpawn | PendingRespawn => {
+        if !store.all_entities.contains(entity) {
+          store.all_entities.add(entity)
+          store.alive_count += 1
+        }
+        slot.state = Some(Alive)
+      }
+      PendingDespawn => {
+        store.all_entities.remove(entity)
+        slot.state = Some(Destroyed)
+      }
+      Alive | Destroyed => ()
+    }
+  }
+}

@@ -69,3 +69,27 @@ test "level flag retains its animated sprite" {
     })
   })
 }
+
+///|
+test "restarting Pixel Adventure replaces game entities in the same World" {
+  with_pixeladventure_test_asset_io(fn() raise {
+    with_pixeladventure_test_world(fn() raise {
+      let world = @ecs.require_current_world()
+      let other = @ecs.Entity()
+      game_start(world)
+      let previous_session = active_session_entity().unwrap()
+      let previous_entities = pixeladventure_world_state().entities.copy()
+      let entity_count = @ecs.alive_entity_count()
+      assert_false(previous_entities.is_empty())
+
+      game_start(world)
+
+      assert_eq(@ecs.alive_entity_count(), entity_count)
+      assert_true(other.is_alive())
+      assert_true(active_session_entity().unwrap() != previous_session)
+      for entity in previous_entities {
+        assert_false(entity.is_valid_in(world))
+      }
+    })
+  })
+}

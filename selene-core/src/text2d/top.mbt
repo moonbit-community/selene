@@ -1,15 +1,20 @@
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct Text2d {
   blend_mode : @render.BlendMode2D
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct TextBounds {
   width : Double
   height : Double
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq)
 priv struct TextLayoutCacheKey {
   text : String
   font : @asset.FontHandle?
@@ -21,7 +26,7 @@ priv struct TextLayoutCacheKey {
   overflow : @ui.TextOverflow
   bounds_width : Double
   bounds_height : Double
-} derive(Eq)
+}
 
 ///|
 priv struct CachedTextLayout2d {
@@ -34,45 +39,36 @@ priv struct CachedTextLayout2d {
 
 ///|
 priv struct Text2dWorldStore {
-  text2ds : Map[@entity.Entity, Text2d]
-  text_bounds : Map[@entity.Entity, TextBounds]
-  text_anchors : Map[@entity.Entity, @sprite.Anchor]
-  text_layout_caches : Map[@entity.Entity, CachedTextLayout2d]
+  text_layout_caches : Map[@ecs.Entity, CachedTextLayout2d]
 }
 
 ///|
-let text2d_world_stores : Map[UInt32, Text2dWorldStore] = Map([])
+let text2d_world_store_key : @ecs.ResourceKey[Text2dWorldStore] = ResourceKey(_ => {
+  text_layout_caches: Map([]),
+})
 
 ///|
 fn text2d_world_store() -> Text2dWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  text2d_world_stores.get_or_init(world_id, fn() {
-    {
-      text2ds: Map([]),
-      text_bounds: Map([]),
-      text_anchors: Map([]),
-      text_layout_caches: Map([]),
-    }
-  })
+  text2d_world_store_key.get()
 }
 
 ///|
-pub fn text2ds() -> Map[@entity.Entity, Text2d] {
-  text2d_world_store().text2ds
+pub fn text2ds() -> @ecs.ComponentStore[Text2d] {
+  @ecs.components()
 }
 
 ///|
-pub fn text_bounds() -> Map[@entity.Entity, TextBounds] {
-  text2d_world_store().text_bounds
+pub fn text_bounds() -> @ecs.ComponentStore[TextBounds] {
+  @ecs.components()
 }
 
 ///|
-pub fn text_anchors() -> Map[@entity.Entity, @sprite.Anchor] {
-  text2d_world_store().text_anchors
+pub fn text_anchors() -> @ecs.ComponentStore[@sprite.Anchor] {
+  @ecs.components()
 }
 
 ///|
-fn text_layout_caches() -> Map[@entity.Entity, CachedTextLayout2d] {
+fn text_layout_caches() -> Map[@ecs.Entity, CachedTextLayout2d] {
   text2d_world_store().text_layout_caches
 }
 
@@ -87,12 +83,12 @@ pub fn TextBounds::TextBounds(width : Double, height : Double) -> TextBounds {
 }
 
 ///|
-fn text2d_layout(entity : @entity.Entity) -> @ui.TextLayout {
+fn text2d_layout(entity : @ecs.Entity) -> @ui.TextLayout {
   @ui.text_layouts().get(entity).unwrap_or(TextLayout())
 }
 
 ///|
-fn text2d_anchor(entity : @entity.Entity) -> @sprite.Anchor {
+fn text2d_anchor(entity : @ecs.Entity) -> @sprite.Anchor {
   text_anchors().get(entity).unwrap_or(Anchor(Vec2(0.0, 0.0)))
 }
 
@@ -251,7 +247,7 @@ fn text_layout_cache_key(
 
 ///|
 fn cached_text_layout(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   text : String,
   style : @render2d_types.TextStyle2D,
   layout : @ui.TextLayout,
@@ -414,7 +410,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
 
 ///|
 fn push_text2d_lines(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   lines : Array[String],
   style : @render2d_types.TextStyle2D,
   layout : @ui.TextLayout,

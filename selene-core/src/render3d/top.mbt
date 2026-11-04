@@ -112,62 +112,39 @@ pub type RenderLine3D = @render3d_types.RenderLine3D
 pub type RenderFrame3D = @render3d_types.RenderFrame3D
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct Mesh3DRenderer {
   mesh : MeshHandle
   material : MaterialHandle
   mut visible : Bool
   mut cast_shadows : Bool
   mut receive_shadows : Bool
-} derive(Eq, Debug)
-
-///|
-priv struct Render3DComponentWorldStore {
-  mesh3d_renderers : Map[@entity.Entity, Mesh3DRenderer]
-  directional_lights3d : Map[@entity.Entity, DirectionalLight3D]
-  point_lights3d : Map[@entity.Entity, PointLight3D]
-  spot_lights3d : Map[@entity.Entity, SpotLight3D]
-  camera_skyboxes3d : Map[@entity.Entity, Skybox3D]
 }
 
 ///|
-let render3d_component_world_stores : Map[UInt32, Render3DComponentWorldStore] = Map([],
-)
-
-///|
-fn render3d_component_world_store() -> Render3DComponentWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  render3d_component_world_stores.get_or_init(world_id, () => {
-    mesh3d_renderers: Map([]),
-    directional_lights3d: Map([]),
-    point_lights3d: Map([]),
-    spot_lights3d: Map([]),
-    camera_skyboxes3d: Map([]),
-  })
+pub fn mesh3d_renderers() -> @ecs.ComponentStore[Mesh3DRenderer] {
+  @ecs.components()
 }
 
 ///|
-pub fn mesh3d_renderers() -> Map[@entity.Entity, Mesh3DRenderer] {
-  render3d_component_world_store().mesh3d_renderers
+pub fn directional_lights3d() -> @ecs.ComponentStore[DirectionalLight3D] {
+  @ecs.components()
 }
 
 ///|
-pub fn directional_lights3d() -> Map[@entity.Entity, DirectionalLight3D] {
-  render3d_component_world_store().directional_lights3d
+pub fn point_lights3d() -> @ecs.ComponentStore[PointLight3D] {
+  @ecs.components()
 }
 
 ///|
-pub fn point_lights3d() -> Map[@entity.Entity, PointLight3D] {
-  render3d_component_world_store().point_lights3d
+pub fn spot_lights3d() -> @ecs.ComponentStore[SpotLight3D] {
+  @ecs.components()
 }
 
 ///|
-pub fn spot_lights3d() -> Map[@entity.Entity, SpotLight3D] {
-  render3d_component_world_store().spot_lights3d
-}
-
-///|
-pub fn camera_skyboxes3d() -> Map[@entity.Entity, Skybox3D] {
-  render3d_component_world_store().camera_skyboxes3d
+pub fn camera_skyboxes3d() -> @ecs.ComponentStore[Skybox3D] {
+  @ecs.components()
 }
 
 ///|

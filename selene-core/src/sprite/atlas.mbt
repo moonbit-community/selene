@@ -5,13 +5,15 @@ pub(all) struct TextureAtlasLayout {
 }
 
 ///|
-pub(all) struct TextureAtlasLayoutHandle(UInt32) derive(Eq, Debug, Hash)
+#derive(Eq, Debug, Hash)
+pub(all) struct TextureAtlasLayoutHandle(UInt32)
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct TextureAtlas {
   layout : TextureAtlasLayoutHandle
   mut index : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 let texture_atlas_layouts_by_handle : Map[

@@ -250,7 +250,7 @@ fn additional_mass_properties_to_rapier(
 }
 
 ///|
-fn current_world_transform(entity : @entity.Entity) -> @transform.Transform? {
+fn current_world_transform(entity : @ecs.Entity) -> @transform.Transform? {
   @transform.compute_global_transform(entity).map(global => {
     global.compute_transform()
   })
@@ -258,7 +258,7 @@ fn current_world_transform(entity : @entity.Entity) -> @transform.Transform? {
 
 ///|
 fn set_entity_world_transform(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   world_transform : @transform.Transform,
 ) -> Unit {
   let local_transform = match entity.get_parent() {
@@ -276,7 +276,7 @@ fn set_entity_world_transform(
 }
 
 ///|
-fn attached_rigid_body_entity(entity : @entity.Entity) -> @entity.Entity? {
+fn attached_rigid_body_entity(entity : @ecs.Entity) -> @ecs.Entity? {
   if rigid_bodies().contains(entity) {
     return Some(entity)
   }
@@ -292,8 +292,8 @@ fn attached_rigid_body_entity(entity : @entity.Entity) -> @entity.Entity? {
 
 ///|
 fn collider_relative_transform(
-  entity : @entity.Entity,
-  body_entity : @entity.Entity,
+  entity : @ecs.Entity,
+  body_entity : @ecs.Entity,
 ) -> @transform.Transform {
   if entity == body_entity {
     return @transform.Transform::identity()
@@ -314,7 +314,7 @@ fn collider_relative_transform(
 ///|
 fn set_standalone_collider_position(
   collider : @collision.Collider3D,
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
 ) -> Unit {
   match current_world_transform(entity) {
     Some(transform) =>
@@ -331,7 +331,7 @@ fn set_standalone_collider_position(
 ///|
 fn resolve_collider_entity(
   handle : @collision.ColliderHandle3D,
-) -> @entity.Entity? {
+) -> @ecs.Entity? {
   collider_entities_by_key().get(collider_key(handle))
 }
 

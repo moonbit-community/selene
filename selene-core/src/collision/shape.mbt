@@ -14,25 +14,13 @@
 
 ///|
 /// Collision geometry used by 2D colliders and trigger areas.
+#derive(Eq, Debug)
+#selene.component
 pub(all) enum CollisionShape {
   Rect(size~ : @math.Vec2, offset~ : @math.Vec2)
   Ball(radius~ : Double, offset~ : @math.Vec2)
   Polygon(points~ : Array[@math.Vec2], offset~ : @math.Vec2)
   Polyline(points~ : Array[@math.Vec2], offset~ : @math.Vec2, closed~ : Bool)
-} derive(Eq, Debug)
-
-///|
-priv struct ShapeWorldStore {
-  shapes : Map[@entity.Entity, CollisionShape]
-}
-
-///|
-let shape_world_stores : Map[UInt32, ShapeWorldStore] = Map([])
-
-///|
-fn shape_world_store() -> ShapeWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  shape_world_stores.get_or_init(world_id, () => { shapes: Map([]), })
 }
 
 ///|
@@ -41,7 +29,7 @@ fn shape_world_store() -> ShapeWorldStore {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let entity = @entity.Entity()
+/// let entity = @ecs.Entity()
 /// defer entity.destroy()
 /// @collision.shapes().set(
 ///   entity,
@@ -51,6 +39,6 @@ fn shape_world_store() -> ShapeWorldStore {
 ///   ),
 /// )
 /// ```
-pub fn shapes() -> Map[@entity.Entity, CollisionShape] {
-  shape_world_store().shapes
+pub fn shapes() -> @ecs.ComponentStore[CollisionShape] {
+  @ecs.components()
 }

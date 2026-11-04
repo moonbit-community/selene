@@ -3,13 +3,14 @@ package "Milky2018/selene/tiled"
 
 import {
   "Milky2018/selene/collision",
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
+  "moonbitlang/core/json",
 }
 
 // Values
-pub fn clear_tiled_children(@entity.Entity) -> Unit
+pub fn clear_tiled_children(@ecs.Entity) -> Unit
 
 pub fn decode_tiled_gid(Int32) -> TiledGid
 
@@ -19,7 +20,7 @@ pub fn default_tiled_spawn_settings() -> TiledSpawnSettings
 
 pub fn default_tiled_world_spawn_settings() -> TiledWorldSpawnSettings
 
-pub fn despawn_tiled_tree(@entity.Entity) -> Unit
+pub fn despawn_tiled_tree(@ecs.Entity) -> Unit
 
 pub fn empty_tiled_gid() -> TiledGid
 
@@ -31,65 +32,65 @@ pub fn empty_tiled_world() -> TiledWorld
 
 pub fn encode_tiled_gid(TiledGid) -> Int32
 
-pub fn load_and_spawn_tiled_map(String, settings? : TiledSpawnSettings) -> @entity.Entity
+pub fn load_and_spawn_tiled_map(String, settings? : TiledSpawnSettings) -> @ecs.Entity
 
-pub fn load_and_spawn_tiled_world(String, settings? : TiledWorldSpawnSettings) -> @entity.Entity
+pub fn load_and_spawn_tiled_world(String, settings? : TiledWorldSpawnSettings) -> @ecs.Entity
 
 pub fn load_tiled_map(String) -> TiledMap
 
 pub fn load_tiled_world(String) -> TiledWorld
 
-pub fn respawn_tiled_map_into_entity(@entity.Entity, TiledMap, settings? : TiledSpawnSettings) -> Unit
+pub fn respawn_tiled_map_into_entity(@ecs.Entity, TiledMap, settings? : TiledSpawnSettings) -> Unit
 
-pub fn respawn_tiled_world_into_entity(@entity.Entity, TiledWorld, settings? : TiledWorldSpawnSettings) -> Unit
+pub fn respawn_tiled_world_into_entity(@ecs.Entity, TiledWorld, settings? : TiledWorldSpawnSettings) -> Unit
 
-pub fn spawn_tiled_map(TiledMap, settings? : TiledSpawnSettings) -> @entity.Entity
+pub fn spawn_tiled_map(TiledMap, settings? : TiledSpawnSettings) -> @ecs.Entity
 
-pub fn spawn_tiled_map_into_entity(@entity.Entity, TiledMap, settings? : TiledSpawnSettings) -> Unit
+pub fn spawn_tiled_map_into_entity(@ecs.Entity, TiledMap, settings? : TiledSpawnSettings) -> Unit
 
-pub fn spawn_tiled_world(TiledWorld, settings? : TiledWorldSpawnSettings) -> @entity.Entity
+pub fn spawn_tiled_world(TiledWorld, settings? : TiledWorldSpawnSettings) -> @ecs.Entity
 
-pub fn spawn_tiled_world_into_entity(@entity.Entity, TiledWorld, settings? : TiledWorldSpawnSettings) -> Unit
+pub fn spawn_tiled_world_into_entity(@ecs.Entity, TiledWorld, settings? : TiledWorldSpawnSettings) -> Unit
 
-pub fn tiled_collider_origins() -> Map[@entity.Entity, TiledColliderOrigin]
+pub fn tiled_collider_origins() -> @ecs.ComponentStore[TiledColliderOrigin]
 
 pub let tiled_collider_spawned_event_bus : @event.Events[TiledColliderSpawnedEvent]
 
-pub fn tiled_colliders() -> Map[@entity.Entity, TiledColliders]
+pub fn tiled_colliders() -> @ecs.ComponentStore[TiledColliders]
 
-pub fn tiled_image_layer_instances() -> Map[@entity.Entity, TiledImageLayerInstance]
+pub fn tiled_image_layer_instances() -> @ecs.ComponentStore[TiledImageLayerInstance]
 
 pub let tiled_image_layer_spawned_event_bus : @event.Events[TiledImageLayerSpawnedEvent]
 
-pub fn tiled_layer_instances() -> Map[@entity.Entity, TiledLayerInstance]
+pub fn tiled_layer_instances() -> @ecs.ComponentStore[TiledLayerInstance]
 
 pub let tiled_layer_spawned_event_bus : @event.Events[TiledLayerSpawnedEvent]
 
-pub fn tiled_map_instances() -> Map[@entity.Entity, TiledMapInstance]
+pub fn tiled_map_instances() -> @ecs.ComponentStore[TiledMapInstance]
 
 pub let tiled_map_spawned_event_bus : @event.Events[TiledMapSpawnedEvent]
 
-pub fn tiled_map_storages() -> Map[@entity.Entity, TiledMapStorage]
+pub fn tiled_map_storages() -> @ecs.ComponentStore[TiledMapStorage]
 
-pub fn tiled_object_instances() -> Map[@entity.Entity, TiledObjectInstance]
+pub fn tiled_object_instances() -> @ecs.ComponentStore[TiledObjectInstance]
 
 pub let tiled_object_spawned_event_bus : @event.Events[TiledObjectSpawnedEvent]
 
-pub fn tiled_parallax_layers() -> Map[@entity.Entity, TiledParallaxLayer]
+pub fn tiled_parallax_layers() -> @ecs.ComponentStore[TiledParallaxLayer]
 
 pub fn tiled_parallax_system(Double) -> Unit
 
-pub fn tiled_properties() -> Map[@entity.Entity, TiledProperties]
+pub fn tiled_properties() -> @ecs.ComponentStore[TiledProperties]
 
-pub fn tiled_tile_instances() -> Map[@entity.Entity, TiledTileInstance]
+pub fn tiled_tile_instances() -> @ecs.ComponentStore[TiledTileInstance]
 
 pub let tiled_tile_spawned_event_bus : @event.Events[TiledTileSpawnedEvent]
 
 pub fn tiled_world_chunking_system(Double) -> Unit
 
-pub fn tiled_world_instances() -> Map[@entity.Entity, TiledWorldInstance]
+pub fn tiled_world_instances() -> @ecs.ComponentStore[TiledWorldInstance]
 
-pub fn tiled_world_map_instances() -> Map[@entity.Entity, TiledWorldMapInstance]
+pub fn tiled_world_map_instances() -> @ecs.ComponentStore[TiledWorldMapInstance]
 
 pub let tiled_world_map_spawned_event_bus : @event.Events[TiledWorldMapSpawnedEvent]
 
@@ -118,22 +119,24 @@ pub struct TiledChunk {
 }
 
 pub struct TiledColliderOrigin {
-  map_entity : @entity.Entity
-  source_entity : @entity.Entity
-  layer_entity : @entity.Entity
+  map_entity : @ecs.Entity
+  source_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
   source_kind : TiledColliderSourceKind
   layer : TiledLayer
 }
+pub impl @ecs.Component for TiledColliderOrigin
 
+#derive(Eq)
 pub enum TiledColliderSourceKind {
   TilesLayer
   Object
-} derive(Eq)
+}
 pub fn TiledColliderSourceKind::equal(Self, Self) -> Bool
 pub fn TiledColliderSourceKind::not_equal(Self, Self) -> Bool
 
 pub struct TiledColliderSpawnedEvent {
-  collider_entity : @entity.Entity
+  collider_entity : @ecs.Entity
   origin : TiledColliderOrigin
   shape : @collision.CollisionShape
   sensor : Bool
@@ -141,9 +144,10 @@ pub struct TiledColliderSpawnedEvent {
 }
 
 pub struct TiledColliders {
-  entities : Array[@entity.Entity]
+  entities : Array[@ecs.Entity]
 }
-pub fn TiledColliders::alive_entities(Self) -> Array[@entity.Entity]
+pub fn TiledColliders::alive_entities(Self) -> Array[@ecs.Entity]
+pub impl @ecs.Component for TiledColliders
 
 pub struct TiledGid {
   raw : Int32
@@ -164,15 +168,16 @@ pub struct TiledImageLayer {
 }
 
 pub struct TiledImageLayerInstance {
-  map_entity : @entity.Entity
+  map_entity : @ecs.Entity
   layer : TiledLayer
   image_layer : TiledImageLayer
   resolved_image_path : String?
 }
+pub impl @ecs.Component for TiledImageLayerInstance
 
 pub struct TiledImageLayerSpawnedEvent {
-  map_entity : @entity.Entity
-  layer_entity : @entity.Entity
+  map_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
   layer : TiledLayer
   image_layer : TiledImageLayer
   resolved_image_path : String?
@@ -196,11 +201,12 @@ pub struct TiledLayer {
 pub fn TiledLayer::property(Self, String) -> TiledPropertyValue?
 
 pub struct TiledLayerInstance {
-  map_entity : @entity.Entity
+  map_entity : @ecs.Entity
   layer : TiledLayer
   effective_visible : Bool
   zindex : Int32
 }
+pub impl @ecs.Component for TiledLayerInstance
 
 pub enum TiledLayerKind {
   TileLayer(TiledTileLayer)
@@ -211,8 +217,8 @@ pub enum TiledLayerKind {
 }
 
 pub struct TiledLayerSpawnedEvent {
-  map_entity : @entity.Entity
-  layer_entity : @entity.Entity
+  map_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
   layer : TiledLayer
   effective_visible : Bool
   zindex : Int32
@@ -239,7 +245,7 @@ pub struct TiledMap {
   tilesets : Array[TiledTileset]
   properties : Array[TiledProperty]
 }
-pub fn TiledMap::from_tiled_json(Json) -> Self
+pub fn TiledMap::from_tiled_json(@json.Json) -> Self
 pub fn TiledMap::from_tiled_xml(String) -> Self
 pub fn TiledMap::layer(Self, String) -> TiledLayer?
 pub fn TiledMap::layer_by_id(Self, Int32) -> TiledLayer?
@@ -253,20 +259,22 @@ pub fn TiledMap::tileset_for_gid(Self, Int32) -> TiledTileset?
 pub struct TiledMapInstance {
   map : TiledMap
 }
+pub impl @ecs.Component for TiledMapInstance
 
 pub struct TiledMapSpawnedEvent {
-  map_entity : @entity.Entity
+  map_entity : @ecs.Entity
   map : TiledMap
 }
 
 pub struct TiledMapStorage {
-  layers : Map[Int32, @entity.Entity]
-  objects : Map[Int32, @entity.Entity]
-  tiles : Map[Int32, Array[@entity.Entity]]
+  layers : Map[Int32, @ecs.Entity]
+  objects : Map[Int32, @ecs.Entity]
+  tiles : Map[Int32, Array[@ecs.Entity]]
 }
-pub fn TiledMapStorage::layer_entity(Self, Int32) -> @entity.Entity?
-pub fn TiledMapStorage::object_entity(Self, Int32) -> @entity.Entity?
-pub fn TiledMapStorage::tile_entities(Self, Int32) -> Array[@entity.Entity]
+pub fn TiledMapStorage::layer_entity(Self, Int32) -> @ecs.Entity?
+pub fn TiledMapStorage::object_entity(Self, Int32) -> @ecs.Entity?
+pub fn TiledMapStorage::tile_entities(Self, Int32) -> Array[@ecs.Entity]
+pub impl @ecs.Component for TiledMapStorage
 
 pub enum TiledNameFilter {
   All
@@ -299,11 +307,12 @@ pub struct TiledObject {
 pub fn TiledObject::property(Self, String) -> TiledPropertyValue?
 
 pub struct TiledObjectInstance {
-  map_entity : @entity.Entity
-  layer_entity : @entity.Entity
+  map_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
   layer : TiledLayer
   object : TiledObject
 }
+pub impl @ecs.Component for TiledObjectInstance
 
 pub struct TiledObjectLayer {
   draw_order : String
@@ -312,9 +321,9 @@ pub struct TiledObjectLayer {
 pub fn TiledObjectLayer::object(Self, String) -> TiledObject?
 
 pub struct TiledObjectSpawnedEvent {
-  map_entity : @entity.Entity
-  layer_entity : @entity.Entity
-  object_entity : @entity.Entity
+  map_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
+  object_entity : @ecs.Entity
   layer : TiledLayer
   object : TiledObject
 }
@@ -324,6 +333,7 @@ pub struct TiledParallaxLayer {
   parallax_x : Double
   parallax_y : Double
 }
+pub impl @ecs.Component for TiledParallaxLayer
 
 pub(all) struct TiledPhysicsSettings {
   objects_filter : TiledNameFilter
@@ -345,6 +355,7 @@ pub struct TiledProperties {
   values : Map[String, TiledPropertyValue]
 }
 pub fn TiledProperties::get(Self, String) -> TiledPropertyValue?
+pub impl @ecs.Component for TiledProperties
 
 pub struct TiledProperty {
   name : String
@@ -360,7 +371,7 @@ pub enum TiledPropertyValue {
   Color(String)
   File(String)
   Object(Int32)
-  Custom(Json)
+  Custom(@json.Json)
 }
 
 pub(all) struct TiledSpawnSettings {
@@ -403,12 +414,13 @@ pub struct TiledTileDefinition {
 }
 
 pub struct TiledTileInstance {
-  map_entity : @entity.Entity
-  layer_entity : @entity.Entity
+  map_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
   gid : TiledGid
   tileset : TiledTileset
   cell : TiledCell
 }
+pub impl @ecs.Component for TiledTileInstance
 
 pub struct TiledTileLayer {
   width : Int32
@@ -426,9 +438,9 @@ pub fn TiledTileLayer::tile_cells(Self) -> Array[TiledCell]
 pub fn TiledTileLayer::tile_gid_at(Self, Int32, Int32) -> TiledGid
 
 pub struct TiledTileSpawnedEvent {
-  map_entity : @entity.Entity
-  layer_entity : @entity.Entity
-  tile_entity : @entity.Entity
+  map_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
+  tile_entity : @ecs.Entity
   layer : TiledLayer
   gid : TiledGid
   tileset : TiledTileset
@@ -468,8 +480,9 @@ pub struct TiledWorldInstance {
   world : TiledWorld
   settings : TiledWorldSpawnSettings
   loaded_maps : Array[TiledWorldLoadedMap]
-  spawned_maps : Map[Int32, @entity.Entity]
+  spawned_maps : Map[Int32, @ecs.Entity]
 }
+pub impl @ecs.Component for TiledWorldInstance
 
 pub struct TiledWorldLoadedMap {
   index : Int32
@@ -488,15 +501,16 @@ pub struct TiledWorldMap {
 }
 
 pub struct TiledWorldMapInstance {
-  world_entity : @entity.Entity
-  map_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  map_entity : @ecs.Entity
   world_map : TiledWorldMap
   resolved_map_path : String
 }
+pub impl @ecs.Component for TiledWorldMapInstance
 
 pub struct TiledWorldMapSpawnedEvent {
-  world_entity : @entity.Entity
-  map_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  map_entity : @ecs.Entity
   world_map : TiledWorldMap
   map : TiledMap
   resolved_map_path : String
@@ -523,7 +537,7 @@ pub(all) struct TiledWorldSpawnSettings {
 }
 
 pub struct TiledWorldSpawnedEvent {
-  world_entity : @entity.Entity
+  world_entity : @ecs.Entity
   world : TiledWorld
 }
 

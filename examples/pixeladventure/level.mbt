@@ -3,13 +3,13 @@ const TERRAIN_TILE_SIZE : Int32 = 16
 
 ///|
 priv struct LoadedLevelScene {
-  player_entity : @entity.Entity
-  camera_entity : @entity.Entity
+  player_entity : @ecs.Entity
+  camera_entity : @ecs.Entity
   world_size : @math.Vec2
 }
 
 ///|
-fn set_entity_z(entity : @entity.Entity, z : Double) -> Unit {
+fn set_entity_z(entity : @ecs.Entity, z : Double) -> Unit {
   let transform = @transform.transforms()
     .get(entity)
     .unwrap_or(@transform.Transform::identity())
@@ -22,8 +22,8 @@ fn set_entity_z(entity : @entity.Entity, z : Double) -> Unit {
 }
 
 ///|
-fn spawn_level_entity(x : Double, y : Double) -> @entity.Entity {
-  let entity = @entity.Entity()
+fn spawn_level_entity(x : Double, y : Double) -> @ecs.Entity {
+  let entity = spawn_game_entity()
   @transform.transforms().set(entity, @transform.Transform::from_xyz(x, y, 0.0))
   entity
 }
