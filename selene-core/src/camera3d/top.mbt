@@ -26,7 +26,7 @@ pub(all) struct Camera3DComponent {
 
 ///|
 pub(all) struct ActiveCamera3D {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   camera : @render3d_types.FrameCamera3D
 }
 
@@ -45,10 +45,10 @@ pub fn Camera3DComponent::default() -> Camera3DComponent {
 }
 
 ///|
-let camera3d_component_key : @entity.ComponentKey[Camera3DComponent] = ComponentKey()
+let camera3d_component_key : @ecs.ComponentKey[Camera3DComponent] = ComponentKey()
 
 ///|
-pub fn cameras3d() -> @entity.ComponentStore[Camera3DComponent] {
+pub fn cameras3d() -> @ecs.ComponentStore[Camera3DComponent] {
   camera3d_component_key.store()
 }
 
@@ -72,7 +72,7 @@ pub fn set_active_camera3d(camera : ActiveCamera3D?) -> Unit {
 
 ///|
 pub fn camera3d_extract_system(_delta : Double) -> Unit {
-  let mut selected : (@entity.Entity, Camera3DComponent)? = None
+  let mut selected : (@ecs.Entity, Camera3DComponent)? = None
   for entity, camera in cameras3d() {
     if !entity.is_alive() || !camera.enabled {
       continue

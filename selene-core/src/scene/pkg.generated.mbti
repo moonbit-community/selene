@@ -2,7 +2,7 @@
 package "Milky2018/selene/scene"
 
 import {
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/event",
   "Milky2018/selene/render3d_types",
   "Milky2018/selene/scene3d",
@@ -13,7 +13,7 @@ import {
 // Values
 pub fn despawn_all_scenes() -> Unit
 
-pub fn despawn_scene(@entity.Entity) -> Unit
+pub fn despawn_scene(@ecs.Entity) -> Unit
 
 pub fn instantiate_scene(@render3d_types.SceneHandle, @transform.Transform) -> @scene3d.SceneInstance
 
@@ -21,7 +21,7 @@ pub fn load_scene_gltf(String) -> @render3d_types.SceneHandle
 
 pub let scene_instance_ready_events : @event.Events[SceneInstanceReadyEvent]
 
-pub fn scene_of(@entity.Entity) -> @render3d_types.SceneHandle?
+pub fn scene_of(@ecs.Entity) -> @render3d_types.SceneHandle?
 
 pub fn scene_spawner_cleanup_system(Double) -> Unit
 
@@ -33,7 +33,7 @@ pub fn spawner() -> SceneSpawner
 #derive(Eq, @debug.Debug)
 pub(all) struct SceneInstanceReadyEvent {
   scene : @render3d_types.SceneHandle
-  root : @entity.Entity
+  root : @ecs.Entity
 }
 pub fn SceneInstanceReadyEvent::equal(Self, Self) -> Bool
 pub fn SceneInstanceReadyEvent::not_equal(Self, Self) -> Bool

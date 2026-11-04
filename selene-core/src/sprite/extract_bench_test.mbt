@@ -1,7 +1,7 @@
 ///|
 fn make_sprite_fixture(
   size : Int32,
-) -> (Array[@entity.Entity], @transform.GlobalTransform) {
+) -> (Array[@ecs.Entity], @transform.GlobalTransform) {
   @system.configure_display(960.0, 540.0, 1.0)
   let transforms = @transform.global_transforms()
   let sprites = @sprite.sprites()
@@ -14,7 +14,7 @@ fn make_sprite_fixture(
     @transform.Transform::from_xyz(4.0, 0.0, 0.0),
   )
   for i in 0..<size {
-    let entity = @entity.Entity()
+    let entity = @ecs.Entity()
     entities.push(entity)
     sprites.set(entity, sprite)
     if i % 4 != 0 {

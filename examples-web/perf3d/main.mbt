@@ -35,7 +35,7 @@ priv struct PerfConfig {
 ///|
 priv struct PerfState {
   config : PerfConfig
-  entities : Array[@entity.Entity]
+  entities : Array[@ecs.Entity]
   frame_samples : Array[Double]
   work_samples : Array[Double]
   game_samples : Array[Double]
@@ -50,7 +50,7 @@ priv struct PerfState {
   mut max_frame_ms : Double
   mut max_work_ms : Double
   mut finished : Bool
-  hud : @entity.Entity
+  hud : @ecs.Entity
 }
 
 ///|
@@ -148,7 +148,7 @@ fn setup_perf3d(_world : @ecs.World) -> Unit {
 
 ///|
 fn setup_camera(config : PerfConfig) -> Unit {
-  let camera = @entity.Entity()
+  let camera = @ecs.Entity()
   let side = ceil_sqrt(config.count).to_double()
   let distance = (side * 1.65).max(34.0)
   let position = vec3(0.0, distance * 0.55, distance)
@@ -170,7 +170,7 @@ fn setup_lights(config : PerfConfig) -> Unit {
   @render3d.set_ambient_light3d(
     Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.08, }),
   )
-  let dir_light = @entity.Entity()
+  let dir_light = @ecs.Entity()
   @render3d.directional_lights3d().set(dir_light, {
     ..@render3d.default_directional_light3d(),
     direction: vec3(-0.35, -0.8, -0.45).normalize(),
@@ -181,8 +181,8 @@ fn setup_lights(config : PerfConfig) -> Unit {
 }
 
 ///|
-fn setup_hud(config : PerfConfig) -> @entity.Entity {
-  let hud = @entity.Entity()
+fn setup_hud(config : PerfConfig) -> @ecs.Entity {
+  let hud = @ecs.Entity()
   @ui.nodes().set(
     hud,
     @ui.Node::absolute(Vec2(16.0, 16.0), size=Vec2(900.0, 92.0)),
@@ -234,15 +234,15 @@ fn spawn_grid(
   config : PerfConfig,
   meshes : Array[@render3d.MeshHandle],
   material : @render3d.MaterialHandle,
-) -> Array[@entity.Entity] {
-  let entities : Array[@entity.Entity] = []
+) -> Array[@ecs.Entity] {
+  let entities : Array[@ecs.Entity] = []
   let side = ceil_sqrt(config.count)
   let spacing = if config.case_name == "shadow-casters" { 1.35 } else { 1.15 }
   let half = (side - 1).to_double() * spacing * 0.5
   for index in 0..<config.count {
     let row = index / side
     let col = index % side
-    let entity = @entity.Entity()
+    let entity = @ecs.Entity()
     @transform.transforms().set(entity, {
       translation: vec3(
         col.to_double() * spacing - half,

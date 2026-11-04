@@ -190,7 +190,7 @@ pub fn UiGradient::UiGradient(
 
 ///|
 pub(all) struct UiMaterialContext {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   rect : @math.Rect
   content_rect : @math.Rect
   border_radius : BorderRadius
@@ -199,7 +199,7 @@ pub(all) struct UiMaterialContext {
 
 ///|
 pub fn UiMaterialContext::UiMaterialContext(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   rect : @math.Rect,
   content_rect~ : @math.Rect = rect,
   border_radius~ : BorderRadius = BorderRadius::all(Val::px(0.0)),
@@ -405,19 +405,19 @@ pub(all) enum Interaction {
 
 ///|
 priv struct UiVisualWorldStore {
-  background_colors : @entity.ComponentStore[BackgroundColor]
-  border_colors : @entity.ComponentStore[BorderColor]
-  border_radii : @entity.ComponentStore[BorderRadius]
-  box_shadows : @entity.ComponentStore[BoxShadow]
-  outlines : @entity.ComponentStore[Outline]
-  ui_images : @entity.ComponentStore[UiImage]
-  material_nodes : @entity.ComponentStore[MaterialNode]
-  texts : @entity.ComponentStore[Text]
-  text_fonts : @entity.ComponentStore[TextFont]
-  text_colors : @entity.ComponentStore[TextColor]
-  text_layouts : @entity.ComponentStore[TextLayout]
-  buttons : @entity.ComponentStore[Button]
-  interactions : @entity.ComponentStore[Interaction]
+  background_colors : @ecs.ComponentStore[BackgroundColor]
+  border_colors : @ecs.ComponentStore[BorderColor]
+  border_radii : @ecs.ComponentStore[BorderRadius]
+  box_shadows : @ecs.ComponentStore[BoxShadow]
+  outlines : @ecs.ComponentStore[Outline]
+  ui_images : @ecs.ComponentStore[UiImage]
+  material_nodes : @ecs.ComponentStore[MaterialNode]
+  texts : @ecs.ComponentStore[Text]
+  text_fonts : @ecs.ComponentStore[TextFont]
+  text_colors : @ecs.ComponentStore[TextColor]
+  text_layouts : @ecs.ComponentStore[TextLayout]
+  buttons : @ecs.ComponentStore[Button]
+  interactions : @ecs.ComponentStore[Interaction]
 }
 
 ///|
@@ -444,37 +444,37 @@ fn ui_visual_world_store() -> UiVisualWorldStore {
 }
 
 ///|
-pub fn background_colors() -> @entity.ComponentStore[BackgroundColor] {
+pub fn background_colors() -> @ecs.ComponentStore[BackgroundColor] {
   ui_visual_world_store().background_colors
 }
 
 ///|
-pub fn border_colors() -> @entity.ComponentStore[BorderColor] {
+pub fn border_colors() -> @ecs.ComponentStore[BorderColor] {
   ui_visual_world_store().border_colors
 }
 
 ///|
-pub fn border_radii() -> @entity.ComponentStore[BorderRadius] {
+pub fn border_radii() -> @ecs.ComponentStore[BorderRadius] {
   ui_visual_world_store().border_radii
 }
 
 ///|
-pub fn box_shadows() -> @entity.ComponentStore[BoxShadow] {
+pub fn box_shadows() -> @ecs.ComponentStore[BoxShadow] {
   ui_visual_world_store().box_shadows
 }
 
 ///|
-pub fn outlines() -> @entity.ComponentStore[Outline] {
+pub fn outlines() -> @ecs.ComponentStore[Outline] {
   ui_visual_world_store().outlines
 }
 
 ///|
-pub fn ui_images() -> @entity.ComponentStore[UiImage] {
+pub fn ui_images() -> @ecs.ComponentStore[UiImage] {
   ui_visual_world_store().ui_images
 }
 
 ///|
-pub fn material_nodes() -> @entity.ComponentStore[MaterialNode] {
+pub fn material_nodes() -> @ecs.ComponentStore[MaterialNode] {
   ui_visual_world_store().material_nodes
 }
 
@@ -485,32 +485,32 @@ let ui_material_assets : Map[UiMaterialHandle, UiMaterialAsset] = Map([])
 let next_ui_material_id : Ref[UInt32] = Ref(0)
 
 ///|
-pub fn texts() -> @entity.ComponentStore[Text] {
+pub fn texts() -> @ecs.ComponentStore[Text] {
   ui_visual_world_store().texts
 }
 
 ///|
-pub fn text_fonts() -> @entity.ComponentStore[TextFont] {
+pub fn text_fonts() -> @ecs.ComponentStore[TextFont] {
   ui_visual_world_store().text_fonts
 }
 
 ///|
-pub fn text_colors() -> @entity.ComponentStore[TextColor] {
+pub fn text_colors() -> @ecs.ComponentStore[TextColor] {
   ui_visual_world_store().text_colors
 }
 
 ///|
-pub fn text_layouts() -> @entity.ComponentStore[TextLayout] {
+pub fn text_layouts() -> @ecs.ComponentStore[TextLayout] {
   ui_visual_world_store().text_layouts
 }
 
 ///|
-pub fn buttons() -> @entity.ComponentStore[Button] {
+pub fn buttons() -> @ecs.ComponentStore[Button] {
   ui_visual_world_store().buttons
 }
 
 ///|
-pub fn interactions() -> @entity.ComponentStore[Interaction] {
+pub fn interactions() -> @ecs.ComponentStore[Interaction] {
   ui_visual_world_store().interactions
 }
 
@@ -558,22 +558,22 @@ fn default_text_layout() -> TextLayout {
 }
 
 ///|
-fn text_font(entity : @entity.Entity) -> TextFont {
+fn text_font(entity : @ecs.Entity) -> TextFont {
   text_fonts().get(entity).unwrap_or(default_text_font())
 }
 
 ///|
-fn text_color(entity : @entity.Entity) -> TextColor {
+fn text_color(entity : @ecs.Entity) -> TextColor {
   text_colors().get(entity).unwrap_or(default_text_color())
 }
 
 ///|
-fn text_layout(entity : @entity.Entity) -> TextLayout {
+fn text_layout(entity : @ecs.Entity) -> TextLayout {
   text_layouts().get(entity).unwrap_or(default_text_layout())
 }
 
 ///|
-pub fn text_style_for(entity : @entity.Entity) -> @render2d_types.TextStyle2D? {
+pub fn text_style_for(entity : @ecs.Entity) -> @render2d_types.TextStyle2D? {
   guard texts().get(entity) is Some(_) else { return None }
   let font = text_font(entity)
   let color = text_color(entity)

@@ -1,6 +1,6 @@
 ///|
 fn[A, B] update_rows_for_bench(
-  query : ArchetypeQuery2[A, B],
+  query : Query2[A, B],
   update : (A, B) -> A,
 ) -> Unit {
   query.for_each_columns((entities, a, b) => {
@@ -13,15 +13,15 @@ fn[A, B] update_rows_for_bench(
 ///|
 test "archetype batch reads and writes" (bench : @bench.T) {
   for size in [1000, 10000] {
-    let world = @ecs.World()
+    let world = World()
     let a : ComponentStore[Int32] = ComponentStore(world)
     let b : ComponentStore[Int32] = ComponentStore(world)
     let tag : ComponentStore[Unit] = ComponentStore(world)
-    let first = Entity::reserve_spawn_in(world)
+    let first = spawn_in(world)
     a.set(first, 0)
     b.set(first, 1)
     for i in 1..<size {
-      let entity = Entity::reserve_spawn_in(world)
+      let entity = spawn_in(world)
       a.set(entity, i)
       if i % 4 != 0 {
         b.set(entity, i + 1)
@@ -30,7 +30,7 @@ test "archetype batch reads and writes" (bench : @bench.T) {
         }
       }
     }
-    let query = ArchetypeQuery2(a, b)
+    let query = Query2(a, b)
     let read_rows = () => {
       let mut sum = 0
       query.for_each((_, x, y) => sum += x + y)

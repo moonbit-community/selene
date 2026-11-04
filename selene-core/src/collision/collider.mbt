@@ -39,9 +39,9 @@ pub fn Collider::with_material(
 
 ///|
 priv struct ColliderWorldStore {
-  colliders : @entity.ComponentStore[Collider]
-  resolved_velocities : @entity.ComponentStore[@velocity.Velocity]
-  grounded_entities : Set[@entity.Entity]
+  colliders : @ecs.ComponentStore[Collider]
+  resolved_velocities : @ecs.ComponentStore[@velocity.Velocity]
+  grounded_entities : Set[@ecs.Entity]
 }
 
 ///|
@@ -59,15 +59,15 @@ fn collider_world_store() -> ColliderWorldStore {
 
 ///|
 /// World collider components.
-pub fn colliders() -> @entity.ComponentStore[Collider] {
+pub fn colliders() -> @ecs.ComponentStore[Collider] {
   collider_world_store().colliders
 }
 
 ///|
 /// Contact event emitted by the fixed-step physics system.
 pub struct ContactEvent {
-  entity : @entity.Entity
-  other : @entity.Entity
+  entity : @ecs.Entity
+  other : @ecs.Entity
   started : Bool
   direction : @math.Vec2
 }
@@ -78,13 +78,13 @@ pub let contact_event_bus : @event.Events[ContactEvent] = Events()
 
 ///|
 /// Effective post-solve velocities from the latest fixed step.
-pub fn resolved_velocities() -> @entity.ComponentStore[@velocity.Velocity] {
+pub fn resolved_velocities() -> @ecs.ComponentStore[@velocity.Velocity] {
   collider_world_store().resolved_velocities
 }
 
 ///|
 /// Entities grounded in the latest fixed step.
-pub fn grounded_entities() -> Set[@entity.Entity] {
+pub fn grounded_entities() -> Set[@ecs.Entity] {
   collider_world_store().grounded_entities
 }
 
@@ -94,12 +94,12 @@ fn push_contact_event(event : ContactEvent) -> Unit {
 }
 
 ///|
-pub fn is_grounded(entity : @entity.Entity) -> Bool {
+pub fn is_grounded(entity : @ecs.Entity) -> Bool {
   grounded_entities().contains(entity)
 }
 
 ///|
-fn set_grounded(entity : @entity.Entity, grounded : Bool) -> Unit {
+fn set_grounded(entity : @ecs.Entity, grounded : Bool) -> Unit {
   let grounded_entities = grounded_entities()
   if grounded {
     grounded_entities.add(entity)

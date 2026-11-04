@@ -36,8 +36,8 @@ priv struct SceneTemplate {
 
 ///|
 pub(all) struct SceneInstance {
-  root : @entity.Entity
-  parts : Map[String, @entity.Entity]
+  root : @ecs.Entity
+  parts : Map[String, @ecs.Entity]
   animations : Map[String, @animation.AnimationNodeIndex]
 }
 
@@ -82,8 +82,8 @@ priv struct SkinnedPrimitiveTemplate {
 
 ///|
 priv struct PendingSkinBinding {
-  entity : @entity.Entity
-  target_entity : @entity.Entity
+  entity : @ecs.Entity
+  target_entity : @ecs.Entity
   mesh : @render3d.MeshHandle
   skin_index : Int32
   skinned : SkinnedPrimitiveTemplate

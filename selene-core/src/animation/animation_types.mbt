@@ -63,8 +63,8 @@ pub(all) struct WeightKeyframe {
 pub(all) struct AnimatedField {
   name : String
   kind : AnimationValueKind
-  sample : (@entity.Entity) -> AnimatedValue
-  apply : (@entity.Entity, AnimatedValue) -> Unit
+  sample : (@ecs.Entity) -> AnimatedValue
+  apply : (@ecs.Entity, AnimatedValue) -> Unit
 }
 
 ///|
@@ -85,15 +85,15 @@ pub(all) struct AnimationTargetId(String)
 
 ///|
 pub(all) struct AnimatedBy {
-  player : @entity.Entity
+  player : @ecs.Entity
 }
 
 ///|
 #derive(Eq, Debug)
 pub(all) struct AnimationEventContext {
   clip : AnimationClipHandle
-  player : @entity.Entity
-  target : @entity.Entity?
+  player : @ecs.Entity
+  target : @ecs.Entity?
   time : Double
 }
 

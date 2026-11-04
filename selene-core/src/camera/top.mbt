@@ -138,9 +138,9 @@ pub impl Default for OrthographicProjection with fn default() -> OrthographicPro
 
 ///|
 priv struct CameraWorldStore {
-  cameras : @entity.ComponentStore[Camera]
-  camera2ds : @entity.ComponentStore[Camera2d]
-  orthographic_projections : @entity.ComponentStore[OrthographicProjection]
+  cameras : @ecs.ComponentStore[Camera]
+  camera2ds : @ecs.ComponentStore[Camera2d]
+  orthographic_projections : @ecs.ComponentStore[OrthographicProjection]
 }
 
 ///|
@@ -156,19 +156,17 @@ fn camera_world_store() -> CameraWorldStore {
 }
 
 ///|
-pub fn cameras() -> @entity.ComponentStore[Camera] {
+pub fn cameras() -> @ecs.ComponentStore[Camera] {
   camera_world_store().cameras
 }
 
 ///|
-pub fn camera2ds() -> @entity.ComponentStore[Camera2d] {
+pub fn camera2ds() -> @ecs.ComponentStore[Camera2d] {
   camera_world_store().camera2ds
 }
 
 ///|
-pub fn orthographic_projections() -> @entity.ComponentStore[
-  OrthographicProjection,
-] {
+pub fn orthographic_projections() -> @ecs.ComponentStore[OrthographicProjection] {
   camera_world_store().orthographic_projections
 }
 

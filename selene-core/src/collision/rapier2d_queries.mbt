@@ -1,13 +1,10 @@
 ///|
-pub fn rigid_body_rotation(entity : @entity.Entity) -> Double? {
+pub fn rigid_body_rotation(entity : @ecs.Entity) -> Double? {
   entity_physics_snapshot(entity).map(fn(snapshot) { snapshot.rotation })
 }
 
 ///|
-pub fn set_rigid_body_rotation(
-  entity : @entity.Entity,
-  rotation : Double,
-) -> Unit {
+pub fn set_rigid_body_rotation(entity : @ecs.Entity, rotation : Double) -> Unit {
   set_entity_rotation(entity, rotation)
   if world().entity_bodies.get(entity) is Some(handle) &&
     world().bodies.get_mut(handle) is Some(body) {
@@ -25,7 +22,7 @@ pub fn set_rigid_body_rotation(
 }
 
 ///|
-pub fn rigid_body_linear_velocity(entity : @entity.Entity) -> @math.Vec2? {
+pub fn rigid_body_linear_velocity(entity : @ecs.Entity) -> @math.Vec2? {
   entity_physics_snapshot(entity).map(fn(snapshot) {
     snapshot.linear_velocity.unwrap_or(@math.Vec2::zero())
   })
@@ -33,7 +30,7 @@ pub fn rigid_body_linear_velocity(entity : @entity.Entity) -> @math.Vec2? {
 
 ///|
 pub fn set_rigid_body_linear_velocity(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   linear_velocity : @math.Vec2,
 ) -> Unit {
   match entity_rigid_body(entity).body_type {
@@ -65,7 +62,7 @@ pub fn set_rigid_body_linear_velocity(
 }
 
 ///|
-pub fn rigid_body_angular_velocity(entity : @entity.Entity) -> Double? {
+pub fn rigid_body_angular_velocity(entity : @ecs.Entity) -> Double? {
   entity_physics_snapshot(entity).map(fn(snapshot) {
     snapshot.angular_velocity.unwrap_or(0.0)
   })
@@ -73,7 +70,7 @@ pub fn rigid_body_angular_velocity(entity : @entity.Entity) -> Double? {
 
 ///|
 pub fn set_rigid_body_angular_velocity(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   angular_velocity : Double,
 ) -> Unit {
   match entity_rigid_body(entity).body_type {
@@ -96,7 +93,7 @@ pub fn set_rigid_body_angular_velocity(
 
 ///|
 pub fn add_force(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   force : @math.Vec2,
   wake_up~ : Bool = true,
 ) -> Unit {
@@ -110,7 +107,7 @@ pub fn add_force(
 
 ///|
 pub fn add_force_at_point(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   force : @math.Vec2,
   point : @math.Vec2,
   wake_up~ : Bool = true,
@@ -129,7 +126,7 @@ pub fn add_force_at_point(
 
 ///|
 pub fn add_torque(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   torque : Double,
   wake_up~ : Bool = true,
 ) -> Unit {
@@ -143,7 +140,7 @@ pub fn add_torque(
 
 ///|
 pub fn apply_impulse(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   impulse : @math.Vec2,
   wake_up~ : Bool = true,
 ) -> Unit {
@@ -157,7 +154,7 @@ pub fn apply_impulse(
 
 ///|
 pub fn apply_impulse_at_point(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   impulse : @math.Vec2,
   point : @math.Vec2,
   wake_up~ : Bool = true,
@@ -176,7 +173,7 @@ pub fn apply_impulse_at_point(
 
 ///|
 pub fn apply_torque_impulse(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   impulse : Double,
   wake_up~ : Bool = true,
 ) -> Unit {
@@ -189,7 +186,7 @@ pub fn apply_torque_impulse(
 }
 
 ///|
-pub fn reset_forces(entity : @entity.Entity, wake_up~ : Bool = true) -> Unit {
+pub fn reset_forces(entity : @ecs.Entity, wake_up~ : Bool = true) -> Unit {
   pending_body_forces().remove(entity)
   pending_body_force_points().remove(entity)
   if world().entity_bodies.get(entity) is Some(handle) &&
@@ -199,7 +196,7 @@ pub fn reset_forces(entity : @entity.Entity, wake_up~ : Bool = true) -> Unit {
 }
 
 ///|
-pub fn reset_torques(entity : @entity.Entity, wake_up~ : Bool = true) -> Unit {
+pub fn reset_torques(entity : @ecs.Entity, wake_up~ : Bool = true) -> Unit {
   pending_body_torques().remove(entity)
   pending_body_torque_impulses().remove(entity)
   if world().entity_bodies.get(entity) is Some(handle) &&

@@ -106,7 +106,7 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
 
 ///|
 fn to_screen_rect(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   global_transform : @transform.GlobalTransform,
   local_position : @math.Vec2,
   size : @math.Vec2,
@@ -185,7 +185,7 @@ fn screen_point(
 
 ///|
 fn debug_entity_global_transform(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
 ) -> @transform.GlobalTransform? {
   @transform.global_transforms().get(entity)
 }

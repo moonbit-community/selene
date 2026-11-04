@@ -3,7 +3,7 @@ package "Milky2018/selene/material2d"
 
 import {
   "Milky2018/selene/asset_types",
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
   "moonbitlang/core/debug",
@@ -12,7 +12,7 @@ import {
 // Values
 pub fn color_material(ColorMaterialHandle) -> ColorMaterial?
 
-pub fn mesh_material2ds() -> @entity.ComponentStore[MeshMaterial2d]
+pub fn mesh_material2ds() -> @ecs.ComponentStore[MeshMaterial2d]
 
 pub fn register_color_material(ColorMaterial) -> ColorMaterialHandle
 

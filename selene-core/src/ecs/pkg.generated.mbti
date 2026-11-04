@@ -1,12 +1,36 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/ecs"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
+pub fn alive_entity_count() -> Int32
+
+pub fn alive_in_world(World) -> (Entity) -> Bool
+
 pub fn bootstrap_world() -> World
 
 pub fn clear_current_world() -> Unit
 
+pub fn commands(World) -> Commands
+
+pub fn[T : Component] components() -> ComponentStore[T]
+
+pub fn[T : Component] components_in(World) -> ComponentStore[T]
+
 pub fn current_world() -> World?
+
+pub fn get_roots() -> Iter[Entity]
+
+pub fn has_pending_commands(World) -> Bool
+
+pub fn iter_entities() -> Iter[Entity]
+
+pub fn[T] query(World, ComponentStore[T]) -> Query[T]
+
+pub fn[A : Component, B : Component] query_system((Query2[A, B]) -> Unit) -> (World) -> Unit
 
 pub fn require_current_world() -> World
 
@@ -14,15 +38,131 @@ pub fn[T : Resource] resource() -> T
 
 pub fn[T : Resource] resource_in(World) -> T
 
+pub fn run_schedule(World, (World) -> Unit) -> Unit raise ScheduleError
+
 pub fn set_current_world(World) -> Unit
 
+pub fn[T] with_component(ComponentStore[T]) -> With[T]
+
+pub fn[T] without_component(ComponentStore[T]) -> Without[T]
+
 // Errors
+pub(all) suberror ScheduleError {
+  ReentrantSchedule
+  ActiveQuery
+}
 
 // Types and methods
+type Commands
+pub fn Commands::add(Self, (World) -> Unit) -> Unit
+pub fn Commands::delete(Self, Entity) -> Unit
+pub fn Commands::despawn(Self, Entity) -> Unit
+pub fn[T] Commands::insert_component(Self, ComponentStore[T], Entity, T) -> Unit
+pub fn[T] Commands::remove_component(Self, ComponentStore[T], Entity) -> Unit
+pub fn Commands::spawn(Self) -> Entity
+pub fn[T] Commands::spawn_bundle(Self, SpawnBundle[T], T) -> Entity
+
+type ComponentKey[T]
+pub fn[T] ComponentKey::ComponentKey() -> Self[T]
+pub fn[T] ComponentKey::get(Self[T], Entity) -> T?
+pub fn[T] ComponentKey::set(Self[T], Entity, T) -> Unit
+pub fn[T] ComponentKey::store(Self[T]) -> ComponentStore[T]
+pub fn[T] ComponentKey::store_in(Self[T], World) -> ComponentStore[T]
+
+type ComponentStore[T]
+pub fn[T] ComponentStore::ComponentStore(World) -> Self[T]
+pub fn[T] ComponentStore::belongs_to(Self[T], World) -> Bool
+pub fn[T] ComponentStore::clear(Self[T]) -> Unit
+pub fn[T] ComponentStore::contains(Self[T], Entity) -> Bool
+pub fn[T] ComponentStore::get(Self[T], Entity) -> T?
+pub fn[T] ComponentStore::get_or_init(Self[T], Entity, () -> T) -> T
+pub fn[T] ComponentStore::insertion_order(Self[T], Entity) -> Int32
+pub fn[T] ComponentStore::is_empty(Self[T]) -> Bool
+pub fn[T] ComponentStore::iter(Self[T]) -> Iter[(Entity, T)]
+pub fn[T] ComponentStore::iter2(Self[T]) -> Iter2[Entity, T]
+pub fn[T] ComponentStore::keys(Self[T]) -> Iter[Entity]
+pub fn[T] ComponentStore::length(Self[T]) -> Int32
+pub fn[T] ComponentStore::order_span(Self[T]) -> Int32
+pub fn[T] ComponentStore::remove(Self[T], Entity) -> Unit
+pub fn[T] ComponentStore::retain(Self[T], (Entity) -> Bool) -> Unit
+#alias(op_set)
+pub fn[T] ComponentStore::set(Self[T], Entity, T) -> Unit
+pub fn[T] ComponentStore::spawn_bundle(Self[T]) -> SpawnBundle[T]
+pub fn[T] ComponentStore::to_array(Self[T]) -> Array[(Entity, T)]
+pub fn[T] ComponentStore::values(Self[T]) -> Iter[T]
+
+#derive(Eq, Hash, @debug.Debug)
+type Entity
+pub fn Entity::Entity() -> Self
+pub fn Entity::belongs_to(Self, World) -> Bool
+pub fn Entity::delete(Self) -> Bool
+pub fn Entity::destroy(Self) -> Unit
+pub fn Entity::equal(Self, Self) -> Bool
+pub fn Entity::get_children(Self) -> Array[Self]
+pub fn Entity::get_parent(Self) -> Self?
+pub fn Entity::hash(Self) -> Int32
+pub fn Entity::hash_combine(Self, Hasher) -> Unit
+pub fn Entity::id(Self) -> UInt32
+pub fn Entity::is_alive(Self) -> Bool
+pub fn Entity::is_child(Self) -> Bool
+pub fn Entity::is_valid_in(Self, World) -> Bool
+pub fn Entity::not_equal(Self, Self) -> Bool
+pub fn Entity::remove_parent(Self) -> Unit
+pub fn Entity::respawn(Self) -> Unit
+pub fn Entity::set_parent(Self, Self) -> Unit
+pub fn Entity::slot_index(Self) -> Int32
+pub fn Entity::spawn_child(Self) -> Self
+pub fn Entity::to_repr(Self) -> @debug.Repr
+
+pub(all) struct EntityFilter {
+  predicate : (Entity) -> Bool
+}
+pub fn EntityFilter::passes(Self, Entity) -> Bool
+
+pub(all) struct Query[T] {
+  world : World
+  storage : ComponentStore[T]
+}
+pub fn[T] Query::for_each(Self[T], (Entity, T) -> Unit, require_filters? : Array[EntityFilter], reject_filters? : Array[EntityFilter]) -> Unit
+pub fn[T] Query::iter(Self[T], require_filters? : Array[EntityFilter], reject_filters? : Array[EntityFilter]) -> Array[(Entity, T)]
+pub fn[T] Query::single(Self[T], require_filters? : Array[EntityFilter], reject_filters? : Array[EntityFilter]) -> (Entity, T)?
+
+type Query2[A, B]
+pub fn[A, B] Query2::Query2(ComponentStore[A], ComponentStore[B]) -> Self[A, B]
+pub fn[A, B] Query2::for_each(Self[A, B], (Entity, A, B) -> Unit) -> Unit
+pub fn[A, B] Query2::for_each_batch(Self[A, B], (ArrayView[Entity], ArrayView[A], ArrayView[B]) -> Unit) -> Unit
+pub fn[A, B] Query2::for_each_batch_mut_a(Self[A, B], (ArrayView[Entity], MutArrayView[A], ArrayView[B]) -> Unit) -> Unit
+
+pub(all) struct QueryDelta[T] {
+  added : Array[(Entity, T)]
+  removed : Array[Entity]
+  changed : Array[(Entity, T)]
+}
+pub fn[T] QueryDelta::empty() -> Self[T]
+
+type QueryReader[T]
+pub fn[T] QueryReader::QueryReader() -> Self[T]
+pub fn[T : Eq] QueryReader::read(Self[T], World, ComponentStore[T]) -> QueryDelta[T]
+pub fn[T] QueryReader::reset(Self[T]) -> Unit
+
 type ResourceKey[T]
 pub fn[T] ResourceKey::ResourceKey((World) -> T) -> Self[T]
 pub fn[T] ResourceKey::get(Self[T]) -> T
 pub fn[T] ResourceKey::get_in(Self[T], World) -> T
+
+type SpawnBundle[T]
+pub fn[A, B] SpawnBundle::combine(Self[A], Self[B]) -> Self[(A, B)]
+pub fn[T] SpawnBundle::spawn(Self[T], World, T) -> Entity
+
+pub(all) struct With[T] {
+  storage : ComponentStore[T]
+}
+pub fn[T] With::to_filter(Self[T]) -> EntityFilter
+
+pub(all) struct Without[T] {
+  storage : ComponentStore[T]
+}
+pub fn[T] Without::to_filter(Self[T]) -> EntityFilter
 
 pub struct World {
   id : UInt32
@@ -35,16 +175,16 @@ pub fn World::advance_fixed_step(Self) -> Unit
 pub fn World::advance_frame(Self) -> Unit
 pub fn World::fixed_step_index(Self) -> UInt32
 pub fn World::frame_index(Self) -> UInt32
-pub fn[T] World::get_or_init(Self, WorldKey[T]) -> T
 pub fn World::id(Self) -> UInt32
 
-type WorldKey[T]
-pub fn[T] WorldKey::WorldKey(() -> T) -> Self[T]
-pub fn[T] WorldKey::with_world((World) -> T) -> Self[T]
-
 // Type aliases
+pub type System = (World) -> Unit
 
 // Traits
+pub(open) trait Component {
+  fn component_key() -> ComponentKey[Self]
+}
+
 pub(open) trait Resource {
   fn resource_key() -> ResourceKey[Self]
 }

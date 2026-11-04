@@ -3,7 +3,6 @@ package "Milky2018/selene/app"
 
 import {
   "Milky2018/selene/ecs",
-  "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/runtime_debug",
   "Milky2018/selene/system",
@@ -11,7 +10,6 @@ import {
 }
 
 // Values
-pub fn[A : @entity.Component, B : @entity.Component] query_system((@entity.ArchetypeQuery2[A, B]) -> Unit) -> (@ecs.World) -> Unit
 
 // Errors
 
@@ -85,7 +83,5 @@ pub(all) struct RuntimePlan {
 pub type Plugin = (App) -> App
 
 pub type RunCondition = (@ecs.World) -> Bool
-
-pub type System = (@ecs.World) -> Unit
 
 // Traits

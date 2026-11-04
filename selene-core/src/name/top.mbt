@@ -5,7 +5,7 @@ pub(all) struct Name {
 }
 
 ///|
-let name_component_key : @entity.ComponentKey[Name] = ComponentKey()
+let name_component_key : @ecs.ComponentKey[Name] = ComponentKey()
 
 ///|
 pub fn Name::Name(value : String) -> Name {
@@ -13,11 +13,11 @@ pub fn Name::Name(value : String) -> Name {
 }
 
 ///|
-pub fn names() -> @entity.ComponentStore[Name] {
+pub fn names() -> @ecs.ComponentStore[Name] {
   name_component_key.store()
 }
 
 ///|
-pub fn name_of(entity : @entity.Entity) -> String? {
+pub fn name_of(entity : @ecs.Entity) -> String? {
   names().get(entity).map(fn(name) { name.value })
 }

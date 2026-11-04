@@ -63,22 +63,22 @@ priv struct GameState {
   starting_chips : Int32 // Track starting amount
   mut magnification : Int32 // Payout multiplier, starts at 1, increases with raises
   // UI elements
-  blind_label : @entity.Entity // Display current blind
-  chips_label : @entity.Entity
-  phase_label : @entity.Entity
-  fold_button_label : @entity.Entity
-  call_button_label : @entity.Entity
-  raise_button_label : @entity.Entity
-  turns_label : @entity.Entity
-  action_label : @entity.Entity // Last action feedback
-  hand_strength_label : @entity.Entity // Current hand strength
-  fold_button : @entity.Entity
-  call_button : @entity.Entity
-  raise_button : @entity.Entity
+  blind_label : @ecs.Entity // Display current blind
+  chips_label : @ecs.Entity
+  phase_label : @ecs.Entity
+  fold_button_label : @ecs.Entity
+  call_button_label : @ecs.Entity
+  raise_button_label : @ecs.Entity
+  turns_label : @ecs.Entity
+  action_label : @ecs.Entity // Last action feedback
+  hand_strength_label : @ecs.Entity // Current hand strength
+  fold_button : @ecs.Entity
+  call_button : @ecs.Entity
+  raise_button : @ecs.Entity
   mut waiting_for_player : Bool
   // Card entities for cleanup
-  hole_card_entities : Array[@entity.Entity]
-  community_card_entities : Array[@entity.Entity]
+  hole_card_entities : Array[@ecs.Entity]
+  community_card_entities : Array[@ecs.Entity]
 }
 
 ///|

@@ -27,10 +27,10 @@ pub(all) struct Mesh2dStorage {
 }
 
 ///|
-let mesh2d_component_key : @entity.ComponentKey[Mesh2d] = ComponentKey()
+let mesh2d_component_key : @ecs.ComponentKey[Mesh2d] = ComponentKey()
 
 ///|
-pub fn mesh2ds() -> @entity.ComponentStore[Mesh2d] {
+pub fn mesh2ds() -> @ecs.ComponentStore[Mesh2d] {
   mesh2d_component_key.store()
 }
 
@@ -189,7 +189,7 @@ pub fn render_mesh2d_system(delta : Double) -> Unit {
 
 ///|
 fn push_mesh2d_draw_command(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   mesh_asset : Mesh2dAsset,
   material : @material2d.ColorMaterial,
   depth : Double,

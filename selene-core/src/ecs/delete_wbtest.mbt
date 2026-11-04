@@ -1,12 +1,12 @@
 ///|
 test "deletion repairs archetype rows and a stale handle cannot touch a recycled slot" {
-  let previous = @ecs.current_world()
+  let previous = current_world()
   defer (match previous {
-    Some(world) => @ecs.set_current_world(world)
-    None => @ecs.clear_current_world()
+    Some(world) => set_current_world(world)
+    None => clear_current_world()
   })
-  let world = @ecs.World()
-  @ecs.set_current_world(world)
+  let world = World()
+  set_current_world(world)
   let values : ComponentStore[Int32] = ComponentStore(world)
   let labels : ComponentStore[String] = ComponentStore(world)
   let bundle = values.spawn_bundle().combine(labels.spawn_bundle())
@@ -30,7 +30,7 @@ test "deletion repairs archetype rows and a stale handle cannot touch a recycled
   old.destroy()
   old.respawn()
   assert_false(old.delete())
-  entity_flush_system(0.0)
+  flush_entity_lifecycle(require_current_world())
   assert_false(old.is_valid_in(world))
   assert_false(old.is_alive())
   assert_true(replacement.is_alive())
@@ -39,25 +39,25 @@ test "deletion repairs archetype rows and a stale handle cannot touch a recycled
 
 ///|
 test "recoverable destruction keeps the slot until a permanent subtree deletion" {
-  let previous = @ecs.current_world()
+  let previous = current_world()
   defer (match previous {
-    Some(world) => @ecs.set_current_world(world)
-    None => @ecs.clear_current_world()
+    Some(world) => set_current_world(world)
+    None => clear_current_world()
   })
-  let world = @ecs.World()
-  @ecs.set_current_world(world)
+  let world = World()
+  set_current_world(world)
   let parent = Entity()
   let root = parent.spawn_child()
   let child = root.spawn_child()
   let values : ComponentStore[Int32] = ComponentStore(world)
   values.set(child, 42)
   root.destroy()
-  entity_flush_system(0.0)
+  flush_entity_lifecycle(require_current_world())
   let spare = Entity()
   assert_true(spare.slot_index() != root.slot_index())
   assert_true(root.is_valid_in(world))
   root.respawn()
-  entity_flush_system(0.0)
+  flush_entity_lifecycle(require_current_world())
   assert_true(child.is_alive())
   assert_eq(values.get(child), Some(42))
 
@@ -73,13 +73,13 @@ test "recoverable destruction keeps the slot until a permanent subtree deletion"
 
 ///|
 test "an exhausted generation retires the slot without wrapping" {
-  let previous = @ecs.current_world()
+  let previous = current_world()
   defer (match previous {
-    Some(world) => @ecs.set_current_world(world)
-    None => @ecs.clear_current_world()
+    Some(world) => set_current_world(world)
+    None => clear_current_world()
   })
-  let world = @ecs.World()
-  @ecs.set_current_world(world)
+  let world = World()
+  set_current_world(world)
   let first = Entity()
   assert_true(first.delete())
   entity_store().archetypes.slots[first.slot].generation = 0xffffffffU
@@ -93,13 +93,13 @@ test "an exhausted generation retires the slot without wrapping" {
 
 ///|
 test "generation rejects every previous occupant while the same slot is live again" {
-  let previous = @ecs.current_world()
+  let previous = current_world()
   defer (match previous {
-    Some(world) => @ecs.set_current_world(world)
-    None => @ecs.clear_current_world()
+    Some(world) => set_current_world(world)
+    None => clear_current_world()
   })
-  let world = @ecs.World()
-  @ecs.set_current_world(world)
+  let world = World()
+  set_current_world(world)
   let values : ComponentStore[Int32] = ComponentStore(world)
   let bundle = values.spawn_bundle()
   let retired : Array[Entity] = []

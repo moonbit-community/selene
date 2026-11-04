@@ -288,7 +288,7 @@ fn measure_node(
   known_dimensions : @geometry.Size[Double?],
   available : @geometry.Size[@geometry.AvailableSpace],
   _node_id : Int32,
-  entity : @entity.Entity?,
+  entity : @ecs.Entity?,
   style : @style.Style,
 ) -> @geometry.Size[Double] {
   guard entity is Some(entity) else { return @geometry.Size::zero() }
@@ -434,7 +434,7 @@ fn screen_rect_for(
 
 ///|
 fn cleanup_dead_ui_state() -> Unit {
-  let alive = @entity.alive_in_world(@ecs.require_current_world())
+  let alive = @ecs.alive_in_world(@ecs.require_current_world())
   nodes().retain(alive)
   computed_ui_nodes().retain(alive)
   global_ui_nodes().retain(alive)
@@ -467,14 +467,14 @@ fn cleanup_dead_ui_state() -> Unit {
 
 ///|
 fn apply_layout_recursive(
-  entity : @entity.Entity,
-  chicle : @tree.ChicleTree[@entity.Entity],
-  entity_to_node_id : Map[@entity.Entity, Int32],
+  entity : @ecs.Entity,
+  chicle : @tree.ChicleTree[@ecs.Entity],
+  entity_to_node_id : Map[@ecs.Entity, Int32],
   parent_layout_origin : @math.Vec2,
   parent_clip : @math.Rect?,
   inherited_use_rounding : Bool,
   layout_space : UiLayoutSpace,
-  projected : Set[@entity.Entity],
+  projected : Set[@ecs.Entity],
 ) -> Unit {
   guard entity_to_node_id.get(entity) is Some(node_id) else { return }
   guard nodes().get(entity) is Some(node) else { return }

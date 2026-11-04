@@ -16,7 +16,7 @@ priv struct UiMeasureSnapshot {
 ///|
 #derive(Eq)
 priv struct UiProjectionSnapshot {
-  target_camera : @entity.Entity?
+  target_camera : @ecs.Entity?
   target_viewport_position : @math.Vec2?
   target_viewport_size : @math.Vec2?
   scroll_position : @math.Vec2?
@@ -49,13 +49,13 @@ priv struct UiLayoutNodeRuntime {
   mut measure : UiMeasureSnapshot
   mut projection : UiProjectionSnapshot
   mut stack : UiStackSnapshot
-  mut children : Array[@entity.Entity]
+  mut children : Array[@ecs.Entity]
 }
 
 ///|
 #derive(Eq)
 priv struct UiLayoutRootSnapshot {
-  target_camera : @entity.Entity?
+  target_camera : @ecs.Entity?
   viewport_position : @math.Vec2
   viewport_size : @math.Vec2
   logical_size : @math.Vec2
@@ -70,10 +70,10 @@ priv struct UiLayoutRootRuntime {
 
 ///|
 priv struct UiLayoutRuntime {
-  tree : @tree.ChicleTree[@entity.Entity]
-  node_ids : Map[@entity.Entity, Int32]
-  nodes : Map[@entity.Entity, UiLayoutNodeRuntime]
-  roots : Map[@entity.Entity, UiLayoutRootRuntime]
+  tree : @tree.ChicleTree[@ecs.Entity]
+  node_ids : Map[@ecs.Entity, Int32]
+  nodes : Map[@ecs.Entity, UiLayoutNodeRuntime]
+  roots : Map[@ecs.Entity, UiLayoutRootRuntime]
   mut layout_revision : UInt32
   mut projection_revision : UInt32
   mut stacking_revision : UInt32
@@ -207,7 +207,7 @@ fn chicle_style_snapshot(node : Node) -> UiChicleStyleSnapshot {
 }
 
 ///|
-fn ui_measure_snapshot(entity : @entity.Entity) -> UiMeasureSnapshot {
+fn ui_measure_snapshot(entity : @ecs.Entity) -> UiMeasureSnapshot {
   let text = texts().get(entity)
   let style = text_style_for(entity)
   let layout = text_layout(entity)
@@ -232,7 +232,7 @@ fn ui_measure_snapshot(entity : @entity.Entity) -> UiMeasureSnapshot {
 }
 
 ///|
-fn ui_projection_snapshot(entity : @entity.Entity) -> UiProjectionSnapshot {
+fn ui_projection_snapshot(entity : @ecs.Entity) -> UiProjectionSnapshot {
   let overflow_clip_margin = nodes()
     .get(entity)
     .map(fn(node) { node.overflow_clip_margin })
@@ -265,7 +265,7 @@ fn ui_projection_snapshot(entity : @entity.Entity) -> UiProjectionSnapshot {
 }
 
 ///|
-fn ui_stack_snapshot(entity : @entity.Entity, node : Node) -> UiStackSnapshot {
+fn ui_stack_snapshot(entity : @ecs.Entity, node : Node) -> UiStackSnapshot {
   {
     displayed: node.display != None,
     visible: @visibility.is_visible(entity),
@@ -275,7 +275,7 @@ fn ui_stack_snapshot(entity : @entity.Entity, node : Node) -> UiStackSnapshot {
 }
 
 ///|
-fn ui_root_snapshot(root : @entity.Entity) -> UiLayoutRootSnapshot {
+fn ui_root_snapshot(root : @ecs.Entity) -> UiLayoutRootSnapshot {
   let space = ui_layout_space(
     ui_target_cameras().get(root).map(fn(target) { target.camera }),
   )
@@ -326,8 +326,8 @@ fn remove_chicle_node(runtime : UiLayoutRuntime, node_id : Int32) -> Unit {
 ///|
 fn sync_layout_node(
   runtime : UiLayoutRuntime,
-  entity : @entity.Entity,
-  reachable : Set[@entity.Entity],
+  entity : @ecs.Entity,
+  reachable : Set[@ecs.Entity],
   dirty : UiLayoutDirty,
 ) -> Int32? {
   guard nodes().get(entity) is Some(node) else { return None }
@@ -385,7 +385,7 @@ fn sync_layout_node(
     }
   }
 
-  let child_entities : Array[@entity.Entity] = []
+  let child_entities : Array[@ecs.Entity] = []
   let child_ids : Array[Int32] = []
   for child in ui_children(entity) {
     if sync_layout_node(runtime, child, reachable, dirty) is Some(child_id) {
@@ -412,10 +412,10 @@ fn sync_layout_node(
 ///|
 fn remove_stale_layout_nodes(
   runtime : UiLayoutRuntime,
-  reachable : Set[@entity.Entity],
+  reachable : Set[@ecs.Entity],
   dirty : UiLayoutDirty,
 ) -> Unit {
-  let stale : Array[@entity.Entity] = []
+  let stale : Array[@ecs.Entity] = []
   for entity, _ in runtime.nodes {
     if !reachable.contains(entity) {
       stale.push(entity)
@@ -436,7 +436,7 @@ fn remove_stale_layout_nodes(
 ///|
 fn sync_layout_roots(
   runtime : UiLayoutRuntime,
-  roots : Array[@entity.Entity],
+  roots : Array[@ecs.Entity],
   dirty : UiLayoutDirty,
 ) -> Unit {
   for root in roots {
@@ -480,7 +480,7 @@ fn sync_layout_roots(
     }
   }
 
-  let stale : Array[@entity.Entity] = []
+  let stale : Array[@ecs.Entity] = []
   for root, _ in runtime.roots {
     if !roots.contains(root) {
       stale.push(root)
@@ -500,7 +500,7 @@ fn sync_layout_roots(
 ///|
 fn compute_dirty_layout_roots(
   runtime : UiLayoutRuntime,
-  roots : Array[@entity.Entity],
+  roots : Array[@ecs.Entity],
   dirty : UiLayoutDirty,
 ) -> Unit {
   guard dirty.layout else { return }
@@ -533,9 +533,9 @@ fn compute_dirty_layout_roots(
 ///|
 fn project_layout(
   runtime : UiLayoutRuntime,
-  roots : Array[@entity.Entity],
+  roots : Array[@ecs.Entity],
 ) -> Unit {
-  let projected : Set[@entity.Entity] = Set([])
+  let projected : Set[@ecs.Entity] = Set([])
   for root in roots {
     guard runtime.roots.get(root) is Some(root_runtime) else { continue }
     let snapshot = root_runtime.snapshot
@@ -562,7 +562,7 @@ fn project_layout(
 ///|
 fn record_ui_tree_order(
   runtime : UiLayoutRuntime,
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   order : Ref[Int32],
 ) -> Unit {
   guard runtime.nodes.contains(entity) else { return }
@@ -576,7 +576,7 @@ fn record_ui_tree_order(
 ///|
 fn rebuild_layout_stack(
   runtime : UiLayoutRuntime,
-  roots : Array[@entity.Entity],
+  roots : Array[@ecs.Entity],
 ) -> Unit {
   let order = Ref(0)
   for root in roots {
@@ -591,7 +591,7 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
   cleanup_dead_ui_state()
   let runtime = ui_layout_runtime()
   let roots = top_level_ui_nodes()
-  let reachable : Set[@entity.Entity] = Set([])
+  let reachable : Set[@ecs.Entity] = Set([])
   let dirty : UiLayoutDirty = {
     layout: false,
     projection: false,

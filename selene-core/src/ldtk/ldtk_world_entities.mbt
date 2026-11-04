@@ -29,7 +29,7 @@ pub fn add_default_ldtk_int_cell_registration(
 pub fn[T] add_ldtk_int_cell_component_for_layer_optional(
   layer_identifier : String?,
   value : Int32?,
-  storage : @entity.ComponentStore[T],
+  storage : @ecs.ComponentStore[T],
   make : (LdtkIntGridCellSpawnedEvent) -> T,
 ) -> Unit {
   add_ldtk_int_cell_registration_for_layer_optional(layer_identifier, value, fn(
@@ -43,7 +43,7 @@ pub fn[T] add_ldtk_int_cell_component_for_layer_optional(
 pub fn[T] add_ldtk_int_cell_component_for_layer(
   layer_identifier : String,
   value : Int32,
-  storage : @entity.ComponentStore[T],
+  storage : @ecs.ComponentStore[T],
   make : (LdtkIntGridCellSpawnedEvent) -> T,
 ) -> Unit {
   add_ldtk_int_cell_component_for_layer_optional(
@@ -57,7 +57,7 @@ pub fn[T] add_ldtk_int_cell_component_for_layer(
 ///|
 pub fn[T] add_ldtk_int_cell_component(
   value : Int32,
-  storage : @entity.ComponentStore[T],
+  storage : @ecs.ComponentStore[T],
   make : (LdtkIntGridCellSpawnedEvent) -> T,
 ) -> Unit {
   add_ldtk_int_cell_component_for_layer_optional(
@@ -71,7 +71,7 @@ pub fn[T] add_ldtk_int_cell_component(
 ///|
 pub fn[T] add_default_ldtk_int_cell_component_for_layer(
   layer_identifier : String,
-  storage : @entity.ComponentStore[T],
+  storage : @ecs.ComponentStore[T],
   make : (LdtkIntGridCellSpawnedEvent) -> T,
 ) -> Unit {
   add_ldtk_int_cell_component_for_layer_optional(
@@ -84,7 +84,7 @@ pub fn[T] add_default_ldtk_int_cell_component_for_layer(
 
 ///|
 pub fn[T] add_default_ldtk_int_cell_component(
-  storage : @entity.ComponentStore[T],
+  storage : @ecs.ComponentStore[T],
   make : (LdtkIntGridCellSpawnedEvent) -> T,
 ) -> Unit {
   add_ldtk_int_cell_component_for_layer_optional(None, None, storage, make)

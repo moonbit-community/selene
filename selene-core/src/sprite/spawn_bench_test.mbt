@@ -16,8 +16,8 @@ fn spawn_sprite_population(
     @transform.Transform::from_xyz(4.0, 0.0, 0.0),
   )
   if extra_columns {
-    let a : @entity.ComponentStore[Int32] = ComponentStore(world)
-    let b : @entity.ComponentStore[Int32] = ComponentStore(world)
+    let a : @ecs.ComponentStore[Int32] = ComponentStore(world)
+    let b : @ecs.ComponentStore[Int32] = ComponentStore(world)
     if bundled {
       let bundle = sprites
         .spawn_bundle()
@@ -28,7 +28,7 @@ fn spawn_sprite_population(
       }
     } else {
       for i in 0..<size {
-        let entity = @entity.Entity()
+        let entity = @ecs.Entity()
         sprites.set(entity, sprite)
         globals.set(entity, global)
         a.set(entity, i)
@@ -42,7 +42,7 @@ fn spawn_sprite_population(
     }
   } else {
     for _ in 0..<size {
-      let entity = @entity.Entity()
+      let entity = @ecs.Entity()
       sprites.set(entity, sprite)
       globals.set(entity, global)
     }
@@ -63,7 +63,7 @@ test "initial sprite archetype placement with and without a bundle" (
     let extra_columns = columns == 4
     for bundled in [false, true] {
       ignore(spawn_sprite_population(size, bundled, extra_columns))
-      assert_eq(@entity.alive_entity_count(), size)
+      assert_eq(@ecs.alive_entity_count(), size)
       let mut matched = 0
       @sprite.for_each_sprite_transform((_, _, _) => matched += 1)
       assert_eq(matched, size)

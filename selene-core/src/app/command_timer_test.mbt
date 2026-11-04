@@ -1,7 +1,7 @@
 ///|
 test "scheduler flushes commands in FIFO batches after startup and frames" {
   let world = @ecs.World()
-  let commands = @commands.commands(world)
+  let commands = @ecs.commands(world)
   let calls = []
   let observed = []
   let app = @app.App()
@@ -18,55 +18,55 @@ test "scheduler flushes commands in FIFO batches after startup and frames" {
 
   app.run_frames(1, raw_delta=0.125, fixed_delta_override=Some(1.0))
   assert_eq(observed, [[1, 2], [1, 2, 3]])
-  assert_false(@commands.has_pending_commands(world))
+  assert_false(@ecs.has_pending_commands(world))
 }
 
 ///|
-test "command flush rejects reentry and leaves the nested batch queued" {
+test "schedule rejects reentry and leaves the nested batch queued" {
   let world = @ecs.World()
-  let commands = @commands.commands(world)
+  let commands = @ecs.commands(world)
   let calls = []
   let rejected = Ref(false)
   commands.add(_ => {
     commands.add(_ => calls.push(2))
     rejected.val = try {
-      @ecs_schedule.flush(world)
+      @ecs.run_schedule(world, _ => calls.push(99))
       false
     } catch {
-      @ecs_schedule.ReentrantFlush => true
+      @ecs.ReentrantSchedule => true
       _ => false
     }
     calls.push(1)
   })
 
-  @ecs_schedule.flush(world)
+  @ecs.run_schedule(world, _ => ())
   assert_true(rejected.val)
   assert_eq(calls, [1])
-  @ecs_schedule.flush(world)
+  @ecs.run_schedule(world, _ => ())
   assert_eq(calls, [1, 2])
 }
 
 ///|
-test "command flush rejects streaming and archetype batch queries" {
+test "schedule rejects streaming and archetype batch queries" {
   let world = @ecs.World()
-  let storage : @entity.ComponentStore[Int32] = ComponentStore(world)
+  let storage : @ecs.ComponentStore[Int32] = ComponentStore(world)
   ignore(storage.spawn_bundle().spawn(world, 42))
-  let commands = @commands.commands(world)
+  let commands = @ecs.commands(world)
   let calls = []
   let rejected = []
   commands.add(_ => calls.push(1))
 
-  @query.query(world, storage).for_each((_, _) => {
-    try @ecs_schedule.flush(world) catch {
-      @ecs_schedule.ActiveQuery => rejected.push(true)
+  @ecs.query(world, storage).for_each((_, _) => {
+    try @ecs.run_schedule(world, _ => calls.push(99)) catch {
+      @ecs.ActiveQuery => rejected.push(true)
       _ => rejected.push(false)
     } noraise {
       _ => rejected.push(false)
     }
   })
-  @entity.ArchetypeQuery2(storage, storage).for_each_batch((_, _, _) => {
-    try @ecs_schedule.flush(world) catch {
-      @ecs_schedule.ActiveQuery => rejected.push(true)
+  @ecs.Query2(storage, storage).for_each_batch((_, _, _) => {
+    try @ecs.run_schedule(world, _ => calls.push(99)) catch {
+      @ecs.ActiveQuery => rejected.push(true)
       _ => rejected.push(false)
     } noraise {
       _ => rejected.push(false)
@@ -74,7 +74,7 @@ test "command flush rejects streaming and archetype batch queries" {
   })
   assert_eq(rejected, [true, true])
   assert_true(calls.is_empty())
-  @ecs_schedule.flush(world)
+  @ecs.run_schedule(world, _ => ())
   assert_eq(calls, [1])
 }
 
@@ -191,10 +191,10 @@ test "scaled and unscaled timeouts respect the World's time scale" {
 ///|
 test "entities reserved during a command batch go live with the next batch" {
   let world = @ecs.World()
-  let commands = @commands.commands(world)
-  let storage : @entity.ComponentStore[Int32] = ComponentStore(world)
+  let commands = @ecs.commands(world)
+  let storage : @ecs.ComponentStore[Int32] = ComponentStore(world)
   let bundle = storage.spawn_bundle()
-  let spawned : Ref[(@entity.Entity, @entity.Entity)?] = Ref(None)
+  let spawned : Ref[(@ecs.Entity, @ecs.Entity)?] = Ref(None)
   let observed = []
   commands.add(_ => {
     spawned.val = Some((commands.spawn(), commands.spawn_bundle(bundle, 42)))

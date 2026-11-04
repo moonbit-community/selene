@@ -23,7 +23,7 @@ pub(all) enum CollisionShape {
 }
 
 ///|
-let shape_component_key : @entity.ComponentKey[CollisionShape] = ComponentKey()
+let shape_component_key : @ecs.ComponentKey[CollisionShape] = ComponentKey()
 
 ///|
 /// Stores collision shapes for entities in the current world.
@@ -31,7 +31,7 @@ let shape_component_key : @entity.ComponentKey[CollisionShape] = ComponentKey()
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let entity = @entity.Entity()
+/// let entity = @ecs.Entity()
 /// defer entity.destroy()
 /// @collision.shapes().set(
 ///   entity,
@@ -41,6 +41,6 @@ let shape_component_key : @entity.ComponentKey[CollisionShape] = ComponentKey()
 ///   ),
 /// )
 /// ```
-pub fn shapes() -> @entity.ComponentStore[CollisionShape] {
+pub fn shapes() -> @ecs.ComponentStore[CollisionShape] {
   shape_component_key.store()
 }

@@ -25,10 +25,10 @@ pub(all) struct RenderLayers {
 
 ///|
 priv struct VisibilityWorldStore {
-  visibilities : @entity.ComponentStore[Visibility]
-  inherited_visibilities : @entity.ComponentStore[InheritedVisibility]
-  view_visibilities : @entity.ComponentStore[ViewVisibility]
-  render_layers : @entity.ComponentStore[RenderLayers]
+  visibilities : @ecs.ComponentStore[Visibility]
+  inherited_visibilities : @ecs.ComponentStore[InheritedVisibility]
+  view_visibilities : @ecs.ComponentStore[ViewVisibility]
+  render_layers : @ecs.ComponentStore[RenderLayers]
 }
 
 ///|
@@ -46,22 +46,22 @@ fn visibility_world_store() -> VisibilityWorldStore {
 }
 
 ///|
-pub fn visibilities() -> @entity.ComponentStore[Visibility] {
+pub fn visibilities() -> @ecs.ComponentStore[Visibility] {
   visibility_world_store().visibilities
 }
 
 ///|
-pub fn inherited_visibilities() -> @entity.ComponentStore[InheritedVisibility] {
+pub fn inherited_visibilities() -> @ecs.ComponentStore[InheritedVisibility] {
   visibility_world_store().inherited_visibilities
 }
 
 ///|
-pub fn view_visibilities() -> @entity.ComponentStore[ViewVisibility] {
+pub fn view_visibilities() -> @ecs.ComponentStore[ViewVisibility] {
   visibility_world_store().view_visibilities
 }
 
 ///|
-pub fn render_layers() -> @entity.ComponentStore[RenderLayers] {
+pub fn render_layers() -> @ecs.ComponentStore[RenderLayers] {
   visibility_world_store().render_layers
 }
 
@@ -90,14 +90,14 @@ pub fn matches(lhs : RenderLayers, rhs : RenderLayers) -> Bool {
 }
 
 ///|
-pub fn entity_render_layers(entity : @entity.Entity) -> RenderLayers {
+pub fn entity_render_layers(entity : @ecs.Entity) -> RenderLayers {
   render_layers().get(entity).unwrap_or(default_render_layers())
 }
 
 ///|
 fn compute_inherited_visibility(
-  entity : @entity.Entity,
-  cache : Map[@entity.Entity, Bool],
+  entity : @ecs.Entity,
+  cache : Map[@ecs.Entity, Bool],
 ) -> Bool {
   if cache.get(entity) is Some(visible) {
     return visible
@@ -118,13 +118,13 @@ pub fn visibility_propagate_system(_delta : Double) -> Unit {
   let view_visibilities = view_visibilities()
   let render_layers = render_layers()
   let visibilities = visibilities()
-  let cache : Map[@entity.Entity, Bool] = Map([])
-  for entity in @entity.iter_entities() {
+  let cache : Map[@ecs.Entity, Bool] = Map([])
+  for entity in @ecs.iter_entities() {
     let visible = compute_inherited_visibility(entity, cache)
     inherited_visibilities.set(entity, { visible, })
     view_visibilities.set(entity, { visible, })
   }
-  let alive = @entity.alive_in_world(@ecs.require_current_world())
+  let alive = @ecs.alive_in_world(@ecs.require_current_world())
   inherited_visibilities.retain(alive)
   view_visibilities.retain(alive)
   render_layers.retain(alive)
@@ -132,6 +132,6 @@ pub fn visibility_propagate_system(_delta : Double) -> Unit {
 }
 
 ///|
-pub fn is_visible(entity : @entity.Entity) -> Bool {
+pub fn is_visible(entity : @ecs.Entity) -> Bool {
   view_visibilities().get(entity).map(fn(v) { v.visible }).unwrap_or(true)
 }

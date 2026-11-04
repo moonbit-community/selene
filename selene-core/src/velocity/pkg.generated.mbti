@@ -2,13 +2,13 @@
 package "Milky2018/selene/velocity"
 
 import {
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "moonbitlang/core/debug",
 }
 
 // Values
-pub fn velocities() -> @entity.ComponentStore[Velocity]
+pub fn velocities() -> @ecs.ComponentStore[Velocity]
 
 // Errors
 

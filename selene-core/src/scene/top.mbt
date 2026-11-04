@@ -13,14 +13,14 @@ pub(all) struct SceneSpawner {
 #derive(Eq, Debug)
 pub(all) struct SceneInstanceReadyEvent {
   scene : SceneHandle
-  root : @entity.Entity
+  root : @ecs.Entity
 }
 
 ///|
-let scene_instances_key : @entity.ComponentKey[SceneHandle] = ComponentKey()
+let scene_instances_key : @ecs.ComponentKey[SceneHandle] = ComponentKey()
 
 ///|
-fn scene_instances() -> @entity.ComponentStore[SceneHandle] {
+fn scene_instances() -> @ecs.ComponentStore[SceneHandle] {
   scene_instances_key.store()
 }
 
@@ -59,7 +59,7 @@ pub fn SceneSpawner::spawn(
 }
 
 ///|
-pub fn despawn_scene(root : @entity.Entity) -> Unit {
+pub fn despawn_scene(root : @ecs.Entity) -> Unit {
   root.destroy()
   scene_instances().remove(root)
 }
@@ -74,7 +74,7 @@ pub fn despawn_all_scenes() -> Unit {
 }
 
 ///|
-pub fn scene_of(root : @entity.Entity) -> SceneHandle? {
+pub fn scene_of(root : @ecs.Entity) -> SceneHandle? {
   scene_instances().get(root)
 }
 

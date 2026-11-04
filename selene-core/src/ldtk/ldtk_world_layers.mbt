@@ -64,7 +64,7 @@ pub fn add_default_ldtk_entity_registration(
 pub fn[T] add_ldtk_entity_component_for_layer_optional(
   layer_identifier : String?,
   entity_identifier : String?,
-  storage : @entity.ComponentStore[T],
+  storage : @ecs.ComponentStore[T],
   make : (LdtkEntitySpawnedEvent) -> T,
 ) -> Unit {
   add_ldtk_entity_registration_for_layer_optional(
@@ -78,7 +78,7 @@ pub fn[T] add_ldtk_entity_component_for_layer_optional(
 pub fn[T] add_ldtk_entity_component_for_layer(
   layer_identifier : String,
   entity_identifier : String,
-  storage : @entity.ComponentStore[T],
+  storage : @ecs.ComponentStore[T],
   make : (LdtkEntitySpawnedEvent) -> T,
 ) -> Unit {
   add_ldtk_entity_component_for_layer_optional(
@@ -92,7 +92,7 @@ pub fn[T] add_ldtk_entity_component_for_layer(
 ///|
 pub fn[T] add_ldtk_entity_component(
   entity_identifier : String,
-  storage : @entity.ComponentStore[T],
+  storage : @ecs.ComponentStore[T],
   make : (LdtkEntitySpawnedEvent) -> T,
 ) -> Unit {
   add_ldtk_entity_component_for_layer_optional(
@@ -106,7 +106,7 @@ pub fn[T] add_ldtk_entity_component(
 ///|
 pub fn[T] add_default_ldtk_entity_component_for_layer(
   layer_identifier : String,
-  storage : @entity.ComponentStore[T],
+  storage : @ecs.ComponentStore[T],
   make : (LdtkEntitySpawnedEvent) -> T,
 ) -> Unit {
   add_ldtk_entity_component_for_layer_optional(
@@ -119,7 +119,7 @@ pub fn[T] add_default_ldtk_entity_component_for_layer(
 
 ///|
 pub fn[T] add_default_ldtk_entity_component(
-  storage : @entity.ComponentStore[T],
+  storage : @ecs.ComponentStore[T],
   make : (LdtkEntitySpawnedEvent) -> T,
 ) -> Unit {
   add_ldtk_entity_component_for_layer_optional(None, None, storage, make)

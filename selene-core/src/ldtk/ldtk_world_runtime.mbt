@@ -57,7 +57,7 @@ pub fn clear_ldtk_int_grid_value_spawn_hooks() -> Unit {
 pub fn load_and_spawn_ldtk_world(
   path : String,
   settings~ : LdtkWorldSpawnSettings = default_ldtk_world_spawn_settings(),
-) -> @entity.Entity {
+) -> @ecs.Entity {
   spawn_ldtk_world(load_ldtk_project(path), settings~)
 }
 
@@ -65,15 +65,15 @@ pub fn load_and_spawn_ldtk_world(
 pub fn spawn_ldtk_world(
   project : LdtkProject,
   settings~ : LdtkWorldSpawnSettings = default_ldtk_world_spawn_settings(),
-) -> @entity.Entity {
-  let world_entity = @entity.Entity()
+) -> @ecs.Entity {
+  let world_entity = @ecs.Entity()
   spawn_ldtk_world_root(world_entity, project, settings)
   world_entity
 }
 
 ///|
 pub fn spawn_ldtk_world_into_entity(
-  root : @entity.Entity,
+  root : @ecs.Entity,
   project : LdtkProject,
   settings~ : LdtkWorldSpawnSettings = default_ldtk_world_spawn_settings(),
 ) -> Unit {
@@ -82,19 +82,18 @@ pub fn spawn_ldtk_world_into_entity(
 
 ///|
 pub fn respawn_ldtk_world_into_entity(
-  root : @entity.Entity,
+  root : @ecs.Entity,
   project : LdtkProject,
   settings~ : LdtkWorldSpawnSettings = default_ldtk_world_spawn_settings(),
 ) -> Unit {
   clear_ldtk_children(root)
-  @entity.entity_flush_system(0.0)
   clear_ldtk_root_components(root)
   spawn_ldtk_world_root(root, project, settings)
 }
 
 ///|
 pub fn set_ldtk_level_set(
-  world_entity : @entity.Entity,
+  world_entity : @ecs.Entity,
   level_set : LdtkLevelSet,
 ) -> Unit {
   guard ldtk_world_instances().get(world_entity) is Some(instance) else {
@@ -106,7 +105,7 @@ pub fn set_ldtk_level_set(
 
 ///|
 pub fn set_ldtk_world_follow_level_selection(
-  world_entity : @entity.Entity,
+  world_entity : @ecs.Entity,
   follow : Bool,
 ) -> Unit {
   guard ldtk_world_instances().get(world_entity) is Some(instance) else {
@@ -117,9 +116,9 @@ pub fn set_ldtk_world_follow_level_selection(
 
 ///|
 pub fn ldtk_level_entity(
-  world_entity : @entity.Entity,
+  world_entity : @ecs.Entity,
   level_iid : String,
-) -> @entity.Entity? {
+) -> @ecs.Entity? {
   guard ldtk_world_instances().get(world_entity) is Some(instance) else {
     return None
   }
@@ -128,9 +127,9 @@ pub fn ldtk_level_entity(
 
 ///|
 pub fn ldtk_worldly_entity(
-  world_entity : @entity.Entity,
+  world_entity : @ecs.Entity,
   entity_iid : String,
-) -> @entity.Entity? {
+) -> @ecs.Entity? {
   for pair in ldtk_worldly_entities().to_array() {
     if !pair.0.is_alive() {
       continue
@@ -145,9 +144,9 @@ pub fn ldtk_worldly_entity(
 
 ///|
 pub fn ldtk_entity_by_iid(
-  world_entity : @entity.Entity,
+  world_entity : @ecs.Entity,
   entity_iid : String,
-) -> @entity.Entity? {
+) -> @ecs.Entity? {
   for pair in ldtk_entity_iids().to_array() {
     if !pair.0.is_alive() {
       continue
@@ -201,7 +200,7 @@ pub fn ldtk_world_sync_system(_delta : Double) -> Unit {
 
 ///|
 fn spawn_ldtk_world_root(
-  world_entity : @entity.Entity,
+  world_entity : @ecs.Entity,
   project : LdtkProject,
   settings : LdtkWorldSpawnSettings,
 ) -> Unit {
@@ -231,7 +230,7 @@ fn spawn_ldtk_world_root(
 }
 
 ///|
-fn ldtk_world_apply_level_set(world_entity : @entity.Entity) -> Unit {
+fn ldtk_world_apply_level_set(world_entity : @ecs.Entity) -> Unit {
   guard ldtk_world_instances().get(world_entity) is Some(instance) else {
     return
   }
@@ -262,10 +261,10 @@ fn ldtk_world_apply_level_set(world_entity : @entity.Entity) -> Unit {
 
 ///|
 fn ldtk_spawn_level_entity(
-  world_entity : @entity.Entity,
+  world_entity : @ecs.Entity,
   indexed : LdtkIndexedLevel,
   instance : LdtkWorldInstance,
-) -> @entity.Entity {
+) -> @ecs.Entity {
   let level_offset = ldtk_level_offset(
     indexed.level,
     ldtk_world_spawn_behavior(instance.settings),
@@ -308,8 +307,8 @@ fn ldtk_spawn_level_entity(
 
 ///|
 fn ldtk_spawn_level_background(
-  world_entity : @entity.Entity,
-  level_entity : @entity.Entity,
+  world_entity : @ecs.Entity,
+  level_entity : @ecs.Entity,
   level : LdtkLevel,
   instance : LdtkWorldInstance,
 ) -> Unit {
@@ -384,8 +383,8 @@ fn ldtk_spawn_level_background(
 
 ///|
 fn ldtk_spawn_level_layers(
-  world_entity : @entity.Entity,
-  level_entity : @entity.Entity,
+  world_entity : @ecs.Entity,
+  level_entity : @ecs.Entity,
   level : LdtkLevel,
   level_offset : @math.Vec2,
   instance : LdtkWorldInstance,
@@ -480,9 +479,9 @@ fn ldtk_spawn_level_layers(
 
 ///|
 fn ldtk_spawn_layer_tiles(
-  world_entity : @entity.Entity,
-  level_entity : @entity.Entity,
-  layer_entity : @entity.Entity,
+  world_entity : @ecs.Entity,
+  level_entity : @ecs.Entity,
+  layer_entity : @ecs.Entity,
   level : LdtkLevel,
   instance : LdtkWorldInstance,
   layer : LdtkLayerInstance,
@@ -557,9 +556,9 @@ fn ldtk_spawn_layer_tiles(
 
 ///|
 fn ldtk_spawn_int_grid_cells(
-  world_entity : @entity.Entity,
-  level_entity : @entity.Entity,
-  layer_entity : @entity.Entity,
+  world_entity : @ecs.Entity,
+  level_entity : @ecs.Entity,
+  layer_entity : @ecs.Entity,
   level : LdtkLevel,
   instance : LdtkWorldInstance,
   layer : LdtkLayerInstance,
@@ -681,9 +680,9 @@ fn ldtk_spawn_int_grid_cells(
 
 ///|
 fn ldtk_spawn_layer_entities(
-  world_entity : @entity.Entity,
-  level_entity : @entity.Entity,
-  layer_entity : @entity.Entity,
+  world_entity : @ecs.Entity,
+  level_entity : @ecs.Entity,
+  layer_entity : @ecs.Entity,
   level : LdtkLevel,
   level_offset : @math.Vec2,
   layer_offset : @math.Vec2,

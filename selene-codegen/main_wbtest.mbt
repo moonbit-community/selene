@@ -10,8 +10,8 @@ test "generates typed keys only for marked declarations" {
     #|// #selene.component
     #|priv struct Unmarked { x : Double }
   let generated = generate(source, "state.mbt")
-  assert_true(generated.contains("@entity.ComponentKey[Position]"))
-  assert_true(generated.contains("pub impl @entity.Component for Position"))
+  assert_true(generated.contains("@ecs.ComponentKey[Position]"))
+  assert_true(generated.contains("pub impl @ecs.Component for Position"))
   assert_true(
     generated.contains("@ecs.ResourceKey[Clock] = ResourceKey(new_clock)"),
   )

@@ -3,7 +3,7 @@ package "Milky2018/selene/ui"
 
 import {
   "Milky2018/selene/asset_types",
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
@@ -33,23 +33,23 @@ pub fn align_content_start() -> AlignContent
 
 pub fn align_content_stretch() -> AlignContent
 
-pub fn background_colors() -> @entity.ComponentStore[BackgroundColor]
+pub fn background_colors() -> @ecs.ComponentStore[BackgroundColor]
 
 pub fn blur() -> Unit
 
-pub fn border_colors() -> @entity.ComponentStore[BorderColor]
+pub fn border_colors() -> @ecs.ComponentStore[BorderColor]
 
-pub fn border_radii() -> @entity.ComponentStore[BorderRadius]
+pub fn border_radii() -> @ecs.ComponentStore[BorderRadius]
 
-pub fn box_shadows() -> @entity.ComponentStore[BoxShadow]
+pub fn box_shadows() -> @ecs.ComponentStore[BoxShadow]
 
-pub fn buttons() -> @entity.ComponentStore[Button]
+pub fn buttons() -> @ecs.ComponentStore[Button]
 
-pub fn calculated_clips() -> @entity.ComponentStore[CalculatedClip]
+pub fn calculated_clips() -> @ecs.ComponentStore[CalculatedClip]
 
 pub let click_event_bus : @event.Events[UiClickEvent]
 
-pub fn computed_ui_nodes() -> @entity.ComponentStore[ComputedUiNode]
+pub fn computed_ui_nodes() -> @ecs.ComponentStore[ComputedUiNode]
 
 pub fn consume_pointer(@inputs.PointerId) -> Unit
 
@@ -69,25 +69,25 @@ pub fn flex_wrap_wrap() -> FlexWrap
 
 pub fn flex_wrap_wrap_reverse() -> FlexWrap
 
-pub fn focus(@entity.Entity) -> Unit
+pub fn focus(@ecs.Entity) -> Unit
 
 pub let focus_in_event_bus : @event.Events[UiFocusInEvent]
 
 pub let focus_out_event_bus : @event.Events[UiFocusOutEvent]
 
-pub fn focus_policies() -> @entity.ComponentStore[FocusPolicy]
+pub fn focus_policies() -> @ecs.ComponentStore[FocusPolicy]
 
-pub fn focusables() -> @entity.ComponentStore[Focusable]
+pub fn focusables() -> @ecs.ComponentStore[Focusable]
 
-pub fn focused_entity() -> @entity.Entity?
+pub fn focused_entity() -> @ecs.Entity?
 
-pub fn focuseds() -> @entity.ComponentStore[Focused]
+pub fn focuseds() -> @ecs.ComponentStore[Focused]
 
 pub fn get_ui_scale_mode() -> UiScaleMode
 
-pub fn global_ui_nodes() -> @entity.ComponentStore[GlobalUiNode]
+pub fn global_ui_nodes() -> @ecs.ComponentStore[GlobalUiNode]
 
-pub fn global_zindexes() -> @entity.ComponentStore[GlobalZIndex]
+pub fn global_zindexes() -> @ecs.ComponentStore[GlobalZIndex]
 
 pub fn grid_auto() -> GridTrack
 
@@ -127,31 +127,31 @@ pub fn grid_repeat_count(Int32) -> GridTrackRepetition
 
 pub fn grid_span(Int32) -> GridPlacement
 
-pub fn hovered_entity() -> @entity.Entity?
+pub fn hovered_entity() -> @ecs.Entity?
 
-pub fn interactions() -> @entity.ComponentStore[Interaction]
+pub fn interactions() -> @ecs.ComponentStore[Interaction]
 
 pub fn is_pointer_consumed(@inputs.PointerId) -> Bool
 
 pub fn is_touch_consumed(@inputs.TouchId) -> Bool
 
-pub fn is_ui_entity(@entity.Entity) -> Bool
+pub fn is_ui_entity(@ecs.Entity) -> Bool
 
-pub fn layout_configs() -> @entity.ComponentStore[LayoutConfig]
+pub fn layout_configs() -> @ecs.ComponentStore[LayoutConfig]
 
 pub fn logical_to_screen_point(@math.Vec2, UiLayoutSpace) -> @math.Vec2
 
 pub fn logical_to_screen_size(@math.Vec2, UiLayoutSpace) -> @math.Vec2
 
-pub fn material_nodes() -> @entity.ComponentStore[MaterialNode]
+pub fn material_nodes() -> @ecs.ComponentStore[MaterialNode]
 
 pub let navigation_event_bus : @event.Events[UiNavigationEvent]
 
-pub fn nodes() -> @entity.ComponentStore[Node]
+pub fn nodes() -> @ecs.ComponentStore[Node]
 
-pub fn outlines() -> @entity.ComponentStore[Outline]
+pub fn outlines() -> @ecs.ComponentStore[Outline]
 
-pub fn override_clips() -> @entity.ComponentStore[OverrideClip]
+pub fn override_clips() -> @ecs.ComponentStore[OverrideClip]
 
 pub fn parse_color(String) -> @render.Color
 
@@ -165,27 +165,27 @@ pub let pointer_up_event_bus : @event.Events[UiPointerUpEvent]
 
 pub fn register_ui_material_asset(UiMaterialAsset) -> UiMaterialHandle
 
-pub fn relative_cursor_positions() -> @entity.ComponentStore[RelativeCursorPosition]
+pub fn relative_cursor_positions() -> @ecs.ComponentStore[RelativeCursorPosition]
 
 pub fn release_ui_material_asset(UiMaterialHandle) -> Unit
 
 pub fn rgba(Int32, Int32, Int32, Double) -> @render.Color
 
-pub fn scroll_positions() -> @entity.ComponentStore[ScrollPosition]
+pub fn scroll_positions() -> @ecs.ComponentStore[ScrollPosition]
 
 pub fn set_ui_scale_mode(UiScaleMode) -> Unit
 
-pub fn tab_indexes() -> @entity.ComponentStore[TabIndex]
+pub fn tab_indexes() -> @ecs.ComponentStore[TabIndex]
 
-pub fn text_colors() -> @entity.ComponentStore[TextColor]
+pub fn text_colors() -> @ecs.ComponentStore[TextColor]
 
-pub fn text_fonts() -> @entity.ComponentStore[TextFont]
+pub fn text_fonts() -> @ecs.ComponentStore[TextFont]
 
-pub fn text_layouts() -> @entity.ComponentStore[TextLayout]
+pub fn text_layouts() -> @ecs.ComponentStore[TextLayout]
 
-pub fn text_style_for(@entity.Entity) -> @render2d_types.TextStyle2D?
+pub fn text_style_for(@ecs.Entity) -> @render2d_types.TextStyle2D?
 
-pub fn texts() -> @entity.ComponentStore[Text]
+pub fn texts() -> @ecs.ComponentStore[Text]
 
 pub fn to_screen_rect(@math.Rect, UiLayoutSpace) -> @math.Rect
 
@@ -193,7 +193,7 @@ pub fn transparent() -> @render.Color
 
 pub fn ui_extract_system(Double) -> Unit
 
-pub fn ui_images() -> @entity.ComponentStore[UiImage]
+pub fn ui_images() -> @ecs.ComponentStore[UiImage]
 
 pub fn ui_input_capture_system(Double) -> Unit
 
@@ -201,7 +201,7 @@ pub fn ui_interaction_system(Double) -> Unit
 
 pub fn ui_layout_root_size(UiLayoutSpace) -> @math.Vec2
 
-pub fn ui_layout_space(@entity.Entity?) -> UiLayoutSpace
+pub fn ui_layout_space(@ecs.Entity?) -> UiLayoutSpace
 
 pub fn ui_layout_system(Double) -> Unit
 
@@ -209,7 +209,7 @@ pub fn ui_material_asset(UiMaterialHandle) -> UiMaterialAsset?
 
 pub fn ui_prepare_system(Double) -> Unit
 
-pub fn ui_target_cameras() -> @entity.ComponentStore[UiTargetCamera]
+pub fn ui_target_cameras() -> @ecs.ComponentStore[UiTargetCamera]
 
 pub fn unconsumed_pointer_changes_this_frame() -> Array[@inputs.PointerEvent]
 
@@ -217,7 +217,7 @@ pub fn unconsumed_touch_changes_this_frame() -> Array[@inputs.TouchEvent]
 
 pub fn update_ui_material_asset(UiMaterialHandle, UiMaterialAsset) -> Unit
 
-pub fn z_indexes() -> @entity.ComponentStore[ZIndex]
+pub fn z_indexes() -> @ecs.ComponentStore[ZIndex]
 
 // Errors
 
@@ -367,7 +367,7 @@ pub(all) struct GlobalUiNode {
   screen_rect : @math.Rect
   logical_content_rect : @math.Rect
   screen_content_rect : @math.Rect
-  target_camera : @entity.Entity?
+  target_camera : @ecs.Entity?
   target_viewport : @math.Rect
 }
 
@@ -692,16 +692,16 @@ pub fn TextWrap::not_equal(Self, Self) -> Bool
 pub fn TextWrap::to_repr(Self) -> @debug.Repr
 
 pub(all) struct UiClickEvent {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   button : @inputs.MouseButton
 }
 
 pub(all) struct UiFocusInEvent {
-  entity : @entity.Entity
+  entity : @ecs.Entity
 }
 
 pub(all) struct UiFocusOutEvent {
-  entity : @entity.Entity
+  entity : @ecs.Entity
 }
 
 #derive(Eq, @debug.Debug)
@@ -740,10 +740,10 @@ pub fn UiInsets::to_repr(Self) -> @debug.Repr
 pub fn UiInsets::zero() -> Self
 
 pub(all) struct UiLayoutSpace {
-  target_camera : @entity.Entity?
+  target_camera : @ecs.Entity?
   viewport : @math.Rect
 }
-pub fn UiLayoutSpace::UiLayoutSpace(@math.Rect, target_camera? : @entity.Entity?) -> Self
+pub fn UiLayoutSpace::UiLayoutSpace(@math.Rect, target_camera? : @ecs.Entity?) -> Self
 
 pub(all) struct UiMaterialAsset {
   draw : (UiMaterialContext) -> Unit
@@ -756,13 +756,13 @@ pub fn UiMaterialAsset::gradient(@render.Color, @render.Color) -> Self
 pub fn UiMaterialAsset::solid(@render.Color) -> Self
 
 pub(all) struct UiMaterialContext {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   rect : @math.Rect
   content_rect : @math.Rect
   border_radius : BorderRadius
   target_camera_entity_id : UInt32?
 }
-pub fn UiMaterialContext::UiMaterialContext(@entity.Entity, @math.Rect, content_rect? : @math.Rect, border_radius? : BorderRadius, target_camera_entity_id? : UInt32?) -> Self
+pub fn UiMaterialContext::UiMaterialContext(@ecs.Entity, @math.Rect, content_rect? : @math.Rect, border_radius? : BorderRadius, target_camera_entity_id? : UInt32?) -> Self
 
 #derive(Eq, Hash, @debug.Debug)
 pub(all) struct UiMaterialHandle(UInt32)
@@ -786,26 +786,26 @@ pub fn UiNavigationDirection::not_equal(Self, Self) -> Bool
 pub fn UiNavigationDirection::to_repr(Self) -> @debug.Repr
 
 pub(all) struct UiNavigationEvent {
-  entity : @entity.Entity?
+  entity : @ecs.Entity?
   direction : UiNavigationDirection
 }
 
 pub(all) struct UiPointerDownEvent {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   button : @inputs.MouseButton
   position : @math.Vec2
 }
 
 pub(all) struct UiPointerEnterEvent {
-  entity : @entity.Entity
+  entity : @ecs.Entity
 }
 
 pub(all) struct UiPointerLeaveEvent {
-  entity : @entity.Entity
+  entity : @ecs.Entity
 }
 
 pub(all) struct UiPointerUpEvent {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   button : @inputs.MouseButton
   position : @math.Vec2
 }
@@ -835,9 +835,9 @@ pub fn UiScaleMode::to_repr(Self) -> @debug.Repr
 
 #derive(Eq, @debug.Debug)
 pub(all) struct UiTargetCamera {
-  camera : @entity.Entity
+  camera : @ecs.Entity
 }
-pub fn UiTargetCamera::UiTargetCamera(@entity.Entity) -> Self
+pub fn UiTargetCamera::UiTargetCamera(@ecs.Entity) -> Self
 pub fn UiTargetCamera::equal(Self, Self) -> Bool
 pub fn UiTargetCamera::not_equal(Self, Self) -> Bool
 pub fn UiTargetCamera::to_repr(Self) -> @debug.Repr

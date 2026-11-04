@@ -36,10 +36,10 @@ priv struct PlayerAnimationController {
 }
 
 ///|
-fn player_animation_controllers() -> @entity.ComponentStore[
+fn player_animation_controllers() -> @ecs.ComponentStore[
   PlayerAnimationController,
 ] {
-  @entity.components()
+  @ecs.components()
 }
 
 ///|
@@ -61,7 +61,7 @@ fn player_input_vector() -> @math.Vec2 {
 }
 
 ///|
-fn ensure_sprite_animation_binding(entity : @entity.Entity) -> Unit {
+fn ensure_sprite_animation_binding(entity : @ecs.Entity) -> Unit {
   ignore(
     @animation.animation_players().get_or_init(entity, fn() {
       AnimationPlayer()
@@ -126,7 +126,7 @@ fn register_sprite_animation_node(
 
 ///|
 fn create_player_animation_controller(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
 ) -> PlayerAnimationController {
   let graph = @animation.AnimationGraph()
   let controller = {
@@ -152,7 +152,7 @@ fn create_player_animation_controller(
 
 ///|
 fn play_player_animation_state(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   animation : SpriteAnimationDef,
   node : @animation.AnimationNodeIndex,
 ) -> Unit {

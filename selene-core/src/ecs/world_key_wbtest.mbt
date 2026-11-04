@@ -1,9 +1,9 @@
 ///|
 test "typed keys initialize independently in each world and exceed 64 slots" {
-  let first = @ecs.World()
-  let second = @ecs.World()
-  let keys = [ for i in 0..<80 => @ecs.WorldKey(() => Ref(i)) ]
-  let label = @ecs.WorldKey(() => "world")
+  let first = World()
+  let second = World()
+  let keys = [ for i in 0..<80 => WorldKey::with_world(_ => Ref(i)) ]
+  let label = WorldKey::with_world(_ => "world")
   for i, key in keys {
     let value = first.get_or_init(key)
     assert_eq(value.val, i)

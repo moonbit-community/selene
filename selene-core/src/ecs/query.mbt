@@ -1,43 +1,40 @@
 ///|
 pub(all) struct EntityFilter {
-  predicate : (@entity.Entity) -> Bool
+  predicate : (Entity) -> Bool
 }
 
 ///|
 pub(all) struct Query[T] {
-  world : @ecs.World
-  storage : @entity.ComponentStore[T]
+  world : World
+  storage : ComponentStore[T]
 }
 
 ///|
 pub(all) struct With[T] {
-  storage : @entity.ComponentStore[T]
+  storage : ComponentStore[T]
 }
 
 ///|
 pub(all) struct Without[T] {
-  storage : @entity.ComponentStore[T]
+  storage : ComponentStore[T]
 }
 
 ///|
 struct QueryReader[T] {
   mut world_id : UInt32?
   // Historical values for change detection, separate from live components.
-  entries : Map[@entity.Entity, T]
+  entries : Map[Entity, T]
 }
 
 ///|
 pub(all) struct QueryDelta[T] {
-  added : Array[(@entity.Entity, T)]
-  removed : Array[@entity.Entity]
-  changed : Array[(@entity.Entity, T)]
+  added : Array[(Entity, T)]
+  removed : Array[Entity]
+  changed : Array[(Entity, T)]
 }
 
 ///|
-pub fn[T] query(
-  world : @ecs.World,
-  storage : @entity.ComponentStore[T],
-) -> Query[T] {
+pub fn[T] query(world : World, storage : ComponentStore[T]) -> Query[T] {
   { world, storage, }
 }
 
@@ -61,8 +58,8 @@ pub fn[T] QueryDelta::empty() -> QueryDelta[T] {
 /// Reads changes for one World. Switching Worlds starts a fresh snapshot.
 pub fn[T : Eq] QueryReader::read(
   self : QueryReader[T],
-  world : @ecs.World,
-  storage : @entity.ComponentStore[T],
+  world : World,
+  storage : ComponentStore[T],
 ) -> QueryDelta[T] {
   if self.world_id != Some(world.id()) {
     self.reset()
@@ -98,20 +95,17 @@ pub fn[T : Eq] QueryReader::read(
 }
 
 ///|
-pub fn[T] with_component(storage : @entity.ComponentStore[T]) -> With[T] {
+pub fn[T] with_component(storage : ComponentStore[T]) -> With[T] {
   { storage, }
 }
 
 ///|
-pub fn[T] without_component(storage : @entity.ComponentStore[T]) -> Without[T] {
+pub fn[T] without_component(storage : ComponentStore[T]) -> Without[T] {
   { storage, }
 }
 
 ///|
-pub fn EntityFilter::passes(
-  self : EntityFilter,
-  entity : @entity.Entity,
-) -> Bool {
+pub fn EntityFilter::passes(self : EntityFilter, entity : Entity) -> Bool {
   (self.predicate)(entity)
 }
 
@@ -130,13 +124,13 @@ pub fn[T] Without::to_filter(self : Without[T]) -> EntityFilter {
 /// Queue structural changes for the next flush when visiting entries.
 pub fn[T] Query::for_each(
   self : Query[T],
-  visit : (@entity.Entity, T) -> Unit,
+  visit : (Entity, T) -> Unit,
   require_filters~ : Array[EntityFilter] = [],
   reject_filters~ : Array[EntityFilter] = [],
 ) -> Unit {
   guard self.storage.belongs_to(self.world) else { return }
-  @ecs_schedule.enter_query()
-  defer @ecs_schedule.leave_query()
+  enter_query()
+  defer leave_query()
   for entity, component in self.storage {
     let mut accepted = true
     for filter in require_filters {
@@ -165,7 +159,7 @@ pub fn[T] Query::iter(
   self : Query[T],
   require_filters~ : Array[EntityFilter] = [],
   reject_filters~ : Array[EntityFilter] = [],
-) -> Array[(@entity.Entity, T)] {
+) -> Array[(Entity, T)] {
   let output = []
   self.for_each(
     (entity, component) => output.push((entity, component)),
@@ -180,7 +174,7 @@ pub fn[T] Query::single(
   self : Query[T],
   require_filters~ : Array[EntityFilter] = [],
   reject_filters~ : Array[EntityFilter] = [],
-) -> (@entity.Entity, T)? {
+) -> (Entity, T)? {
   let matches = self.iter(require_filters~, reject_filters~)
   if matches.length() == 1 {
     Some(matches[0])

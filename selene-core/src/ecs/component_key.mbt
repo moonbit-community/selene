@@ -1,25 +1,25 @@
 ///|
 /// Declares one component identity that can be used in multiple Worlds.
 struct ComponentKey[T] {
-  key : @ecs.WorldKey[ComponentStore[T]]
+  key : WorldKey[ComponentStore[T]]
 }
 
 ///|
 pub fn[T] ComponentKey::ComponentKey() -> ComponentKey[T] {
-  { key: @ecs.WorldKey::with_world(world => ComponentStore(world)), }
+  { key: WorldKey::with_world(world => ComponentStore(world)), }
 }
 
 ///|
 pub fn[T] ComponentKey::store_in(
   self : ComponentKey[T],
-  world : @ecs.World,
+  world : World,
 ) -> ComponentStore[T] {
   world.get_or_init(self.key)
 }
 
 ///|
 pub fn[T] ComponentKey::store(self : ComponentKey[T]) -> ComponentStore[T] {
-  self.store_in(@ecs.require_current_world())
+  self.store_in(require_current_world())
 }
 
 ///|
@@ -43,12 +43,12 @@ pub(open) trait Component {
 }
 
 ///|
-pub fn[T : Component] components_in(world : @ecs.World) -> ComponentStore[T] {
+pub fn[T : Component] components_in(world : World) -> ComponentStore[T] {
   let key : ComponentKey[T] = Component::component_key()
   key.store_in(world)
 }
 
 ///|
 pub fn[T : Component] components() -> ComponentStore[T] {
-  components_in(@ecs.require_current_world())
+  components_in(require_current_world())
 }

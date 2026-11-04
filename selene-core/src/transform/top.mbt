@@ -167,15 +167,15 @@ pub fn GlobalTransform::reparented_to(
 
 ///|
 priv struct TransformWorldStore {
-  transforms : @entity.ComponentStore[Transform]
-  global_transforms : @entity.ComponentStore[GlobalTransform]
+  transforms : @ecs.ComponentStore[Transform]
+  global_transforms : @ecs.ComponentStore[GlobalTransform]
   propagated : Array[Bool]
 }
 
 ///|
 let transform_store_key : @ecs.ResourceKey[TransformWorldStore] = ResourceKey(world => {
-  transforms: @entity.components_in(world),
-  global_transforms: @entity.components_in(world),
+  transforms: @ecs.components_in(world),
+  global_transforms: @ecs.components_in(world),
   propagated: [],
 })
 
@@ -185,17 +185,17 @@ fn transform_world_store() -> TransformWorldStore {
 }
 
 ///|
-pub fn transforms() -> @entity.ComponentStore[Transform] {
+pub fn transforms() -> @ecs.ComponentStore[Transform] {
   transform_world_store().transforms
 }
 
 ///|
-pub fn global_transforms() -> @entity.ComponentStore[GlobalTransform] {
+pub fn global_transforms() -> @ecs.ComponentStore[GlobalTransform] {
   transform_world_store().global_transforms
 }
 
 ///|
-pub fn compute_global_transform(entity : @entity.Entity) -> GlobalTransform? {
+pub fn compute_global_transform(entity : @ecs.Entity) -> GlobalTransform? {
   guard entity.is_alive() else { None }
   let local_global = GlobalTransform::from_transform(
     transforms().get(entity).unwrap_or_default(),
@@ -212,10 +212,7 @@ pub fn compute_global_transform(entity : @entity.Entity) -> GlobalTransform? {
 }
 
 ///|
-pub fn set_parent_in_place(
-  child : @entity.Entity,
-  parent : @entity.Entity,
-) -> Unit {
+pub fn set_parent_in_place(child : @ecs.Entity, parent : @ecs.Entity) -> Unit {
   let world = @ecs.require_current_world()
   guard child.belongs_to(world) && parent.belongs_to(world) else { return }
   guard child != parent else { return }
@@ -232,7 +229,7 @@ pub fn set_parent_in_place(
 }
 
 ///|
-pub fn remove_parent_in_place(child : @entity.Entity) -> Unit {
+pub fn remove_parent_in_place(child : @ecs.Entity) -> Unit {
   let current_global = compute_global_transform(child)
   child.remove_parent()
   match current_global {
@@ -244,13 +241,13 @@ pub fn remove_parent_in_place(child : @entity.Entity) -> Unit {
 
 ///|
 pub fn transform_propagate_system(_delta : Double) -> Unit {
-  let is_alive = @entity.alive_in_world(@ecs.require_current_world())
+  let is_alive = @ecs.alive_in_world(@ecs.require_current_world())
   let store = transform_world_store()
   let globals = store.global_transforms
   let locals = store.transforms
   let propagated = store.propagated
   propagated.fill(false)
-  let write_global = (entity : @entity.Entity, global : GlobalTransform) => {
+  let write_global = (entity : @ecs.Entity, global : GlobalTransform) => {
     let index = entity.slot_index()
     while propagated.length() <= index {
       propagated.push(false)
@@ -258,7 +255,7 @@ pub fn transform_propagate_system(_delta : Double) -> Unit {
     propagated[index] = true
     globals.set(entity, global)
   }
-  for entity in @entity.iter_entities() {
+  for entity in @ecs.iter_entities() {
     if !is_alive(entity) || entity.get_parent() is Some(_) {
       continue
     }
@@ -288,11 +285,11 @@ pub fn transform_propagate_system(_delta : Double) -> Unit {
 
 ///|
 fn propagate_children(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   parent_global : GlobalTransform,
-  locals : @entity.ComponentStore[Transform],
-  write_global : (@entity.Entity, GlobalTransform) -> Unit,
-  is_alive : (@entity.Entity) -> Bool,
+  locals : @ecs.ComponentStore[Transform],
+  write_global : (@ecs.Entity, GlobalTransform) -> Unit,
+  is_alive : (@ecs.Entity) -> Bool,
 ) -> Unit {
   for child in entity.get_children() {
     if !is_alive(child) {

@@ -162,7 +162,7 @@ pub(all) enum QueryFilterBody {
 ///|
 pub(all) struct QueryFilter {
   groups : CollisionGroups?
-  exclude_entity : @entity.Entity?
+  exclude_entity : @ecs.Entity?
   exclude_collider : RapierColliderHandle?
   exclude_rigid_body : RapierRigidBodyHandle?
   exclude_sensors : Bool

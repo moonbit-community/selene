@@ -6,100 +6,100 @@ import {
   "Milky2018/moon_rapier/control",
   "Milky2018/moon_rapier/core",
   "Milky2018/moon_rapier/dynamics",
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
   "moonbitlang/core/debug",
 }
 
 // Values
-pub fn active_collision_types() -> @entity.ComponentStore[@collision.ActiveCollisionTypes]
+pub fn active_collision_types() -> @ecs.ComponentStore[@collision.ActiveCollisionTypes]
 
-pub fn active_events() -> @entity.ComponentStore[@collision.ActiveEvents]
+pub fn active_events() -> @ecs.ComponentStore[@collision.ActiveEvents]
 
-pub fn active_hooks() -> @entity.ComponentStore[@collision.ActiveHooks]
+pub fn active_hooks() -> @ecs.ComponentStore[@collision.ActiveHooks]
 
-pub fn additional_mass_properties() -> @entity.ComponentStore[AdditionalMassProperties]
+pub fn additional_mass_properties() -> @ecs.ComponentStore[AdditionalMassProperties]
 
-pub fn ccds() -> @entity.ComponentStore[Ccd]
+pub fn ccds() -> @ecs.ComponentStore[Ccd]
 
-pub fn collider_handle(@entity.Entity) -> @collision.ColliderHandle3D?
+pub fn collider_handle(@ecs.Entity) -> @collision.ColliderHandle3D?
 
-pub fn collider_mass_properties() -> @entity.ComponentStore[ColliderMassProperties]
+pub fn collider_mass_properties() -> @ecs.ComponentStore[ColliderMassProperties]
 
-pub fn colliders() -> @entity.ComponentStore[Collider]
+pub fn colliders() -> @ecs.ComponentStore[Collider]
 
 pub let collision_event_bus : @event.Events[CollisionEvent]
 
-pub fn collision_groups() -> @entity.ComponentStore[CollisionGroups]
+pub fn collision_groups() -> @ecs.ComponentStore[CollisionGroups]
 
 pub let config : Physics3DConfig
 
 pub let contact_force_event_bus : @event.Events[ContactForceEvent]
 
-pub fn contact_force_event_thresholds() -> @entity.ComponentStore[ContactForceEventThreshold]
+pub fn contact_force_event_thresholds() -> @ecs.ComponentStore[ContactForceEventThreshold]
 
 pub fn context() -> RapierContext
 
-pub fn dampings() -> @entity.ComponentStore[Damping]
+pub fn dampings() -> @ecs.ComponentStore[Damping]
 
 pub fn debug_colliders_system(Double) -> Unit
 
-pub fn dominances() -> @entity.ComponentStore[Dominance]
+pub fn dominances() -> @ecs.ComponentStore[Dominance]
 
-pub fn frictions() -> @entity.ComponentStore[Friction]
+pub fn frictions() -> @ecs.ComponentStore[Friction]
 
-pub fn gravity_scales() -> @entity.ComponentStore[GravityScale]
+pub fn gravity_scales() -> @ecs.ComponentStore[GravityScale]
 
-pub fn impulse_joint_handle(@entity.Entity) -> @dynamics.JointHandle3DReal?
+pub fn impulse_joint_handle(@ecs.Entity) -> @dynamics.JointHandle3DReal?
 
-pub fn impulse_joints() -> @entity.ComponentStore[ImpulseJoint]
+pub fn impulse_joints() -> @ecs.ComponentStore[ImpulseJoint]
 
-pub fn kinematic_character_controller_collisions() -> @entity.ComponentStore[KinematicCharacterControllerCollisions]
+pub fn kinematic_character_controller_collisions() -> @ecs.ComponentStore[KinematicCharacterControllerCollisions]
 
-pub fn kinematic_character_controller_outputs() -> @entity.ComponentStore[KinematicCharacterControllerOutput]
+pub fn kinematic_character_controller_outputs() -> @ecs.ComponentStore[KinematicCharacterControllerOutput]
 
-pub fn kinematic_character_controllers() -> @entity.ComponentStore[KinematicCharacterController]
+pub fn kinematic_character_controllers() -> @ecs.ComponentStore[KinematicCharacterController]
 
-pub fn locked_axes() -> @entity.ComponentStore[LockedAxes]
+pub fn locked_axes() -> @ecs.ComponentStore[LockedAxes]
 
-pub fn multibody_joint_handle(@entity.Entity) -> @dynamics.MultibodyJointHandle?
+pub fn multibody_joint_handle(@ecs.Entity) -> @dynamics.MultibodyJointHandle?
 
-pub fn multibody_joints() -> @entity.ComponentStore[MultibodyJoint]
+pub fn multibody_joints() -> @ecs.ComponentStore[MultibodyJoint]
 
 pub fn physics_step_system(Double) -> Unit
 
-pub fn restitutions() -> @entity.ComponentStore[Restitution]
+pub fn restitutions() -> @ecs.ComponentStore[Restitution]
 
-pub fn rigid_bodies() -> @entity.ComponentStore[RigidBody]
+pub fn rigid_bodies() -> @ecs.ComponentStore[RigidBody]
 
-pub fn rigid_body_angular_velocity(@entity.Entity) -> @math.Vec3?
+pub fn rigid_body_angular_velocity(@ecs.Entity) -> @math.Vec3?
 
-pub fn rigid_body_handle(@entity.Entity) -> @dynamics.RigidBodyHandle?
+pub fn rigid_body_handle(@ecs.Entity) -> @dynamics.RigidBodyHandle?
 
-pub fn rigid_body_linear_velocity(@entity.Entity) -> @math.Vec3?
+pub fn rigid_body_linear_velocity(@ecs.Entity) -> @math.Vec3?
 
-pub fn rigid_body_rotation(@entity.Entity) -> @math.Quat?
+pub fn rigid_body_rotation(@ecs.Entity) -> @math.Quat?
 
-pub fn rigid_body_translation(@entity.Entity) -> @math.Vec3?
+pub fn rigid_body_translation(@ecs.Entity) -> @math.Vec3?
 
 pub let sensor_event_bus : @event.Events[SensorEvent]
 
-pub fn sensors() -> @entity.ComponentStore[Sensor]
+pub fn sensors() -> @ecs.ComponentStore[Sensor]
 
 pub fn set_gravity(@math.Vec3) -> Unit
 
-pub fn set_rigid_body_angular_velocity(@entity.Entity, @math.Vec3) -> Unit
+pub fn set_rigid_body_angular_velocity(@ecs.Entity, @math.Vec3) -> Unit
 
-pub fn set_rigid_body_linear_velocity(@entity.Entity, @math.Vec3) -> Unit
+pub fn set_rigid_body_linear_velocity(@ecs.Entity, @math.Vec3) -> Unit
 
-pub fn set_rigid_body_rotation(@entity.Entity, @math.Quat) -> Unit
+pub fn set_rigid_body_rotation(@ecs.Entity, @math.Quat) -> Unit
 
-pub fn set_rigid_body_translation(@entity.Entity, @math.Vec3) -> Unit
+pub fn set_rigid_body_translation(@ecs.Entity, @math.Vec3) -> Unit
 
-pub fn solver_groups() -> @entity.ComponentStore[SolverGroups]
+pub fn solver_groups() -> @ecs.ComponentStore[SolverGroups]
 
-pub fn velocities() -> @entity.ComponentStore[Velocity]
+pub fn velocities() -> @ecs.ComponentStore[Velocity]
 
 // Errors
 
@@ -160,8 +160,8 @@ pub fn ColliderMassProperties::to_repr(Self) -> @debug.Repr
 
 #derive(Eq, @debug.Debug)
 pub(all) struct CollisionEvent {
-  entity_a : @entity.Entity
-  entity_b : @entity.Entity
+  entity_a : @ecs.Entity
+  entity_b : @ecs.Entity
   started : Bool
   stopped : Bool
   sensor : Bool
@@ -184,8 +184,8 @@ pub fn CollisionGroups::to_repr(Self) -> @debug.Repr
 
 #derive(Eq, @debug.Debug)
 pub(all) struct ContactForceEvent {
-  entity_a : @entity.Entity
-  entity_b : @entity.Entity
+  entity_a : @ecs.Entity
+  entity_b : @ecs.Entity
   total_force : @math.Vec3
   total_force_magnitude : Double
   max_force_direction : @math.Vec3
@@ -244,7 +244,7 @@ pub fn GravityScale::not_equal(Self, Self) -> Bool
 pub fn GravityScale::to_repr(Self) -> @debug.Repr
 
 pub(all) struct ImpulseJoint {
-  parent : @entity.Entity
+  parent : @ecs.Entity
   data : Joint
   contacts_enabled : Bool
 }
@@ -274,7 +274,7 @@ pub fn KinematicCharacterController::default() -> Self
 
 #derive(Eq, @debug.Debug)
 pub(all) struct KinematicCharacterControllerCollision {
-  entity : @entity.Entity?
+  entity : @ecs.Entity?
   character_translation_applied : @math.Vec3
   character_translation_remaining : @math.Vec3
   toi : Double
@@ -321,7 +321,7 @@ pub fn LockedAxes::not_equal(Self, Self) -> Bool
 pub fn LockedAxes::to_repr(Self) -> @debug.Repr
 
 pub(all) struct MultibodyJoint {
-  parent : @entity.Entity
+  parent : @ecs.Entity
   data : Joint
   contacts_enabled : Bool
 }
@@ -332,7 +332,7 @@ pub(all) struct Physics3DConfig {
 
 #derive(Eq, @debug.Debug)
 pub(all) struct PointProjection {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   point : @math.Vec3
   is_inside : Bool
 }
@@ -357,7 +357,7 @@ pub fn PrismaticJoint::to_repr(Self) -> @debug.Repr
 
 pub(all) struct QueryFilter {
   groups : CollisionGroups?
-  exclude_entity : @entity.Entity?
+  exclude_entity : @ecs.Entity?
   exclude_collider : @collision.ColliderHandle3D?
   exclude_rigid_body : @dynamics.RigidBodyHandle?
   exclude_sensors : Bool
@@ -385,13 +385,13 @@ pub(all) struct RapierContext {
 }
 pub fn RapierContext::cast_ray(Self, @math.Vec3, @math.Vec3, max_toi? : Double, solid? : Bool, query_filter? : QueryFilter) -> RaycastHit?
 pub fn RapierContext::cast_shape(Self, Collider, @math.Vec3, rotation? : @math.Quat, direction? : @math.Vec3, max_toi? : Double, stop_at_penetration? : Bool, query_filter? : QueryFilter) -> ShapeCastHit?
-pub fn RapierContext::intersections_with_point(Self, @math.Vec3, query_filter? : QueryFilter) -> Array[@entity.Entity]
-pub fn RapierContext::intersections_with_shape(Self, Collider, @math.Vec3, rotation? : @math.Quat, query_filter? : QueryFilter) -> Array[@entity.Entity]
+pub fn RapierContext::intersections_with_point(Self, @math.Vec3, query_filter? : QueryFilter) -> Array[@ecs.Entity]
+pub fn RapierContext::intersections_with_shape(Self, Collider, @math.Vec3, rotation? : @math.Quat, query_filter? : QueryFilter) -> Array[@ecs.Entity]
 pub fn RapierContext::project_point(Self, @math.Vec3, solid? : Bool, query_filter? : QueryFilter) -> PointProjection?
 
 #derive(Eq, @debug.Debug)
 pub(all) struct RaycastHit {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   toi : Double
   normal : @math.Vec3
 }
@@ -449,8 +449,8 @@ pub fn Sensor::to_repr(Self) -> @debug.Repr
 
 #derive(Eq, @debug.Debug)
 pub(all) struct SensorEvent {
-  sensor : @entity.Entity
-  other : @entity.Entity
+  sensor : @ecs.Entity
+  other : @ecs.Entity
   entered : Bool
 }
 pub fn SensorEvent::equal(Self, Self) -> Bool
@@ -459,7 +459,7 @@ pub fn SensorEvent::to_repr(Self) -> @debug.Repr
 
 #derive(Eq, @debug.Debug)
 pub(all) struct ShapeCastHit {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   toi : Double
   normal : @math.Vec3
 }

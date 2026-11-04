@@ -3,7 +3,7 @@ package "Milky2018/selene/collision"
 
 import {
   "Milky2018/moon_rapier/dynamics",
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
@@ -13,23 +13,23 @@ import {
 }
 
 // Values
-pub fn add_force(@entity.Entity, @math.Vec2, wake_up? : Bool) -> Unit
+pub fn add_force(@ecs.Entity, @math.Vec2, wake_up? : Bool) -> Unit
 
-pub fn add_force_at_point(@entity.Entity, @math.Vec2, @math.Vec2, wake_up? : Bool) -> Unit
+pub fn add_force_at_point(@ecs.Entity, @math.Vec2, @math.Vec2, wake_up? : Bool) -> Unit
 
-pub fn add_torque(@entity.Entity, Double, wake_up? : Bool) -> Unit
+pub fn add_torque(@ecs.Entity, Double, wake_up? : Bool) -> Unit
 
-pub fn apply_impulse(@entity.Entity, @math.Vec2, wake_up? : Bool) -> Unit
+pub fn apply_impulse(@ecs.Entity, @math.Vec2, wake_up? : Bool) -> Unit
 
-pub fn apply_impulse_at_point(@entity.Entity, @math.Vec2, @math.Vec2, wake_up? : Bool) -> Unit
+pub fn apply_impulse_at_point(@ecs.Entity, @math.Vec2, @math.Vec2, wake_up? : Bool) -> Unit
 
-pub fn apply_torque_impulse(@entity.Entity, Double, wake_up? : Bool) -> Unit
+pub fn apply_torque_impulse(@ecs.Entity, Double, wake_up? : Bool) -> Unit
 
-pub fn areas() -> @entity.ComponentStore[Area]
+pub fn areas() -> @ecs.ComponentStore[Area]
 
-pub fn collider_handle(@entity.Entity) -> @Milky2018/moon_rapier/collision.ColliderHandle?
+pub fn collider_handle(@ecs.Entity) -> @Milky2018/moon_rapier/collision.ColliderHandle?
 
-pub fn colliders() -> @entity.ComponentStore[Collider]
+pub fn colliders() -> @ecs.ComponentStore[Collider]
 
 pub fn configure_physics(gravity? : @math.Vec2, pixels_per_meter? : Double, max_ccd_substeps? : Int32) -> Unit
 
@@ -37,69 +37,69 @@ pub let contact_event_bus : @event.Events[ContactEvent]
 
 pub fn debug_collide_system(Double) -> Unit
 
-pub fn emit_pickable_just_pressed(@entity.Entity, button? : @inputs.MouseButton) -> Unit
+pub fn emit_pickable_just_pressed(@ecs.Entity, button? : @inputs.MouseButton) -> Unit
 
-pub fn get_contains(@entity.Entity) -> @set.Set[@entity.Entity]
+pub fn get_contains(@ecs.Entity) -> @set.Set[@ecs.Entity]
 
-pub fn grounded_entities() -> @set.Set[@entity.Entity]
+pub fn grounded_entities() -> @set.Set[@ecs.Entity]
 
-pub fn intersect_point(@math.Vec2, query_filter? : SpatialQueryFilter) -> Array[@entity.Entity]
+pub fn intersect_point(@math.Vec2, query_filter? : SpatialQueryFilter) -> Array[@ecs.Entity]
 
-pub fn intersect_shape(CollisionShape, @math.Vec2, rotation? : Double, query_filter? : SpatialQueryFilter) -> Array[@entity.Entity]
+pub fn intersect_shape(CollisionShape, @math.Vec2, rotation? : Double, query_filter? : SpatialQueryFilter) -> Array[@ecs.Entity]
 
-pub fn is_grounded(@entity.Entity) -> Bool
+pub fn is_grounded(@ecs.Entity) -> Bool
 
-pub fn joint_handle(@entity.Entity) -> @dynamics.ImpulseJointHandle?
+pub fn joint_handle(@ecs.Entity) -> @dynamics.ImpulseJointHandle?
 
-pub fn joints() -> @entity.ComponentStore[Joint]
+pub fn joints() -> @ecs.ComponentStore[Joint]
 
 pub fn move_system(Double) -> Unit
 
-pub fn multibody_joint_handle(@entity.Entity) -> @dynamics.MultibodyJointHandle?
+pub fn multibody_joint_handle(@ecs.Entity) -> @dynamics.MultibodyJointHandle?
 
-pub fn multibody_joints() -> @entity.ComponentStore[MultibodyJoint]
+pub fn multibody_joints() -> @ecs.ComponentStore[MultibodyJoint]
 
-pub fn multibody_link(@entity.Entity) -> @dynamics.MultibodyLinkId?
+pub fn multibody_link(@ecs.Entity) -> @dynamics.MultibodyLinkId?
 
 pub let physics_config : PhysicsConfig
 
 pub fn pickable_click_system(Double) -> Unit
 
-pub fn pickables() -> @entity.ComponentStore[Pickable]
+pub fn pickables() -> @ecs.ComponentStore[Pickable]
 
 pub let pointer_event_bus : @event.Events[PointerEvent]
 
 pub fn raycast(@math.Vec2, @math.Vec2, max_toi? : Double, solid? : Bool, query_filter? : SpatialQueryFilter) -> RaycastHit?
 
-pub fn reset_forces(@entity.Entity, wake_up? : Bool) -> Unit
+pub fn reset_forces(@ecs.Entity, wake_up? : Bool) -> Unit
 
-pub fn reset_torques(@entity.Entity, wake_up? : Bool) -> Unit
+pub fn reset_torques(@ecs.Entity, wake_up? : Bool) -> Unit
 
-pub fn resolved_velocities() -> @entity.ComponentStore[@velocity.Velocity]
+pub fn resolved_velocities() -> @ecs.ComponentStore[@velocity.Velocity]
 
-pub fn rigid_bodies() -> @entity.ComponentStore[RigidBody]
+pub fn rigid_bodies() -> @ecs.ComponentStore[RigidBody]
 
-pub fn rigid_body_angular_velocity(@entity.Entity) -> Double?
+pub fn rigid_body_angular_velocity(@ecs.Entity) -> Double?
 
-pub fn rigid_body_handle(@entity.Entity) -> @dynamics.RigidBodyHandle?
+pub fn rigid_body_handle(@ecs.Entity) -> @dynamics.RigidBodyHandle?
 
-pub fn rigid_body_linear_velocity(@entity.Entity) -> @math.Vec2?
+pub fn rigid_body_linear_velocity(@ecs.Entity) -> @math.Vec2?
 
-pub fn rigid_body_rotation(@entity.Entity) -> Double?
+pub fn rigid_body_rotation(@ecs.Entity) -> Double?
 
-pub fn rigid_body_translation(@entity.Entity) -> @math.Vec2?
+pub fn rigid_body_translation(@ecs.Entity) -> @math.Vec2?
 
-pub fn set_rigid_body_angular_velocity(@entity.Entity, Double) -> Unit
+pub fn set_rigid_body_angular_velocity(@ecs.Entity, Double) -> Unit
 
-pub fn set_rigid_body_linear_velocity(@entity.Entity, @math.Vec2) -> Unit
+pub fn set_rigid_body_linear_velocity(@ecs.Entity, @math.Vec2) -> Unit
 
-pub fn set_rigid_body_rotation(@entity.Entity, Double) -> Unit
+pub fn set_rigid_body_rotation(@ecs.Entity, Double) -> Unit
 
-pub fn set_rigid_body_translation(@entity.Entity, @math.Vec2) -> Unit
+pub fn set_rigid_body_translation(@ecs.Entity, @math.Vec2) -> Unit
 
 pub fn shape_cast(CollisionShape, @math.Vec2, rotation? : Double, direction? : @math.Vec2, max_toi? : Double, stop_at_penetration? : Bool, query_filter? : SpatialQueryFilter) -> ShapeCastHit?
 
-pub fn shapes() -> @entity.ComponentStore[CollisionShape]
+pub fn shapes() -> @ecs.ComponentStore[CollisionShape]
 
 pub let trigger_event_bus : @event.Events[TriggerEvent]
 
@@ -110,7 +110,7 @@ pub let trigger_event_bus : @event.Events[TriggerEvent]
 pub(all) struct Area {
   mut active : Bool
   filter : CollisionFilter
-  mut contains : @set.Set[@entity.Entity]
+  mut contains : @set.Set[@ecs.Entity]
 }
 pub fn Area::Area(CollisionFilter) -> Self
 pub fn Area::equal(Self, Self) -> Bool
@@ -160,27 +160,27 @@ pub fn CollisionShape::not_equal(Self, Self) -> Bool
 pub fn CollisionShape::to_repr(Self) -> @debug.Repr
 
 pub struct ContactEvent {
-  entity : @entity.Entity
-  other : @entity.Entity
+  entity : @ecs.Entity
+  other : @ecs.Entity
   started : Bool
   direction : @math.Vec2
 }
 
 #derive(Eq, @debug.Debug)
 pub struct Joint {
-  entity1 : @entity.Entity
-  entity2 : @entity.Entity
+  entity1 : @ecs.Entity
+  entity2 : @ecs.Entity
   kind : JointKind
   active : Bool
   contacts_enabled : Bool
 }
 pub fn Joint::equal(Self, Self) -> Bool
-pub fn Joint::fixed(@entity.Entity, @entity.Entity, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, active? : Bool, contacts_enabled? : Bool) -> Self
+pub fn Joint::fixed(@ecs.Entity, @ecs.Entity, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, active? : Bool, contacts_enabled? : Bool) -> Self
 pub fn Joint::not_equal(Self, Self) -> Bool
-pub fn Joint::prismatic(@entity.Entity, @entity.Entity, @math.Vec2, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, limits? : JointLimits, active? : Bool, contacts_enabled? : Bool) -> Self
-pub fn Joint::revolute(@entity.Entity, @entity.Entity, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, limits? : JointLimits, motor? : JointMotor, softness? : JointSoftness, active? : Bool, contacts_enabled? : Bool) -> Self
-pub fn Joint::rope(@entity.Entity, @entity.Entity, Double, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, active? : Bool, contacts_enabled? : Bool) -> Self
-pub fn Joint::spring(@entity.Entity, @entity.Entity, Double, Double, Double, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, model? : JointMotorModel, active? : Bool, contacts_enabled? : Bool) -> Self
+pub fn Joint::prismatic(@ecs.Entity, @ecs.Entity, @math.Vec2, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, limits? : JointLimits, active? : Bool, contacts_enabled? : Bool) -> Self
+pub fn Joint::revolute(@ecs.Entity, @ecs.Entity, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, limits? : JointLimits, motor? : JointMotor, softness? : JointSoftness, active? : Bool, contacts_enabled? : Bool) -> Self
+pub fn Joint::rope(@ecs.Entity, @ecs.Entity, Double, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, active? : Bool, contacts_enabled? : Bool) -> Self
+pub fn Joint::spring(@ecs.Entity, @ecs.Entity, Double, Double, Double, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, model? : JointMotorModel, active? : Bool, contacts_enabled? : Bool) -> Self
 pub fn Joint::to_repr(Self) -> @debug.Repr
 
 #derive(Eq, @debug.Debug)
@@ -239,13 +239,13 @@ pub fn JointSoftness::to_repr(Self) -> @debug.Repr
 
 #derive(Eq, @debug.Debug)
 pub struct MultibodyJoint {
-  parent : @entity.Entity
+  parent : @ecs.Entity
   kind : MultibodyJointKind
   active : Bool
 }
 pub fn MultibodyJoint::equal(Self, Self) -> Bool
 pub fn MultibodyJoint::not_equal(Self, Self) -> Bool
-pub fn MultibodyJoint::revolute(@entity.Entity, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, limits? : JointLimits, motor? : JointMotor, softness? : JointSoftness, active? : Bool) -> Self
+pub fn MultibodyJoint::revolute(@ecs.Entity, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, limits? : JointLimits, motor? : JointMotor, softness? : JointSoftness, active? : Bool) -> Self
 pub fn MultibodyJoint::to_repr(Self) -> @debug.Repr
 
 #derive(Eq, @debug.Debug)
@@ -268,7 +268,7 @@ pub(all) struct Pickable {
 pub fn Pickable::Pickable() -> Self
 
 pub struct PointerEvent {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   button : @inputs.MouseButton
   phase : PointerPhase
 }
@@ -285,7 +285,7 @@ pub fn PointerPhase::not_equal(Self, Self) -> Bool
 
 #derive(Eq, @debug.Debug)
 pub struct RaycastHit {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   toi : Double
   point : @math.Vec2
   normal : @math.Vec2
@@ -324,7 +324,7 @@ pub fn RigidBodyType::to_repr(Self) -> @debug.Repr
 
 #derive(Eq, @debug.Debug)
 pub struct ShapeCastHit {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   toi : Double
   point : @math.Vec2
   normal : @math.Vec2
@@ -346,7 +346,7 @@ pub fn SpatialQueryBodyFilter::not_equal(Self, Self) -> Bool
 #derive(Eq)
 pub struct SpatialQueryFilter {
   groups : CollisionFilter?
-  exclude_entity : @entity.Entity?
+  exclude_entity : @ecs.Entity?
   exclude_sensors : Bool
   exclude_solids : Bool
   body_filter : SpatialQueryBodyFilter
@@ -359,8 +359,8 @@ pub fn SpatialQueryFilter::only_fixed() -> Self
 pub fn SpatialQueryFilter::only_kinematic() -> Self
 
 pub struct TriggerEvent {
-  area : @entity.Entity
-  other : @entity.Entity
+  area : @ecs.Entity
+  other : @ecs.Entity
   entered : Bool
 }
 

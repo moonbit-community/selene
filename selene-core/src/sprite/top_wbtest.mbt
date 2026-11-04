@@ -8,8 +8,8 @@ fn with_sprite_test_world(action : () -> Unit raise) -> Unit raise {
 }
 
 ///|
-fn spawn_test_camera(viewport : @math.Rect) -> @entity.Entity {
-  let camera_entity = @entity.Entity()
+fn spawn_test_camera(viewport : @math.Rect) -> @ecs.Entity {
+  let camera_entity = @ecs.Entity()
   @camera.cameras().set(
     camera_entity,
     Camera(viewport=Some(@camera.CameraViewport::from_rect(viewport))),
@@ -25,8 +25,8 @@ fn spawn_test_camera(viewport : @math.Rect) -> @entity.Entity {
 }
 
 ///|
-fn spawn_color_sprite(position : @math.Vec2) -> @entity.Entity {
-  let entity = @entity.Entity()
+fn spawn_color_sprite(position : @math.Vec2) -> @ecs.Entity {
+  let entity = @ecs.Entity()
   sprites().set(
     entity,
     Sprite::from_color({ r: 255U, g: 255U, b: 255U, a: 1.0, }, Vec2(16.0, 16.0)),

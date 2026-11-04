@@ -2,7 +2,7 @@
 package "Milky2018/selene/mesh2d"
 
 import {
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "moonbitlang/core/debug",
 }
@@ -14,7 +14,7 @@ pub fn mesh2d_asset(Mesh2dHandle) -> Mesh2dAsset?
 
 pub fn mesh2d_storage() -> Mesh2dStorage
 
-pub fn mesh2ds() -> @entity.ComponentStore[Mesh2d]
+pub fn mesh2ds() -> @ecs.ComponentStore[Mesh2d]
 
 pub fn rectangle(@math.Vec2) -> Mesh2dHandle
 

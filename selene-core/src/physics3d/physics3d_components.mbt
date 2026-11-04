@@ -70,14 +70,14 @@ pub(all) enum Joint {
 
 ///|
 pub(all) struct ImpulseJoint {
-  parent : @entity.Entity
+  parent : @ecs.Entity
   data : Joint
   contacts_enabled : Bool
 }
 
 ///|
 pub(all) struct MultibodyJoint {
-  parent : @entity.Entity
+  parent : @ecs.Entity
   data : Joint
   contacts_enabled : Bool
 }
@@ -108,7 +108,7 @@ pub(all) struct KinematicCharacterControllerOutput {
 ///|
 #derive(Eq, Debug)
 pub(all) struct KinematicCharacterControllerCollision {
-  entity : @entity.Entity?
+  entity : @ecs.Entity?
   character_translation_applied : @math.Vec3
   character_translation_remaining : @math.Vec3
   toi : Double
@@ -124,8 +124,8 @@ pub(all) struct KinematicCharacterControllerCollisions {
 ///|
 #derive(Eq, Debug)
 pub(all) struct CollisionEvent {
-  entity_a : @entity.Entity
-  entity_b : @entity.Entity
+  entity_a : @ecs.Entity
+  entity_b : @ecs.Entity
   started : Bool
   stopped : Bool
   sensor : Bool
@@ -135,16 +135,16 @@ pub(all) struct CollisionEvent {
 ///|
 #derive(Eq, Debug)
 pub(all) struct SensorEvent {
-  sensor : @entity.Entity
-  other : @entity.Entity
+  sensor : @ecs.Entity
+  other : @ecs.Entity
   entered : Bool
 }
 
 ///|
 #derive(Eq, Debug)
 pub(all) struct ContactForceEvent {
-  entity_a : @entity.Entity
-  entity_b : @entity.Entity
+  entity_a : @ecs.Entity
+  entity_b : @ecs.Entity
   total_force : @math.Vec3
   total_force_magnitude : Double
   max_force_direction : @math.Vec3
@@ -154,7 +154,7 @@ pub(all) struct ContactForceEvent {
 ///|
 #derive(Eq, Debug)
 pub(all) struct RaycastHit {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   toi : Double
   normal : @math.Vec3
 }
@@ -162,7 +162,7 @@ pub(all) struct RaycastHit {
 ///|
 #derive(Eq, Debug)
 pub(all) struct ShapeCastHit {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   toi : Double
   normal : @math.Vec3
 }
@@ -170,7 +170,7 @@ pub(all) struct ShapeCastHit {
 ///|
 #derive(Eq, Debug)
 pub(all) struct PointProjection {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   point : @math.Vec3
   is_inside : Bool
 }

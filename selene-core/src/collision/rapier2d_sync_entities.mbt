@@ -1,6 +1,6 @@
 ///|
 fn entity_angular_velocity_for_body(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   body_type : RigidBodyType,
 ) -> Double? {
   match body_type {
@@ -18,13 +18,13 @@ fn entity_angular_velocity_for_body(
 }
 
 ///|
-fn entity_has_command_rotation(entity : @entity.Entity) -> Bool {
+fn entity_has_command_rotation(entity : @ecs.Entity) -> Bool {
   pending_body_rotations().contains(entity)
 }
 
 ///|
 fn entity_has_command_linear_velocity(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   body_type : RigidBodyType,
 ) -> Bool {
   match body_type {
@@ -39,7 +39,7 @@ fn entity_has_command_linear_velocity(
 
 ///|
 fn entity_has_command_angular_velocity(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   body_type : RigidBodyType,
 ) -> Bool {
   match body_type {
@@ -50,7 +50,7 @@ fn entity_has_command_angular_velocity(
 }
 
 ///|
-fn entity_physics_snapshot(entity : @entity.Entity) -> EntityPhysicsSnapshot? {
+fn entity_physics_snapshot(entity : @ecs.Entity) -> EntityPhysicsSnapshot? {
   guard entity_translation(entity) is Some(position) else { return None }
   guard entity_collision_shape(entity) is Some(shape) else { return None }
   guard entity_collision_config(entity) is Some(collision) else { return None }
@@ -68,7 +68,7 @@ fn entity_physics_snapshot(entity : @entity.Entity) -> EntityPhysicsSnapshot? {
 
 ///|
 fn entity_physics_config_key(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   snapshot : EntityPhysicsSnapshot,
 ) -> EntityPhysicsConfigKey {
   let translation = match snapshot.body.body_type {
@@ -106,7 +106,7 @@ fn entity_physics_config_key(
 }
 
 ///|
-fn should_have_physics(entity : @entity.Entity) -> Bool {
+fn should_have_physics(entity : @ecs.Entity) -> Bool {
   entity.is_alive() &&
   world_entity(entity) &&
   entity_physics_snapshot(entity) is Some(_)

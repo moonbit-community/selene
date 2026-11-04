@@ -1,6 +1,6 @@
 ///|
 fn set_entity_translation_2d(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   position : @math.Vec2,
 ) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
@@ -11,7 +11,7 @@ fn set_entity_translation_2d(
 }
 
 ///|
-fn set_entity_depth(entity : @entity.Entity, z : Int32) -> Unit {
+fn set_entity_depth(entity : @ecs.Entity, z : Int32) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
@@ -24,7 +24,7 @@ fn set_entity_depth(entity : @entity.Entity, z : Int32) -> Unit {
 }
 
 ///|
-fn set_entity_visibility(entity : @entity.Entity, visible : Bool) -> Unit {
+fn set_entity_visibility(entity : @ecs.Entity, visible : Bool) -> Unit {
   @visibility.visibilities().set(entity, if visible { Visible } else { Hidden })
 }
 
@@ -62,12 +62,12 @@ pub struct LdtkWorldInstance {
   project : LdtkProject
   mut settings : LdtkWorldSpawnSettings
   mut level_set : LdtkLevelSet
-  spawned_levels : Map[String, @entity.Entity]
+  spawned_levels : Map[String, @ecs.Entity]
 }
 
 ///|
 pub struct LdtkLevelInstance {
-  world_entity : @entity.Entity
+  world_entity : @ecs.Entity
   indices : LdtkLevelIndices
   level : LdtkLevel
 }
@@ -97,8 +97,8 @@ pub struct LdtkLayerMetadata {
 
 ///|
 pub struct LdtkLevelBackground {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
   level_iid : String
   color : String?
   rel_path : String?
@@ -144,7 +144,7 @@ pub struct LdtkIntGridCollider {
 
 ///|
 pub struct LdtkWorldly {
-  world_entity : @entity.Entity
+  world_entity : @ecs.Entity
   level_iid : String
   entity_iid : String
 }
@@ -156,8 +156,8 @@ pub struct LdtkRespawn {
 
 ///|
 pub struct LdtkSpawnedLayerInstance {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
   layer : LdtkLayerInstance
   effective_visible : Bool
   zindex : Int32
@@ -165,9 +165,9 @@ pub struct LdtkSpawnedLayerInstance {
 
 ///|
 pub struct LdtkSpawnedTileInstance {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
-  layer_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
   layer : LdtkLayerInstance
   tile : LdtkTileInstance
   zindex : Int32
@@ -175,9 +175,9 @@ pub struct LdtkSpawnedTileInstance {
 
 ///|
 pub struct LdtkSpawnedEntityInstance {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
-  layer_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
   layer : LdtkLayerInstance
   instance : LdtkEntityInstance
   zindex : Int32
@@ -185,9 +185,9 @@ pub struct LdtkSpawnedEntityInstance {
 
 ///|
 pub struct LdtkSpawnedIntGridCell {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
-  layer_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
   layer : LdtkLayerInstance
   value : Int32
   grid_x : Int32
@@ -197,26 +197,22 @@ pub struct LdtkSpawnedIntGridCell {
 
 ///|
 priv struct LdtkWorldStore {
-  ldtk_world_instances : @entity.ComponentStore[LdtkWorldInstance]
-  ldtk_level_instances : @entity.ComponentStore[LdtkLevelInstance]
-  ldtk_layer_metadata : @entity.ComponentStore[LdtkLayerMetadata]
-  ldtk_level_backgrounds : @entity.ComponentStore[LdtkLevelBackground]
-  ldtk_level_iids : @entity.ComponentStore[LdtkLevelIid]
-  ldtk_entity_iids : @entity.ComponentStore[LdtkEntityIid]
-  ldtk_grid_coords : @entity.ComponentStore[LdtkGridCoords]
-  ldtk_int_grid_cells : @entity.ComponentStore[LdtkIntGridCell]
-  ldtk_tile_metadata : @entity.ComponentStore[LdtkTileMetadata]
-  ldtk_int_grid_colliders : @entity.ComponentStore[LdtkIntGridCollider]
-  ldtk_worldly_entities : @entity.ComponentStore[LdtkWorldly]
-  ldtk_respawns : @entity.ComponentStore[LdtkRespawn]
-  ldtk_spawned_layer_instances : @entity.ComponentStore[
-    LdtkSpawnedLayerInstance,
-  ]
-  ldtk_spawned_tile_instances : @entity.ComponentStore[LdtkSpawnedTileInstance]
-  ldtk_spawned_entity_instances : @entity.ComponentStore[
-    LdtkSpawnedEntityInstance,
-  ]
-  ldtk_spawned_int_grid_cells : @entity.ComponentStore[LdtkSpawnedIntGridCell]
+  ldtk_world_instances : @ecs.ComponentStore[LdtkWorldInstance]
+  ldtk_level_instances : @ecs.ComponentStore[LdtkLevelInstance]
+  ldtk_layer_metadata : @ecs.ComponentStore[LdtkLayerMetadata]
+  ldtk_level_backgrounds : @ecs.ComponentStore[LdtkLevelBackground]
+  ldtk_level_iids : @ecs.ComponentStore[LdtkLevelIid]
+  ldtk_entity_iids : @ecs.ComponentStore[LdtkEntityIid]
+  ldtk_grid_coords : @ecs.ComponentStore[LdtkGridCoords]
+  ldtk_int_grid_cells : @ecs.ComponentStore[LdtkIntGridCell]
+  ldtk_tile_metadata : @ecs.ComponentStore[LdtkTileMetadata]
+  ldtk_int_grid_colliders : @ecs.ComponentStore[LdtkIntGridCollider]
+  ldtk_worldly_entities : @ecs.ComponentStore[LdtkWorldly]
+  ldtk_respawns : @ecs.ComponentStore[LdtkRespawn]
+  ldtk_spawned_layer_instances : @ecs.ComponentStore[LdtkSpawnedLayerInstance]
+  ldtk_spawned_tile_instances : @ecs.ComponentStore[LdtkSpawnedTileInstance]
+  ldtk_spawned_entity_instances : @ecs.ComponentStore[LdtkSpawnedEntityInstance]
+  ldtk_spawned_int_grid_cells : @ecs.ComponentStore[LdtkSpawnedIntGridCell]
   ldtk_entity_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit]
   ldtk_entity_layer_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit]
   ldtk_entity_layer_identifier_spawn_hooks : Map[
@@ -287,6 +283,6 @@ fn ldtk_world_store() -> LdtkWorldStore {
 }
 
 ///|
-pub fn ldtk_world_instances() -> @entity.ComponentStore[LdtkWorldInstance] {
+pub fn ldtk_world_instances() -> @ecs.ComponentStore[LdtkWorldInstance] {
   ldtk_world_store().ldtk_world_instances
 }

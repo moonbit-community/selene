@@ -2,7 +2,7 @@
 package "Milky2018/selene/render2d"
 
 import {
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "Milky2018/selene/render2d_types",
   "Milky2018/selene/transform",
@@ -12,7 +12,7 @@ import {
 // Values
 pub fn begin_frame2d_system(Double) -> Unit
 
-pub fn entity_sorting2d(@entity.Entity) -> Sorting2d
+pub fn entity_sorting2d(@ecs.Entity) -> Sorting2d
 
 pub fn get_camera_ui_commands(UInt32) -> Array[@render2d_types.DrawCommand2D]
 
@@ -102,7 +102,7 @@ pub fn reserve_world_command_order(Int32) -> Int32
 
 pub fn sort_depth_for_transform(@transform.GlobalTransform, Sorting2d) -> Double
 
-pub fn sorting2ds() -> @entity.ComponentStore[Sorting2d]
+pub fn sorting2ds() -> @ecs.ComponentStore[Sorting2d]
 
 // Errors
 

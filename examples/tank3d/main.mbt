@@ -25,7 +25,7 @@ const TANK_SCENE_PATH : String = "assets/tank3d/tank_1_green.glb"
 const TANK_SCALE : Double = 1.35
 
 ///|
-let tank_root : Ref[@entity.Entity?] = Ref(None)
+let tank_root : Ref[@ecs.Entity?] = Ref(None)
 
 ///|
 fn color(r : UInt32, g : UInt32, b : UInt32, a : Double) -> @render.Color {
@@ -89,7 +89,7 @@ fn setup_tank3d(_world : @ecs.World) -> Unit {
 
 ///|
 fn setup_camera() -> Unit {
-  let camera = @entity.Entity()
+  let camera = @ecs.Entity()
   let position = vec3(0.0, 2.1, 4.8)
   @transform.transforms().set(camera, {
     translation: position,
@@ -110,7 +110,7 @@ fn setup_lighting() -> Unit {
   @render3d.set_ambient_light3d(
     Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.12, }),
   )
-  let light = @entity.Entity()
+  let light = @ecs.Entity()
   @render3d.directional_lights3d().set(light, {
     ..@render3d.default_directional_light3d(),
     direction: vec3(-0.35, -0.82, -0.46).normalize(),
@@ -130,7 +130,7 @@ fn setup_floor() -> Unit {
     base_color: color(54U, 61U, 68U, 1.0),
     roughness: 0.85,
   })
-  let floor = @entity.Entity()
+  let floor = @ecs.Entity()
   @transform.transforms().set(floor, {
     translation: vec3(0.0, -0.02, 0.0),
     rotation: @math.Quat::identity(),

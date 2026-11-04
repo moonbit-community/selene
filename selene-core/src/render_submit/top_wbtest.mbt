@@ -25,7 +25,7 @@ fn test_rect_command(
 test "build_frame2d keeps clear-only camera passes" {
   with_render_submit_test_world(fn() raise {
     @system.configure_display(200.0, 120.0, 1.0)
-    let camera_entity = @entity.Entity()
+    let camera_entity = @ecs.Entity()
     @camera.cameras().set(
       camera_entity,
       Camera(
@@ -83,7 +83,7 @@ test "build_frame2d normalizes offscreen viewport and command coordinates" {
   with_render_submit_test_world(fn() raise {
     @system.configure_display(200.0, 120.0, 1.0)
     @render2d.begin_frame2d_system(0.0)
-    let camera_entity = @entity.Entity()
+    let camera_entity = @ecs.Entity()
     @camera.cameras().set(
       camera_entity,
       Camera(
@@ -135,7 +135,7 @@ test "build_frame2d batches camera ui commands with clip barriers" {
   with_render_submit_test_world(fn() raise {
     @system.configure_display(200.0, 120.0, 1.0)
     @render2d.begin_frame2d_system(0.0)
-    let camera_entity = @entity.Entity()
+    let camera_entity = @ecs.Entity()
     @camera.cameras().set(camera_entity, Camera())
     @camera.camera2ds().set(camera_entity, Camera2d())
     @transform.global_transforms().set(
@@ -177,7 +177,7 @@ test "build_frame2d batches camera ui commands with clip barriers" {
 test "build_frame2d maps camera offscreen pass target" {
   with_render_submit_test_world(fn() raise {
     @system.configure_display(200.0, 120.0, 1.0)
-    let camera_entity = @entity.Entity()
+    let camera_entity = @ecs.Entity()
     @camera.cameras().set(
       camera_entity,
       Camera(

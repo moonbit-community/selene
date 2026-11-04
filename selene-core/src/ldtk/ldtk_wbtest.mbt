@@ -36,7 +36,7 @@ test "load_ldtk_project reads UTF-8 LDtk asset bytes" {
 }
 
 ///|
-fn ldtk_test_entity_translation_2d(entity : @entity.Entity) -> @math.Vec2 {
+fn ldtk_test_entity_translation_2d(entity : @ecs.Entity) -> @math.Vec2 {
   let transform = @transform.transforms().get(entity).unwrap_or_default()
   Vec2(transform.translation.x, transform.translation.y)
 }
@@ -144,11 +144,11 @@ fn reset_ldtk_runtime() -> Unit {
 }
 
 ///|
-fn cleanup_ldtk_entity(entity : @entity.Entity) -> Unit {
+fn cleanup_ldtk_entity(entity : @ecs.Entity) -> Unit {
   if entity.is_alive() {
     despawn_ldtk_tree(entity)
   }
-  @entity.entity_flush_system(0.0)
+  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
   reset_ldtk_runtime()
 }
 
@@ -276,8 +276,8 @@ fn count_transformed_events(
 ///|
 fn spawned_entity_by_iid_in_level(
   iid : String,
-  level_entity : @entity.Entity,
-) -> @entity.Entity? {
+  level_entity : @ecs.Entity,
+) -> @ecs.Entity? {
   for pair in ldtk_spawned_entity_instances().to_array() {
     let runtime = pair.1
     if runtime.instance.iid == iid && runtime.level_entity == level_entity {
@@ -288,7 +288,7 @@ fn spawned_entity_by_iid_in_level(
 }
 
 ///|
-fn worldly_count(world_entity : @entity.Entity) -> Int32 {
+fn worldly_count(world_entity : @ecs.Entity) -> Int32 {
   let mut count = 0
   for pair in ldtk_worldly_entities().to_array() {
     if pair.1.world_entity == world_entity {
@@ -639,7 +639,7 @@ test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
     for pair in ldtk_level_backgrounds().to_array() {
       inspect(@sprite.sprites().contains(pair.0), content="true")
     }
-    let mut image_background_entity : @entity.Entity? = None
+    let mut image_background_entity : @ecs.Entity? = None
     for pair in ldtk_level_backgrounds().to_array() {
       if pair.1.level_iid == "level-main" && pair.1.rel_path is Some(_) {
         image_background_entity = Some(pair.0)
@@ -1672,10 +1672,10 @@ test "ldtk add entity component helpers can build bundle-like sets" {
       },
     ]),
   ])
-  let entity_scores : @entity.ComponentStore[Int32] = ComponentStore(
+  let entity_scores : @ecs.ComponentStore[Int32] = ComponentStore(
     @ecs.require_current_world(),
   )
-  let entity_kinds : @entity.ComponentStore[String] = ComponentStore(
+  let entity_kinds : @ecs.ComponentStore[String] = ComponentStore(
     @ecs.require_current_world(),
   )
 
@@ -1715,8 +1715,8 @@ test "ldtk intgrid spawn hooks apply by layer and cell value" {
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
 
-  let mut cell_value_1 : @entity.Entity? = None
-  let mut cell_value_2 : @entity.Entity? = None
+  let mut cell_value_1 : @ecs.Entity? = None
+  let mut cell_value_2 : @ecs.Entity? = None
   for pair in ldtk_spawned_int_grid_cells().to_array() {
     let cell_entity = pair.0
     let runtime = pair.1
@@ -1785,10 +1785,10 @@ test "ldtk add int cell component helpers can compose per scope" {
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 2, 1, [1, 2]),
   ])
-  let cell_labels : @entity.ComponentStore[String] = ComponentStore(
+  let cell_labels : @ecs.ComponentStore[String] = ComponentStore(
     @ecs.require_current_world(),
   )
-  let cell_values_x2 : @entity.ComponentStore[Int32] = ComponentStore(
+  let cell_values_x2 : @ecs.ComponentStore[Int32] = ComponentStore(
     @ecs.require_current_world(),
   )
 
@@ -1799,8 +1799,8 @@ test "ldtk add int cell component helpers can compose per scope" {
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
 
-  let mut value_1_entity : @entity.Entity? = None
-  let mut value_2_entity : @entity.Entity? = None
+  let mut value_1_entity : @ecs.Entity? = None
+  let mut value_2_entity : @ecs.Entity? = None
   for pair in ldtk_spawned_int_grid_cells().to_array() {
     if pair.1.value == 1 {
       value_1_entity = Some(pair.0)
@@ -2515,7 +2515,7 @@ test "despawn_ldtk_tree clears pending transformed levels before sync" {
   inspect(count_transformed_events(immediate_events, "level-main"), content="0")
 
   despawn_ldtk_tree(world)
-  @entity.entity_flush_system(0.0)
+  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
   inspect(
     ldtk_pending_transformed_level_iids().contains("level-main"),
     content="false",
@@ -2551,7 +2551,7 @@ test "despawn_ldtk_tree clears intgrid runtime maps and physics components" {
   inspect(@physics2d.colliders().contains(cell_entity), content="true")
 
   despawn_ldtk_tree(world)
-  @entity.entity_flush_system(0.0)
+  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
 
   inspect(ldtk_world_instances().contains(world), content="false")
   inspect(ldtk_level_instances().contains(level_entity), content="false")

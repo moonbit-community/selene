@@ -2,7 +2,6 @@ import {
   "moonbitlang/core/debug",
   "Milky2018/selene/asset",
   "Milky2018/selene/ecs",
-  "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
   "Milky2018/selene/physics2d",

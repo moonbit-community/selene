@@ -32,7 +32,7 @@ pub(all) struct SkinVertexInfluence3D {
 
 ///|
 pub(all) struct SkinnedMeshBinding3D {
-  target_entity : @entity.Entity
+  target_entity : @ecs.Entity
   mesh : @render3d.MeshHandle
   base_positions : Array[@math.Vec3]
   indices : Array[Int32]?
@@ -44,13 +44,13 @@ pub(all) struct SkinnedMeshBinding3D {
   morph_targets : Array[MorphTargetBinding3D]
   mut morph_weights : Array[Double]
   influences : Array[SkinVertexInfluence3D]
-  joint_entities : Array[@entity.Entity]
+  joint_entities : Array[@ecs.Entity]
   inverse_bind_matrices : Array[@math.Mat4]
 }
 
 ///|
 pub(all) struct MorphMeshBinding3D {
-  target_entity : @entity.Entity
+  target_entity : @ecs.Entity
   mesh : @render3d.MeshHandle
   base_positions : Array[@math.Vec3]
   indices : Array[Int32]?
@@ -65,13 +65,13 @@ pub(all) struct MorphMeshBinding3D {
 
 ///|
 priv struct AnimationWorldStore {
-  animation_players : @entity.ComponentStore[AnimationPlayer]
-  animation_graph_handles : @entity.ComponentStore[AnimationGraphHandle]
-  animation_transitions : @entity.ComponentStore[AnimationTransitions]
-  animation_target_ids : @entity.ComponentStore[AnimationTargetId]
-  animated_bys : @entity.ComponentStore[AnimatedBy]
-  skinned_meshes : @entity.ComponentStore[SkinnedMeshBinding3D]
-  morphed_meshes : @entity.ComponentStore[MorphMeshBinding3D]
+  animation_players : @ecs.ComponentStore[AnimationPlayer]
+  animation_graph_handles : @ecs.ComponentStore[AnimationGraphHandle]
+  animation_transitions : @ecs.ComponentStore[AnimationTransitions]
+  animation_target_ids : @ecs.ComponentStore[AnimationTargetId]
+  animated_bys : @ecs.ComponentStore[AnimatedBy]
+  skinned_meshes : @ecs.ComponentStore[SkinnedMeshBinding3D]
+  morphed_meshes : @ecs.ComponentStore[MorphMeshBinding3D]
 }
 
 ///|
@@ -117,7 +117,7 @@ let discrete_animated_fields : Set[AnimatedFieldHandle] = Set([])
 
 ///|
 priv struct AnimationEventDescriptor {
-  dispatch : (AnimationEventContext, @entity.Entity?) -> Unit
+  dispatch : (AnimationEventContext, @ecs.Entity?) -> Unit
 }
 
 ///|
@@ -151,11 +151,11 @@ pub let animation_graph_asset_events : @event.Events[
 ] = Events()
 
 ///|
-pub fn animation_players() -> @entity.ComponentStore[AnimationPlayer] {
+pub fn animation_players() -> @ecs.ComponentStore[AnimationPlayer] {
   animation_world_store().animation_players
 }
 
 ///|
-pub fn animation_graph_handles() -> @entity.ComponentStore[AnimationGraphHandle] {
+pub fn animation_graph_handles() -> @ecs.ComponentStore[AnimationGraphHandle] {
   animation_world_store().animation_graph_handles
 }

@@ -2,7 +2,7 @@
 package "Milky2018/selene/autotile2d"
 
 import {
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "Milky2018/selene/sprite",
   "moonbitlang/core/debug",
@@ -36,15 +36,15 @@ pub fn autotile_visual(image_path? : String?, rect? : @math.Rect?, custom_size? 
 
 pub fn autotile_wang_rule(Int32, Int32, Int32, Int32, String, atlas_index? : Int32) -> AutoTileWangRule
 
-pub fn rebuild_runtime_layer(@entity.Entity) -> Unit
+pub fn rebuild_runtime_layer(@ecs.Entity) -> Unit
 
-pub fn register_runtime_layer(@entity.Entity, AutoTileLayerSource, context? : AutoTileRuntimeContext) -> Unit
+pub fn register_runtime_layer(@ecs.Entity, AutoTileLayerSource, context? : AutoTileRuntimeContext) -> Unit
 
-pub fn remove_runtime_cell(@entity.Entity, Int32, Int32) -> Unit
+pub fn remove_runtime_cell(@ecs.Entity, Int32, Int32) -> Unit
 
-pub fn runtime_layer_source(@entity.Entity) -> AutoTileLayerSource?
+pub fn runtime_layer_source(@ecs.Entity) -> AutoTileLayerSource?
 
-pub fn set_runtime_cell(@entity.Entity, Int32, Int32, Int32) -> Unit
+pub fn set_runtime_cell(@ecs.Entity, Int32, Int32, Int32) -> Unit
 
 pub fn solve_autotile_layer(AutoTileLayerSource) -> Array[AutoTileSolvedTile]
 

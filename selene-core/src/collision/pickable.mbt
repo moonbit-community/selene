@@ -24,11 +24,11 @@ pub fn Pickable::Pickable() -> Pickable {
 }
 
 ///|
-let pickable_component_key : @entity.ComponentKey[Pickable] = ComponentKey()
+let pickable_component_key : @ecs.ComponentKey[Pickable] = ComponentKey()
 
 ///|
 /// All pickable components.
-pub fn pickables() -> @entity.ComponentStore[Pickable] {
+pub fn pickables() -> @ecs.ComponentStore[Pickable] {
   pickable_component_key.store()
 }
 
@@ -45,7 +45,7 @@ pub(all) enum PointerPhase {
 ///|
 /// Pointer event emitted during the latest update frame.
 pub struct PointerEvent {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   button : @inputs.MouseButton
   phase : PointerPhase
 }
@@ -55,7 +55,7 @@ pub let pointer_event_bus : @event.Events[PointerEvent] = Events()
 
 ///|
 fn push_pointer_event(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   button : @inputs.MouseButton,
   phase : PointerPhase,
 ) -> Unit {
@@ -64,7 +64,7 @@ fn push_pointer_event(
 
 ///|
 pub fn emit_pickable_just_pressed(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   button~ : @inputs.MouseButton = Left,
 ) -> Unit {
   push_pointer_event(entity, button, JustPressed)
@@ -215,7 +215,7 @@ fn point_in_collision_shape(
 
 ///|
 fn pickable_matches_camera_view(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   camera_view : @camera.Camera2dView?,
 ) -> Bool {
   if @ui.global_ui_nodes().contains(entity) {
@@ -237,7 +237,7 @@ fn pickable_matches_camera_view(
 
 ///|
 fn hit_test_pickable(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   mouse_screen : @math.Vec2,
   mouse_world : @math.Vec2,
   _mouse_virtual : @math.Vec2,
@@ -269,7 +269,7 @@ fn hit_test_pickable(
 }
 
 ///|
-fn dispatch_pointer_events(entity : @entity.Entity) -> Unit {
+fn dispatch_pointer_events(entity : @ecs.Entity) -> Unit {
   for button in [@inputs.MouseButton::Left, Right, Middle] {
     if @inputs.is_mouse_pressed(button) {
       push_pointer_event(entity, button, Pressed)
@@ -310,7 +310,7 @@ pub fn pickable_click_system(_delta : Double) -> Unit {
 
 ///|
 fn pickable_entity_global_transform(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
 ) -> @transform.GlobalTransform? {
   @transform.compute_global_transform(entity)
 }

@@ -36,7 +36,7 @@ fn game_start(_world : @ecs.World) -> Unit {
   // Load font
   ignore(@asset.load_font("assets/cards/ThaleahFat.ttf", family="ThaleahFat"))
   @ui.set_ui_scale_mode(Viewport)
-  let camera_entity = @entity.Entity()
+  let camera_entity = @ecs.Entity()
   @camera.cameras().set(camera_entity, Camera())
   @camera.camera2ds().set(camera_entity, Camera2d())
   @camera.orthographic_projections().set(

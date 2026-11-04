@@ -145,12 +145,12 @@ priv struct SpriteAnimationDef {
 
 ///|
 priv struct GameSession {
-  player : @entity.Entity
-  camera : @entity.Entity
-  result_box : @entity.Entity
-  score_box : @entity.Entity
-  health_box : @entity.Entity
-  volume_button : @entity.Entity
+  player : @ecs.Entity
+  camera : @ecs.Entity
+  result_box : @ecs.Entity
+  score_box : @ecs.Entity
+  health_box : @ecs.Entity
+  volume_button : @ecs.Entity
   mut score : Int32
   mut health : Int32
   mut volume_on : Bool
@@ -178,11 +178,11 @@ priv struct BirdController {
 
 ///|
 priv struct PixelAdventureWorldStore {
-  sessions : @entity.ComponentStore[GameSession]
-  players : @entity.ComponentStore[PlayerController]
-  birds : @entity.ComponentStore[BirdController]
-  apples : @entity.ComponentStore[Unit]
-  flags : @entity.ComponentStore[Unit]
+  sessions : @ecs.ComponentStore[GameSession]
+  players : @ecs.ComponentStore[PlayerController]
+  birds : @ecs.ComponentStore[BirdController]
+  apples : @ecs.ComponentStore[Unit]
+  flags : @ecs.ComponentStore[Unit]
   mut ui_click_reader : @event.EventReader[@ui.UiClickEvent]
 }
 
@@ -214,27 +214,27 @@ fn reset_pixeladventure_world_store() -> Unit {
 }
 
 ///|
-fn sessions() -> @entity.ComponentStore[GameSession] {
+fn sessions() -> @ecs.ComponentStore[GameSession] {
   pixeladventure_world_store().sessions
 }
 
 ///|
-fn players() -> @entity.ComponentStore[PlayerController] {
+fn players() -> @ecs.ComponentStore[PlayerController] {
   pixeladventure_world_store().players
 }
 
 ///|
-fn birds() -> @entity.ComponentStore[BirdController] {
+fn birds() -> @ecs.ComponentStore[BirdController] {
   pixeladventure_world_store().birds
 }
 
 ///|
-fn apples() -> @entity.ComponentStore[Unit] {
+fn apples() -> @ecs.ComponentStore[Unit] {
   pixeladventure_world_store().apples
 }
 
 ///|
-fn flags() -> @entity.ComponentStore[Unit] {
+fn flags() -> @ecs.ComponentStore[Unit] {
   pixeladventure_world_store().flags
 }
 
@@ -244,7 +244,7 @@ fn ui_click_reader() -> @event.EventReader[@ui.UiClickEvent] {
 }
 
 ///|
-fn active_session_entity() -> @entity.Entity? {
+fn active_session_entity() -> @ecs.Entity? {
   for entity, _ in sessions() {
     if entity.is_alive() {
       return Some(entity)

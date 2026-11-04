@@ -80,7 +80,7 @@ fn[T] SpawnBundle::append_row(
 /// Creates a live entity and appends all bundle values to one archetype row.
 pub fn[T] SpawnBundle::spawn(
   self : SpawnBundle[T],
-  world : @ecs.World,
+  world : World,
   values : T,
 ) -> Entity {
   guard self.world_id == world.id() else {
@@ -95,9 +95,9 @@ pub fn[T] SpawnBundle::spawn(
 ///|
 /// Reserves a pending entity and queues initialization of its bundle.
 /// Queue later component changes to avoid migrating the row during initialization.
-pub fn[T] SpawnBundle::queue_spawn(
+fn[T] SpawnBundle::queue_spawn(
   self : SpawnBundle[T],
-  world : @ecs.World,
+  world : World,
   values : T,
 ) -> Entity {
   guard self.world_id == world.id() else {

@@ -53,24 +53,24 @@ pub fn run() -> Unit {
 
 ///|
 priv struct GameState {
-  player_entity : @entity.Entity
-  camera_entity : @entity.Entity
+  player_entity : @ecs.Entity
+  camera_entity : @ecs.Entity
   mut player_direction : Dir4
   rand : @random.Rand
   mut score : Int32
-  score_box : @entity.Entity
+  score_box : @ecs.Entity
   mut invincible : Bool
   mut game_timer : Double
   mut game_over : Bool
-  timer_box : @entity.Entity
-  game_over_box : @entity.Entity
+  timer_box : @ecs.Entity
+  game_over_box : @ecs.Entity
   mut game_over_displayed : Bool
   mut current_wave : Int32
-  wave_box : @entity.Entity
+  wave_box : @ecs.Entity
   mut exp : Int32
-  exp_box : @entity.Entity
+  exp_box : @ecs.Entity
   mut player_level : Int32
-  level_box : @entity.Entity
+  level_box : @ecs.Entity
   player_stats : PlayerStats
   level_up_panel : LevelUpPanel
   pending_level_ups : Array[Int32] // Queue of pending level-ups
@@ -105,19 +105,19 @@ priv struct PlayerStats {
 
 ///|
 priv struct LevelUpPanel {
-  panel_entity : @entity.Entity
+  panel_entity : @ecs.Entity
   mut available_selections : Array[LevelUpSelection]
   // Child entities will be created dynamically with spawn_child
 }
 
 ///|
 priv struct GameOverPanel {
-  panel_entity : @entity.Entity
+  panel_entity : @ecs.Entity
 }
 
 ///|
-fn create_level_up_panel_entity() -> @entity.Entity {
-  let panel = @entity.Entity()
+fn create_level_up_panel_entity() -> @ecs.Entity {
+  let panel = @ecs.Entity()
   @ui.nodes().set(
     panel,
     @ui.Node::absolute(
@@ -135,8 +135,8 @@ fn create_level_up_panel_entity() -> @entity.Entity {
 }
 
 ///|
-fn create_game_over_panel_entity() -> @entity.Entity {
-  let panel = @entity.Entity()
+fn create_game_over_panel_entity() -> @ecs.Entity {
+  let panel = @ecs.Entity()
   @ui.nodes().set(
     panel,
     @ui.Node::absolute(

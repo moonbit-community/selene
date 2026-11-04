@@ -1,23 +1,23 @@
 ///|
-fn pending_body_torques() -> Map[@entity.Entity, Double] {
+fn pending_body_torques() -> Map[@ecs.Entity, Double] {
   physics_world_runtime().pending_body_torques
 }
 
 ///|
-fn pending_body_impulses() -> Map[@entity.Entity, @math.Vec2] {
+fn pending_body_impulses() -> Map[@ecs.Entity, @math.Vec2] {
   physics_world_runtime().pending_body_impulses
 }
 
 ///|
 fn pending_body_impulse_points() -> Map[
-  @entity.Entity,
+  @ecs.Entity,
   Array[(@math.Vec2, @math.Vec2)],
 ] {
   physics_world_runtime().pending_body_impulse_points
 }
 
 ///|
-fn pending_body_torque_impulses() -> Map[@entity.Entity, Double] {
+fn pending_body_torque_impulses() -> Map[@ecs.Entity, Double] {
   physics_world_runtime().pending_body_torque_impulses
 }
 
@@ -30,7 +30,7 @@ priv struct EntityJointConfigKey {
 }
 
 ///|
-fn entity_joint_config_keys() -> Map[@entity.Entity, EntityJointConfigKey] {
+fn entity_joint_config_keys() -> Map[@ecs.Entity, EntityJointConfigKey] {
   physics_world_runtime().entity_joint_config_keys
 }
 
@@ -44,34 +44,34 @@ priv struct EntityMultibodyJointConfigKey {
 
 ///|
 fn entity_multibody_joint_config_keys() -> Map[
-  @entity.Entity,
+  @ecs.Entity,
   EntityMultibodyJointConfigKey,
 ] {
   physics_world_runtime().entity_multibody_joint_config_keys
 }
 
 ///|
-pub fn rigid_body_handle(entity : @entity.Entity) -> RigidBodyHandle? {
+pub fn rigid_body_handle(entity : @ecs.Entity) -> RigidBodyHandle? {
   world().entity_bodies.get(entity)
 }
 
 ///|
-pub fn collider_handle(entity : @entity.Entity) -> ColliderHandle? {
+pub fn collider_handle(entity : @ecs.Entity) -> ColliderHandle? {
   world().entity_colliders.get(entity)
 }
 
 ///|
-pub fn joint_handle(entity : @entity.Entity) -> JointHandle? {
+pub fn joint_handle(entity : @ecs.Entity) -> JointHandle? {
   world().entity_joints.get(entity)
 }
 
 ///|
-pub fn multibody_joint_handle(entity : @entity.Entity) -> MultibodyJointHandle? {
+pub fn multibody_joint_handle(entity : @ecs.Entity) -> MultibodyJointHandle? {
   world().entity_multibody_joints.get(entity)
 }
 
 ///|
-pub fn multibody_link(entity : @entity.Entity) -> MultibodyLinkId? {
+pub fn multibody_link(entity : @ecs.Entity) -> MultibodyLinkId? {
   guard world().entity_bodies.get(entity) is Some(handle) else { return None }
   world().multibody_joints.rigid_body_link(handle)
 }
@@ -168,7 +168,7 @@ pub fn shape_cast(
 pub fn intersect_point(
   point : @math.Vec2,
   query_filter~ : SpatialQueryFilter = SpatialQueryFilter::default(),
-) -> Array[@entity.Entity] {
+) -> Array[@ecs.Entity] {
   refresh_query_world()
   let query = make_query_pipeline(query_filter)
   intersecting_entities(
@@ -186,7 +186,7 @@ pub fn intersect_shape(
   origin : @math.Vec2,
   rotation~ : Double = 0.0,
   query_filter~ : SpatialQueryFilter = SpatialQueryFilter::default(),
-) -> Array[@entity.Entity] {
+) -> Array[@ecs.Entity] {
   guard collision_shape_to_rapier_shape(shape)
     is Some((rapier_shape, translation)) else {
     return []
@@ -204,7 +204,7 @@ pub fn intersect_shape(
 }
 
 ///|
-pub fn rigid_body_translation(entity : @entity.Entity) -> @math.Vec2? {
+pub fn rigid_body_translation(entity : @ecs.Entity) -> @math.Vec2? {
   if world().entity_bodies.get(entity) is Some(handle) &&
     world().bodies.get(handle) is Some(body) {
     Some(from_physics_vec2(body.translation()))
@@ -215,7 +215,7 @@ pub fn rigid_body_translation(entity : @entity.Entity) -> @math.Vec2? {
 
 ///|
 pub fn set_rigid_body_translation(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   translation : @math.Vec2,
 ) -> Unit {
   set_entity_translation(entity, translation)

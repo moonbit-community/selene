@@ -24,10 +24,10 @@ pub(all) struct MeshMaterial2d {
 }
 
 ///|
-let material2d_component_key : @entity.ComponentKey[MeshMaterial2d] = ComponentKey()
+let material2d_component_key : @ecs.ComponentKey[MeshMaterial2d] = ComponentKey()
 
 ///|
-pub fn mesh_material2ds() -> @entity.ComponentStore[MeshMaterial2d] {
+pub fn mesh_material2ds() -> @ecs.ComponentStore[MeshMaterial2d] {
   material2d_component_key.store()
 }
 

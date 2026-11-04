@@ -1,12 +1,12 @@
 ///|
 test "cached archetype query follows component migration and repairs swapped rows" {
   let world = @ecs.World()
-  let a : @entity.ComponentStore[Int32] = ComponentStore(world)
-  let b : @entity.ComponentStore[String] = ComponentStore(world)
-  let c : @entity.ComponentStore[Bool] = ComponentStore(world)
-  let first = @entity.Entity::reserve_spawn_in(world)
-  let second = @entity.Entity::reserve_spawn_in(world)
-  let query = @entity.ArchetypeQuery2(a, b)
+  let a : @ecs.ComponentStore[Int32] = ComponentStore(world)
+  let b : @ecs.ComponentStore[String] = ComponentStore(world)
+  let c : @ecs.ComponentStore[Bool] = ComponentStore(world)
+  let first = @ecs.commands(world).spawn()
+  let second = @ecs.commands(world).spawn()
+  let query = @ecs.Query2(a, b)
   let matches = () => {
     let result = []
     query.for_each((entity, x, y) => result.push((entity.id(), x, y)))
@@ -37,17 +37,17 @@ test "cached archetype query follows component migration and repairs swapped row
 test "archetype signatures support more than 64 components and isolate worlds" {
   let world = @ecs.World()
   let other = @ecs.World()
-  let entity = @entity.Entity::reserve_spawn_in(world)
-  let foreign = @entity.Entity::reserve_spawn_in(other)
+  let entity = @ecs.commands(world).spawn()
+  let foreign = @ecs.commands(other).spawn()
   assert_eq(entity.id(), foreign.id())
-  let stores : Array[@entity.ComponentStore[Int32]] = []
+  let stores : Array[@ecs.ComponentStore[Int32]] = []
   for i in 0..<70 {
-    let store = @entity.ComponentStore(world)
+    let store = @ecs.ComponentStore(world)
     store.set(entity, i)
     store.set(foreign, -1)
     stores.push(store)
   }
-  let query = @entity.ArchetypeQuery2(stores[0], stores[69])
+  let query = @ecs.Query2(stores[0], stores[69])
   let result = []
   query.for_each((_, first, last) => result.push((first, last)))
   assert_eq(result, [(0, 69)])
@@ -63,19 +63,19 @@ test "archetype signatures support more than 64 components and isolate worlds" {
 ///|
 test "batch views stay aligned across tables and write only the first column" {
   let world = @ecs.World()
-  let a : @entity.ComponentStore[Int32] = ComponentStore(world)
-  let b : @entity.ComponentStore[Int32] = ComponentStore(world)
-  let tag : @entity.ComponentStore[Unit] = ComponentStore(world)
-  let first = @entity.Entity::reserve_spawn_in(world)
-  let second = @entity.Entity::reserve_spawn_in(world)
-  let unmatched = @entity.Entity::reserve_spawn_in(world)
+  let a : @ecs.ComponentStore[Int32] = ComponentStore(world)
+  let b : @ecs.ComponentStore[Int32] = ComponentStore(world)
+  let tag : @ecs.ComponentStore[Unit] = ComponentStore(world)
+  let first = @ecs.commands(world).spawn()
+  let second = @ecs.commands(world).spawn()
+  let unmatched = @ecs.commands(world).spawn()
   a.set(first, 2)
   b.set(first, 3)
   a.set(second, 5)
   b.set(second, 7)
   tag.set(second, ())
   a.set(unmatched, 11)
-  let query = @entity.ArchetypeQuery2(a, b)
+  let query = @ecs.Query2(a, b)
   let batches = []
   query.for_each_batch_mut_a((entities, left, right) => {
     batches.push(entities.length())
@@ -102,11 +102,11 @@ test "batch views stay aligned across tables and write only the first column" {
 ///|
 test "component iteration survives other column moves and removal of the current row" {
   let world = @ecs.World()
-  let a : @entity.ComponentStore[Int32] = ComponentStore(world)
-  let b : @entity.ComponentStore[Bool] = ComponentStore(world)
-  let first = @entity.Entity::reserve_spawn_in(world)
-  let second = @entity.Entity::reserve_spawn_in(world)
-  let third = @entity.Entity::reserve_spawn_in(world)
+  let a : @ecs.ComponentStore[Int32] = ComponentStore(world)
+  let b : @ecs.ComponentStore[Bool] = ComponentStore(world)
+  let first = @ecs.commands(world).spawn()
+  let second = @ecs.commands(world).spawn()
+  let third = @ecs.commands(world).spawn()
   a.set(first, 1)
   a.set(second, 2)
   a.set(third, 3)

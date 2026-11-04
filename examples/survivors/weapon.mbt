@@ -144,8 +144,8 @@ priv struct PlayerBulletState {
 }
 
 ///|
-fn player_bullets() -> @entity.ComponentStore[PlayerBulletState] {
-  @entity.components()
+fn player_bullets() -> @ecs.ComponentStore[PlayerBulletState] {
+  @ecs.components()
 }
 
 ///|
@@ -226,7 +226,7 @@ fn shoot_weapon_bullet(
     direction.normalize()
   }
   let bullet_spawn_pos = player_pos + dir.scalar_mul(14.0)
-  let bullet_entity = @entity.Entity()
+  let bullet_entity = @ecs.Entity()
   @sprite.sprites().set(bullet_entity, player_bullet_visual())
   @transform.transforms().set(
     bullet_entity,
@@ -270,7 +270,7 @@ fn shoot_weapon_bullet(
 }
 
 ///|
-fn start_bullet_despawn(bullet_entity : @entity.Entity) -> Unit {
+fn start_bullet_despawn(bullet_entity : @ecs.Entity) -> Unit {
   guard player_bullets().get(bullet_entity) is Some(bullet) else { return }
   if !bullet.alive {
     return

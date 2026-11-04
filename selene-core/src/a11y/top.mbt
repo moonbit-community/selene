@@ -73,10 +73,10 @@ pub fn A11y::on_click(self : A11y, callback : () -> Unit) -> Unit {
 }
 
 ///|
-let a11y_component_key : @entity.ComponentKey[A11y] = ComponentKey()
+let a11y_component_key : @ecs.ComponentKey[A11y] = ComponentKey()
 
 ///|
-pub fn a11ys() -> @entity.ComponentStore[A11y] {
+pub fn a11ys() -> @ecs.ComponentStore[A11y] {
   a11y_component_key.store()
 }
 
@@ -90,10 +90,10 @@ let latest_tree_update_ref : Ref[@moon_accesskit.TreeUpdate?] = { val: None, }
 let pending_action_requests : Array[@moon_accesskit.ActionRequest] = []
 
 ///|
-let entity_node_ids : Map[@entity.Entity, UInt64] = Map([])
+let entity_node_ids : Map[@ecs.Entity, UInt64] = Map([])
 
 ///|
-let current_node_entities : Map[@moon_accesskit.NodeId, @entity.Entity] = Map([])
+let current_node_entities : Map[@moon_accesskit.NodeId, @ecs.Entity] = Map([])
 
 ///|
 let next_node_id : Ref[UInt64] = { val: 1UL, }
@@ -104,17 +104,17 @@ pub fn tree_id() -> @moon_accesskit.TreeId {
 }
 
 ///|
-pub fn attach(entity : @entity.Entity, a11y : A11y) -> Unit {
+pub fn attach(entity : @ecs.Entity, a11y : A11y) -> Unit {
   a11ys().set(entity, a11y)
 }
 
 ///|
-pub fn get_focused_entity() -> @entity.Entity? {
+pub fn get_focused_entity() -> @ecs.Entity? {
   @ui.focused_entity()
 }
 
 ///|
-pub fn focus(entity : @entity.Entity) -> Unit {
+pub fn focus(entity : @ecs.Entity) -> Unit {
   @ui.focus(entity)
 }
 
@@ -165,7 +165,7 @@ fn to_accesskit_role(role : A11yRole) -> @moon_accesskit.Role {
 }
 
 ///|
-fn auto_a11y(entity : @entity.Entity) -> A11y? {
+fn auto_a11y(entity : @ecs.Entity) -> A11y? {
   if @ui.buttons().get(entity) is Some(button) {
     Some(A11y(role=Button, focusable=true, disabled=!button.enabled))
   } else if @ui.texts().get(entity) is Some(_) {
@@ -178,7 +178,7 @@ fn auto_a11y(entity : @entity.Entity) -> A11y? {
 }
 
 ///|
-fn get_a11y(entity : @entity.Entity) -> A11y? {
+fn get_a11y(entity : @ecs.Entity) -> A11y? {
   if a11ys().get(entity) is Some(a11y) {
     if a11y.hidden {
       None
@@ -191,8 +191,8 @@ fn get_a11y(entity : @entity.Entity) -> A11y? {
 }
 
 ///|
-fn ui_children(entity : @entity.Entity) -> Array[@entity.Entity] {
-  let children : Array[@entity.Entity] = []
+fn ui_children(entity : @ecs.Entity) -> Array[@ecs.Entity] {
+  let children : Array[@ecs.Entity] = []
   for child in entity.get_children() {
     if child.is_alive() && @ui.nodes().contains(child) {
       children.push(child)
@@ -230,9 +230,9 @@ fn ui_children(entity : @entity.Entity) -> Array[@entity.Entity] {
 
 ///|
 fn collect_semantic_descendants(
-  root : @entity.Entity,
-  ordered : Array[@entity.Entity],
-  seen : Map[@entity.Entity, Bool],
+  root : @ecs.Entity,
+  ordered : Array[@ecs.Entity],
+  seen : Map[@ecs.Entity, Bool],
 ) -> Unit {
   if get_a11y(root) is Some(_) && !seen.contains(root) {
     seen.set(root, true)
@@ -244,9 +244,9 @@ fn collect_semantic_descendants(
 }
 
 ///|
-fn collect_ordered_semantic_entities() -> Array[@entity.Entity] {
-  let ordered : Array[@entity.Entity] = []
-  let seen : Map[@entity.Entity, Bool] = Map([])
+fn collect_ordered_semantic_entities() -> Array[@ecs.Entity] {
+  let ordered : Array[@ecs.Entity] = []
+  let seen : Map[@ecs.Entity, Bool] = Map([])
   for entity, _node in @ui.nodes() {
     guard entity.is_alive() else { continue }
     match entity.get_parent() {
@@ -267,7 +267,7 @@ fn collect_ordered_semantic_entities() -> Array[@entity.Entity] {
 }
 
 ///|
-fn find_semantic_parent(entity : @entity.Entity) -> @entity.Entity? {
+fn find_semantic_parent(entity : @ecs.Entity) -> @ecs.Entity? {
   let mut parent = entity.get_parent()
   while parent is Some(p) {
     if get_a11y(p) is Some(_) {
@@ -280,10 +280,10 @@ fn find_semantic_parent(entity : @entity.Entity) -> @entity.Entity? {
 
 ///|
 fn build_hierarchy(
-  ordered : Array[@entity.Entity],
-) -> (Array[@entity.Entity], Map[@entity.Entity, Array[@entity.Entity]]) {
-  let roots : Array[@entity.Entity] = []
-  let children : Map[@entity.Entity, Array[@entity.Entity]] = Map([])
+  ordered : Array[@ecs.Entity],
+) -> (Array[@ecs.Entity], Map[@ecs.Entity, Array[@ecs.Entity]]) {
+  let roots : Array[@ecs.Entity] = []
+  let children : Map[@ecs.Entity, Array[@ecs.Entity]] = Map([])
   for entity in ordered {
     if find_semantic_parent(entity) is Some(parent) {
       children.get_or_init(parent, () => []).push(entity)
@@ -295,7 +295,7 @@ fn build_hierarchy(
 }
 
 ///|
-fn resolve_bounds(entity : @entity.Entity) -> @moon_accesskit.Rect? {
+fn resolve_bounds(entity : @ecs.Entity) -> @moon_accesskit.Rect? {
   guard @ui.global_ui_nodes().get(entity) is Some(node) else { return None }
   Some(
     Rect(
@@ -308,7 +308,7 @@ fn resolve_bounds(entity : @entity.Entity) -> @moon_accesskit.Rect? {
 }
 
 ///|
-fn effective_label(entity : @entity.Entity, a11y : A11y) -> String? {
+fn effective_label(entity : @ecs.Entity, a11y : A11y) -> String? {
   if a11y.label is Some(label) {
     return Some(label)
   }
@@ -320,12 +320,12 @@ fn effective_label(entity : @entity.Entity, a11y : A11y) -> String? {
 }
 
 ///|
-fn is_clickable(entity : @entity.Entity, a11y : A11y) -> Bool {
+fn is_clickable(entity : @ecs.Entity, a11y : A11y) -> Bool {
   @ui.buttons().contains(entity) || a11y.action_callbacks.length() > 0
 }
 
 ///|
-fn get_or_create_node_id(entity : @entity.Entity) -> @moon_accesskit.NodeId {
+fn get_or_create_node_id(entity : @ecs.Entity) -> @moon_accesskit.NodeId {
   if entity_node_ids.get(entity) is Some(raw) {
     NodeId(raw)
   } else {
@@ -347,9 +347,9 @@ fn focused_node_id() -> @moon_accesskit.NodeId {
 
 ///|
 fn build_tree_update(
-  ordered : Array[@entity.Entity],
-  roots : Array[@entity.Entity],
-  child_map : Map[@entity.Entity, Array[@entity.Entity]],
+  ordered : Array[@ecs.Entity],
+  roots : Array[@ecs.Entity],
+  child_map : Map[@ecs.Entity, Array[@ecs.Entity]],
 ) -> @moon_accesskit.TreeUpdate {
   current_node_entities.clear()
   let update = @moon_accesskit.TreeUpdate(a11y_tree_id, focused_node_id())
@@ -403,7 +403,7 @@ fn build_tree_update(
 
 ///|
 fn invoke_action_callbacks(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   action : @moon_accesskit.Action,
   data : @moon_accesskit.ActionData?,
 ) -> Unit {
@@ -415,7 +415,7 @@ fn invoke_action_callbacks(
 
 ///|
 fn dispatch_action(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   action : @moon_accesskit.Action,
   data : @moon_accesskit.ActionData?,
 ) -> Unit {

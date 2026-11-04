@@ -32,7 +32,7 @@ priv enum TouchAction {
 }
 
 ///|
-fn set_text(entity : @entity.Entity, content : String) -> Unit {
+fn set_text(entity : @ecs.Entity, content : String) -> Unit {
   let text = @ui.texts().get_or_init(entity, fn() { Text(content) })
   text.content = content
 }
@@ -69,7 +69,7 @@ fn with_display(node : @ui.Node, display : @ui.Display) -> @ui.Node {
 }
 
 ///|
-fn set_display(entity : @entity.Entity, display : @ui.Display) -> Unit {
+fn set_display(entity : @ecs.Entity, display : @ui.Display) -> Unit {
   match @ui.nodes().get(entity) {
     Some(node) => @ui.nodes().set(entity, with_display(node, display))
     None => @ui.nodes().set(entity, Node(display~))
@@ -78,7 +78,7 @@ fn set_display(entity : @entity.Entity, display : @ui.Display) -> Unit {
 
 ///|
 fn configure_text(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   offset : @math.Vec2,
   content : String,
   color : String,
@@ -98,7 +98,7 @@ fn configure_text(
 
 ///|
 fn configure_button(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   offset : @math.Vec2,
   size : @math.Vec2,
   background : String,
@@ -115,7 +115,7 @@ fn configure_button(
 ///|
 /// Setup UI elements
 fn setup_ui() -> Unit {
-  let table_entity = @entity.Entity()
+  let table_entity = @ecs.Entity()
   @transform.transforms().set(
     table_entity,
     @transform.Transform::from_xyz(0.0, 0.0, 0.0),
@@ -470,7 +470,7 @@ fn display_all_cards() -> Unit {
 
   for j, card in player.hole_cards {
     let card_x = x_base + (j.to_double() - 0.5) * 30.0 - 30
-    let card_entity = @entity.Entity()
+    let card_entity = @ecs.Entity()
     @transform.transforms().set(
       card_entity,
       @transform.Transform::from_xyz(card_x, y_base, j.to_double()),
@@ -493,7 +493,7 @@ fn display_community_cards() -> Unit {
   let center_y = VIEWPORT_HEIGHT / 2.0 - 60.0
   for i, card in game_state.community_cards {
     let card_x = center_x + (i.to_double() - 2.5) * 30.0 - 15
-    let card_entity = @entity.Entity()
+    let card_entity = @ecs.Entity()
     @transform.transforms().set(
       card_entity,
       @transform.Transform::from_xyz(card_x, center_y, (10 + i).to_double()),

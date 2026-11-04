@@ -45,28 +45,28 @@ pub(all) struct TiledPhysicsSettings {
 
 ///|
 pub struct TiledColliders {
-  entities : Array[@entity.Entity]
+  entities : Array[@ecs.Entity]
 }
 
 ///|
 pub fn TiledColliders::alive_entities(
   self : TiledColliders,
-) -> Array[@entity.Entity] {
+) -> Array[@ecs.Entity] {
   self.entities.filter(fn(entity) { entity.is_alive() })
 }
 
 ///|
 pub struct TiledColliderOrigin {
-  map_entity : @entity.Entity
-  source_entity : @entity.Entity
-  layer_entity : @entity.Entity
+  map_entity : @ecs.Entity
+  source_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
   source_kind : TiledColliderSourceKind
   layer : TiledLayer
 }
 
 ///|
 pub struct TiledColliderSpawnedEvent {
-  collider_entity : @entity.Entity
+  collider_entity : @ecs.Entity
   origin : TiledColliderOrigin
   shape : @physics2d.CollisionShape
   sensor : Bool
@@ -75,8 +75,8 @@ pub struct TiledColliderSpawnedEvent {
 
 ///|
 priv struct TiledPhysicsWorldStore {
-  tiled_colliders : @entity.ComponentStore[TiledColliders]
-  tiled_collider_origins : @entity.ComponentStore[TiledColliderOrigin]
+  tiled_colliders : @ecs.ComponentStore[TiledColliders]
+  tiled_collider_origins : @ecs.ComponentStore[TiledColliderOrigin]
 }
 
 ///|
@@ -92,12 +92,12 @@ fn tiled_physics_world_store() -> TiledPhysicsWorldStore {
 }
 
 ///|
-pub fn tiled_colliders() -> @entity.ComponentStore[TiledColliders] {
+pub fn tiled_colliders() -> @ecs.ComponentStore[TiledColliders] {
   tiled_physics_world_store().tiled_colliders
 }
 
 ///|
-pub fn tiled_collider_origins() -> @entity.ComponentStore[TiledColliderOrigin] {
+pub fn tiled_collider_origins() -> @ecs.ComponentStore[TiledColliderOrigin] {
   tiled_physics_world_store().tiled_collider_origins
 }
 
@@ -126,8 +126,8 @@ pub fn default_tiled_physics_settings() -> TiledPhysicsSettings {
 
 ///|
 priv struct TiledPhysicsSpawnSpec {
-  source_entity : @entity.Entity
-  layer_entity : @entity.Entity
+  source_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
   layer : TiledLayer
   source_kind : TiledColliderSourceKind
   shape : @physics2d.CollisionShape
@@ -137,7 +137,7 @@ priv struct TiledPhysicsSpawnSpec {
 
 ///|
 fn spawn_tiled_map_physics(
-  map_entity : @entity.Entity,
+  map_entity : @ecs.Entity,
   map : TiledMap,
   settings : TiledPhysicsSettings,
 ) -> Unit {
@@ -146,7 +146,7 @@ fn spawn_tiled_map_physics(
 
 ///|
 fn spawn_tiled_physics_layers(
-  map_entity : @entity.Entity,
+  map_entity : @ecs.Entity,
   map : TiledMap,
   layers : Array[TiledLayer],
   settings : TiledPhysicsSettings,
@@ -186,8 +186,8 @@ fn spawn_tiled_physics_layers(
 
 ///|
 fn spawn_tiled_tile_layer_physics(
-  map_entity : @entity.Entity,
-  layer_entity : @entity.Entity,
+  map_entity : @ecs.Entity,
+  layer_entity : @ecs.Entity,
   map : TiledMap,
   layer : TiledLayer,
   tile_layer : TiledTileLayer,
@@ -246,8 +246,8 @@ fn spawn_tiled_tile_layer_physics(
 
 ///|
 fn spawn_tiled_object_physics(
-  map_entity : @entity.Entity,
-  object_entity : @entity.Entity,
+  map_entity : @ecs.Entity,
+  object_entity : @ecs.Entity,
   map : TiledMap,
   layer : TiledLayer,
   object : TiledObject,
@@ -263,8 +263,8 @@ fn spawn_tiled_object_physics(
 
 ///|
 fn tiled_object_physics_specs(
-  source_entity : @entity.Entity,
-  layer_entity : @entity.Entity,
+  source_entity : @ecs.Entity,
+  layer_entity : @ecs.Entity,
   map : TiledMap,
   layer : TiledLayer,
   object : TiledObject,
@@ -359,8 +359,8 @@ fn tiled_object_physics_specs(
 
 ///|
 fn tiled_physics_specs_from_shape_object(
-  source_entity : @entity.Entity,
-  layer_entity : @entity.Entity,
+  source_entity : @ecs.Entity,
+  layer_entity : @ecs.Entity,
   layer : TiledLayer,
   source_kind : TiledColliderSourceKind,
   object : TiledObject,
@@ -449,7 +449,7 @@ fn tiled_physics_specs_from_shape_object(
 
 ///|
 fn spawn_tiled_physics_spec(
-  map_entity : @entity.Entity,
+  map_entity : @ecs.Entity,
   spec : TiledPhysicsSpawnSpec,
   settings : TiledPhysicsSettings,
 ) -> Unit {
@@ -494,7 +494,7 @@ fn spawn_tiled_physics_spec(
 
 ///|
 fn tiled_apply_physics_properties(
-  collider_entity : @entity.Entity,
+  collider_entity : @ecs.Entity,
   sensor : Bool,
   properties : Array[TiledProperty],
 ) -> Unit {

@@ -72,10 +72,10 @@ pub fn RigidBody::kinematic_velocity_based() -> RigidBody {
 }
 
 ///|
-let rigid_body_component_key : @entity.ComponentKey[RigidBody] = ComponentKey()
+let rigid_body_component_key : @ecs.ComponentKey[RigidBody] = ComponentKey()
 
 ///|
 /// Explicit rigid-body descriptors for entities that participate in 2D physics.
-pub fn rigid_bodies() -> @entity.ComponentStore[RigidBody] {
+pub fn rigid_bodies() -> @ecs.ComponentStore[RigidBody] {
   rigid_body_component_key.store()
 }

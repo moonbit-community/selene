@@ -1,6 +1,6 @@
 ///|
 test "a reusable bundle spawns directly into the final table" {
-  let world = @ecs.World()
+  let world = World()
   let a : ComponentStore[Int32] = ComponentStore(world)
   let b : ComponentStore[String] = ComponentStore(world)
   let c : ComponentStore[Bool] = ComponentStore(world)
@@ -33,7 +33,7 @@ test "a reusable bundle spawns directly into the final table" {
 
 ///|
 test "panic a spawn bundle rejects a repeated component across layouts" {
-  let world = @ecs.World()
+  let world = World()
   let a : ComponentStore[Int32] = ComponentStore(world)
   let b : ComponentStore[Int32] = ComponentStore(world)
   let pair = a.spawn_bundle().combine(b.spawn_bundle())
@@ -42,8 +42,8 @@ test "panic a spawn bundle rejects a repeated component across layouts" {
 
 ///|
 test "panic a spawn bundle cannot allocate an entity in a foreign world" {
-  let world = @ecs.World()
-  let other = @ecs.World()
+  let world = World()
+  let other = World()
   let store : ComponentStore[Int32] = ComponentStore(world)
   ignore(store.spawn_bundle().spawn(other, 1))
 }

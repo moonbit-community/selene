@@ -1,12 +1,12 @@
 ///|
-fn transform_test_translation(entity : @entity.Entity) -> String {
+fn transform_test_translation(entity : @ecs.Entity) -> String {
   let transform = transforms().get(entity).unwrap_or_default()
   let translation = transform.translation
   "\{translation.x.to_int()},\{translation.y.to_int()},\{translation.z.to_int()}"
 }
 
 ///|
-fn transform_test_global_translation(entity : @entity.Entity) -> String {
+fn transform_test_global_translation(entity : @ecs.Entity) -> String {
   let translation = global_transforms()
     .get(entity)
     .unwrap_or_default()
@@ -16,7 +16,7 @@ fn transform_test_global_translation(entity : @entity.Entity) -> String {
 
 ///|
 test "compute_global_transform follows parent hierarchy" {
-  let parent = @entity.Entity()
+  let parent = @ecs.Entity()
   let child = parent.spawn_child()
   defer parent.destroy()
   defer child.destroy()
@@ -33,8 +33,8 @@ test "compute_global_transform follows parent hierarchy" {
 
 ///|
 test "set_parent_in_place preserves global transform" {
-  let parent_a = @entity.Entity()
-  let parent_b = @entity.Entity()
+  let parent_a = @ecs.Entity()
+  let parent_b = @ecs.Entity()
   defer parent_a.destroy()
   defer parent_b.destroy()
 
@@ -56,7 +56,7 @@ test "set_parent_in_place preserves global transform" {
 
 ///|
 test "remove_parent_in_place preserves global transform" {
-  let parent = @entity.Entity()
+  let parent = @ecs.Entity()
   defer parent.destroy()
   transforms().set(parent, Transform::from_xyz(10.0, 0.0, 0.0))
 
@@ -75,7 +75,7 @@ test "remove_parent_in_place preserves global transform" {
 
 ///|
 test "transform propagation updates existing rows and prunes despawned globals" {
-  let entity = @entity.Entity()
+  let entity = @ecs.Entity()
   transforms().set(entity, Transform::from_xyz(1.0, 0.0, 0.0))
   transform_propagate_system(0.0)
   assert_eq(transform_test_global_translation(entity), "1,0,0")
@@ -86,10 +86,10 @@ test "transform propagation updates existing rows and prunes despawned globals" 
   transform_propagate_system(0.0)
   assert_false(global_transforms().contains(entity))
   entity.respawn()
-  @entity.entity_flush_system(0.0)
+  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
   transform_propagate_system(0.0)
   assert_eq(transform_test_global_translation(entity), "2,0,0")
   entity.destroy()
-  @entity.entity_flush_system(0.0)
+  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
   transforms().remove(entity)
 }

@@ -57,14 +57,14 @@ pub(all) struct AudioSink {
 pub(all) struct AudioEvent {
   source : AudioHandle
   settings : PlaybackSettings
-  target : @entity.Entity?
+  target : @ecs.Entity?
 }
 
 ///|
 priv struct AudioWorldStore {
-  audio_players : @entity.ComponentStore[AudioPlayer]
-  audio_playback_settings : @entity.ComponentStore[PlaybackSettings]
-  audio_sinks : @entity.ComponentStore[AudioSink]
+  audio_players : @ecs.ComponentStore[AudioPlayer]
+  audio_playback_settings : @ecs.ComponentStore[PlaybackSettings]
+  audio_sinks : @ecs.ComponentStore[AudioSink]
 }
 
 ///|
@@ -80,17 +80,17 @@ fn audio_world_store() -> AudioWorldStore {
 }
 
 ///|
-pub fn audio_players() -> @entity.ComponentStore[AudioPlayer] {
+pub fn audio_players() -> @ecs.ComponentStore[AudioPlayer] {
   audio_world_store().audio_players
 }
 
 ///|
-pub fn audio_playback_settings() -> @entity.ComponentStore[PlaybackSettings] {
+pub fn audio_playback_settings() -> @ecs.ComponentStore[PlaybackSettings] {
   audio_world_store().audio_playback_settings
 }
 
 ///|
-pub fn audio_sinks() -> @entity.ComponentStore[AudioSink] {
+pub fn audio_sinks() -> @ecs.ComponentStore[AudioSink] {
   audio_world_store().audio_sinks
 }
 
@@ -302,7 +302,7 @@ pub fn global_volume() -> Double {
 
 ///|
 pub fn attach_audio(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   player : AudioPlayer,
   settings~ : PlaybackSettings = PlaybackSettings::once(),
 ) -> Unit {
@@ -318,8 +318,8 @@ pub fn attach_audio(
 pub fn spawn_audio(
   source : AudioHandle,
   settings~ : PlaybackSettings = PlaybackSettings::once(),
-) -> @entity.Entity {
-  let entity = @entity.Entity()
+) -> @ecs.Entity {
+  let entity = @ecs.Entity()
   attach_audio(entity, AudioPlayer(source), settings~)
   entity
 }
@@ -328,7 +328,7 @@ pub fn spawn_audio(
 pub fn send_audio_event(
   source : AudioHandle,
   settings~ : PlaybackSettings = PlaybackSettings::once(),
-  target? : @entity.Entity,
+  target? : @ecs.Entity,
 ) -> Unit {
   audio_event_bus.send({ source, settings, target, })
 }
@@ -342,7 +342,7 @@ pub fn play_one_shot(source : AudioHandle, volume~ : Double = 1.0) -> Unit {
 }
 
 ///|
-pub fn restart_audio(entity : @entity.Entity) -> Unit {
+pub fn restart_audio(entity : @ecs.Entity) -> Unit {
   if audio_sinks().get(entity) is Some(sink) {
     @platform_audio.stop(instance=sink.instance)
     audio_sinks().remove(entity)
@@ -350,7 +350,7 @@ pub fn restart_audio(entity : @entity.Entity) -> Unit {
 }
 
 ///|
-pub fn stop_audio(entity : @entity.Entity) -> Unit {
+pub fn stop_audio(entity : @ecs.Entity) -> Unit {
   if audio_sinks().get(entity) is Some(sink) {
     @platform_audio.stop(instance=sink.instance)
     audio_sinks().remove(entity)
@@ -381,7 +381,7 @@ fn cleanup_orphaned_audio() -> Unit {
 
 ///|
 fn start_audio_sink(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   player : AudioPlayer,
   settings : PlaybackSettings,
 ) -> Unit {
@@ -410,7 +410,7 @@ fn start_audio_sink(
 }
 
 ///|
-fn finish_audio_sink(entity : @entity.Entity) -> Unit {
+fn finish_audio_sink(entity : @ecs.Entity) -> Unit {
   guard audio_sinks().get(entity) is Some(sink) else { return }
   match sink.mode {
     Once => sink.finished = true
@@ -427,7 +427,7 @@ fn finish_audio_sink(entity : @entity.Entity) -> Unit {
 }
 
 ///|
-fn sync_audio_sink(entity : @entity.Entity, sink : AudioSink) -> Unit {
+fn sync_audio_sink(entity : @ecs.Entity, sink : AudioSink) -> Unit {
   if sink.stopped {
     if !sink.finished {
       @platform_audio.stop(instance=sink.instance)

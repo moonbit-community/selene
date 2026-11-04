@@ -102,38 +102,36 @@ pub fn KinematicCharacterControllerCollisions::empty() -> KinematicCharacterCont
 
 ///|
 priv struct Physics3DComponentWorldStore {
-  rigid_bodies : @entity.ComponentStore[RigidBody]
-  velocities : @entity.ComponentStore[Velocity]
-  dampings : @entity.ComponentStore[Damping]
-  gravity_scales : @entity.ComponentStore[GravityScale]
-  locked_axes : @entity.ComponentStore[LockedAxes]
-  ccds : @entity.ComponentStore[Ccd]
-  dominances : @entity.ComponentStore[Dominance]
-  additional_mass_properties : @entity.ComponentStore[AdditionalMassProperties]
-  colliders : @entity.ComponentStore[Collider]
-  sensors : @entity.ComponentStore[Sensor]
-  frictions : @entity.ComponentStore[Friction]
-  restitutions : @entity.ComponentStore[Restitution]
-  collision_groups : @entity.ComponentStore[CollisionGroups]
-  solver_groups : @entity.ComponentStore[SolverGroups]
-  active_collision_types : @entity.ComponentStore[
-    @collision.ActiveCollisionTypes,
-  ]
-  active_events : @entity.ComponentStore[@collision.ActiveEvents]
-  active_hooks : @entity.ComponentStore[@collision.ActiveHooks]
-  contact_force_event_thresholds : @entity.ComponentStore[
+  rigid_bodies : @ecs.ComponentStore[RigidBody]
+  velocities : @ecs.ComponentStore[Velocity]
+  dampings : @ecs.ComponentStore[Damping]
+  gravity_scales : @ecs.ComponentStore[GravityScale]
+  locked_axes : @ecs.ComponentStore[LockedAxes]
+  ccds : @ecs.ComponentStore[Ccd]
+  dominances : @ecs.ComponentStore[Dominance]
+  additional_mass_properties : @ecs.ComponentStore[AdditionalMassProperties]
+  colliders : @ecs.ComponentStore[Collider]
+  sensors : @ecs.ComponentStore[Sensor]
+  frictions : @ecs.ComponentStore[Friction]
+  restitutions : @ecs.ComponentStore[Restitution]
+  collision_groups : @ecs.ComponentStore[CollisionGroups]
+  solver_groups : @ecs.ComponentStore[SolverGroups]
+  active_collision_types : @ecs.ComponentStore[@collision.ActiveCollisionTypes]
+  active_events : @ecs.ComponentStore[@collision.ActiveEvents]
+  active_hooks : @ecs.ComponentStore[@collision.ActiveHooks]
+  contact_force_event_thresholds : @ecs.ComponentStore[
     ContactForceEventThreshold,
   ]
-  collider_mass_properties : @entity.ComponentStore[ColliderMassProperties]
-  impulse_joints : @entity.ComponentStore[ImpulseJoint]
-  multibody_joints : @entity.ComponentStore[MultibodyJoint]
-  kinematic_character_controllers : @entity.ComponentStore[
+  collider_mass_properties : @ecs.ComponentStore[ColliderMassProperties]
+  impulse_joints : @ecs.ComponentStore[ImpulseJoint]
+  multibody_joints : @ecs.ComponentStore[MultibodyJoint]
+  kinematic_character_controllers : @ecs.ComponentStore[
     KinematicCharacterController,
   ]
-  kinematic_character_controller_outputs : @entity.ComponentStore[
+  kinematic_character_controller_outputs : @ecs.ComponentStore[
     KinematicCharacterControllerOutput,
   ]
-  kinematic_character_controller_collisions : @entity.ComponentStore[
+  kinematic_character_controller_collisions : @ecs.ComponentStore[
     KinematicCharacterControllerCollisions,
   ]
 }
@@ -178,79 +176,79 @@ fn physics3d_component_world_store() -> Physics3DComponentWorldStore {
 }
 
 ///|
-pub fn rigid_bodies() -> @entity.ComponentStore[RigidBody] {
+pub fn rigid_bodies() -> @ecs.ComponentStore[RigidBody] {
   physics3d_component_world_store().rigid_bodies
 }
 
 ///|
-pub fn velocities() -> @entity.ComponentStore[Velocity] {
+pub fn velocities() -> @ecs.ComponentStore[Velocity] {
   physics3d_component_world_store().velocities
 }
 
 ///|
-pub fn dampings() -> @entity.ComponentStore[Damping] {
+pub fn dampings() -> @ecs.ComponentStore[Damping] {
   physics3d_component_world_store().dampings
 }
 
 ///|
-pub fn gravity_scales() -> @entity.ComponentStore[GravityScale] {
+pub fn gravity_scales() -> @ecs.ComponentStore[GravityScale] {
   physics3d_component_world_store().gravity_scales
 }
 
 ///|
-pub fn locked_axes() -> @entity.ComponentStore[LockedAxes] {
+pub fn locked_axes() -> @ecs.ComponentStore[LockedAxes] {
   physics3d_component_world_store().locked_axes
 }
 
 ///|
-pub fn ccds() -> @entity.ComponentStore[Ccd] {
+pub fn ccds() -> @ecs.ComponentStore[Ccd] {
   physics3d_component_world_store().ccds
 }
 
 ///|
-pub fn dominances() -> @entity.ComponentStore[Dominance] {
+pub fn dominances() -> @ecs.ComponentStore[Dominance] {
   physics3d_component_world_store().dominances
 }
 
 ///|
-pub fn additional_mass_properties() -> @entity.ComponentStore[
+pub fn additional_mass_properties() -> @ecs.ComponentStore[
   AdditionalMassProperties,
 ] {
   physics3d_component_world_store().additional_mass_properties
 }
 
 ///|
-pub fn colliders() -> @entity.ComponentStore[Collider] {
+pub fn colliders() -> @ecs.ComponentStore[Collider] {
   physics3d_component_world_store().colliders
 }
 
 ///|
-pub fn sensors() -> @entity.ComponentStore[Sensor] {
+pub fn sensors() -> @ecs.ComponentStore[Sensor] {
   physics3d_component_world_store().sensors
 }
 
 ///|
-pub fn frictions() -> @entity.ComponentStore[Friction] {
+pub fn frictions() -> @ecs.ComponentStore[Friction] {
   physics3d_component_world_store().frictions
 }
 
 ///|
-pub fn restitutions() -> @entity.ComponentStore[Restitution] {
+pub fn restitutions() -> @ecs.ComponentStore[Restitution] {
   physics3d_component_world_store().restitutions
 }
 
 ///|
-pub fn collision_groups() -> @entity.ComponentStore[CollisionGroups] {
+pub fn collision_groups() -> @ecs.ComponentStore[CollisionGroups] {
   physics3d_component_world_store().collision_groups
 }
 
 ///|
-pub fn solver_groups() -> @entity.ComponentStore[SolverGroups] {
+pub fn solver_groups() -> @ecs.ComponentStore[SolverGroups] {
   physics3d_component_world_store().solver_groups
 }
 
 ///|
-pub fn active_collision_types() -> @entity.ComponentStore[
+pub fn active_collision_types() -> @ecs.ComponentStore[
   @collision.ActiveCollisionTypes,
 ] {
   physics3d_component_world_store().active_collision_types

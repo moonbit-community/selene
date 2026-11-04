@@ -101,7 +101,6 @@ import {
   "Milky2018/selene/asset",
   "Milky2018/selene/audio",
   "Milky2018/selene/ecs",
-  "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
@@ -177,12 +176,12 @@ Global game state can store player references, score, volume status, and UI enti
 
 ```moonbit
 struct GameSession {
-  player : @entity.Entity
-  camera : @entity.Entity
-  result_box : @entity.Entity
-  score_box : @entity.Entity
-  health_box : @entity.Entity
-  volume_button : @entity.Entity
+  player : @ecs.Entity
+  camera : @ecs.Entity
+  result_box : @ecs.Entity
+  score_box : @ecs.Entity
+  health_box : @ecs.Entity
+  volume_button : @ecs.Entity
   mut score : Int
   mut volume_on : Bool
   mut health : Int
@@ -203,7 +202,7 @@ struct PlayerController {
 Game objects are represented by Entity + Component data. Example:
 
 ```moonbit
-let player = @entity.Entity()
+let player = @ecs.Entity()
 @transform.transforms().set(player, @transform.Transform::from_xyz(100.0, 100.0, 0.0))
 @physics2d.linear_velocities().set(player, @math.Vec2::zero())
 ```

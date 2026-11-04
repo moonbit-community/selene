@@ -20,8 +20,8 @@ pub(all) struct Sprite {
 }
 
 ///|
-pub fn sprites() -> @entity.ComponentStore[Sprite] {
-  @entity.components()
+pub fn sprites() -> @ecs.ComponentStore[Sprite] {
+  @ecs.components()
 }
 
 ///|
@@ -83,19 +83,19 @@ pub fn Sprite::from_color(
 
 ///|
 let sprite_query_key : @ecs.ResourceKey[
-  @entity.ArchetypeQuery2[Sprite, @transform.GlobalTransform],
+  @ecs.Query2[Sprite, @transform.GlobalTransform],
 ] = ResourceKey(world => {
-  let sprites : @entity.ComponentStore[Sprite] = @entity.components_in(world)
-  let transforms : @entity.ComponentStore[@transform.GlobalTransform] = @entity.components_in(
+  let sprites : @ecs.ComponentStore[Sprite] = @ecs.components_in(world)
+  let transforms : @ecs.ComponentStore[@transform.GlobalTransform] = @ecs.components_in(
     world,
   )
-  ArchetypeQuery2(sprites, transforms)
+  Query2(sprites, transforms)
 })
 
 ///|
 /// Visits Sprites with a GlobalTransform in contiguous archetype rows.
 pub fn for_each_sprite_transform(
-  visit : (@entity.Entity, Sprite, @transform.GlobalTransform) -> Unit,
+  visit : (@ecs.Entity, Sprite, @transform.GlobalTransform) -> Unit,
 ) -> Unit {
   sprite_query_key.get().for_each(visit)
 }
@@ -105,7 +105,7 @@ pub fn render_sprite_system(delta : Double) -> Unit {
   ignore(delta)
   let camera_views = @camera.active_camera2d_views()
   let camera_extract = @culling2d.build_camera_extract2d_context(camera_views)
-  let is_alive = @entity.alive_in_world(@ecs.require_current_world())
+  let is_alive = @ecs.alive_in_world(@ecs.require_current_world())
   let sprites = sprites()
   let sorting2ds = @render2d.sorting2ds()
   // Draw ties retain Sprite insertion order even when a row moves tables.
@@ -193,7 +193,7 @@ pub fn render_sprite_system(delta : Double) -> Unit {
 
 ///|
 fn push_sprite_draw_command(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   sprite : Sprite,
   size : @math.Vec2,
   depth : Double,

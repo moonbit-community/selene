@@ -24,6 +24,9 @@
 
 ### Changed
 
+- Consolidated entities, components, resources, queries, and deferred commands
+  under `@ecs`. App stages run through the ECS scheduler, which applies
+  commands and lifecycle changes at the end of each update schedule.
 - Migrated ECS storage declarations to component and resource keys. Resource
   initializers receive the World that owns the value.
 - Run workspace tests in CI with MoonBit's default target selection.
@@ -54,8 +57,10 @@
 
 ### Removed
 
+- Removed the separate `entity`, `query`, and `commands` packages. Import
+  `Milky2018/selene/ecs` for these APIs.
 - Removed direct access to the World's command queue. Use `Commands::add` and
-  `@commands.has_pending_commands` to enqueue and inspect pending work. The app
+  `@ecs.has_pending_commands` to enqueue and inspect pending work. The app
   scheduler flushes after startup, after each fixed step, and at the end of the
   game frame.
 - Removed the Map-based ECS command insertion and removal APIs. Use

@@ -3,15 +3,15 @@ package "Milky2018/selene/parallax2d"
 
 import {
   "Milky2018/selene/camera",
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "moonbitlang/core/debug",
 }
 
 // Values
-pub fn inherited_parallax2d(@entity.Entity) -> Parallax2d?
+pub fn inherited_parallax2d(@ecs.Entity) -> Parallax2d?
 
-pub fn parallax2ds() -> @entity.ComponentStore[Parallax2d]
+pub fn parallax2ds() -> @ecs.ComponentStore[Parallax2d]
 
 pub fn parallax_depends_on_camera(Parallax2d?) -> Bool
 

@@ -3,7 +3,7 @@ package "Milky2018/selene/animation"
 
 import {
   "Milky2018/selene/asset",
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
@@ -12,7 +12,7 @@ import {
 }
 
 // Values
-pub fn animated_bys() -> @entity.ComponentStore[AnimatedBy]
+pub fn animated_bys() -> @ecs.ComponentStore[AnimatedBy]
 
 pub fn animated_field(AnimatedFieldHandle) -> AnimatedField?
 
@@ -26,29 +26,29 @@ pub fn animation_graph_asset(AnimationGraphHandle) -> AnimationGraph?
 
 pub let animation_graph_asset_events : @event.Events[@asset.AssetEvent[AnimationGraphHandle]]
 
-pub fn animation_graph_handles() -> @entity.ComponentStore[AnimationGraphHandle]
+pub fn animation_graph_handles() -> @ecs.ComponentStore[AnimationGraphHandle]
 
 pub fn animation_player_system(Double) -> Unit
 
-pub fn animation_players() -> @entity.ComponentStore[AnimationPlayer]
+pub fn animation_players() -> @ecs.ComponentStore[AnimationPlayer]
 
 pub fn animation_skinning_system(Double) -> Unit
 
-pub fn animation_target_id_of(@entity.Entity) -> AnimationTargetId?
+pub fn animation_target_id_of(@ecs.Entity) -> AnimationTargetId?
 
-pub fn animation_target_ids() -> @entity.ComponentStore[AnimationTargetId]
+pub fn animation_target_ids() -> @ecs.ComponentStore[AnimationTargetId]
 
 pub fn animation_transition_system(Double) -> Unit
 
-pub fn animation_transitions() -> @entity.ComponentStore[AnimationTransitions]
+pub fn animation_transitions() -> @ecs.ComponentStore[AnimationTransitions]
 
-pub fn bind_morph_mesh(@entity.Entity, MorphMeshBinding3D) -> Unit
+pub fn bind_morph_mesh(@ecs.Entity, MorphMeshBinding3D) -> Unit
 
-pub fn bind_skinned_mesh(@entity.Entity, SkinnedMeshBinding3D) -> Unit
+pub fn bind_skinned_mesh(@ecs.Entity, SkinnedMeshBinding3D) -> Unit
 
-pub fn clear_morph_mesh(@entity.Entity) -> Unit
+pub fn clear_morph_mesh(@ecs.Entity) -> Unit
 
-pub fn clear_skinned_mesh(@entity.Entity) -> Unit
+pub fn clear_skinned_mesh(@ecs.Entity) -> Unit
 
 pub fn morph_weights_field() -> AnimatedFieldHandle
 
@@ -117,15 +117,15 @@ pub fn ActiveAnimation::unpause(Self) -> Self
 pub fn ActiveAnimation::weight(Self) -> Double
 
 pub(all) struct AnimatedBy {
-  player : @entity.Entity
+  player : @ecs.Entity
 }
-pub fn AnimatedBy::AnimatedBy(@entity.Entity) -> Self
+pub fn AnimatedBy::AnimatedBy(@ecs.Entity) -> Self
 
 pub(all) struct AnimatedField {
   name : String
   kind : AnimationValueKind
-  sample : (@entity.Entity) -> AnimatedValue
-  apply : (@entity.Entity, AnimatedValue) -> Unit
+  sample : (@ecs.Entity) -> AnimatedValue
+  apply : (@ecs.Entity, AnimatedValue) -> Unit
 }
 
 #derive(Eq, Hash, @debug.Debug)
@@ -182,8 +182,8 @@ pub fn AnimationClipHandle::to_repr(Self) -> @debug.Repr
 #derive(Eq, @debug.Debug)
 pub(all) struct AnimationEventContext {
   clip : AnimationClipHandle
-  player : @entity.Entity
-  target : @entity.Entity?
+  player : @ecs.Entity
+  target : @ecs.Entity?
   time : Double
 }
 pub fn AnimationEventContext::equal(Self, Self) -> Bool
@@ -309,7 +309,7 @@ pub fn ChannelInterpolation::not_equal(Self, Self) -> Bool
 pub fn ChannelInterpolation::to_repr(Self) -> @debug.Repr
 
 pub(all) struct MorphMeshBinding3D {
-  target_entity : @entity.Entity
+  target_entity : @ecs.Entity
   mesh : @render3d_types.MeshHandle
   base_positions : Array[@math.Vec3]
   indices : Array[Int32]?
@@ -375,7 +375,7 @@ pub(all) struct SkinVertexInfluence3D {
 }
 
 pub(all) struct SkinnedMeshBinding3D {
-  target_entity : @entity.Entity
+  target_entity : @ecs.Entity
   mesh : @render3d_types.MeshHandle
   base_positions : Array[@math.Vec3]
   indices : Array[Int32]?
@@ -387,7 +387,7 @@ pub(all) struct SkinnedMeshBinding3D {
   morph_targets : Array[MorphTargetBinding3D]
   mut morph_weights : Array[Double]
   influences : Array[SkinVertexInfluence3D]
-  joint_entities : Array[@entity.Entity]
+  joint_entities : Array[@ecs.Entity]
   inverse_bind_matrices : Array[@math.Mat4]
 }
 

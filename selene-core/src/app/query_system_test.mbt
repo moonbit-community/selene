@@ -10,10 +10,10 @@ test "a generated component query resolves and caches separately for each World"
   @ecs.set_current_world(second)
   for pair in [(first, 1.0), (second, 2.0)] {
     let (world, x) = pair
-    let sprites : @entity.ComponentStore[@sprite.Sprite] = @entity.components_in(
+    let sprites : @ecs.ComponentStore[@sprite.Sprite] = @ecs.components_in(
       world,
     )
-    let transforms : @entity.ComponentStore[@transform.Transform] = @entity.components_in(
+    let transforms : @ecs.ComponentStore[@transform.Transform] = @ecs.components_in(
       world,
     )
     ignore(
@@ -27,8 +27,8 @@ test "a generated component query resolves and caches separately for each World"
     )
   }
   let observed = []
-  let system = @app.query_system(fn(
-    query : @query.Query2[@sprite.Sprite, @transform.Transform],
+  let system = @ecs.query_system(fn(
+    query : @ecs.Query2[@sprite.Sprite, @transform.Transform],
   ) {
     query.for_each((_, _, transform) => observed.push(transform.translation.x))
   })

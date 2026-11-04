@@ -3,22 +3,22 @@ package "Milky2018/selene/a11y"
 
 import {
   "Milky2018/moon_accesskit",
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "moonbitlang/core/json",
 }
 
 // Values
 pub fn a11y_sync_system(Double) -> Unit
 
-pub fn a11ys() -> @entity.ComponentStore[A11y]
+pub fn a11ys() -> @ecs.ComponentStore[A11y]
 
-pub fn attach(@entity.Entity, A11y) -> Unit
+pub fn attach(@ecs.Entity, A11y) -> Unit
 
 pub fn blur() -> Unit
 
-pub fn focus(@entity.Entity) -> Unit
+pub fn focus(@ecs.Entity) -> Unit
 
-pub fn get_focused_entity() -> @entity.Entity?
+pub fn get_focused_entity() -> @ecs.Entity?
 
 pub fn latest_tree_update() -> @moon_accesskit.TreeUpdate?
 

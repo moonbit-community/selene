@@ -67,37 +67,37 @@ const WEAPON_SNIPERRIFLE_ICON_PATH = "assets/survivors/icon/weapon_sniperrifle.p
 const WEAPON_SWORD_ICON_PATH = "assets/survivors/icon/weapon_sword.png"
 
 ///|
-let levelup_buttons : Array[@entity.Entity] = []
+let levelup_buttons : Array[@ecs.Entity] = []
 
 ///|
-let levelup_button_icons : Array[@entity.Entity] = []
+let levelup_button_icons : Array[@ecs.Entity] = []
 
 ///|
-let levelup_title_ref : Ref[@entity.Entity?] = { val: None, }
+let levelup_title_ref : Ref[@ecs.Entity?] = { val: None, }
 
 ///|
-let game_over_title_ref : Ref[@entity.Entity?] = { val: None, }
+let game_over_title_ref : Ref[@ecs.Entity?] = { val: None, }
 
 ///|
-let restart_button_ref : Ref[@entity.Entity?] = { val: None, }
+let restart_button_ref : Ref[@ecs.Entity?] = { val: None, }
 
 ///|
 let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = EventReader()
 
 ///|
-fn set_ui_text(entity : @entity.Entity, content : String) -> Unit {
+fn set_ui_text(entity : @ecs.Entity, content : String) -> Unit {
   let text = @ui.texts().get_or_init(entity, fn() { Text(content) })
   text.content = content
 }
 
 ///|
-fn set_ui_text_color(entity : @entity.Entity, color : String) -> Unit {
+fn set_ui_text_color(entity : @ecs.Entity, color : String) -> Unit {
   @ui.text_colors().set(entity, @ui.TextColor::from_css(color))
 }
 
 ///|
 fn configure_text_entity(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   offset : @math.Vec2,
   content : String,
   color : String,
@@ -120,7 +120,7 @@ fn configure_text_entity(
 
 ///|
 fn configure_panel_box(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   offset : @math.Vec2,
   size : @math.Vec2,
   background : String,
@@ -138,7 +138,7 @@ fn configure_panel_box(
 
 ///|
 fn configure_panel_button(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   offset : @math.Vec2,
   size : @math.Vec2,
   background : String,
@@ -170,21 +170,21 @@ fn game_over_panel_origin() -> @math.Vec2 {
 }
 
 ///|
-fn set_ui_active(entity : @entity.Entity, active : Bool) -> Unit {
+fn set_ui_active(entity : @ecs.Entity, active : Bool) -> Unit {
   if @ui.nodes().get(entity) is Some(node) {
     @ui.nodes().set(entity, { ..node, active, })
   }
 }
 
 ///|
-fn set_button_enabled(entity : @entity.Entity, enabled : Bool) -> Unit {
+fn set_button_enabled(entity : @ecs.Entity, enabled : Bool) -> Unit {
   if @ui.buttons().get(entity) is Some(_) {
     @ui.buttons().set(entity, Button(enabled~))
   }
 }
 
 ///|
-fn set_icon_image(entity : @entity.Entity, path : String) -> Unit {
+fn set_icon_image(entity : @ecs.Entity, path : String) -> Unit {
   @ui.ui_images().set(
     entity,
     UiImage(
@@ -297,7 +297,7 @@ fn setup_level_up_ui() -> Unit {
     "black",
   )
 
-  let title = @entity.Entity()
+  let title = @ecs.Entity()
   levelup_title_ref.val = Some(title)
   configure_text_entity(
     title,
@@ -313,7 +313,7 @@ fn setup_level_up_ui() -> Unit {
   for i in 0..<3 {
     let button_y = LEVELUP_PANEL_BUTTON_START_Y +
       i.to_double() * (36.0 + LEVELUP_PANEL_BUTTON_GAP_Y)
-    let button = @entity.Entity()
+    let button = @ecs.Entity()
     configure_panel_button(
       button,
       levelup_panel_origin() + Vec2(0.0, button_y),
@@ -361,8 +361,8 @@ fn level_up(level : Int32) -> Unit {
 ///|
 fn update_selection_display(
   selection : LevelUpSelection,
-  button_entity : @entity.Entity,
-  icon_entity : @entity.Entity,
+  button_entity : @ecs.Entity,
+  icon_entity : @ecs.Entity,
 ) -> Unit {
   match selection {
     PowerupSelection(powerup) => {
@@ -450,7 +450,7 @@ fn setup_game_over_ui() -> Unit {
     "white",
   )
 
-  let title = @entity.Entity()
+  let title = @ecs.Entity()
   game_over_title_ref.val = Some(title)
   configure_text_entity(
     title,
@@ -474,7 +474,7 @@ fn setup_game_over_ui() -> Unit {
     zindex=PANEL_TEXT_ZINDEX,
   )
 
-  let restart_button = @entity.Entity()
+  let restart_button = @ecs.Entity()
   restart_button_ref.val = Some(restart_button)
   configure_panel_button(
     restart_button,

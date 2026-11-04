@@ -58,7 +58,7 @@ priv struct RenderFrameState2D {
 let frame2d_by_world : Map[UInt32, RenderFrameState2D] = Map([])
 
 ///|
-let sorting2d_component_key : @entity.ComponentKey[Sorting2d] = ComponentKey()
+let sorting2d_component_key : @ecs.ComponentKey[Sorting2d] = ComponentKey()
 
 ///|
 fn frame2d() -> RenderFrameState2D {
@@ -75,7 +75,7 @@ fn frame2d() -> RenderFrameState2D {
 }
 
 ///|
-pub fn sorting2ds() -> @entity.ComponentStore[Sorting2d] {
+pub fn sorting2ds() -> @ecs.ComponentStore[Sorting2d] {
   sorting2d_component_key.store()
 }
 
@@ -88,11 +88,11 @@ pub fn begin_frame2d_system(_delta : Double) -> Unit {
     camera_ui_commands: Map([]),
     next_order: 0,
   })
-  sorting2ds().retain(@entity.alive_in_world(@ecs.require_current_world()))
+  sorting2ds().retain(@ecs.alive_in_world(@ecs.require_current_world()))
 }
 
 ///|
-pub fn entity_sorting2d(entity : @entity.Entity) -> Sorting2d {
+pub fn entity_sorting2d(entity : @ecs.Entity) -> Sorting2d {
   sorting2ds().get(entity).unwrap_or(Sorting2d())
 }
 

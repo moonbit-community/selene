@@ -27,7 +27,7 @@ pub enum SpatialQueryBodyFilter {
 #derive(Eq)
 pub struct SpatialQueryFilter {
   groups : CollisionFilter?
-  exclude_entity : @entity.Entity?
+  exclude_entity : @ecs.Entity?
   exclude_sensors : Bool
   exclude_solids : Bool
   body_filter : SpatialQueryBodyFilter
@@ -63,7 +63,7 @@ pub fn SpatialQueryFilter::only_kinematic() -> SpatialQueryFilter {
 /// Payload for a 2D raycast hit.
 #derive(Eq, Debug)
 pub struct RaycastHit {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   toi : Double
   point : @math.Vec2
   normal : @math.Vec2
@@ -73,7 +73,7 @@ pub struct RaycastHit {
 /// Payload for a 2D shape-cast hit.
 #derive(Eq, Debug)
 pub struct ShapeCastHit {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   toi : Double
   point : @math.Vec2
   normal : @math.Vec2

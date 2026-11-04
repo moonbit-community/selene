@@ -1,6 +1,6 @@
 ///|
 /// A World-bound two-column query. Only new archetypes need to be matched.
-struct ArchetypeQuery2[A, B] {
+struct Query2[A, B] {
   a : ComponentStore[A]
   b : ComponentStore[B]
   matches : Array[Int32]
@@ -8,10 +8,10 @@ struct ArchetypeQuery2[A, B] {
 }
 
 ///|
-pub fn[A, B] ArchetypeQuery2::ArchetypeQuery2(
+pub fn[A, B] Query2::Query2(
   a : ComponentStore[A],
   b : ComponentStore[B],
-) -> ArchetypeQuery2[A, B] {
+) -> Query2[A, B] {
   guard a.world_id == b.world_id else {
     abort("component stores belong to different worlds")
   }
@@ -19,8 +19,8 @@ pub fn[A, B] ArchetypeQuery2::ArchetypeQuery2(
 }
 
 ///|
-fn[A, B] ArchetypeQuery2::for_each_columns(
-  self : ArchetypeQuery2[A, B],
+fn[A, B] Query2::for_each_columns(
+  self : Query2[A, B],
   visit : (Array[Entity], Array[A], Array[B]) -> Unit,
 ) -> Unit {
   let storage = self.a.storage
@@ -30,11 +30,11 @@ fn[A, B] ArchetypeQuery2::for_each_columns(
     }
   }
   self.scanned = storage.tables.length()
-  @ecs_schedule.enter_query()
+  enter_query()
   storage.active_queries += 1
   defer {
     storage.active_queries -= 1
-    @ecs_schedule.leave_query()
+    leave_query()
   }
   for id in self.matches {
     let entities = storage.tables[id].entities
@@ -46,8 +46,8 @@ fn[A, B] ArchetypeQuery2::for_each_columns(
 
 ///|
 /// Visits matching rows. Queue structural changes after traversal.
-pub fn[A, B] ArchetypeQuery2::for_each(
-  self : ArchetypeQuery2[A, B],
+pub fn[A, B] Query2::for_each(
+  self : Query2[A, B],
   visit : (Entity, A, B) -> Unit,
 ) -> Unit {
   self.for_each_columns((entities, a, b) => {
@@ -60,8 +60,8 @@ pub fn[A, B] ArchetypeQuery2::for_each(
 ///|
 /// Visits each nonempty matching archetype with aligned, zero-copy columns.
 /// Views are valid only during the callback. Defer structural changes until traversal finishes.
-pub fn[A, B] ArchetypeQuery2::for_each_batch(
-  self : ArchetypeQuery2[A, B],
+pub fn[A, B] Query2::for_each_batch(
+  self : Query2[A, B],
   visit : (ArrayView[Entity], ArrayView[A], ArrayView[B]) -> Unit,
 ) -> Unit {
   self.for_each_columns((entities, a, b) => visit(entities[:], a[:], b[:]))
@@ -71,8 +71,8 @@ pub fn[A, B] ArchetypeQuery2::for_each_batch(
 /// Visits each batch with write access to its first component column.
 /// Views are valid only during the callback. Defer structural changes until traversal finishes.
 /// If both query inputs are the same store, the second view observes the writes.
-pub fn[A, B] ArchetypeQuery2::for_each_batch_mut_a(
-  self : ArchetypeQuery2[A, B],
+pub fn[A, B] Query2::for_each_batch_mut_a(
+  self : Query2[A, B],
   visit : (ArrayView[Entity], MutArrayView[A], ArrayView[B]) -> Unit,
 ) -> Unit {
   self.for_each_columns((entities, a, b) => {

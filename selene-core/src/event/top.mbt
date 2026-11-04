@@ -24,7 +24,7 @@ pub(all) struct ObserverHandle(Int32)
 ///|
 pub(all) struct Trigger[T] {
   event : T
-  target : @entity.Entity?
+  target : @ecs.Entity?
 }
 
 ///|
@@ -35,7 +35,7 @@ priv struct EventRecord[T] {
 
 ///|
 priv struct ObserverEntry[T] {
-  target : @entity.Entity?
+  target : @ecs.Entity?
   callback : (Trigger[T]) -> Unit
 }
 
@@ -141,7 +141,7 @@ pub fn[T] EventWriter::send(self : EventWriter[T], event : T) -> Unit {
 pub fn[T] EventWriter::trigger(
   self : EventWriter[T],
   event : T,
-  target? : @entity.Entity?,
+  target? : @ecs.Entity?,
 ) -> Unit {
   self.events.trigger(event, target.unwrap_or(None))
 }
@@ -194,7 +194,7 @@ pub fn[T] Events::send(self : Events[T], event : T) -> Unit {
 pub fn[T] Events::trigger(
   self : Events[T],
   event : T,
-  target : @entity.Entity?,
+  target : @ecs.Entity?,
 ) -> Unit {
   let store = world_store(self)
   self.send(event)
@@ -216,7 +216,7 @@ pub fn[T] Events::observe_global(
 ///|
 pub fn[T] Events::observe_entity(
   self : Events[T],
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   callback : (Trigger[T]) -> Unit,
 ) -> ObserverHandle {
   let store = world_store(self)
@@ -282,7 +282,7 @@ pub fn[T] send(events : Events[T], event : T) -> Unit {
 pub fn[T] trigger(
   events : Events[T],
   event : T,
-  target? : @entity.Entity?,
+  target? : @ecs.Entity?,
 ) -> Unit {
   events.trigger(event, target.unwrap_or(None))
 }
@@ -298,7 +298,7 @@ pub fn[T] observe_global(
 ///|
 pub fn[T] observe_entity(
   events : Events[T],
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   callback : (Trigger[T]) -> Unit,
 ) -> ObserverHandle {
   events.observe_entity(entity, callback)

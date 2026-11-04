@@ -46,7 +46,7 @@ priv struct HierarchyWorldStore {
 }
 
 ///|
-let hierarchy_store_key : @ecs.ResourceKey[HierarchyWorldStore] = ResourceKey(world => {
+let hierarchy_store_key : ResourceKey[HierarchyWorldStore] = ResourceKey(world => {
   parents: ComponentStore(world),
   children: ComponentStore(world),
 })
@@ -144,7 +144,7 @@ fn attach_parent_link(child : Entity, parent : Entity) -> Unit {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let parent = @entity.Entity()
+/// let parent = Entity()
 /// @transform.transforms().set(parent, @transform.Transform::from_xyz(100.0, 100.0, 0.0))
 ///
 /// let child = parent.spawn_child()
@@ -157,7 +157,7 @@ fn attach_parent_link(child : Entity, parent : Entity) -> Unit {
 /// ```
 ///
 pub fn Entity::spawn_child(parent : Entity) -> Entity {
-  guard parent.is_valid_in(@ecs.require_current_world()) else {
+  guard parent.is_valid_in(require_current_world()) else {
     abort("parent entity is invalid in this world")
   }
   let child_entity = Entity()
@@ -178,7 +178,7 @@ pub fn Entity::spawn_child(parent : Entity) -> Entity {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let parent = @entity.Entity()
+/// let parent = Entity()
 /// let child1 = parent.spawn_child()
 /// let child2 = parent.spawn_child()
 ///
@@ -207,9 +207,9 @@ pub fn Entity::get_children(parent : Entity) -> Array[Entity] {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let parent = @entity.Entity()
+/// let parent = Entity()
 /// let child = parent.spawn_child()
-/// let standalone = @entity.Entity()
+/// let standalone = Entity()
 ///
 /// inspect(child.is_child(), content="true")
 /// inspect(standalone.is_child(), content="false")
@@ -236,7 +236,7 @@ pub fn Entity::is_child(entity : Entity) -> Bool {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let parent = @entity.Entity()
+/// let parent = Entity()
 /// let child = parent.spawn_child()
 ///
 /// inspect(child.get_parent().unwrap() == parent, content="true")
@@ -252,7 +252,7 @@ pub fn Entity::get_parent(child : Entity) -> Entity? {
 
 ///|
 pub fn Entity::set_parent(child : Entity, parent : Entity) -> Unit {
-  let world = @ecs.require_current_world()
+  let world = require_current_world()
   guard child.is_valid_in(world) && parent.is_valid_in(world) else { return }
   guard child != parent else { return }
   guard !hierarchy_would_create_cycle(child, parent) else { return }
@@ -263,7 +263,7 @@ pub fn Entity::set_parent(child : Entity, parent : Entity) -> Unit {
 
 ///|
 pub fn Entity::remove_parent(child : Entity) -> Unit {
-  guard child.is_valid_in(@ecs.require_current_world()) else { return }
+  guard child.is_valid_in(require_current_world()) else { return }
   detach_parent_link(child)
 }
 
@@ -285,16 +285,14 @@ pub fn Entity::remove_parent(child : Entity) -> Unit {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// @entity.entity_flush_system(0.0)
-///
-/// let root1 = @entity.Entity()
-/// let root2 = @entity.Entity()
+/// let root1 = Entity()
+/// let root2 = Entity()
 /// let child1 = root1.spawn_child()
 /// let _grandchild = child1.spawn_child()
 ///
 /// // root1 and root2 are roots (parents but not children)
 /// // child1 is not a root (it's both a parent and a child)
-/// let roots = @entity.get_roots().collect()
+/// let roots = get_roots().collect()
 /// inspect(roots.length(), content="1")
 ///
 /// root1.destroy()

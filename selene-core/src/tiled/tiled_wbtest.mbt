@@ -19,9 +19,9 @@ fn with_fake_asset_io(
 }
 
 ///|
-fn cleanup_spawned_tiled_tree(root : @entity.Entity) -> Unit {
+fn cleanup_spawned_tiled_tree(root : @ecs.Entity) -> Unit {
   despawn_tiled_tree(root)
-  @entity.entity_flush_system(0.0)
+  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
 }
 
 ///|
@@ -126,7 +126,7 @@ fn string_array_matches(
 
 ///|
 fn tiled_test_set_entity_translation_2d(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   position : @math.Vec2,
 ) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
@@ -142,7 +142,7 @@ fn tiled_test_set_entity_translation_2d(
 }
 
 ///|
-fn tiled_test_entity_translation_2d(entity : @entity.Entity) -> @math.Vec2 {
+fn tiled_test_entity_translation_2d(entity : @ecs.Entity) -> @math.Vec2 {
   let transform = @transform.transforms().get(entity).unwrap_or_default()
   Vec2(transform.translation.x, transform.translation.y)
 }
@@ -174,7 +174,7 @@ fn test_tile_cell(x : Int32, y : Int32) -> TiledCell {
 }
 
 ///|
-fn animation_image_path(entity : @entity.Entity) -> String? {
+fn animation_image_path(entity : @ecs.Entity) -> String? {
   guard @sprite.sprites().get(entity) is Some(sprite) else { return None }
   let expected_image = @asset.load_image("maps/terrain.png")
   if sprite.image == Some(expected_image) {
@@ -544,7 +544,7 @@ test "respawn_tiled_map_into_entity replaces previous tiled children and metadat
   )
   files.set("maps/bg.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
-    let root = @entity.Entity()
+    let root = @ecs.Entity()
     spawn_tiled_map_into_entity(root, load_tiled_map("maps/a.tmj"), settings={
       ..default_tiled_spawn_settings(),
       position: Vec2(1.0, 2.0),
@@ -904,7 +904,7 @@ test "respawn_tiled_world_into_entity replaces previous spawned maps" {
     ),
   )
   with_fake_asset_io(files, fn() raise {
-    let root = @entity.Entity()
+    let root = @ecs.Entity()
     spawn_tiled_world_into_entity(root, load_tiled_world("worlds/a.world"), settings={
       ..default_tiled_world_spawn_settings(),
       position: Vec2(5.0, 7.0),
@@ -954,7 +954,7 @@ test "tiled world chunking spawns maps around camera view" {
   let previous_zoom = @system.get_zoom()
   @system.configure_display(100.0, 100.0, 1.0)
 
-  let camera_entity = @entity.Entity()
+  let camera_entity = @ecs.Entity()
   defer camera_entity.destroy()
   @camera.cameras().set(camera_entity, Camera())
   @camera.camera2ds().set(camera_entity, Camera2d())
@@ -1023,14 +1023,14 @@ test "tiled world chunking unions multiple active camera views" {
   let previous_zoom = @system.get_zoom()
   @system.configure_display(100.0, 100.0, 1.0)
 
-  let left_camera = @entity.Entity()
+  let left_camera = @ecs.Entity()
   defer left_camera.destroy()
   @camera.cameras().set(left_camera, Camera(order=0))
   @camera.camera2ds().set(left_camera, Camera2d())
   @camera.orthographic_projections().set(left_camera, OrthographicProjection())
   tiled_test_set_entity_translation_2d(left_camera, Vec2(50.0, 50.0))
 
-  let right_camera = @entity.Entity()
+  let right_camera = @ecs.Entity()
   defer right_camera.destroy()
   @camera.cameras().set(right_camera, Camera(order=1))
   @camera.camera2ds().set(right_camera, Camera2d())
@@ -1091,14 +1091,14 @@ test "Tiled parallax uses map origin for each camera view" {
   let previous_zoom = @system.get_zoom()
   @system.configure_display(100.0, 100.0, 1.0)
 
-  let left_camera = @entity.Entity()
+  let left_camera = @ecs.Entity()
   defer left_camera.destroy()
   @camera.cameras().set(left_camera, Camera(order=0))
   @camera.camera2ds().set(left_camera, Camera2d())
   @camera.orthographic_projections().set(left_camera, OrthographicProjection())
   tiled_test_set_entity_translation_2d(left_camera, Vec2(50.0, 50.0))
 
-  let right_camera = @entity.Entity()
+  let right_camera = @ecs.Entity()
   defer right_camera.destroy()
   @camera.cameras().set(right_camera, Camera(order=1))
   @camera.camera2ds().set(right_camera, Camera2d())

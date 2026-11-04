@@ -37,10 +37,10 @@ priv struct CachedTextLayout2d {
 
 ///|
 priv struct Text2dWorldStore {
-  text2ds : @entity.ComponentStore[Text2d]
-  text_bounds : @entity.ComponentStore[TextBounds]
-  text_anchors : @entity.ComponentStore[@sprite.Anchor]
-  text_layout_caches : Map[@entity.Entity, CachedTextLayout2d]
+  text2ds : @ecs.ComponentStore[Text2d]
+  text_bounds : @ecs.ComponentStore[TextBounds]
+  text_anchors : @ecs.ComponentStore[@sprite.Anchor]
+  text_layout_caches : Map[@ecs.Entity, CachedTextLayout2d]
 }
 
 ///|
@@ -57,22 +57,22 @@ fn text2d_world_store() -> Text2dWorldStore {
 }
 
 ///|
-pub fn text2ds() -> @entity.ComponentStore[Text2d] {
+pub fn text2ds() -> @ecs.ComponentStore[Text2d] {
   text2d_world_store().text2ds
 }
 
 ///|
-pub fn text_bounds() -> @entity.ComponentStore[TextBounds] {
+pub fn text_bounds() -> @ecs.ComponentStore[TextBounds] {
   text2d_world_store().text_bounds
 }
 
 ///|
-pub fn text_anchors() -> @entity.ComponentStore[@sprite.Anchor] {
+pub fn text_anchors() -> @ecs.ComponentStore[@sprite.Anchor] {
   text2d_world_store().text_anchors
 }
 
 ///|
-fn text_layout_caches() -> Map[@entity.Entity, CachedTextLayout2d] {
+fn text_layout_caches() -> Map[@ecs.Entity, CachedTextLayout2d] {
   text2d_world_store().text_layout_caches
 }
 
@@ -87,12 +87,12 @@ pub fn TextBounds::TextBounds(width : Double, height : Double) -> TextBounds {
 }
 
 ///|
-fn text2d_layout(entity : @entity.Entity) -> @ui.TextLayout {
+fn text2d_layout(entity : @ecs.Entity) -> @ui.TextLayout {
   @ui.text_layouts().get(entity).unwrap_or(TextLayout())
 }
 
 ///|
-fn text2d_anchor(entity : @entity.Entity) -> @sprite.Anchor {
+fn text2d_anchor(entity : @ecs.Entity) -> @sprite.Anchor {
   text_anchors().get(entity).unwrap_or(Anchor(Vec2(0.0, 0.0)))
 }
 
@@ -251,7 +251,7 @@ fn text_layout_cache_key(
 
 ///|
 fn cached_text_layout(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   text : String,
   style : @render2d_types.TextStyle2D,
   layout : @ui.TextLayout,
@@ -414,7 +414,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
 
 ///|
 fn push_text2d_lines(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   lines : Array[String],
   style : @render2d_types.TextStyle2D,
   layout : @ui.TextLayout,

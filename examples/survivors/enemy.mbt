@@ -262,7 +262,7 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
     // Try to select an enemy type for the current wave
     match select_enemy_type_for_wave(rand) {
       Some(enemy_type) => {
-        let enemy = @entity.Entity()
+        let enemy = @ecs.Entity()
         let pos = spawners[rand.int(limit=spawners.length())]
         @transform.transforms().set(
           enemy,
@@ -341,12 +341,12 @@ enum EnemyType {
 }
 
 ///|
-fn enemies() -> @entity.ComponentStore[Enemy] {
-  @entity.components()
+fn enemies() -> @ecs.ComponentStore[Enemy] {
+  @ecs.components()
 }
 
 ///|
-let enemy_bullets : Set[@entity.Entity] = Set([])
+let enemy_bullets : Set[@ecs.Entity] = Set([])
 
 ///|
 let enemy_contact_event_reader : @event.EventReader[@physics2d.ContactEvent] = EventReader()
@@ -356,7 +356,7 @@ let enemy_trigger_event_reader : @event.EventReader[@physics2d.TriggerEvent] = E
 
 ///|
 fn create_enemy_animation_nodes(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   data : EnemyData,
 ) -> (@animation.AnimationNodeIndex, @animation.AnimationNodeIndex) {
   let graph = @animation.AnimationGraph()
@@ -372,7 +372,7 @@ fn create_enemy_animation_nodes(
 
 ///|
 fn play_enemy_animation_state(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   state : Enemy,
   animation : SpriteAnimationDef,
   node : @animation.AnimationNodeIndex,
@@ -534,7 +534,7 @@ fn devil_shooting_system(_world : @ecs.World) -> Unit {
 
 ///|
 fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
-  let bullet_entity = @entity.Entity()
+  let bullet_entity = @ecs.Entity()
   @sprite.sprites().set(
     bullet_entity,
     Sprite(

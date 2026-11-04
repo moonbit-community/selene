@@ -18,7 +18,7 @@
 pub(all) struct Area {
   mut active : Bool
   filter : CollisionFilter
-  mut contains : Set[@entity.Entity]
+  mut contains : Set[@ecs.Entity]
 }
 
 ///|
@@ -27,19 +27,19 @@ pub fn Area::Area(filter : CollisionFilter) -> Area {
 }
 
 ///|
-let area_component_key : @entity.ComponentKey[Area] = ComponentKey()
+let area_component_key : @ecs.ComponentKey[Area] = ComponentKey()
 
 ///|
 /// All area components.
-pub fn areas() -> @entity.ComponentStore[Area] {
+pub fn areas() -> @ecs.ComponentStore[Area] {
   area_component_key.store()
 }
 
 ///|
 /// Trigger event emitted by the fixed-step physics system.
 pub struct TriggerEvent {
-  area : @entity.Entity
-  other : @entity.Entity
+  area : @ecs.Entity
+  other : @ecs.Entity
   entered : Bool
 }
 
@@ -53,6 +53,6 @@ fn push_trigger_event(event : TriggerEvent) -> Unit {
 }
 
 ///|
-pub fn get_contains(area : @entity.Entity) -> Set[@entity.Entity] {
+pub fn get_contains(area : @ecs.Entity) -> Set[@ecs.Entity] {
   areas().get(area).map_or(Set([]), fn(area) { area.contains })
 }

@@ -44,13 +44,13 @@ fn generate(source : String, input : String) -> String raise CodegenError {
         ("component", Some(Ident(_))) => {
           let key = "selene_component_key_\{name}"
           out.write_string(
-            "\n///|\nlet \{key} : @entity.ComponentKey[\{name}] = ComponentKey()\n",
+            "\n///|\nlet \{key} : @ecs.ComponentKey[\{name}] = ComponentKey()\n",
           )
           out.write_string(
-            "\n///|\n\{visibility}impl @entity.Component for \{name} with component_key() {\n  \{key}\n}\n",
+            "\n///|\n\{visibility}impl @ecs.Component for \{name} with component_key() {\n  \{key}\n}\n",
           )
           if !visibility.is_empty() {
-            hide_method(out, name, "@entity.Component", "component_key")
+            hide_method(out, name, "@ecs.Component", "component_key")
           }
         }
         ("resource", Some(Apply(_, props))) => {

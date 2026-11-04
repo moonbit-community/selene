@@ -5,7 +5,6 @@ import {
   "Milky2018/selene/audio",
   "Milky2018/selene/camera",
   "Milky2018/selene/ecs",
-  "Milky2018/selene/entity",
   "Milky2018/selene/input_action",
   "Milky2018/selene/math",
   "Milky2018/selene/sprite",

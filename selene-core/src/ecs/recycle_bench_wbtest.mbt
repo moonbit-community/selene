@@ -1,6 +1,6 @@
 ///|
 fn spawn_recycled_population(
-  world : @ecs.World,
+  world : World,
   bundle : SpawnBundle[Int32],
   population : Array[Entity],
   size : Int32,
@@ -19,9 +19,9 @@ fn delete_population(population : Array[Entity]) -> Unit {
 }
 
 ///|
-fn cycle_entity_slots(waves : Int32, size : Int32) -> @ecs.World {
-  let world = @ecs.World()
-  @ecs.set_current_world(world)
+fn cycle_entity_slots(waves : Int32, size : Int32) -> World {
+  let world = World()
+  set_current_world(world)
   let values : ComponentStore[Int32] = ComponentStore(world)
   let bundle = values.spawn_bundle()
   let population = []
@@ -34,10 +34,10 @@ fn cycle_entity_slots(waves : Int32, size : Int32) -> @ecs.World {
 
 ///|
 test "batch entity slot churn" (b : @bench.T) {
-  let previous = @ecs.current_world()
+  let previous = current_world()
   defer (match previous {
-    Some(world) => @ecs.set_current_world(world)
-    None => @ecs.clear_current_world()
+    Some(world) => set_current_world(world)
+    None => clear_current_world()
   })
 
   b.bench(name="spawn-delete/100x1000", count=10, () => {
@@ -47,13 +47,13 @@ test "batch entity slot churn" (b : @bench.T) {
 
 ///|
 fn bench_steady_population(b : @bench.T, replacements : Int32) -> Unit raise {
-  let previous = @ecs.current_world()
+  let previous = current_world()
   defer (match previous {
-    Some(world) => @ecs.set_current_world(world)
-    None => @ecs.clear_current_world()
+    Some(world) => set_current_world(world)
+    None => clear_current_world()
   })
-  let world = @ecs.World()
-  @ecs.set_current_world(world)
+  let world = World()
+  set_current_world(world)
   let values : ComponentStore[Int32] = ComponentStore(world)
   let bundle = values.spawn_bundle()
   let population = []

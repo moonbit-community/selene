@@ -41,7 +41,7 @@ pub fn current_world() -> World? {
 pub fn require_current_world() -> World {
   match current_world_ref.val {
     Some(world) => world
-    None => abort("No active world. Set one via @ecs.set_current_world(world).")
+    None => abort("No active world. Set one via set_current_world(world).")
   }
 }
 

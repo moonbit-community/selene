@@ -3,7 +3,6 @@ package "Milky2018/selene/event"
 
 import {
   "Milky2018/selene/ecs",
-  "Milky2018/selene/entity",
   "moonbitlang/core/debug",
 }
 
@@ -16,7 +15,7 @@ pub fn event_observer_dispatch_system(Double) -> Unit
 
 pub fn event_render_update_system(Double) -> Unit
 
-pub fn[T] observe_entity(Events[T], @entity.Entity, (Trigger[T]) -> Unit) -> ObserverHandle
+pub fn[T] observe_entity(Events[T], @ecs.Entity, (Trigger[T]) -> Unit) -> ObserverHandle
 
 pub fn[T] observe_global(Events[T], (Trigger[T]) -> Unit) -> ObserverHandle
 
@@ -24,7 +23,7 @@ pub fn[T] read(EventReader[T], Events[T]) -> Array[T]
 
 pub fn[T] send(Events[T], T) -> Unit
 
-pub fn[T] trigger(Events[T], T, target? : @entity.Entity?) -> Unit
+pub fn[T] trigger(Events[T], T, target? : @ecs.Entity?) -> Unit
 
 pub fn[T] unobserve(Events[T], ObserverHandle) -> Unit
 
@@ -55,7 +54,7 @@ pub(all) struct EventWriter[T] {
 }
 pub fn[T] EventWriter::EventWriter(Events[T]) -> Self[T]
 pub fn[T] EventWriter::send(Self[T], T) -> Unit
-pub fn[T] EventWriter::trigger(Self[T], T, target? : @entity.Entity?) -> Unit
+pub fn[T] EventWriter::trigger(Self[T], T, target? : @ecs.Entity?) -> Unit
 
 pub struct Events[T] {
   id : UInt32
@@ -66,12 +65,12 @@ pub struct Events[T] {
 pub fn[T] Events::Events(domain? : EventDomain) -> Self[T]
 pub fn[T] Events::clear(Self[T]) -> Unit
 pub fn[T] Events::dispatch_observers(Self[T]) -> Unit
-pub fn[T] Events::observe_entity(Self[T], @entity.Entity, (Trigger[T]) -> Unit) -> ObserverHandle
+pub fn[T] Events::observe_entity(Self[T], @ecs.Entity, (Trigger[T]) -> Unit) -> ObserverHandle
 pub fn[T] Events::observe_global(Self[T], (Trigger[T]) -> Unit) -> ObserverHandle
 pub fn[T] Events::read(Self[T], EventReader[T]) -> Array[T]
 pub fn[T] Events::register_to_world(Self[T], @ecs.World) -> Unit
 pub fn[T] Events::send(Self[T], T) -> Unit
-pub fn[T] Events::trigger(Self[T], T, @entity.Entity?) -> Unit
+pub fn[T] Events::trigger(Self[T], T, @ecs.Entity?) -> Unit
 pub fn[T] Events::unobserve(Self[T], ObserverHandle) -> Unit
 pub fn[T] Events::update(Self[T]) -> Unit
 pub fn[T] Events::writer(Self[T]) -> EventWriter[T]
@@ -86,7 +85,7 @@ pub fn ObserverHandle::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Trigger[T] {
   event : T
-  target : @entity.Entity?
+  target : @ecs.Entity?
 }
 
 // Type aliases

@@ -9,9 +9,7 @@ struct ComponentStore[T] {
 }
 
 ///|
-pub fn[T] ComponentStore::ComponentStore(
-  world : @ecs.World,
-) -> ComponentStore[T] {
+pub fn[T] ComponentStore::ComponentStore(world : World) -> ComponentStore[T] {
   let storage = entity_store_key.get_in(world).archetypes
   let columns : Array[Array[T]?] = []
   let order = { entries: [], head: None, tail: None, length: 0, next_rank: 0, }
@@ -35,7 +33,7 @@ pub fn[T] ComponentStore::ComponentStore(
 ///|
 pub fn[T] ComponentStore::belongs_to(
   self : ComponentStore[T],
-  world : @ecs.World,
+  world : World,
 ) -> Bool {
   self.world_id == world.id()
 }

@@ -14,9 +14,6 @@ const DEFAULT_FIXED_HZ : UInt32 = 64
 const DEFAULT_MAX_FIXED_STEPS_PER_FRAME : UInt32 = 8
 
 ///|
-pub type System = (@ecs.World) -> Unit
-
-///|
 pub type RunCondition = (@ecs.World) -> Bool
 
 ///|
@@ -24,7 +21,7 @@ pub type Plugin = (App) -> App
 
 ///|
 pub(all) struct RegisteredSystem {
-  system : System
+  system : @ecs.System
   schedule : @system.Schedule
   name : String
   in_set : @system_set.SystemSet?
@@ -134,7 +131,7 @@ pub fn[T] App::add_message(self : App, events : @event.Events[T]) -> App {
 pub fn App::add_system(
   self : App,
   schedule : @system.Schedule,
-  system : System,
+  system : @ecs.System,
   system_name? : String,
   in_set? : @system_set.SystemSet,
   before~ : Array[@system_set.SystemSet] = [],
@@ -161,7 +158,7 @@ pub fn App::add_system(
 pub fn App::add_systems(
   self : App,
   schedule : @system.Schedule,
-  systems_to_add : Array[System],
+  systems_to_add : Array[@ecs.System],
   in_set? : @system_set.SystemSet,
   before~ : Array[@system_set.SystemSet] = [],
   after~ : Array[@system_set.SystemSet] = [],
@@ -524,9 +521,9 @@ fn build_runtime_plan(
 fn startup_runtime(plan : RuntimePlan) -> Unit {
   @ecs.set_current_world(plan.world)
   @time.set_delta(0.0)
-  run_stage(plan.startup_systems, plan.world)
-  try! @ecs_schedule.flush(plan.world)
-  @entity.entity_flush_system(0.0)
+  try! @ecs.run_schedule(plan.world, world => {
+    run_stage(plan.startup_systems, world)
+  })
 }
 
 ///|
@@ -543,14 +540,14 @@ fn run_fixed_step_once(plan : RuntimePlan) -> Unit {
   plan.world.advance_fixed_step()
   @time.use_fixed_delta(plan.fixed_dt)
   let fixed_delta = @time.delta()
-  @event.event_fixed_update_system(fixed_delta)
-  run_stage(plan.fixed_first, plan.world)
-  run_stage(plan.fixed_pre, plan.world)
-  run_stage(plan.fixed_update, plan.world)
-  run_stage(plan.fixed_post, plan.world)
-  run_stage(plan.fixed_last, plan.world)
-  try! @ecs_schedule.flush(plan.world)
-  @entity.entity_flush_system(fixed_delta)
+  try! @ecs.run_schedule(plan.world, world => {
+    @event.event_fixed_update_system(fixed_delta)
+    run_stage(plan.fixed_first, world)
+    run_stage(plan.fixed_pre, world)
+    run_stage(plan.fixed_update, world)
+    run_stage(plan.fixed_post, world)
+    run_stage(plan.fixed_last, world)
+  })
   @runtime_debug.note_fixed_step(fixed_delta)
 }
 
@@ -589,20 +586,20 @@ fn run_game_frame(
 
   @time.use_frame_delta()
   let delta = @time.delta()
-  @state.state_transition_system(delta)
-  @event.event_frame_update_system(delta)
-  run_stage(plan.frame_first, plan.world)
-  run_stage(plan.frame_pre, plan.world)
-  run_stage(plan.frame_on_exit, plan.world)
-  run_stage(plan.frame_on_enter, plan.world)
-  run_stage(plan.frame_update, plan.world)
-  run_stage(plan.frame_post, plan.world)
-  @event.event_observer_dispatch_system(delta)
-  run_stage(plan.frame_last, plan.world)
-  try! @ecs_schedule.flush(plan.world)
-  @entity.entity_flush_system(delta)
+  try! @ecs.run_schedule(plan.world, world => {
+    @state.state_transition_system(delta)
+    @event.event_frame_update_system(delta)
+    run_stage(plan.frame_first, world)
+    run_stage(plan.frame_pre, world)
+    run_stage(plan.frame_on_exit, world)
+    run_stage(plan.frame_on_enter, world)
+    run_stage(plan.frame_update, world)
+    run_stage(plan.frame_post, world)
+    @event.event_observer_dispatch_system(delta)
+    run_stage(plan.frame_last, world)
+  })
 
-  @runtime_debug.note_update(delta, @entity.alive_entity_count())
+  @runtime_debug.note_update(delta, @ecs.alive_entity_count())
 
   let alpha = @cmp.maximum(
     0.0,

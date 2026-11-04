@@ -7,7 +7,7 @@ declaration can be used in several Worlds, with separate values in each one.
 ## Components and systems
 
 Mark a concrete struct or enum with `#selene.component`. The generator supplies
-its default component key and implements `@entity.Component` for the type.
+its default component key and implements `@ecs.Component` for the type.
 
 ```moonbit
 #selene.component
@@ -22,7 +22,7 @@ priv struct Velocity {
   y : Double
 }
 
-fn move_entities(query : @query.Query2[Position, Velocity]) -> Unit {
+fn move_entities(query : @ecs.Query2[Position, Velocity]) -> Unit {
   query.for_each_batch_mut_a((_, positions, velocities) => {
     for i in 0..<positions.length() {
       positions[i] = {
@@ -34,7 +34,7 @@ fn move_entities(query : @query.Query2[Position, Velocity]) -> Unit {
 }
 ```
 
-Register the callback with `app.add_system(Update, @app.query_system(move_entities))`.
+Register the callback with `app.add_system(Update, @ecs.query_system(move_entities))`.
 The adapter resolves and caches one query per World. Use the query callback's
 views within the callback and queue structural changes through `Commands`.
 
@@ -42,15 +42,15 @@ Use the expected type to select a component store for point access or a spawn
 bundle. An explicit World is useful for setup, tests, or cross-World work.
 
 ```moonbit
-let positions : @entity.ComponentStore[Position] = @entity.components()
+let positions : @ecs.ComponentStore[Position] = @ecs.components()
 positions.set(player, { x: 3.0, y: 4.0 })
 
-let preview_positions : @entity.ComponentStore[Position] =
-  @entity.components_in(preview_world)
+let preview_positions : @ecs.ComponentStore[Position] =
+  @ecs.components_in(preview_world)
 ```
 
 When two columns use the same value type, declare separate
-`@entity.ComponentKey[T]` values with `ComponentKey()`. The key provides
+`@ecs.ComponentKey[T]` values with `ComponentKey()`. The key provides
 `get(entity)`, `set(entity, value)`, `store()`, and `store_in(world)`.
 
 ## Resources
@@ -78,12 +78,24 @@ Use `@ecs.resource_in(world)` to select a World explicitly. For several resource
 of the same type, construct independent `@ecs.ResourceKey[T]` values with
 `ResourceKey(world => ...)`, then use `get()` or `get_in(world)`.
 
+## Schedules and commands
+
+Use `@ecs.commands(world)` to queue structural changes. The ECS schedule applies
+one command batch and completes entity lifecycle changes when the systems finish.
+Commands added while applying a batch run at the next synchronization point.
+The app runs these schedules at startup, for each fixed step, and for each
+game frame. Render stages consume the resulting state.
+
+Standalone ECS code can run a schedule with `@ecs.run_schedule(world, system)`.
+The scheduler rejects nested schedules and schedules started during a query.
+Messages and observers live in `@event`. Queue an event operation with
+`commands.add(_ => events.trigger(message, target))` when it should run with
+deferred work.
+
 ## Code generation
 
 The generator reads one `.mbt` file and writes a companion `.g.mbt` in the same
-package. Import `Milky2018/selene/entity` for component declarations and
-`Milky2018/selene/ecs` for resource declarations. Use their default package
-aliases `@entity` and `@ecs` in packages with generated files.
+package. Import `Milky2018/selene/ecs` as `@ecs` in packages with generated files.
 
 The generator lives in the separate `selene-codegen` module. The core module
 ships its generated sources and can build independently. CI regenerates those

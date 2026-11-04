@@ -136,8 +136,8 @@ pub enum JointKind {
 /// Authored 2D joint component that connects two rigid-body entities.
 #derive(Eq, Debug)
 pub struct Joint {
-  entity1 : @entity.Entity
-  entity2 : @entity.Entity
+  entity1 : @ecs.Entity
+  entity2 : @ecs.Entity
   kind : JointKind
   active : Bool
   contacts_enabled : Bool
@@ -164,7 +164,7 @@ pub enum MultibodyJointKind {
 /// Authored 2D multibody joint attached to the child rigid-body entity.
 #derive(Eq, Debug)
 pub struct MultibodyJoint {
-  parent : @entity.Entity
+  parent : @ecs.Entity
   kind : MultibodyJointKind
   active : Bool
 }
@@ -179,8 +179,8 @@ pub type MultibodyLinkId = @rapier_dynamics.MultibodyLinkId
 
 ///|
 pub fn Joint::fixed(
-  entity1 : @entity.Entity,
-  entity2 : @entity.Entity,
+  entity1 : @ecs.Entity,
+  entity2 : @ecs.Entity,
   local_anchor1~ : @math.Vec2 = @math.Vec2::zero(),
   local_anchor2~ : @math.Vec2 = @math.Vec2::zero(),
   active~ : Bool = true,
@@ -197,8 +197,8 @@ pub fn Joint::fixed(
 
 ///|
 pub fn Joint::revolute(
-  entity1 : @entity.Entity,
-  entity2 : @entity.Entity,
+  entity1 : @ecs.Entity,
+  entity2 : @ecs.Entity,
   local_anchor1~ : @math.Vec2 = @math.Vec2::zero(),
   local_anchor2~ : @math.Vec2 = @math.Vec2::zero(),
   limits? : JointLimits,
@@ -218,8 +218,8 @@ pub fn Joint::revolute(
 
 ///|
 pub fn Joint::prismatic(
-  entity1 : @entity.Entity,
-  entity2 : @entity.Entity,
+  entity1 : @ecs.Entity,
+  entity2 : @ecs.Entity,
   axis : @math.Vec2,
   local_anchor1~ : @math.Vec2 = @math.Vec2::zero(),
   local_anchor2~ : @math.Vec2 = @math.Vec2::zero(),
@@ -238,8 +238,8 @@ pub fn Joint::prismatic(
 
 ///|
 pub fn Joint::rope(
-  entity1 : @entity.Entity,
-  entity2 : @entity.Entity,
+  entity1 : @ecs.Entity,
+  entity2 : @ecs.Entity,
   max_distance : Double,
   local_anchor1~ : @math.Vec2 = @math.Vec2::zero(),
   local_anchor2~ : @math.Vec2 = @math.Vec2::zero(),
@@ -257,8 +257,8 @@ pub fn Joint::rope(
 
 ///|
 pub fn Joint::spring(
-  entity1 : @entity.Entity,
-  entity2 : @entity.Entity,
+  entity1 : @ecs.Entity,
+  entity2 : @ecs.Entity,
   rest_length : Double,
   stiffness : Double,
   damping : Double,
@@ -286,7 +286,7 @@ pub fn Joint::spring(
 
 ///|
 pub fn MultibodyJoint::revolute(
-  parent : @entity.Entity,
+  parent : @ecs.Entity,
   local_anchor1~ : @math.Vec2 = @math.Vec2::zero(),
   local_anchor2~ : @math.Vec2 = @math.Vec2::zero(),
   limits? : JointLimits,
@@ -303,8 +303,8 @@ pub fn MultibodyJoint::revolute(
 
 ///|
 priv struct JointWorldStore {
-  joints : @entity.ComponentStore[Joint]
-  multibody_joints : @entity.ComponentStore[MultibodyJoint]
+  joints : @ecs.ComponentStore[Joint]
+  multibody_joints : @ecs.ComponentStore[MultibodyJoint]
 }
 
 ///|
@@ -320,12 +320,12 @@ fn joint_world_store() -> JointWorldStore {
 
 ///|
 /// Authored 2D joint components.
-pub fn joints() -> @entity.ComponentStore[Joint] {
+pub fn joints() -> @ecs.ComponentStore[Joint] {
   joint_world_store().joints
 }
 
 ///|
 /// Authored 2D multibody joint components keyed by the child rigid-body entity.
-pub fn multibody_joints() -> @entity.ComponentStore[MultibodyJoint] {
+pub fn multibody_joints() -> @ecs.ComponentStore[MultibodyJoint] {
   joint_world_store().multibody_joints
 }

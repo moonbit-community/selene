@@ -30,7 +30,7 @@
 pub(all) struct Velocity(@math.Vec2)
 
 ///|
-let velocity_component_key : @entity.ComponentKey[Velocity] = ComponentKey()
+let velocity_component_key : @ecs.ComponentKey[Velocity] = ComponentKey()
 
 ///|
 /// Returns the current world's velocity component store.
@@ -39,7 +39,7 @@ let velocity_component_key : @entity.ComponentKey[Velocity] = ComponentKey()
 ///
 /// ```moonbit nocheck
 /// // Set velocity for an entity
-/// let entity = @entity.Entity()
+/// let entity = @ecs.Entity()
 /// defer entity.destroy()
 ///
 /// @velocity.velocities().set(entity, @math.Vec2(10.0, 5.0))
@@ -50,6 +50,6 @@ let velocity_component_key : @entity.ComponentKey[Velocity] = ComponentKey()
 /// inspect(entity_vel, content="Some(Velocity(Vec2(10, 5)))")
 /// ```
 ///
-pub fn velocities() -> @entity.ComponentStore[Velocity] {
+pub fn velocities() -> @ecs.ComponentStore[Velocity] {
   velocity_component_key.store()
 }

@@ -7,7 +7,7 @@ pub fn AnimationTransitions::get_main_animation(
 
 ///|
 pub fn bind_skinned_mesh(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   binding : SkinnedMeshBinding3D,
 ) -> Unit {
   skinned_meshes().set(entity, binding)
@@ -15,19 +15,19 @@ pub fn bind_skinned_mesh(
 
 ///|
 pub fn bind_morph_mesh(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   binding : MorphMeshBinding3D,
 ) -> Unit {
   morphed_meshes().set(entity, binding)
 }
 
 ///|
-pub fn clear_skinned_mesh(entity : @entity.Entity) -> Unit {
+pub fn clear_skinned_mesh(entity : @ecs.Entity) -> Unit {
   skinned_meshes().remove(entity)
 }
 
 ///|
-pub fn clear_morph_mesh(entity : @entity.Entity) -> Unit {
+pub fn clear_morph_mesh(entity : @ecs.Entity) -> Unit {
   morphed_meshes().remove(entity)
 }
 
@@ -64,7 +64,7 @@ fn curve_end_time(curve : VariableCurve) -> Double {
 ///|
 #derive(Eq, Hash)
 priv struct AnimationPropertyKey {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   field : AnimatedFieldHandle
 }
 
@@ -177,7 +177,7 @@ pub fn transform_scale_field() -> AnimatedFieldHandle {
 }
 
 ///|
-fn morph_weights_of(target_entity : @entity.Entity) -> Array[Double] {
+fn morph_weights_of(target_entity : @ecs.Entity) -> Array[Double] {
   for _, pair in morphed_meshes().to_array() {
     let (_, binding) = pair
     if binding.target_entity == target_entity {
@@ -195,7 +195,7 @@ fn morph_weights_of(target_entity : @entity.Entity) -> Array[Double] {
 
 ///|
 fn set_target_morph_weights(
-  target_entity : @entity.Entity,
+  target_entity : @ecs.Entity,
   weights : Array[Double],
 ) -> Unit {
   for _, pair in morphed_meshes().to_array() {
@@ -273,9 +273,9 @@ pub fn texture_atlas_index_field() -> AnimatedFieldHandle {
 }
 
 ///|
-fn entity_name_path(entity : @entity.Entity) -> Array[String]? {
+fn entity_name_path(entity : @ecs.Entity) -> Array[String]? {
   let segments : Array[String] = []
-  let mut current : @entity.Entity? = Some(entity)
+  let mut current : @ecs.Entity? = Some(entity)
   while current is Some(node) {
     guard @name.name_of(node) is Some(name) else { return None }
     segments.push(name)
@@ -291,7 +291,7 @@ fn entity_name_path(entity : @entity.Entity) -> Array[String]? {
 }
 
 ///|
-pub fn animation_target_id_of(entity : @entity.Entity) -> AnimationTargetId? {
+pub fn animation_target_id_of(entity : @ecs.Entity) -> AnimationTargetId? {
   if animation_target_ids().get(entity) is Some(target) {
     return Some(target)
   }

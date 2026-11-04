@@ -3,7 +3,7 @@
 /// Removes archetype rows, invalidates the handles, and recycles their slots.
 /// Queue deletion through commands when traversing an archetype query.
 pub fn Entity::delete(self : Entity) -> Bool {
-  let world = @ecs.require_current_world()
+  let world = require_current_world()
   guard self.belongs_to(world) else { false }
   let store = entity_store_key.get_in(world)
   guard store.archetypes.slot(self) is Some(_) else { false }

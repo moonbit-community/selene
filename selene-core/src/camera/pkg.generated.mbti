@@ -2,7 +2,7 @@
 package "Milky2018/selene/camera"
 
 import {
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
   "Milky2018/selene/transform",
@@ -14,15 +14,15 @@ pub fn active_camera2d_views() -> Array[Camera2dView]
 
 pub fn camera2d_view_for_screen_point(@math.Vec2) -> Camera2dView?
 
-pub fn camera2ds() -> @entity.ComponentStore[Camera2d]
+pub fn camera2ds() -> @ecs.ComponentStore[Camera2d]
 
 pub fn camera_relative_transform(@transform.GlobalTransform, Camera2dView) -> @transform.Transform
 
 pub fn camera_screen_transform(@transform.GlobalTransform, Camera2dView?) -> @math.Transform
 
-pub fn cameras() -> @entity.ComponentStore[Camera]
+pub fn cameras() -> @ecs.ComponentStore[Camera]
 
-pub fn orthographic_projections() -> @entity.ComponentStore[OrthographicProjection]
+pub fn orthographic_projections() -> @ecs.ComponentStore[OrthographicProjection]
 
 pub fn pixel_snapped_position(@math.Vec2) -> @math.Vec2
 
@@ -68,7 +68,7 @@ pub fn Camera2d::to_repr(Self) -> @debug.Repr
 pub impl Default for Camera2d
 
 pub(all) struct Camera2dView {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   camera : Camera
   global_transform : @transform.GlobalTransform
   projection : OrthographicProjection

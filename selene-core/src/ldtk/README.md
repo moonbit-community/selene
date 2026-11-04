@@ -33,9 +33,9 @@ pub struct SolidCell {}
 
 ///|
 pub fn setup_ldtk_bindings(
-  enemy_tags : @entity.ComponentStore[EnemyTag],
-  healths : @entity.ComponentStore[Health],
-  solid_cells : @entity.ComponentStore[SolidCell],
+  enemy_tags : @ecs.ComponentStore[EnemyTag],
+  healths : @ecs.ComponentStore[Health],
+  solid_cells : @ecs.ComponentStore[SolidCell],
 ) -> Unit {
   // Optional: clear old bindings before re-registering.
   @ldtk.clear_ldtk_entity_registrations()
