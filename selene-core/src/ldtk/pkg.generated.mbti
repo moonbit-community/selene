@@ -8,6 +8,7 @@ import {
   "Milky2018/selene/math",
   "Milky2018/selene/sprite",
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
   "moonbitlang/core/ref",
 }
 
@@ -459,13 +460,13 @@ pub struct LdtkFieldDefinition {
   field_type : String
   is_array : Bool
   can_be_null : Bool
-  default_override : Json?
+  default_override : @json.Json?
 }
 
 pub struct LdtkFieldInstance {
   identifier : String
   value_type : String
-  value : Json?
+  value : @json.Json?
   def_uid : Int32?
 }
 pub fn LdtkFieldInstance::bool_array_value(Self) -> Array[Bool]?
@@ -547,10 +548,11 @@ pub struct LdtkIntGridPhysicsSettings {
 }
 pub fn LdtkIntGridPhysicsSettings::matches(Self, String, Int32) -> Bool
 
+#derive(Eq, @debug.Debug)
 pub enum LdtkIntGridRendering {
   Colorful
   Invisible
-} derive(Eq, @debug.Debug)
+}
 pub fn LdtkIntGridRendering::equal(Self, Self) -> Bool
 pub fn LdtkIntGridRendering::not_equal(Self, Self) -> Bool
 pub fn LdtkIntGridRendering::to_repr(Self) -> @debug.Repr
@@ -758,7 +760,7 @@ pub fn LdtkProject::enum_definition_by_uid(Self, Int32) -> LdtkEnumDefinition?
 pub fn LdtkProject::external_enum_definition_by_identifier(Self, String) -> LdtkEnumDefinition?
 pub fn LdtkProject::external_enum_definition_by_uid(Self, Int32) -> LdtkEnumDefinition?
 pub fn LdtkProject::find_level_by_selection(Self, LdtkLevelSelection) -> LdtkIndexedLevel?
-pub fn LdtkProject::from_ldtk_json(Json) -> Self
+pub fn LdtkProject::from_ldtk_json(@json.Json) -> Self
 pub fn LdtkProject::indexed_levels(Self) -> Array[LdtkIndexedLevel]
 pub fn LdtkProject::int_grid_color(Self, String, Int32) -> String?
 pub fn LdtkProject::layer_definition_by_identifier(Self, String) -> LdtkLayerDefinition?

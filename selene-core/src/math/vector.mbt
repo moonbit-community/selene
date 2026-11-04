@@ -20,10 +20,11 @@
 /// * `X` : The horizontal axis
 /// * `Y` : The vertical axis
 ///
+#derive(Eq, Debug)
 pub(all) enum Axis {
   X
   Y
-} derive(Eq, Debug)
+}
 
 ///|
 /// 2D vector with x and y components.
@@ -44,7 +45,8 @@ pub(all) enum Axis {
 /// inspect(v2[Y], content="0")
 /// ```
 ///
-pub(all) struct Vec2(Double, Double) derive(Eq, Debug)
+#derive(Eq, Debug)
+pub(all) struct Vec2(Double, Double)
 
 ///|
 pub fn Vec2::zero() -> Vec2 {

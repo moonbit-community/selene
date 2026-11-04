@@ -4,6 +4,7 @@ package "Milky2018/selene/a11y"
 import {
   "Milky2018/moon_accesskit",
   "Milky2018/selene/entity",
+  "moonbitlang/core/json",
 }
 
 // Values
@@ -21,7 +22,7 @@ pub fn get_focused_entity() -> @entity.Entity?
 
 pub fn latest_tree_update() -> @moon_accesskit.TreeUpdate?
 
-pub fn latest_tree_update_json() -> Json?
+pub fn latest_tree_update_json() -> @json.Json?
 
 pub fn submit_action_request(@moon_accesskit.ActionRequest) -> Unit
 

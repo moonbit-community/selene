@@ -1,9 +1,10 @@
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub enum AutoTileRuleSetKind {
   Bitmask4
   Bitmask8
   Wang
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_rule_set_bitmask4() -> AutoTileRuleSetKind {
@@ -21,11 +22,12 @@ pub fn autotile_rule_set_wang() -> AutoTileRuleSetKind {
 }
 
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub struct AutoTileCell {
   x : Int32
   y : Int32
   terrain : Int32
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_cell(x : Int32, y : Int32, terrain : Int32) -> AutoTileCell {
@@ -33,11 +35,12 @@ pub fn autotile_cell(x : Int32, y : Int32, terrain : Int32) -> AutoTileCell {
 }
 
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub struct AutoTileMaskRule {
   mask : Int32
   region_name : String
   atlas_index : Int32
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_mask_rule(
@@ -49,6 +52,7 @@ pub fn autotile_mask_rule(
 }
 
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub struct AutoTileWangRule {
   north : Int32
   east : Int32
@@ -56,7 +60,7 @@ pub struct AutoTileWangRule {
   west : Int32
   region_name : String
   atlas_index : Int32
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_wang_rule(
@@ -71,6 +75,7 @@ pub fn autotile_wang_rule(
 }
 
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub struct AutoTilePaletteEntry {
   terrain : Int32
   fallback_region_name : String
@@ -78,7 +83,7 @@ pub struct AutoTilePaletteEntry {
   bitmask4_rules : Array[AutoTileMaskRule]
   bitmask8_rules : Array[AutoTileMaskRule]
   wang_rules : Array[AutoTileWangRule]
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_palette_entry(
@@ -100,6 +105,7 @@ pub fn autotile_palette_entry(
 }
 
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub struct AutoTileLayerSource {
   tile_width : Double
   tile_height : Double
@@ -109,7 +115,7 @@ pub struct AutoTileLayerSource {
   rule_set : AutoTileRuleSetKind
   palette : Array[AutoTilePaletteEntry]
   cells : Array[AutoTileCell]
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_layer_source(
@@ -135,12 +141,13 @@ pub fn autotile_layer_source(
 }
 
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub struct AutoTileSolvedTile {
   x : Int32
   y : Int32
   region_name : String
   atlas_index : Int32
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_solved_tile(
@@ -153,10 +160,11 @@ pub fn autotile_solved_tile(
 }
 
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub struct AutoTileGridPos {
   x : Int32
   y : Int32
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_grid_pos(x : Int32, y : Int32) -> AutoTileGridPos {
@@ -164,11 +172,12 @@ pub fn autotile_grid_pos(x : Int32, y : Int32) -> AutoTileGridPos {
 }
 
 ///|
+#derive(Debug, Eq, ToJson, FromJson)
 pub struct AutoTileDiff {
   source : AutoTileLayerSource
   changed_tiles : Array[AutoTileSolvedTile]
   removed_tiles : Array[AutoTileGridPos]
-} derive(Debug, Eq, ToJson, FromJson)
+}
 
 ///|
 pub fn autotile_diff(

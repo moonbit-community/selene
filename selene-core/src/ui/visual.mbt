@@ -31,12 +31,13 @@ pub fn BorderColor::from_css(color : String) -> BorderColor {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct BorderRadius {
   top_left : Val
   top_right : Val
   bottom_right : Val
   bottom_left : Val
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn BorderRadius::all(value : Val) -> BorderRadius {
@@ -75,13 +76,14 @@ pub fn Outline::Outline(
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct ShadowStyle {
   color : @render.Color
   x_offset : Val
   y_offset : Val
   spread_radius : Val
   blur_radius : Val
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn ShadowStyle::ShadowStyle(
@@ -95,9 +97,10 @@ pub fn ShadowStyle::ShadowStyle(
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct BoxShadow {
   layers : Array[ShadowStyle]
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn BoxShadow::BoxShadow(layers : Array[ShadowStyle]) -> BoxShadow {
@@ -118,20 +121,22 @@ pub fn BoxShadow::single(
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum ImageFit {
   Stretch
   Contain
   Cover
   None
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct UiImage {
   size : @math.Vec2
   image : @asset.ImageHandle
   tint : @render.Color
   fit : ImageFit
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn UiImage::from_image(
@@ -154,12 +159,14 @@ pub fn UiImage::UiImage(
 }
 
 ///|
-pub(all) struct UiMaterialHandle(UInt32) derive(Eq, Debug, Hash)
+#derive(Eq, Debug, Hash)
+pub(all) struct UiMaterialHandle(UInt32)
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct MaterialNode {
   material : UiMaterialHandle
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn MaterialNode::MaterialNode(material : UiMaterialHandle) -> MaterialNode {
@@ -167,10 +174,11 @@ pub fn MaterialNode::MaterialNode(material : UiMaterialHandle) -> MaterialNode {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct UiGradient {
   color_start : @render.Color
   color_end : @render.Color
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn UiGradient::UiGradient(
@@ -343,16 +351,18 @@ pub fn TextColor::from_css(color : String) -> TextColor {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum TextWrap {
   NoWrap
   WordWrap
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum TextOverflow {
   Clip
   Ellipsis
-} derive(Eq, Debug)
+}
 
 ///|
 pub(all) struct TextLayout {
@@ -375,9 +385,10 @@ pub fn TextLayout::TextLayout(
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct Button {
   enabled : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn Button::Button(enabled~ : Bool = true) -> Button {
@@ -385,11 +396,12 @@ pub fn Button::Button(enabled~ : Bool = true) -> Button {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum Interaction {
   None
   Hovered
   Pressed
-} derive(Eq, Debug)
+}
 
 ///|
 priv struct UiVisualWorldStore {

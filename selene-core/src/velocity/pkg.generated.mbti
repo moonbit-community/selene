@@ -13,7 +13,8 @@ pub fn velocities() -> @entity.ComponentStore[Velocity]
 // Errors
 
 // Types and methods
-pub(all) struct Velocity(@math.Vec2) derive(Eq, @debug.Debug)
+#derive(Eq, @debug.Debug)
+pub(all) struct Velocity(@math.Vec2)
 pub fn Velocity::equal(Self, Self) -> Bool
 pub fn Velocity::not_equal(Self, Self) -> Bool
 pub fn Velocity::to_repr(Self) -> @debug.Repr

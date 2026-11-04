@@ -328,6 +328,7 @@ priv struct Enemy {
 }
 
 ///|
+#derive(Eq, Hash)
 enum EnemyType {
   Creeper
   Icecream
@@ -336,7 +337,7 @@ enum EnemyType {
   Teleman
   Devil
   Pirate
-} derive(Eq, Hash)
+}
 
 ///|
 let enemies_key : @ecs.WorldKey[@entity.ComponentStore[Enemy]] = WorldKey(() => {

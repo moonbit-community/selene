@@ -13,12 +13,13 @@
 // limitations under the License.
 
 ///|
+#derive(Eq)
 enum WeaponType {
   Pistol
   Minigun
   SniperRifle
   Sword
-} derive(Eq)
+}
 
 ///|
 priv struct WeaponData {

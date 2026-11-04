@@ -20,18 +20,20 @@ pub(all) struct DrawCommandWithDepth2D {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum SortMode2D {
   Depth
   Y
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct Sorting2d {
   layer : Int32
   group : Int32
   order : Int32
   mode : SortMode2D
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn Sorting2d::Sorting2d(

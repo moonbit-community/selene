@@ -46,12 +46,13 @@ pub fn pickables() -> @entity.ComponentStore[Pickable] {
 
 ///|
 /// Pointer phase for frame events.
+#derive(Eq)
 pub(all) enum PointerPhase {
   Pressed
   Released
   JustPressed
   JustReleased
-} derive(Eq)
+}
 
 ///|
 /// Pointer event emitted during the latest update frame.

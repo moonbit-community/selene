@@ -22,11 +22,12 @@ fn pending_body_torque_impulses() -> Map[@entity.Entity, Double] {
 }
 
 ///|
+#derive(Eq)
 priv struct EntityJointConfigKey {
   joint : Joint
   body1 : (Int32, Int32)
   body2 : (Int32, Int32)
-} derive(Eq)
+}
 
 ///|
 fn entity_joint_config_keys() -> Map[@entity.Entity, EntityJointConfigKey] {
@@ -34,11 +35,12 @@ fn entity_joint_config_keys() -> Map[@entity.Entity, EntityJointConfigKey] {
 }
 
 ///|
+#derive(Eq)
 priv struct EntityMultibodyJointConfigKey {
   joint : MultibodyJoint
   parent : (Int32, Int32)
   child : (Int32, Int32)
-} derive(Eq)
+}
 
 ///|
 fn entity_multibody_joint_config_keys() -> Map[

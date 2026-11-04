@@ -133,13 +133,14 @@ pub fn update_mesh_asset(@render3d_types.MeshHandle, @render3d_types.MeshAsset) 
 // Errors
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) struct Mesh3DRenderer {
   mesh : @render3d_types.MeshHandle
   material : @render3d_types.MaterialHandle
   mut visible : Bool
   mut cast_shadows : Bool
   mut receive_shadows : Bool
-} derive(Eq, @debug.Debug)
+}
 pub fn Mesh3DRenderer::equal(Self, Self) -> Bool
 pub fn Mesh3DRenderer::not_equal(Self, Self) -> Bool
 pub fn Mesh3DRenderer::to_repr(Self) -> @debug.Repr

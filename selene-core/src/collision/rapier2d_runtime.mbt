@@ -138,13 +138,14 @@ fn world() -> PhysicsWorld {
 }
 
 ///|
+#derive(Eq)
 priv struct EntityCollisionConfig {
   filter : CollisionFilter
   sensor : Bool
   active : Bool
   friction : Double
   restitution : Double
-} derive(Eq)
+}
 
 ///|
 priv struct EntityPhysicsSnapshot {
@@ -158,6 +159,7 @@ priv struct EntityPhysicsSnapshot {
 }
 
 ///|
+#derive(Eq)
 priv struct EntityPhysicsConfigKey {
   translation : @math.Vec2?
   rotation : Double?
@@ -166,7 +168,7 @@ priv struct EntityPhysicsConfigKey {
   body : RigidBody
   linear_velocity : @math.Vec2?
   angular_velocity : Double?
-} derive(Eq)
+}
 
 ///|
 fn entity_physics_config_keys() -> Map[@entity.Entity, EntityPhysicsConfigKey] {

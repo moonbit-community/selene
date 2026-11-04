@@ -115,20 +115,22 @@ pub(all) struct DrawCommandWithDepth2D {
   command : @render2d_types.DrawCommand2D
 }
 
+#derive(Eq, @debug.Debug)
 pub(all) enum SortMode2D {
   Depth
   Y
-} derive(Eq, @debug.Debug)
+}
 pub fn SortMode2D::equal(Self, Self) -> Bool
 pub fn SortMode2D::not_equal(Self, Self) -> Bool
 pub fn SortMode2D::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Sorting2d {
   layer : Int32
   group : Int32
   order : Int32
   mode : SortMode2D
-} derive(Eq, @debug.Debug)
+}
 pub fn Sorting2d::Sorting2d(layer? : Int32, group? : Int32, order? : Int32, mode? : SortMode2D) -> Self
 pub fn Sorting2d::equal(Self, Self) -> Bool
 pub fn Sorting2d::not_equal(Self, Self) -> Bool

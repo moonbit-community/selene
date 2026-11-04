@@ -1,15 +1,18 @@
 ///|
+#derive(Eq, Debug)
 pub(all) struct Text2d {
   blend_mode : @render.BlendMode2D
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct TextBounds {
   width : Double
   height : Double
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq)
 priv struct TextLayoutCacheKey {
   text : String
   font : @asset.FontHandle?
@@ -21,7 +24,7 @@ priv struct TextLayoutCacheKey {
   overflow : @ui.TextOverflow
   bounds_width : Double
   bounds_height : Double
-} derive(Eq)
+}
 
 ///|
 priv struct CachedTextLayout2d {

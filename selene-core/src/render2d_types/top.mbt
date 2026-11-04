@@ -84,16 +84,18 @@ pub(all) enum DrawCommand2D {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum RenderPassLoadOp2D {
   Load
   Clear
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum RenderPassTarget2D {
   Screen
   Offscreen(String)
-} derive(Eq, Debug)
+}
 
 ///|
 pub(all) struct RenderPass2D {

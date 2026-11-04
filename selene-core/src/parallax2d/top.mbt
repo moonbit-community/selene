@@ -2,10 +2,11 @@
 /// Selects the camera-space reference used to calculate parallax displacement.
 /// `ViewCenter` stores the world-space point that should align with the center
 /// of each camera view.
+#derive(Eq, Debug)
 pub enum Parallax2dReference {
   ViewOrigin
   ViewCenter(@math.Vec2)
-} derive(Eq, Debug)
+}
 
 ///|
 /// Creates a reference measured from each camera view center.
@@ -16,11 +17,12 @@ pub fn Parallax2dReference::view_center(
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct Parallax2d {
   base_offset : @math.Vec2
   factor : @math.Vec2
   reference : Parallax2dReference
-} derive(Eq, Debug)
+}
 
 ///|
 priv struct Parallax2dWorldStore {

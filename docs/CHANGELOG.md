@@ -36,6 +36,7 @@
 
 ### Fixed
 
+- Updated derive declarations to match the latest MoonBit formatter.
 - Isolated timeout queues by World and preserved zero-delay timeouts scheduled
   by callbacks for the next timer tick.
 - Guarded command flushes against reentry and active queries. Commands queued

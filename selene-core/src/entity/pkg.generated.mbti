@@ -48,7 +48,8 @@ pub fn[T] ComponentStore::spawn_bundle(Self[T]) -> SpawnBundle[T]
 pub fn[T] ComponentStore::to_array(Self[T]) -> Array[(Entity, T)]
 pub fn[T] ComponentStore::values(Self[T]) -> Iter[T]
 
-type Entity derive(Eq, Hash, @debug.Debug)
+#derive(Eq, Hash, @debug.Debug)
+type Entity
 pub fn Entity::Entity() -> Self
 pub fn Entity::belongs_to(Self, @ecs.World) -> Bool
 pub fn Entity::delete(Self) -> Bool
@@ -73,7 +74,8 @@ pub fn Entity::slot_index(Self) -> Int32
 pub fn Entity::spawn_child(Self) -> Self
 pub fn Entity::to_repr(Self) -> @debug.Repr
 
-type EntityLifecycleState derive(Eq, @debug.Debug)
+#derive(Eq, @debug.Debug)
+type EntityLifecycleState
 pub fn EntityLifecycleState::equal(Self, Self) -> Bool
 pub fn EntityLifecycleState::not_equal(Self, Self) -> Bool
 pub fn EntityLifecycleState::to_repr(Self) -> @debug.Repr

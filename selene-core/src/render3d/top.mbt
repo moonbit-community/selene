@@ -112,13 +112,14 @@ pub type RenderLine3D = @render3d_types.RenderLine3D
 pub type RenderFrame3D = @render3d_types.RenderFrame3D
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct Mesh3DRenderer {
   mesh : MeshHandle
   material : MaterialHandle
   mut visible : Bool
   mut cast_shadows : Bool
   mut receive_shadows : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 priv struct Render3DComponentWorldStore {

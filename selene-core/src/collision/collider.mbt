@@ -14,12 +14,13 @@
 
 ///|
 /// Component that controls whether an entity participates in world collisions.
+#derive(Eq)
 pub(all) struct Collider {
   mut active : Bool
   filter : CollisionFilter
   mut friction : Double
   mut restitution : Double
-} derive(Eq)
+}
 
 ///|
 pub fn Collider::Collider(filter : CollisionFilter) -> Collider {

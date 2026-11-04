@@ -14,12 +14,13 @@
 
 ///|
 /// Collision geometry used by 2D colliders and trigger areas.
+#derive(Eq, Debug)
 pub(all) enum CollisionShape {
   Rect(size~ : @math.Vec2, offset~ : @math.Vec2)
   Ball(radius~ : Double, offset~ : @math.Vec2)
   Polygon(points~ : Array[@math.Vec2], offset~ : @math.Vec2)
   Polyline(points~ : Array[@math.Vec2], offset~ : @math.Vec2, closed~ : Bool)
-} derive(Eq, Debug)
+}
 
 ///|
 priv struct ShapeWorldStore {

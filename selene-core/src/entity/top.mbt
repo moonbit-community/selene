@@ -13,21 +13,23 @@
 // limitations under the License.
 
 ///|
+#derive(Eq, Debug, Hash)
 struct Entity {
   world_id : UInt32
   value : UInt32
   slot : Int32
   generation : UInt32
-} derive(Eq, Debug, Hash)
+}
 
 ///|
+#derive(Eq, Debug)
 enum EntityLifecycleState {
   Alive
   PendingSpawn
   PendingDespawn
   PendingRespawn
   Destroyed
-} derive(Eq, Debug)
+}
 
 ///|
 priv struct EntitySlot {

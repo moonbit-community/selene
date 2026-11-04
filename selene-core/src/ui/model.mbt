@@ -1,8 +1,9 @@
 ///|
+#derive(Eq, Debug)
 pub(all) enum UiScaleMode {
   Screen
   Viewport
-} derive(Eq, Debug)
+}
 
 ///|
 let ui_scale_modes : Map[UInt32, UiScaleMode] = Map([])
@@ -24,11 +25,12 @@ pub fn get_ui_scale_mode() -> UiScaleMode {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum Val {
   Auto
   Px(Double)
   Percent(Double)
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn Val::px(value : Double) -> Val {
@@ -41,12 +43,13 @@ pub fn Val::percent(value : Double) -> Val {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct UiRectValues {
   left : Val
   right : Val
   top : Val
   bottom : Val
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn UiRectValues::all(value : Double) -> UiRectValues {
@@ -75,12 +78,13 @@ pub fn UiRectValues::px(
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct UiInsets {
   left : Double
   right : Double
   top : Double
   bottom : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn UiInsets::zero() -> UiInsets {
@@ -88,28 +92,32 @@ pub fn UiInsets::zero() -> UiInsets {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum Display {
   Block
   Flex
   Grid
   None
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum PositionType {
   Relative
   Absolute
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum FlexDirection {
   Row
   RowReverse
   Column
   ColumnReverse
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum JustifyContent {
   Start
   End
@@ -120,9 +128,10 @@ pub(all) enum JustifyContent {
   SpaceBetween
   SpaceAround
   SpaceEvenly
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum AlignItems {
   Start
   End
@@ -131,9 +140,10 @@ pub(all) enum AlignItems {
   Center
   Baseline
   Stretch
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum AlignContent {
   Start
   End
@@ -144,35 +154,39 @@ pub(all) enum AlignContent {
   SpaceBetween
   SpaceAround
   SpaceEvenly
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum FlexWrap {
   NoWrap
   Wrap
   WrapReverse
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum GridAutoFlow {
   Row
   Column
   RowDense
   ColumnDense
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum GridPlacement {
   Auto
   Line(Int32)
   Span(Int32)
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct GridLine {
   start : GridPlacement
   end : GridPlacement
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn GridLine::GridLine(
@@ -183,13 +197,15 @@ pub fn GridLine::GridLine(
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum GridTrackRepetition {
   Count(Int32)
   AutoFill
   AutoFit
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum GridTrack {
   Auto
   Px(Double)
@@ -200,7 +216,7 @@ pub(all) enum GridTrack {
   FitContent(GridTrack)
   MinMax(GridTrack, GridTrack)
   Repeat(GridTrackRepetition, Array[GridTrack])
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn align_content_start() -> AlignContent {
@@ -361,25 +377,28 @@ pub fn grid_auto_flow_column_dense() -> GridAutoFlow {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum Overflow {
   Visible
   Clip
   Hidden
   Scroll
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum OverflowClipBox {
   ContentBox
   PaddingBox
   BorderBox
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct OverflowClipMargin {
   visual_box : OverflowClipBox
   margin : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn OverflowClipMargin::content_box() -> OverflowClipMargin {
@@ -410,6 +429,7 @@ pub fn default_overflow_clip_margin() -> OverflowClipMargin {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct Node {
   width : Val
   height : Val
@@ -452,7 +472,7 @@ pub(all) struct Node {
   grid_row : GridLine
   grid_column : GridLine
   active : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn Node::Node(
@@ -608,9 +628,10 @@ pub(all) struct GlobalUiNode {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct UiTargetCamera {
   camera : @entity.Entity
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn UiTargetCamera::UiTargetCamera(
@@ -644,9 +665,10 @@ pub fn CalculatedClip::CalculatedClip(clip : @math.Rect) -> CalculatedClip {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct LayoutConfig {
   use_rounding : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn LayoutConfig::LayoutConfig(use_rounding~ : Bool = true) -> LayoutConfig {
@@ -656,9 +678,10 @@ pub fn LayoutConfig::LayoutConfig(use_rounding~ : Bool = true) -> LayoutConfig {
 ///|
 /// Orders sibling UI nodes while keeping each sibling's ordinary descendant
 /// subtree contiguous in the final UI stack.
+#derive(Eq, Debug)
 pub(all) struct ZIndex {
   value : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn ZIndex::ZIndex(value : Int32) -> ZIndex {
@@ -668,9 +691,10 @@ pub fn ZIndex::ZIndex(value : Int32) -> ZIndex {
 ///|
 /// Lifts a UI node and its ordinary descendants into the global UI root order.
 /// A descendant with its own `GlobalZIndex` becomes another global root.
+#derive(Eq, Debug)
 pub(all) struct GlobalZIndex {
   value : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn GlobalZIndex::GlobalZIndex(value : Int32) -> GlobalZIndex {
@@ -678,10 +702,11 @@ pub fn GlobalZIndex::GlobalZIndex(value : Int32) -> GlobalZIndex {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct ScrollPosition {
   mut x : Double
   mut y : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn ScrollPosition::zero() -> ScrollPosition {
@@ -689,9 +714,10 @@ pub fn ScrollPosition::zero() -> ScrollPosition {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct TabIndex {
   value : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn TabIndex::TabIndex(value : Int32) -> TabIndex {
@@ -699,10 +725,11 @@ pub fn TabIndex::TabIndex(value : Int32) -> TabIndex {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum FocusPolicy {
   Block
   Pass
-} derive(Eq, Debug)
+}
 
 ///|
 pub(all) struct Focused {
@@ -725,9 +752,10 @@ pub fn Focusable::Focusable() -> Focusable {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct OverrideClip {
   _tag : Unit
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn OverrideClip::OverrideClip() -> OverrideClip {
@@ -735,10 +763,11 @@ pub fn OverrideClip::OverrideClip() -> OverrideClip {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct RelativeCursorPosition {
   mut normalized : @math.Vec2?
   mut cursor_over : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn RelativeCursorPosition::RelativeCursorPosition() -> RelativeCursorPosition {

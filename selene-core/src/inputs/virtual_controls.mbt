@@ -1,7 +1,8 @@
 ///|
+#derive(Eq, Hash, Debug)
 pub(all) struct VirtualButton {
   name : String
-} derive(Eq, Hash, Debug)
+}
 
 ///|
 pub fn VirtualButton::VirtualButton(name : String) -> VirtualButton {
@@ -14,9 +15,10 @@ pub fn VirtualButton::name(self : VirtualButton) -> String {
 }
 
 ///|
+#derive(Eq, Hash, Debug)
 pub(all) struct VirtualAxis {
   name : String
-} derive(Eq, Hash, Debug)
+}
 
 ///|
 pub fn VirtualAxis::VirtualAxis(name : String) -> VirtualAxis {
@@ -29,10 +31,11 @@ pub fn VirtualAxis::name(self : VirtualAxis) -> String {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum VirtualButtonInputState {
   Pressed
   Released
-} derive(Eq, Debug)
+}
 
 ///|
 pub(all) struct VirtualButtonEvent {

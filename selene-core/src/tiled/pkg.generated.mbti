@@ -6,6 +6,7 @@ import {
   "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
+  "moonbitlang/core/json",
 }
 
 // Values
@@ -125,10 +126,11 @@ pub struct TiledColliderOrigin {
   layer : TiledLayer
 }
 
+#derive(Eq)
 pub enum TiledColliderSourceKind {
   TilesLayer
   Object
-} derive(Eq)
+}
 pub fn TiledColliderSourceKind::equal(Self, Self) -> Bool
 pub fn TiledColliderSourceKind::not_equal(Self, Self) -> Bool
 
@@ -239,7 +241,7 @@ pub struct TiledMap {
   tilesets : Array[TiledTileset]
   properties : Array[TiledProperty]
 }
-pub fn TiledMap::from_tiled_json(Json) -> Self
+pub fn TiledMap::from_tiled_json(@json.Json) -> Self
 pub fn TiledMap::from_tiled_xml(String) -> Self
 pub fn TiledMap::layer(Self, String) -> TiledLayer?
 pub fn TiledMap::layer_by_id(Self, Int32) -> TiledLayer?
@@ -360,7 +362,7 @@ pub enum TiledPropertyValue {
   Color(String)
   File(String)
   Object(Int32)
-  Custom(Json)
+  Custom(@json.Json)
 }
 
 pub(all) struct TiledSpawnSettings {
