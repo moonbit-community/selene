@@ -82,39 +82,87 @@ priv struct GameState {
 }
 
 ///|
-/// Global game state
-let game_state : GameState = {
-  rand: Rand(),
-  deck: [],
-  player: {
-    chips: 1000,
-    hole_cards: [],
+#selene.resource(new_cards_runtime)
+priv struct CardsRuntime {
+  entities : Array[@ecs.Entity]
+  mut game : GameState?
+  mut click_reader : @event.EventReader[@ui.UiClickEvent]
+}
+
+///|
+fn new_cards_runtime(_world : @ecs.World) -> CardsRuntime {
+  { entities: [], game: None, click_reader: EventReader(), }
+}
+
+///|
+fn cards_runtime() -> CardsRuntime {
+  @ecs.resource()
+}
+
+///|
+fn spawn_cards_entity() -> @ecs.Entity {
+  let entity = @ecs.Entity()
+  cards_runtime().entities.push(entity)
+  entity
+}
+
+///|
+fn reset_cards_runtime() -> Unit {
+  let runtime = cards_runtime()
+  for entity in runtime.entities {
+    ignore(entity.delete())
+  }
+  runtime.entities.clear()
+  runtime.game = None
+  runtime.click_reader = EventReader()
+}
+
+///|
+fn game_state() -> GameState {
+  let runtime = cards_runtime()
+  if runtime.game is Some(state) {
+    return state
+  }
+  let state = new_game_state()
+  runtime.game = Some(state)
+  state
+}
+
+///|
+fn new_game_state() -> GameState {
+  {
+    rand: Rand(),
+    deck: [],
+    player: {
+      chips: 1000,
+      hole_cards: [],
+      current_bet: 0,
+      has_folded: false,
+      position: Vec2(VIEWPORT_WIDTH / 2.0, VIEWPORT_HEIGHT - 80.0),
+    },
+    phase: PreFlop,
     current_bet: 0,
-    has_folded: false,
-    position: Vec2(VIEWPORT_WIDTH / 2.0, VIEWPORT_HEIGHT - 80.0),
-  },
-  phase: PreFlop,
-  current_bet: 0,
-  community_cards: [],
-  hand_number: 0,
-  small_blind: SMALL_BLIND,
-  big_blind: BIG_BLIND,
-  turns_remaining: 10,
-  starting_chips: 1000,
-  magnification: 1,
-  blind_label: Entity(),
-  chips_label: Entity(),
-  phase_label: Entity(),
-  fold_button_label: Entity(),
-  call_button_label: Entity(),
-  raise_button_label: Entity(),
-  turns_label: Entity(),
-  action_label: Entity(),
-  hand_strength_label: Entity(),
-  fold_button: Entity(),
-  call_button: Entity(),
-  raise_button: Entity(),
-  waiting_for_player: false,
-  hole_card_entities: [],
-  community_card_entities: [],
+    community_cards: [],
+    hand_number: 0,
+    small_blind: SMALL_BLIND,
+    big_blind: BIG_BLIND,
+    turns_remaining: 10,
+    starting_chips: 1000,
+    magnification: 1,
+    blind_label: spawn_cards_entity(),
+    chips_label: spawn_cards_entity(),
+    phase_label: spawn_cards_entity(),
+    fold_button_label: spawn_cards_entity(),
+    call_button_label: spawn_cards_entity(),
+    raise_button_label: spawn_cards_entity(),
+    turns_label: spawn_cards_entity(),
+    action_label: spawn_cards_entity(),
+    hand_strength_label: spawn_cards_entity(),
+    fold_button: spawn_cards_entity(),
+    call_button: spawn_cards_entity(),
+    raise_button: spawn_cards_entity(),
+    waiting_for_player: false,
+    hole_card_entities: [],
+    community_card_entities: [],
+  }
 }

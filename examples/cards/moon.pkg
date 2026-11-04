@@ -13,3 +13,11 @@ import {
   "Milky2018/selene/event",
   "moonbitlang/core/random",
 }
+
+dev_build(
+  rule: "selene_codegen",
+  input: "game_state.mbt",
+  output: "game_state.g.mbt",
+)
+
+formatter(ignore: [ "game_state.g.mbt" ])

@@ -25,4 +25,8 @@ dev_build(rule: "selene_codegen", input: "enemy.mbt", output: "enemy.g.mbt")
 
 dev_build(rule: "selene_codegen", input: "weapon.mbt", output: "weapon.g.mbt")
 
-formatter(ignore: [ "enemy.g.mbt", "player.g.mbt", "weapon.g.mbt" ])
+dev_build(rule: "selene_codegen", input: "main.mbt", output: "main.g.mbt")
+
+formatter(
+  ignore: [ "main.g.mbt", "enemy.g.mbt", "player.g.mbt", "weapon.g.mbt" ],
+)

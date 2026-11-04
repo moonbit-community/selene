@@ -26,6 +26,9 @@
 
 - Migrated Pixel Adventure's components and per-World UI reader to generated
   ECS declarations.
+- Migrated Cards, Survivors, Scene3D, Tank3D, and Perf3D demo state to generated
+  World resources. Repeated startup replaces owned entities, and restarting
+  Survivors cancels the previous run’s timers.
 - Consolidated entities, components, resources, queries, and deferred commands
   under `@ecs`. App stages run through the ECS scheduler, which applies
   commands and lifecycle changes at the end of each update schedule.
