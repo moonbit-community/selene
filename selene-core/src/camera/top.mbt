@@ -144,15 +144,15 @@ priv struct CameraWorldStore {
 }
 
 ///|
-let camera_world_store_key : @ecs.WorldKey[CameraWorldStore] = WorldKey(() => {
-  cameras: ComponentStore(@ecs.require_current_world()),
-  camera2ds: ComponentStore(@ecs.require_current_world()),
-  orthographic_projections: ComponentStore(@ecs.require_current_world()),
+let camera_world_store_key : @ecs.ResourceKey[CameraWorldStore] = ResourceKey(world => {
+  cameras: ComponentStore(world),
+  camera2ds: ComponentStore(world),
+  orthographic_projections: ComponentStore(world),
 })
 
 ///|
 fn camera_world_store() -> CameraWorldStore {
-  @ecs.require_current_world().get_or_init(camera_world_store_key)
+  camera_world_store_key.get()
 }
 
 ///|

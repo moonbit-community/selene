@@ -2,7 +2,7 @@
 /// A typed key for a value initialized separately in each World.
 struct WorldKey[T] {
   id : Int32
-  create : () -> T
+  create : (World) -> T
   read_slot : Ref[T?]
 }
 
@@ -11,6 +11,12 @@ let next_storage_id : Ref[Int32] = Ref(0)
 
 ///|
 pub fn[T] WorldKey::WorldKey(create : () -> T) -> WorldKey[T] {
+  WorldKey::with_world(_ => create())
+}
+
+///|
+/// Creates a key whose initializer receives the World that owns the value.
+pub fn[T] WorldKey::with_world(create : (World) -> T) -> WorldKey[T] {
   let id = next_storage_id.val
   next_storage_id.val += 1
   { id, create, read_slot: Ref(None), }
@@ -29,7 +35,7 @@ pub fn[T] World::get_or_init(self : World, key : WorldKey[T]) -> T {
       value
     }
     None => {
-      let value = (key.create)()
+      let value = (key.create)(self)
       self.storage.set(key.id, () => key.read_slot.val = Some(value))
       value
     }

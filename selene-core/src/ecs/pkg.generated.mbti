@@ -10,11 +10,20 @@ pub fn current_world() -> World?
 
 pub fn require_current_world() -> World
 
+pub fn[T : Resource] resource() -> T
+
+pub fn[T : Resource] resource_in(World) -> T
+
 pub fn set_current_world(World) -> Unit
 
 // Errors
 
 // Types and methods
+type ResourceKey[T]
+pub fn[T] ResourceKey::ResourceKey((World) -> T) -> Self[T]
+pub fn[T] ResourceKey::get(Self[T]) -> T
+pub fn[T] ResourceKey::get_in(Self[T], World) -> T
+
 pub struct World {
   id : UInt32
   mut frame_index : UInt32
@@ -31,7 +40,11 @@ pub fn World::id(Self) -> UInt32
 
 type WorldKey[T]
 pub fn[T] WorldKey::WorldKey(() -> T) -> Self[T]
+pub fn[T] WorldKey::with_world((World) -> T) -> Self[T]
 
 // Type aliases
 
 // Traits
+pub(open) trait Resource {
+  fn resource_key() -> ResourceKey[Self]
+}

@@ -49,7 +49,7 @@ priv struct EntityWorldStore {
 }
 
 ///|
-let entity_store_key : @ecs.WorldKey[EntityWorldStore] = WorldKey(() => {
+let entity_store_key : @ecs.ResourceKey[EntityWorldStore] = ResourceKey(_ => {
   entity_generator: 0U,
   alive_count: 0,
   all_entities: Set([]),
@@ -60,7 +60,7 @@ let entity_store_key : @ecs.WorldKey[EntityWorldStore] = WorldKey(() => {
 
 ///|
 fn entity_store() -> EntityWorldStore {
-  @ecs.require_current_world().get_or_init(entity_store_key)
+  entity_store_key.get()
 }
 
 ///|
@@ -77,7 +77,7 @@ pub fn alive_entity_count() -> Int32 {
 pub fn Entity::is_alive(e : Entity) -> Bool {
   let world = @ecs.require_current_world()
   guard e.belongs_to(world) else { false }
-  world.get_or_init(entity_store_key).is_alive(e)
+  entity_store_key.get_in(world).is_alive(e)
 }
 
 ///|
@@ -89,7 +89,7 @@ fn EntityWorldStore::is_alive(self : EntityWorldStore, entity : Entity) -> Bool 
 ///|
 /// Binds a live-state check to a World for repeated use during a traversal.
 pub fn alive_in_world(world : @ecs.World) -> (Entity) -> Bool {
-  let store = world.get_or_init(entity_store_key)
+  let store = entity_store_key.get_in(world)
   let world_id = world.id()
   entity => entity.world_id == world_id && store.is_alive(entity)
 }
@@ -98,7 +98,7 @@ pub fn alive_in_world(world : @ecs.World) -> (Entity) -> Bool {
 /// Checks whether this handle still owns its slot in the specified World.
 pub fn Entity::is_valid_in(self : Entity, world : @ecs.World) -> Bool {
   self.belongs_to(world) &&
-  world.get_or_init(entity_store_key).archetypes.slot(self) is Some(_)
+  entity_store_key.get_in(world).archetypes.slot(self) is Some(_)
 }
 
 ///|
@@ -134,7 +134,7 @@ pub fn Entity::Entity() -> Entity {
 
 ///|
 fn spawn_in(world : @ecs.World) -> Entity {
-  let store = world.get_or_init(entity_store_key)
+  let store = entity_store_key.get_in(world)
   let entity = store.allocate(world.id(), Alive)
   store.all_entities.add(entity)
   store.alive_count += 1
@@ -169,7 +169,7 @@ pub fn Entity::reserve_spawn() -> Entity {
 ///|
 /// Reserves an entity in the specified World, independently of the active World.
 pub fn Entity::reserve_spawn_in(world : @ecs.World) -> Entity {
-  let store = world.get_or_init(entity_store_key)
+  let store = entity_store_key.get_in(world)
   let entity = store.allocate(world.id(), PendingSpawn)
   store.pending_state_changes.add(entity)
   entity
@@ -186,7 +186,7 @@ fn queue_entity_spawn(
   world : @ecs.World,
   initialize : (Entity) -> Unit,
 ) -> Entity {
-  let store = world.get_or_init(entity_store_key)
+  let store = entity_store_key.get_in(world)
   let entity = store.allocate(world.id(), PendingSpawn)
   @ecs_schedule.enqueue(world, _ => {
     guard store.archetypes.slot(entity) is Some(_) else { return }
@@ -201,7 +201,7 @@ fn queue_entity_spawn(
 pub fn Entity::destroy(e : Entity) -> Unit {
   let world = @ecs.require_current_world()
   guard e.belongs_to(world) else { return }
-  let store = world.get_or_init(entity_store_key)
+  let store = entity_store_key.get_in(world)
   guard store.archetypes.slot(e) is Some(slot) else { return }
   match slot.state.unwrap() {
     Destroyed | PendingDespawn => ()
@@ -228,7 +228,7 @@ pub fn Entity::destroy(e : Entity) -> Unit {
 pub fn Entity::respawn(e : Entity) -> Unit {
   let world = @ecs.require_current_world()
   guard e.belongs_to(world) else { return }
-  let store = world.get_or_init(entity_store_key)
+  let store = entity_store_key.get_in(world)
   guard store.archetypes.slot(e) is Some(slot) else { return }
   match slot.state.unwrap() {
     Alive | PendingRespawn => ()

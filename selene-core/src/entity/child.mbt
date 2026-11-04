@@ -46,14 +46,14 @@ priv struct HierarchyWorldStore {
 }
 
 ///|
-let hierarchy_store_key : @ecs.WorldKey[HierarchyWorldStore] = WorldKey(() => {
-  parents: ComponentStore(@ecs.require_current_world()),
-  children: ComponentStore(@ecs.require_current_world()),
+let hierarchy_store_key : @ecs.ResourceKey[HierarchyWorldStore] = ResourceKey(world => {
+  parents: ComponentStore(world),
+  children: ComponentStore(world),
 })
 
 ///|
 fn hierarchy_store() -> HierarchyWorldStore {
-  @ecs.require_current_world().get_or_init(hierarchy_store_key)
+  hierarchy_store_key.get()
 }
 
 ///|

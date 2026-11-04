@@ -27,23 +27,11 @@ pub(all) struct Mesh2dStorage {
 }
 
 ///|
-priv struct Mesh2dWorldStore {
-  mesh2ds : @entity.ComponentStore[Mesh2d]
-}
-
-///|
-let mesh2d_world_store_key : @ecs.WorldKey[Mesh2dWorldStore] = WorldKey(() => {
-  mesh2ds: ComponentStore(@ecs.require_current_world()),
-})
-
-///|
-fn mesh2d_world_store() -> Mesh2dWorldStore {
-  @ecs.require_current_world().get_or_init(mesh2d_world_store_key)
-}
+let mesh2d_component_key : @entity.ComponentKey[Mesh2d] = ComponentKey()
 
 ///|
 pub fn mesh2ds() -> @entity.ComponentStore[Mesh2d] {
-  mesh2d_world_store().mesh2ds
+  mesh2d_component_key.store()
 }
 
 ///|

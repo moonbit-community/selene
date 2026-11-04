@@ -80,15 +80,15 @@ priv struct TiledPhysicsWorldStore {
 }
 
 ///|
-let tiled_physics_world_store_key : @ecs.WorldKey[TiledPhysicsWorldStore] = WorldKey(() => {
-    tiled_colliders: ComponentStore(@ecs.require_current_world()),
-    tiled_collider_origins: ComponentStore(@ecs.require_current_world()),
+let tiled_physics_world_store_key : @ecs.ResourceKey[TiledPhysicsWorldStore] = ResourceKey(world => {
+    tiled_colliders: ComponentStore(world),
+    tiled_collider_origins: ComponentStore(world),
   },
 )
 
 ///|
 fn tiled_physics_world_store() -> TiledPhysicsWorldStore {
-  @ecs.require_current_world().get_or_init(tiled_physics_world_store_key)
+  tiled_physics_world_store_key.get()
 }
 
 ///|

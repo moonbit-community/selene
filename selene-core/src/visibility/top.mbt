@@ -32,17 +32,17 @@ priv struct VisibilityWorldStore {
 }
 
 ///|
-let visibility_world_store_key : @ecs.WorldKey[VisibilityWorldStore] = WorldKey(() => {
-    visibilities: ComponentStore(@ecs.require_current_world()),
-    inherited_visibilities: ComponentStore(@ecs.require_current_world()),
-    view_visibilities: ComponentStore(@ecs.require_current_world()),
-    render_layers: ComponentStore(@ecs.require_current_world()),
+let visibility_world_store_key : @ecs.ResourceKey[VisibilityWorldStore] = ResourceKey(world => {
+    visibilities: ComponentStore(world),
+    inherited_visibilities: ComponentStore(world),
+    view_visibilities: ComponentStore(world),
+    render_layers: ComponentStore(world),
   },
 )
 
 ///|
 fn visibility_world_store() -> VisibilityWorldStore {
-  @ecs.require_current_world().get_or_init(visibility_world_store_key)
+  visibility_world_store_key.get()
 }
 
 ///|

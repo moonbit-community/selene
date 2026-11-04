@@ -7,3 +7,5 @@ import {
   "Milky2018/selene/time",
   "moonbitlang/core/cmp",
 }
+
+formatter(ignore: [ "timer.g.mbt" ])

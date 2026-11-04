@@ -554,13 +554,14 @@ priv struct AutoTileWorldStore {
 }
 
 ///|
-let autotile_world_store_key : @ecs.WorldKey[AutoTileWorldStore] = WorldKey(() => {
-  layers: ComponentStore(@ecs.require_current_world()),
-})
+let autotile_world_store_key : @ecs.ResourceKey[AutoTileWorldStore] = ResourceKey(world => {
+    layers: ComponentStore(world),
+  },
+)
 
 ///|
 fn autotile_world_store() -> AutoTileWorldStore {
-  @ecs.require_current_world().get_or_init(autotile_world_store_key)
+  autotile_world_store_key.get()
 }
 
 ///|

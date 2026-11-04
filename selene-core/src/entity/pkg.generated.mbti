@@ -11,6 +11,10 @@ pub fn alive_entity_count() -> Int32
 
 pub fn alive_in_world(@ecs.World) -> (Entity) -> Bool
 
+pub fn[T : Component] components() -> ComponentStore[T]
+
+pub fn[T : Component] components_in(@ecs.World) -> ComponentStore[T]
+
 pub fn entity_flush_system(Double) -> Unit
 
 pub fn get_roots() -> Iter[Entity]
@@ -25,6 +29,13 @@ pub fn[A, B] ArchetypeQuery2::ArchetypeQuery2(ComponentStore[A], ComponentStore[
 pub fn[A, B] ArchetypeQuery2::for_each(Self[A, B], (Entity, A, B) -> Unit) -> Unit
 pub fn[A, B] ArchetypeQuery2::for_each_batch(Self[A, B], (ArrayView[Entity], ArrayView[A], ArrayView[B]) -> Unit) -> Unit
 pub fn[A, B] ArchetypeQuery2::for_each_batch_mut_a(Self[A, B], (ArrayView[Entity], MutArrayView[A], ArrayView[B]) -> Unit) -> Unit
+
+type ComponentKey[T]
+pub fn[T] ComponentKey::ComponentKey() -> Self[T]
+pub fn[T] ComponentKey::get(Self[T], Entity) -> T?
+pub fn[T] ComponentKey::set(Self[T], Entity, T) -> Unit
+pub fn[T] ComponentKey::store(Self[T]) -> ComponentStore[T]
+pub fn[T] ComponentKey::store_in(Self[T], @ecs.World) -> ComponentStore[T]
 
 type ComponentStore[T]
 pub fn[T] ComponentStore::ComponentStore(@ecs.World) -> Self[T]
@@ -88,3 +99,6 @@ pub fn[T] SpawnBundle::spawn(Self[T], @ecs.World, T) -> Entity
 // Type aliases
 
 // Traits
+pub(open) trait Component {
+  fn component_key() -> ComponentKey[Self]
+}

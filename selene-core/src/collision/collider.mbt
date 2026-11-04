@@ -45,15 +45,16 @@ priv struct ColliderWorldStore {
 }
 
 ///|
-let collider_world_store_key : @ecs.WorldKey[ColliderWorldStore] = WorldKey(() => {
-  colliders: ComponentStore(@ecs.require_current_world()),
-  resolved_velocities: ComponentStore(@ecs.require_current_world()),
-  grounded_entities: Set([]),
-})
+let collider_world_store_key : @ecs.ResourceKey[ColliderWorldStore] = ResourceKey(world => {
+    colliders: ComponentStore(world),
+    resolved_velocities: ComponentStore(world),
+    grounded_entities: Set([]),
+  },
+)
 
 ///|
 fn collider_world_store() -> ColliderWorldStore {
-  @ecs.require_current_world().get_or_init(collider_world_store_key)
+  collider_world_store_key.get()
 }
 
 ///|

@@ -75,19 +75,20 @@ priv struct AnimationWorldStore {
 }
 
 ///|
-let animation_world_store_key : @ecs.WorldKey[AnimationWorldStore] = WorldKey(() => {
-  animation_players: ComponentStore(@ecs.require_current_world()),
-  animation_graph_handles: ComponentStore(@ecs.require_current_world()),
-  animation_transitions: ComponentStore(@ecs.require_current_world()),
-  animation_target_ids: ComponentStore(@ecs.require_current_world()),
-  animated_bys: ComponentStore(@ecs.require_current_world()),
-  skinned_meshes: ComponentStore(@ecs.require_current_world()),
-  morphed_meshes: ComponentStore(@ecs.require_current_world()),
-})
+let animation_world_store_key : @ecs.ResourceKey[AnimationWorldStore] = ResourceKey(world => {
+    animation_players: ComponentStore(world),
+    animation_graph_handles: ComponentStore(world),
+    animation_transitions: ComponentStore(world),
+    animation_target_ids: ComponentStore(world),
+    animated_bys: ComponentStore(world),
+    skinned_meshes: ComponentStore(world),
+    morphed_meshes: ComponentStore(world),
+  },
+)
 
 ///|
 fn animation_world_store() -> AnimationWorldStore {
-  @ecs.require_current_world().get_or_init(animation_world_store_key)
+  animation_world_store_key.get()
 }
 
 ///|

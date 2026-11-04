@@ -5,19 +5,7 @@ pub(all) struct Name {
 }
 
 ///|
-priv struct NameWorldStore {
-  names : @entity.ComponentStore[Name]
-}
-
-///|
-let name_world_store_key : @ecs.WorldKey[NameWorldStore] = WorldKey(() => {
-  names: ComponentStore(@ecs.require_current_world()),
-})
-
-///|
-fn name_world_store() -> NameWorldStore {
-  @ecs.require_current_world().get_or_init(name_world_store_key)
-}
+let name_component_key : @entity.ComponentKey[Name] = ComponentKey()
 
 ///|
 pub fn Name::Name(value : String) -> Name {
@@ -26,7 +14,7 @@ pub fn Name::Name(value : String) -> Name {
 
 ///|
 pub fn names() -> @entity.ComponentStore[Name] {
-  name_world_store().names
+  name_component_key.store()
 }
 
 ///|

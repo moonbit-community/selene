@@ -68,15 +68,15 @@ priv struct AudioWorldStore {
 }
 
 ///|
-let audio_world_store_key : @ecs.WorldKey[AudioWorldStore] = WorldKey(() => {
-  audio_players: ComponentStore(@ecs.require_current_world()),
-  audio_playback_settings: ComponentStore(@ecs.require_current_world()),
-  audio_sinks: ComponentStore(@ecs.require_current_world()),
+let audio_world_store_key : @ecs.ResourceKey[AudioWorldStore] = ResourceKey(world => {
+  audio_players: ComponentStore(world),
+  audio_playback_settings: ComponentStore(world),
+  audio_sinks: ComponentStore(world),
 })
 
 ///|
 fn audio_world_store() -> AudioWorldStore {
-  @ecs.require_current_world().get_or_init(audio_world_store_key)
+  audio_world_store_key.get()
 }
 
 ///|

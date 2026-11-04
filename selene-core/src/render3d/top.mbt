@@ -131,19 +131,19 @@ priv struct Render3DComponentWorldStore {
 }
 
 ///|
-let render3d_component_world_store_key : @ecs.WorldKey[
+let render3d_component_world_store_key : @ecs.ResourceKey[
   Render3DComponentWorldStore,
-] = WorldKey(() => {
-  mesh3d_renderers: ComponentStore(@ecs.require_current_world()),
-  directional_lights3d: ComponentStore(@ecs.require_current_world()),
-  point_lights3d: ComponentStore(@ecs.require_current_world()),
-  spot_lights3d: ComponentStore(@ecs.require_current_world()),
-  camera_skyboxes3d: ComponentStore(@ecs.require_current_world()),
+] = ResourceKey(world => {
+  mesh3d_renderers: ComponentStore(world),
+  directional_lights3d: ComponentStore(world),
+  point_lights3d: ComponentStore(world),
+  spot_lights3d: ComponentStore(world),
+  camera_skyboxes3d: ComponentStore(world),
 })
 
 ///|
 fn render3d_component_world_store() -> Render3DComponentWorldStore {
-  @ecs.require_current_world().get_or_init(render3d_component_world_store_key)
+  render3d_component_world_store_key.get()
 }
 
 ///|

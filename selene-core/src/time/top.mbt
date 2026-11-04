@@ -1,4 +1,5 @@
 ///|
+#selene.resource(new_time_state)
 priv struct TimeState {
   mut raw_delta : Double
   mut delta : Double
@@ -10,12 +11,8 @@ priv struct TimeState {
 }
 
 ///|
-let time_world_states : Map[UInt32, TimeState] = Map([])
-
-///|
-fn time_state() -> TimeState {
-  let world_id = @ecs.require_current_world().id()
-  time_world_states.get_or_init(world_id, () => {
+fn new_time_state(_world : @ecs.World) -> TimeState {
+  {
     raw_delta: 0.0,
     delta: 0.0,
     frame_delta: 0.0,
@@ -23,7 +20,12 @@ fn time_state() -> TimeState {
     elapsed_raw: 0.0,
     elapsed: 0.0,
     scale: 1.0,
-  })
+  }
+}
+
+///|
+fn time_state() -> TimeState {
+  @ecs.resource()
 }
 
 ///|

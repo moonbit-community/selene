@@ -88,15 +88,15 @@ priv struct TiledWorldRuntimeStore {
 }
 
 ///|
-let tiled_world_runtime_store_key : @ecs.WorldKey[TiledWorldRuntimeStore] = WorldKey(() => {
-    tiled_world_instances: ComponentStore(@ecs.require_current_world()),
-    tiled_world_map_instances: ComponentStore(@ecs.require_current_world()),
+let tiled_world_runtime_store_key : @ecs.ResourceKey[TiledWorldRuntimeStore] = ResourceKey(world => {
+    tiled_world_instances: ComponentStore(world),
+    tiled_world_map_instances: ComponentStore(world),
   },
 )
 
 ///|
 fn tiled_world_runtime_store() -> TiledWorldRuntimeStore {
-  @ecs.require_current_world().get_or_init(tiled_world_runtime_store_key)
+  tiled_world_runtime_store_key.get()
 }
 
 ///|

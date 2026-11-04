@@ -139,31 +139,31 @@ priv struct Physics3DComponentWorldStore {
 }
 
 ///|
-let physics3d_component_world_store_key : @ecs.WorldKey[
+let physics3d_component_world_store_key : @ecs.ResourceKey[
   Physics3DComponentWorldStore,
-] = WorldKey(() => {
-  rigid_bodies: ComponentStore(@ecs.require_current_world()),
-  velocities: ComponentStore(@ecs.require_current_world()),
-  dampings: ComponentStore(@ecs.require_current_world()),
-  gravity_scales: ComponentStore(@ecs.require_current_world()),
-  locked_axes: ComponentStore(@ecs.require_current_world()),
-  ccds: ComponentStore(@ecs.require_current_world()),
-  dominances: ComponentStore(@ecs.require_current_world()),
-  additional_mass_properties: ComponentStore(@ecs.require_current_world()),
-  colliders: ComponentStore(@ecs.require_current_world()),
-  sensors: ComponentStore(@ecs.require_current_world()),
-  frictions: ComponentStore(@ecs.require_current_world()),
-  restitutions: ComponentStore(@ecs.require_current_world()),
-  collision_groups: ComponentStore(@ecs.require_current_world()),
-  solver_groups: ComponentStore(@ecs.require_current_world()),
-  active_collision_types: ComponentStore(@ecs.require_current_world()),
-  active_events: ComponentStore(@ecs.require_current_world()),
-  active_hooks: ComponentStore(@ecs.require_current_world()),
-  contact_force_event_thresholds: ComponentStore(@ecs.require_current_world()),
-  collider_mass_properties: ComponentStore(@ecs.require_current_world()),
-  impulse_joints: ComponentStore(@ecs.require_current_world()),
-  multibody_joints: ComponentStore(@ecs.require_current_world()),
-  kinematic_character_controllers: ComponentStore(@ecs.require_current_world()),
+] = ResourceKey(world => {
+  rigid_bodies: ComponentStore(world),
+  velocities: ComponentStore(world),
+  dampings: ComponentStore(world),
+  gravity_scales: ComponentStore(world),
+  locked_axes: ComponentStore(world),
+  ccds: ComponentStore(world),
+  dominances: ComponentStore(world),
+  additional_mass_properties: ComponentStore(world),
+  colliders: ComponentStore(world),
+  sensors: ComponentStore(world),
+  frictions: ComponentStore(world),
+  restitutions: ComponentStore(world),
+  collision_groups: ComponentStore(world),
+  solver_groups: ComponentStore(world),
+  active_collision_types: ComponentStore(world),
+  active_events: ComponentStore(world),
+  active_hooks: ComponentStore(world),
+  contact_force_event_thresholds: ComponentStore(world),
+  collider_mass_properties: ComponentStore(world),
+  impulse_joints: ComponentStore(world),
+  multibody_joints: ComponentStore(world),
+  kinematic_character_controllers: ComponentStore(world),
   kinematic_character_controller_outputs: ComponentStore(
     @ecs.require_current_world(),
   ),
@@ -174,7 +174,7 @@ let physics3d_component_world_store_key : @ecs.WorldKey[
 
 ///|
 fn physics3d_component_world_store() -> Physics3DComponentWorldStore {
-  @ecs.require_current_world().get_or_init(physics3d_component_world_store_key)
+  physics3d_component_world_store_key.get()
 }
 
 ///|

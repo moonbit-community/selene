@@ -27,24 +27,12 @@ pub fn Area::Area(filter : CollisionFilter) -> Area {
 }
 
 ///|
-priv struct AreaWorldStore {
-  areas : @entity.ComponentStore[Area]
-}
-
-///|
-let area_world_store_key : @ecs.WorldKey[AreaWorldStore] = WorldKey(() => {
-  areas: ComponentStore(@ecs.require_current_world()),
-})
-
-///|
-fn area_world_store() -> AreaWorldStore {
-  @ecs.require_current_world().get_or_init(area_world_store_key)
-}
+let area_component_key : @entity.ComponentKey[Area] = ComponentKey()
 
 ///|
 /// All area components.
 pub fn areas() -> @entity.ComponentStore[Area] {
-  area_world_store().areas
+  area_component_key.store()
 }
 
 ///|

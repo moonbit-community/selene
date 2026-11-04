@@ -46,11 +46,6 @@ pub fn Sorting2d::Sorting2d(
 }
 
 ///|
-priv struct Sorting2dWorldStore {
-  sorting2ds : @entity.ComponentStore[Sorting2d]
-}
-
-///|
 priv struct RenderFrameState2D {
   screen_world_commands : Array[OrderedDrawCommand2D]
   screen_ui_commands : Array[@render2d_types.DrawCommand2D]
@@ -63,9 +58,7 @@ priv struct RenderFrameState2D {
 let frame2d_by_world : Map[UInt32, RenderFrameState2D] = Map([])
 
 ///|
-let sorting2d_store_key : @ecs.WorldKey[Sorting2dWorldStore] = WorldKey(() => {
-  sorting2ds: ComponentStore(@ecs.require_current_world()),
-})
+let sorting2d_component_key : @entity.ComponentKey[Sorting2d] = ComponentKey()
 
 ///|
 fn frame2d() -> RenderFrameState2D {
@@ -82,13 +75,8 @@ fn frame2d() -> RenderFrameState2D {
 }
 
 ///|
-fn sorting2d_store() -> Sorting2dWorldStore {
-  @ecs.require_current_world().get_or_init(sorting2d_store_key)
-}
-
-///|
 pub fn sorting2ds() -> @entity.ComponentStore[Sorting2d] {
-  sorting2d_store().sorting2ds
+  sorting2d_component_key.store()
 }
 
 ///|

@@ -421,25 +421,26 @@ priv struct UiVisualWorldStore {
 }
 
 ///|
-let ui_visual_world_store_key : @ecs.WorldKey[UiVisualWorldStore] = WorldKey(() => {
-  background_colors: ComponentStore(@ecs.require_current_world()),
-  border_colors: ComponentStore(@ecs.require_current_world()),
-  border_radii: ComponentStore(@ecs.require_current_world()),
-  box_shadows: ComponentStore(@ecs.require_current_world()),
-  outlines: ComponentStore(@ecs.require_current_world()),
-  ui_images: ComponentStore(@ecs.require_current_world()),
-  material_nodes: ComponentStore(@ecs.require_current_world()),
-  texts: ComponentStore(@ecs.require_current_world()),
-  text_fonts: ComponentStore(@ecs.require_current_world()),
-  text_colors: ComponentStore(@ecs.require_current_world()),
-  text_layouts: ComponentStore(@ecs.require_current_world()),
-  buttons: ComponentStore(@ecs.require_current_world()),
-  interactions: ComponentStore(@ecs.require_current_world()),
-})
+let ui_visual_world_store_key : @ecs.ResourceKey[UiVisualWorldStore] = ResourceKey(world => {
+    background_colors: ComponentStore(world),
+    border_colors: ComponentStore(world),
+    border_radii: ComponentStore(world),
+    box_shadows: ComponentStore(world),
+    outlines: ComponentStore(world),
+    ui_images: ComponentStore(world),
+    material_nodes: ComponentStore(world),
+    texts: ComponentStore(world),
+    text_fonts: ComponentStore(world),
+    text_colors: ComponentStore(world),
+    text_layouts: ComponentStore(world),
+    buttons: ComponentStore(world),
+    interactions: ComponentStore(world),
+  },
+)
 
 ///|
 fn ui_visual_world_store() -> UiVisualWorldStore {
-  @ecs.require_current_world().get_or_init(ui_visual_world_store_key)
+  ui_visual_world_store_key.get()
 }
 
 ///|

@@ -187,22 +187,19 @@ priv struct PixelAdventureWorldStore {
 }
 
 ///|
-let pixeladventure_world_store_key : @ecs.WorldKey[PixelAdventureWorldStore] = WorldKey(() => {
-    let world = @ecs.require_current_world()
-    {
-      sessions: ComponentStore(world),
-      players: ComponentStore(world),
-      birds: ComponentStore(world),
-      apples: ComponentStore(world),
-      flags: ComponentStore(world),
-      ui_click_reader: EventReader(),
-    }
+let pixeladventure_world_store_key : @ecs.ResourceKey[PixelAdventureWorldStore] = ResourceKey(world => {
+    sessions: ComponentStore(world),
+    players: ComponentStore(world),
+    birds: ComponentStore(world),
+    apples: ComponentStore(world),
+    flags: ComponentStore(world),
+    ui_click_reader: EventReader(),
   },
 )
 
 ///|
 fn pixeladventure_world_store() -> PixelAdventureWorldStore {
-  @ecs.require_current_world().get_or_init(pixeladventure_world_store_key)
+  pixeladventure_world_store_key.get()
 }
 
 ///|

@@ -78,6 +78,14 @@ jobs:
       - name: Test workspace
         run: moon test --deny-warn
 
+      - name: Check generated ECS sources
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          git ls-files -z -- '*.g.mbt' | while IFS= read -r -d '' output; do
+            moon run selene-codegen --target wasm --target-dir _build/selene-codegen -- "${output%.g.mbt}.mbt" "$output"
+          done
+          git diff --exit-code -- '*.g.mbt'
+
   check-pre-release:
     runs-on: ubuntu-latest
     steps:

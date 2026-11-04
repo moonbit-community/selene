@@ -22,6 +22,7 @@ const PLAYER_SPEED : Double = 150
 const INVINCIBLE_TIME : Double = 1.0
 
 ///|
+#selene.component
 priv struct PlayerAnimationController {
   idle_left : @animation.AnimationNodeIndex
   idle_right : @animation.AnimationNodeIndex
@@ -35,15 +36,10 @@ priv struct PlayerAnimationController {
 }
 
 ///|
-let player_animation_controllers_key : @ecs.WorldKey[
-  @entity.ComponentStore[PlayerAnimationController],
-] = WorldKey(() => ComponentStore(@ecs.require_current_world()))
-
-///|
 fn player_animation_controllers() -> @entity.ComponentStore[
   PlayerAnimationController,
 ] {
-  @ecs.require_current_world().get_or_init(player_animation_controllers_key)
+  @entity.components()
 }
 
 ///|

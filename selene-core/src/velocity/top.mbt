@@ -30,19 +30,7 @@
 pub(all) struct Velocity(@math.Vec2)
 
 ///|
-priv struct VelocityWorldStore {
-  velocities : @entity.ComponentStore[Velocity]
-}
-
-///|
-let velocity_world_store_key : @ecs.WorldKey[VelocityWorldStore] = WorldKey(() => {
-  velocities: ComponentStore(@ecs.require_current_world()),
-})
-
-///|
-fn velocity_world_store() -> VelocityWorldStore {
-  @ecs.require_current_world().get_or_init(velocity_world_store_key)
-}
+let velocity_component_key : @entity.ComponentKey[Velocity] = ComponentKey()
 
 ///|
 /// Returns the current world's velocity component store.
@@ -63,5 +51,5 @@ fn velocity_world_store() -> VelocityWorldStore {
 /// ```
 ///
 pub fn velocities() -> @entity.ComponentStore[Velocity] {
-  velocity_world_store().velocities
+  velocity_component_key.store()
 }

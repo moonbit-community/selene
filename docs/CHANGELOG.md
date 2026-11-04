@@ -4,6 +4,9 @@
 
 ### Added
 
+- Added typed component and resource declarations, a code generator for
+  `#selene.component` and `#selene.resource`, and World-local typed query systems.
+  The generator ships as a separate `Milky2018/selene_codegen` module.
 - `timeout` now returns a `TimerHandle` that can cancel a pending callback.
   Use `ignore(timeout(...))` when discarding the handle.
 - Added typed World-local storage and streaming ECS query traversal.
@@ -21,6 +24,8 @@
 
 ### Changed
 
+- Migrated ECS storage declarations to component and resource keys. Resource
+  initializers receive the World that owns the value.
 - Run workspace tests in CI with MoonBit's default target selection.
 
 - Moved built-in ECS components and hierarchy relations into World-owned

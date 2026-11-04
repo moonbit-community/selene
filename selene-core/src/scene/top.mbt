@@ -17,14 +17,11 @@ pub(all) struct SceneInstanceReadyEvent {
 }
 
 ///|
-let scene_instances_key : @ecs.WorldKey[@entity.ComponentStore[SceneHandle]] = WorldKey(() => {
-    ComponentStore(@ecs.require_current_world())
-  },
-)
+let scene_instances_key : @entity.ComponentKey[SceneHandle] = ComponentKey()
 
 ///|
 fn scene_instances() -> @entity.ComponentStore[SceneHandle] {
-  @ecs.require_current_world().get_or_init(scene_instances_key)
+  scene_instances_key.store()
 }
 
 ///|

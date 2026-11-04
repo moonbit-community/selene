@@ -20,3 +20,5 @@ import {
 import {
   "moonbitlang/core/bench",
 } for "test"
+
+formatter(ignore: [ "top.g.mbt" ])

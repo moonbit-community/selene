@@ -21,3 +21,8 @@ description = ""
 preferred_target = "js"
 
 supported_targets = "all"
+
+rule(
+  name: "selene_codegen",
+  command: "moon run ../selene-codegen --target wasm --target-dir _build/selene-codegen -- \"$input\" \"$output\"",
+)

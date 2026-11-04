@@ -34,16 +34,16 @@ priv struct Timer {
 }
 
 ///|
+#selene.resource(new_timers)
 priv struct Timers {
   pending : Array[Timer]
   mut ticking : Bool
 }
 
 ///|
-let timers : @ecs.WorldKey[Timers] = @ecs.WorldKey(() => {
-  pending: [],
-  ticking: false,
-})
+fn new_timers(_world : @ecs.World) -> Timers {
+  { pending: [], ticking: false, }
+}
 
 ///|
 /// Schedules a one-shot callback in the active World and returns its handle.
@@ -56,7 +56,7 @@ pub fn timeout(
   pausible~ : Bool = true,
 ) -> TimerHandle {
   let handle = { callback: Some(callback), }
-  let state = @ecs.require_current_world().get_or_init(timers)
+  let state : Timers = @ecs.resource()
   state.pending.push({ remaining: time, pausible, handle, })
   handle
 }
@@ -64,7 +64,7 @@ pub fn timeout(
 ///|
 fn tick_timers(scaled : Double?, unscaled : Double?) -> Unit {
   let world = @ecs.require_current_world()
-  let state = world.get_or_init(timers)
+  let state : Timers = @ecs.resource_in(world)
   guard !state.ticking && !state.pending.is_empty() else { return }
   state.ticking = true
   defer {

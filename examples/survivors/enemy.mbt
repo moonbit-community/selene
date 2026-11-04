@@ -317,6 +317,7 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
 }
 
 ///|
+#selene.component
 priv struct Enemy {
   enemy_type : EnemyType
   speed : Double
@@ -340,13 +341,8 @@ enum EnemyType {
 }
 
 ///|
-let enemies_key : @ecs.WorldKey[@entity.ComponentStore[Enemy]] = WorldKey(() => {
-  ComponentStore(@ecs.require_current_world())
-})
-
-///|
 fn enemies() -> @entity.ComponentStore[Enemy] {
-  @ecs.require_current_world().get_or_init(enemies_key)
+  @entity.components()
 }
 
 ///|

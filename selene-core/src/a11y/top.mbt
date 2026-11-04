@@ -73,23 +73,11 @@ pub fn A11y::on_click(self : A11y, callback : () -> Unit) -> Unit {
 }
 
 ///|
-priv struct A11yWorldStore {
-  a11ys : @entity.ComponentStore[A11y]
-}
-
-///|
-let a11y_world_store_key : @ecs.WorldKey[A11yWorldStore] = WorldKey(() => {
-  a11ys: ComponentStore(@ecs.require_current_world()),
-})
-
-///|
-fn a11y_world_store() -> A11yWorldStore {
-  @ecs.require_current_world().get_or_init(a11y_world_store_key)
-}
+let a11y_component_key : @entity.ComponentKey[A11y] = ComponentKey()
 
 ///|
 pub fn a11ys() -> @entity.ComponentStore[A11y] {
-  a11y_world_store().a11ys
+  a11y_component_key.store()
 }
 
 ///|

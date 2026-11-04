@@ -45,23 +45,11 @@ pub fn Camera3DComponent::default() -> Camera3DComponent {
 }
 
 ///|
-priv struct Camera3DWorldStore {
-  cameras3d : @entity.ComponentStore[Camera3DComponent]
-}
-
-///|
-let camera3d_world_store_key : @ecs.WorldKey[Camera3DWorldStore] = WorldKey(() => {
-  cameras3d: ComponentStore(@ecs.require_current_world()),
-})
-
-///|
-fn camera3d_world_store() -> Camera3DWorldStore {
-  @ecs.require_current_world().get_or_init(camera3d_world_store_key)
-}
+let camera3d_component_key : @entity.ComponentKey[Camera3DComponent] = ComponentKey()
 
 ///|
 pub fn cameras3d() -> @entity.ComponentStore[Camera3DComponent] {
-  camera3d_world_store().cameras3d
+  camera3d_component_key.store()
 }
 
 ///|

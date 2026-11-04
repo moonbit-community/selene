@@ -5,7 +5,7 @@ priv struct CommandQueue {
 }
 
 ///|
-let queues : @ecs.WorldKey[CommandQueue] = @ecs.WorldKey(() => {
+let queues : @ecs.ResourceKey[CommandQueue] = @ecs.ResourceKey(_ => {
   pending: [],
   spare: [],
 })
@@ -29,12 +29,12 @@ pub fn leave_query() -> Unit {
 
 ///|
 pub fn enqueue(world : @ecs.World, command : (@ecs.World) -> Unit) -> Unit {
-  world.get_or_init(queues).pending.push(command)
+  queues.get_in(world).pending.push(command)
 }
 
 ///|
 pub fn has_pending(world : @ecs.World) -> Bool {
-  !world.get_or_init(queues).pending.is_empty()
+  !queues.get_in(world).pending.is_empty()
 }
 
 ///|
@@ -47,7 +47,7 @@ pub(all) suberror FlushError {
 pub fn flush(world : @ecs.World) -> Unit raise FlushError {
   guard !flushing.val else { raise ReentrantFlush }
   guard query_depth.val == 0 else { raise ActiveQuery }
-  let queue = world.get_or_init(queues)
+  let queue = queues.get_in(world)
   guard !queue.pending.is_empty() else { return }
   let batch = queue.pending
   queue.pending = queue.spare

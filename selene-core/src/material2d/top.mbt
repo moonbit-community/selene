@@ -24,24 +24,11 @@ pub(all) struct MeshMaterial2d {
 }
 
 ///|
-priv struct Material2dWorldStore {
-  mesh_material2ds : @entity.ComponentStore[MeshMaterial2d]
-}
-
-///|
-let material2d_world_store_key : @ecs.WorldKey[Material2dWorldStore] = WorldKey(() => {
-    mesh_material2ds: ComponentStore(@ecs.require_current_world()),
-  },
-)
-
-///|
-fn material2d_world_store() -> Material2dWorldStore {
-  @ecs.require_current_world().get_or_init(material2d_world_store_key)
-}
+let material2d_component_key : @entity.ComponentKey[MeshMaterial2d] = ComponentKey()
 
 ///|
 pub fn mesh_material2ds() -> @entity.ComponentStore[MeshMaterial2d] {
-  material2d_world_store().mesh_material2ds
+  material2d_component_key.store()
 }
 
 ///|

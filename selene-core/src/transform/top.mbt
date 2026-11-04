@@ -14,6 +14,7 @@
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct Transform {
   translation : @math.Vec3
   rotation : @math.Quat
@@ -22,6 +23,7 @@ pub(all) struct Transform {
 
 ///|
 #derive(Eq, Debug)
+#selene.component
 pub(all) struct GlobalTransform {
   affine : @math.Affine3
 }
@@ -171,15 +173,15 @@ priv struct TransformWorldStore {
 }
 
 ///|
-let transform_store_key : @ecs.WorldKey[TransformWorldStore] = WorldKey(() => {
-  transforms: ComponentStore(@ecs.require_current_world()),
-  global_transforms: ComponentStore(@ecs.require_current_world()),
+let transform_store_key : @ecs.ResourceKey[TransformWorldStore] = ResourceKey(world => {
+  transforms: @entity.components_in(world),
+  global_transforms: @entity.components_in(world),
   propagated: [],
 })
 
 ///|
 fn transform_world_store() -> TransformWorldStore {
-  @ecs.require_current_world().get_or_init(transform_store_key)
+  transform_store_key.get()
 }
 
 ///|

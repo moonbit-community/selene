@@ -280,20 +280,21 @@ priv struct TiledEcsWorldStore {
 }
 
 ///|
-let tiled_ecs_world_store_key : @ecs.WorldKey[TiledEcsWorldStore] = WorldKey(() => {
-  tiled_map_instances: ComponentStore(@ecs.require_current_world()),
-  tiled_layer_instances: ComponentStore(@ecs.require_current_world()),
-  tiled_tile_instances: ComponentStore(@ecs.require_current_world()),
-  tiled_object_instances: ComponentStore(@ecs.require_current_world()),
-  tiled_image_layer_instances: ComponentStore(@ecs.require_current_world()),
-  tiled_properties: ComponentStore(@ecs.require_current_world()),
-  tiled_map_storages: ComponentStore(@ecs.require_current_world()),
-  tiled_parallax_layers: ComponentStore(@ecs.require_current_world()),
-})
+let tiled_ecs_world_store_key : @ecs.ResourceKey[TiledEcsWorldStore] = ResourceKey(world => {
+    tiled_map_instances: ComponentStore(world),
+    tiled_layer_instances: ComponentStore(world),
+    tiled_tile_instances: ComponentStore(world),
+    tiled_object_instances: ComponentStore(world),
+    tiled_image_layer_instances: ComponentStore(world),
+    tiled_properties: ComponentStore(world),
+    tiled_map_storages: ComponentStore(world),
+    tiled_parallax_layers: ComponentStore(world),
+  },
+)
 
 ///|
 fn tiled_ecs_world_store() -> TiledEcsWorldStore {
-  @ecs.require_current_world().get_or_init(tiled_ecs_world_store_key)
+  tiled_ecs_world_store_key.get()
 }
 
 ///|

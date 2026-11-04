@@ -251,23 +251,23 @@ priv struct LdtkWorldStore {
 }
 
 ///|
-let ldtk_world_store_key : @ecs.WorldKey[LdtkWorldStore] = WorldKey(() => {
-  ldtk_world_instances: ComponentStore(@ecs.require_current_world()),
-  ldtk_level_instances: ComponentStore(@ecs.require_current_world()),
-  ldtk_layer_metadata: ComponentStore(@ecs.require_current_world()),
-  ldtk_level_backgrounds: ComponentStore(@ecs.require_current_world()),
-  ldtk_level_iids: ComponentStore(@ecs.require_current_world()),
-  ldtk_entity_iids: ComponentStore(@ecs.require_current_world()),
-  ldtk_grid_coords: ComponentStore(@ecs.require_current_world()),
-  ldtk_int_grid_cells: ComponentStore(@ecs.require_current_world()),
-  ldtk_tile_metadata: ComponentStore(@ecs.require_current_world()),
-  ldtk_int_grid_colliders: ComponentStore(@ecs.require_current_world()),
-  ldtk_worldly_entities: ComponentStore(@ecs.require_current_world()),
-  ldtk_respawns: ComponentStore(@ecs.require_current_world()),
-  ldtk_spawned_layer_instances: ComponentStore(@ecs.require_current_world()),
-  ldtk_spawned_tile_instances: ComponentStore(@ecs.require_current_world()),
-  ldtk_spawned_entity_instances: ComponentStore(@ecs.require_current_world()),
-  ldtk_spawned_int_grid_cells: ComponentStore(@ecs.require_current_world()),
+let ldtk_world_store_key : @ecs.ResourceKey[LdtkWorldStore] = ResourceKey(world => {
+  ldtk_world_instances: ComponentStore(world),
+  ldtk_level_instances: ComponentStore(world),
+  ldtk_layer_metadata: ComponentStore(world),
+  ldtk_level_backgrounds: ComponentStore(world),
+  ldtk_level_iids: ComponentStore(world),
+  ldtk_entity_iids: ComponentStore(world),
+  ldtk_grid_coords: ComponentStore(world),
+  ldtk_int_grid_cells: ComponentStore(world),
+  ldtk_tile_metadata: ComponentStore(world),
+  ldtk_int_grid_colliders: ComponentStore(world),
+  ldtk_worldly_entities: ComponentStore(world),
+  ldtk_respawns: ComponentStore(world),
+  ldtk_spawned_layer_instances: ComponentStore(world),
+  ldtk_spawned_tile_instances: ComponentStore(world),
+  ldtk_spawned_entity_instances: ComponentStore(world),
+  ldtk_spawned_int_grid_cells: ComponentStore(world),
   ldtk_entity_spawn_hooks: Map([]),
   ldtk_entity_layer_spawn_hooks: Map([]),
   ldtk_entity_layer_identifier_spawn_hooks: Map([]),
@@ -283,7 +283,7 @@ let ldtk_world_store_key : @ecs.WorldKey[LdtkWorldStore] = WorldKey(() => {
 
 ///|
 fn ldtk_world_store() -> LdtkWorldStore {
-  @ecs.require_current_world().get_or_init(ldtk_world_store_key)
+  ldtk_world_store_key.get()
 }
 
 ///|

@@ -25,20 +25,7 @@ pub(all) struct Parallax2d {
 }
 
 ///|
-priv struct Parallax2dWorldStore {
-  parallax2ds : @entity.ComponentStore[Parallax2d]
-}
-
-///|
-let parallax2d_world_store_key : @ecs.WorldKey[Parallax2dWorldStore] = WorldKey(() => {
-    parallax2ds: ComponentStore(@ecs.require_current_world()),
-  },
-)
-
-///|
-fn parallax2d_world_store() -> Parallax2dWorldStore {
-  @ecs.require_current_world().get_or_init(parallax2d_world_store_key)
-}
+let parallax2d_component_key : @entity.ComponentKey[Parallax2d] = ComponentKey()
 
 ///|
 fn clamped_parallax_factor(factor : @math.Vec2) -> @math.Vec2 {
@@ -67,7 +54,7 @@ pub fn Parallax2d::Parallax2d(
 
 ///|
 pub fn parallax2ds() -> @entity.ComponentStore[Parallax2d] {
-  parallax2d_world_store().parallax2ds
+  parallax2d_component_key.store()
 }
 
 ///|

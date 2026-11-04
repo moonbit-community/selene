@@ -24,24 +24,12 @@ pub fn Pickable::Pickable() -> Pickable {
 }
 
 ///|
-priv struct PickableWorldStore {
-  pickables : @entity.ComponentStore[Pickable]
-}
-
-///|
-let pickable_world_store_key : @ecs.WorldKey[PickableWorldStore] = WorldKey(() => {
-  pickables: ComponentStore(@ecs.require_current_world()),
-})
-
-///|
-fn pickable_world_store() -> PickableWorldStore {
-  @ecs.require_current_world().get_or_init(pickable_world_store_key)
-}
+let pickable_component_key : @entity.ComponentKey[Pickable] = ComponentKey()
 
 ///|
 /// All pickable components.
 pub fn pickables() -> @entity.ComponentStore[Pickable] {
-  pickable_world_store().pickables
+  pickable_component_key.store()
 }
 
 ///|

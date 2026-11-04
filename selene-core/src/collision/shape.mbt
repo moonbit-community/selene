@@ -23,19 +23,7 @@ pub(all) enum CollisionShape {
 }
 
 ///|
-priv struct ShapeWorldStore {
-  shapes : @entity.ComponentStore[CollisionShape]
-}
-
-///|
-let shape_world_store_key : @ecs.WorldKey[ShapeWorldStore] = WorldKey(() => {
-  shapes: ComponentStore(@ecs.require_current_world()),
-})
-
-///|
-fn shape_world_store() -> ShapeWorldStore {
-  @ecs.require_current_world().get_or_init(shape_world_store_key)
-}
+let shape_component_key : @entity.ComponentKey[CollisionShape] = ComponentKey()
 
 ///|
 /// Stores collision shapes for entities in the current world.
@@ -54,5 +42,5 @@ fn shape_world_store() -> ShapeWorldStore {
 /// )
 /// ```
 pub fn shapes() -> @entity.ComponentStore[CollisionShape] {
-  shape_world_store().shapes
+  shape_component_key.store()
 }

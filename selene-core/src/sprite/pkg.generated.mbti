@@ -67,6 +67,7 @@ pub fn Sprite::Sprite(image? : @asset_types.ImageHandle?, texture_atlas? : Textu
 pub fn Sprite::from_atlas_image(@asset_types.ImageHandle, TextureAtlas) -> Self
 pub fn Sprite::from_color(@render.Color, @math.Vec2) -> Self
 pub fn Sprite::from_image(@asset_types.ImageHandle, custom_size? : @math.Vec2?) -> Self
+pub impl @entity.Component for Sprite
 
 pub(all) enum SpriteImageMode {
   Auto

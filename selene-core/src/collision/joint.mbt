@@ -308,14 +308,14 @@ priv struct JointWorldStore {
 }
 
 ///|
-let joint_world_store_key : @ecs.WorldKey[JointWorldStore] = WorldKey(() => {
-  joints: ComponentStore(@ecs.require_current_world()),
-  multibody_joints: ComponentStore(@ecs.require_current_world()),
+let joint_world_store_key : @ecs.ResourceKey[JointWorldStore] = ResourceKey(world => {
+  joints: ComponentStore(world),
+  multibody_joints: ComponentStore(world),
 })
 
 ///|
 fn joint_world_store() -> JointWorldStore {
-  @ecs.require_current_world().get_or_init(joint_world_store_key)
+  joint_world_store_key.get()
 }
 
 ///|

@@ -5,6 +5,7 @@ pub(all) enum SpriteImageMode {
 }
 
 ///|
+#selene.component
 pub(all) struct Sprite {
   image : @asset.ImageHandle?
   mut texture_atlas : TextureAtlas?
@@ -19,14 +20,8 @@ pub(all) struct Sprite {
 }
 
 ///|
-let sprite_store_key : @ecs.WorldKey[@entity.ComponentStore[Sprite]] = WorldKey(() => {
-    ComponentStore(@ecs.require_current_world())
-  },
-)
-
-///|
 pub fn sprites() -> @entity.ComponentStore[Sprite] {
-  @ecs.require_current_world().get_or_init(sprite_store_key)
+  @entity.components()
 }
 
 ///|
@@ -87,16 +82,22 @@ pub fn Sprite::from_color(
 }
 
 ///|
-let sprite_query_key : @ecs.WorldKey[
+let sprite_query_key : @ecs.ResourceKey[
   @entity.ArchetypeQuery2[Sprite, @transform.GlobalTransform],
-] = WorldKey(() => ArchetypeQuery2(sprites(), @transform.global_transforms()))
+] = ResourceKey(world => {
+  let sprites : @entity.ComponentStore[Sprite] = @entity.components_in(world)
+  let transforms : @entity.ComponentStore[@transform.GlobalTransform] = @entity.components_in(
+    world,
+  )
+  ArchetypeQuery2(sprites, transforms)
+})
 
 ///|
 /// Visits Sprites with a GlobalTransform in contiguous archetype rows.
 pub fn for_each_sprite_transform(
   visit : (@entity.Entity, Sprite, @transform.GlobalTransform) -> Unit,
 ) -> Unit {
-  @ecs.require_current_world().get_or_init(sprite_query_key).for_each(visit)
+  sprite_query_key.get().for_each(visit)
 }
 
 ///|

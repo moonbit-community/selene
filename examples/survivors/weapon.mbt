@@ -135,6 +135,7 @@ fn calculate_weapon_range(weapon_data : WeaponData, range : Double) -> Double {
 let weapon_timers : Array[Double] = []
 
 ///|
+#selene.component
 priv struct PlayerBulletState {
   mut alive : Bool
   mut penetration_count : Int32
@@ -143,13 +144,8 @@ priv struct PlayerBulletState {
 }
 
 ///|
-let player_bullets_key : @ecs.WorldKey[
-  @entity.ComponentStore[PlayerBulletState],
-] = WorldKey(() => ComponentStore(@ecs.require_current_world()))
-
-///|
 fn player_bullets() -> @entity.ComponentStore[PlayerBulletState] {
-  @ecs.require_current_world().get_or_init(player_bullets_key)
+  @entity.components()
 }
 
 ///|

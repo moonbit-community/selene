@@ -52,5 +52,6 @@ pub(all) struct Without[T] {
 pub fn[T] Without::to_filter(Self[T]) -> EntityFilter
 
 // Type aliases
+pub using @entity {type ArchetypeQuery2 as Query2}
 
 // Traits

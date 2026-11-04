@@ -4,3 +4,5 @@ import {
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
 }
+
+formatter(ignore: [ "top.g.mbt" ])

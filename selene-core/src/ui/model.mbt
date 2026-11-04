@@ -803,29 +803,30 @@ priv struct UiModelWorldStore {
 }
 
 ///|
-let ui_model_world_store_key : @ecs.WorldKey[UiModelWorldStore] = WorldKey(() => {
-  nodes: ComponentStore(@ecs.require_current_world()),
-  computed_ui_nodes: ComponentStore(@ecs.require_current_world()),
-  global_ui_nodes: ComponentStore(@ecs.require_current_world()),
-  ui_target_cameras: ComponentStore(@ecs.require_current_world()),
-  calculated_clips: ComponentStore(@ecs.require_current_world()),
-  layout_configs: ComponentStore(@ecs.require_current_world()),
-  z_indexes: ComponentStore(@ecs.require_current_world()),
-  global_zindexes: ComponentStore(@ecs.require_current_world()),
-  scroll_positions: ComponentStore(@ecs.require_current_world()),
-  tab_indexes: ComponentStore(@ecs.require_current_world()),
-  focus_policies: ComponentStore(@ecs.require_current_world()),
-  focusables: ComponentStore(@ecs.require_current_world()),
-  focuseds: ComponentStore(@ecs.require_current_world()),
-  override_clips: ComponentStore(@ecs.require_current_world()),
-  relative_cursor_positions: ComponentStore(@ecs.require_current_world()),
-  tree_orders: ComponentStore(@ecs.require_current_world()),
-  ui_stack_entities: [],
-})
+let ui_model_world_store_key : @ecs.ResourceKey[UiModelWorldStore] = ResourceKey(world => {
+    nodes: ComponentStore(world),
+    computed_ui_nodes: ComponentStore(world),
+    global_ui_nodes: ComponentStore(world),
+    ui_target_cameras: ComponentStore(world),
+    calculated_clips: ComponentStore(world),
+    layout_configs: ComponentStore(world),
+    z_indexes: ComponentStore(world),
+    global_zindexes: ComponentStore(world),
+    scroll_positions: ComponentStore(world),
+    tab_indexes: ComponentStore(world),
+    focus_policies: ComponentStore(world),
+    focusables: ComponentStore(world),
+    focuseds: ComponentStore(world),
+    override_clips: ComponentStore(world),
+    relative_cursor_positions: ComponentStore(world),
+    tree_orders: ComponentStore(world),
+    ui_stack_entities: [],
+  },
+)
 
 ///|
 fn ui_model_world_store() -> UiModelWorldStore {
-  @ecs.require_current_world().get_or_init(ui_model_world_store_key)
+  ui_model_world_store_key.get()
 }
 
 ///|
