@@ -26,6 +26,8 @@
 
 ### Changed
 
+- Condense the contribution guide to development, validation, generated ECS
+  declarations, and release essentials; remove outdated setup and policy details.
 - Publish codegen with the workspace enabled, following the beta-first workflow.
 - Follow the browser refresh rate by default. Replace `with_fps` with the
   optional `with_max_fps` limit, independently of fixed simulation frequency.
