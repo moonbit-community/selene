@@ -172,10 +172,10 @@ pub fn run() -> Unit {
 
 ### 游戏状态管理
 
-Pixel Adventure 在每个 World 中分别保存会话组件和玩家控制器组件。
+Pixel Adventure 在每个 World 中保存一份游戏会话资源，并将玩家控制器挂在玩家实体上。
 
 ```moonbit
-#selene.component
+#selene.resource
 priv struct GameSession {
   player : @ecs.Entity
   camera : @ecs.Entity
@@ -201,11 +201,9 @@ priv struct PlayerController {
 }
 ```
 
-`#selene.component` 让生成器为类型注册组件键，代码可以通过
-`@ecs.components()` 访问该列。示例还用
-`#selene.resource` 声明每个 World 的运行状态。启动流程会先清理上一轮实体，
-再通过 `world.insert_resource(...)` 显式插入新的状态和点击读取器。
-示例包对 `model.mbt` 应用生成规则：
+启动时会先清理上一轮实体，再加载关卡并用 `world.insert_resource(...)`
+插入新的 `GameSession`。系统通过 `world.get_resource()` 读取会话，
+通过 `@ecs.components()` 访问玩家控制器。示例包对 `model.mbt` 应用以下生成规则。
 
 ```moonbit
 dev_build(rule: "selene_codegen", input: "model.mbt", output: "model.g.mbt")

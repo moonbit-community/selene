@@ -27,6 +27,9 @@
 ### Changed
 
 - Bind the UI border query once per World and reuse it in paint order.
+- Store the Pixel Adventure game session as a World resource and replace it
+  when restarting the game.
+
 - Publish development codegen tools as betas of the next Selene version.
   Release scripts synchronize generator pins and companions after publication.
   Stable releases publish and validate codegen before core and WebGPU.

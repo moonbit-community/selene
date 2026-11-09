@@ -144,7 +144,7 @@ priv struct SpriteAnimationDef {
 }
 
 ///|
-#selene.component
+#selene.resource
 priv struct GameSession {
   player : @ecs.Entity
   camera : @ecs.Entity
@@ -224,11 +224,6 @@ fn reset_pixeladventure_world_store() -> Unit {
 }
 
 ///|
-fn sessions() -> @ecs.ComponentStore[GameSession] {
-  @ecs.components()
-}
-
-///|
 fn players() -> @ecs.ComponentStore[PlayerController] {
   @ecs.components()
 }
@@ -251,16 +246,6 @@ fn flags() -> @ecs.ComponentStore[FlagTag] {
 ///|
 fn ui_click_reader() -> @event.EventReader[@ui.UiClickEvent] {
   pixeladventure_world_state().click_reader
-}
-
-///|
-fn active_session_entity() -> @ecs.Entity? {
-  for entity, _ in sessions() {
-    if entity.is_alive() {
-      return Some(entity)
-    }
-  }
-  None
 }
 
 ///|

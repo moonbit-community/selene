@@ -172,10 +172,11 @@ Systems are executed by schedule, and each system owns a specific responsibility
 
 ### Game State Management
 
-Pixel Adventure keeps session data and player controllers in separate component columns for each World.
+Pixel Adventure keeps one game session resource per World and attaches player
+controllers to their entities.
 
 ```moonbit
-#selene.component
+#selene.resource
 priv struct GameSession {
   player : @ecs.Entity
   camera : @ecs.Entity
@@ -201,11 +202,10 @@ priv struct PlayerController {
 }
 ```
 
-The `#selene.component` markers let the generator register each type for
-`@ecs.components()`. Pixel Adventure also uses `#selene.resource`
-for its per-World runtime state. Startup explicitly inserts that state after
-cleaning up the previous run. Its package applies the generation rule to
-`model.mbt`:
+Startup cleans up the previous run, loads the level, and inserts the new
+`GameSession` with `world.insert_resource(...)`. Systems read the session
+with `world.get_resource()` and access player controllers through
+`@ecs.components()`. The package applies the generation rule to `model.mbt`.
 
 ```moonbit
 dev_build(rule: "selene_codegen", input: "model.mbt", output: "model.g.mbt")

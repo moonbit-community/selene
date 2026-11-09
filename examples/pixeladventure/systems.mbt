@@ -421,9 +421,8 @@ fn hurt_player(session : GameSession, controller : PlayerController) -> Unit {
 }
 
 ///|
-fn player_controller_system(_world : @ecs.World) -> Unit {
-  guard active_session_entity() is Some(session_entity) else { return }
-  guard sessions().get(session_entity) is Some(session) else { return }
+fn player_controller_system(world : @ecs.World) -> Unit {
+  guard (world.get_resource() : GameSession?) is Some(session) else { return }
   guard players().get(session.player) is Some(controller) else { return }
 
   let delta = @time.delta()
@@ -513,9 +512,8 @@ fn player_controller_system(_world : @ecs.World) -> Unit {
 }
 
 ///|
-fn player_bird_contact_system(_world : @ecs.World) -> Unit {
-  guard active_session_entity() is Some(session_entity) else { return }
-  guard sessions().get(session_entity) is Some(session) else { return }
+fn player_bird_contact_system(world : @ecs.World) -> Unit {
+  guard (world.get_resource() : GameSession?) is Some(session) else { return }
   if player_is_frozen(session.result) {
     return
   }
@@ -614,9 +612,8 @@ fn bird_patrol_system(_world : @ecs.World) -> Unit {
 }
 
 ///|
-fn trigger_system(_world : @ecs.World) -> Unit {
-  guard active_session_entity() is Some(session_entity) else { return }
-  guard sessions().get(session_entity) is Some(session) else { return }
+fn trigger_system(world : @ecs.World) -> Unit {
+  guard (world.get_resource() : GameSession?) is Some(session) else { return }
   if player_is_frozen(session.result) {
     return
   }
@@ -651,9 +648,8 @@ fn trigger_system(_world : @ecs.World) -> Unit {
 }
 
 ///|
-fn volume_button_system(_world : @ecs.World) -> Unit {
-  guard active_session_entity() is Some(session_entity) else { return }
-  guard sessions().get(session_entity) is Some(session) else { return }
+fn volume_button_system(world : @ecs.World) -> Unit {
+  guard (world.get_resource() : GameSession?) is Some(session) else { return }
   for event in @ui.click_event_bus.read(ui_click_reader()) {
     if event.entity == session.volume_button {
       session.volume_on = !session.volume_on
@@ -662,9 +658,8 @@ fn volume_button_system(_world : @ecs.World) -> Unit {
 }
 
 ///|
-fn pixeladventure_camera_follow_system(_world : @ecs.World) -> Unit {
-  guard active_session_entity() is Some(session_entity) else { return }
-  guard sessions().get(session_entity) is Some(session) else { return }
+fn pixeladventure_camera_follow_system(world : @ecs.World) -> Unit {
+  guard (world.get_resource() : GameSession?) is Some(session) else { return }
   guard @transform.transforms().get(session.player) is Some(player_transform) else {
     return
   }
@@ -699,9 +694,8 @@ fn pixeladventure_camera_follow_system(_world : @ecs.World) -> Unit {
 }
 
 ///|
-fn hud_sync_system(_world : @ecs.World) -> Unit {
-  guard active_session_entity() is Some(session_entity) else { return }
-  guard sessions().get(session_entity) is Some(session) else { return }
+fn hud_sync_system(world : @ecs.World) -> Unit {
+  guard (world.get_resource() : GameSession?) is Some(session) else { return }
   set_ui_text(session.result_box, result_text(session.result))
   set_ui_text_color(session.result_box, result_color(session.result))
   set_ui_text(session.score_box, "Score: " + session.score.to_string())

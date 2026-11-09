@@ -13,14 +13,13 @@
 // limitations under the License.
 
 ///|
-fn game_start(_world : @ecs.World) -> Unit {
+fn game_start(world : @ecs.World) -> Unit {
   ignore(@asset.load_font(FONT_PATH, family=FONT_FAMILY))
   @ui.set_ui_scale_mode(Viewport)
   configure_pixeladventure_input()
   reset_pixeladventure_world_store()
   let loaded_level = load_level_scene()
 
-  let session_entity = spawn_game_entity()
   let result_box = spawn_game_entity()
   let score_box = spawn_game_entity()
   let health_box = spawn_game_entity()
@@ -29,7 +28,7 @@ fn game_start(_world : @ecs.World) -> Unit {
   spawn_background(loaded_level.world_size)
   spawn_hud(result_box, score_box, health_box, volume_button)
 
-  sessions().set(session_entity, {
+  world.insert_resource(GameSession::{
     player: loaded_level.player_entity,
     camera: loaded_level.camera_entity,
     result_box,
@@ -43,8 +42,8 @@ fn game_start(_world : @ecs.World) -> Unit {
     world_size: loaded_level.world_size,
   })
 
-  hud_sync_system(@ecs.require_current_world())
-  pixeladventure_camera_follow_system(@ecs.require_current_world())
+  hud_sync_system(world)
+  pixeladventure_camera_follow_system(world)
 }
 
 ///|
