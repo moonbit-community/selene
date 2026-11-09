@@ -88,6 +88,8 @@ selene/
 
 ## How to Contribute
 
+Track bugs, feature requests, and implementation work in [GitHub Issues](https://github.com/moonbit-community/selene/issues).
+
 ### Types of Contributions
 
 1. **Bug Reports**: Report issues with detailed reproduction steps

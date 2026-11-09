@@ -95,6 +95,7 @@
 
 ### Removed
 
+- Removed the repository's Markdown issue tracker. Track work in GitHub Issues.
 - Removed the separate `entity`, `query`, and `commands` packages. Import
   `Milky2018/selene/ecs` for these APIs.
 - Removed direct access to the World's command queue. Use `Commands::add` and
