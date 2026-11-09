@@ -4,7 +4,7 @@ test "generates typed keys only for marked declarations" {
     #|#selene.component
     #|pub(all) struct Position { x : Double }
     #|
-    #|#selene.resource(new_clock)
+    #|#selene.resource
     #|priv struct Clock { mut tick : Int }
     #|
     #|// #selene.component
@@ -12,17 +12,17 @@ test "generates typed keys only for marked declarations" {
   let generated = generate(source, "state.mbt")
   assert_true(generated.contains("@ecs.ComponentKey[Position]"))
   assert_true(generated.contains("pub impl @ecs.Component for Position"))
-  assert_true(
-    generated.contains("@ecs.ResourceKey[Clock] = ResourceKey(new_clock)"),
-  )
+  assert_true(generated.contains("@ecs.ResourceKey[Clock] = ResourceKey()"))
   assert_false(generated.contains("pub impl @ecs.Resource for Clock"))
   assert_false(generated.contains("Unmarked"))
 }
 
 ///|
-test "rejects a resource marker without an initializer" {
+test "rejects a resource marker with an initializer" {
   let result = try {
-    ignore(generate("#selene.resource\npriv struct Clock {}", "state.mbt"))
+    ignore(
+      generate("#selene.resource(new_clock)\npriv struct Clock {}", "state.mbt"),
+    )
     false
   } catch {
     InvalidInput(_) => true
@@ -34,7 +34,7 @@ test "rejects a resource marker without an initializer" {
 test "rejects Selene markers on functions and fields" {
   for
     source in [
-      "#selene.component\nfn wrong_target() -> Unit { () }", "#selene.resource(new_score)\nstruct Player {\n  #selene.component\n  score : Int\n}",
+      "#selene.component\nfn wrong_target() -> Unit { () }", "#selene.resource\nstruct Player {\n  #selene.component\n  score : Int\n}",
     ] {
     let result = try {
       ignore(generate(source, "state.mbt"))

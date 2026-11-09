@@ -145,6 +145,7 @@ test "zero-delay timeouts scheduled by callbacks run on the next tick" {
 ///|
 test "timeouts can be cancelled before ticking and within a due batch" {
   let world = @ecs.World()
+  @time.initialize(world)
   let calls = []
   @ecs.set_current_world(world)
   let cancelled = @system.timeout(0.0, () => calls.push(0))

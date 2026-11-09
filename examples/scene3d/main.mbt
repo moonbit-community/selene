@@ -19,7 +19,7 @@ const VIEWPORT_WIDTH : Double = 960.0
 const VIEWPORT_HEIGHT : Double = 640.0
 
 ///|
-#selene.resource(new_scene3d_state)
+#selene.resource
 priv struct Scene3dState {
   entities : Array[@ecs.Entity]
   mut rotating_cube : @ecs.Entity?
@@ -30,12 +30,12 @@ priv struct Scene3dState {
   mut dynamic_ball_entity : @ecs.Entity?
   mut joint_ball_entity : @ecs.Entity?
   mut controller_entity : @ecs.Entity?
-  mut contact_force_reader : @event.EventReader[@physics3d.ContactForceEvent]
+  contact_force_reader : @event.EventReader[@physics3d.ContactForceEvent]
   mut last_contact_force : Double
 }
 
 ///|
-fn new_scene3d_state(_world : @ecs.World) -> Scene3dState {
+fn new_scene3d_state() -> Scene3dState {
   {
     entities: [],
     rotating_cube: None,
@@ -53,7 +53,7 @@ fn new_scene3d_state(_world : @ecs.World) -> Scene3dState {
 
 ///|
 fn scene3d_state() -> Scene3dState {
-  @ecs.resource()
+  @ecs.require_current_world().resource()
 }
 
 ///|
@@ -246,16 +246,15 @@ pub fn run() -> Unit {
 }
 
 ///|
-fn setup_scene3d(_world : @ecs.World) -> Unit {
-  let state = scene3d_state()
-  for entity in state.entities {
-    ignore(entity.delete())
+fn setup_scene3d(world : @ecs.World) -> Unit {
+  let previous : Scene3dState? = world.get_resource()
+  if previous is Some(previous) {
+    for entity in previous.entities {
+      ignore(entity.delete())
+    }
   }
-  state.entities.clear()
-  state.cube_rotation = 0.0
-  state.spotlight_phase = 0.0
-  state.contact_force_reader = EventReader()
-  state.last_contact_force = 0.0
+  let state = new_scene3d_state()
+  world.insert_resource(state)
   configure_scene3d_input()
   let camera = spawn_scene3d_entity()
   @transform.transforms().set(camera, {

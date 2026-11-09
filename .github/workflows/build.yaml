@@ -47,7 +47,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           moon update
-          git ls-files -z -- '*.mbt' | xargs -0 moon run selene-codegen --target wasm --target-dir _build/selene-codegen -- --check
+          git ls-files -z -- '*.mbt' | xargs -0 moonx Milky2018/selene_codegen@0.39.2 --check
 
       - name: Check formatting
         if: ${{ matrix.os == 'ubuntu-latest' }}

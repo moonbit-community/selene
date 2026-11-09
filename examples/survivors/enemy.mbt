@@ -148,7 +148,7 @@ let wave_spawn_plans : Array[WaveSpawnPlan] = [
 ]
 
 ///|
-#selene.resource(new_wave_state)
+#selene.resource
 priv struct WaveState {
   mut creeper_spawned : Int32
   mut icecream_spawned : Int32
@@ -160,7 +160,7 @@ priv struct WaveState {
 }
 
 ///|
-fn new_wave_state(_world : @ecs.World) -> WaveState {
+fn new_wave_state() -> WaveState {
   {
     creeper_spawned: 0,
     icecream_spawned: 0,
@@ -174,19 +174,12 @@ fn new_wave_state(_world : @ecs.World) -> WaveState {
 
 ///|
 fn wave_state() -> WaveState {
-  @ecs.resource()
+  @ecs.require_current_world().resource()
 }
 
 ///|
 fn reset_wave_state() -> Unit {
-  let state = wave_state()
-  state.creeper_spawned = 0
-  state.icecream_spawned = 0
-  state.orc_spawned = 0
-  state.skull_spawned = 0
-  state.teleman_spawned = 0
-  state.devil_spawned = 0
-  state.pirate_spawned = 0
+  @ecs.require_current_world().insert_resource(new_wave_state())
 }
 
 ///|

@@ -24,5 +24,5 @@ supported_targets = "js"
 
 rule(
   name: "selene_codegen",
-  command: "moon run ../selene-codegen --target wasm --target-dir _build/selene-codegen -- \"$input\" \"$output\"",
+  command: "moonx Milky2018/selene_codegen@0.39.2 \"$input\" \"$output\"",
 )

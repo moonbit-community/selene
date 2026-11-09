@@ -202,8 +202,9 @@ priv struct PlayerController {
 ```
 
 The `#selene.component` markers let the generator register each type for
-`@ecs.components()`. Pixel Adventure also uses `#selene.resource(new_pixeladventure_world_state)`
-for its per-World click reader. Its package applies the generation rule to
+`@ecs.components()`. Pixel Adventure also uses `#selene.resource`
+for its per-World runtime state. Startup explicitly inserts that state after
+cleaning up the previous run. Its package applies the generation rule to
 `model.mbt`:
 
 ```moonbit

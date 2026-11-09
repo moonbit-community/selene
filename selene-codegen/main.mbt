@@ -58,16 +58,10 @@ fn generate(source : String, input : String) -> String raise CodegenError {
             hide_method(out, name, "@ecs.Component", "component_key")
           }
         }
-        ("resource", Some(Apply(_, props))) => {
-          guard props.to_array() is [Expr(Ident(factory))] &&
-            factory.qual is None else {
-            raise InvalidInput(
-              "\{input}: #selene.resource on \{name} takes one local factory name",
-            )
-          }
+        ("resource", Some(Ident(_))) => {
           let key = "selene_resource_key_\{name}"
           out.write_string(
-            "\n///|\nlet \{key} : @ecs.ResourceKey[\{name}] = ResourceKey(\{factory.name})\n",
+            "\n///|\nlet \{key} : @ecs.ResourceKey[\{name}] = ResourceKey()\n",
           )
           out.write_string(
             "\n///|\n\{visibility}impl @ecs.Resource for \{name} with resource_key() {\n  \{key}\n}\n",
@@ -78,7 +72,7 @@ fn generate(source : String, input : String) -> String raise CodegenError {
         }
         _ =>
           raise InvalidInput(
-            "\{input}: invalid \{attr.raw} on \{name}; expected #selene.component or #selene.resource(factory)",
+            "\{input}: invalid \{attr.raw} on \{name}; expected #selene.component or #selene.resource",
           )
       }
     }

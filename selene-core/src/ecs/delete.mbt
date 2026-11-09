@@ -5,7 +5,7 @@
 pub fn Entity::delete(self : Entity) -> Bool {
   let world = require_current_world()
   guard self.belongs_to(world) else { false }
-  let store = entity_store_key.get_in(world)
+  let store = entity_store_key.get_or_insert_with(world, new_entity_store)
   guard store.archetypes.slot(self) is Some(_) else { false }
   store.archetypes.require_no_query()
 

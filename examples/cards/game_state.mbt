@@ -82,21 +82,21 @@ priv struct GameState {
 }
 
 ///|
-#selene.resource(new_cards_runtime)
+#selene.resource
 priv struct CardsRuntime {
   entities : Array[@ecs.Entity]
   mut game : GameState?
-  mut click_reader : @event.EventReader[@ui.UiClickEvent]
+  click_reader : @event.EventReader[@ui.UiClickEvent]
 }
 
 ///|
-fn new_cards_runtime(_world : @ecs.World) -> CardsRuntime {
+fn new_cards_runtime() -> CardsRuntime {
   { entities: [], game: None, click_reader: EventReader(), }
 }
 
 ///|
 fn cards_runtime() -> CardsRuntime {
-  @ecs.resource()
+  @ecs.require_current_world().resource()
 }
 
 ///|
@@ -108,13 +108,14 @@ fn spawn_cards_entity() -> @ecs.Entity {
 
 ///|
 fn reset_cards_runtime() -> Unit {
-  let runtime = cards_runtime()
-  for entity in runtime.entities {
-    ignore(entity.delete())
+  let world = @ecs.require_current_world()
+  let previous : CardsRuntime? = world.get_resource()
+  if previous is Some(state) {
+    for entity in state.entities {
+      ignore(entity.delete())
+    }
   }
-  runtime.entities.clear()
-  runtime.game = None
-  runtime.click_reader = EventReader()
+  world.insert_resource(new_cards_runtime())
 }
 
 ///|

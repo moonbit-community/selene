@@ -25,7 +25,7 @@ const TANK_SCENE_PATH : String = "assets/tank3d/tank_1_green.glb"
 const TANK_SCALE : Double = 1.35
 
 ///|
-#selene.resource(new_tank3d_state)
+#selene.resource
 priv struct Tank3dState {
   entities : Array[@ecs.Entity]
   mut root : @ecs.Entity?
@@ -33,13 +33,13 @@ priv struct Tank3dState {
 }
 
 ///|
-fn new_tank3d_state(_world : @ecs.World) -> Tank3dState {
+fn new_tank3d_state() -> Tank3dState {
   { entities: [], root: None, start_time: 0.0, }
 }
 
 ///|
 fn tank3d_state() -> Tank3dState {
-  @ecs.resource()
+  @ecs.require_current_world().resource()
 }
 
 ///|
@@ -96,12 +96,15 @@ pub fn run() -> Unit {
 }
 
 ///|
-fn setup_tank3d(_world : @ecs.World) -> Unit {
-  let state = tank3d_state()
-  for entity in state.entities {
-    ignore(entity.delete())
+fn setup_tank3d(world : @ecs.World) -> Unit {
+  let previous : Tank3dState? = world.get_resource()
+  if previous is Some(previous) {
+    for entity in previous.entities {
+      ignore(entity.delete())
+    }
   }
-  state.entities.clear()
+  let state = new_tank3d_state()
+  world.insert_resource(state)
   state.start_time = @time.elapsed()
   setup_camera()
   setup_lighting()

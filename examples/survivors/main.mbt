@@ -154,16 +154,16 @@ fn create_game_over_panel_entity() -> @ecs.Entity {
 }
 
 ///|
-#selene.resource(new_survivors_runtime)
+#selene.resource
 priv struct SurvivorsRuntime {
   entities : Array[@ecs.Entity]
   mut game : GameState?
   weapon_timers : Array[Double]
   enemy_bullets : Set[@ecs.Entity]
-  mut ui_click_reader : @event.EventReader[@ui.UiClickEvent]
-  mut enemy_contact_event_reader : @event.EventReader[@physics2d.ContactEvent]
-  mut enemy_trigger_event_reader : @event.EventReader[@physics2d.TriggerEvent]
-  mut player_bullet_trigger_event_reader : @event.EventReader[
+  ui_click_reader : @event.EventReader[@ui.UiClickEvent]
+  enemy_contact_event_reader : @event.EventReader[@physics2d.ContactEvent]
+  enemy_trigger_event_reader : @event.EventReader[@physics2d.TriggerEvent]
+  player_bullet_trigger_event_reader : @event.EventReader[
     @physics2d.TriggerEvent,
   ]
   levelup_buttons : Array[@ecs.Entity]
@@ -176,7 +176,7 @@ priv struct SurvivorsRuntime {
 }
 
 ///|
-fn new_survivors_runtime(_world : @ecs.World) -> SurvivorsRuntime {
+fn new_survivors_runtime() -> SurvivorsRuntime {
   {
     entities: [],
     game: None,
@@ -198,7 +198,7 @@ fn new_survivors_runtime(_world : @ecs.World) -> SurvivorsRuntime {
 
 ///|
 fn survivors_runtime() -> SurvivorsRuntime {
-  @ecs.resource()
+  @ecs.require_current_world().resource()
 }
 
 ///|
@@ -224,28 +224,17 @@ fn survivors_timeout(delay : Double, callback : () -> Unit) -> Unit {
 
 ///|
 fn reset_survivors_runtime() -> Unit {
-  let runtime = survivors_runtime()
-  for _, timer in runtime.timers {
-    ignore(timer.cancel())
+  let world = @ecs.require_current_world()
+  let previous : SurvivorsRuntime? = world.get_resource()
+  if previous is Some(runtime) {
+    for _, timer in runtime.timers {
+      ignore(timer.cancel())
+    }
+    for entity in runtime.entities {
+      ignore(entity.delete())
+    }
   }
-  runtime.timers.clear()
-  runtime.next_timer = 0
-  for entity in runtime.entities {
-    ignore(entity.delete())
-  }
-  runtime.entities.clear()
-  runtime.game = None
-  runtime.weapon_timers.clear()
-  runtime.enemy_bullets.clear()
-  runtime.ui_click_reader = EventReader()
-  runtime.enemy_contact_event_reader = EventReader()
-  runtime.enemy_trigger_event_reader = EventReader()
-  runtime.player_bullet_trigger_event_reader = EventReader()
-  runtime.levelup_buttons.clear()
-  runtime.levelup_button_icons.clear()
-  runtime.levelup_title = None
-  runtime.game_over_title = None
-  runtime.restart_button = None
+  world.insert_resource(new_survivors_runtime())
   reset_wave_state()
 }
 
@@ -535,6 +524,7 @@ fn apply_selection(selection : LevelUpSelection) -> Unit {
 ///|
 fn game_start(_world : @ecs.World) -> Unit {
   reset_survivors_runtime()
+  @time.initialize(@ecs.require_current_world())
   @time.set_scale(1.0)
   ignore(
     @asset.load_font(

@@ -2,7 +2,7 @@
 
 ///|
 let selene_resource_key_PerfRuntime : @ecs.ResourceKey[PerfRuntime] = ResourceKey(
-  new_perf_runtime,
+
 )
 
 ///|

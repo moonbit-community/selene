@@ -1,5 +1,5 @@
 ///|
-#selene.resource(new_time_state)
+#selene.resource
 priv struct TimeState {
   mut raw_delta : Double
   mut delta : Double
@@ -11,7 +11,7 @@ priv struct TimeState {
 }
 
 ///|
-fn new_time_state(_world : @ecs.World) -> TimeState {
+fn new_time_state() -> TimeState {
   {
     raw_delta: 0.0,
     delta: 0.0,
@@ -25,7 +25,16 @@ fn new_time_state(_world : @ecs.World) -> TimeState {
 
 ///|
 fn time_state() -> TimeState {
-  @ecs.resource()
+  @ecs.require_current_world().resource()
+}
+
+///|
+/// Initializes the World's clock if it has not been initialized.
+pub fn initialize(world : @ecs.World) -> Unit {
+  let state : TimeState? = world.get_resource()
+  if state is None {
+    world.insert_resource(new_time_state())
+  }
 }
 
 ///|

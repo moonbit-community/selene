@@ -41,7 +41,7 @@ pub fn Commands::delete(self : Commands, entity : Entity) -> Unit {
 
 ///|
 pub fn has_pending_commands(world : World) -> Bool {
-  !queues.get_in(world).pending.is_empty()
+  !queues.get_or_insert_with(world, new_queues).pending.is_empty()
 }
 
 ///|

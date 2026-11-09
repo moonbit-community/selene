@@ -2,7 +2,7 @@
 
 ///|
 let selene_resource_key_Tank3dState : @ecs.ResourceKey[Tank3dState] = ResourceKey(
-  new_tank3d_state,
+
 )
 
 ///|

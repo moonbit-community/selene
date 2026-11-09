@@ -55,28 +55,42 @@ When two columns use the same value type, declare separate
 
 ## Resources
 
-A resource holds one value per World. The initializer receives the World that
-owns the new value.
+A resource holds one value per World. Mark the type with `#selene.resource`
+to generate its identity, then explicitly insert its initial value.
 
 ```moonbit
-#selene.resource(new_score)
+#selene.resource
 priv struct Score {
   mut points : Int
 }
 
-fn new_score(_world : @ecs.World) -> Score {
-  { points: 0 }
+fn setup(world : @ecs.World) -> Unit {
+  world.insert_resource(Score::{ points: 0 })
 }
 
-fn score_point() -> Unit {
-  let score : Score = @ecs.resource()
+fn score_point(world : @ecs.World) -> Unit {
+  let score : Score = world.resource()
   score.points += 1
 }
 ```
 
-Use `@ecs.resource_in(world)` to select a World explicitly. For several resources
-of the same type, construct independent `@ecs.ResourceKey[T]` values with
-`ResourceKey(world => ...)`, then use `get()` or `get_in(world)`.
+Initialize resources in application or plugin setup, or in an earlier Startup
+system. `app.insert_resource(Score::{ points: 0 })` configures the app's World
+before its systems run. When constructing an App for another World, call
+`with_world(world)` before inserting resources.
+
+`world.resource()` requires an existing resource and aborts when it is missing.
+`world.get_resource()` returns `None` when missing. Neither operation constructs
+a resource. `world.insert_resource(value)` replaces the existing value of that
+type in that World. The caller can construct the value from configuration or
+other resources before inserting it. Different Worlds keep separate values.
+
+For several resources of the same type, create separate
+`@ecs.ResourceKey[T]` values with `ResourceKey()`. Use
+`key.insert_in(world, value)` and `key.get_in(world)`, which returns an optional
+value. Internal caches can explicitly request initialization with
+`key.get_or_insert_with(world, create)`; the constructor runs only when the
+value is missing. `create` receives the requested World.
 
 ## Schedules and commands
 
@@ -100,21 +114,21 @@ package. Import `Milky2018/selene/ecs` as `@ecs` in packages with generated file
 The generator lives in the separate `selene-codegen` module. The core module
 ships its generated sources and can build independently. CI regenerates those
 sources in memory to verify that the checked-in companions are current and
-catch missing files before the build. The examples use a local `dev_build`
-rule with a separate build directory. To regenerate a file from the workspace
-root, run:
+catch missing files before the build. CI and the examples' `dev_build` rules
+run the published generator through `moonx`, pinned to version `0.39.2`.
+To regenerate a file, run:
 
 ```sh
-moon run selene-codegen --target wasm --target-dir _build/selene-codegen -- input.mbt input.g.mbt
+moonx Milky2018/selene_codegen@0.39.2 input.mbt input.g.mbt
 ```
 
-Once the executable package is published, downstream projects can define a rule
-in their `moon.mod` using a released Selene version in place of `VERSION`.
+Projects can define the same rule in their `moon.mod`. Update the pinned
+version after publishing a generator change.
 
 ```moonbit
 rule(
   name: "selene_codegen",
-  command: "moonx Milky2018/selene_codegen@VERSION \"$input\" \"$output\"",
+  command: "moonx Milky2018/selene_codegen@0.39.2 \"$input\" \"$output\"",
 )
 ```
 

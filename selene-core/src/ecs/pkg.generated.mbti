@@ -34,10 +34,6 @@ pub fn[A : Component, B : Component] query_system((Query2[A, B]) -> Unit) -> (Wo
 
 pub fn require_current_world() -> World
 
-pub fn[T : Resource] resource() -> T
-
-pub fn[T : Resource] resource_in(World) -> T
-
 pub fn run_schedule(World, (World) -> Unit) -> Unit raise ScheduleError
 
 pub fn set_current_world(World) -> Unit
@@ -146,9 +142,10 @@ pub fn[T : Eq] QueryReader::read(Self[T], World, ComponentStore[T]) -> QueryDelt
 pub fn[T] QueryReader::reset(Self[T]) -> Unit
 
 type ResourceKey[T]
-pub fn[T] ResourceKey::ResourceKey((World) -> T) -> Self[T]
-pub fn[T] ResourceKey::get(Self[T]) -> T
-pub fn[T] ResourceKey::get_in(Self[T], World) -> T
+pub fn[T] ResourceKey::ResourceKey() -> Self[T]
+pub fn[T] ResourceKey::get_in(Self[T], World) -> T?
+pub fn[T] ResourceKey::get_or_insert_with(Self[T], World, (World) -> T) -> T
+pub fn[T] ResourceKey::insert_in(Self[T], World, T) -> Unit
 
 type SpawnBundle[T]
 pub fn[A, B] SpawnBundle::combine(Self[A], Self[B]) -> Self[(A, B)]
@@ -175,7 +172,10 @@ pub fn World::advance_fixed_step(Self) -> Unit
 pub fn World::advance_frame(Self) -> Unit
 pub fn World::fixed_step_index(Self) -> UInt32
 pub fn World::frame_index(Self) -> UInt32
+pub fn[T : Resource] World::get_resource(Self) -> T?
 pub fn World::id(Self) -> UInt32
+pub fn[T : Resource] World::insert_resource(Self, T) -> Unit
+pub fn[T : Resource] World::resource(Self) -> T
 
 // Type aliases
 pub type System = (World) -> Unit

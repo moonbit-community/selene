@@ -2,7 +2,7 @@
 
 ///|
 let selene_resource_key_SurvivorsRuntime : @ecs.ResourceKey[SurvivorsRuntime] = ResourceKey(
-  new_survivors_runtime,
+
 )
 
 ///|

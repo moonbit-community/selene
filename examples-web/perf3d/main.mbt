@@ -55,20 +55,20 @@ priv struct PerfState {
 }
 
 ///|
-#selene.resource(new_perf_runtime)
+#selene.resource
 priv struct PerfRuntime {
   entities : Array[@ecs.Entity]
   mut state : PerfState?
 }
 
 ///|
-fn new_perf_runtime(_world : @ecs.World) -> PerfRuntime {
+fn new_perf_runtime() -> PerfRuntime {
   { entities: [], state: None, }
 }
 
 ///|
 fn perf_runtime() -> PerfRuntime {
-  @ecs.resource()
+  @ecs.require_current_world().resource()
 }
 
 ///|
@@ -136,12 +136,15 @@ pub fn run() -> Unit {
 }
 
 ///|
-fn setup_perf3d(_world : @ecs.World) -> Unit {
-  let runtime = perf_runtime()
-  for entity in runtime.entities {
-    ignore(entity.delete())
+fn setup_perf3d(world : @ecs.World) -> Unit {
+  let previous : PerfRuntime? = world.get_resource()
+  if previous is Some(previous) {
+    for entity in previous.entities {
+      ignore(entity.delete())
+    }
   }
-  runtime.entities.clear()
+  let runtime = new_perf_runtime()
+  world.insert_resource(runtime)
   let config = read_perf_config()
   configure_lighting_mode(config.mode)
   setup_camera(config)

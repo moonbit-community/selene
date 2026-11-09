@@ -43,13 +43,19 @@ priv struct Text2dWorldStore {
 }
 
 ///|
-let text2d_world_store_key : @ecs.ResourceKey[Text2dWorldStore] = ResourceKey(_ => {
-  text_layout_caches: Map([]),
-})
+let text2d_world_store_key : @ecs.ResourceKey[Text2dWorldStore] = ResourceKey()
+
+///|
+fn new_text2d_world_store(_ : @ecs.World) -> Text2dWorldStore {
+  { text_layout_caches: Map([]), }
+}
 
 ///|
 fn text2d_world_store() -> Text2dWorldStore {
-  text2d_world_store_key.get()
+  text2d_world_store_key.get_or_insert_with(
+    @ecs.require_current_world(),
+    new_text2d_world_store,
+  )
 }
 
 ///|

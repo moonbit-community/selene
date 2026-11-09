@@ -173,15 +173,23 @@ priv struct TransformWorldStore {
 }
 
 ///|
-let transform_store_key : @ecs.ResourceKey[TransformWorldStore] = ResourceKey(world => {
-  transforms: @ecs.components_in(world),
-  global_transforms: @ecs.components_in(world),
-  propagated: [],
-})
+let transform_store_key : @ecs.ResourceKey[TransformWorldStore] = ResourceKey()
+
+///|
+fn new_transform_store(world : @ecs.World) -> TransformWorldStore {
+  {
+    transforms: @ecs.components_in(world),
+    global_transforms: @ecs.components_in(world),
+    propagated: [],
+  }
+}
 
 ///|
 fn transform_world_store() -> TransformWorldStore {
-  transform_store_key.get()
+  transform_store_key.get_or_insert_with(
+    @ecs.require_current_world(),
+    new_transform_store,
+  )
 }
 
 ///|

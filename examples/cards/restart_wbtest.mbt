@@ -33,8 +33,8 @@ test "restarting Cards replaces only its entities in the current World" {
   }
   assert_true(other_entity.val.unwrap().is_valid_in(first))
   assert_true(other_world_card.val.unwrap().is_valid_in(second))
-  let first_game : CardsRuntime = @ecs.resource_in(first)
-  let second_game : CardsRuntime = @ecs.resource_in(second)
+  let first_game : CardsRuntime = first.resource()
+  let second_game : CardsRuntime = second.resource()
   assert_eq(first_game.game.unwrap().player.chips, starting_chips.val)
   assert_eq(second_game.game.unwrap().player.chips, 275)
 }

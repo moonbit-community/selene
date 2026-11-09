@@ -5,19 +5,21 @@ priv struct CommandQueue {
 }
 
 ///|
-let queues : ResourceKey[CommandQueue] = ResourceKey(_ => {
-  pending: [],
-  spare: [],
-})
+let queues : ResourceKey[CommandQueue] = ResourceKey()
+
+///|
+fn new_queues(_ : World) -> CommandQueue {
+  { pending: [], spare: [], }
+}
 
 ///|
 fn enqueue(world : World, command : (World) -> Unit) -> Unit {
-  queues.get_in(world).pending.push(command)
+  queues.get_or_insert_with(world, new_queues).pending.push(command)
 }
 
 ///|
 fn flush_commands(world : World) -> Unit {
-  let queue = queues.get_in(world)
+  let queue = queues.get_or_insert_with(world, new_queues)
   guard !queue.pending.is_empty() else { return }
   let batch = queue.pending
   queue.pending = queue.spare

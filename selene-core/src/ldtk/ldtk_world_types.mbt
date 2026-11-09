@@ -247,23 +247,31 @@ priv struct LdtkWorldStore {
 }
 
 ///|
-let ldtk_world_store_key : @ecs.ResourceKey[LdtkWorldStore] = ResourceKey(_ => {
-  ldtk_entity_spawn_hooks: Map([]),
-  ldtk_entity_layer_spawn_hooks: Map([]),
-  ldtk_entity_layer_identifier_spawn_hooks: Map([]),
-  ldtk_entity_default_spawn_hook: { val: None, },
-  ldtk_int_grid_layer_spawn_hooks: Map([]),
-  ldtk_int_grid_cell_spawn_hooks: Map([]),
-  ldtk_int_grid_value_spawn_hooks: Map([]),
-  ldtk_int_grid_default_spawn_hook: { val: None, },
-  ldtk_entity_typed_registrations: Map([]),
-  ldtk_int_cell_typed_registrations: Map([]),
-  ldtk_pending_transformed_level_iids: Map([]),
-})
+let ldtk_world_store_key : @ecs.ResourceKey[LdtkWorldStore] = ResourceKey()
+
+///|
+fn new_ldtk_world_store(_ : @ecs.World) -> LdtkWorldStore {
+  {
+    ldtk_entity_spawn_hooks: Map([]),
+    ldtk_entity_layer_spawn_hooks: Map([]),
+    ldtk_entity_layer_identifier_spawn_hooks: Map([]),
+    ldtk_entity_default_spawn_hook: { val: None, },
+    ldtk_int_grid_layer_spawn_hooks: Map([]),
+    ldtk_int_grid_cell_spawn_hooks: Map([]),
+    ldtk_int_grid_value_spawn_hooks: Map([]),
+    ldtk_int_grid_default_spawn_hook: { val: None, },
+    ldtk_entity_typed_registrations: Map([]),
+    ldtk_int_cell_typed_registrations: Map([]),
+    ldtk_pending_transformed_level_iids: Map([]),
+  }
+}
 
 ///|
 fn ldtk_world_store() -> LdtkWorldStore {
-  ldtk_world_store_key.get()
+  ldtk_world_store_key.get_or_insert_with(
+    @ecs.require_current_world(),
+    new_ldtk_world_store,
+  )
 }
 
 ///|

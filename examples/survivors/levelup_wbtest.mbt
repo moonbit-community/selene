@@ -1,7 +1,9 @@
 ///|
 test "level up shows panel and buttons" {
   use_survivors_test_assets()
-  @ecs.set_current_world(@ecs.bootstrap_world())
+  @ecs.set_current_world(@ecs.World())
+  @time.initialize(@ecs.require_current_world())
+  reset_survivors_runtime()
   setup_level_up_ui()
   game_state().pending_level_ups.clear()
   game_state().player_level = 1
@@ -61,7 +63,9 @@ test "level up shows panel and buttons" {
 ///|
 test "level up click resumes game" {
   use_survivors_test_assets()
-  @ecs.set_current_world(@ecs.bootstrap_world())
+  @ecs.set_current_world(@ecs.World())
+  @time.initialize(@ecs.require_current_world())
+  reset_survivors_runtime()
   setup_level_up_ui()
   game_state().pending_level_ups.clear()
   game_state().player_level = 1
@@ -72,7 +76,7 @@ test "level up click resumes game" {
     entity: survivors_runtime().levelup_buttons[0],
     button: Left,
   })
-  survivors_ui_pointer_system(@ecs.bootstrap_world())
+  survivors_ui_pointer_system(@ecs.require_current_world())
 
   inspect(@time.scale(), content="1")
   inspect(

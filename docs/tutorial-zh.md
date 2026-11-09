@@ -203,7 +203,8 @@ priv struct PlayerController {
 
 `#selene.component` 让生成器为类型注册组件键，代码可以通过
 `@ecs.components()` 访问该列。示例还用
-`#selene.resource(new_pixeladventure_world_state)` 为每个 World 初始化点击读取器。
+`#selene.resource` 声明每个 World 的运行状态。启动流程会先清理上一轮实体，
+再通过 `world.insert_resource(...)` 显式插入新的状态和点击读取器。
 示例包对 `model.mbt` 应用生成规则：
 
 ```moonbit

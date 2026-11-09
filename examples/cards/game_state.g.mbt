@@ -2,7 +2,7 @@
 
 ///|
 let selene_resource_key_CardsRuntime : @ecs.ResourceKey[CardsRuntime] = ResourceKey(
-  new_cards_runtime,
+
 )
 
 ///|

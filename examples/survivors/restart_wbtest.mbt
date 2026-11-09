@@ -27,7 +27,7 @@ test "restarting Survivors replaces its entities and cancels its old timers" {
   }
   assert_true(other_entity.val.unwrap().is_valid_in(world))
   assert_false(old_callback_ran.val)
-  let runtime : SurvivorsRuntime = @ecs.resource_in(world)
+  let runtime : SurvivorsRuntime = world.resource()
   assert_eq(runtime.timers.length(), 1)
   assert_eq(runtime.game.unwrap().score, 0)
 }

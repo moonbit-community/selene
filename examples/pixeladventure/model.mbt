@@ -188,22 +188,20 @@ priv struct AppleTag {}
 priv struct FlagTag {}
 
 ///|
-#selene.resource(new_pixeladventure_world_state)
+#selene.resource
 priv struct PixelAdventureWorldState {
   entities : Array[@ecs.Entity]
-  mut click_reader : @event.EventReader[@ui.UiClickEvent]
+  click_reader : @event.EventReader[@ui.UiClickEvent]
 }
 
 ///|
-fn new_pixeladventure_world_state(
-  _world : @ecs.World,
-) -> PixelAdventureWorldState {
+fn new_pixeladventure_world_state() -> PixelAdventureWorldState {
   { entities: [], click_reader: EventReader(), }
 }
 
 ///|
 fn pixeladventure_world_state() -> PixelAdventureWorldState {
-  @ecs.resource()
+  @ecs.require_current_world().resource()
 }
 
 ///|
@@ -215,12 +213,14 @@ fn spawn_game_entity() -> @ecs.Entity {
 
 ///|
 fn reset_pixeladventure_world_store() -> Unit {
-  let state = pixeladventure_world_state()
-  for entity in state.entities {
-    ignore(entity.delete())
+  let world = @ecs.require_current_world()
+  let previous : PixelAdventureWorldState? = world.get_resource()
+  if previous is Some(state) {
+    for entity in state.entities {
+      ignore(entity.delete())
+    }
   }
-  state.entities.clear()
-  state.click_reader = EventReader()
+  world.insert_resource(new_pixeladventure_world_state())
 }
 
 ///|

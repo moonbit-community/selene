@@ -49,7 +49,7 @@ impl @ecs.Component for FlagTag with fn component_key() {
 ///|
 let selene_resource_key_PixelAdventureWorldState : @ecs.ResourceKey[
   PixelAdventureWorldState,
-] = ResourceKey(new_pixeladventure_world_state)
+] = ResourceKey()
 
 ///|
 impl @ecs.Resource for PixelAdventureWorldState with fn resource_key() {

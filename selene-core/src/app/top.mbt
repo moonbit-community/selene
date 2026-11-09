@@ -72,6 +72,13 @@ pub fn App::world(self : App) -> @ecs.World {
 }
 
 ///|
+/// Inserts a resource into this app's World.
+pub fn[T : @ecs.Resource] App::insert_resource(self : App, value : T) -> App {
+  self.world.insert_resource(value)
+  self
+}
+
+///|
 pub fn App::with_image_smooth(self : App, image_smooth : Bool) -> App {
   { ..self, image_smooth, }
 }
@@ -387,6 +394,7 @@ pub(all) struct RuntimePlan {
 ///|
 fn setup_runtime_world(app : App) -> Unit {
   @ecs.set_current_world(app.world)
+  @time.initialize(app.world)
   @system.configure_display(app.viewport_width, app.viewport_height, app.zoom)
   for register_event in app.event_registrations {
     register_event(app.world)

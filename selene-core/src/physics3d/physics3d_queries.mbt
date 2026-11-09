@@ -110,15 +110,25 @@ priv struct Physics3DComponentWorldStore {
 ///|
 let physics3d_component_world_store_key : @ecs.ResourceKey[
   Physics3DComponentWorldStore,
-] = ResourceKey(world => {
-  active_collision_types: ComponentStore(world),
-  active_events: ComponentStore(world),
-  active_hooks: ComponentStore(world),
-})
+] = ResourceKey()
+
+///|
+fn new_physics3d_component_world_store(
+  world : @ecs.World,
+) -> Physics3DComponentWorldStore {
+  {
+    active_collision_types: ComponentStore(world),
+    active_events: ComponentStore(world),
+    active_hooks: ComponentStore(world),
+  }
+}
 
 ///|
 fn physics3d_component_world_store() -> Physics3DComponentWorldStore {
-  physics3d_component_world_store_key.get()
+  physics3d_component_world_store_key.get_or_insert_with(
+    @ecs.require_current_world(),
+    new_physics3d_component_world_store,
+  )
 }
 
 ///|

@@ -801,15 +801,19 @@ priv struct UiModelWorldStore {
 }
 
 ///|
-let ui_model_world_store_key : @ecs.ResourceKey[UiModelWorldStore] = ResourceKey(world => {
-    tree_orders: ComponentStore(world),
-    ui_stack_entities: [],
-  },
-)
+let ui_model_world_store_key : @ecs.ResourceKey[UiModelWorldStore] = ResourceKey()
+
+///|
+fn new_ui_model_world_store(world : @ecs.World) -> UiModelWorldStore {
+  { tree_orders: ComponentStore(world), ui_stack_entities: [], }
+}
 
 ///|
 fn ui_model_world_store() -> UiModelWorldStore {
-  ui_model_world_store_key.get()
+  ui_model_world_store_key.get_or_insert_with(
+    @ecs.require_current_world(),
+    new_ui_model_world_store,
+  )
 }
 
 ///|

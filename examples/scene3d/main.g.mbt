@@ -2,7 +2,7 @@
 
 ///|
 let selene_resource_key_Scene3dState : @ecs.ResourceKey[Scene3dState] = ResourceKey(
-  new_scene3d_state,
+
 )
 
 ///|

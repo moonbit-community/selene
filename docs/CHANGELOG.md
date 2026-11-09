@@ -24,6 +24,13 @@
 
 ### Changed
 
+- Separate resource identities from initialization. Declare resources with
+  `#selene.resource`, insert values through `World::insert_resource` or
+  `App::insert_resource`, and read them through `World::resource` or the optional
+  `World::get_resource`. Engine and demo initialization now uses explicit insertion.
+
+- Use the published `selene_codegen@0.39.2` executable through `moonx` in
+  CI and example development builds, avoiding nested workspace build locks.
 - Migrated built-in engine components to `#selene.component`. Named accessors
   and typed ECS queries now use the same per-World component stores.
 
@@ -82,9 +89,20 @@
 - Removed Rabbita and its async and server dependencies from the WebGPU backend
   by binding the browser APIs used by Selene directly.
 
+## [0.39.2] - 2026-11-06
+
+### Changed
+
+- Updated `selene_codegen` to generate resource identities from the argument-free
+  `#selene.resource` marker. Resource factory arguments are rejected.
+
 ## [0.39.1] - 2026-11-03
 
 ### Added
+
+- First published the standalone `Milky2018/selene_codegen@0.39.1` executable
+  on 2026-11-06, with component and resource declarations and generated-source
+  validation.
 
 ### Changed
 
