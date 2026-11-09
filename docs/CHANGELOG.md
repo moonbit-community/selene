@@ -13,6 +13,8 @@
 - Added World-local archetypes with typed columns, dynamic component migration,
   and cached two-component queries.
 - Added zero-copy batch reads and in-place writes for archetype queries.
+- Added `Query3`, `Query4`, and `Query5` with cached archetype traversal and
+  zero-copy batches. `Query2` through `Query5` also support direct entity reads.
 - Added reusable spawn bundles that insert an entity directly into its final
   archetype, including through deferred commands.
 - Added permanent entity deletion with generation-checked slot recycling,
@@ -24,6 +26,7 @@
 
 ### Changed
 
+- Bind the UI border query once per World and reuse it in paint order.
 - Publish development codegen tools as betas of the next Selene version.
   Release scripts synchronize generator pins and companions after publication.
   Stable releases publish and validate codegen before core and WebGPU.

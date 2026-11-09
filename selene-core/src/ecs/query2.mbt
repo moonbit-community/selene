@@ -1,10 +1,7 @@
 ///|
-/// A World-bound two-column query. Only new archetypes need to be matched.
+/// A World-bound 2-column query. Only new archetypes need to be matched.
 struct Query2[A, B] {
-  a : ComponentStore[A]
-  b : ComponentStore[B]
-  matches : Array[Int32]
-  mut scanned : Int32
+  plan : ArchetypeQuery[(Array[A], Array[B])]
 }
 
 ///|
@@ -12,36 +9,20 @@ pub fn[A, B] Query2::Query2(
   a : ComponentStore[A],
   b : ComponentStore[B],
 ) -> Query2[A, B] {
-  guard a.world_id == b.world_id else {
-    abort("component stores belong to different worlds")
-  }
-  { a, b, matches: [], scanned: 0, }
+  let plan = new_archetype_query(a, [b.world_id], id => {
+    guard a.column(id) is Some(column_a) else { None }
+    guard b.column(id) is Some(column_b) else { None }
+    Some((column_a, column_b))
+  })
+  { plan, }
 }
 
 ///|
-fn[A, B] Query2::for_each_columns(
-  self : Query2[A, B],
-  visit : (Array[Entity], Array[A], Array[B]) -> Unit,
-) -> Unit {
-  let storage = self.a.storage
-  for id in self.scanned..<storage.tables.length() {
-    if self.a.column(id) is Some(_) && self.b.column(id) is Some(_) {
-      self.matches.push(id)
-    }
-  }
-  self.scanned = storage.tables.length()
-  enter_query()
-  storage.active_queries += 1
-  defer {
-    storage.active_queries -= 1
-    leave_query()
-  }
-  for id in self.matches {
-    let entities = storage.tables[id].entities
-    if !entities.is_empty() {
-      visit(entities, self.a.columns[id].unwrap(), self.b.columns[id].unwrap())
-    }
-  }
+/// Reads a matching entity in this World without scanning archetypes.
+pub fn[A, B] Query2::get(self : Query2[A, B], entity : Entity) -> (A, B)? {
+  guard self.plan.location(entity) is Some((id, row)) else { None }
+  guard (self.plan.bind)(id) is Some((a, b)) else { None }
+  Some((a[row], b[row]))
 }
 
 ///|
@@ -50,7 +31,8 @@ pub fn[A, B] Query2::for_each(
   self : Query2[A, B],
   visit : (Entity, A, B) -> Unit,
 ) -> Unit {
-  self.for_each_columns((entities, a, b) => {
+  self.plan.for_each_table((entities, columns) => {
+    let (a, b) = columns
     for row in 0..<entities.length() {
       visit(entities[row], a[row], b[row])
     }
@@ -64,18 +46,22 @@ pub fn[A, B] Query2::for_each_batch(
   self : Query2[A, B],
   visit : (ArrayView[Entity], ArrayView[A], ArrayView[B]) -> Unit,
 ) -> Unit {
-  self.for_each_columns((entities, a, b) => visit(entities[:], a[:], b[:]))
+  self.plan.for_each_table((entities, columns) => {
+    let (a, b) = columns
+    visit(entities[:], a[:], b[:])
+  })
 }
 
 ///|
 /// Visits each batch with write access to its first component column.
 /// Views are valid only during the callback. Defer structural changes until traversal finishes.
-/// If both query inputs are the same store, the second view observes the writes.
+/// Any other view of the first store observes those writes.
 pub fn[A, B] Query2::for_each_batch_mut_a(
   self : Query2[A, B],
   visit : (ArrayView[Entity], MutArrayView[A], ArrayView[B]) -> Unit,
 ) -> Unit {
-  self.for_each_columns((entities, a, b) => {
+  self.plan.for_each_table((entities, columns) => {
+    let (a, b) = columns
     visit(entities[:], a.mut_view(), b[:])
   })
 }

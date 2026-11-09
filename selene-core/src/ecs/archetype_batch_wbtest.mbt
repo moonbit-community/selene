@@ -3,7 +3,8 @@ fn[A, B] update_rows_for_bench(
   query : Query2[A, B],
   update : (A, B) -> A,
 ) -> Unit {
-  query.for_each_columns((entities, a, b) => {
+  query.plan.for_each_table((entities, columns) => {
+    let (a, b) = columns
     for row in 0..<entities.length() {
       a[row] = update(a[row], b[row])
     }

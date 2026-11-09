@@ -53,6 +53,28 @@ When two columns use the same value type, declare separate
 `@ecs.ComponentKey[T]` values with `ComponentKey()`. The key provides
 `get(entity)`, `set(entity, value)`, `store()`, and `store_in(world)`.
 
+## Multi-component queries
+
+Use `Query2`, `Query3`, `Query4`, or `Query5` with stores from the same World.
+Keep the query for repeated use. It only matches newly created archetypes,
+then visits their aligned component columns in archetype order.
+
+```moonbit
+let moving = @ecs.Query3(positions, velocities, health)
+moving.for_each((entity, position, velocity, hp) => {
+  update_moving_entity(entity, position, velocity, hp)
+})
+```
+
+Use `for_each_batch` for read-only column views or `for_each_batch_mut_a`
+to update the first column in place. Views are valid during the callback.
+Queue component additions, removals, and other structural changes through
+`Commands` for the next flush.
+
+If you already have an entity or a caller-defined traversal order, use
+`moving.get(entity)`. It locates one row and returns the matching tuple,
+or `None` for missing components, stale handles, or entities from another World.
+
 ## Resources
 
 A resource holds one value per World. Mark the type with `#selene.resource`

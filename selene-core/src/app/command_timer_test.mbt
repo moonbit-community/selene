@@ -64,7 +64,14 @@ test "schedule rejects streaming and archetype batch queries" {
       _ => rejected.push(false)
     }
   })
-  @ecs.Query2(storage, storage).for_each_batch((_, _, _) => {
+  @ecs.Query5(storage, storage, storage, storage, storage).for_each_batch((
+    _,
+    _,
+    _,
+    _,
+    _,
+    _,
+  ) => {
     try @ecs.run_schedule(world, _ => calls.push(99)) catch {
       @ecs.ActiveQuery => rejected.push(true)
       _ => rejected.push(false)

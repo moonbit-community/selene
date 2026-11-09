@@ -122,3 +122,89 @@ test "component iteration survives other column moves and removal of the current
   assert_eq(a.to_array(), [(first, 1), (third, 3)])
   assert_eq(b.keys().collect(), [first, second, third])
 }
+
+///|
+test "three to five column queries follow new tables and recycled slots" {
+  let previous = @ecs.current_world()
+  defer (match previous {
+    Some(world) => @ecs.set_current_world(world)
+    None => @ecs.clear_current_world()
+  })
+  let world = @ecs.World()
+  @ecs.set_current_world(world)
+  let a : @ecs.ComponentStore[Int32] = ComponentStore(world)
+  let b : @ecs.ComponentStore[String] = ComponentStore(world)
+  let c : @ecs.ComponentStore[Bool] = ComponentStore(world)
+  let d : @ecs.ComponentStore[Int32] = ComponentStore(world)
+  let e : @ecs.ComponentStore[Int32] = ComponentStore(world)
+  let three = @ecs.Query3(a, b, c)
+  let four = @ecs.Query4(a, b, c, d)
+  let five = @ecs.Query5(a, b, c, d, e)
+  let first = @ecs.Entity()
+  let second = @ecs.Entity()
+  for entity in [first, second] {
+    a.set(entity, 10 + entity.slot_index())
+    b.set(entity, "label")
+    c.set(entity, entity == first)
+    d.set(entity, 40)
+  }
+
+  let three_values = []
+  three.for_each((_, value, label, flag) => {
+    three_values.push((value, label, flag))
+  })
+  assert_eq(three_values, [(10, "label", true), (11, "label", false)])
+  let four_values = []
+  four.for_each_batch((_, a, b, c, d) => {
+    for row in 0..<a.length() {
+      four_values.push((a[row], b[row], c[row], d[row]))
+    }
+  })
+  assert_eq(four_values, [(10, "label", true, 40), (11, "label", false, 40)])
+  let five_values = []
+  five.for_each((_, value, label, flag, fourth, fifth) => {
+    five_values.push((value, label, flag, fourth, fifth))
+  })
+  assert_true(five_values.is_empty())
+  e.set(first, 50)
+  five.for_each_batch_mut_a((_, a, _, _, d, e) => {
+    for row in 0..<a.length() {
+      a[row] += d[row] + e[row]
+    }
+  })
+  assert_eq(five.get(first), Some((100, "label", true, 40, 50)))
+  assert_eq(five.get(second), None)
+  assert_eq(four.get(second), Some((11, "label", false, 40)))
+  assert_eq(three.get(second), Some((11, "label", false)))
+  let foreign = @ecs.commands(@ecs.World()).spawn()
+  assert_eq(foreign.slot_index(), first.slot_index())
+  assert_eq(five.get(foreign), None)
+
+  e.set(second, 51)
+  b.remove(first)
+  assert_eq(five.get(first), None)
+  assert_true(first.delete())
+  let replacement = @ecs.Entity()
+  assert_eq(replacement.slot_index(), first.slot_index())
+  a.set(replacement, 20)
+  b.set(replacement, "new")
+  c.set(replacement, true)
+  d.set(replacement, 42)
+  e.set(replacement, 52)
+  assert_eq(five.get(first), None)
+  assert_eq(five.get(replacement), Some((20, "new", true, 42, 52)))
+  five.for_each((_, value, label, flag, fourth, fifth) => {
+    five_values.push((value, label, flag, fourth, fifth))
+  })
+  assert_eq(five_values, [
+    (11, "label", false, 40, 51),
+    (20, "new", true, 42, 52),
+  ])
+}
+
+///|
+test "panic joined queries reject stores from another world" {
+  let own : @ecs.ComponentStore[Int32] = ComponentStore(@ecs.World())
+  let foreign : @ecs.ComponentStore[Int32] = ComponentStore(@ecs.World())
+  ignore(@ecs.Query5(own, own, own, own, foreign))
+}

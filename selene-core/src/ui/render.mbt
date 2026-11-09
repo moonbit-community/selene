@@ -2,6 +2,23 @@
 let extracted_ui_entities : Array[@ecs.Entity] = []
 
 ///|
+type UiBorderQuery = @ecs.Query3[BorderColor, GlobalUiNode, ComputedUiNode]
+
+///|
+let ui_border_query_key : @ecs.ResourceKey[UiBorderQuery] = ResourceKey()
+
+///|
+fn ui_border_query() -> UiBorderQuery {
+  ui_border_query_key.get_or_insert_with(@ecs.require_current_world(), world => {
+    @ecs.Query3(
+      BorderColor::component_key().store_in(world),
+      GlobalUiNode::component_key().store_in(world),
+      ComputedUiNode::component_key().store_in(world),
+    )
+  })
+}
+
+///|
 fn push_ui_rect_fill(
   rect : @math.Rect,
   color : @render.Color,
@@ -483,11 +500,12 @@ fn push_material_node(
 ///|
 fn push_border(
   entity : @ecs.Entity,
+  query : UiBorderQuery,
   camera_entity_id~ : UInt32? = None,
 ) -> Unit {
-  guard border_colors().get(entity) is Some(border_color) else { return }
-  guard global_ui_nodes().get(entity) is Some(global) else { return }
-  guard computed_ui_nodes().get(entity) is Some(computed) else { return }
+  guard query.get(entity) is Some((border_color, global, computed)) else {
+    return
+  }
   let rect = global.screen_rect
   let border = computed.border
   let radius = resolved_border_radius(
@@ -857,6 +875,7 @@ fn inherited_clip_for_entity(entity : @ecs.Entity) -> @math.Rect? {
 ///|
 fn render_entity(
   entity : @ecs.Entity,
+  border_query : UiBorderQuery,
   camera_entity_id~ : UInt32? = None,
 ) -> Unit {
   guard should_render_ui(entity) else { return }
@@ -875,7 +894,7 @@ fn render_entity(
   push_box_shadow(entity, camera_entity_id~)
   ignore(push_material_node(entity, camera_entity_id~))
   push_background(entity, camera_entity_id~)
-  push_border(entity, camera_entity_id~)
+  push_border(entity, border_query, camera_entity_id~)
   push_outline(entity, camera_entity_id~)
 
   if pushed_inherited_clip {
@@ -926,8 +945,10 @@ pub fn ui_extract_system(_delta : Double) -> Unit {
 
 ///|
 pub fn ui_prepare_system(_delta : Double) -> Unit {
+  guard !extracted_ui_entities.is_empty() else { return }
+  let border_query = ui_border_query()
   for entity in extracted_ui_entities {
     let camera_entity_id = render_target_camera_id(entity)
-    render_entity(entity, camera_entity_id~)
+    render_entity(entity, border_query, camera_entity_id~)
   }
 }

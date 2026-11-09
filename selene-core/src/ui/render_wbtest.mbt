@@ -109,7 +109,7 @@ test "ui material nodes render gradient materials ahead of legacy background fil
   material_nodes().set(entity, MaterialNode(handle))
   background_colors().set(entity, BackgroundColor(rgba(20, 40, 60, 1.0)))
 
-  render_entity(entity)
+  render_entity(entity, ui_border_query())
 
   let frame = @render2d.get_frame2d()
   inspect(frame.ui_commands.length(), content="1")
@@ -144,7 +144,7 @@ test "ui material assets can render through custom draw callbacks" {
   global_ui_nodes().set(entity, test_global_node(screen_rect, content_rect))
   material_nodes().set(entity, MaterialNode(handle))
 
-  render_entity(entity)
+  render_entity(entity, ui_border_query())
 
   let frame = @render2d.get_frame2d()
   inspect(frame.ui_commands.length(), content="1")
@@ -272,7 +272,7 @@ test "ui overflow clipping applies after node decorations" {
   calculated_clips().set(entity, CalculatedClip(content_rect))
   tree_orders().set(entity, 1)
 
-  render_entity(entity)
+  render_entity(entity, ui_border_query())
 
   let frame = @render2d.get_frame2d()
   inspect(frame.ui_commands.length(), content="4")
@@ -338,8 +338,8 @@ test "ui override clip removes inherited clip from child rendering" {
   tree_orders().set(child, 2)
   override_clips().set(child, OverrideClip())
 
-  render_entity(parent)
-  render_entity(child)
+  render_entity(parent, ui_border_query())
+  render_entity(child, ui_border_query())
 
   let frame = @render2d.get_frame2d()
   inspect(frame.ui_commands.length(), content="3")
@@ -508,4 +508,85 @@ test "ui extraction reuses the stack snapshot produced by layout" {
   for entity in entities.rev() {
     cleanup_test_ui_entity(entity)
   }
+}
+
+///|
+test "ui prepare preserves clipped border paint order and sees material changes" {
+  let previous = @ecs.current_world()
+  defer (match previous {
+    Some(world) => @ecs.set_current_world(world)
+    None => @ecs.clear_current_world()
+  })
+  @ecs.set_current_world(@ecs.World())
+  let parent = @ecs.Entity()
+  let front = parent.spawn_child()
+  let back = parent.spawn_child()
+  let rect = test_rect(10.0, 20.0, 100.0, 80.0)
+  let clip = test_rect(10.0, 20.0, 80.0, 60.0)
+  let red = rgba(1, 0, 0, 1.0)
+  let green = rgba(2, 0, 0, 1.0)
+  let blue = rgba(3, 0, 0, 1.0)
+  let yellow = rgba(4, 0, 0, 1.0)
+  calculated_clips().set(parent, CalculatedClip(clip))
+  for entity in [front, back] {
+    nodes().set(entity, Node())
+    global_ui_nodes().set(entity, test_global_node(rect, rect))
+    computed_ui_nodes().set(entity, {
+      position: rect.position,
+      size: rect.size,
+      content_position: rect.position,
+      content_size: rect.size,
+      max_scroll_position: Vec2(0.0, 0.0),
+      border: { ..UiInsets::zero(), top: 2.0, },
+      padding: UiInsets::zero(),
+    })
+  }
+  border_colors().set(back, BorderColor(red))
+  background_colors().set(back, BackgroundColor(green))
+  border_radii().set(back, BorderRadius::all(Val::px(8.0)))
+  let material = register_ui_material_asset(
+    UiMaterialAsset::from_draw(context => {
+      push_ui_rect_fill(context.rect, blue)
+      // Inserting the border migrates the entity during drawing.
+      border_colors().set(context.entity, BorderColor(yellow))
+    }),
+  )
+  material_nodes().set(front, MaterialNode(material))
+  defer release_ui_material_asset(material)
+  extracted_ui_entities.clear()
+  defer extracted_ui_entities.clear()
+  extracted_ui_entities.append([back, front])
+  @render2d.begin_frame2d_system(0.0)
+  ui_prepare_system(0.0)
+
+  let commands = StringBuilder()
+  for command in @render2d.get_frame2d().ui_commands {
+    match command {
+      PushClip(command) =>
+        commands.write_char(
+          if command.rect.position == clip.position &&
+            command.rect.size == clip.size {
+            '['
+          } else {
+            '('
+          },
+        )
+      PopClip => commands.write_char(']')
+      Rect(command) =>
+        commands.write_string("r" + command.fill_color.r.to_string())
+      Circle(command) =>
+        commands.write_string("c" + command.fill_color.r.to_string())
+      _ => fail("unexpected UI draw command")
+    }
+  }
+  let rounded_background = "r2r2r2r2r2(c2](c2](c2](c2]"
+  let rounded_border = "r1r1r1r1r1(c1](c1](c1](c1]"
+  assert_eq(
+    commands.to_string(),
+    "[" +
+    rounded_background +
+    rounded_border +
+    rounded_background +
+    "][][r3r4][]",
+  )
 }

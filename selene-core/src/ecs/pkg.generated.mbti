@@ -128,6 +128,28 @@ pub fn[A, B] Query2::Query2(ComponentStore[A], ComponentStore[B]) -> Self[A, B]
 pub fn[A, B] Query2::for_each(Self[A, B], (Entity, A, B) -> Unit) -> Unit
 pub fn[A, B] Query2::for_each_batch(Self[A, B], (ArrayView[Entity], ArrayView[A], ArrayView[B]) -> Unit) -> Unit
 pub fn[A, B] Query2::for_each_batch_mut_a(Self[A, B], (ArrayView[Entity], MutArrayView[A], ArrayView[B]) -> Unit) -> Unit
+pub fn[A, B] Query2::get(Self[A, B], Entity) -> (A, B)?
+
+type Query3[A, B, C]
+pub fn[A, B, C] Query3::Query3(ComponentStore[A], ComponentStore[B], ComponentStore[C]) -> Self[A, B, C]
+pub fn[A, B, C] Query3::for_each(Self[A, B, C], (Entity, A, B, C) -> Unit) -> Unit
+pub fn[A, B, C] Query3::for_each_batch(Self[A, B, C], (ArrayView[Entity], ArrayView[A], ArrayView[B], ArrayView[C]) -> Unit) -> Unit
+pub fn[A, B, C] Query3::for_each_batch_mut_a(Self[A, B, C], (ArrayView[Entity], MutArrayView[A], ArrayView[B], ArrayView[C]) -> Unit) -> Unit
+pub fn[A, B, C] Query3::get(Self[A, B, C], Entity) -> (A, B, C)?
+
+type Query4[A, B, C, D]
+pub fn[A, B, C, D] Query4::Query4(ComponentStore[A], ComponentStore[B], ComponentStore[C], ComponentStore[D]) -> Self[A, B, C, D]
+pub fn[A, B, C, D] Query4::for_each(Self[A, B, C, D], (Entity, A, B, C, D) -> Unit) -> Unit
+pub fn[A, B, C, D] Query4::for_each_batch(Self[A, B, C, D], (ArrayView[Entity], ArrayView[A], ArrayView[B], ArrayView[C], ArrayView[D]) -> Unit) -> Unit
+pub fn[A, B, C, D] Query4::for_each_batch_mut_a(Self[A, B, C, D], (ArrayView[Entity], MutArrayView[A], ArrayView[B], ArrayView[C], ArrayView[D]) -> Unit) -> Unit
+pub fn[A, B, C, D] Query4::get(Self[A, B, C, D], Entity) -> (A, B, C, D)?
+
+type Query5[A, B, C, D, E]
+pub fn[A, B, C, D, E] Query5::Query5(ComponentStore[A], ComponentStore[B], ComponentStore[C], ComponentStore[D], ComponentStore[E]) -> Self[A, B, C, D, E]
+pub fn[A, B, C, D, E] Query5::for_each(Self[A, B, C, D, E], (Entity, A, B, C, D, E) -> Unit) -> Unit
+pub fn[A, B, C, D, E] Query5::for_each_batch(Self[A, B, C, D, E], (ArrayView[Entity], ArrayView[A], ArrayView[B], ArrayView[C], ArrayView[D], ArrayView[E]) -> Unit) -> Unit
+pub fn[A, B, C, D, E] Query5::for_each_batch_mut_a(Self[A, B, C, D, E], (ArrayView[Entity], MutArrayView[A], ArrayView[B], ArrayView[C], ArrayView[D], ArrayView[E]) -> Unit) -> Unit
+pub fn[A, B, C, D, E] Query5::get(Self[A, B, C, D, E], Entity) -> (A, B, C, D, E)?
 
 pub(all) struct QueryDelta[T] {
   added : Array[(Entity, T)]
