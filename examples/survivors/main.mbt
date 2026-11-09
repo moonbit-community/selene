@@ -28,16 +28,12 @@ const MAP_HEIGHT : Double = 640.0
 const MAP_WIDTH : Double = 640.0
 
 ///|
-const FPS : Double = 60
-
-///|
 pub fn run() -> Unit {
   @app.App()
   .with_viewport_width(VIEWPORT_WIDTH)
   .with_viewport_height(VIEWPORT_HEIGHT)
   .with_image_smooth(false)
   .with_zoom(ZOOM)
-  .with_fps(FPS.to_uint())
   .add_plugin(@plugins.default_plugin)
   // .add_plugin(@plugins.debug_plugin)
   .add_systems(Startup, [game_start, spawn_enemy_system])

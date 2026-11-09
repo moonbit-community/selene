@@ -235,7 +235,6 @@ pub fn run() -> Unit {
   .with_viewport_width(VIEWPORT_WIDTH)
   .with_viewport_height(VIEWPORT_HEIGHT)
   .with_zoom(1.0)
-  .with_fps(60)
   .add_plugin(@plugins.default_3d_plugin)
   .add_system(Startup, setup_scene3d)
   .add_system(Update, rotate_cube_system)

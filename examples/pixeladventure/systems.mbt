@@ -421,9 +421,28 @@ fn hurt_player(session : GameSession, controller : PlayerController) -> Unit {
 }
 
 ///|
+fn player_input_system(world : @ecs.World) -> Unit {
+  guard (world.get_resource() : GameSession?) is Some(session) else { return }
+  guard players().get(session.player) is Some(controller) else { return }
+  controller.move_direction = if @input_action.action_pressed(
+      pixel_move_left_action(),
+    ) {
+    Some(Left)
+  } else if @input_action.action_pressed(pixel_move_right_action()) {
+    Some(Right)
+  } else {
+    None
+  }
+  controller.jump_requested = controller.jump_requested ||
+    @input_action.action_just_pressed(pixel_jump_action())
+}
+
+///|
 fn player_controller_system(world : @ecs.World) -> Unit {
   guard (world.get_resource() : GameSession?) is Some(session) else { return }
   guard players().get(session.player) is Some(controller) else { return }
+  let jump_requested = controller.jump_requested
+  controller.jump_requested = false
 
   let delta = @time.delta()
   if controller.hurt_cooldown > 0.0 {
@@ -471,13 +490,13 @@ fn player_controller_system(world : @ecs.World) -> Unit {
       }
     }
   } else {
-    if @input_action.action_pressed(pixel_move_left_action()) {
+    if controller.move_direction is Some(Left) {
       new_velocity_x -= RUN_ACC * delta
       if new_velocity_x < -MAX_RUN_V {
         new_velocity_x = -MAX_RUN_V
       }
       controller.facing = Left
-    } else if @input_action.action_pressed(pixel_move_right_action()) {
+    } else if controller.move_direction is Some(Right) {
       new_velocity_x += RUN_ACC * delta
       if new_velocity_x > MAX_RUN_V {
         new_velocity_x = MAX_RUN_V
@@ -487,7 +506,7 @@ fn player_controller_system(world : @ecs.World) -> Unit {
       new_velocity_x = 0.0
     }
 
-    if grounded && @input_action.action_just_pressed(pixel_jump_action()) {
+    if grounded && jump_requested {
       new_velocity_y = -JUMP_V
       controller.state = Jump
       play_sfx(jump_sound(), session.volume_on)

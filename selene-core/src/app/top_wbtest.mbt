@@ -241,3 +241,24 @@ test "app: render frame does not perform platform service work implicitly" {
 
   inspect(trace.val, content="r")
 }
+
+///|
+test "render limits do not determine headless simulation time" {
+  assert_eq(App().max_fps, None)
+  let previous = @ecs.current_world()
+  defer (match previous {
+    Some(world) => @ecs.set_current_world(world)
+    None => @ecs.clear_current_world()
+  })
+  for cap in [None, Some(30U), Some(120U)] {
+    let world = @ecs.World()
+    let mut elapsed = 0.0
+    let mut fixed_steps = 0
+    let app = { ..App().with_world(world).with_fixed_hz(60), max_fps: cap, }
+      .add_system(Update, _ => elapsed += @time.delta())
+      .add_system(FixedUpdate, _ => fixed_steps += 1)
+    app.run_frames(60, raw_delta=0.0)
+    assert_true((elapsed - 1.0).abs() < 0.000001)
+    assert_eq(fixed_steps, 60)
+  }
+}

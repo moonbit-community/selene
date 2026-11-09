@@ -5,7 +5,7 @@ const DEFAULT_VIEWPORT_HEIGHT = 256.0
 const DEFAULT_VIEWPORT_WIDTH = 512.0
 
 ///|
-const DEFAULT_FPS : UInt32 = 60
+const DEFAULT_FRAME_DELTA : Double = 1.0 / 60.0
 
 ///|
 const DEFAULT_FIXED_HZ : UInt32 = 64
@@ -36,7 +36,7 @@ pub(all) struct App {
   viewport_width : Double
   zoom : Double
   image_smooth : Bool
-  fps : UInt32
+  max_fps : UInt32?
   fixed_hz : UInt32
   max_fixed_steps_per_frame : UInt32
   world : @ecs.World
@@ -52,7 +52,7 @@ pub fn App::App() -> App {
     viewport_width: DEFAULT_VIEWPORT_WIDTH,
     zoom: 1.0,
     image_smooth: true,
-    fps: DEFAULT_FPS,
+    max_fps: None,
     fixed_hz: DEFAULT_FIXED_HZ,
     max_fixed_steps_per_frame: DEFAULT_MAX_FIXED_STEPS_PER_FRAME,
     world,
@@ -94,8 +94,9 @@ pub fn App::with_viewport_width(self : App, width : Double) -> App {
 }
 
 ///|
-pub fn App::with_fps(self : App, fps : UInt32) -> App {
-  { ..self, fps, }
+/// Sets an optional upper bound on browser frames. The default follows RAF.
+pub fn App::with_max_fps(self : App, fps : UInt32) -> App {
+  { ..self, max_fps: Some(fps), }
 }
 
 ///|
@@ -422,6 +423,9 @@ fn build_runtime_plan(
   if app.zoom <= 0.0 {
     abort("App::with_zoom must be a positive number")
   }
+  if app.max_fps == Some(0U) {
+    abort("App::with_max_fps must be greater than 0")
+  }
   if app.fixed_hz == 0 {
     abort("App::with_fixed_hz must be greater than 0")
   }
@@ -685,7 +689,7 @@ pub fn App::run(self : App) -> Unit {
       viewport_height: self.viewport_height,
       screen_width,
       screen_height,
-      fps: self.fps,
+      max_fps: self.max_fps,
       image_smooth: self.image_smooth,
     },
     { startup, service_frame, render_loop, game_loop, },
@@ -697,7 +701,7 @@ pub fn App::run(self : App) -> Unit {
 pub fn App::run_frames(
   self : App,
   frames : Int32,
-  raw_delta~ : Double = 1.0 / DEFAULT_FPS.to_double(),
+  raw_delta~ : Double = DEFAULT_FRAME_DELTA,
   fixed_delta_override~ : Double? = None,
 ) -> Unit {
   if frames <= 0 {
@@ -707,8 +711,7 @@ pub fn App::run_frames(
   let plan = build_runtime_plan(self, fixed_delta_override~)
   startup_runtime(plan)
   let accumulator : Ref[Double] = { val: 0.0, }
-  let default_delta = 1.0 / self.fps.to_double()
-  let used_delta = if raw_delta > 0.0 { raw_delta } else { default_delta }
+  let used_delta = if raw_delta > 0.0 { raw_delta } else { DEFAULT_FRAME_DELTA }
   for _ in 0..<frames {
     run_headless_frame(
       plan,
@@ -762,8 +765,7 @@ fn App::run_frames_capture_with(
   let plan = build_runtime_plan(self, fixed_delta_override~)
   startup_runtime(plan)
   let accumulator : Ref[Double] = { val: 0.0, }
-  let default_delta = 1.0 / self.fps.to_double()
-  let used_delta = if raw_delta > 0.0 { raw_delta } else { default_delta }
+  let used_delta = if raw_delta > 0.0 { raw_delta } else { DEFAULT_FRAME_DELTA }
   for frame_index in 0..<frames {
     run_headless_frame(
       plan,
@@ -807,7 +809,7 @@ pub fn App::run_frames_capture(
   frames : Int32,
   capture_width~ : Int32 = 0,
   capture_height~ : Int32 = 0,
-  raw_delta~ : Double = 1.0 / DEFAULT_FPS.to_double(),
+  raw_delta~ : Double = DEFAULT_FRAME_DELTA,
   fixed_delta_override~ : Double? = None,
   metadata_indent~ : Int32 = 2,
   capture_frame_indexes~ : Array[Int32]? = None,

@@ -193,12 +193,10 @@ pub fn initialize(
   ignore(config.viewport_height)
   let screen_width = config.screen_width
   let screen_height = config.screen_height
-  let fps = config.fps
+  let max_fps = config.max_fps
   let image_smooth = config.image_smooth
-  if fps > 60 {
-    println(
-      "Warning: FPS is set above 60. The browser's window only support up to 60 FPS.",
-    )
+  if max_fps == Some(0U) {
+    abort("max_fps must be greater than 0")
   }
   if canvas_backend.stop_loop is Some(stop_loop) {
     stop_loop()
@@ -216,9 +214,7 @@ pub fn initialize(
     webgpu_shader_sources(),
   )
   startup()
-  let stop_loop = schedule_with_fixed_interval(1000 / fps.to_double(), fn(
-    delta,
-  ) {
+  let stop_loop = schedule_frames(max_fps, fn(delta) {
     if canvas_backend.close_requested {
       return
     }
@@ -257,28 +253,50 @@ pub fn get_realtime_delta() -> Double {
 }
 
 ///|
-fn schedule_with_fixed_interval(
-  interval : Double,
+priv struct FramePacer {
+  interval : Double?
+  mut previous_frame : Double?
+  mut remainder : Double
+}
+
+///|
+fn FramePacer::tick(self : FramePacer, time : Double) -> Double? {
+  guard self.previous_frame is Some(previous) else {
+    self.previous_frame = Some(time)
+    return None
+  }
+  let elapsed = time - previous
+  guard self.interval is Some(interval) else {
+    self.previous_frame = Some(time)
+    return Some(elapsed)
+  }
+  let accumulated = self.remainder + elapsed
+  // RAF timestamps can land just before a deadline due to sub-millisecond jitter.
+  let intervals = @math.floor((accumulated + 0.5) / interval)
+  guard intervals >= 1.0 else { return None }
+  // Carry the pacing phase while reporting only time since the last callback.
+  self.remainder = accumulated - intervals * interval
+  self.previous_frame = Some(time)
+  Some(elapsed)
+}
+
+///|
+fn schedule_frames(
+  max_fps : UInt32?,
   callback : (Double) -> Unit,
 ) -> () -> Unit {
-  let lastTime = Ref(0.0)
-  let accumulator = Ref(0.0)
+  let pacer = {
+    interval: max_fps.map(fps => 1000.0 / fps.to_double()),
+    previous_frame: None,
+    remainder: 0.0,
+  }
   let lastId = Ref(0.0)
   fn update(time : Double) -> Unit {
     if canvas_backend.close_requested {
       lastId.val = 0.0
       return
     }
-    if lastTime.val == 0.0 {
-      lastTime.val = time
-    }
-    let delta = time - lastTime.val
-    lastTime.val = time
-    accumulator.val = accumulator.val + delta
-
-    if accumulator.val >= interval {
-      let elapsed = accumulator.val
-      accumulator.val = 0.0
+    if pacer.tick(time) is Some(elapsed) {
       callback(elapsed)
       if canvas_backend.close_requested {
         lastId.val = 0.0

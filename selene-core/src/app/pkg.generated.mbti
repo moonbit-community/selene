@@ -19,7 +19,7 @@ pub(all) struct App {
   viewport_width : Double
   zoom : Double
   image_smooth : Bool
-  fps : UInt32
+  max_fps : UInt32?
   fixed_hz : UInt32
   max_fixed_steps_per_frame : UInt32
   world : @ecs.World
@@ -38,9 +38,9 @@ pub fn App::run_frames(Self, Int32, raw_delta? : Double, fixed_delta_override? :
 pub fn App::run_frames_capture(Self, Int32, capture_width? : Int32, capture_height? : Int32, raw_delta? : Double, fixed_delta_override? : Double?, metadata_indent? : Int32, capture_frame_indexes? : Array[Int32]?) -> Array[@runtime_debug.FrameCaptureArtifact]
 pub fn App::step_fixed(Self, Int32, fixed_delta_override? : Double?) -> Unit
 pub fn App::with_fixed_hz(Self, UInt32) -> Self
-pub fn App::with_fps(Self, UInt32) -> Self
 pub fn App::with_image_smooth(Self, Bool) -> Self
 pub fn App::with_max_fixed_steps_per_frame(Self, UInt32) -> Self
+pub fn App::with_max_fps(Self, UInt32) -> Self
 pub fn App::with_viewport_height(Self, Double) -> Self
 pub fn App::with_viewport_width(Self, Double) -> Self
 pub fn App::with_world(Self, @ecs.World) -> Self

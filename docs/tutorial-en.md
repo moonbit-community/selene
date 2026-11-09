@@ -154,10 +154,10 @@ pub fn run() -> Unit {
   .with_viewport_height(320.0)
   .with_image_smooth(false)
   .with_zoom(2.0)
-  .with_fps(60)
   .add_plugin(@plugins.default_plugin)
   .add_system(Startup, game_start)
-  .add_system(Update, player_controller_system)
+  .add_system(Update, player_input_system)
+  .add_system(FixedPreUpdate, player_controller_system)
   .add_system(Update, trigger_system)
   .add_system(Update, pixeladventure_camera_follow_system)
   .add_system(FixedPostUpdate, player_bird_contact_system)
@@ -169,6 +169,8 @@ pub fn run() -> Unit {
 ```
 
 Systems are executed by schedule, and each system owns a specific responsibility (input, collision, UI, rendering, etc).
+
+Browser rendering follows the display refresh rate by default. Use `with_max_fps(60)` for an explicit frame limit and `with_fixed_hz(60)` to configure simulation frequency independently. Pixel Adventure samples input each frame, buffers jump presses, and updates motion before each physics step.
 
 ### Game State Management
 

@@ -166,6 +166,8 @@ priv struct PlayerController {
   mut state : PlayerState
   mut hurt_cooldown : Double
   mut pending_bounce_velocity_y : Double?
+  mut move_direction : Direction2?
+  mut jump_requested : Bool
   animations : PlayerAnimationNodes
   mut active_animation : PlayerAnimationKey?
 }
