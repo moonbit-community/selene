@@ -21,6 +21,10 @@ import {
 
 supported_targets = "all"
 
+import {
+  "Milky2018/selene/runtime_debug",
+} for "wbtest"
+
 dev_build(rule: "selene_codegen", input: "model.mbt", output: "model.g.mbt")
 
 formatter(ignore: [ "model.g.mbt" ])

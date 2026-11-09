@@ -183,6 +183,8 @@ fn configure_player_entity(entity : @ecs.Entity) -> Unit {
     state: Idle,
     hurt_cooldown: 0.0,
     pending_bounce_velocity_y: None,
+    move_direction: None,
+    jump_requested: false,
     animations: animation_nodes,
     active_animation: None,
   })

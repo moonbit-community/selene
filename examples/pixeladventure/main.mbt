@@ -22,21 +22,25 @@ const VIEWPORT_WIDTH : Double = 480.0
 const VIEWPORT_HEIGHT : Double = 320.0
 
 ///|
-pub fn run() -> Unit {
+fn pixeladventure_app() -> @app.App {
   @app.App()
   .with_viewport_width(VIEWPORT_WIDTH)
   .with_viewport_height(VIEWPORT_HEIGHT)
   .with_image_smooth(false)
   .with_zoom(ZOOM)
-  .with_fps(60)
   .add_plugin(@plugins.default_plugin)
   .add_system(Startup, game_start)
-  .add_system(Update, player_controller_system)
+  .add_system(Update, player_input_system)
+  .add_system(FixedPreUpdate, player_controller_system)
   .add_system(Update, trigger_system)
   .add_system(Update, pixeladventure_camera_follow_system)
   .add_system(FixedPostUpdate, player_bird_contact_system)
   .add_system(FixedPostUpdate, bird_patrol_system)
   .add_system(PostUpdate, volume_button_system)
   .add_system(PostUpdate, hud_sync_system)
-  .run()
+}
+
+///|
+pub fn run() -> Unit {
+  pixeladventure_app().run()
 }

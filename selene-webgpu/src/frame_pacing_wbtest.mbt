@@ -11,7 +11,7 @@ test "frame pacing respects target and refresh rates with timestamp jitter" {
       (144, 120),
     ] {
     let pacer = {
-      interval: 1000.0 / target.to_double(),
+      interval: Some(1000.0 / target.to_double()),
       previous_frame: None,
       remainder: 0.0,
     }
@@ -40,7 +40,7 @@ test "frame pacing respects target and refresh rates with timestamp jitter" {
 
 ///|
 test "frame delta measures wall time independently of the pacing remainder" {
-  let pacer = { interval: 10.0, previous_frame: None, remainder: 0.0, }
+  let pacer = { interval: Some(10.0), previous_frame: None, remainder: 0.0, }
   assert_eq(pacer.tick(0.0), None)
   assert_eq(pacer.tick(8.0), None)
   assert_eq(pacer.tick(16.0), Some(16.0))
@@ -50,10 +50,19 @@ test "frame delta measures wall time independently of the pacing remainder" {
 
 ///|
 test "a stalled frame renders once and reports the full elapsed time" {
-  let pacer = { interval: 10.0, previous_frame: None, remainder: 0.0, }
+  let pacer = { interval: Some(10.0), previous_frame: None, remainder: 0.0, }
   assert_eq(pacer.tick(100.0), None)
   assert_eq(pacer.tick(1105.0), Some(1005.0))
   assert_eq(pacer.tick(1105.0), None)
   assert_eq(pacer.tick(1108.0), None)
   assert_eq(pacer.tick(1110.0), Some(5.0))
+}
+
+///|
+test "uncapped frames consume every RAF timestamp with actual elapsed time" {
+  let pacer = { interval: None, previous_frame: None, remainder: 0.0, }
+  assert_eq(pacer.tick(0.0), None)
+  assert_eq(pacer.tick(8.3), Some(8.3))
+  assert_true((pacer.tick(16.7).unwrap() - 8.4).abs() < 0.000001)
+  assert_true((pacer.tick(25.0).unwrap() - 8.3).abs() < 0.000001)
 }

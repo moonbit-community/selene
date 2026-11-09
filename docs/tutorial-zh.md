@@ -154,10 +154,10 @@ pub fn run() -> Unit {
   .with_viewport_height(320.0)
   .with_image_smooth(false)
   .with_zoom(2.0)
-  .with_fps(60)
   .add_plugin(@plugins.default_plugin)
   .add_system(Startup, game_start)
-  .add_system(Update, player_controller_system)
+  .add_system(Update, player_input_system)
+  .add_system(FixedPreUpdate, player_controller_system)
   .add_system(Update, trigger_system)
   .add_system(Update, pixeladventure_camera_follow_system)
   .add_system(FixedPostUpdate, player_bird_contact_system)
@@ -169,6 +169,8 @@ pub fn run() -> Unit {
 ```
 
 `App` 会按调度阶段执行系统函数。每个系统负责特定功能，例如输入、碰撞、渲染或 UI。
+
+浏览器默认跟随显示刷新率渲染。可用 `with_max_fps(60)` 显式限帧，用 `with_fixed_hz(60)` 独立设置模拟频率。Pixel Adventure 每帧采集输入并缓存跳跃请求，在每次物理步进前更新运动。
 
 ### 游戏状态管理
 

@@ -26,6 +26,10 @@
 
 ### Changed
 
+- Follow the browser refresh rate by default. Replace `with_fps` with the
+  optional `with_max_fps` limit, independently of fixed simulation frequency.
+- Run Pixel Adventure's player motion on fixed steps and buffer jump presses
+  between rendered frames.
 - Use one World-local query adapter for single- and multi-component systems.
 - Group multi-component queries and their shared traversal in one ECS source file.
 - Bind the UI border query once per World and reuse it in paint order.

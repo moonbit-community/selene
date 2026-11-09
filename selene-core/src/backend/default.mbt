@@ -10,7 +10,7 @@ pub fn initialize(
   ignore(config.viewport_height)
   ignore(config.screen_width)
   ignore(config.screen_height)
-  ignore(config.fps)
+  ignore(config.max_fps)
   ignore(config.image_smooth)
   fn() {  }
 }
