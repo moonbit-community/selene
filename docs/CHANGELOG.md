@@ -26,6 +26,7 @@
 
 ### Changed
 
+- Group multi-component queries and their shared traversal in one ECS source file.
 - Bind the UI border query once per World and reuse it in paint order.
 - Store the Pixel Adventure game session as a World resource and replace it
   when restarting the game.
