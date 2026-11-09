@@ -73,6 +73,8 @@
 
 ### Fixed
 
+- Preserve browser frame pacing remainder and tolerate timestamp jitter while
+  reporting actual elapsed time, preventing skipped frames at the configured FPS.
 - Stop looping audio after permanently deleting its entity or an ancestor.
 - Avoid duplicate CI builds on pushes to pull request branches.
 - Reclaim Pixel Adventure entities when restarting in the same World.

@@ -257,28 +257,42 @@ pub fn get_realtime_delta() -> Double {
 }
 
 ///|
+priv struct FramePacer {
+  interval : Double
+  mut previous_frame : Double?
+  mut remainder : Double
+}
+
+///|
+fn FramePacer::tick(self : FramePacer, time : Double) -> Double? {
+  guard self.previous_frame is Some(previous) else {
+    self.previous_frame = Some(time)
+    return None
+  }
+  let elapsed = time - previous
+  let accumulated = self.remainder + elapsed
+  // RAF timestamps can land just before a deadline due to sub-millisecond jitter.
+  let intervals = @math.floor((accumulated + 0.5) / self.interval)
+  guard intervals >= 1.0 else { return None }
+  // Carry the pacing phase while reporting only time since the last callback.
+  self.remainder = accumulated - intervals * self.interval
+  self.previous_frame = Some(time)
+  Some(elapsed)
+}
+
+///|
 fn schedule_with_fixed_interval(
   interval : Double,
   callback : (Double) -> Unit,
 ) -> () -> Unit {
-  let lastTime = Ref(0.0)
-  let accumulator = Ref(0.0)
+  let pacer = { interval, previous_frame: None, remainder: 0.0, }
   let lastId = Ref(0.0)
   fn update(time : Double) -> Unit {
     if canvas_backend.close_requested {
       lastId.val = 0.0
       return
     }
-    if lastTime.val == 0.0 {
-      lastTime.val = time
-    }
-    let delta = time - lastTime.val
-    lastTime.val = time
-    accumulator.val = accumulator.val + delta
-
-    if accumulator.val >= interval {
-      let elapsed = accumulator.val
-      accumulator.val = 0.0
+    if pacer.tick(time) is Some(elapsed) {
       callback(elapsed)
       if canvas_backend.close_requested {
         lastId.val = 0.0
