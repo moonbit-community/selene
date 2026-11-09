@@ -5,18 +5,13 @@ let extracted_ui_entities : Array[@ecs.Entity] = []
 type UiBorderQuery = @ecs.Query3[BorderColor, GlobalUiNode, ComputedUiNode]
 
 ///|
-let ui_border_query_key : @ecs.ResourceKey[UiBorderQuery] = ResourceKey()
-
-///|
-fn ui_border_query() -> UiBorderQuery {
-  ui_border_query_key.get_or_insert_with(@ecs.require_current_world(), world => {
-    @ecs.Query3(
-      BorderColor::component_key().store_in(world),
-      GlobalUiNode::component_key().store_in(world),
-      ComputedUiNode::component_key().store_in(world),
-    )
-  })
-}
+let ui_border_query : (@ecs.World) -> UiBorderQuery = @ecs.cache_query(world => {
+  @ecs.Query3(
+    BorderColor::component_key().store_in(world),
+    GlobalUiNode::component_key().store_in(world),
+    ComputedUiNode::component_key().store_in(world),
+  )
+})
 
 ///|
 fn push_ui_rect_fill(
@@ -946,7 +941,7 @@ pub fn ui_extract_system(_delta : Double) -> Unit {
 ///|
 pub fn ui_prepare_system(_delta : Double) -> Unit {
   guard !extracted_ui_entities.is_empty() else { return }
-  let border_query = ui_border_query()
+  let border_query = ui_border_query(@ecs.require_current_world())
   for entity in extracted_ui_entities {
     let camera_entity_id = render_target_camera_id(entity)
     render_entity(entity, border_query, camera_entity_id~)

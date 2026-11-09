@@ -1,15 +1,13 @@
 ///|
+/// Binds a query constructor once per World and reuses the resulting query.
+pub fn[Q] cache_query(make : (World) -> Q) -> (World) -> Q {
+  let cache = WorldKey::with_world(make)
+  world => world.get_or_init(cache)
+}
+
+///|
 /// Adapts a typed query callback into a system, caching its query per World.
-pub fn[A : Component, B : Component] query_system(
-  run : (Query2[A, B]) -> Unit,
-) -> System {
-  let cache : ResourceKey[Query2[A, B]] = ResourceKey()
-  world => {
-    let query = cache.get_or_insert_with(world, world => {
-      let a : ComponentStore[A] = components_in(world)
-      let b : ComponentStore[B] = components_in(world)
-      Query2(a, b)
-    })
-    run(query)
-  }
+pub fn[Q] query_system(make : (World) -> Q, run : (Q) -> Unit) -> System {
+  let cached = cache_query(make)
+  world => run(cached(world))
 }

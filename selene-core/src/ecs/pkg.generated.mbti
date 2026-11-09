@@ -12,6 +12,8 @@ pub fn alive_in_world(World) -> (Entity) -> Bool
 
 pub fn bootstrap_world() -> World
 
+pub fn[Q] cache_query((World) -> Q) -> (World) -> Q
+
 pub fn clear_current_world() -> Unit
 
 pub fn commands(World) -> Commands
@@ -30,7 +32,7 @@ pub fn iter_entities() -> Iter[Entity]
 
 pub fn[T] query(World, ComponentStore[T]) -> Query[T]
 
-pub fn[A : Component, B : Component] query_system((Query2[A, B]) -> Unit) -> (World) -> Unit
+pub fn[Q] query_system((World) -> Q, (Q) -> Unit) -> (World) -> Unit
 
 pub fn require_current_world() -> World
 

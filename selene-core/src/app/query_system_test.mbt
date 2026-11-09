@@ -1,5 +1,5 @@
 ///|
-test "a generated component query resolves and caches separately for each World" {
+test "a three-component query is constructed once per World" {
   let previous = @ecs.current_world()
   defer (match previous {
     Some(world) => @ecs.set_current_world(world)
@@ -16,25 +16,50 @@ test "a generated component query resolves and caches separately for each World"
     let transforms : @ecs.ComponentStore[@transform.Transform] = @ecs.components_in(
       world,
     )
+    let globals : @ecs.ComponentStore[@transform.GlobalTransform] = @ecs.components_in(
+      world,
+    )
     ignore(
       sprites
       .spawn_bundle()
       .combine(transforms.spawn_bundle())
+      .combine(globals.spawn_bundle())
       .spawn(
         world,
-        (@sprite.Sprite(), @transform.Transform::from_xyz(x, 0.0, 0.0)),
+        (
+          (@sprite.Sprite(), @transform.Transform::from_xyz(x, 0.0, 0.0)),
+          @transform.GlobalTransform::identity(),
+        ),
       ),
     )
   }
   let observed = []
-  let system = @ecs.query_system(fn(
-    query : @ecs.Query2[@sprite.Sprite, @transform.Transform],
-  ) {
-    query.for_each((_, _, transform) => observed.push(transform.translation.x))
-  })
+  let constructed = []
+  let system = @ecs.query_system(
+    world => {
+      constructed.push(world.id())
+      @ecs.Query3(
+        @ecs.components_in(world),
+        @ecs.components_in(world),
+        @ecs.components_in(world),
+      )
+    },
+    fn(
+      query : @ecs.Query3[
+        @sprite.Sprite,
+        @transform.Transform,
+        @transform.GlobalTransform,
+      ],
+    ) {
+      query.for_each((_, _, transform, _) => {
+        observed.push(transform.translation.x)
+      })
+    },
+  )
 
   @app.App().with_world(first).add_system(Update, system).run_frames(1)
   @app.App().with_world(second).add_system(Update, system).run_frames(1)
   @app.App().with_world(first).add_system(Update, system).run_frames(1)
   assert_eq(observed, [1.0, 2.0, 1.0])
+  assert_eq(constructed, [first.id(), second.id()])
 }

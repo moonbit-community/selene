@@ -109,7 +109,7 @@ test "ui material nodes render gradient materials ahead of legacy background fil
   material_nodes().set(entity, MaterialNode(handle))
   background_colors().set(entity, BackgroundColor(rgba(20, 40, 60, 1.0)))
 
-  render_entity(entity, ui_border_query())
+  render_entity(entity, ui_border_query(@ecs.require_current_world()))
 
   let frame = @render2d.get_frame2d()
   inspect(frame.ui_commands.length(), content="1")
@@ -144,7 +144,7 @@ test "ui material assets can render through custom draw callbacks" {
   global_ui_nodes().set(entity, test_global_node(screen_rect, content_rect))
   material_nodes().set(entity, MaterialNode(handle))
 
-  render_entity(entity, ui_border_query())
+  render_entity(entity, ui_border_query(@ecs.require_current_world()))
 
   let frame = @render2d.get_frame2d()
   inspect(frame.ui_commands.length(), content="1")
@@ -272,7 +272,7 @@ test "ui overflow clipping applies after node decorations" {
   calculated_clips().set(entity, CalculatedClip(content_rect))
   tree_orders().set(entity, 1)
 
-  render_entity(entity, ui_border_query())
+  render_entity(entity, ui_border_query(@ecs.require_current_world()))
 
   let frame = @render2d.get_frame2d()
   inspect(frame.ui_commands.length(), content="4")
@@ -338,8 +338,8 @@ test "ui override clip removes inherited clip from child rendering" {
   tree_orders().set(child, 2)
   override_clips().set(child, OverrideClip())
 
-  render_entity(parent, ui_border_query())
-  render_entity(child, ui_border_query())
+  render_entity(parent, ui_border_query(@ecs.require_current_world()))
+  render_entity(child, ui_border_query(@ecs.require_current_world()))
 
   let frame = @render2d.get_frame2d()
   inspect(frame.ui_commands.length(), content="3")

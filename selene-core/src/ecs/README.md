@@ -34,9 +34,20 @@ fn move_entities(query : @ecs.Query2[Position, Velocity]) -> Unit {
 }
 ```
 
-Register the callback with `app.add_system(Update, @ecs.query_system(move_entities))`.
-The adapter resolves and caches one query per World. Use the query callback's
-views within the callback and queue structural changes through `Commands`.
+Register the callback with a query constructor.
+
+```moonbit
+app.add_system(Update, @ecs.query_system(
+  world => @ecs.Query2(@ecs.components_in(world), @ecs.components_in(world)),
+  move_entities,
+))
+```
+
+`query_system` accepts the same constructor and callback shape for single- and
+multi-component queries. It constructs the query once per World. For callers
+outside a system, `@ecs.cache_query(make)` returns a World-to-query function
+with the same caching behavior. Use batch views within their callback and
+queue structural changes through `Commands`.
 
 Use the expected type to select a component store for point access or a spawn
 bundle. An explicit World is useful for setup, tests, or cross-World work.
