@@ -115,15 +115,19 @@ The generator lives in the separate `selene-codegen` module. The core module
 ships its generated sources and can build independently. CI regenerates those
 sources in memory to verify that the checked-in companions are current and
 catch missing files before the build. CI and the examples' `dev_build` rules
-run the published generator through `moonx`, pinned to version `0.39.2`.
+run the published generator through `moonx`, pinned to the exact version
+shown below.
 To regenerate a file, run:
 
 ```sh
 moonx Milky2018/selene_codegen@0.39.2 input.mbt input.g.mbt
 ```
 
-Projects can define the same rule in their `moon.mod`. Update the pinned
-version after publishing a generator change.
+Projects can define the same rule in their `moon.mod`. During development,
+use a beta of the next planned Selene version, such as `0.40.0-beta1`.
+The release script updates the pins after publishing each generator version.
+Stable Selene releases use the matching stable generator. See the
+[release process](../../../CONTRIBUTING.md#release-process).
 
 ```moonbit
 rule(

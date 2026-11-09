@@ -24,6 +24,10 @@
 
 ### Changed
 
+- Publish development codegen tools as betas of the next Selene version.
+  Release scripts synchronize generator pins and companions after publication.
+  Stable releases publish and validate codegen before core and WebGPU.
+
 - Separate resource identities from initialization. Declare resources with
   `#selene.resource`, insert values through `World::insert_resource` or
   `App::insert_resource`, and read them through `World::resource` or the optional

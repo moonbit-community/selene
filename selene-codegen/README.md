@@ -18,3 +18,20 @@ The resource marker generates a type identity. Initialize its value explicitly
 with `world.insert_resource(value)` or `app.insert_resource(value)`. Read it
 with `world.resource()`, or use `world.get_resource()` to handle a missing value.
 Resource markers with factory arguments are rejected.
+
+## Development releases
+
+For a planned `0.40.0` Selene release, publish development generators as
+`0.40.0-beta1`, `0.40.0-beta2`, and so on:
+
+```sh
+python3 publish.py 0.40.0-beta1 --codegen-only
+```
+
+This command updates CI, example rules, documentation pins, and generated
+companions after the published executable becomes available. Record these
+development changes under `Unreleased`.
+
+The full `python3 publish.py 0.40.0` release publishes stable codegen first,
+validates its consumers, then publishes core and WebGPU with the same stable
+version. See the [release process](../CONTRIBUTING.md#release-process).
