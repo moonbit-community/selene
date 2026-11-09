@@ -359,7 +359,7 @@ fn controller_to_rapier(
 
 ///|
 fn apply_character_controller_translation(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   translation : @math.Vec3,
   delta : Double,
 ) -> Unit {

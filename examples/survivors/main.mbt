@@ -53,24 +53,24 @@ pub fn run() -> Unit {
 
 ///|
 priv struct GameState {
-  player_entity : @entity.Entity
-  camera_entity : @entity.Entity
+  player_entity : @ecs.Entity
+  camera_entity : @ecs.Entity
   mut player_direction : Dir4
   rand : @random.Rand
   mut score : Int32
-  score_box : @entity.Entity
+  score_box : @ecs.Entity
   mut invincible : Bool
   mut game_timer : Double
   mut game_over : Bool
-  timer_box : @entity.Entity
-  game_over_box : @entity.Entity
+  timer_box : @ecs.Entity
+  game_over_box : @ecs.Entity
   mut game_over_displayed : Bool
   mut current_wave : Int32
-  wave_box : @entity.Entity
+  wave_box : @ecs.Entity
   mut exp : Int32
-  exp_box : @entity.Entity
+  exp_box : @ecs.Entity
   mut player_level : Int32
-  level_box : @entity.Entity
+  level_box : @ecs.Entity
   player_stats : PlayerStats
   level_up_panel : LevelUpPanel
   pending_level_ups : Array[Int32] // Queue of pending level-ups
@@ -105,19 +105,19 @@ priv struct PlayerStats {
 
 ///|
 priv struct LevelUpPanel {
-  panel_entity : @entity.Entity
+  panel_entity : @ecs.Entity
   mut available_selections : Array[LevelUpSelection]
   // Child entities will be created dynamically with spawn_child
 }
 
 ///|
 priv struct GameOverPanel {
-  panel_entity : @entity.Entity
+  panel_entity : @ecs.Entity
 }
 
 ///|
-fn create_level_up_panel_entity() -> @entity.Entity {
-  let panel = @entity.Entity()
+fn create_level_up_panel_entity() -> @ecs.Entity {
+  let panel = spawn_survivors_entity()
   @ui.nodes().set(
     panel,
     @ui.Node::absolute(
@@ -135,8 +135,8 @@ fn create_level_up_panel_entity() -> @entity.Entity {
 }
 
 ///|
-fn create_game_over_panel_entity() -> @entity.Entity {
-  let panel = @entity.Entity()
+fn create_game_over_panel_entity() -> @ecs.Entity {
+  let panel = spawn_survivors_entity()
   @ui.nodes().set(
     panel,
     @ui.Node::absolute(
@@ -154,47 +154,146 @@ fn create_game_over_panel_entity() -> @entity.Entity {
 }
 
 ///|
-let game_state : GameState = {
-  player_entity: Entity(),
-  camera_entity: Entity(),
-  player_direction: Down,
-  rand: Rand(),
-  score: 0,
-  score_box: Entity(),
-  invincible: false,
-  game_timer: 600.0,
-  game_over: false,
-  timer_box: Entity(),
-  game_over_box: Entity(),
-  game_over_displayed: false,
-  current_wave: 1,
-  wave_box: Entity(),
-  exp: 0,
-  exp_box: Entity(),
-  player_level: 1,
-  level_box: Entity(),
-  player_stats: {
-    attack: 0.0,
-    range: 0.0, // Base range, weapons add to this
-    speed: PLAYER_SPEED,
-    attack_speed: 1.0,
-    penetration: 0,
-    weapon_instances: [Pistol], // Start with one Pistol
-  },
-  level_up_panel: {
-    panel_entity: create_level_up_panel_entity(),
-    available_selections: [],
-  },
-  pending_level_ups: [],
-  score_blink_timer: 0.0,
-  score_is_red: false,
-  game_over_panel: { panel_entity: create_game_over_panel_entity(), },
+#selene.resource
+priv struct SurvivorsRuntime {
+  entities : Array[@ecs.Entity]
+  mut game : GameState?
+  weapon_timers : Array[Double]
+  enemy_bullets : Set[@ecs.Entity]
+  ui_click_reader : @event.EventReader[@ui.UiClickEvent]
+  enemy_contact_event_reader : @event.EventReader[@physics2d.ContactEvent]
+  enemy_trigger_event_reader : @event.EventReader[@physics2d.TriggerEvent]
+  player_bullet_trigger_event_reader : @event.EventReader[
+    @physics2d.TriggerEvent,
+  ]
+  levelup_buttons : Array[@ecs.Entity]
+  levelup_button_icons : Array[@ecs.Entity]
+  mut levelup_title : @ecs.Entity?
+  mut game_over_title : @ecs.Entity?
+  mut restart_button : @ecs.Entity?
+  timers : Map[Int32, @system.TimerHandle]
+  mut next_timer : Int32
+}
+
+///|
+fn new_survivors_runtime() -> SurvivorsRuntime {
+  {
+    entities: [],
+    game: None,
+    weapon_timers: [],
+    enemy_bullets: Set([]),
+    ui_click_reader: EventReader(),
+    enemy_contact_event_reader: EventReader(),
+    enemy_trigger_event_reader: EventReader(),
+    player_bullet_trigger_event_reader: EventReader(),
+    levelup_buttons: [],
+    levelup_button_icons: [],
+    levelup_title: None,
+    game_over_title: None,
+    restart_button: None,
+    timers: Map([]),
+    next_timer: 0,
+  }
+}
+
+///|
+fn survivors_runtime() -> SurvivorsRuntime {
+  @ecs.require_current_world().resource()
+}
+
+///|
+fn spawn_survivors_entity() -> @ecs.Entity {
+  let entity = @ecs.Entity()
+  survivors_runtime().entities.push(entity)
+  entity
+}
+
+///|
+fn survivors_timeout(delay : Double, callback : () -> Unit) -> Unit {
+  let runtime = survivors_runtime()
+  let id = runtime.next_timer
+  runtime.next_timer += 1
+  runtime.timers.set(
+    id,
+    @system.timeout(delay, () => {
+      runtime.timers.remove(id)
+      callback()
+    }),
+  )
+}
+
+///|
+fn reset_survivors_runtime() -> Unit {
+  let world = @ecs.require_current_world()
+  let previous : SurvivorsRuntime? = world.get_resource()
+  if previous is Some(runtime) {
+    for _, timer in runtime.timers {
+      ignore(timer.cancel())
+    }
+    for entity in runtime.entities {
+      ignore(entity.delete())
+    }
+  }
+  world.insert_resource(new_survivors_runtime())
+  reset_wave_state()
+}
+
+///|
+fn game_state() -> GameState {
+  let runtime = survivors_runtime()
+  if runtime.game is Some(state) {
+    return state
+  }
+  let state = new_game_state()
+  runtime.game = Some(state)
+  state
+}
+
+///|
+fn new_game_state() -> GameState {
+  {
+    player_entity: spawn_survivors_entity(),
+    camera_entity: spawn_survivors_entity(),
+    player_direction: Down,
+    rand: Rand(),
+    score: 0,
+    score_box: spawn_survivors_entity(),
+    invincible: false,
+    game_timer: 600.0,
+    game_over: false,
+    timer_box: spawn_survivors_entity(),
+    game_over_box: spawn_survivors_entity(),
+    game_over_displayed: false,
+    current_wave: 1,
+    wave_box: spawn_survivors_entity(),
+    exp: 0,
+    exp_box: spawn_survivors_entity(),
+    player_level: 1,
+    level_box: spawn_survivors_entity(),
+    player_stats: {
+      attack: 0.0,
+      range: 0.0, // Base range, weapons add to this
+      speed: PLAYER_SPEED,
+      attack_speed: 1.0,
+      penetration: 0,
+      weapon_instances: [Pistol], // Start with one Pistol
+    },
+    level_up_panel: {
+      panel_entity: create_level_up_panel_entity(),
+      available_selections: [],
+    },
+    pending_level_ups: [],
+    score_blink_timer: 0.0,
+    score_is_red: false,
+    game_over_panel: { panel_entity: create_game_over_panel_entity(), },
+  }
 }
 
 ///|
 fn set_score(score : Int32) -> Unit {
-  game_state.score = score
-  set_ui_text(game_state.score_box, "Score: " + game_state.score.to_string())
+  let game = game_state()
+  game.score = score
+  set_ui_text(game.score_box, "Score: " + game.score.to_string())
 }
 
 ///|
@@ -213,64 +312,63 @@ fn get_level_from_xp(xp : Int32) -> Int32 {
 
 ///|
 fn add_exp(exp_gained : Int32) -> Unit {
-  let old_level = game_state.player_level
-  game_state.exp += exp_gained
+  let game = game_state()
+  let old_level = game.player_level
+  game.exp += exp_gained
 
   // Calculate new player level using the XP formula
-  let new_level = get_level_from_xp(game_state.exp)
+  let new_level = get_level_from_xp(game.exp)
   if new_level > old_level {
     // Queue all levels from new_level down to old_level+1 (reverse order for pop())
     let mut level = new_level
     while level > old_level {
-      game_state.pending_level_ups.push(level)
+      game.pending_level_ups.push(level)
       level -= 1
     }
 
     // Update player level immediately
-    game_state.player_level = new_level
-    set_ui_text(
-      game_state.level_box,
-      "Level: " + game_state.player_level.to_string(),
-    )
+    game.player_level = new_level
+    set_ui_text(game.level_box, "Level: " + game.player_level.to_string())
 
     // Process the first level-up in the queue
     process_next_level_up()
   }
 
   // Update EXP display with progress to next level
-  let current_level_xp = if game_state.player_level == 1 {
+  let current_level_xp = if game.player_level == 1 {
     0
   } else {
-    xp_required_for_level(game_state.player_level - 1)
+    xp_required_for_level(game.player_level - 1)
   }
-  let next_level_xp = xp_required_for_level(game_state.player_level)
-  let progress_xp = game_state.exp - current_level_xp
+  let next_level_xp = xp_required_for_level(game.player_level)
+  let progress_xp = game.exp - current_level_xp
   let needed_xp = next_level_xp - current_level_xp
   set_ui_text(
-    game_state.exp_box,
+    game.exp_box,
     "EXP: " + progress_xp.to_string() + "/" + needed_xp.to_string(),
   )
 }
 
 ///|
 fn process_next_level_up() -> Unit {
-  if game_state.pending_level_ups.pop() is Some(level) {
+  if game_state().pending_level_ups.pop() is Some(level) {
     level_up(level)
   }
 }
 
 ///|
 fn add_weapon(weapon_type : WeaponType) -> Unit {
+  let game = game_state()
   // Add weapon instance (allows duplicates)
-  game_state.player_stats.weapon_instances.push(weapon_type)
+  game.player_stats.weapon_instances.push(weapon_type)
 
   // Apply weapon's speed modifier
   let speed_modifier = get_weapon_speed_modifier(weapon_type)
-  game_state.player_stats.speed += speed_modifier
+  game.player_stats.speed += speed_modifier
 
   // Apply weapon's attack speed modifier
   let attack_speed_modifier = get_weapon_attack_speed_modifier(weapon_type)
-  game_state.player_stats.attack_speed += attack_speed_modifier
+  game.player_stats.attack_speed += attack_speed_modifier
 }
 
 ///|
@@ -292,7 +390,7 @@ fn[T] weighted_random_selection(
   }
 
   // Generate random value
-  let random_value = game_state.rand.double() * total_weight
+  let random_value = game_state().rand.double() * total_weight
 
   // Select item based on weight
   let mut cumulative = 0.0
@@ -425,6 +523,9 @@ fn apply_selection(selection : LevelUpSelection) -> Unit {
 
 ///|
 fn game_start(_world : @ecs.World) -> Unit {
+  reset_survivors_runtime()
+  @time.initialize(@ecs.require_current_world())
+  @time.set_scale(1.0)
   ignore(
     @asset.load_font(
       "assets/survivors/fonts/ThaleahFat.ttf",
@@ -449,10 +550,11 @@ fn game_start(_world : @ecs.World) -> Unit {
 
 ///|
 fn setup_survivors_camera() -> Unit {
-  @camera.cameras().set(game_state.camera_entity, Camera())
-  @camera.camera2ds().set(game_state.camera_entity, Camera2d())
+  let game = game_state()
+  @camera.cameras().set(game.camera_entity, Camera())
+  @camera.camera2ds().set(game.camera_entity, Camera2d())
   @camera.orthographic_projections().set(
-    game_state.camera_entity,
+    game.camera_entity,
     OrthographicProjection(),
   )
   survivors_camera_follow_system(@ecs.require_current_world())
@@ -460,7 +562,8 @@ fn setup_survivors_camera() -> Unit {
 
 ///|
 fn survivors_camera_follow_system(_world : @ecs.World) -> Unit {
-  guard @transform.transforms().get(game_state.player_entity)
+  let game = game_state()
+  guard @transform.transforms().get(game.player_entity)
     is Some(player_transform) else {
     return
   }
@@ -487,7 +590,7 @@ fn survivors_camera_follow_system(_world : @ecs.World) -> Unit {
     target_y
   }
   @transform.transforms().set(
-    game_state.camera_entity,
+    game.camera_entity,
     @transform.Transform::from_xyz(center_x, center_y, 0.0),
   )
 }
@@ -495,46 +598,41 @@ fn survivors_camera_follow_system(_world : @ecs.World) -> Unit {
 ///|
 ///powerup_cooldown_icon
 fn game_timer_system(_world : @ecs.World) -> Unit {
+  let game = game_state()
   let delta = @time.delta()
-  if game_state.game_over {
-    if !game_state.game_over_displayed {
-      game_state.game_over_displayed = true
-      set_ui_text(
-        game_state.game_over_box,
-        "Final Score: " + game_state.score.to_string(),
-      )
+  if game.game_over {
+    if !game.game_over_displayed {
+      game.game_over_displayed = true
+      set_ui_text(game.game_over_box, "Final Score: " + game.score.to_string())
       add_game_over_box()
     }
     return
   }
 
   // Continue counting down timer, but don't end game when it reaches 0
-  if game_state.game_timer > 0.0 {
-    game_state.game_timer -= delta
-    if game_state.game_timer < 0.0 {
-      game_state.game_timer = 0.0
+  if game.game_timer > 0.0 {
+    game.game_timer -= delta
+    if game.game_timer < 0.0 {
+      game.game_timer = 0.0
     }
   }
 
   // Calculate current wave (1-10) based on remaining time
-  let elapsed_time = 600.0 - game_state.game_timer
+  let elapsed_time = 600.0 - game.game_timer
   let mut new_wave = (elapsed_time / 60.0).to_int() + 1
   if new_wave > 10 {
     new_wave = 10
   }
 
   // Update wave if changed
-  if new_wave != game_state.current_wave {
-    game_state.current_wave = new_wave
-    set_ui_text(
-      game_state.wave_box,
-      "Wave: " + game_state.current_wave.to_string(),
-    )
+  if new_wave != game.current_wave {
+    game.current_wave = new_wave
+    set_ui_text(game.wave_box, "Wave: " + game.current_wave.to_string())
     reset_wave_state() // Reset spawn counters for new wave
   }
 
   // Format timer as MM:SS
-  let total_seconds = game_state.game_timer.to_int()
+  let total_seconds = game.game_timer.to_int()
   let minutes = total_seconds / 60
   let seconds = total_seconds % 60
   let seconds_str = if seconds < 10 {
@@ -543,25 +641,26 @@ fn game_timer_system(_world : @ecs.World) -> Unit {
     seconds.to_string()
   }
   set_ui_text(
-    game_state.timer_box,
+    game.timer_box,
     "Time: " + minutes.to_string() + ":" + seconds_str,
   )
 }
 
 ///|
 fn score_blink_system(_world : @ecs.World) -> Unit {
+  let game = game_state()
   let delta = @time.delta()
-  if game_state.score_blink_timer > 0.0 {
-    game_state.score_blink_timer -= delta
+  if game.score_blink_timer > 0.0 {
+    game.score_blink_timer -= delta
 
     // Toggle color every 0.1 seconds (100ms)
     let blink_interval = 0.1
-    let elapsed = 1.0 - game_state.score_blink_timer
+    let elapsed = 1.0 - game.score_blink_timer
     let should_be_red = (elapsed / blink_interval).to_int() % 2 == 0
-    if should_be_red != game_state.score_is_red {
-      game_state.score_is_red = should_be_red
+    if should_be_red != game.score_is_red {
+      game.score_is_red = should_be_red
       set_ui_text_color(
-        game_state.score_box,
+        game.score_box,
         if should_be_red {
           "red"
         } else {
@@ -571,72 +670,25 @@ fn score_blink_system(_world : @ecs.World) -> Unit {
     }
 
     // Reset to white when timer expires
-    if game_state.score_blink_timer <= 0.0 {
-      game_state.score_blink_timer = 0.0
-      game_state.score_is_red = false
-      set_ui_text_color(game_state.score_box, "white")
+    if game.score_blink_timer <= 0.0 {
+      game.score_blink_timer = 0.0
+      game.score_is_red = false
+      set_ui_text_color(game.score_box, "white")
     }
   }
 }
 
 ///|
 fn trigger_damage_effect() -> Unit {
-  game_state.score_blink_timer = 1.0
-  game_state.score_is_red = true
-  set_ui_text_color(game_state.score_box, "red")
+  let game = game_state()
+  game.score_blink_timer = 1.0
+  game.score_is_red = true
+  set_ui_text_color(game.score_box, "red")
 }
 
 ///|
 fn restart_game() -> Unit {
-  hide_game_over_ui()
-
-  // Reset game state
-  game_state.game_over = false
-  game_state.game_over_displayed = false
-  game_state.game_timer = 600.0
-  game_state.current_wave = 1
-  set_ui_text(game_state.wave_box, "Wave: 1")
-  set_score(0)
-  game_state.exp = 0
-  game_state.player_level = 1
-  set_ui_text(game_state.level_box, "Level: 1")
-  set_ui_text(game_state.exp_box, "EXP: 0/16")
-  game_state.invincible = false
-  game_state.score_blink_timer = 0.0
-  game_state.score_is_red = false
-  set_ui_text_color(game_state.score_box, "white")
-  game_state.pending_level_ups.clear()
-
-  // Reset player stats
-  game_state.player_stats.attack = 0.0
-  game_state.player_stats.range = 0.0
-  game_state.player_stats.speed = PLAYER_SPEED
-  game_state.player_stats.attack_speed = 1.0
-  game_state.player_stats.penetration = 0
-  game_state.player_stats.weapon_instances.clear()
-  game_state.player_stats.weapon_instances.push(Pistol)
-
-  // Reset weapon timers
-  weapon_timers.clear()
-
-  // Clear all enemies
-  for e, _state in enemies {
-    if e.is_alive() {
-      e.destroy()
-    }
-  }
-  enemies.clear()
-
-  // Reset wave state
-  reset_wave_state()
-
-  // Reset player position
-  @transform.transforms().set(
-    game_state.player_entity,
-    @transform.Transform::from_xyz(MAP_WIDTH / 2.0, MAP_HEIGHT / 2.0, 0.0),
-  )
-  @physics2d.linear_velocities().set(
-    game_state.player_entity,
-    @math.Vec2::zero(),
-  )
+  let world = @ecs.require_current_world()
+  game_start(world)
+  spawn_enemy_system(world)
 }

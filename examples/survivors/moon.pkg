@@ -4,7 +4,6 @@ import {
   "Milky2018/selene/asset",
   "Milky2018/selene/ecs",
   "Milky2018/selene/system",
-  "Milky2018/selene/entity",
   "Milky2018/selene/math",
   "Milky2018/selene/sprite",
   "Milky2018/selene/physics2d",
@@ -19,3 +18,15 @@ import {
   "Milky2018/selene/event",
   "moonbitlang/core/random",
 }
+
+dev_build(rule: "selene_codegen", input: "player.mbt", output: "player.g.mbt")
+
+dev_build(rule: "selene_codegen", input: "enemy.mbt", output: "enemy.g.mbt")
+
+dev_build(rule: "selene_codegen", input: "weapon.mbt", output: "weapon.g.mbt")
+
+dev_build(rule: "selene_codegen", input: "main.mbt", output: "main.g.mbt")
+
+formatter(
+  ignore: [ "main.g.mbt", "enemy.g.mbt", "player.g.mbt", "weapon.g.mbt" ],
+)

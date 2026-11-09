@@ -19,39 +19,49 @@ const VIEWPORT_WIDTH : Double = 960.0
 const VIEWPORT_HEIGHT : Double = 640.0
 
 ///|
-let rotating_cube : Ref[@entity.Entity?] = Ref(None)
+#selene.resource
+priv struct Scene3dState {
+  entities : Array[@ecs.Entity]
+  mut rotating_cube : @ecs.Entity?
+  mut cube_rotation : Double
+  mut spotlight_entity : @ecs.Entity?
+  mut spotlight_phase : Double
+  mut physics_label : @ecs.Entity?
+  mut dynamic_ball_entity : @ecs.Entity?
+  mut joint_ball_entity : @ecs.Entity?
+  mut controller_entity : @ecs.Entity?
+  contact_force_reader : @event.EventReader[@physics3d.ContactForceEvent]
+  mut last_contact_force : Double
+}
 
 ///|
-let cube_rotation : Ref[Double] = Ref(0.0)
+fn new_scene3d_state() -> Scene3dState {
+  {
+    entities: [],
+    rotating_cube: None,
+    cube_rotation: 0.0,
+    spotlight_entity: None,
+    spotlight_phase: 0.0,
+    physics_label: None,
+    dynamic_ball_entity: None,
+    joint_ball_entity: None,
+    controller_entity: None,
+    contact_force_reader: EventReader(),
+    last_contact_force: 0.0,
+  }
+}
 
 ///|
-let spotlight_entity : Ref[@entity.Entity?] = Ref(None)
+fn scene3d_state() -> Scene3dState {
+  @ecs.require_current_world().resource()
+}
 
 ///|
-let spotlight_phase : Ref[Double] = Ref(0.0)
-
-///|
-let hud_label : Ref[@entity.Entity?] = Ref(None)
-
-///|
-let physics_label : Ref[@entity.Entity?] = Ref(None)
-
-///|
-let dynamic_ball_entity : Ref[@entity.Entity?] = Ref(None)
-
-///|
-let joint_ball_entity : Ref[@entity.Entity?] = Ref(None)
-
-///|
-let controller_entity : Ref[@entity.Entity?] = Ref(None)
-
-///|
-let contact_force_reader : Ref[@event.EventReader[@physics3d.ContactForceEvent]] = Ref(
-  EventReader(),
-)
-
-///|
-let last_contact_force : Ref[Double] = Ref(0.0)
+fn spawn_scene3d_entity() -> @ecs.Entity {
+  let entity = @ecs.Entity()
+  scene3d_state().entities.push(entity)
+  entity
+}
 
 ///|
 fn color(r : UInt32, g : UInt32, b : UInt32, a : Double) -> @render.Color {
@@ -86,7 +96,7 @@ fn ccd_marker() -> @physics3d.Ccd {
 
 ///|
 fn update_transform(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   transform : @transform.Transform,
 ) -> Unit {
   @transform.transforms().set(entity, transform)
@@ -97,14 +107,14 @@ fn spawn_sphere(
   radius : Double,
   translation : @math.Vec3,
   base_color : @render.Color,
-) -> @entity.Entity {
+) -> @ecs.Entity {
   let mesh = @render3d.register_mesh_asset(@render3d.sphere_mesh(radius))
   let material = @render3d.register_material_asset({
     ..@render3d.default_standard_material3d(),
     base_color,
     roughness: 0.3,
   })
-  let entity = @entity.Entity()
+  let entity = spawn_scene3d_entity()
   update_transform(entity, {
     translation,
     rotation: @math.Quat::identity(),
@@ -121,12 +131,13 @@ fn spawn_sphere(
 }
 
 ///|
-fn physics_name(entity : @entity.Entity) -> String {
-  if dynamic_ball_entity.val == Some(entity) {
+fn physics_name(entity : @ecs.Entity) -> String {
+  let state = scene3d_state()
+  if state.dynamic_ball_entity == Some(entity) {
     "ball"
-  } else if joint_ball_entity.val == Some(entity) {
+  } else if state.joint_ball_entity == Some(entity) {
     "joint"
-  } else if controller_entity.val == Some(entity) {
+  } else if state.controller_entity == Some(entity) {
     "controller"
   } else {
     "other"
@@ -235,9 +246,17 @@ pub fn run() -> Unit {
 }
 
 ///|
-fn setup_scene3d(_world : @ecs.World) -> Unit {
+fn setup_scene3d(world : @ecs.World) -> Unit {
+  let previous : Scene3dState? = world.get_resource()
+  if previous is Some(previous) {
+    for entity in previous.entities {
+      ignore(entity.delete())
+    }
+  }
+  let state = new_scene3d_state()
+  world.insert_resource(state)
   configure_scene3d_input()
-  let camera = @entity.Entity()
+  let camera = spawn_scene3d_entity()
   @transform.transforms().set(camera, {
     translation: vec3(0.0, 1.5, 8.0),
     rotation: @math.Quat::identity(),
@@ -249,7 +268,9 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
   })
 
   let scene = @scene.load_scene_gltf("assets/scene3d/scene3d.gltf")
-  ignore(@scene.instantiate_scene(scene, @transform.Transform::identity()))
+  state.entities.push(
+    @scene.instantiate_scene(scene, @transform.Transform::identity()).root,
+  )
 
   let floor_mesh = @render3d.register_mesh_asset(
     @render3d.plane_mesh(vec3(10.0, 0.02, 10.0)),
@@ -259,7 +280,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     base_color: color(96U, 104U, 110U, 1.0),
     roughness: 0.9,
   })
-  let floor = @entity.Entity()
+  let floor = spawn_scene3d_entity()
   @transform.transforms().set(floor, {
     translation: vec3(0.0, -0.01, 0.0),
     rotation: @math.Quat::identity(),
@@ -284,7 +305,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     roughness: 0.25,
   })
 
-  let cube = @entity.Entity()
+  let cube = spawn_scene3d_entity()
   @transform.transforms().set(cube, {
     translation: vec3(0.0, 0.5, 0.0),
     rotation: @math.Quat::identity(),
@@ -297,7 +318,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     cast_shadows: true,
     receive_shadows: true,
   })
-  rotating_cube.val = Some(cube)
+  state.rotating_cube = Some(cube)
 
   let target_mesh = @render3d.register_mesh_asset(@render3d.sphere_mesh(0.45))
   let target_material = @render3d.register_material_asset({
@@ -305,7 +326,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     base_color: color(244U, 199U, 124U, 1.0),
     roughness: 0.25,
   })
-  let target = @entity.Entity()
+  let target = spawn_scene3d_entity()
   @transform.transforms().set(target, {
     translation: vec3(1.35, 1.55, -0.75),
     rotation: @math.Quat::identity(),
@@ -327,7 +348,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     base_color: color(86U, 96U, 112U, 1.0),
     roughness: 0.82,
   })
-  let shadow_wall = @entity.Entity()
+  let shadow_wall = spawn_scene3d_entity()
   @transform.transforms().set(shadow_wall, {
     translation: vec3(0.0, 1.6, -2.9),
     rotation: @math.Quat::identity(),
@@ -341,7 +362,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     receive_shadows: true,
   })
 
-  let off_axis_cube = @entity.Entity()
+  let off_axis_cube = spawn_scene3d_entity()
   @transform.transforms().set(off_axis_cube, {
     translation: vec3(-2.2, 0.5, 1.8),
     rotation: @math.Quat::from_axis_angle(vec3(0.0, 1.0, 0.0), 0.45),
@@ -385,9 +406,9 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
       @collision.ActiveEvents::contact_force_events(),
     ),
   )
-  dynamic_ball_entity.val = Some(dynamic_ball)
+  state.dynamic_ball_entity = Some(dynamic_ball)
 
-  let compound_body = @entity.Entity()
+  let compound_body = spawn_scene3d_entity()
   update_transform(compound_body, {
     translation: vec3(-3.0, 0.45, -0.8),
     rotation: @math.Quat::identity(),
@@ -458,7 +479,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     }),
     contacts_enabled: false,
   })
-  joint_ball_entity.val = Some(joint_ball)
+  state.joint_ball_entity = Some(joint_ball)
 
   let controller = spawn_sphere(
     0.3,
@@ -471,9 +492,9 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     controller,
     @physics3d.KinematicCharacterController::default(),
   )
-  controller_entity.val = Some(controller)
+  state.controller_entity = Some(controller)
 
-  let spotlight = @entity.Entity()
+  let spotlight = spawn_scene3d_entity()
   @transform.transforms().set(spotlight, {
     translation: vec3(3.2, 3.0, 0.0),
     rotation: @math.Quat::identity(),
@@ -491,7 +512,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     inner_angle: 0.28,
     outer_angle: 0.72,
   })
-  spotlight_entity.val = Some(spotlight)
+  state.spotlight_entity = Some(spotlight)
 
   let spotlight_marker_mesh = @render3d.register_mesh_asset(
     @render3d.sphere_mesh(0.14),
@@ -514,7 +535,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     receive_shadows: false,
   })
 
-  let dir_light = @entity.Entity()
+  let dir_light = spawn_scene3d_entity()
   @render3d.directional_lights3d().set(dir_light, {
     ..@render3d.default_directional_light3d(),
     direction: vec3(-0.72, -1.0, -0.42).normalize(),
@@ -528,7 +549,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.03, }),
   )
 
-  let label = @entity.Entity()
+  let label = spawn_scene3d_entity()
   @ui.nodes().set(
     label,
     @ui.Node::absolute(Vec2(16.0, 16.0), size=Vec2(420.0, 28.0)),
@@ -537,9 +558,8 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
   @ui.text_fonts().set(label, TextFont(family="sans-serif", size=20.0))
   @ui.text_colors().set(label, TextColor(color(245U, 245U, 245U, 1.0)))
   @ui.z_indexes().set(label, ZIndex(100))
-  hud_label.val = Some(label)
 
-  let physics_text = @entity.Entity()
+  let physics_text = spawn_scene3d_entity()
   @ui.nodes().set(
     physics_text,
     @ui.Node::absolute(Vec2(16.0, 46.0), size=Vec2(620.0, 28.0)),
@@ -553,32 +573,34 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
   @ui.text_fonts().set(physics_text, TextFont(family="sans-serif", size=18.0))
   @ui.text_colors().set(physics_text, TextColor(color(214U, 224U, 235U, 1.0)))
   @ui.z_indexes().set(physics_text, ZIndex(100))
-  physics_label.val = Some(physics_text)
+  state.physics_label = Some(physics_text)
 }
 
 ///|
 fn rotate_cube_system(_world : @ecs.World) -> Unit {
+  let state = scene3d_state()
   let delta = @time.delta()
-  guard rotating_cube.val is Some(cube) else { return }
+  guard state.rotating_cube is Some(cube) else { return }
   guard @transform.transforms().get(cube) is Some(transform) else { return }
-  cube_rotation.val += delta
+  state.cube_rotation += delta
   @transform.transforms().set(cube, {
     ..transform,
     rotation: @math.Quat::from_axis_angle(
       vec3(0.0, 1.0, 0.0),
-      cube_rotation.val,
+      state.cube_rotation,
     ),
   })
 }
 
 ///|
 fn animate_spotlight_system(_world : @ecs.World) -> Unit {
+  let state = scene3d_state()
   let delta = @time.delta()
-  guard spotlight_entity.val is Some(spotlight) else { return }
-  spotlight_phase.val += delta * 0.9
-  let x = @cmath.cos(spotlight_phase.val) * 3.2
-  let y = 2.8 + @cmath.sin(spotlight_phase.val * 1.7) * 0.35
-  let z = @cmath.sin(spotlight_phase.val) * 3.2
+  guard state.spotlight_entity is Some(spotlight) else { return }
+  state.spotlight_phase += delta * 0.9
+  let x = @cmath.cos(state.spotlight_phase) * 3.2
+  let y = 2.8 + @cmath.sin(state.spotlight_phase * 1.7) * 0.35
+  let z = @cmath.sin(state.spotlight_phase) * 3.2
   let position = vec3(x, y, z)
   let focus = vec3(0.0, 0.45, 0.0)
   let direction = (focus - position).normalize()
@@ -595,7 +617,7 @@ fn animate_spotlight_system(_world : @ecs.World) -> Unit {
 
 ///|
 fn drive_character_controller_system(_world : @ecs.World) -> Unit {
-  guard controller_entity.val is Some(controller) else { return }
+  guard scene3d_state().controller_entity is Some(controller) else { return }
   guard @physics3d.kinematic_character_controllers().get(controller)
     is Some(config) else {
     return
@@ -616,11 +638,13 @@ fn drive_character_controller_system(_world : @ecs.World) -> Unit {
 
 ///|
 fn update_physics_overlay_system(_world : @ecs.World) -> Unit {
-  let mut strongest_force = last_contact_force.val * 0.88
-  for event in contact_force_reader.val.read(@physics3d.contact_force_event_bus) {
+  let state = scene3d_state()
+  let mut strongest_force = state.last_contact_force * 0.88
+  for
+    event in state.contact_force_reader.read(@physics3d.contact_force_event_bus) {
     strongest_force = Double::max(strongest_force, event.total_force_magnitude)
   }
-  last_contact_force.val = strongest_force
+  state.last_contact_force = strongest_force
 
   let ray_hit = @physics3d.context().cast_ray(
     vec3(0.0, 5.0, 1.2),
@@ -631,7 +655,7 @@ fn update_physics_overlay_system(_world : @ecs.World) -> Unit {
     Some(hit) => physics_name(hit.entity)
     None => "none"
   }
-  let controller_status = match controller_entity.val {
+  let controller_status = match state.controller_entity {
     Some(controller) =>
       match
         @physics3d.kinematic_character_controller_outputs().get(controller) {
@@ -641,7 +665,7 @@ fn update_physics_overlay_system(_world : @ecs.World) -> Unit {
     None => "missing"
   }
 
-  guard physics_label.val is Some(label) else { return }
+  guard state.physics_label is Some(label) else { return }
   @ui.texts().set(
     label,
     Text(

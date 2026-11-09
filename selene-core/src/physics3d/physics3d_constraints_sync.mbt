@@ -228,7 +228,7 @@ fn sync_character_controllers(delta : Double) -> Unit {
 
 ///|
 fn sync_collider_to_rapier(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   collider_desc : ColliderDesc,
 ) -> Unit {
   let world = physics3d_world()
@@ -297,7 +297,7 @@ fn sync_collider_to_rapier(
 }
 
 ///|
-fn ensure_rigid_body(entity : @entity.Entity) -> RapierRigidBodyHandle {
+fn ensure_rigid_body(entity : @ecs.Entity) -> RapierRigidBodyHandle {
   let world = physics3d_world()
   let body_handles = body_handles()
   if body_handles.get(entity) is Some(handle) {
@@ -349,7 +349,7 @@ fn ensure_rigid_body(entity : @entity.Entity) -> RapierRigidBodyHandle {
 
 ///|
 fn ensure_collider(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   collider_desc : ColliderDesc,
 ) -> RapierColliderHandle {
   let world = physics3d_world()

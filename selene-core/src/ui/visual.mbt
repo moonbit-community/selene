@@ -1,4 +1,5 @@
 ///|
+#selene.component
 pub(all) struct BackgroundColor {
   color : @render.Color
 }
@@ -16,6 +17,7 @@ pub fn BackgroundColor::from_css(color : String) -> BackgroundColor {
 }
 
 ///|
+#selene.component
 pub(all) struct BorderColor {
   color : @render.Color
 }
@@ -31,12 +33,14 @@ pub fn BorderColor::from_css(color : String) -> BorderColor {
 }
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct BorderRadius {
   top_left : Val
   top_right : Val
   bottom_right : Val
   bottom_left : Val
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn BorderRadius::all(value : Val) -> BorderRadius {
@@ -59,6 +63,7 @@ pub fn BorderRadius::BorderRadius(
 }
 
 ///|
+#selene.component
 pub(all) struct Outline {
   width : Val
   offset : Val
@@ -75,13 +80,14 @@ pub fn Outline::Outline(
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct ShadowStyle {
   color : @render.Color
   x_offset : Val
   y_offset : Val
   spread_radius : Val
   blur_radius : Val
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn ShadowStyle::ShadowStyle(
@@ -95,9 +101,11 @@ pub fn ShadowStyle::ShadowStyle(
 }
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct BoxShadow {
   layers : Array[ShadowStyle]
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn BoxShadow::BoxShadow(layers : Array[ShadowStyle]) -> BoxShadow {
@@ -118,20 +126,23 @@ pub fn BoxShadow::single(
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum ImageFit {
   Stretch
   Contain
   Cover
   None
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct UiImage {
   size : @math.Vec2
   image : @asset.ImageHandle
   tint : @render.Color
   fit : ImageFit
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn UiImage::from_image(
@@ -154,12 +165,15 @@ pub fn UiImage::UiImage(
 }
 
 ///|
-pub(all) struct UiMaterialHandle(UInt32) derive(Eq, Debug, Hash)
+#derive(Eq, Debug, Hash)
+pub(all) struct UiMaterialHandle(UInt32)
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct MaterialNode {
   material : UiMaterialHandle
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn MaterialNode::MaterialNode(material : UiMaterialHandle) -> MaterialNode {
@@ -167,10 +181,11 @@ pub fn MaterialNode::MaterialNode(material : UiMaterialHandle) -> MaterialNode {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct UiGradient {
   color_start : @render.Color
   color_end : @render.Color
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn UiGradient::UiGradient(
@@ -182,7 +197,7 @@ pub fn UiGradient::UiGradient(
 
 ///|
 pub(all) struct UiMaterialContext {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   rect : @math.Rect
   content_rect : @math.Rect
   border_radius : BorderRadius
@@ -191,7 +206,7 @@ pub(all) struct UiMaterialContext {
 
 ///|
 pub fn UiMaterialContext::UiMaterialContext(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   rect : @math.Rect,
   content_rect~ : @math.Rect = rect,
   border_radius~ : BorderRadius = BorderRadius::all(Val::px(0.0)),
@@ -258,6 +273,7 @@ pub fn UiMaterialAsset::UiMaterialAsset(
 }
 
 ///|
+#selene.component
 pub(all) struct Text {
   mut content : String
 }
@@ -268,6 +284,7 @@ pub fn Text::Text(content : String) -> Text {
 }
 
 ///|
+#selene.component
 pub(all) struct TextFont {
   mut family : String
   mut size : Double
@@ -328,6 +345,7 @@ pub fn TextFont::from_css(font : String) -> TextFont {
 }
 
 ///|
+#selene.component
 pub(all) struct TextColor {
   mut color : @render.Color
 }
@@ -343,18 +361,21 @@ pub fn TextColor::from_css(color : String) -> TextColor {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum TextWrap {
   NoWrap
   WordWrap
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum TextOverflow {
   Clip
   Ellipsis
-} derive(Eq, Debug)
+}
 
 ///|
+#selene.component
 pub(all) struct TextLayout {
   mut align : @math.HAlign
   mut baseline : @math.VAlign
@@ -375,9 +396,11 @@ pub fn TextLayout::TextLayout(
 }
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct Button {
   enabled : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn Button::Button(enabled~ : Bool = true) -> Button {
@@ -385,85 +408,47 @@ pub fn Button::Button(enabled~ : Bool = true) -> Button {
 }
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) enum Interaction {
   None
   Hovered
   Pressed
-} derive(Eq, Debug)
-
-///|
-priv struct UiVisualWorldStore {
-  background_colors : Map[@entity.Entity, BackgroundColor]
-  border_colors : Map[@entity.Entity, BorderColor]
-  border_radii : Map[@entity.Entity, BorderRadius]
-  box_shadows : Map[@entity.Entity, BoxShadow]
-  outlines : Map[@entity.Entity, Outline]
-  ui_images : Map[@entity.Entity, UiImage]
-  material_nodes : Map[@entity.Entity, MaterialNode]
-  texts : Map[@entity.Entity, Text]
-  text_fonts : Map[@entity.Entity, TextFont]
-  text_colors : Map[@entity.Entity, TextColor]
-  text_layouts : Map[@entity.Entity, TextLayout]
-  buttons : Map[@entity.Entity, Button]
-  interactions : Map[@entity.Entity, Interaction]
 }
 
 ///|
-let ui_visual_world_stores : Map[UInt32, UiVisualWorldStore] = Map([])
-
-///|
-fn ui_visual_world_store() -> UiVisualWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  ui_visual_world_stores.get_or_init(world_id, () => {
-    background_colors: Map([]),
-    border_colors: Map([]),
-    border_radii: Map([]),
-    box_shadows: Map([]),
-    outlines: Map([]),
-    ui_images: Map([]),
-    material_nodes: Map([]),
-    texts: Map([]),
-    text_fonts: Map([]),
-    text_colors: Map([]),
-    text_layouts: Map([]),
-    buttons: Map([]),
-    interactions: Map([]),
-  })
+pub fn background_colors() -> @ecs.ComponentStore[BackgroundColor] {
+  @ecs.components()
 }
 
 ///|
-pub fn background_colors() -> Map[@entity.Entity, BackgroundColor] {
-  ui_visual_world_store().background_colors
+pub fn border_colors() -> @ecs.ComponentStore[BorderColor] {
+  @ecs.components()
 }
 
 ///|
-pub fn border_colors() -> Map[@entity.Entity, BorderColor] {
-  ui_visual_world_store().border_colors
+pub fn border_radii() -> @ecs.ComponentStore[BorderRadius] {
+  @ecs.components()
 }
 
 ///|
-pub fn border_radii() -> Map[@entity.Entity, BorderRadius] {
-  ui_visual_world_store().border_radii
+pub fn box_shadows() -> @ecs.ComponentStore[BoxShadow] {
+  @ecs.components()
 }
 
 ///|
-pub fn box_shadows() -> Map[@entity.Entity, BoxShadow] {
-  ui_visual_world_store().box_shadows
+pub fn outlines() -> @ecs.ComponentStore[Outline] {
+  @ecs.components()
 }
 
 ///|
-pub fn outlines() -> Map[@entity.Entity, Outline] {
-  ui_visual_world_store().outlines
+pub fn ui_images() -> @ecs.ComponentStore[UiImage] {
+  @ecs.components()
 }
 
 ///|
-pub fn ui_images() -> Map[@entity.Entity, UiImage] {
-  ui_visual_world_store().ui_images
-}
-
-///|
-pub fn material_nodes() -> Map[@entity.Entity, MaterialNode] {
-  ui_visual_world_store().material_nodes
+pub fn material_nodes() -> @ecs.ComponentStore[MaterialNode] {
+  @ecs.components()
 }
 
 ///|
@@ -473,33 +458,33 @@ let ui_material_assets : Map[UiMaterialHandle, UiMaterialAsset] = Map([])
 let next_ui_material_id : Ref[UInt32] = Ref(0)
 
 ///|
-pub fn texts() -> Map[@entity.Entity, Text] {
-  ui_visual_world_store().texts
+pub fn texts() -> @ecs.ComponentStore[Text] {
+  @ecs.components()
 }
 
 ///|
-pub fn text_fonts() -> Map[@entity.Entity, TextFont] {
-  ui_visual_world_store().text_fonts
+pub fn text_fonts() -> @ecs.ComponentStore[TextFont] {
+  @ecs.components()
 }
 
 ///|
-pub fn text_colors() -> Map[@entity.Entity, TextColor] {
-  ui_visual_world_store().text_colors
+pub fn text_colors() -> @ecs.ComponentStore[TextColor] {
+  @ecs.components()
 }
 
 ///|
-pub fn text_layouts() -> Map[@entity.Entity, TextLayout] {
-  ui_visual_world_store().text_layouts
+pub fn text_layouts() -> @ecs.ComponentStore[TextLayout] {
+  @ecs.components()
 }
 
 ///|
-pub fn buttons() -> Map[@entity.Entity, Button] {
-  ui_visual_world_store().buttons
+pub fn buttons() -> @ecs.ComponentStore[Button] {
+  @ecs.components()
 }
 
 ///|
-pub fn interactions() -> Map[@entity.Entity, Interaction] {
-  ui_visual_world_store().interactions
+pub fn interactions() -> @ecs.ComponentStore[Interaction] {
+  @ecs.components()
 }
 
 ///|
@@ -546,22 +531,22 @@ fn default_text_layout() -> TextLayout {
 }
 
 ///|
-fn text_font(entity : @entity.Entity) -> TextFont {
+fn text_font(entity : @ecs.Entity) -> TextFont {
   text_fonts().get(entity).unwrap_or(default_text_font())
 }
 
 ///|
-fn text_color(entity : @entity.Entity) -> TextColor {
+fn text_color(entity : @ecs.Entity) -> TextColor {
   text_colors().get(entity).unwrap_or(default_text_color())
 }
 
 ///|
-fn text_layout(entity : @entity.Entity) -> TextLayout {
+fn text_layout(entity : @ecs.Entity) -> TextLayout {
   text_layouts().get(entity).unwrap_or(default_text_layout())
 }
 
 ///|
-pub fn text_style_for(entity : @entity.Entity) -> @render2d_types.TextStyle2D? {
+pub fn text_style_for(entity : @ecs.Entity) -> @render2d_types.TextStyle2D? {
   guard texts().get(entity) is Some(_) else { return None }
   let font = text_font(entity)
   let color = text_color(entity)

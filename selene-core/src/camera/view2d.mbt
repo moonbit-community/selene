@@ -1,6 +1,6 @@
 ///|
 pub(all) struct Camera2dView {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   camera : Camera
   global_transform : @transform.GlobalTransform
   projection : OrthographicProjection
@@ -17,7 +17,7 @@ fn compare_camera2d_views(lhs : Camera2dView, rhs : Camera2dView) -> Int32 {
 }
 
 ///|
-fn camera2d_view(entity : @entity.Entity) -> Camera2dView? {
+fn camera2d_view(entity : @ecs.Entity) -> Camera2dView? {
   guard entity.is_alive() else { return None }
   guard cameras().get(entity) is Some(camera) else { return None }
   guard camera2ds().contains(entity) else { return None }

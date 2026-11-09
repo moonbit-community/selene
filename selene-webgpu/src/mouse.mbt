@@ -13,9 +13,7 @@
 // limitations under the License.
 
 ///|
-extern "js" fn configure_canvas_touch_input(
-  canvas : @dom.HTMLCanvasElement,
-) -> Unit =
+extern "js" fn configure_canvas_touch_input(canvas : BrowserCanvas) -> Unit =
   #| (canvas) => {
   #|   if (canvas && canvas.style) {
   #|     canvas.style.touchAction = 'none';
@@ -28,15 +26,15 @@ extern "js" fn configure_canvas_touch_input(
   #| }
 
 ///|
-extern "js" fn pointer_event_id(event : @dom.Event) -> Int32 =
+extern "js" fn pointer_event_id(event : BrowserEvent) -> Int32 =
   #| (event) => Number(event.pointerId ?? 0) | 0
 
 ///|
-extern "js" fn pointer_event_type(event : @dom.Event) -> String =
+extern "js" fn pointer_event_type(event : BrowserEvent) -> String =
   #| (event) => String(event.pointerType ?? '')
 
 ///|
-extern "js" fn pointer_event_offset_x(event : @dom.Event) -> Double =
+extern "js" fn pointer_event_offset_x(event : BrowserEvent) -> Double =
   #| (event) => {
   #|   if (Number.isFinite(event.offsetX)) return Number(event.offsetX);
   #|   const rect = event.currentTarget?.getBoundingClientRect?.();
@@ -45,7 +43,7 @@ extern "js" fn pointer_event_offset_x(event : @dom.Event) -> Double =
   #| }
 
 ///|
-extern "js" fn pointer_event_offset_y(event : @dom.Event) -> Double =
+extern "js" fn pointer_event_offset_y(event : BrowserEvent) -> Double =
   #| (event) => {
   #|   if (Number.isFinite(event.offsetY)) return Number(event.offsetY);
   #|   const rect = event.currentTarget?.getBoundingClientRect?.();
@@ -54,16 +52,16 @@ extern "js" fn pointer_event_offset_y(event : @dom.Event) -> Double =
   #| }
 
 ///|
-extern "js" fn pointer_event_is_primary(event : @dom.Event) -> Bool =
+extern "js" fn pointer_event_is_primary(event : BrowserEvent) -> Bool =
   #| (event) => Boolean(event.isPrimary ?? true)
 
 ///|
-extern "js" fn prevent_pointer_default(event : @dom.Event) -> Unit =
+extern "js" fn prevent_pointer_default(event : BrowserEvent) -> Unit =
   #| (event) => event.preventDefault?.()
 
 ///|
 extern "js" fn capture_pointer(
-  canvas : @dom.HTMLCanvasElement,
+  canvas : BrowserCanvas,
   pointer_id : Int32,
 ) -> Unit =
   #| (canvas, pointerId) => {
@@ -72,7 +70,7 @@ extern "js" fn capture_pointer(
 
 ///|
 extern "js" fn release_pointer(
-  canvas : @dom.HTMLCanvasElement,
+  canvas : BrowserCanvas,
   pointer_id : Int32,
 ) -> Unit =
   #| (canvas, pointerId) => {
@@ -88,39 +86,32 @@ pub fn register_mouse_events(
   mouse_relative_delta : Ref[@smath.Vec2?],
   mouse_wheel : @inputs.MouseWheel,
 ) -> Unit {
-  window.add_event_listener("mousemove", event => {
-    let mouse_event = event.to_mouse_event().unwrap()
-    mouse.pos = Vec2(mouse_event.get_offset_x(), mouse_event.get_offset_y())
+  window_add_event_listener("mousemove", event => {
+    mouse.pos = Vec2(event.get_offset_x(), event.get_offset_y())
     mouse_relative_delta.val = Some(
-      Vec2(mouse_event.get_movement_x(), mouse_event.get_movement_y()),
+      Vec2(event.get_movement_x(), event.get_movement_y()),
     )
   })
-  window.add_event_listener("mousedown", event => {
+  window_add_event_listener("mousedown", event => {
     note_audio_user_activation()
-    let mouse_event = event.to_mouse_event().unwrap()
-    match mouse_event.get_button() {
+    match event.get_button() {
       0 => mouse.left_button = true
       1 => mouse.middle_button = true
       2 => mouse.right_button = true
       _ => ()
     }
   })
-  window.add_event_listener("touchstart", _event => note_audio_user_activation())
-  window.add_event_listener("mouseup", event => {
-    let mouse_event = event.to_mouse_event().unwrap()
-    match mouse_event.get_button() {
+  window_add_event_listener("touchstart", _event => note_audio_user_activation())
+  window_add_event_listener("mouseup", event => {
+    match event.get_button() {
       0 => mouse.left_button = false
       1 => mouse.middle_button = false
       2 => mouse.right_button = false
       _ => ()
     }
   })
-  window.add_event_listener("wheel", event => {
-    let wheel_event = event.to_wheel_event().unwrap()
-    mouse_wheel.delta = Vec2(
-      wheel_event.get_delta_x(),
-      wheel_event.get_delta_y(),
-    )
+  window_add_event_listener("wheel", event => {
+    mouse_wheel.delta = Vec2(event.get_delta_x(), event.get_delta_y())
   })
 }
 
@@ -134,7 +125,7 @@ fn contact_pointer_source(kind : String) -> @inputs.PointerSource? {
 }
 
 ///|
-fn touch_position_from_pointer_event(event : @dom.Event) -> @smath.Vec2 {
+fn touch_position_from_pointer_event(event : BrowserEvent) -> @smath.Vec2 {
   Vec2(pointer_event_offset_x(event), pointer_event_offset_y(event))
 }
 

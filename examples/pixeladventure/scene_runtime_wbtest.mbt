@@ -10,6 +10,7 @@ fn restore_pixeladventure_test_world(previous : @ecs.World?) -> Unit {
 fn with_pixeladventure_test_world(action : () -> Unit raise) -> Unit raise {
   let previous = @ecs.current_world()
   @ecs.set_current_world(World())
+  @ecs.require_current_world().insert_resource(new_pixeladventure_world_state())
   defer restore_pixeladventure_test_world(previous)
   action()
 }
@@ -66,6 +67,39 @@ test "level flag retains its animated sprite" {
         @animation.animation_players().contains(flag_entity),
         content="true",
       )
+    })
+  })
+}
+
+///|
+test "restarting Pixel Adventure replaces its session and game entities" {
+  with_pixeladventure_test_asset_io(fn() raise {
+    with_pixeladventure_test_world(fn() raise {
+      let world = @ecs.require_current_world()
+      let other = @ecs.Entity()
+      game_start(world)
+      let previous_session : GameSession = world.resource()
+      previous_session.score = 100
+      previous_session.health = 1
+      previous_session.volume_on = false
+      previous_session.result = Some(Win)
+      let previous_entities = pixeladventure_world_state().entities.copy()
+      let entity_count = @ecs.alive_entity_count()
+      assert_false(previous_entities.is_empty())
+
+      game_start(world)
+
+      assert_eq(@ecs.alive_entity_count(), entity_count)
+      assert_true(other.is_alive())
+      let session : GameSession = world.resource()
+      assert_true(session.player != previous_session.player)
+      assert_eq(session.score, 0)
+      assert_eq(session.health, 3)
+      assert_true(session.volume_on)
+      assert_true(session.result is None)
+      for entity in previous_entities {
+        assert_false(entity.is_valid_in(world))
+      }
     })
   })
 }

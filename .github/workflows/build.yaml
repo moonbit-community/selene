@@ -3,6 +3,7 @@ on:
     - cron: '0 10 * * 2'
   pull_request:
   push:
+    branches: [main]
 
 jobs:
   build:
@@ -25,20 +26,6 @@ jobs:
           echo "CC=cl" >> $env:GITHUB_ENV
           echo "CXX=cl" >> $env:GITHUB_ENV
 
-      - name: Install raylib native dependencies on Ubuntu
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libasound2-dev \
-            libgl1-mesa-dev \
-            libglu1-mesa-dev \
-            libx11-dev \
-            libxcursor-dev \
-            libxinerama-dev \
-            libxi-dev \
-            libxrandr-dev
-
       - name: Install MoonBit
         if: ${{ matrix.os != 'windows-latest' }}
         run: |
@@ -57,6 +44,16 @@ jobs:
         run: |
           bash scripts/check_no_legacy_ui.sh
 
+      - name: Check generated ECS sources
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          moon update
+          git ls-files -z -- '*.mbt' | xargs -0 moonx Milky2018/selene_codegen@0.39.2 --check
+
+      - name: Test release workflow
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: python3 -m unittest discover -s tests -p 'test_publish.py'
+
       - name: Check formatting
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: moon fmt --check
@@ -66,22 +63,13 @@ jobs:
           cd selene-core
           moon update
           moon check --deny-warn
-          moon test src/animation src/app src/asset src/autotile2d src/collision src/entity src/event src/input_action src/inputs src/ldtk src/math src/physics3d src/render2d src/render3d src/render_submit src/runtime_debug src/scene3d src/sprite src/text2d src/tiled src/touch_controls src/transform src/ui --target native --release --deny-warn
           moon build
 
-      - name: selene-raylib
-        run: |
-          cd selene-raylib
-          moon update
-          moon check --target native --deny-warn
-          moon test src --target native --release --deny-warn
-      
       - name: selene-webgpu
         run: |
           cd selene-webgpu
           moon update
           moon check --deny-warn
-          moon test src --target js --deny-warn
           moon build
 
       - name: selene-examples
@@ -90,15 +78,6 @@ jobs:
           cd examples
           moon update
           moon check --deny-warn
-          moon test cards pixeladventure scene3d survivors tank3d --target native --release --deny-warn
-
-      - name: selene-examples-native
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
-          cd examples-native
-          moon update
-          moon check --target native --deny-warn
-          moon test support --target native --release --deny-warn
 
       - name: selene-examples-web
         if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -106,3 +85,22 @@ jobs:
           cd examples-web
           moon update
           moon check --target js --deny-warn
+
+      - name: Test workspace
+        run: moon test --deny-warn
+
+  check-pre-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MoonBit pre-release
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s pre-release
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: Check pre-release compatibility
+        # Keep deprecation warnings visible while latest still requires the old syntax.
+        run: |
+          moon update
+          moon check --target all

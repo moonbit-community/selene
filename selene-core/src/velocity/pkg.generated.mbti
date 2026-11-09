@@ -2,21 +2,23 @@
 package "Milky2018/selene/velocity"
 
 import {
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "moonbitlang/core/debug",
 }
 
 // Values
-pub fn velocities() -> Map[@entity.Entity, Velocity]
+pub fn velocities() -> @ecs.ComponentStore[Velocity]
 
 // Errors
 
 // Types and methods
-pub(all) struct Velocity(@math.Vec2) derive(Eq, @debug.Debug)
+#derive(Eq, @debug.Debug)
+pub(all) struct Velocity(@math.Vec2)
 pub fn Velocity::equal(Self, Self) -> Bool
 pub fn Velocity::not_equal(Self, Self) -> Bool
 pub fn Velocity::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for Velocity
 
 // Type aliases
 

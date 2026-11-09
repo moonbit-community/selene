@@ -2,10 +2,11 @@
 /// Selects the camera-space reference used to calculate parallax displacement.
 /// `ViewCenter` stores the world-space point that should align with the center
 /// of each camera view.
+#derive(Eq, Debug)
 pub enum Parallax2dReference {
   ViewOrigin
   ViewCenter(@math.Vec2)
-} derive(Eq, Debug)
+}
 
 ///|
 /// Creates a reference measured from each camera view center.
@@ -16,26 +17,12 @@ pub fn Parallax2dReference::view_center(
 }
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct Parallax2d {
   base_offset : @math.Vec2
   factor : @math.Vec2
   reference : Parallax2dReference
-} derive(Eq, Debug)
-
-///|
-priv struct Parallax2dWorldStore {
-  parallax2ds : Map[@entity.Entity, Parallax2d]
-}
-
-///|
-let parallax2d_world_stores : Map[UInt32, Parallax2dWorldStore] = Map([])
-
-///|
-fn parallax2d_world_store() -> Parallax2dWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  parallax2d_world_stores.get_or_init(world_id, fn() {
-    { parallax2ds: Map([]), }
-  })
 }
 
 ///|
@@ -64,12 +51,12 @@ pub fn Parallax2d::Parallax2d(
 }
 
 ///|
-pub fn parallax2ds() -> Map[@entity.Entity, Parallax2d] {
-  parallax2d_world_store().parallax2ds
+pub fn parallax2ds() -> @ecs.ComponentStore[Parallax2d] {
+  @ecs.components()
 }
 
 ///|
-pub fn inherited_parallax2d(entity : @entity.Entity) -> Parallax2d? {
+pub fn inherited_parallax2d(entity : @ecs.Entity) -> Parallax2d? {
   let mut current = Some(entity)
   while current is Some(current_entity) {
     if parallax2ds().get(current_entity) is Some(parallax) {

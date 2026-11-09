@@ -1,17 +1,19 @@
 ///|
+#derive(Eq, Debug)
 pub(all) enum ChannelInterpolation {
   Step
   Linear
   CubicSpline
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum AnimationValueKind {
   Scalar
   Vec3
   Quat
   Weights
-} derive(Eq, Debug)
+}
 
 ///|
 pub(all) enum AnimatedValue {
@@ -22,47 +24,52 @@ pub(all) enum AnimatedValue {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct ScalarKeyframe {
   time : Double
   value : Double
   in_tangent : Double?
   out_tangent : Double?
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct Vec3Keyframe {
   time : Double
   value : @math.Vec3
   in_tangent : @math.Vec3?
   out_tangent : @math.Vec3?
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct QuatKeyframe {
   time : Double
   value : @math.Quat
   in_tangent : @math.Quat?
   out_tangent : @math.Quat?
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct WeightKeyframe {
   time : Double
   value : Array[Double]
   in_tangent : Array[Double]?
   out_tangent : Array[Double]?
-} derive(Eq, Debug)
+}
 
 ///|
 pub(all) struct AnimatedField {
   name : String
   kind : AnimationValueKind
-  sample : (@entity.Entity) -> AnimatedValue
-  apply : (@entity.Entity, AnimatedValue) -> Unit
+  sample : (@ecs.Entity) -> AnimatedValue
+  apply : (@ecs.Entity, AnimatedValue) -> Unit
 }
 
 ///|
-pub(all) struct AnimatedFieldHandle(UInt32) derive(Eq, Debug, Hash)
+#derive(Eq, Debug, Hash)
+pub(all) struct AnimatedFieldHandle(UInt32)
 
 ///|
 pub(all) enum VariableCurve {
@@ -73,35 +80,42 @@ pub(all) enum VariableCurve {
 }
 
 ///|
-pub(all) struct AnimationTargetId(String) derive(Eq, Debug, Hash)
+#derive(Eq, Debug, Hash)
+#selene.component
+pub(all) struct AnimationTargetId(String)
 
 ///|
+#selene.component
 pub(all) struct AnimatedBy {
-  player : @entity.Entity
+  player : @ecs.Entity
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct AnimationEventContext {
   clip : AnimationClipHandle
-  player : @entity.Entity
-  target : @entity.Entity?
+  player : @ecs.Entity
+  target : @ecs.Entity?
   time : Double
-} derive(Eq, Debug)
+}
 
 ///|
-pub(all) struct AnimationEventDescriptorHandle(UInt32) derive(Eq, Debug, Hash)
+#derive(Eq, Debug, Hash)
+pub(all) struct AnimationEventDescriptorHandle(UInt32)
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct AnimationClipEventDispatch {
   target : AnimationTargetId?
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct AnimationClipEventKeyframe {
   time : Double
   descriptor : AnimationEventDescriptorHandle
   dispatch : AnimationClipEventDispatch
-} derive(Eq, Debug)
+}
 
 ///|
 pub(all) struct AnimationClip {
@@ -112,10 +126,12 @@ pub(all) struct AnimationClip {
 }
 
 ///|
-pub(all) struct AnimationClipHandle(UInt32) derive(Eq, Debug, Hash)
+#derive(Eq, Debug, Hash)
+pub(all) struct AnimationClipHandle(UInt32)
 
 ///|
-pub(all) struct AnimationNodeIndex(UInt32) derive(Eq, Debug, Hash)
+#derive(Eq, Debug, Hash)
+pub(all) struct AnimationNodeIndex(UInt32)
 
 ///|
 pub(all) enum AnimationGraphNodeType {
@@ -146,14 +162,17 @@ pub(all) struct AnimationGraph {
 }
 
 ///|
-pub(all) struct AnimationGraphHandle(UInt32) derive(Eq, Debug, Hash)
+#derive(Eq, Debug, Hash)
+#selene.component
+pub(all) struct AnimationGraphHandle(UInt32)
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum RepeatAnimation {
   Never
   Forever
   Count(UInt32)
-} derive(Eq, Debug)
+}
 
 ///|
 pub(all) struct ActiveAnimation {
@@ -168,6 +187,7 @@ pub(all) struct ActiveAnimation {
 }
 
 ///|
+#selene.component
 pub(all) struct AnimationPlayer {
   active_animations : Map[AnimationNodeIndex, ActiveAnimation]
 }

@@ -13,23 +13,22 @@
 // limitations under the License.
 
 ///|
-fn game_start(_world : @ecs.World) -> Unit {
+fn game_start(world : @ecs.World) -> Unit {
   ignore(@asset.load_font(FONT_PATH, family=FONT_FAMILY))
   @ui.set_ui_scale_mode(Viewport)
   configure_pixeladventure_input()
   reset_pixeladventure_world_store()
   let loaded_level = load_level_scene()
 
-  let session_entity = @entity.Entity()
-  let result_box = @entity.Entity()
-  let score_box = @entity.Entity()
-  let health_box = @entity.Entity()
-  let volume_button = @entity.Entity()
+  let result_box = spawn_game_entity()
+  let score_box = spawn_game_entity()
+  let health_box = spawn_game_entity()
+  let volume_button = spawn_game_entity()
 
   spawn_background(loaded_level.world_size)
   spawn_hud(result_box, score_box, health_box, volume_button)
 
-  sessions().set(session_entity, {
+  world.insert_resource(GameSession::{
     player: loaded_level.player_entity,
     camera: loaded_level.camera_entity,
     result_box,
@@ -43,13 +42,13 @@ fn game_start(_world : @ecs.World) -> Unit {
     world_size: loaded_level.world_size,
   })
 
-  hud_sync_system(@ecs.require_current_world())
-  pixeladventure_camera_follow_system(@ecs.require_current_world())
+  hud_sync_system(world)
+  pixeladventure_camera_follow_system(world)
 }
 
 ///|
 fn configure_text_box(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   offset : @math.Vec2,
   content : String,
   color : String,
@@ -68,10 +67,10 @@ fn configure_text_box(
 
 ///|
 fn spawn_hud(
-  result_box : @entity.Entity,
-  score_box : @entity.Entity,
-  health_box : @entity.Entity,
-  volume_button : @entity.Entity,
+  result_box : @ecs.Entity,
+  score_box : @ecs.Entity,
+  health_box : @ecs.Entity,
+  volume_button : @ecs.Entity,
 ) -> Unit {
   configure_text_box(
     result_box,
@@ -117,9 +116,7 @@ fn register_sprite_animation_node(
 }
 
 ///|
-fn build_player_animation_nodes(
-  entity : @entity.Entity,
-) -> PlayerAnimationNodes {
+fn build_player_animation_nodes(entity : @ecs.Entity) -> PlayerAnimationNodes {
   let graph = @animation.AnimationGraph()
   let nodes = {
     idle_left: register_sprite_animation_node(graph, player_idle_left_animation),
@@ -146,7 +143,7 @@ fn build_player_animation_nodes(
 }
 
 ///|
-fn build_bird_animation_nodes(entity : @entity.Entity) -> BirdAnimationNodes {
+fn build_bird_animation_nodes(entity : @ecs.Entity) -> BirdAnimationNodes {
   let graph = @animation.AnimationGraph()
   let nodes = {
     fly_left: register_sprite_animation_node(graph, bird_fly_left_animation),
@@ -161,7 +158,7 @@ fn build_bird_animation_nodes(entity : @entity.Entity) -> BirdAnimationNodes {
 }
 
 ///|
-fn configure_player_entity(entity : @entity.Entity) -> Unit {
+fn configure_player_entity(entity : @ecs.Entity) -> Unit {
   let animation_nodes = build_player_animation_nodes(entity)
   @sprite.sprites().set(
     entity,
@@ -194,7 +191,7 @@ fn configure_player_entity(entity : @entity.Entity) -> Unit {
 }
 
 ///|
-fn configure_bird_entity(entity : @entity.Entity) -> Unit {
+fn configure_bird_entity(entity : @ecs.Entity) -> Unit {
   let animation_nodes = build_bird_animation_nodes(entity)
   @sprite.sprites().set(
     entity,
@@ -226,7 +223,7 @@ fn configure_bird_entity(entity : @entity.Entity) -> Unit {
 
 ///|
 fn spawn_background(size : @math.Vec2) -> Unit {
-  let background = @entity.Entity()
+  let background = spawn_game_entity()
   @sprite.sprites().set(
     background,
     Sprite(
@@ -244,7 +241,7 @@ fn spawn_background(size : @math.Vec2) -> Unit {
 
 ///|
 fn spawn_terrain_collider(pos : @math.Vec2, size : @math.Vec2) -> Unit {
-  let terrain = @entity.Entity()
+  let terrain = spawn_game_entity()
   @transform.transforms().set(
     terrain,
     @transform.Transform::from_xyz(pos[X], pos[Y], 0.0),
@@ -312,7 +309,7 @@ fn normalized_flag_sprite(sprite : @sprite.Sprite) -> @sprite.Sprite {
 }
 
 ///|
-fn configure_flag_entity(entity : @entity.Entity) -> Unit {
+fn configure_flag_entity(entity : @ecs.Entity) -> Unit {
   let flag_sprite = match @sprite.sprites().get(entity) {
     Some(sprite) => normalized_flag_sprite(sprite)
     None => default_flag_sprite()
@@ -335,11 +332,11 @@ fn configure_flag_entity(entity : @entity.Entity) -> Unit {
       ]),
     ),
   )
-  flags().set(entity, ())
+  flags().set(entity, FlagTag::{ })
 }
 
 ///|
-fn configure_apple_entity(entity : @entity.Entity) -> Unit {
+fn configure_apple_entity(entity : @ecs.Entity) -> Unit {
   @sprite.sprites().set(entity, sprite_animation_sprite(apple_spin_animation))
   ignore(install_sprite_animation_player(entity, apple_spin_animation))
   set_entity_z(entity, ITEM_Z)
@@ -355,5 +352,5 @@ fn configure_apple_entity(entity : @entity.Entity) -> Unit {
       ]),
     ),
   )
-  apples().set(entity, ())
+  apples().set(entity, AppleTag::{ })
 }

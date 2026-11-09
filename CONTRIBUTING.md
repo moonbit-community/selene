@@ -12,6 +12,7 @@ Thank you for your interest in contributing to Selene! This guide will help you 
 - [Commit Message Convention](#commit-message-convention)
 - [Testing](#testing)
 - [Documentation](#documentation)
+- [Release Process](#release-process)
 - [Community](#community)
 
 ## Getting Started
@@ -244,12 +245,48 @@ doc: update tutorial with audio system examples
 
 ## Release Process
 
-For maintainers:
+The generator uses prerelease versions during development. For a planned
+`0.40.0` release, publish the first development generator with:
 
-1. Update version numbers in `moon.mod.json` files
-2. Update CHANGELOG with notable changes
-3. Create git tag with version number
-4. Publish packages to MoonBit registry
+```sh
+python3 publish.py 0.40.0-beta1 --codegen-only
+```
+
+Record development changes under `Unreleased`. The codegen-only command accepts
+`x.y.z-betaN`, where N starts at 1. Publish `beta2`, `beta3`, and so on for
+later generator changes. Each published version is immutable.
+
+The script checks and tests codegen, publishes it, and waits for its Wasm asset
+to become executable through `moonx`. It then updates the exact generator pins
+in CI, both example modules, and the codegen documentation. Existing generated
+companions are regenerated with that version and all tracked MoonBit sources
+are checked for missing or stale companions. Review and commit these changes.
+The engine module versions and example engine dependencies retain their current
+release versions throughout this development-tool step.
+
+For the stable release, move the released notes into a dated
+`## [0.40.0] - YYYY-MM-DD` section in `docs/CHANGELOG.md` and keep a new empty
+`Unreleased` section at the top. Then run:
+
+```sh
+python3 publish.py 0.40.0
+```
+
+The stable pipeline publishes codegen first and switches its consumers to that
+stable version. After regeneration and warning-free validation, it synchronizes
+engine and example dependencies, runs workspace checks and tests, and publishes
+core before WebGPU. All three published modules end on `0.40.0`.
+
+Use the stable command for a full release and `--codegen-only` for beta
+generators. A failure stops the pipeline. Inspect which packages were published
+before choosing the next version or continuing release work.
+
+The release script's regression tests simulate publication in temporary
+directories:
+
+```sh
+python3 -m unittest discover -s tests -p 'test_publish.py'
+```
 
 ## Recognition
 

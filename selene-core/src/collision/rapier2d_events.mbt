@@ -1,5 +1,5 @@
 ///|
-fn consume_pending_body_actions(entity : @entity.Entity) -> Unit {
+fn consume_pending_body_actions(entity : @ecs.Entity) -> Unit {
   pending_body_forces().remove(entity)
   pending_body_force_points().remove(entity)
   pending_body_torques().remove(entity)
@@ -9,7 +9,7 @@ fn consume_pending_body_actions(entity : @entity.Entity) -> Unit {
 }
 
 ///|
-fn apply_pending_body_actions(entity : @entity.Entity) -> Unit {
+fn apply_pending_body_actions(entity : @ecs.Entity) -> Unit {
   if pending_body_forces().get(entity) is Some(force) {
     ignore(apply_force_now(entity, force, true))
   }
@@ -249,7 +249,7 @@ fn joint_to_rapier(joint : Joint) -> @rapier_dynamics.GenericJoint? {
 
 ///|
 fn multibody_joint_endpoint_handles(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   joint : MultibodyJoint,
 ) -> (@rapier_dynamics.RigidBodyHandle, @rapier_dynamics.RigidBodyHandle)? {
   guard world().entity_bodies.get(joint.parent) is Some(parent) else {
@@ -265,7 +265,7 @@ fn multibody_joint_endpoint_handles(
 
 ///|
 fn entity_multibody_joint_config_key(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   joint : MultibodyJoint,
   parent : @rapier_dynamics.RigidBodyHandle,
   child : @rapier_dynamics.RigidBodyHandle,
@@ -328,7 +328,7 @@ fn multibody_joint_to_rapier(
 }
 
 ///|
-fn should_have_joint(entity : @entity.Entity) -> Bool {
+fn should_have_joint(entity : @ecs.Entity) -> Bool {
   entity.is_alive() &&
   world_entity(entity) &&
   joints().get(entity) is Some(joint) &&
@@ -338,7 +338,7 @@ fn should_have_joint(entity : @entity.Entity) -> Bool {
 }
 
 ///|
-fn remove_joint_physics(entity : @entity.Entity) -> Unit {
+fn remove_joint_physics(entity : @ecs.Entity) -> Unit {
   if world().entity_joints.get(entity) is Some(handle) &&
     world().impulse_joints.contains(handle) {
     world().impulse_joints.remove(handle, true) |> ignore
@@ -348,7 +348,7 @@ fn remove_joint_physics(entity : @entity.Entity) -> Unit {
 }
 
 ///|
-fn should_have_multibody_joint(entity : @entity.Entity) -> Bool {
+fn should_have_multibody_joint(entity : @ecs.Entity) -> Bool {
   entity.is_alive() &&
   world_entity(entity) &&
   multibody_joints().get(entity) is Some(joint) &&
@@ -358,7 +358,7 @@ fn should_have_multibody_joint(entity : @entity.Entity) -> Bool {
 }
 
 ///|
-fn remove_multibody_joint_physics(entity : @entity.Entity) -> Unit {
+fn remove_multibody_joint_physics(entity : @ecs.Entity) -> Unit {
   if world().entity_multibody_joints.get(entity) is Some(handle) &&
     world().multibody_joints.get(handle) is Some(_) {
     world().multibody_joints.remove(handle, true)
@@ -377,7 +377,7 @@ fn sync_world_joints() -> Unit {
     }
   }
 
-  for entity in @entity.iter_entities() {
+  for entity in @ecs.iter_entities() {
     guard world_entity(entity) else { continue }
     guard joints().get(entity) is Some(joint) else {
       remove_joint_physics(entity)
@@ -415,7 +415,7 @@ fn sync_world_multibody_joints() -> Unit {
     }
   }
 
-  for entity in @entity.iter_entities() {
+  for entity in @ecs.iter_entities() {
     guard world_entity(entity) else { continue }
     guard multibody_joints().get(entity) is Some(joint) else {
       remove_multibody_joint_physics(entity)

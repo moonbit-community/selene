@@ -1,5 +1,7 @@
 ///|
-pub(all) struct Anchor(@math.Vec2) derive(Eq, Debug)
+#derive(Eq, Debug)
+#selene.component
+pub(all) struct Anchor(@math.Vec2)
 
 ///|
 pub fn default_anchor() -> Anchor {

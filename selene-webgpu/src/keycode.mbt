@@ -22,9 +22,8 @@ fn should_prevent_default(code : @inputs.Code) -> Bool {
 
 ///|
 pub fn register_key_events(pressed_keys : Set[@inputs.Code]) -> Unit {
-  window.add_event_listener("keyup", event => {
-    let keyboard_event = event.to_keyboard_event().unwrap()
-    let keycode = keyboard_event.code() |> @inputs.Code::from_string
+  window_add_event_listener("keyup", event => {
+    let keycode = event.code() |> @inputs.Code::from_string
     if keycode is Some(c) {
       if should_prevent_default(c) {
         prevent_default_event(event)
@@ -32,13 +31,12 @@ pub fn register_key_events(pressed_keys : Set[@inputs.Code]) -> Unit {
       pressed_keys.remove(c)
     }
   })
-  window.add_event_listener("keydown", event => {
-    let keyboard_event = event.to_keyboard_event().unwrap()
-    if keyboard_event.repeat() {
+  window_add_event_listener("keydown", event => {
+    if event.repeat() {
       return
     }
     note_audio_user_activation()
-    let keycode = keyboard_event.code() |> @inputs.Code::from_string
+    let keycode = event.code() |> @inputs.Code::from_string
     if keycode is Some(c) {
       if should_prevent_default(c) {
         prevent_default_event(event)
@@ -46,7 +44,7 @@ pub fn register_key_events(pressed_keys : Set[@inputs.Code]) -> Unit {
       pressed_keys.add(c)
     }
   })
-  window.add_event_listener("blur", _event => pressed_keys.clear())
+  window_add_event_listener("blur", _event => pressed_keys.clear())
   document_add_event_listener("visibilitychange", _event => {
     if document_hidden() {
       pressed_keys.clear()

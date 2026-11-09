@@ -1,6 +1,6 @@
 # Selene Game Engine [中文版](./README-zh.md)
 
-Selene is an ECS game engine for MoonBit with a WebGPU-first web backend and a raylib native backend.
+Selene is an ECS game engine for MoonBit with a WebGPU renderer for browsers. Native WebGPU support is planned.
 
 ## Packages
 
@@ -8,9 +8,11 @@ Selene is an ECS game engine for MoonBit with a WebGPU-first web backend and a r
 | --- | --- |
 | `Milky2018/selene` | Core ECS/runtime modules (`app`, `asset`, `animation`, `scene`, `physics2d/3d`, `render2d/3d`, `ui`) |
 | `Milky2018/selene_webgpu` | Web backend implementation |
-| `Milky2018/selene_raylib` | Native backend implementation |
 
 ## Quick Start
+
+Use the MoonBit `latest` toolchain. The sources also support `pre-release`,
+which may report syntax deprecation warnings until `latest` supports the replacements.
 
 ```bash
 moon update

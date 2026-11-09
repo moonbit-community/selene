@@ -1,5 +1,5 @@
 ///|
-pub fn rigid_body_translation(entity : @entity.Entity) -> @math.Vec3? {
+pub fn rigid_body_translation(entity : @ecs.Entity) -> @math.Vec3? {
   match body_handles().get(entity) {
     Some(handle) =>
       physics3d_world().bodies
@@ -11,7 +11,7 @@ pub fn rigid_body_translation(entity : @entity.Entity) -> @math.Vec3? {
 
 ///|
 pub fn set_rigid_body_translation(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   translation : @math.Vec3,
 ) -> Unit {
   let world_transform = {
@@ -30,7 +30,7 @@ pub fn set_rigid_body_translation(
 }
 
 ///|
-pub fn rigid_body_rotation(entity : @entity.Entity) -> @math.Quat? {
+pub fn rigid_body_rotation(entity : @ecs.Entity) -> @math.Quat? {
   match body_handles().get(entity) {
     Some(handle) =>
       physics3d_world().bodies
@@ -42,7 +42,7 @@ pub fn rigid_body_rotation(entity : @entity.Entity) -> @math.Quat? {
 
 ///|
 pub fn set_rigid_body_rotation(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   rotation : @math.Quat,
 ) -> Unit {
   let world_transform = {
@@ -61,7 +61,7 @@ pub fn set_rigid_body_rotation(
 }
 
 ///|
-pub fn rigid_body_linear_velocity(entity : @entity.Entity) -> @math.Vec3? {
+pub fn rigid_body_linear_velocity(entity : @ecs.Entity) -> @math.Vec3? {
   match body_handles().get(entity) {
     Some(handle) =>
       physics3d_world().bodies
@@ -73,7 +73,7 @@ pub fn rigid_body_linear_velocity(entity : @entity.Entity) -> @math.Vec3? {
 
 ///|
 pub fn set_rigid_body_linear_velocity(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   linear_velocity : @math.Vec3,
 ) -> Unit {
   let velocity = velocities().get(entity).unwrap_or(Velocity::zero())
@@ -89,7 +89,7 @@ pub fn set_rigid_body_linear_velocity(
 }
 
 ///|
-pub fn rigid_body_angular_velocity(entity : @entity.Entity) -> @math.Vec3? {
+pub fn rigid_body_angular_velocity(entity : @ecs.Entity) -> @math.Vec3? {
   match body_handles().get(entity) {
     Some(handle) =>
       physics3d_world().bodies
@@ -101,7 +101,7 @@ pub fn rigid_body_angular_velocity(entity : @entity.Entity) -> @math.Vec3? {
 
 ///|
 pub fn set_rigid_body_angular_velocity(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   angular_velocity : @math.Vec3,
 ) -> Unit {
   let velocity = velocities().get(entity).unwrap_or(Velocity::zero())
@@ -117,7 +117,7 @@ pub fn set_rigid_body_angular_velocity(
 }
 
 ///|
-fn rigid_body_desc(entity : @entity.Entity) -> RigidBodyDesc {
+fn rigid_body_desc(entity : @ecs.Entity) -> RigidBodyDesc {
   {
     body_type: rigid_bodies().get(entity).unwrap_or(Dynamic),
     velocity: velocities().get(entity).unwrap_or(Velocity::zero()),
@@ -133,7 +133,7 @@ fn rigid_body_desc(entity : @entity.Entity) -> RigidBodyDesc {
 }
 
 ///|
-fn collider_desc(entity : @entity.Entity, shape : Collider) -> ColliderDesc {
+fn collider_desc(entity : @ecs.Entity, shape : Collider) -> ColliderDesc {
   {
     shape,
     sensor: sensors().contains(entity),
@@ -297,10 +297,10 @@ pub fn RapierContext::intersections_with_point(
   _self : RapierContext,
   point : @math.Vec3,
   query_filter~ : QueryFilter = QueryFilter::all(),
-) -> Array[@entity.Entity] {
+) -> Array[@ecs.Entity] {
   let world = physics3d_world()
   let query = make_query_pipeline(query_filter~)
-  let entities : Array[@entity.Entity] = []
+  let entities : Array[@ecs.Entity] = []
   for
     handle in query.intersect_point(
       world.bodies,
@@ -322,10 +322,10 @@ pub fn RapierContext::intersections_with_shape(
   origin : @math.Vec3,
   rotation~ : @math.Quat = @math.Quat::identity(),
   query_filter~ : QueryFilter = QueryFilter::all(),
-) -> Array[@entity.Entity] {
+) -> Array[@ecs.Entity] {
   let world = physics3d_world()
   let query = make_query_pipeline(query_filter~)
-  let entities : Array[@entity.Entity] = []
+  let entities : Array[@ecs.Entity] = []
   let (query_shape, shape_rotation) = to_query_shape_with_rotation(
     shape, rotation,
   )

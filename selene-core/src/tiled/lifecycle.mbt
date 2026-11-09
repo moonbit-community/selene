@@ -1,6 +1,6 @@
 ///|
-pub fn despawn_tiled_tree(root : @entity.Entity) -> Unit {
-  let entities : Array[@entity.Entity] = []
+pub fn despawn_tiled_tree(root : @ecs.Entity) -> Unit {
+  let entities : Array[@ecs.Entity] = []
   collect_tiled_entity_tree(root, entities)
   for entity in entities {
     clear_tiled_root_components(entity)
@@ -18,7 +18,7 @@ pub fn despawn_tiled_tree(root : @entity.Entity) -> Unit {
 }
 
 ///|
-pub fn clear_tiled_children(root : @entity.Entity) -> Unit {
+pub fn clear_tiled_children(root : @ecs.Entity) -> Unit {
   for child in root.get_children() {
     if child.is_alive() {
       despawn_tiled_tree(child)
@@ -28,8 +28,8 @@ pub fn clear_tiled_children(root : @entity.Entity) -> Unit {
 
 ///|
 fn collect_tiled_entity_tree(
-  entity : @entity.Entity,
-  into : Array[@entity.Entity],
+  entity : @ecs.Entity,
+  into : Array[@ecs.Entity],
 ) -> Unit {
   into.push(entity)
   for child in entity.get_children() {
@@ -38,7 +38,7 @@ fn collect_tiled_entity_tree(
 }
 
 ///|
-fn clear_tiled_root_components(entity : @entity.Entity) -> Unit {
+fn clear_tiled_root_components(entity : @ecs.Entity) -> Unit {
   tiled_world_map_instances().remove(entity)
   tiled_world_instances().remove(entity)
   tiled_image_layer_instances().remove(entity)

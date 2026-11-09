@@ -3,7 +3,7 @@ package "Milky2018/selene/physics2d"
 
 import {
   "Milky2018/moon_rapier/dynamics",
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
@@ -12,27 +12,27 @@ import {
 }
 
 // Values
-pub fn add_force(@entity.Entity, @math.Vec2, wake_up? : Bool) -> Unit
+pub fn add_force(@ecs.Entity, @math.Vec2, wake_up? : Bool) -> Unit
 
-pub fn add_force_at_point(@entity.Entity, @math.Vec2, @math.Vec2, wake_up? : Bool) -> Unit
+pub fn add_force_at_point(@ecs.Entity, @math.Vec2, @math.Vec2, wake_up? : Bool) -> Unit
 
-pub fn add_torque(@entity.Entity, Double, wake_up? : Bool) -> Unit
+pub fn add_torque(@ecs.Entity, Double, wake_up? : Bool) -> Unit
 
 pub fn all_collision_layers(@Milky2018/selene/collision.CollisionGroup) -> @Milky2018/selene/collision.CollisionFilter
 
-pub fn apply_impulse(@entity.Entity, @math.Vec2, wake_up? : Bool) -> Unit
+pub fn apply_impulse(@ecs.Entity, @math.Vec2, wake_up? : Bool) -> Unit
 
-pub fn apply_impulse_at_point(@entity.Entity, @math.Vec2, @math.Vec2, wake_up? : Bool) -> Unit
+pub fn apply_impulse_at_point(@ecs.Entity, @math.Vec2, @math.Vec2, wake_up? : Bool) -> Unit
 
-pub fn apply_torque_impulse(@entity.Entity, Double, wake_up? : Bool) -> Unit
+pub fn apply_torque_impulse(@ecs.Entity, Double, wake_up? : Bool) -> Unit
 
-pub fn areas() -> Map[@entity.Entity, @Milky2018/selene/collision.Area]
+pub fn areas() -> @ecs.ComponentStore[@Milky2018/selene/collision.Area]
 
 pub fn collider(@Milky2018/selene/collision.CollisionFilter) -> @Milky2018/selene/collision.Collider
 
-pub fn collider_handle(@entity.Entity) -> @Milky2018/moon_rapier/collision.ColliderHandle?
+pub fn collider_handle(@ecs.Entity) -> @Milky2018/moon_rapier/collision.ColliderHandle?
 
-pub fn colliders() -> Map[@entity.Entity, @Milky2018/selene/collision.Collider]
+pub fn colliders() -> @ecs.ComponentStore[@Milky2018/selene/collision.Collider]
 
 pub fn collision_filter(@Milky2018/selene/collision.CollisionGroup, Array[@Milky2018/selene/collision.CollisionGroup]) -> @Milky2018/selene/collision.CollisionFilter
 
@@ -44,25 +44,25 @@ pub let contact_event_bus : @event.Events[@Milky2018/selene/collision.ContactEve
 
 pub fn debug_colliders_system(Double) -> Unit
 
-pub fn emit_pickable_just_pressed(@entity.Entity, button? : @inputs.MouseButton) -> Unit
+pub fn emit_pickable_just_pressed(@ecs.Entity, button? : @inputs.MouseButton) -> Unit
 
 pub fn empty_collision_layers(@Milky2018/selene/collision.CollisionGroup) -> @Milky2018/selene/collision.CollisionFilter
 
-pub fn get_contains(@entity.Entity) -> @set.Set[@entity.Entity]
+pub fn get_contains(@ecs.Entity) -> @set.Set[@ecs.Entity]
 
-pub fn grounded_entities() -> @set.Set[@entity.Entity]
+pub fn grounded_entities() -> @set.Set[@ecs.Entity]
 
-pub fn intersect_point(@math.Vec2, query_filter? : @Milky2018/selene/collision.SpatialQueryFilter) -> Array[@entity.Entity]
+pub fn intersect_point(@math.Vec2, query_filter? : @Milky2018/selene/collision.SpatialQueryFilter) -> Array[@ecs.Entity]
 
-pub fn intersect_shape(@Milky2018/selene/collision.CollisionShape, @math.Vec2, rotation? : Double, query_filter? : @Milky2018/selene/collision.SpatialQueryFilter) -> Array[@entity.Entity]
+pub fn intersect_shape(@Milky2018/selene/collision.CollisionShape, @math.Vec2, rotation? : Double, query_filter? : @Milky2018/selene/collision.SpatialQueryFilter) -> Array[@ecs.Entity]
 
-pub fn is_grounded(@entity.Entity) -> Bool
+pub fn is_grounded(@ecs.Entity) -> Bool
 
-pub fn joint_handle(@entity.Entity) -> @dynamics.ImpulseJointHandle?
+pub fn joint_handle(@ecs.Entity) -> @dynamics.ImpulseJointHandle?
 
-pub fn joints() -> Map[@entity.Entity, @Milky2018/selene/collision.Joint]
+pub fn joints() -> @ecs.ComponentStore[@Milky2018/selene/collision.Joint]
 
-pub fn linear_velocities() -> Map[@entity.Entity, @velocity.Velocity]
+pub fn linear_velocities() -> @ecs.ComponentStore[@velocity.Velocity]
 
 pub fn make_linear_velocity(@math.Vec2) -> @velocity.Velocity
 
@@ -70,11 +70,11 @@ pub fn make_velocity(@math.Vec2) -> @velocity.Velocity
 
 pub fn move_system(Double) -> Unit
 
-pub fn multibody_joint_handle(@entity.Entity) -> @dynamics.MultibodyJointHandle?
+pub fn multibody_joint_handle(@ecs.Entity) -> @dynamics.MultibodyJointHandle?
 
-pub fn multibody_joints() -> Map[@entity.Entity, @Milky2018/selene/collision.MultibodyJoint]
+pub fn multibody_joints() -> @ecs.ComponentStore[@Milky2018/selene/collision.MultibodyJoint]
 
-pub fn multibody_link(@entity.Entity) -> @dynamics.MultibodyLinkId?
+pub fn multibody_link(@ecs.Entity) -> @dynamics.MultibodyLinkId?
 
 pub fn new_collision_layers(@Milky2018/selene/collision.CollisionGroup, Array[@Milky2018/selene/collision.CollisionGroup]) -> @Milky2018/selene/collision.CollisionFilter
 
@@ -86,49 +86,49 @@ pub fn physics_step_system(Double) -> Unit
 
 pub fn pickable_click_system(Double) -> Unit
 
-pub fn pickables() -> Map[@entity.Entity, @Milky2018/selene/collision.Pickable]
+pub fn pickables() -> @ecs.ComponentStore[@Milky2018/selene/collision.Pickable]
 
 pub let pointer_event_bus : @event.Events[@Milky2018/selene/collision.PointerEvent]
 
 pub fn raycast(@math.Vec2, @math.Vec2, max_toi? : Double, solid? : Bool, query_filter? : @Milky2018/selene/collision.SpatialQueryFilter) -> @Milky2018/selene/collision.RaycastHit?
 
-pub fn reset_forces(@entity.Entity, wake_up? : Bool) -> Unit
+pub fn reset_forces(@ecs.Entity, wake_up? : Bool) -> Unit
 
-pub fn reset_torques(@entity.Entity, wake_up? : Bool) -> Unit
+pub fn reset_torques(@ecs.Entity, wake_up? : Bool) -> Unit
 
-pub fn resolved_velocities() -> Map[@entity.Entity, @velocity.Velocity]
+pub fn resolved_velocities() -> @ecs.ComponentStore[@velocity.Velocity]
 
-pub fn rigid_bodies() -> Map[@entity.Entity, @Milky2018/selene/collision.RigidBody]
+pub fn rigid_bodies() -> @ecs.ComponentStore[@Milky2018/selene/collision.RigidBody]
 
-pub fn rigid_body_angular_velocity(@entity.Entity) -> Double?
+pub fn rigid_body_angular_velocity(@ecs.Entity) -> Double?
 
-pub fn rigid_body_handle(@entity.Entity) -> @dynamics.RigidBodyHandle?
+pub fn rigid_body_handle(@ecs.Entity) -> @dynamics.RigidBodyHandle?
 
-pub fn rigid_body_linear_velocity(@entity.Entity) -> @math.Vec2?
+pub fn rigid_body_linear_velocity(@ecs.Entity) -> @math.Vec2?
 
-pub fn rigid_body_rotation(@entity.Entity) -> Double?
+pub fn rigid_body_rotation(@ecs.Entity) -> Double?
 
-pub fn rigid_body_translation(@entity.Entity) -> @math.Vec2?
+pub fn rigid_body_translation(@ecs.Entity) -> @math.Vec2?
 
 pub fn sensor(@Milky2018/selene/collision.CollisionFilter) -> @Milky2018/selene/collision.Area
 
-pub fn sensors() -> Map[@entity.Entity, @Milky2018/selene/collision.Area]
+pub fn sensors() -> @ecs.ComponentStore[@Milky2018/selene/collision.Area]
 
-pub fn set_rigid_body_angular_velocity(@entity.Entity, Double) -> Unit
+pub fn set_rigid_body_angular_velocity(@ecs.Entity, Double) -> Unit
 
-pub fn set_rigid_body_linear_velocity(@entity.Entity, @math.Vec2) -> Unit
+pub fn set_rigid_body_linear_velocity(@ecs.Entity, @math.Vec2) -> Unit
 
-pub fn set_rigid_body_rotation(@entity.Entity, Double) -> Unit
+pub fn set_rigid_body_rotation(@ecs.Entity, Double) -> Unit
 
-pub fn set_rigid_body_translation(@entity.Entity, @math.Vec2) -> Unit
+pub fn set_rigid_body_translation(@ecs.Entity, @math.Vec2) -> Unit
 
 pub fn shape_cast(@Milky2018/selene/collision.CollisionShape, @math.Vec2, rotation? : Double, direction? : @math.Vec2, max_toi? : Double, stop_at_penetration? : Bool, query_filter? : @Milky2018/selene/collision.SpatialQueryFilter) -> @Milky2018/selene/collision.ShapeCastHit?
 
-pub fn shapes() -> Map[@entity.Entity, @Milky2018/selene/collision.CollisionShape]
+pub fn shapes() -> @ecs.ComponentStore[@Milky2018/selene/collision.CollisionShape]
 
 pub let trigger_event_bus : @event.Events[@Milky2018/selene/collision.TriggerEvent]
 
-pub fn velocities() -> Map[@entity.Entity, @velocity.Velocity]
+pub fn velocities() -> @ecs.ComponentStore[@velocity.Velocity]
 
 // Errors
 

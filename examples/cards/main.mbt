@@ -33,10 +33,11 @@ pub fn run() -> Unit {
 ///|
 /// Game initialization
 fn game_start(_world : @ecs.World) -> Unit {
+  reset_cards_runtime()
   // Load font
   ignore(@asset.load_font("assets/cards/ThaleahFat.ttf", family="ThaleahFat"))
   @ui.set_ui_scale_mode(Viewport)
-  let camera_entity = @entity.Entity()
+  let camera_entity = spawn_cards_entity()
   @camera.cameras().set(camera_entity, Camera())
   @camera.camera2ds().set(camera_entity, Camera2d())
   @camera.orthographic_projections().set(
@@ -62,7 +63,7 @@ fn game_start(_world : @ecs.World) -> Unit {
 ///|
 /// Main game update system
 fn game_update_system(_world : @ecs.World) -> Unit {
-  match game_state.phase {
+  match game_state().phase {
     PreFlop | Flop | Turn | River => handle_betting_round()
     Showdown => handle_showdown()
     GameOver => ()

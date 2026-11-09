@@ -1,6 +1,6 @@
 ///|
-pub fn despawn_ldtk_tree(root : @entity.Entity) -> Unit {
-  let entities : Array[@entity.Entity] = []
+pub fn despawn_ldtk_tree(root : @ecs.Entity) -> Unit {
+  let entities : Array[@ecs.Entity] = []
   collect_ldtk_entity_tree(root, entities)
   for entity in entities {
     clear_ldtk_root_components(entity)
@@ -11,7 +11,7 @@ pub fn despawn_ldtk_tree(root : @entity.Entity) -> Unit {
 }
 
 ///|
-pub fn clear_ldtk_children(root : @entity.Entity) -> Unit {
+pub fn clear_ldtk_children(root : @ecs.Entity) -> Unit {
   for child in root.get_children() {
     if child.is_alive() {
       despawn_ldtk_tree(child)
@@ -21,8 +21,8 @@ pub fn clear_ldtk_children(root : @entity.Entity) -> Unit {
 
 ///|
 fn collect_ldtk_entity_tree(
-  entity : @entity.Entity,
-  into : Array[@entity.Entity],
+  entity : @ecs.Entity,
+  into : Array[@ecs.Entity],
 ) -> Unit {
   into.push(entity)
   for child in entity.get_children() {
@@ -31,7 +31,7 @@ fn collect_ldtk_entity_tree(
 }
 
 ///|
-fn clear_ldtk_root_components(entity : @entity.Entity) -> Unit {
+fn clear_ldtk_root_components(entity : @ecs.Entity) -> Unit {
   if ldtk_level_instances().get(entity) is Some(level_instance) {
     ldtk_pending_transformed_level_iids().remove(level_instance.level.iid)
   }

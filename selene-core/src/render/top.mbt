@@ -13,22 +13,25 @@
 // limitations under the License.
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct Color {
   r : UInt32
   g : UInt32
   b : UInt32
   a : Double
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum AlphaMode2D {
   Opaque
   Blend
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum BlendMode2D {
   Alpha
   Additive
   Multiply
-} derive(Eq, Debug)
+}

@@ -4,7 +4,6 @@ import {
   "Milky2018/selene/asset",
   "Milky2018/selene/camera",
   "Milky2018/selene/ecs",
-  "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
   "Milky2018/selene/parallax2d",
@@ -16,12 +15,13 @@ import {
   "Milky2018/selene/visibility",
   "Milky2018/xml",
   "gmlewis/base64",
-  "gmlewis/flate",
-  "gmlewis/gzip",
-  "gmlewis/io",
+  "moonbit-community/flate/gzip",
+  "moonbit-community/flate/zlib",
   "moonbitlang/core/json",
   "moonbitlang/core/encoding/utf8" @encoding/utf8,
   "moonbitlang/core/math" @cmath,
   "moonbitlang/core/string",
   "moonbitlang/x/fs",
 }
+
+formatter(ignore: [ "ecs.g.mbt", "physics.g.mbt", "world.g.mbt" ])

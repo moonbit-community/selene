@@ -1,88 +1,84 @@
 ///|
-pub fn ldtk_level_instances() -> Map[@entity.Entity, LdtkLevelInstance] {
-  ldtk_world_store().ldtk_level_instances
+pub fn ldtk_level_instances() -> @ecs.ComponentStore[LdtkLevelInstance] {
+  @ecs.components()
 }
 
 ///|
-pub fn ldtk_layer_metadata() -> Map[@entity.Entity, LdtkLayerMetadata] {
-  ldtk_world_store().ldtk_layer_metadata
+pub fn ldtk_layer_metadata() -> @ecs.ComponentStore[LdtkLayerMetadata] {
+  @ecs.components()
 }
 
 ///|
-pub fn ldtk_level_backgrounds() -> Map[@entity.Entity, LdtkLevelBackground] {
-  ldtk_world_store().ldtk_level_backgrounds
+pub fn ldtk_level_backgrounds() -> @ecs.ComponentStore[LdtkLevelBackground] {
+  @ecs.components()
 }
 
 ///|
-pub fn ldtk_level_iids() -> Map[@entity.Entity, LdtkLevelIid] {
-  ldtk_world_store().ldtk_level_iids
+pub fn ldtk_level_iids() -> @ecs.ComponentStore[LdtkLevelIid] {
+  @ecs.components()
 }
 
 ///|
-pub fn ldtk_entity_iids() -> Map[@entity.Entity, LdtkEntityIid] {
-  ldtk_world_store().ldtk_entity_iids
+pub fn ldtk_entity_iids() -> @ecs.ComponentStore[LdtkEntityIid] {
+  @ecs.components()
 }
 
 ///|
-pub fn ldtk_grid_coords() -> Map[@entity.Entity, LdtkGridCoords] {
-  ldtk_world_store().ldtk_grid_coords
+pub fn ldtk_grid_coords() -> @ecs.ComponentStore[LdtkGridCoords] {
+  @ecs.components()
 }
 
 ///|
-pub fn ldtk_int_grid_cells() -> Map[@entity.Entity, LdtkIntGridCell] {
-  ldtk_world_store().ldtk_int_grid_cells
+pub fn ldtk_int_grid_cells() -> @ecs.ComponentStore[LdtkIntGridCell] {
+  @ecs.components()
 }
 
 ///|
-pub fn ldtk_tile_metadata() -> Map[@entity.Entity, LdtkTileMetadata] {
-  ldtk_world_store().ldtk_tile_metadata
+pub fn ldtk_tile_metadata() -> @ecs.ComponentStore[LdtkTileMetadata] {
+  @ecs.components()
 }
 
 ///|
-pub fn ldtk_int_grid_colliders() -> Map[@entity.Entity, LdtkIntGridCollider] {
-  ldtk_world_store().ldtk_int_grid_colliders
+pub fn ldtk_int_grid_colliders() -> @ecs.ComponentStore[LdtkIntGridCollider] {
+  @ecs.components()
 }
 
 ///|
-pub fn ldtk_worldly_entities() -> Map[@entity.Entity, LdtkWorldly] {
-  ldtk_world_store().ldtk_worldly_entities
+pub fn ldtk_worldly_entities() -> @ecs.ComponentStore[LdtkWorldly] {
+  @ecs.components()
 }
 
 ///|
-pub fn ldtk_respawns() -> Map[@entity.Entity, LdtkRespawn] {
-  ldtk_world_store().ldtk_respawns
+pub fn ldtk_respawns() -> @ecs.ComponentStore[LdtkRespawn] {
+  @ecs.components()
 }
 
 ///|
-pub fn ldtk_spawned_layer_instances() -> Map[
-  @entity.Entity,
+pub fn ldtk_spawned_layer_instances() -> @ecs.ComponentStore[
   LdtkSpawnedLayerInstance,
 ] {
-  ldtk_world_store().ldtk_spawned_layer_instances
+  @ecs.components()
 }
 
 ///|
-pub fn ldtk_spawned_tile_instances() -> Map[
-  @entity.Entity,
+pub fn ldtk_spawned_tile_instances() -> @ecs.ComponentStore[
   LdtkSpawnedTileInstance,
 ] {
-  ldtk_world_store().ldtk_spawned_tile_instances
+  @ecs.components()
 }
 
 ///|
-pub fn ldtk_spawned_entity_instances() -> Map[
-  @entity.Entity,
+pub fn ldtk_spawned_entity_instances() -> @ecs.ComponentStore[
   LdtkSpawnedEntityInstance,
 ] {
-  ldtk_world_store().ldtk_spawned_entity_instances
+  @ecs.components()
 }
 
 ///|
-pub fn ldtk_spawned_int_grid_cells() -> Map[
-  @entity.Entity,
+pub fn ldtk_spawned_int_grid_cells() -> @ecs.ComponentStore[
   LdtkSpawnedIntGridCell,
 ] {
-  ldtk_world_store().ldtk_spawned_int_grid_cells
+  @ecs.components()
 }
 
 ///|

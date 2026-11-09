@@ -3,7 +3,7 @@ package "Milky2018/selene/material2d"
 
 import {
   "Milky2018/selene/asset_types",
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
   "moonbitlang/core/debug",
@@ -12,7 +12,7 @@ import {
 // Values
 pub fn color_material(ColorMaterialHandle) -> ColorMaterial?
 
-pub fn mesh_material2ds() -> Map[@entity.Entity, MeshMaterial2d]
+pub fn mesh_material2ds() -> @ecs.ComponentStore[MeshMaterial2d]
 
 pub fn register_color_material(ColorMaterial) -> ColorMaterialHandle
 
@@ -33,28 +33,32 @@ pub(all) struct ColorMaterial {
 pub fn ColorMaterial::ColorMaterial(color? : @render.Color, texture? : @asset_types.ImageHandle?, uv_transform? : @math.Transform, alpha_mode? : @render.AlphaMode2D, blend_mode? : @render.BlendMode2D) -> Self
 pub fn ColorMaterial::from_color(@render.Color) -> Self
 
-pub(all) struct ColorMaterialHandle(UInt32) derive(Eq, Hash, @debug.Debug)
+#derive(Eq, Hash, @debug.Debug)
+pub(all) struct ColorMaterialHandle(UInt32)
 pub fn ColorMaterialHandle::equal(Self, Self) -> Bool
 pub fn ColorMaterialHandle::hash(Self) -> Int32
 pub fn ColorMaterialHandle::hash_combine(Self, Hasher) -> Unit
 pub fn ColorMaterialHandle::not_equal(Self, Self) -> Bool
 pub fn ColorMaterialHandle::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) enum Material2dHandle {
   Color(ColorMaterialHandle)
-} derive(Eq, @debug.Debug)
+}
 pub fn Material2dHandle::equal(Self, Self) -> Bool
 pub fn Material2dHandle::not_equal(Self, Self) -> Bool
 pub fn Material2dHandle::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct MeshMaterial2d {
   material : Material2dHandle
-} derive(Eq, @debug.Debug)
+}
 pub fn MeshMaterial2d::MeshMaterial2d(Material2dHandle) -> Self
 pub fn MeshMaterial2d::equal(Self, Self) -> Bool
 pub fn MeshMaterial2d::from_color_material(ColorMaterialHandle) -> Self
 pub fn MeshMaterial2d::not_equal(Self, Self) -> Bool
 pub fn MeshMaterial2d::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for MeshMaterial2d
 
 // Type aliases
 

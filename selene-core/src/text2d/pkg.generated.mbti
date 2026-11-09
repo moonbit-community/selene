@@ -2,7 +2,7 @@
 package "Milky2018/selene/text2d"
 
 import {
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/render",
   "Milky2018/selene/sprite",
   "moonbitlang/core/debug",
@@ -11,31 +11,35 @@ import {
 // Values
 pub fn render_text2d_system(Double) -> Unit
 
-pub fn text2ds() -> Map[@entity.Entity, Text2d]
+pub fn text2ds() -> @ecs.ComponentStore[Text2d]
 
-pub fn text_anchors() -> Map[@entity.Entity, @sprite.Anchor]
+pub fn text_anchors() -> @ecs.ComponentStore[@sprite.Anchor]
 
-pub fn text_bounds() -> Map[@entity.Entity, TextBounds]
+pub fn text_bounds() -> @ecs.ComponentStore[TextBounds]
 
 // Errors
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) struct Text2d {
   blend_mode : @render.BlendMode2D
-} derive(Eq, @debug.Debug)
+}
 pub fn Text2d::Text2d(blend_mode? : @render.BlendMode2D) -> Self
 pub fn Text2d::equal(Self, Self) -> Bool
 pub fn Text2d::not_equal(Self, Self) -> Bool
 pub fn Text2d::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for Text2d
 
+#derive(Eq, @debug.Debug)
 pub(all) struct TextBounds {
   width : Double
   height : Double
-} derive(Eq, @debug.Debug)
+}
 pub fn TextBounds::TextBounds(Double, Double) -> Self
 pub fn TextBounds::equal(Self, Self) -> Bool
 pub fn TextBounds::not_equal(Self, Self) -> Bool
 pub fn TextBounds::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for TextBounds
 
 // Type aliases
 

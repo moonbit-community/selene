@@ -14,15 +14,18 @@
 
 ///|
 /// Supported rigid-body modes for 2D physics.
+#derive(Eq, Debug)
 pub(all) enum RigidBodyType {
   Dynamic
   Fixed
   KinematicPositionBased
   KinematicVelocityBased
-} derive(Eq, Debug)
+}
 
 ///|
 /// 2D rigid-body configuration synchronized into Rapier.
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct RigidBody {
   body_type : RigidBodyType
   gravity_scale : Double
@@ -30,7 +33,7 @@ pub(all) struct RigidBody {
   angular_damping : Double
   ccd_enabled : Bool
   lock_rotation : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 /// Native Rapier rigid-body handle.
@@ -70,21 +73,7 @@ pub fn RigidBody::kinematic_velocity_based() -> RigidBody {
 }
 
 ///|
-priv struct RigidBodyWorldStore {
-  rigid_bodies : Map[@entity.Entity, RigidBody]
-}
-
-///|
-let rigid_body_world_stores : Map[UInt32, RigidBodyWorldStore] = Map([])
-
-///|
-fn rigid_body_world_store() -> RigidBodyWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  rigid_body_world_stores.get_or_init(world_id, () => { rigid_bodies: Map([]), })
-}
-
-///|
 /// Explicit rigid-body descriptors for entities that participate in 2D physics.
-pub fn rigid_bodies() -> Map[@entity.Entity, RigidBody] {
-  rigid_body_world_store().rigid_bodies
+pub fn rigid_bodies() -> @ecs.ComponentStore[RigidBody] {
+  @ecs.components()
 }

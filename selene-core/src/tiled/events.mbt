@@ -1,13 +1,13 @@
 ///|
 pub struct TiledWorldSpawnedEvent {
-  world_entity : @entity.Entity
+  world_entity : @ecs.Entity
   world : TiledWorld
 }
 
 ///|
 pub struct TiledWorldMapSpawnedEvent {
-  world_entity : @entity.Entity
-  map_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  map_entity : @ecs.Entity
   world_map : TiledWorldMap
   map : TiledMap
   resolved_map_path : String
@@ -15,14 +15,14 @@ pub struct TiledWorldMapSpawnedEvent {
 
 ///|
 pub struct TiledMapSpawnedEvent {
-  map_entity : @entity.Entity
+  map_entity : @ecs.Entity
   map : TiledMap
 }
 
 ///|
 pub struct TiledLayerSpawnedEvent {
-  map_entity : @entity.Entity
-  layer_entity : @entity.Entity
+  map_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
   layer : TiledLayer
   effective_visible : Bool
   zindex : Int32
@@ -30,9 +30,9 @@ pub struct TiledLayerSpawnedEvent {
 
 ///|
 pub struct TiledTileSpawnedEvent {
-  map_entity : @entity.Entity
-  layer_entity : @entity.Entity
-  tile_entity : @entity.Entity
+  map_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
+  tile_entity : @ecs.Entity
   layer : TiledLayer
   gid : TiledGid
   tileset : TiledTileset
@@ -41,17 +41,17 @@ pub struct TiledTileSpawnedEvent {
 
 ///|
 pub struct TiledObjectSpawnedEvent {
-  map_entity : @entity.Entity
-  layer_entity : @entity.Entity
-  object_entity : @entity.Entity
+  map_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
+  object_entity : @ecs.Entity
   layer : TiledLayer
   object : TiledObject
 }
 
 ///|
 pub struct TiledImageLayerSpawnedEvent {
-  map_entity : @entity.Entity
-  layer_entity : @entity.Entity
+  map_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
   layer : TiledLayer
   image_layer : TiledImageLayer
   resolved_image_path : String?

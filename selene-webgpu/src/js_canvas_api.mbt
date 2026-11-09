@@ -14,7 +14,7 @@
 
 ///|
 struct WebGpuBackend {
-  mut canvas : @dom.HTMLCanvasElement?
+  mut canvas : BrowserCanvas?
   mut time_scale : Double
   mut gamepads : Set[@inputs.Gamepad]?
   mut gamepad_buttons : Set[@inputs.GamepadButtonInput]?
@@ -24,13 +24,14 @@ struct WebGpuBackend {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct WebGpuFrameTimingSnapshot {
   service_before_ms : Double
   game_ms : Double
   render_ms : Double
   service_after_ms : Double
   total_work_ms : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn WebGpuBackend::WebGpuBackend() -> WebGpuBackend {
@@ -49,15 +50,11 @@ pub fn WebGpuBackend::WebGpuBackend() -> WebGpuBackend {
 let canvas_backend : WebGpuBackend = WebGpuBackend()
 
 ///|
-fn require_canvas() -> @dom.HTMLCanvasElement {
+fn require_canvas() -> BrowserCanvas {
   match canvas_backend.canvas {
     Some(canvas) => canvas
     None => {
-      let canvas = @dom.document()
-        .get_element_by_id("canvas")
-        .unwrap()
-        .to_html_canvas_element()
-        .unwrap()
+      let canvas = find_canvas().to_option().unwrap()
       canvas_backend.canvas = Some(canvas)
       canvas
     }
@@ -260,9 +257,6 @@ pub fn get_realtime_delta() -> Double {
 }
 
 ///|
-let window : @dom.Window = @dom.window()
-
-///|
 fn schedule_with_fixed_interval(
   interval : Double,
   callback : (Double) -> Unit,
@@ -291,11 +285,11 @@ fn schedule_with_fixed_interval(
         return
       }
     }
-    lastId.val = window.request_animation_frame(update)
+    lastId.val = window_request_animation_frame(update)
   }
 
-  lastId.val = window.request_animation_frame(update)
-  () => if lastId.val != 0.0 { window.cancel_animation_frame(lastId.val) }
+  lastId.val = window_request_animation_frame(update)
+  () => if lastId.val != 0.0 { window_cancel_animation_frame(lastId.val) }
 }
 
 ///|

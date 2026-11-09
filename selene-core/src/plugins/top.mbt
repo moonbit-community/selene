@@ -249,17 +249,9 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @system.timer_system,
+    @system.timers_system,
     PostUpdate,
     "Timer System",
-    in_set=time,
-    after=[gameplay],
-  )
-  let app = add_system(
-    app,
-    @system.realtime_timer_system,
-    PostUpdate,
-    "Realtime Timer System",
     in_set=time,
     after=[gameplay],
   )
@@ -659,18 +651,11 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
     in_set=render_submit,
     after=[render_prepare],
   )
-  let app = add_system(
-    app,
-    @system.timer_system,
-    PostUpdate,
-    "Timer System",
-    in_set=time,
-  )
   add_system(
     app,
-    @system.realtime_timer_system,
+    @system.timers_system,
     PostUpdate,
-    "Realtime Timer System",
+    "Timer System",
     in_set=time,
   )
 }

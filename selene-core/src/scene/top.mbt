@@ -10,13 +10,16 @@ pub(all) struct SceneSpawner {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct SceneInstanceReadyEvent {
   scene : SceneHandle
-  root : @entity.Entity
-} derive(Eq, Debug)
+  root : @ecs.Entity
+}
 
 ///|
-let scene_instances : Map[@entity.Entity, SceneHandle] = Map([])
+fn scene_instances() -> @ecs.ComponentStore[SceneHandle] {
+  @ecs.components()
+}
 
 ///|
 pub let scene_instance_ready_events : @event.Events[SceneInstanceReadyEvent] = Events()
@@ -37,7 +40,7 @@ pub fn instantiate_scene(
   root_transform : @transform.Transform,
 ) -> SceneInstance {
   let instance = @scene3d.instantiate_scene_instance(scene, root_transform)
-  scene_instances.set(instance.root, scene)
+  scene_instances().set(instance.root, scene)
   scene_instance_ready_events.send({ scene, root: instance.root, })
   instance
 }
@@ -53,31 +56,31 @@ pub fn SceneSpawner::spawn(
 }
 
 ///|
-pub fn despawn_scene(root : @entity.Entity) -> Unit {
+pub fn despawn_scene(root : @ecs.Entity) -> Unit {
   root.destroy()
-  scene_instances.remove(root)
+  scene_instances().remove(root)
 }
 
 ///|
 pub fn despawn_all_scenes() -> Unit {
-  let roots = scene_instances.keys()
+  let roots = scene_instances().keys()
   for root in roots {
     root.destroy()
   }
-  scene_instances.clear()
+  scene_instances().clear()
 }
 
 ///|
-pub fn scene_of(root : @entity.Entity) -> SceneHandle? {
-  scene_instances.get(root)
+pub fn scene_of(root : @ecs.Entity) -> SceneHandle? {
+  scene_instances().get(root)
 }
 
 ///|
 pub fn scene_spawner_cleanup_system(_delta : Double) -> Unit {
-  for pair in scene_instances.to_array() {
+  for pair in scene_instances().to_array() {
     let root = pair.0
     if !root.is_alive() {
-      scene_instances.remove(root)
+      scene_instances().remove(root)
     }
   }
 }

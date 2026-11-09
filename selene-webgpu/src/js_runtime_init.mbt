@@ -13,25 +13,83 @@
 // limitations under the License.
 
 ///|
+priv type BrowserCanvas
+
+///|
+priv type BrowserEvent
+
+///|
+extern "js" fn find_canvas() -> @js.Nullable[BrowserCanvas] =
+  #| () => {
+  #|   const element = document.getElementById('canvas');
+  #|   return element instanceof HTMLCanvasElement ? element : null;
+  #| }
+
+///|
+extern "js" fn BrowserCanvas::add_event_listener(
+  canvas : BrowserCanvas,
+  event : String,
+  callback : (BrowserEvent) -> Unit,
+) -> Unit = "(canvas, event, callback) => { canvas.addEventListener(event, callback); }"
+
+///|
+extern "js" fn window_add_event_listener(
+  event : String,
+  callback : (BrowserEvent) -> Unit,
+) -> Unit = "(event, callback) => { window.addEventListener(event, callback); }"
+
+///|
+extern "js" fn window_request_animation_frame(
+  callback : (Double) -> Unit,
+) -> Double = "(callback) => window.requestAnimationFrame(callback)"
+
+///|
+extern "js" fn window_cancel_animation_frame(id : Double) -> Unit = "(id) => window.cancelAnimationFrame(id)"
+
+///|
+extern "js" fn BrowserEvent::code(event : BrowserEvent) -> String = "(event) => event.code"
+
+///|
+extern "js" fn BrowserEvent::repeat(event : BrowserEvent) -> Bool = "(event) => event.repeat"
+
+///|
+extern "js" fn BrowserEvent::get_offset_x(event : BrowserEvent) -> Double = "(event) => event.offsetX"
+
+///|
+extern "js" fn BrowserEvent::get_offset_y(event : BrowserEvent) -> Double = "(event) => event.offsetY"
+
+///|
+extern "js" fn BrowserEvent::get_movement_x(event : BrowserEvent) -> Double = "(event) => event.movementX"
+
+///|
+extern "js" fn BrowserEvent::get_movement_y(event : BrowserEvent) -> Double = "(event) => event.movementY"
+
+///|
+extern "js" fn BrowserEvent::get_button(event : BrowserEvent) -> Int32 = "(event) => event.button"
+
+///|
+extern "js" fn BrowserEvent::get_delta_x(event : BrowserEvent) -> Double = "(event) => event.deltaX"
+
+///|
+extern "js" fn BrowserEvent::get_delta_y(event : BrowserEvent) -> Double = "(event) => event.deltaY"
+
+///|
 extern "js" fn set_viewport_height(
-  elem : @dom.HTMLCanvasElement,
+  elem : BrowserCanvas,
   height : Double,
 ) -> Unit = "(x, y) => { x.height = y; }"
 
 ///|
-extern "js" fn set_viewport_width(
-  elem : @dom.HTMLCanvasElement,
-  width : Double,
-) -> Unit = "(x, y) => { x.width = y; }"
+extern "js" fn set_viewport_width(elem : BrowserCanvas, width : Double) -> Unit = "(x, y) => { x.width = y; }"
 
 ///|
 extern "js" fn request_pointer_lock_if_enabled(
-  elem : @dom.HTMLCanvasElement,
+  elem : BrowserCanvas,
   enabled : Bool,
 ) -> Unit = "(elem, enabled) => { if (enabled && document.pointerLockElement !== elem) { elem.requestPointerLock(); } }"
 
 ///|
-extern "js" fn is_pointer_locked(canvas : @dom.HTMLCanvasElement) -> Bool = "(canvas) => document.pointerLockElement === canvas"
+extern "js" fn is_pointer_locked(canvas : BrowserCanvas) -> Bool = "(canvas) => document.pointerLockElement === canvas"
 
 ///|
 extern "js" fn exit_pointer_lock() -> Unit = "() => { if (document.exitPointerLock) { document.exitPointerLock(); } }"
@@ -39,14 +97,14 @@ extern "js" fn exit_pointer_lock() -> Unit = "() => { if (document.exitPointerLo
 ///|
 extern "js" fn document_add_event_listener(
   event : String,
-  callback : (@dom.Event) -> Unit,
+  callback : (BrowserEvent) -> Unit,
 ) -> Unit = "(event, callback) => { document.addEventListener(event, callback); }"
 
 ///|
 extern "js" fn document_hidden() -> Bool = "() => document.hidden"
 
 ///|
-extern "js" fn prevent_default_event(event : @dom.Event) -> Unit = "(event) => event.preventDefault()"
+extern "js" fn prevent_default_event(event : BrowserEvent) -> Unit = "(event) => event.preventDefault()"
 
 ///|
 extern "js" fn load_font_async(

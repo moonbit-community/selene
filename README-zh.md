@@ -1,6 +1,6 @@
 # Selene 游戏引擎 [English](./README.md)
 
-Selene 是一个面向 MoonBit 的 ECS 游戏引擎，采用 WebGPU 作为 Web 主线后端，并提供 raylib 原生后端。
+Selene 是一个面向 MoonBit 的 ECS 游戏引擎，提供浏览器 WebGPU 渲染。原生 WebGPU 支持在计划中。
 
 ## 包结构
 
@@ -8,9 +8,11 @@ Selene 是一个面向 MoonBit 的 ECS 游戏引擎，采用 WebGPU 作为 Web �
 | --- | --- |
 | `Milky2018/selene` | 核心 ECS/运行时模块（`app`、`asset`、`animation`、`scene`、`physics2d/3d`、`render2d/3d`、`ui`） |
 | `Milky2018/selene_webgpu` | Web 后端实现 |
-| `Milky2018/selene_raylib` | 原生后端实现 |
 
 ## 快速开始
+
+请使用 MoonBit `latest` 工具链。源码也支持 `pre-release`；在 `latest` 支持替代语法之前，
+保留 `pre-release` 的语法弃用警告。
 
 ```bash
 moon update

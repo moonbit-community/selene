@@ -3,7 +3,6 @@ import {
   "Milky2018/selene/asset",
   "Milky2018/selene/camera",
   "Milky2018/selene/ecs",
-  "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
@@ -26,3 +25,5 @@ import {
 import {
   "moonbitlang/core/bench",
 } for "test"
+
+formatter(ignore: [ "model.g.mbt", "visual.g.mbt" ])

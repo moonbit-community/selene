@@ -2,18 +2,18 @@
 package "Milky2018/selene/visibility"
 
 import {
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "moonbitlang/core/debug",
 }
 
 // Values
 pub fn default_render_layers() -> RenderLayers
 
-pub fn entity_render_layers(@entity.Entity) -> RenderLayers
+pub fn entity_render_layers(@ecs.Entity) -> RenderLayers
 
-pub fn inherited_visibilities() -> Map[@entity.Entity, InheritedVisibility]
+pub fn inherited_visibilities() -> @ecs.ComponentStore[InheritedVisibility]
 
-pub fn is_visible(@entity.Entity) -> Bool
+pub fn is_visible(@ecs.Entity) -> Bool
 
 pub fn layer(UInt32) -> RenderLayers
 
@@ -21,45 +21,53 @@ pub fn layers(UInt32) -> RenderLayers
 
 pub fn matches(RenderLayers, RenderLayers) -> Bool
 
-pub fn render_layers() -> Map[@entity.Entity, RenderLayers]
+pub fn render_layers() -> @ecs.ComponentStore[RenderLayers]
 
-pub fn view_visibilities() -> Map[@entity.Entity, ViewVisibility]
+pub fn view_visibilities() -> @ecs.ComponentStore[ViewVisibility]
 
-pub fn visibilities() -> Map[@entity.Entity, Visibility]
+pub fn visibilities() -> @ecs.ComponentStore[Visibility]
 
 pub fn visibility_propagate_system(Double) -> Unit
 
 // Errors
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) struct InheritedVisibility {
   visible : Bool
-} derive(Eq, @debug.Debug)
+}
 pub fn InheritedVisibility::equal(Self, Self) -> Bool
 pub fn InheritedVisibility::not_equal(Self, Self) -> Bool
 pub fn InheritedVisibility::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for InheritedVisibility
 
+#derive(Eq, @debug.Debug)
 pub(all) struct RenderLayers {
   mask : UInt32
-} derive(Eq, @debug.Debug)
+}
 pub fn RenderLayers::equal(Self, Self) -> Bool
 pub fn RenderLayers::not_equal(Self, Self) -> Bool
 pub fn RenderLayers::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for RenderLayers
 
+#derive(Eq, @debug.Debug)
 pub(all) struct ViewVisibility {
   visible : Bool
-} derive(Eq, @debug.Debug)
+}
 pub fn ViewVisibility::equal(Self, Self) -> Bool
 pub fn ViewVisibility::not_equal(Self, Self) -> Bool
 pub fn ViewVisibility::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for ViewVisibility
 
+#derive(Eq, @debug.Debug)
 pub(all) enum Visibility {
   Visible
   Hidden
-} derive(Eq, @debug.Debug)
+}
 pub fn Visibility::equal(Self, Self) -> Bool
 pub fn Visibility::not_equal(Self, Self) -> Bool
 pub fn Visibility::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for Visibility
 
 // Type aliases
 

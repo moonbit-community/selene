@@ -2,7 +2,6 @@ import {
   "moonbitlang/core/debug",
   "Milky2018/selene/asset",
   "Milky2018/selene/ecs",
-  "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
   "Milky2018/selene/name",
@@ -12,3 +11,5 @@ import {
   "Milky2018/selene/transform",
   "moonbitlang/core/cmp",
 }
+
+formatter(ignore: [ "animation_assets.g.mbt", "animation_types.g.mbt" ])

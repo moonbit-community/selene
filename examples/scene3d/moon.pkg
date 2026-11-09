@@ -2,7 +2,6 @@ import {
   "Milky2018/selene/app",
   "Milky2018/selene/camera3d",
   "Milky2018/selene/ecs",
-  "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/input_action",
   "Milky2018/selene/inputs",
@@ -19,3 +18,7 @@ import {
   "Milky2018/moon_rapier/collision",
   "moonbitlang/core/math" @cmath,
 }
+
+dev_build(rule: "selene_codegen", input: "main.mbt", output: "main.g.mbt")
+
+formatter(ignore: [ "main.g.mbt" ])

@@ -2,7 +2,6 @@ import {
   "moonbitlang/core/debug",
   "Milky2018/selene/camera3d",
   "Milky2018/selene/ecs",
-  "Milky2018/selene/entity",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
   "Milky2018/selene/render3d_types",
@@ -11,3 +10,5 @@ import {
   "Milky2018/selene/visibility",
   "moonbitlang/core/math" @cmath,
 }
+
+formatter(ignore: [ "top.g.mbt" ])

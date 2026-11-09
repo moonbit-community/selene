@@ -13,6 +13,7 @@
 // limitations under the License.
 
 ///|
+#derive(Eq)
 enum PowerupType {
   AttackLv1
   AttackLv2
@@ -24,7 +25,7 @@ enum PowerupType {
   CooldownLv1
   CooldownLv2
   Bandana
-} derive(Eq)
+}
 
 ///|
 priv struct Powerup {
@@ -101,16 +102,17 @@ fn create_powerup(powerup_type : PowerupType) -> Powerup {
 
 ///|
 fn apply_powerup(powerup : Powerup) -> Unit {
+  let game = game_state()
   match powerup.powerup_type {
-    AttackLv1 => game_state.player_stats.attack += 0.2
-    AttackLv2 => game_state.player_stats.attack += 0.3
-    AttackLv3 => game_state.player_stats.attack += 0.4
-    RangeLv1 => game_state.player_stats.range += 16.0
-    RangeLv2 => game_state.player_stats.range += 32.0
-    SpeedLv1 => game_state.player_stats.speed += 15.0
-    SpeedLv2 => game_state.player_stats.speed += 30.0
-    CooldownLv1 => game_state.player_stats.attack_speed += 0.1
-    CooldownLv2 => game_state.player_stats.attack_speed += 0.2
-    Bandana => game_state.player_stats.penetration += 1
+    AttackLv1 => game.player_stats.attack += 0.2
+    AttackLv2 => game.player_stats.attack += 0.3
+    AttackLv3 => game.player_stats.attack += 0.4
+    RangeLv1 => game.player_stats.range += 16.0
+    RangeLv2 => game.player_stats.range += 32.0
+    SpeedLv1 => game.player_stats.speed += 15.0
+    SpeedLv2 => game.player_stats.speed += 30.0
+    CooldownLv1 => game.player_stats.attack_speed += 0.1
+    CooldownLv2 => game.player_stats.attack_speed += 0.2
+    Bandana => game.player_stats.penetration += 1
   }
 }

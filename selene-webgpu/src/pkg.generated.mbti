@@ -134,15 +134,17 @@ pub fn Audio::set_loop(Self, Bool) -> Unit
 pub fn Audio::set_playback_rate(Self, Double) -> Unit
 pub fn Audio::set_volume(Self, Double) -> Unit
 
+#derive(Eq, @debug.Debug)
 pub(all) enum Render3DLightingMode {
   Full
   Cheap
   Unlit
-} derive(Eq, @debug.Debug)
+}
 pub fn Render3DLightingMode::equal(Self, Self) -> Bool
 pub fn Render3DLightingMode::not_equal(Self, Self) -> Bool
 pub fn Render3DLightingMode::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Render3DSubmissionStatsSnapshot {
   sections : Int32
   submitted_items : Int32
@@ -153,7 +155,7 @@ pub(all) struct Render3DSubmissionStatsSnapshot {
   textured_triangle_commands : Int32
   uploaded_vertex_bytes : Int32
   render_bind_group_creations : Int32
-} derive(Eq, @debug.Debug)
+}
 pub fn Render3DSubmissionStatsSnapshot::equal(Self, Self) -> Bool
 pub fn Render3DSubmissionStatsSnapshot::not_equal(Self, Self) -> Bool
 pub fn Render3DSubmissionStatsSnapshot::to_repr(Self) -> @debug.Repr
@@ -161,24 +163,26 @@ pub fn Render3DSubmissionStatsSnapshot::to_repr(Self) -> @debug.Repr
 type WebGpuBackend
 pub fn WebGpuBackend::WebGpuBackend() -> Self
 
+#derive(Eq, @debug.Debug)
 pub(all) struct WebGpuFrameTimingSnapshot {
   service_before_ms : Double
   game_ms : Double
   render_ms : Double
   service_after_ms : Double
   total_work_ms : Double
-} derive(Eq, @debug.Debug)
+}
 pub fn WebGpuFrameTimingSnapshot::equal(Self, Self) -> Bool
 pub fn WebGpuFrameTimingSnapshot::not_equal(Self, Self) -> Bool
 pub fn WebGpuFrameTimingSnapshot::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct WebGpuRender3DTimingSnapshot {
   setup_ms : Double
   items_ms : Double
   flush_ms : Double
   cleanup_ms : Double
   submit_total_ms : Double
-} derive(Eq, @debug.Debug)
+}
 pub fn WebGpuRender3DTimingSnapshot::equal(Self, Self) -> Bool
 pub fn WebGpuRender3DTimingSnapshot::not_equal(Self, Self) -> Bool
 pub fn WebGpuRender3DTimingSnapshot::to_repr(Self) -> @debug.Repr

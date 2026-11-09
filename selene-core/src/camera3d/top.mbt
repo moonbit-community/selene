@@ -13,6 +13,7 @@
 // limitations under the License.
 
 ///|
+#selene.component
 pub(all) struct Camera3DComponent {
   projection : @render3d_types.CameraProjection3D
   orthographic_size : @math.Vec2?
@@ -26,7 +27,7 @@ pub(all) struct Camera3DComponent {
 
 ///|
 pub(all) struct ActiveCamera3D {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   camera : @render3d_types.FrameCamera3D
 }
 
@@ -45,22 +46,8 @@ pub fn Camera3DComponent::default() -> Camera3DComponent {
 }
 
 ///|
-priv struct Camera3DWorldStore {
-  cameras3d : Map[@entity.Entity, Camera3DComponent]
-}
-
-///|
-let camera3d_world_stores : Map[UInt32, Camera3DWorldStore] = Map([])
-
-///|
-fn camera3d_world_store() -> Camera3DWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  camera3d_world_stores.get_or_init(world_id, () => { cameras3d: Map([]), })
-}
-
-///|
-pub fn cameras3d() -> Map[@entity.Entity, Camera3DComponent] {
-  camera3d_world_store().cameras3d
+pub fn cameras3d() -> @ecs.ComponentStore[Camera3DComponent] {
+  @ecs.components()
 }
 
 ///|
@@ -83,7 +70,7 @@ pub fn set_active_camera3d(camera : ActiveCamera3D?) -> Unit {
 
 ///|
 pub fn camera3d_extract_system(_delta : Double) -> Unit {
-  let mut selected : (@entity.Entity, Camera3DComponent)? = None
+  let mut selected : (@ecs.Entity, Camera3DComponent)? = None
   for entity, camera in cameras3d() {
     if !entity.is_alive() || !camera.enabled {
       continue

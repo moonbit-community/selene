@@ -1,22 +1,22 @@
 ///|
 pub struct LdtkWorldSpawnedEvent {
-  world_entity : @entity.Entity
+  world_entity : @ecs.Entity
   project : LdtkProject
 }
 
 ///|
 pub struct LdtkLevelSpawnedEvent {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
   indices : LdtkLevelIndices
   level : LdtkLevel
 }
 
 ///|
 pub struct LdtkLayerSpawnedEvent {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
-  layer_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
   level : LdtkLevel
   layer : LdtkLayerInstance
   effective_visible : Bool
@@ -25,10 +25,10 @@ pub struct LdtkLayerSpawnedEvent {
 
 ///|
 pub struct LdtkTileSpawnedEvent {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
-  layer_entity : @entity.Entity
-  tile_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
+  tile_entity : @ecs.Entity
   level : LdtkLevel
   layer : LdtkLayerInstance
   tile : LdtkTileInstance
@@ -37,10 +37,10 @@ pub struct LdtkTileSpawnedEvent {
 
 ///|
 pub struct LdtkEntitySpawnedEvent {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
-  layer_entity : @entity.Entity
-  entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
+  entity : @ecs.Entity
   level : LdtkLevel
   layer : LdtkLayerInstance
   instance : LdtkEntityInstance
@@ -49,10 +49,10 @@ pub struct LdtkEntitySpawnedEvent {
 
 ///|
 pub struct LdtkIntGridCellSpawnedEvent {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
-  layer_entity : @entity.Entity
-  cell_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
+  cell_entity : @ecs.Entity
   level : LdtkLevel
   layer : LdtkLayerInstance
   value : Int32
@@ -63,11 +63,11 @@ pub struct LdtkIntGridCellSpawnedEvent {
 
 ///|
 pub struct LdtkIntGridColliderSpawnedEvent {
-  world_entity : @entity.Entity
-  level_entity : @entity.Entity
-  layer_entity : @entity.Entity
-  cell_entity : @entity.Entity
-  collider_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
+  cell_entity : @ecs.Entity
+  collider_entity : @ecs.Entity
   level : LdtkLevel
   layer : LdtkLayerInstance
   value : Int32

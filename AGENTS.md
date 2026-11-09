@@ -6,15 +6,18 @@
 - Before `python3 publish.py x.y.z`, move released items from `Unreleased` into `## [x.y.z] - YYYY-MM-DD`, then keep a new empty `Unreleased`.
 
 ## `publish.py`
-- Release only: `python3 publish.py x.y.z`; it will fail if changelog has no matching version header.
-- Release order is fixed: `selene-core -> selene-webgpu -> selene-raylib`, all checks must be warning-free.
+- Stable release: `python3 publish.py x.y.z`, with a matching dated changelog section.
+- Development codegen: `python3 publish.py x.y.z-betaN --codegen-only`, with notes under `Unreleased` and N starting at 1.
+- Publish stable codegen first, validate its pinned consumers, then publish `selene-core` before `selene-webgpu`. All checks must be warning-free.
+- Follow [CONTRIBUTING.md](CONTRIBUTING.md#release-process) for the release sequence.
 
 ## `publish_pages.py`
 - Pages: `python3 publish_pages.py` (or `python3 publish_pages.py clean`), with `examples-web` release build already in `_build`.
 
 ## Release Manifest Behavior
-- Publish flow rewrites each release module `moon.mod` version and internal Selene deps to `@x.y.z`.
-- Publish flow also syncs `examples`, `examples-web`, and `examples-native` internal Selene deps to `@x.y.z`.
+- Stable publish flow rewrites each release module `moon.mod` version and internal Selene deps to `@x.y.z`.
+- Stable publish flow also syncs internal Selene dependencies in `examples` and `examples-web` to `@x.y.z`.
+- Codegen beta publication updates its manifest, generator pins, and generated companions.
 - Release pipeline finishes with `moon update` for release modules and example modules; it does not restore old deps.
 
 ## Scope

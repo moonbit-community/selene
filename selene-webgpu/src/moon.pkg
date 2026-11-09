@@ -1,6 +1,6 @@
 import {
   "moonbitlang/core/debug",
-  "moonbit-community/rabbita/dom",
+  "moonbit-community/js-ffi/js",
   "Milky2018/moon_cosmic" @cosmic,
   "Milky2018/selene/math" @smath,
   "Milky2018/selene/platform_runtime" @runtime,

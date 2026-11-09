@@ -25,7 +25,29 @@ const TANK_SCENE_PATH : String = "assets/tank3d/tank_1_green.glb"
 const TANK_SCALE : Double = 1.35
 
 ///|
-let tank_root : Ref[@entity.Entity?] = Ref(None)
+#selene.resource
+priv struct Tank3dState {
+  entities : Array[@ecs.Entity]
+  mut root : @ecs.Entity?
+  mut start_time : Double
+}
+
+///|
+fn new_tank3d_state() -> Tank3dState {
+  { entities: [], root: None, start_time: 0.0, }
+}
+
+///|
+fn tank3d_state() -> Tank3dState {
+  @ecs.require_current_world().resource()
+}
+
+///|
+fn spawn_tank3d_entity() -> @ecs.Entity {
+  let entity = @ecs.Entity()
+  tank3d_state().entities.push(entity)
+  entity
+}
 
 ///|
 fn color(r : UInt32, g : UInt32, b : UInt32, a : Double) -> @render.Color {
@@ -74,7 +96,16 @@ pub fn run() -> Unit {
 }
 
 ///|
-fn setup_tank3d(_world : @ecs.World) -> Unit {
+fn setup_tank3d(world : @ecs.World) -> Unit {
+  let previous : Tank3dState? = world.get_resource()
+  if previous is Some(previous) {
+    for entity in previous.entities {
+      ignore(entity.delete())
+    }
+  }
+  let state = new_tank3d_state()
+  world.insert_resource(state)
+  state.start_time = @time.elapsed()
   setup_camera()
   setup_lighting()
   setup_floor()
@@ -84,12 +115,13 @@ fn setup_tank3d(_world : @ecs.World) -> Unit {
     rotation: tank_basis_rotation(),
     scale: vec3(TANK_SCALE, TANK_SCALE, TANK_SCALE),
   })
-  tank_root.val = Some(instance.root)
+  state.entities.push(instance.root)
+  state.root = Some(instance.root)
 }
 
 ///|
 fn setup_camera() -> Unit {
-  let camera = @entity.Entity()
+  let camera = spawn_tank3d_entity()
   let position = vec3(0.0, 2.1, 4.8)
   @transform.transforms().set(camera, {
     translation: position,
@@ -110,7 +142,7 @@ fn setup_lighting() -> Unit {
   @render3d.set_ambient_light3d(
     Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.12, }),
   )
-  let light = @entity.Entity()
+  let light = spawn_tank3d_entity()
   @render3d.directional_lights3d().set(light, {
     ..@render3d.default_directional_light3d(),
     direction: vec3(-0.35, -0.82, -0.46).normalize(),
@@ -130,7 +162,7 @@ fn setup_floor() -> Unit {
     base_color: color(54U, 61U, 68U, 1.0),
     roughness: 0.85,
   })
-  let floor = @entity.Entity()
+  let floor = spawn_tank3d_entity()
   @transform.transforms().set(floor, {
     translation: vec3(0.0, -0.02, 0.0),
     rotation: @math.Quat::identity(),
@@ -147,10 +179,11 @@ fn setup_floor() -> Unit {
 
 ///|
 fn rotate_tank_system(_world : @ecs.World) -> Unit {
-  guard tank_root.val is Some(root) else { return }
+  let state = tank3d_state()
+  guard state.root is Some(root) else { return }
   let yaw = @math.Quat::from_axis_angle(
     @math.Vec3::y_axis(),
-    @time.elapsed() * 0.35,
+    (@time.elapsed() - state.start_time) * 0.35,
   )
   @transform.transforms().set(root, {
     translation: vec3(0.0, 0.5, 0.0),

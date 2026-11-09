@@ -1,6 +1,6 @@
 ///|
 extern "js" fn webgpu_initialize_ffi(
-  canvas : @dom.HTMLCanvasElement,
+  canvas : BrowserCanvas,
   width : Double,
   height : Double,
   image_smooth : Bool,
@@ -1917,7 +1917,7 @@ extern "js" fn webgpu_initialize_ffi(
 
 ///|
 fn webgpu_initialize(
-  canvas : @dom.HTMLCanvasElement,
+  canvas : BrowserCanvas,
   width : Double,
   height : Double,
   image_smooth : Bool,
