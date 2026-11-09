@@ -66,6 +66,10 @@ Increment `betaN` for later generator changes; published versions are immutable.
 Keep notes under `Unreleased`. The script updates generator pins and companions
 after publication; review and commit those changes.
 
+Prepare formatting and public API interfaces before publishing. The release
+script checks formatting without rewriting it and does not run `moon info`.
+Compiler checks and tests use `--deny-warn`; any failed command stops the release.
+
 For a stable release, move its notes into `## [x.y.z] - YYYY-MM-DD`, leave an
 empty `Unreleased` section, then run `python3 publish.py x.y.z`. The script
 publishes stable codegen, validates its pinned consumers without warnings,

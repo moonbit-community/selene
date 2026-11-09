@@ -26,6 +26,9 @@
 
 ### Changed
 
+- Simplify publishing to direct codegen and stable release sequences, using
+  MoonBit exit codes and `--deny-warn` instead of custom warning parsing.
+  Check formatting without rewriting it and leave API generation to development.
 - Condense the contribution guide to development, validation, generated ECS
   declarations, and release essentials; remove outdated setup and policy details.
 - Publish codegen with the workspace enabled, following the beta-first workflow.
