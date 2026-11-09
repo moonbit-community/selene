@@ -16,6 +16,9 @@ Only the highest-priority scope is selected. Within the same selected scope, `ad
 
 ## Minimal Bundle-Like Template
 
+Create each custom store with `ComponentStore(world)` once per World and pass
+the stores when registering bindings in that World.
+
 ```moonbit
 ///|
 pub struct EnemyTag {}
@@ -29,16 +32,11 @@ pub struct Health {
 pub struct SolidCell {}
 
 ///|
-pub let enemy_tags : Map[@entity.Entity, EnemyTag] = Map::new()
-
-///|
-pub let healths : Map[@entity.Entity, Health] = Map::new()
-
-///|
-pub let solid_cells : Map[@entity.Entity, SolidCell] = Map::new()
-
-///|
-pub fn setup_ldtk_bindings() -> Unit {
+pub fn setup_ldtk_bindings(
+  enemy_tags : @ecs.ComponentStore[EnemyTag],
+  healths : @ecs.ComponentStore[Health],
+  solid_cells : @ecs.ComponentStore[SolidCell],
+) -> Unit {
   // Optional: clear old bindings before re-registering.
   @ldtk.clear_ldtk_entity_registrations()
   @ldtk.clear_ldtk_int_cell_registrations()

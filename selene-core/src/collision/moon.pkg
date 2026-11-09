@@ -7,7 +7,6 @@ import {
   "Milky2018/moon_rapier/pipeline" @rapier_pipeline,
   "Milky2018/moon_rapier/rapier_full",
   "Milky2018/selene/ecs",
-  "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
   "Milky2018/selene/transform",
@@ -22,3 +21,14 @@ import {
   "moonbitlang/core/math" @cmath,
   "moonbitlang/core/cmp",
 }
+
+formatter(
+  ignore: [
+    "area.g.mbt",
+    "body.g.mbt",
+    "collider.g.mbt",
+    "joint.g.mbt",
+    "pickable.g.mbt",
+    "shape.g.mbt",
+  ],
+)

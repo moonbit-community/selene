@@ -15,54 +15,55 @@
 ///|
 /// Start a new hand
 fn start_new_hand() -> Unit {
-  let player = game_state.player
+  let game = game_state()
+  let player = game.player
 
   // Check if player has run out of chips (loses)
   if player.chips <= 0 {
-    game_state.phase = GameOver
+    game.phase = GameOver
     update_ui()
     return
   }
 
   // Check if game is over (no turns remaining)
-  if game_state.turns_remaining <= 0 {
-    game_state.phase = GameOver
+  if game.turns_remaining <= 0 {
+    game.phase = GameOver
     update_ui()
     return
   }
 
   // Check if player can afford the blind
-  if player.chips < game_state.big_blind {
+  if player.chips < game.big_blind {
     // Not enough chips for the blind - game over
-    game_state.phase = GameOver
+    game.phase = GameOver
     update_ui()
     return
   }
-  game_state.hand_number += 1
-  game_state.phase = PreFlop
-  game_state.current_bet = game_state.big_blind
-  game_state.community_cards.clear()
-  set_text(game_state.action_label, "")
-  game_state.magnification = 1 // Reset magnification to 1 for new hand
+  game.hand_number += 1
+  game.phase = PreFlop
+  game.current_bet = game.big_blind
+  game.community_cards.clear()
+  set_text(game.action_label, "")
+  game.magnification = 1 // Reset magnification to 1 for new hand
 
   // Update blinds every 10 hands
-  if game_state.hand_number % 10 == 1 && game_state.hand_number > 1 {
-    game_state.small_blind = game_state.small_blind * 2
-    game_state.big_blind = game_state.big_blind * 2
+  if game.hand_number % 10 == 1 && game.hand_number > 1 {
+    game.small_blind = game.small_blind * 2
+    game.big_blind = game.big_blind * 2
   }
 
   // Reset player
   player.hole_cards.clear()
-  player.current_bet = game_state.big_blind
+  player.current_bet = game.big_blind
   player.has_folded = false
 
   // Deduct big blind from player chips
-  let blind_amount = game_state.big_blind.min(player.chips)
+  let blind_amount = game.big_blind.min(player.chips)
   player.chips -= blind_amount
 
   // Create and shuffle deck
-  game_state.deck = create_deck()
-  shuffle_deck(game_state.deck, game_state.rand)
+  game.deck = create_deck()
+  shuffle_deck(game.deck, game.rand)
 
   // Deal hole cards
   deal_hole_cards()
@@ -74,7 +75,7 @@ fn start_new_hand() -> Unit {
 fn deal_hole_cards() -> Unit {
   for _ in 0..<2 {
     match deal_card() {
-      Some(card) => game_state.player.hole_cards.push(card)
+      Some(card) => game_state().player.hole_cards.push(card)
       None => ()
     }
   }
@@ -86,7 +87,7 @@ fn deal_hole_cards() -> Unit {
 /// Handle a betting round - single player just chooses action
 fn handle_betting_round() -> Unit {
   // Show buttons for player to make choice
-  if !game_state.waiting_for_player {
+  if !game_state().waiting_for_player {
     show_action_buttons()
   }
 }
@@ -94,40 +95,41 @@ fn handle_betting_round() -> Unit {
 ///|
 /// Advance to next game phase
 fn advance_to_next_phase() -> Unit {
-  match game_state.phase {
+  let game = game_state()
+  match game.phase {
     PreFlop => {
       // Deal flop (3 cards)
       for _ in 0..<3 {
         match deal_card() {
-          Some(card) => game_state.community_cards.push(card)
+          Some(card) => game.community_cards.push(card)
           None => ()
         }
       }
-      game_state.phase = Flop
+      game.phase = Flop
       reset_betting_round()
       display_community_cards()
     }
     Flop => {
       // Deal turn (1 card)
       match deal_card() {
-        Some(card) => game_state.community_cards.push(card)
+        Some(card) => game.community_cards.push(card)
         None => ()
       }
-      game_state.phase = Turn
+      game.phase = Turn
       reset_betting_round()
       display_community_cards()
     }
     Turn => {
       // Deal river (1 card)
       match deal_card() {
-        Some(card) => game_state.community_cards.push(card)
+        Some(card) => game.community_cards.push(card)
         None => ()
       }
-      game_state.phase = River
+      game.phase = River
       reset_betting_round()
       display_community_cards()
     }
-    River => game_state.phase = Showdown
+    River => game.phase = Showdown
     _ => ()
   }
   update_ui()
@@ -136,21 +138,23 @@ fn advance_to_next_phase() -> Unit {
 ///|
 /// Reset betting for new round
 fn reset_betting_round() -> Unit {
-  game_state.current_bet = 0
-  game_state.player.current_bet = 0
+  let game = game_state()
+  game.current_bet = 0
+  game.player.current_bet = 0
 }
 
 ///|
 /// Handle showdown phase
 fn handle_showdown() -> Unit {
-  let player = game_state.player
+  let game = game_state()
+  let player = game.player
   if !player.has_folded {
     // Evaluate player's hand
     let hand = []
     for card in player.hole_cards {
       hand.push(card)
     }
-    for card in game_state.community_cards {
+    for card in game.community_cards {
       hand.push(card)
     }
 
@@ -160,7 +164,7 @@ fn handle_showdown() -> Unit {
 
       // Calculate payout based on hand rank
       let base_award = hand_rank_base_award(rank)
-      let magnification = game_state.magnification
+      let magnification = game.magnification
       let payout = base_award * magnification
 
       // Award payout to player
@@ -168,7 +172,7 @@ fn handle_showdown() -> Unit {
     }
 
     // Decrease turns remaining only if didn't fold
-    game_state.turns_remaining -= 1
+    game.turns_remaining -= 1
   }
   update_ui()
 

@@ -8,27 +8,30 @@ pub type AudioHandle = @asset_types.AudioHandle
 pub type FontHandle = @asset_types.FontHandle
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum LoadState {
   NotLoaded
   Loading
   Loaded
   Failed(String)
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum AssetEventKind {
   Added
   Modified
   Removed
   Loaded
   Failed(String)
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct AssetEvent[T] {
   handle : T
   kind : AssetEventKind
-} derive(Eq, Debug)
+}
 
 ///|
 let next_image_id : Ref[UInt32] = Ref(0)

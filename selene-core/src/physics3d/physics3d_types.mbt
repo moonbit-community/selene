@@ -13,29 +13,39 @@
 // limitations under the License.
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) enum RigidBody {
   Dynamic
   Fixed
   KinematicPositionBased
   KinematicVelocityBased
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct Velocity {
   linvel : @math.Vec3
   angvel : @math.Vec3
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct Damping {
   linear_damping : Double
   angular_damping : Double
-} derive(Eq, Debug)
+}
 
 ///|
-pub(all) struct GravityScale(Double) derive(Eq, Debug)
+#derive(Eq, Debug)
+#selene.component
+pub(all) struct GravityScale(Double)
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct LockedAxes {
   lock_translation_x : Bool
   lock_translation_y : Bool
@@ -43,21 +53,28 @@ pub(all) struct LockedAxes {
   lock_rotation_x : Bool
   lock_rotation_y : Bool
   lock_rotation_z : Bool
-} derive(Eq, Debug)
+}
 
 ///|
-pub(all) struct Ccd {} derive(Eq, Debug)
+#derive(Eq, Debug)
+#selene.component
+pub(all) struct Ccd {}
 
 ///|
-pub(all) struct Dominance(Int32) derive(Eq, Debug)
+#derive(Eq, Debug)
+#selene.component
+pub(all) struct Dominance(Int32)
 
 ///|
+#selene.component
 pub(all) enum AdditionalMassProperties {
   Mass(Double)
   MassProperties(@core.MassProperties3)
 }
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) enum Collider {
   Cuboid(@math.Vec3)
   Ball(Double)
@@ -71,10 +88,12 @@ pub(all) enum Collider {
   ConvexHull(Array[@math.Vec3])
   TriMesh(Array[@math.Vec3], Array[(Int32, Int32, Int32)])
   Heightfield(Array[Double], Int32, Int32, @math.Vec3)
-} derive(Eq, Debug)
+}
 
 ///|
-pub(all) struct Sensor {} derive(Eq, Debug)
+#derive(Eq, Debug)
+#selene.component
+pub(all) struct Sensor {}
 
 ///|
 #warnings("-unnecessary_annotation-unused_value")
@@ -83,30 +102,42 @@ fn Sensor::Sensor() -> Sensor {
 }
 
 ///|
-pub(all) struct Friction(Double) derive(Eq, Debug)
+#derive(Eq, Debug)
+#selene.component
+pub(all) struct Friction(Double)
 
 ///|
-pub(all) struct Restitution(Double) derive(Eq, Debug)
+#derive(Eq, Debug)
+#selene.component
+pub(all) struct Restitution(Double)
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct CollisionGroups {
   memberships : Int32
   filters : Int32
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct SolverGroups {
   memberships : Int32
   filters : Int32
-} derive(Eq, Debug)
+}
 
 ///|
-pub(all) struct ContactForceEventThreshold(Double) derive(Eq, Debug)
+#derive(Eq, Debug)
+#selene.component
+pub(all) struct ContactForceEventThreshold(Double)
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) enum ColliderMassProperties {
   Density(Double)
-} derive(Eq, Debug)
+}
 
 ///|
 pub type RapierRigidBodyHandle = @dynamics.RigidBodyHandle
@@ -136,17 +167,18 @@ pub type CharacterLength = @control.CharacterLength
 pub type CharacterAutostep = @control.CharacterAutostep
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum QueryFilterBody {
   All
   Dynamic
   Fixed
   Kinematic
-} derive(Eq, Debug)
+}
 
 ///|
 pub(all) struct QueryFilter {
   groups : CollisionGroups?
-  exclude_entity : @entity.Entity?
+  exclude_entity : @ecs.Entity?
   exclude_collider : RapierColliderHandle?
   exclude_rigid_body : RapierRigidBodyHandle?
   exclude_sensors : Bool

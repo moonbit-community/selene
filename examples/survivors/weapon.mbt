@@ -13,12 +13,13 @@
 // limitations under the License.
 
 ///|
+#derive(Eq)
 enum WeaponType {
   Pistol
   Minigun
   SniperRifle
   Sword
-} derive(Eq)
+}
 
 ///|
 priv struct WeaponData {
@@ -130,10 +131,7 @@ fn calculate_weapon_range(weapon_data : WeaponData, range : Double) -> Double {
 }
 
 ///|
-// Store timers separately - one timer per weapon instance
-let weapon_timers : Array[Double] = []
-
-///|
+#selene.component
 priv struct PlayerBulletState {
   mut alive : Bool
   mut penetration_count : Int32
@@ -142,12 +140,9 @@ priv struct PlayerBulletState {
 }
 
 ///|
-let player_bullets : Map[@entity.Entity, PlayerBulletState] = Map([])
-
-///|
-let player_bullet_trigger_event_reader : @event.EventReader[
-  @physics2d.TriggerEvent,
-] = EventReader()
+fn player_bullets() -> @ecs.ComponentStore[PlayerBulletState] {
+  @ecs.components()
+}
 
 ///|
 fn player_bullet_visual() -> @sprite.Sprite {
@@ -167,24 +162,25 @@ fn update_weapon_timers(
   player_penetration : Int32,
   player_pos : @math.Vec2,
 ) -> Unit {
+  let runtime = survivors_runtime()
   // Initialize timers array if needed
-  while weapon_timers.length() < weapon_instances.length() {
-    weapon_timers.push(0.0)
+  while runtime.weapon_timers.length() < weapon_instances.length() {
+    runtime.weapon_timers.push(0.0)
   }
 
   // Update timers and fire each weapon instance independently
   for i in 0..<weapon_instances.length() {
     let weapon_type = weapon_instances[i]
     let weapon_data = get_weapon_data(weapon_type)
-    if weapon_timers[i] > 0.0 {
-      weapon_timers[i] = weapon_timers[i] - delta
+    if runtime.weapon_timers[i] > 0.0 {
+      runtime.weapon_timers[i] = runtime.weapon_timers[i] - delta
     }
-    if weapon_timers[i] <= 0.0 {
+    if runtime.weapon_timers[i] <= 0.0 {
       // Prevent division by zero - if attack_speed is 0, weapon never fires
       if attack_speed <= 0.0 {
-        weapon_timers[i] = 999999.0 // Very large number to effectively disable weapon
+        runtime.weapon_timers[i] = 999999.0 // Very large number to effectively disable weapon
       } else {
-        weapon_timers[i] = weapon_data.cooldown_rate / attack_speed
+        runtime.weapon_timers[i] = weapon_data.cooldown_rate / attack_speed
       }
       let weapon_range = calculate_weapon_range(weapon_data, player_range)
       let nearest_enemy_pos = find_nearest_enemy_in_range(
@@ -222,7 +218,7 @@ fn shoot_weapon_bullet(
     direction.normalize()
   }
   let bullet_spawn_pos = player_pos + dir.scalar_mul(14.0)
-  let bullet_entity = @entity.Entity()
+  let bullet_entity = spawn_survivors_entity()
   @sprite.sprites().set(bullet_entity, player_bullet_visual())
   @transform.transforms().set(
     bullet_entity,
@@ -247,7 +243,7 @@ fn shoot_weapon_bullet(
     ]),
   )
   @physics2d.areas().set(bullet_entity, area)
-  player_bullets.set(bullet_entity, {
+  player_bullets().set(bullet_entity, {
     alive: true,
     penetration_count: 0,
     damage,
@@ -257,15 +253,15 @@ fn shoot_weapon_bullet(
   // Calculate bullet duration based on weapon range
   let weapon_range = calculate_weapon_range(weapon_data, 0.0)
   let bullet_duration = weapon_range / weapon_data.bullet_speed
-  @system.timeout(bullet_duration, fn() {
+  survivors_timeout(bullet_duration, fn() {
     bullet_entity.destroy()
-    player_bullets.remove(bullet_entity)
+    player_bullets().remove(bullet_entity)
   })
 }
 
 ///|
-fn start_bullet_despawn(bullet_entity : @entity.Entity) -> Unit {
-  guard player_bullets.get(bullet_entity) is Some(bullet) else { return }
+fn start_bullet_despawn(bullet_entity : @ecs.Entity) -> Unit {
+  guard player_bullets().get(bullet_entity) is Some(bullet) else { return }
   if !bullet.alive {
     return
   }
@@ -273,25 +269,25 @@ fn start_bullet_despawn(bullet_entity : @entity.Entity) -> Unit {
   @physics2d.linear_velocities().remove(bullet_entity)
   @physics2d.areas().remove(bullet_entity)
   bullet_entity.destroy()
-  player_bullets.remove(bullet_entity)
+  player_bullets().remove(bullet_entity)
 }
 
 ///|
 fn player_bullet_trigger_system(_world : @ecs.World) -> Unit {
   for
     event in @physics2d.trigger_event_bus.read(
-      player_bullet_trigger_event_reader,
+      survivors_runtime().player_bullet_trigger_event_reader,
     ) {
     guard event.entered else { continue }
-    guard player_bullets.get(event.area) is Some(bullet) else { continue }
+    guard player_bullets().get(event.area) is Some(bullet) else { continue }
     guard bullet.alive else { continue }
-    if enemies.get(event.other) is Some(enemy) {
+    if enemies().get(event.other) is Some(enemy) {
       enemy.health -= bullet.damage
       bullet.penetration_count += 1
       if enemy.health <= 0.0 {
         event.other.destroy()
         let data = get_enemy_data(enemy.enemy_type)
-        set_score(game_state.score + data.points)
+        set_score(game_state().score + data.points)
         add_exp(data.points)
       }
       if bullet.penetration_count >= bullet.penetration_limit {

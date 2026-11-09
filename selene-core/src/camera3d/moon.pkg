@@ -1,8 +1,9 @@
 import {
   "Milky2018/selene/ecs",
-  "Milky2018/selene/entity",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
   "Milky2018/selene/render3d_types",
   "Milky2018/selene/transform",
 }
+
+formatter(ignore: [ "top.g.mbt" ])

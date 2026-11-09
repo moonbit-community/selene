@@ -1,7 +1,5 @@
 import {
-  "Milky2018/selene/commands",
   "Milky2018/selene/ecs",
-  "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "Milky2018/selene/platform_audio",
@@ -15,3 +13,8 @@ import {
   "moonbitlang/core/cmp",
   "moonbitlang/core/set",
 }
+
+import {
+  "Milky2018/selene/sprite",
+  "Milky2018/selene/transform",
+} for "test"

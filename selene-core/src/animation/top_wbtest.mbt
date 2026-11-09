@@ -92,7 +92,7 @@ test "animation transitions track the main animation and return the active anima
 ///|
 test "texture atlas index field resolves as a discrete value instead of a weighted blend" {
   with_animation_test_world(fn() raise {
-    let entity = @entity.Entity()
+    let entity = @ecs.Entity()
     let image = @asset.load_image("animation/test.png")
     let layout = @sprite.register_texture_atlas_layout(
       @sprite.TextureAtlasLayout::from_grid(Vec2(16.0, 16.0), 6, 1),
@@ -134,8 +134,8 @@ test "step scalar sampling switches at an interior keyframe boundary" {
 ///|
 test "animation graph mask groups exclude masked targets during apply" {
   with_animation_test_world(fn() raise {
-    let player_entity = @entity.Entity()
-    let target_entity = @entity.Entity()
+    let player_entity = @ecs.Entity()
+    let target_entity = @ecs.Entity()
     let target_id = AnimationTargetId("masked")
     @transform.transforms().set(target_entity, @transform.Transform::default())
     animation_target_ids().set(target_entity, target_id)
@@ -182,7 +182,7 @@ test "animation event descriptors dispatch typed events to readers and observers
     let events : @event.Events[Int32] = Events()
     let reader : @event.EventReader[Int32] = EventReader()
     let observed : Array[Int32] = []
-    let player_entity = @entity.Entity()
+    let player_entity = @ecs.Entity()
     events.observe_entity(player_entity, fn(trigger) {
       observed.push(trigger.event)
     })

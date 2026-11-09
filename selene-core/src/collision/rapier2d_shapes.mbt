@@ -37,12 +37,12 @@ fn quat_rotation_z(rotation : @math.Quat) -> Double {
 }
 
 ///|
-fn entity_transform(entity : @entity.Entity) -> @transform.Transform? {
+fn entity_transform(entity : @ecs.Entity) -> @transform.Transform? {
   @transform.transforms().get(entity)
 }
 
 ///|
-fn entity_translation(entity : @entity.Entity) -> @math.Vec2? {
+fn entity_translation(entity : @ecs.Entity) -> @math.Vec2? {
   entity_transform(entity).map(fn(transform) {
     Vec2(transform.translation.x, transform.translation.y)
   })
@@ -50,7 +50,7 @@ fn entity_translation(entity : @entity.Entity) -> @math.Vec2? {
 
 ///|
 fn set_entity_translation(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   translation : @math.Vec2,
 ) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
@@ -61,7 +61,7 @@ fn set_entity_translation(
 }
 
 ///|
-fn set_entity_rotation(entity : @entity.Entity, rotation : Double) -> Unit {
+fn set_entity_rotation(entity : @ecs.Entity, rotation : Double) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
@@ -81,17 +81,17 @@ fn collider_handle_id(handle : @rapier_collision.ColliderHandle) -> Int32 {
 }
 
 ///|
-fn world_entity(entity : @entity.Entity) -> Bool {
+fn world_entity(entity : @ecs.Entity) -> Bool {
   !@ui.nodes().contains(entity)
 }
 
 ///|
-fn entity_collision_shape(entity : @entity.Entity) -> CollisionShape? {
+fn entity_collision_shape(entity : @ecs.Entity) -> CollisionShape? {
   shapes().get(entity)
 }
 
 ///|
-fn legacy_rigid_body(entity : @entity.Entity) -> RigidBody {
+fn legacy_rigid_body(entity : @ecs.Entity) -> RigidBody {
   if @velocity.velocities().contains(entity) {
     RigidBody::kinematic_position_based()
   } else {
@@ -100,12 +100,12 @@ fn legacy_rigid_body(entity : @entity.Entity) -> RigidBody {
 }
 
 ///|
-fn entity_rigid_body(entity : @entity.Entity) -> RigidBody {
+fn entity_rigid_body(entity : @ecs.Entity) -> RigidBody {
   rigid_bodies().get(entity).unwrap_or_else(fn() { legacy_rigid_body(entity) })
 }
 
 ///|
-fn entity_collision_config(entity : @entity.Entity) -> EntityCollisionConfig? {
+fn entity_collision_config(entity : @ecs.Entity) -> EntityCollisionConfig? {
   if areas().get(entity) is Some(area) {
     Some({
       filter: area.filter,
@@ -128,7 +128,7 @@ fn entity_collision_config(entity : @entity.Entity) -> EntityCollisionConfig? {
 }
 
 ///|
-fn entity_rotation(entity : @entity.Entity) -> Double {
+fn entity_rotation(entity : @ecs.Entity) -> Double {
   if pending_body_rotations().get(entity) is Some(rotation) {
     rotation
   } else if world().entity_bodies.get(entity) is Some(handle) &&
@@ -143,7 +143,7 @@ fn entity_rotation(entity : @entity.Entity) -> Double {
 
 ///|
 fn entity_linear_velocity_for_body(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   body_type : RigidBodyType,
 ) -> @math.Vec2? {
   match body_type {

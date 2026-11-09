@@ -1,34 +1,35 @@
 ///|
 pub(all) struct UiPointerEnterEvent {
-  entity : @entity.Entity
+  entity : @ecs.Entity
 }
 
 ///|
 pub(all) struct UiPointerLeaveEvent {
-  entity : @entity.Entity
+  entity : @ecs.Entity
 }
 
 ///|
 pub(all) struct UiPointerDownEvent {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   button : @inputs.MouseButton
   position : @math.Vec2
 }
 
 ///|
 pub(all) struct UiPointerUpEvent {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   button : @inputs.MouseButton
   position : @math.Vec2
 }
 
 ///|
 pub(all) struct UiClickEvent {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   button : @inputs.MouseButton
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum UiNavigationDirection {
   Up
   Down
@@ -36,22 +37,22 @@ pub(all) enum UiNavigationDirection {
   Right
   Activate
   Cancel
-} derive(Eq, Debug)
+}
 
 ///|
 pub(all) struct UiNavigationEvent {
-  entity : @entity.Entity?
+  entity : @ecs.Entity?
   direction : UiNavigationDirection
 }
 
 ///|
 pub(all) struct UiFocusInEvent {
-  entity : @entity.Entity
+  entity : @ecs.Entity
 }
 
 ///|
 pub(all) struct UiFocusOutEvent {
-  entity : @entity.Entity
+  entity : @ecs.Entity
 }
 
 ///|
@@ -80,11 +81,11 @@ pub let focus_out_event_bus : @event.Events[UiFocusOutEvent] = Events()
 
 ///|
 priv struct UiInteractionRuntime {
-  mut hovered_entity : @entity.Entity?
-  mut pressed_entity : @entity.Entity?
+  mut hovered_entity : @ecs.Entity?
+  mut pressed_entity : @ecs.Entity?
   mut pressed_pointer : @inputs.PointerId?
-  mut focused_entity : @entity.Entity?
-  pointer_captures : Map[@inputs.PointerId, @entity.Entity]
+  mut focused_entity : @ecs.Entity?
+  pointer_captures : Map[@inputs.PointerId, @ecs.Entity]
   consumed_pointers : Set[@inputs.PointerId]
 }
 
@@ -105,12 +106,12 @@ fn ui_interaction_runtime() -> UiInteractionRuntime {
 }
 
 ///|
-pub fn hovered_entity() -> @entity.Entity? {
+pub fn hovered_entity() -> @ecs.Entity? {
   ui_interaction_runtime().hovered_entity
 }
 
 ///|
-pub fn focused_entity() -> @entity.Entity? {
+pub fn focused_entity() -> @ecs.Entity? {
   ui_interaction_runtime().focused_entity
 }
 
@@ -183,17 +184,17 @@ pub fn unconsumed_pointer_changes_this_frame() -> Array[@inputs.PointerEvent] {
 }
 
 ///|
-fn clear_focus_marker(entity : @entity.Entity) -> Unit {
+fn clear_focus_marker(entity : @ecs.Entity) -> Unit {
   focuseds().remove(entity)
 }
 
 ///|
-fn set_focus_marker(entity : @entity.Entity) -> Unit {
+fn set_focus_marker(entity : @ecs.Entity) -> Unit {
   focuseds().set(entity, Focused())
 }
 
 ///|
-pub fn focus(entity : @entity.Entity) -> Unit {
+pub fn focus(entity : @ecs.Entity) -> Unit {
   let runtime = ui_interaction_runtime()
   if runtime.focused_entity is Some(current) && current == entity {
     return
@@ -218,12 +219,12 @@ pub fn blur() -> Unit {
 }
 
 ///|
-fn is_interactive(entity : @entity.Entity) -> Bool {
+fn is_interactive(entity : @ecs.Entity) -> Bool {
   buttons().get(entity).map(fn(button) { button.enabled }).unwrap_or(false)
 }
 
 ///|
-fn is_focusable(entity : @entity.Entity) -> Bool {
+fn is_focusable(entity : @ecs.Entity) -> Bool {
   if is_interactive(entity) {
     true
   } else {
@@ -232,14 +233,14 @@ fn is_focusable(entity : @entity.Entity) -> Bool {
 }
 
 ///|
-fn button_blocks_pointer(entity : @entity.Entity) -> Bool {
+fn button_blocks_pointer(entity : @ecs.Entity) -> Bool {
   focus_policies().get(entity).unwrap_or(Pass) == Block
 }
 
 ///|
 fn interaction_state(
-  entity : @entity.Entity,
-  hovered : @entity.Entity?,
+  entity : @ecs.Entity,
+  hovered : @ecs.Entity?,
 ) -> Interaction {
   let runtime = ui_interaction_runtime()
   if runtime.pressed_entity is Some(pressed) &&
@@ -255,8 +256,8 @@ fn interaction_state(
 }
 
 ///|
-fn focusable_entities() -> Array[@entity.Entity] {
-  let entities : Array[@entity.Entity] = []
+fn focusable_entities() -> Array[@ecs.Entity] {
+  let entities : Array[@ecs.Entity] = []
   for entity in ui_stack() {
     if is_focusable(entity) {
       entities.push(entity)
@@ -324,7 +325,7 @@ fn move_focus(direction : UiNavigationDirection) -> Unit {
   let current_center = rect_center(
     global_ui_nodes().get(current).unwrap().screen_rect,
   )
-  let mut best_entity : @entity.Entity? = None
+  let mut best_entity : @ecs.Entity? = None
   let mut best_primary = 0.0
   let mut best_secondary = 0.0
   let mut has_best = false
@@ -397,7 +398,7 @@ fn point_in_rect(point : @math.Vec2, rect : @math.Rect) -> Bool {
 }
 
 ///|
-fn screen_clip_allows(entity : @entity.Entity, point : @math.Vec2) -> Bool {
+fn screen_clip_allows(entity : @ecs.Entity, point : @math.Vec2) -> Bool {
   let within_target_viewport = global_ui_nodes()
     .get(entity)
     .map(fn(transform) { point_in_rect(point, transform.target_viewport) })
@@ -457,7 +458,7 @@ fn update_relative_cursor_positions(position : @math.Vec2) -> Unit {
 }
 
 ///|
-fn resolve_pointer_target(position : @math.Vec2) -> @entity.Entity? {
+fn resolve_pointer_target(position : @math.Vec2) -> @ecs.Entity? {
   let candidates = ui_stack()
   let mut index = candidates.length() - 1
   while index >= 0 {
@@ -481,7 +482,7 @@ fn resolve_pointer_target(position : @math.Vec2) -> @entity.Entity? {
 }
 
 ///|
-fn ui_node_at(position : @math.Vec2) -> @entity.Entity? {
+fn ui_node_at(position : @math.Vec2) -> @ecs.Entity? {
   let candidates = ui_stack()
   let mut index = candidates.length() - 1
   while index >= 0 {
@@ -500,7 +501,7 @@ fn ui_node_at(position : @math.Vec2) -> @entity.Entity? {
 }
 
 ///|
-fn scrollable_target_at(position : @math.Vec2) -> @entity.Entity? {
+fn scrollable_target_at(position : @math.Vec2) -> @ecs.Entity? {
   let mut target = ui_node_at(position)
   while target is Some(entity) {
     guard nodes().get(entity) is Some(node) else {
@@ -516,7 +517,7 @@ fn scrollable_target_at(position : @math.Vec2) -> @entity.Entity? {
 }
 
 ///|
-fn blocking_target_at(position : @math.Vec2) -> @entity.Entity? {
+fn blocking_target_at(position : @math.Vec2) -> @ecs.Entity? {
   let mut target = ui_node_at(position)
   while target is Some(entity) {
     if button_blocks_pointer(entity) {
@@ -528,7 +529,7 @@ fn blocking_target_at(position : @math.Vec2) -> @entity.Entity? {
 }
 
 ///|
-fn touch_capture_target_at(position : @math.Vec2) -> @entity.Entity? {
+fn touch_capture_target_at(position : @math.Vec2) -> @ecs.Entity? {
   match resolve_pointer_target(position) {
     Some(entity) => Some(entity)
     None =>
@@ -591,7 +592,7 @@ pub fn ui_input_capture_system(_delta : Double) -> Unit {
 }
 
 ///|
-fn apply_scroll_delta(entity : @entity.Entity, delta : @math.Vec2) -> Unit {
+fn apply_scroll_delta(entity : @ecs.Entity, delta : @math.Vec2) -> Unit {
   guard nodes().get(entity) is Some(node) else { return }
   guard computed_ui_nodes().get(entity) is Some(computed) else { return }
   let scroll = scroll_positions().get_or_init(entity, ScrollPosition::zero)
@@ -678,7 +679,7 @@ fn contact_pointer_changed_this_frame() -> Bool {
 }
 
 ///|
-fn update_hover_from_mouse(position : @math.Vec2) -> @entity.Entity? {
+fn update_hover_from_mouse(position : @math.Vec2) -> @ecs.Entity? {
   let runtime = ui_interaction_runtime()
   let hovered = resolve_pointer_target(position)
   if runtime.hovered_entity != hovered {
@@ -712,7 +713,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
   update_contact_drag_scroll()
   let contact_active = active_primary_contact() ||
     contact_pointer_changed_this_frame()
-  let visual_hover : @entity.Entity? = if contact_active {
+  let visual_hover : @ecs.Entity? = if contact_active {
     clear_touch_hover()
     None
   } else {

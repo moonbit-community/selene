@@ -1,8 +1,8 @@
 ///|
 fn ldtk_despawn_level(
-  world_entity : @entity.Entity,
+  world_entity : @ecs.Entity,
   level_iid : String,
-  level_entity : @entity.Entity,
+  level_entity : @ecs.Entity,
 ) -> Unit {
   ldtk_pending_transformed_level_iids().remove(level_iid)
   ldtk_level_event_bus.trigger(Despawned(level_iid), Some(level_entity))
@@ -24,7 +24,7 @@ fn ldtk_despawn_level(
 }
 
 ///|
-fn ldtk_force_world_respawn(world_entity : @entity.Entity) -> Unit {
+fn ldtk_force_world_respawn(world_entity : @ecs.Entity) -> Unit {
   guard ldtk_world_instances().get(world_entity) is Some(instance) else {
     return
   }
@@ -44,7 +44,7 @@ fn ldtk_force_world_respawn(world_entity : @entity.Entity) -> Unit {
 }
 
 ///|
-fn ldtk_force_level_respawns(world_entity : @entity.Entity) -> Unit {
+fn ldtk_force_level_respawns(world_entity : @ecs.Entity) -> Unit {
   guard ldtk_world_instances().get(world_entity) is Some(instance) else {
     return
   }
@@ -296,7 +296,7 @@ fn ldtk_entity_is_worldly(entity_instance : LdtkEntityInstance) -> Bool {
 
 ///|
 fn ldtk_apply_int_grid_physics(
-  cell_entity : @entity.Entity,
+  cell_entity : @ecs.Entity,
   layer_identifier : String,
   value : Int32,
   grid_size : Double,
@@ -341,7 +341,7 @@ fn ldtk_level_offset(
 
 ///|
 fn ldtk_level_zindex(
-  level_entity : @entity.Entity,
+  level_entity : @ecs.Entity,
   settings : LdtkWorldSpawnSettings,
 ) -> Int32 {
   guard ldtk_level_instances().get(level_entity) is Some(level_instance) else {

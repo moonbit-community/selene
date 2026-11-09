@@ -26,21 +26,9 @@
 /// inspect(vel, content="Velocity(Vec2(5, 3))")
 /// ```
 ///
-pub(all) struct Velocity(@math.Vec2) derive(Eq, Debug)
-
-///|
-priv struct VelocityWorldStore {
-  velocities : Map[@entity.Entity, Velocity]
-}
-
-///|
-let velocity_world_stores : Map[UInt32, VelocityWorldStore] = Map([])
-
-///|
-fn velocity_world_store() -> VelocityWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  velocity_world_stores.get_or_init(world_id, () => { velocities: Map([]), })
-}
+#derive(Eq, Debug)
+#selene.component
+pub(all) struct Velocity(@math.Vec2)
 
 ///|
 /// Returns the current world's velocity component store.
@@ -49,7 +37,7 @@ fn velocity_world_store() -> VelocityWorldStore {
 ///
 /// ```moonbit nocheck
 /// // Set velocity for an entity
-/// let entity = @entity.Entity()
+/// let entity = @ecs.Entity()
 /// defer entity.destroy()
 ///
 /// @velocity.velocities().set(entity, @math.Vec2(10.0, 5.0))
@@ -60,6 +48,6 @@ fn velocity_world_store() -> VelocityWorldStore {
 /// inspect(entity_vel, content="Some(Velocity(Vec2(10, 5)))")
 /// ```
 ///
-pub fn velocities() -> Map[@entity.Entity, Velocity] {
-  velocity_world_store().velocities
+pub fn velocities() -> @ecs.ComponentStore[Velocity] {
+  @ecs.components()
 }

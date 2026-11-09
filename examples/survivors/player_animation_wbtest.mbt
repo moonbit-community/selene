@@ -1,10 +1,12 @@
 ///|
 test "player animation controller remembers current node" {
   use_survivors_test_assets()
-  @ecs.set_current_world(@ecs.bootstrap_world())
-  let entity = @entity.Entity()
+  @ecs.set_current_world(@ecs.World())
+  @time.initialize(@ecs.require_current_world())
+  reset_survivors_runtime()
+  let entity = @ecs.Entity()
   let controller = create_player_animation_controller(entity)
-  player_animation_controllers.set(entity, controller)
+  player_animation_controllers().set(entity, controller)
 
   play_player_animation_state(
     entity,
@@ -13,7 +15,7 @@ test "player animation controller remembers current node" {
   )
 
   inspect(
-    player_animation_controllers.get(entity).unwrap().current ==
+    player_animation_controllers().get(entity).unwrap().current ==
     Some(controller.idle_right),
     content="true",
   )
@@ -22,10 +24,12 @@ test "player animation controller remembers current node" {
 ///|
 test "replaying same player animation state does not reset atlas index" {
   use_survivors_test_assets()
-  @ecs.set_current_world(@ecs.bootstrap_world())
-  let entity = @entity.Entity()
+  @ecs.set_current_world(@ecs.World())
+  @time.initialize(@ecs.require_current_world())
+  reset_survivors_runtime()
+  let entity = @ecs.Entity()
   let controller = create_player_animation_controller(entity)
-  player_animation_controllers.set(entity, controller)
+  player_animation_controllers().set(entity, controller)
 
   play_player_animation_state(
     entity,
@@ -53,10 +57,12 @@ test "replaying same player animation state does not reset atlas index" {
 ///|
 test "player run animation advances atlas indices in order" {
   use_survivors_test_assets()
-  @ecs.set_current_world(@ecs.bootstrap_world())
-  let entity = @entity.Entity()
+  @ecs.set_current_world(@ecs.World())
+  @time.initialize(@ecs.require_current_world())
+  reset_survivors_runtime()
+  let entity = @ecs.Entity()
   let controller = create_player_animation_controller(entity)
-  player_animation_controllers.set(entity, controller)
+  player_animation_controllers().set(entity, controller)
 
   play_player_animation_state(
     entity,

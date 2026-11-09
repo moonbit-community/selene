@@ -21,17 +21,19 @@
 /// * `Right` : The right mouse button
 /// * `Middle` : The middle mouse button (scroll wheel button)
 ///
+#derive(Eq, Debug)
 pub(all) enum MouseButton {
   Left
   Right
   Middle
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum MouseButtonInputState {
   Pressed
   Released
-} derive(Eq, Debug)
+}
 
 ///|
 pub struct MouseButtonEvent {

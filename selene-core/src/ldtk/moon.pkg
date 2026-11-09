@@ -2,7 +2,6 @@ import {
   "moonbitlang/core/debug",
   "Milky2018/selene/asset",
   "Milky2018/selene/ecs",
-  "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
   "Milky2018/selene/physics2d",
@@ -13,3 +12,5 @@ import {
   "moonbitlang/core/encoding/utf8" @encoding/utf8,
   "moonbitlang/core/string",
 }
+
+formatter(ignore: [ "ldtk_world_types.g.mbt" ])

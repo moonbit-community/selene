@@ -2,7 +2,7 @@
 package "Milky2018/selene/render3d"
 
 import {
-  "Milky2018/selene/entity",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
   "Milky2018/selene/render3d_types",
@@ -14,7 +14,7 @@ pub fn apply_texture_transform3d(@render3d_types.TextureTransform3D, @math.Vec2)
 
 pub fn build_cascade_shadow_config3d(@render3d_types.CascadeShadowConfigBuilder3D) -> @render3d_types.CascadeShadowConfig3D
 
-pub fn camera_skyboxes3d() -> Map[@entity.Entity, @render3d_types.Skybox3D]
+pub fn camera_skyboxes3d() -> @ecs.ComponentStore[@render3d_types.Skybox3D]
 
 pub fn cube_mesh(@math.Vec3) -> @render3d_types.MeshAsset
 
@@ -46,7 +46,7 @@ pub fn default_texture_sampler3d() -> @render3d_types.TextureSampler3D
 
 pub fn default_texture_transform3d() -> @render3d_types.TextureTransform3D
 
-pub fn directional_lights3d() -> Map[@entity.Entity, @render3d_types.DirectionalLight3D]
+pub fn directional_lights3d() -> @ecs.ComponentStore[@render3d_types.DirectionalLight3D]
 
 pub fn empty_render_frame3d() -> @render3d_types.RenderFrame3D
 
@@ -60,13 +60,13 @@ pub fn get_point_light_shadow_map3d() -> @render3d_types.PointLightShadowMap3D
 
 pub fn get_scene_path(@render3d_types.SceneHandle) -> String?
 
-pub fn mesh3d_renderers() -> Map[@entity.Entity, Mesh3DRenderer]
+pub fn mesh3d_renderers() -> @ecs.ComponentStore[Mesh3DRenderer]
 
 pub fn mesh_asset(@render3d_types.MeshHandle) -> @render3d_types.MeshAsset?
 
 pub fn plane_mesh(@math.Vec3) -> @render3d_types.MeshAsset
 
-pub fn point_lights3d() -> Map[@entity.Entity, @render3d_types.PointLight3D]
+pub fn point_lights3d() -> @ecs.ComponentStore[@render3d_types.PointLight3D]
 
 pub fn push_line3d(@render3d_types.RenderLine3D) -> Unit
 
@@ -100,7 +100,7 @@ pub fn skybox3d(@render3d_types.CubemapHandle, brightness? : Double, rotation? :
 
 pub fn sphere_mesh(Double) -> @render3d_types.MeshAsset
 
-pub fn spot_lights3d() -> Map[@entity.Entity, @render3d_types.SpotLight3D]
+pub fn spot_lights3d() -> @ecs.ComponentStore[@render3d_types.SpotLight3D]
 
 pub fn take_dirty_cubemap_assets() -> Array[(@render3d_types.CubemapHandle, @render3d_types.CubemapAsset3D)]
 
@@ -133,16 +133,18 @@ pub fn update_mesh_asset(@render3d_types.MeshHandle, @render3d_types.MeshAsset) 
 // Errors
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) struct Mesh3DRenderer {
   mesh : @render3d_types.MeshHandle
   material : @render3d_types.MaterialHandle
   mut visible : Bool
   mut cast_shadows : Bool
   mut receive_shadows : Bool
-} derive(Eq, @debug.Debug)
+}
 pub fn Mesh3DRenderer::equal(Self, Self) -> Bool
 pub fn Mesh3DRenderer::not_equal(Self, Self) -> Bool
 pub fn Mesh3DRenderer::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Component for Mesh3DRenderer
 
 // Type aliases
 pub using @render3d_types {type AlphaMode3D}

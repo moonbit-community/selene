@@ -1,64 +1,50 @@
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) enum Visibility {
   Visible
   Hidden
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct InheritedVisibility {
   visible : Bool
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct ViewVisibility {
   visible : Bool
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct RenderLayers {
   mask : UInt32
-} derive(Eq, Debug)
-
-///|
-priv struct VisibilityWorldStore {
-  visibilities : Map[@entity.Entity, Visibility]
-  inherited_visibilities : Map[@entity.Entity, InheritedVisibility]
-  view_visibilities : Map[@entity.Entity, ViewVisibility]
-  render_layers : Map[@entity.Entity, RenderLayers]
 }
 
 ///|
-let visibility_world_stores : Map[UInt32, VisibilityWorldStore] = Map([])
-
-///|
-fn visibility_world_store() -> VisibilityWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  visibility_world_stores.get_or_init(world_id, () => {
-    visibilities: Map([]),
-    inherited_visibilities: Map([]),
-    view_visibilities: Map([]),
-    render_layers: Map([]),
-  })
+pub fn visibilities() -> @ecs.ComponentStore[Visibility] {
+  @ecs.components()
 }
 
 ///|
-pub fn visibilities() -> Map[@entity.Entity, Visibility] {
-  visibility_world_store().visibilities
+pub fn inherited_visibilities() -> @ecs.ComponentStore[InheritedVisibility] {
+  @ecs.components()
 }
 
 ///|
-pub fn inherited_visibilities() -> Map[@entity.Entity, InheritedVisibility] {
-  visibility_world_store().inherited_visibilities
+pub fn view_visibilities() -> @ecs.ComponentStore[ViewVisibility] {
+  @ecs.components()
 }
 
 ///|
-pub fn view_visibilities() -> Map[@entity.Entity, ViewVisibility] {
-  visibility_world_store().view_visibilities
-}
-
-///|
-pub fn render_layers() -> Map[@entity.Entity, RenderLayers] {
-  visibility_world_store().render_layers
+pub fn render_layers() -> @ecs.ComponentStore[RenderLayers] {
+  @ecs.components()
 }
 
 ///|
@@ -86,14 +72,14 @@ pub fn matches(lhs : RenderLayers, rhs : RenderLayers) -> Bool {
 }
 
 ///|
-pub fn entity_render_layers(entity : @entity.Entity) -> RenderLayers {
+pub fn entity_render_layers(entity : @ecs.Entity) -> RenderLayers {
   render_layers().get(entity).unwrap_or(default_render_layers())
 }
 
 ///|
 fn compute_inherited_visibility(
-  entity : @entity.Entity,
-  cache : Map[@entity.Entity, Bool],
+  entity : @ecs.Entity,
+  cache : Map[@ecs.Entity, Bool],
 ) -> Bool {
   if cache.get(entity) is Some(visible) {
     return visible
@@ -114,39 +100,20 @@ pub fn visibility_propagate_system(_delta : Double) -> Unit {
   let view_visibilities = view_visibilities()
   let render_layers = render_layers()
   let visibilities = visibilities()
-  let cache : Map[@entity.Entity, Bool] = Map([])
-  for entity in @entity.iter_entities() {
+  let cache : Map[@ecs.Entity, Bool] = Map([])
+  for entity in @ecs.iter_entities() {
     let visible = compute_inherited_visibility(entity, cache)
     inherited_visibilities.set(entity, { visible, })
     view_visibilities.set(entity, { visible, })
   }
-  for pair in inherited_visibilities.to_array() {
-    let entity = pair.0
-    if !entity.is_alive() {
-      inherited_visibilities.remove(entity)
-    }
-  }
-  for pair in view_visibilities.to_array() {
-    let entity = pair.0
-    if !entity.is_alive() {
-      view_visibilities.remove(entity)
-    }
-  }
-  for pair in render_layers.to_array() {
-    let entity = pair.0
-    if !entity.is_alive() {
-      render_layers.remove(entity)
-    }
-  }
-  for pair in visibilities.to_array() {
-    let entity = pair.0
-    if !entity.is_alive() {
-      visibilities.remove(entity)
-    }
-  }
+  let alive = @ecs.alive_in_world(@ecs.require_current_world())
+  inherited_visibilities.retain(alive)
+  view_visibilities.retain(alive)
+  render_layers.retain(alive)
+  visibilities.retain(alive)
 }
 
 ///|
-pub fn is_visible(entity : @entity.Entity) -> Bool {
+pub fn is_visible(entity : @ecs.Entity) -> Bool {
   view_visibilities().get(entity).map(fn(v) { v.visible }).unwrap_or(true)
 }

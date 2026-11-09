@@ -14,6 +14,7 @@
 
 ///|
 /// Marker component for pointer-interactive entities.
+#selene.component
 pub(all) struct Pickable {
   mut active : Bool
 }
@@ -24,38 +25,25 @@ pub fn Pickable::Pickable() -> Pickable {
 }
 
 ///|
-priv struct PickableWorldStore {
-  pickables : Map[@entity.Entity, Pickable]
-}
-
-///|
-let pickable_world_stores : Map[UInt32, PickableWorldStore] = Map([])
-
-///|
-fn pickable_world_store() -> PickableWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  pickable_world_stores.get_or_init(world_id, () => { pickables: Map([]), })
-}
-
-///|
 /// All pickable components.
-pub fn pickables() -> Map[@entity.Entity, Pickable] {
-  pickable_world_store().pickables
+pub fn pickables() -> @ecs.ComponentStore[Pickable] {
+  @ecs.components()
 }
 
 ///|
 /// Pointer phase for frame events.
+#derive(Eq)
 pub(all) enum PointerPhase {
   Pressed
   Released
   JustPressed
   JustReleased
-} derive(Eq)
+}
 
 ///|
 /// Pointer event emitted during the latest update frame.
 pub struct PointerEvent {
-  entity : @entity.Entity
+  entity : @ecs.Entity
   button : @inputs.MouseButton
   phase : PointerPhase
 }
@@ -65,7 +53,7 @@ pub let pointer_event_bus : @event.Events[PointerEvent] = Events()
 
 ///|
 fn push_pointer_event(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   button : @inputs.MouseButton,
   phase : PointerPhase,
 ) -> Unit {
@@ -74,7 +62,7 @@ fn push_pointer_event(
 
 ///|
 pub fn emit_pickable_just_pressed(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   button~ : @inputs.MouseButton = Left,
 ) -> Unit {
   push_pointer_event(entity, button, JustPressed)
@@ -225,7 +213,7 @@ fn point_in_collision_shape(
 
 ///|
 fn pickable_matches_camera_view(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   camera_view : @camera.Camera2dView?,
 ) -> Bool {
   if @ui.global_ui_nodes().contains(entity) {
@@ -247,7 +235,7 @@ fn pickable_matches_camera_view(
 
 ///|
 fn hit_test_pickable(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   mouse_screen : @math.Vec2,
   mouse_world : @math.Vec2,
   _mouse_virtual : @math.Vec2,
@@ -279,7 +267,7 @@ fn hit_test_pickable(
 }
 
 ///|
-fn dispatch_pointer_events(entity : @entity.Entity) -> Unit {
+fn dispatch_pointer_events(entity : @ecs.Entity) -> Unit {
   for button in [@inputs.MouseButton::Left, Right, Middle] {
     if @inputs.is_mouse_pressed(button) {
       push_pointer_event(entity, button, Pressed)
@@ -320,7 +308,7 @@ pub fn pickable_click_system(_delta : Double) -> Unit {
 
 ///|
 fn pickable_entity_global_transform(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
 ) -> @transform.GlobalTransform? {
   @transform.compute_global_transform(entity)
 }

@@ -6,7 +6,6 @@ import {
   "Milky2018/moon_rapier/dynamics",
   "Milky2018/moon_rapier/pipeline",
   "Milky2018/selene/ecs",
-  "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
@@ -14,3 +13,5 @@ import {
   "Milky2018/selene/transform",
   "moonbitlang/core/math" @cmath,
 }
+
+formatter(ignore: [ "physics3d_components.g.mbt", "physics3d_types.g.mbt" ])

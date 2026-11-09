@@ -288,7 +288,7 @@ fn measure_node(
   known_dimensions : @geometry.Size[Double?],
   available : @geometry.Size[@geometry.AvailableSpace],
   _node_id : Int32,
-  entity : @entity.Entity?,
+  entity : @ecs.Entity?,
   style : @style.Style,
 ) -> @geometry.Size[Double] {
   guard entity is Some(entity) else { return @geometry.Size::zero() }
@@ -434,157 +434,47 @@ fn screen_rect_for(
 
 ///|
 fn cleanup_dead_ui_state() -> Unit {
-  for pair in nodes().to_array() {
-    if !pair.0.is_alive() {
-      nodes().remove(pair.0)
-    }
-  }
-  for pair in computed_ui_nodes().to_array() {
-    if !pair.0.is_alive() {
-      computed_ui_nodes().remove(pair.0)
-    }
-  }
-  for pair in global_ui_nodes().to_array() {
-    if !pair.0.is_alive() {
-      global_ui_nodes().remove(pair.0)
-    }
-  }
-  for pair in ui_target_cameras().to_array() {
-    if !pair.0.is_alive() {
-      ui_target_cameras().remove(pair.0)
-    }
-  }
-  for pair in z_indexes().to_array() {
-    if !pair.0.is_alive() {
-      z_indexes().remove(pair.0)
-    }
-  }
-  for pair in global_zindexes().to_array() {
-    if !pair.0.is_alive() {
-      global_zindexes().remove(pair.0)
-    }
-  }
-  for pair in scroll_positions().to_array() {
-    if !pair.0.is_alive() {
-      scroll_positions().remove(pair.0)
-    }
-  }
-  for pair in tab_indexes().to_array() {
-    if !pair.0.is_alive() {
-      tab_indexes().remove(pair.0)
-    }
-  }
-  for pair in focus_policies().to_array() {
-    if !pair.0.is_alive() {
-      focus_policies().remove(pair.0)
-    }
-  }
-  for pair in focusables().to_array() {
-    if !pair.0.is_alive() {
-      focusables().remove(pair.0)
-    }
-  }
-  for pair in focuseds().to_array() {
-    if !pair.0.is_alive() {
-      focuseds().remove(pair.0)
-    }
-  }
-  for pair in override_clips().to_array() {
-    if !pair.0.is_alive() {
-      override_clips().remove(pair.0)
-    }
-  }
-  for pair in relative_cursor_positions().to_array() {
-    if !pair.0.is_alive() {
-      relative_cursor_positions().remove(pair.0)
-    }
-  }
-  for pair in background_colors().to_array() {
-    if !pair.0.is_alive() {
-      background_colors().remove(pair.0)
-    }
-  }
-  for pair in border_colors().to_array() {
-    if !pair.0.is_alive() {
-      border_colors().remove(pair.0)
-    }
-  }
-  for pair in border_radii().to_array() {
-    if !pair.0.is_alive() {
-      border_radii().remove(pair.0)
-    }
-  }
-  for pair in outlines().to_array() {
-    if !pair.0.is_alive() {
-      outlines().remove(pair.0)
-    }
-  }
-  for pair in material_nodes().to_array() {
-    if !pair.0.is_alive() {
-      material_nodes().remove(pair.0)
-    }
-  }
-  for pair in ui_images().to_array() {
-    if !pair.0.is_alive() {
-      ui_images().remove(pair.0)
-    }
-  }
-  for pair in texts().to_array() {
-    if !pair.0.is_alive() {
-      texts().remove(pair.0)
-    }
-  }
-  for pair in text_fonts().to_array() {
-    if !pair.0.is_alive() {
-      text_fonts().remove(pair.0)
-    }
-  }
-  for pair in text_colors().to_array() {
-    if !pair.0.is_alive() {
-      text_colors().remove(pair.0)
-    }
-  }
-  for pair in text_layouts().to_array() {
-    if !pair.0.is_alive() {
-      text_layouts().remove(pair.0)
-    }
-  }
-  for pair in buttons().to_array() {
-    if !pair.0.is_alive() {
-      buttons().remove(pair.0)
-    }
-  }
-  for pair in interactions().to_array() {
-    if !pair.0.is_alive() {
-      interactions().remove(pair.0)
-    }
-  }
-  for pair in calculated_clips().to_array() {
-    if !pair.0.is_alive() {
-      calculated_clips().remove(pair.0)
-    }
-  }
-  for pair in layout_configs().to_array() {
-    if !pair.0.is_alive() {
-      layout_configs().remove(pair.0)
-    }
-  }
-  for pair in tree_orders().to_array() {
-    if !pair.0.is_alive() {
-      tree_orders().remove(pair.0)
-    }
-  }
+  let alive = @ecs.alive_in_world(@ecs.require_current_world())
+  nodes().retain(alive)
+  computed_ui_nodes().retain(alive)
+  global_ui_nodes().retain(alive)
+  ui_target_cameras().retain(alive)
+  z_indexes().retain(alive)
+  global_zindexes().retain(alive)
+  scroll_positions().retain(alive)
+  tab_indexes().retain(alive)
+  focus_policies().retain(alive)
+  focusables().retain(alive)
+  focuseds().retain(alive)
+  override_clips().retain(alive)
+  relative_cursor_positions().retain(alive)
+  background_colors().retain(alive)
+  border_colors().retain(alive)
+  border_radii().retain(alive)
+  outlines().retain(alive)
+  material_nodes().retain(alive)
+  ui_images().retain(alive)
+  texts().retain(alive)
+  text_fonts().retain(alive)
+  text_colors().retain(alive)
+  text_layouts().retain(alive)
+  buttons().retain(alive)
+  interactions().retain(alive)
+  calculated_clips().retain(alive)
+  layout_configs().retain(alive)
+  tree_orders().retain(alive)
 }
 
 ///|
 fn apply_layout_recursive(
-  entity : @entity.Entity,
-  chicle : @tree.ChicleTree[@entity.Entity],
-  entity_to_node_id : Map[@entity.Entity, Int32],
+  entity : @ecs.Entity,
+  chicle : @tree.ChicleTree[@ecs.Entity],
+  entity_to_node_id : Map[@ecs.Entity, Int32],
   parent_layout_origin : @math.Vec2,
   parent_clip : @math.Rect?,
   inherited_use_rounding : Bool,
   layout_space : UiLayoutSpace,
+  projected : Set[@ecs.Entity],
 ) -> Unit {
   guard entity_to_node_id.get(entity) is Some(node_id) else { return }
   guard nodes().get(entity) is Some(node) else { return }
@@ -598,6 +488,7 @@ fn apply_layout_recursive(
     .map(fn(config) { config.use_rounding })
     .unwrap_or(inherited_use_rounding)
   let layout = chicle.layout(node_id) catch { _ => return }
+  projected.add(entity)
 
   let logical_pos = parent_layout_origin +
     Vec2(layout.location.x, layout.location.y)
@@ -703,7 +594,7 @@ fn apply_layout_recursive(
   for child in ui_children(entity) {
     apply_layout_recursive(
       child, chicle, entity_to_node_id, next_origin, current_clip, use_rounding,
-      effective_layout_space,
+      effective_layout_space, projected,
     )
   }
 }

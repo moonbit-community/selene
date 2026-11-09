@@ -8,37 +8,25 @@ pub(all) struct ColorMaterial {
 }
 
 ///|
-pub(all) struct ColorMaterialHandle(UInt32) derive(Eq, Debug, Hash)
+#derive(Eq, Debug, Hash)
+pub(all) struct ColorMaterialHandle(UInt32)
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum Material2dHandle {
   Color(ColorMaterialHandle)
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct MeshMaterial2d {
   material : Material2dHandle
-} derive(Eq, Debug)
-
-///|
-priv struct Material2dWorldStore {
-  mesh_material2ds : Map[@entity.Entity, MeshMaterial2d]
 }
 
 ///|
-let material2d_world_stores : Map[UInt32, Material2dWorldStore] = Map([])
-
-///|
-fn material2d_world_store() -> Material2dWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  material2d_world_stores.get_or_init(world_id, fn() {
-    { mesh_material2ds: Map([]), }
-  })
-}
-
-///|
-pub fn mesh_material2ds() -> Map[@entity.Entity, MeshMaterial2d] {
-  material2d_world_store().mesh_material2ds
+pub fn mesh_material2ds() -> @ecs.ComponentStore[MeshMaterial2d] {
+  @ecs.components()
 }
 
 ///|

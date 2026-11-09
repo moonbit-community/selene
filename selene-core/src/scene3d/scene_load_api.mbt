@@ -89,7 +89,7 @@ pub fn load_scene_gltf(path : String) -> @render3d.SceneHandle {
 pub fn instantiate_scene(
   scene : @render3d.SceneHandle,
   root_transform : @transform.Transform,
-) -> @entity.Entity {
+) -> @ecs.Entity {
   instantiate_scene_instance(scene, root_transform).root
 }
 
@@ -98,14 +98,14 @@ pub fn instantiate_scene_instance(
   scene : @render3d.SceneHandle,
   root_transform : @transform.Transform,
 ) -> SceneInstance {
-  let root = @entity.Entity()
+  let root = @ecs.Entity()
   @transform.transforms().set(root, root_transform)
   @name.names().set(root, Name("scene_root"))
-  let parts : Map[String, @entity.Entity] = Map([])
+  let parts : Map[String, @ecs.Entity] = Map([])
   guard scene_templates.get(scene) is Some(template) else {
     return { root, parts, animations: Map([]), }
   }
-  let node_entities : Map[Int32, @entity.Entity] = Map([])
+  let node_entities : Map[Int32, @ecs.Entity] = Map([])
   let pending_skin_bindings : Array[PendingSkinBinding] = []
   for root_order, node_index in template.roots {
     instantiate_scene_node(
@@ -140,6 +140,6 @@ pub fn instantiate_scene_instance(
 pub fn scene_instance_part(
   instance : SceneInstance,
   path : String,
-) -> @entity.Entity? {
+) -> @ecs.Entity? {
   instance.parts.get(path)
 }

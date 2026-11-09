@@ -42,8 +42,9 @@ fn shuffle_deck(deck : Array[Card], rand : @random.Rand) -> Unit {
 ///|
 /// Deal one card from the deck
 fn deal_card() -> Card? {
-  if game_state.deck.length() > 0 {
-    game_state.deck.pop()
+  let game = game_state()
+  if game.deck.length() > 0 {
+    game.deck.pop()
   } else {
     None
   }

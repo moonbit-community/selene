@@ -280,7 +280,7 @@ fn apply_additive_value(
 fn resolve_sample_value(
   field_handle : AnimatedFieldHandle,
   field : AnimatedField,
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   buffer : AnimationSampleBuffer,
 ) -> AnimatedValue {
   let base = (field.sample)(entity)
@@ -341,14 +341,12 @@ fn resolve_sample_value(
 
 ///|
 fn collect_targets_by_player() -> Map[
-  @entity.Entity,
-  Map[AnimationTargetId, @entity.Entity],
+  @ecs.Entity,
+  Map[AnimationTargetId, @ecs.Entity],
 ] {
-  let targets_by_player : Map[
-    @entity.Entity,
-    Map[AnimationTargetId, @entity.Entity],
-  ] = Map([])
-  for entity in @entity.iter_entities() {
+  let targets_by_player : Map[@ecs.Entity, Map[AnimationTargetId, @ecs.Entity]] = Map([],
+  )
+  for entity in @ecs.iter_entities() {
     guard entity.is_alive() else { continue }
     let player = animated_bys()
       .get(entity)
@@ -391,7 +389,7 @@ fn evaluate_graph_node(
   weight : Double,
   inherited_mask : UInt32,
   additive : Bool,
-  targets : Map[AnimationTargetId, @entity.Entity],
+  targets : Map[AnimationTargetId, @ecs.Entity],
   buffers : Map[AnimationPropertyKey, AnimationSampleBuffer],
 ) -> Unit {
   if weight <= 0.0 {
@@ -463,8 +461,8 @@ fn collect_clip_nodes(
 fn emit_clip_events_between(
   clip_handle : AnimationClipHandle,
   clip : AnimationClip,
-  player_entity : @entity.Entity,
-  targets : Map[AnimationTargetId, @entity.Entity],
+  player_entity : @ecs.Entity,
+  targets : Map[AnimationTargetId, @ecs.Entity],
   from_time : Double,
   to_time : Double,
   wrapped : Bool,

@@ -1,8 +1,9 @@
 ///|
+#derive(Eq, Debug)
 pub(all) enum UiScaleMode {
   Screen
   Viewport
-} derive(Eq, Debug)
+}
 
 ///|
 let ui_scale_modes : Map[UInt32, UiScaleMode] = Map([])
@@ -24,11 +25,12 @@ pub fn get_ui_scale_mode() -> UiScaleMode {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum Val {
   Auto
   Px(Double)
   Percent(Double)
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn Val::px(value : Double) -> Val {
@@ -41,12 +43,13 @@ pub fn Val::percent(value : Double) -> Val {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct UiRectValues {
   left : Val
   right : Val
   top : Val
   bottom : Val
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn UiRectValues::all(value : Double) -> UiRectValues {
@@ -75,12 +78,13 @@ pub fn UiRectValues::px(
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct UiInsets {
   left : Double
   right : Double
   top : Double
   bottom : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn UiInsets::zero() -> UiInsets {
@@ -88,28 +92,32 @@ pub fn UiInsets::zero() -> UiInsets {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum Display {
   Block
   Flex
   Grid
   None
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum PositionType {
   Relative
   Absolute
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum FlexDirection {
   Row
   RowReverse
   Column
   ColumnReverse
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum JustifyContent {
   Start
   End
@@ -120,9 +128,10 @@ pub(all) enum JustifyContent {
   SpaceBetween
   SpaceAround
   SpaceEvenly
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum AlignItems {
   Start
   End
@@ -131,9 +140,10 @@ pub(all) enum AlignItems {
   Center
   Baseline
   Stretch
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum AlignContent {
   Start
   End
@@ -144,35 +154,39 @@ pub(all) enum AlignContent {
   SpaceBetween
   SpaceAround
   SpaceEvenly
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum FlexWrap {
   NoWrap
   Wrap
   WrapReverse
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum GridAutoFlow {
   Row
   Column
   RowDense
   ColumnDense
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum GridPlacement {
   Auto
   Line(Int32)
   Span(Int32)
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct GridLine {
   start : GridPlacement
   end : GridPlacement
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn GridLine::GridLine(
@@ -183,13 +197,15 @@ pub fn GridLine::GridLine(
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum GridTrackRepetition {
   Count(Int32)
   AutoFill
   AutoFit
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum GridTrack {
   Auto
   Px(Double)
@@ -200,7 +216,7 @@ pub(all) enum GridTrack {
   FitContent(GridTrack)
   MinMax(GridTrack, GridTrack)
   Repeat(GridTrackRepetition, Array[GridTrack])
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn align_content_start() -> AlignContent {
@@ -361,25 +377,28 @@ pub fn grid_auto_flow_column_dense() -> GridAutoFlow {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum Overflow {
   Visible
   Clip
   Hidden
   Scroll
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum OverflowClipBox {
   ContentBox
   PaddingBox
   BorderBox
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) struct OverflowClipMargin {
   visual_box : OverflowClipBox
   margin : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn OverflowClipMargin::content_box() -> OverflowClipMargin {
@@ -410,6 +429,8 @@ pub fn default_overflow_clip_margin() -> OverflowClipMargin {
 }
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct Node {
   width : Val
   height : Val
@@ -452,7 +473,7 @@ pub(all) struct Node {
   grid_row : GridLine
   grid_column : GridLine
   active : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn Node::Node(
@@ -587,6 +608,7 @@ pub fn Node::absolute(
 }
 
 ///|
+#selene.component
 pub(all) struct ComputedUiNode {
   position : @math.Vec2
   size : @math.Vec2
@@ -598,42 +620,44 @@ pub(all) struct ComputedUiNode {
 }
 
 ///|
+#selene.component
 pub(all) struct GlobalUiNode {
   logical_rect : @math.Rect
   screen_rect : @math.Rect
   logical_content_rect : @math.Rect
   screen_content_rect : @math.Rect
-  target_camera : @entity.Entity?
+  target_camera : @ecs.Entity?
   target_viewport : @math.Rect
 }
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct UiTargetCamera {
-  camera : @entity.Entity
-} derive(Eq, Debug)
+  camera : @ecs.Entity
+}
 
 ///|
-pub fn UiTargetCamera::UiTargetCamera(
-  camera : @entity.Entity,
-) -> UiTargetCamera {
+pub fn UiTargetCamera::UiTargetCamera(camera : @ecs.Entity) -> UiTargetCamera {
   { camera, }
 }
 
 ///|
 pub(all) struct UiLayoutSpace {
-  target_camera : @entity.Entity?
+  target_camera : @ecs.Entity?
   viewport : @math.Rect
 }
 
 ///|
 pub fn UiLayoutSpace::UiLayoutSpace(
   viewport : @math.Rect,
-  target_camera~ : @entity.Entity? = None,
+  target_camera~ : @ecs.Entity? = None,
 ) -> UiLayoutSpace {
   { target_camera, viewport, }
 }
 
 ///|
+#selene.component
 pub(all) struct CalculatedClip {
   clip : @math.Rect
 }
@@ -644,9 +668,11 @@ pub fn CalculatedClip::CalculatedClip(clip : @math.Rect) -> CalculatedClip {
 }
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct LayoutConfig {
   use_rounding : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn LayoutConfig::LayoutConfig(use_rounding~ : Bool = true) -> LayoutConfig {
@@ -656,9 +682,11 @@ pub fn LayoutConfig::LayoutConfig(use_rounding~ : Bool = true) -> LayoutConfig {
 ///|
 /// Orders sibling UI nodes while keeping each sibling's ordinary descendant
 /// subtree contiguous in the final UI stack.
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct ZIndex {
   value : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn ZIndex::ZIndex(value : Int32) -> ZIndex {
@@ -668,9 +696,11 @@ pub fn ZIndex::ZIndex(value : Int32) -> ZIndex {
 ///|
 /// Lifts a UI node and its ordinary descendants into the global UI root order.
 /// A descendant with its own `GlobalZIndex` becomes another global root.
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct GlobalZIndex {
   value : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn GlobalZIndex::GlobalZIndex(value : Int32) -> GlobalZIndex {
@@ -678,10 +708,12 @@ pub fn GlobalZIndex::GlobalZIndex(value : Int32) -> GlobalZIndex {
 }
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct ScrollPosition {
   mut x : Double
   mut y : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn ScrollPosition::zero() -> ScrollPosition {
@@ -689,9 +721,11 @@ pub fn ScrollPosition::zero() -> ScrollPosition {
 }
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct TabIndex {
   value : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn TabIndex::TabIndex(value : Int32) -> TabIndex {
@@ -699,12 +733,15 @@ pub fn TabIndex::TabIndex(value : Int32) -> TabIndex {
 }
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) enum FocusPolicy {
   Block
   Pass
-} derive(Eq, Debug)
+}
 
 ///|
+#selene.component
 pub(all) struct Focused {
   _tag : Unit
 }
@@ -715,6 +752,7 @@ pub fn Focused::Focused() -> Focused {
 }
 
 ///|
+#selene.component
 pub(all) struct Focusable {
   _tag : Unit
 }
@@ -725,9 +763,11 @@ pub fn Focusable::Focusable() -> Focusable {
 }
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct OverrideClip {
   _tag : Unit
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn OverrideClip::OverrideClip() -> OverrideClip {
@@ -735,10 +775,12 @@ pub fn OverrideClip::OverrideClip() -> OverrideClip {
 }
 
 ///|
+#derive(Eq, Debug)
+#selene.component
 pub(all) struct RelativeCursorPosition {
   mut normalized : @math.Vec2?
   mut cursor_over : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn RelativeCursorPosition::RelativeCursorPosition() -> RelativeCursorPosition {
@@ -754,152 +796,125 @@ pub fn RelativeCursorPosition::mouse_over(
 
 ///|
 priv struct UiModelWorldStore {
-  nodes : Map[@entity.Entity, Node]
-  computed_ui_nodes : Map[@entity.Entity, ComputedUiNode]
-  global_ui_nodes : Map[@entity.Entity, GlobalUiNode]
-  ui_target_cameras : Map[@entity.Entity, UiTargetCamera]
-  calculated_clips : Map[@entity.Entity, CalculatedClip]
-  layout_configs : Map[@entity.Entity, LayoutConfig]
-  z_indexes : Map[@entity.Entity, ZIndex]
-  global_zindexes : Map[@entity.Entity, GlobalZIndex]
-  scroll_positions : Map[@entity.Entity, ScrollPosition]
-  tab_indexes : Map[@entity.Entity, TabIndex]
-  focus_policies : Map[@entity.Entity, FocusPolicy]
-  focusables : Map[@entity.Entity, Focusable]
-  focuseds : Map[@entity.Entity, Focused]
-  override_clips : Map[@entity.Entity, OverrideClip]
-  relative_cursor_positions : Map[@entity.Entity, RelativeCursorPosition]
-  tree_orders : Map[@entity.Entity, Int32]
-  ui_stack_entities : Array[@entity.Entity]
+  tree_orders : @ecs.ComponentStore[Int32]
+  ui_stack_entities : Array[@ecs.Entity]
 }
 
 ///|
-let ui_model_world_stores : Map[UInt32, UiModelWorldStore] = Map([])
+let ui_model_world_store_key : @ecs.ResourceKey[UiModelWorldStore] = ResourceKey()
+
+///|
+fn new_ui_model_world_store(world : @ecs.World) -> UiModelWorldStore {
+  { tree_orders: ComponentStore(world), ui_stack_entities: [], }
+}
 
 ///|
 fn ui_model_world_store() -> UiModelWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  ui_model_world_stores.get_or_init(world_id, () => {
-    nodes: Map([]),
-    computed_ui_nodes: Map([]),
-    global_ui_nodes: Map([]),
-    ui_target_cameras: Map([]),
-    calculated_clips: Map([]),
-    layout_configs: Map([]),
-    z_indexes: Map([]),
-    global_zindexes: Map([]),
-    scroll_positions: Map([]),
-    tab_indexes: Map([]),
-    focus_policies: Map([]),
-    focusables: Map([]),
-    focuseds: Map([]),
-    override_clips: Map([]),
-    relative_cursor_positions: Map([]),
-    tree_orders: Map([]),
-    ui_stack_entities: [],
-  })
+  ui_model_world_store_key.get_or_insert_with(
+    @ecs.require_current_world(),
+    new_ui_model_world_store,
+  )
 }
 
 ///|
-pub fn nodes() -> Map[@entity.Entity, Node] {
-  ui_model_world_store().nodes
+pub fn nodes() -> @ecs.ComponentStore[Node] {
+  @ecs.components()
 }
 
 ///|
-pub fn computed_ui_nodes() -> Map[@entity.Entity, ComputedUiNode] {
-  ui_model_world_store().computed_ui_nodes
+pub fn computed_ui_nodes() -> @ecs.ComponentStore[ComputedUiNode] {
+  @ecs.components()
 }
 
 ///|
-pub fn global_ui_nodes() -> Map[@entity.Entity, GlobalUiNode] {
-  ui_model_world_store().global_ui_nodes
+pub fn global_ui_nodes() -> @ecs.ComponentStore[GlobalUiNode] {
+  @ecs.components()
 }
 
 ///|
-pub fn ui_target_cameras() -> Map[@entity.Entity, UiTargetCamera] {
-  ui_model_world_store().ui_target_cameras
+pub fn ui_target_cameras() -> @ecs.ComponentStore[UiTargetCamera] {
+  @ecs.components()
 }
 
 ///|
-pub fn calculated_clips() -> Map[@entity.Entity, CalculatedClip] {
-  ui_model_world_store().calculated_clips
+pub fn calculated_clips() -> @ecs.ComponentStore[CalculatedClip] {
+  @ecs.components()
 }
 
 ///|
-pub fn layout_configs() -> Map[@entity.Entity, LayoutConfig] {
-  ui_model_world_store().layout_configs
+pub fn layout_configs() -> @ecs.ComponentStore[LayoutConfig] {
+  @ecs.components()
 }
 
 ///|
-pub fn z_indexes() -> Map[@entity.Entity, ZIndex] {
-  ui_model_world_store().z_indexes
+pub fn z_indexes() -> @ecs.ComponentStore[ZIndex] {
+  @ecs.components()
 }
 
 ///|
-pub fn global_zindexes() -> Map[@entity.Entity, GlobalZIndex] {
-  ui_model_world_store().global_zindexes
+pub fn global_zindexes() -> @ecs.ComponentStore[GlobalZIndex] {
+  @ecs.components()
 }
 
 ///|
-pub fn scroll_positions() -> Map[@entity.Entity, ScrollPosition] {
-  ui_model_world_store().scroll_positions
+pub fn scroll_positions() -> @ecs.ComponentStore[ScrollPosition] {
+  @ecs.components()
 }
 
 ///|
-pub fn tab_indexes() -> Map[@entity.Entity, TabIndex] {
-  ui_model_world_store().tab_indexes
+pub fn tab_indexes() -> @ecs.ComponentStore[TabIndex] {
+  @ecs.components()
 }
 
 ///|
-pub fn focus_policies() -> Map[@entity.Entity, FocusPolicy] {
-  ui_model_world_store().focus_policies
+pub fn focus_policies() -> @ecs.ComponentStore[FocusPolicy] {
+  @ecs.components()
 }
 
 ///|
-pub fn focusables() -> Map[@entity.Entity, Focusable] {
-  ui_model_world_store().focusables
+pub fn focusables() -> @ecs.ComponentStore[Focusable] {
+  @ecs.components()
 }
 
 ///|
-pub fn focuseds() -> Map[@entity.Entity, Focused] {
-  ui_model_world_store().focuseds
+pub fn focuseds() -> @ecs.ComponentStore[Focused] {
+  @ecs.components()
 }
 
 ///|
-pub fn override_clips() -> Map[@entity.Entity, OverrideClip] {
-  ui_model_world_store().override_clips
+pub fn override_clips() -> @ecs.ComponentStore[OverrideClip] {
+  @ecs.components()
 }
 
 ///|
-pub fn relative_cursor_positions() -> Map[
-  @entity.Entity,
+pub fn relative_cursor_positions() -> @ecs.ComponentStore[
   RelativeCursorPosition,
 ] {
-  ui_model_world_store().relative_cursor_positions
+  @ecs.components()
 }
 
 ///|
-fn tree_orders() -> Map[@entity.Entity, Int32] {
+fn tree_orders() -> @ecs.ComponentStore[Int32] {
   ui_model_world_store().tree_orders
 }
 
 ///|
-fn ui_stack() -> Array[@entity.Entity] {
+fn ui_stack() -> Array[@ecs.Entity] {
   ui_model_world_store().ui_stack_entities
 }
 
 ///|
-fn global_zindex_value(entity : @entity.Entity) -> Int32 {
+fn global_zindex_value(entity : @ecs.Entity) -> Int32 {
   global_zindexes().get(entity).map(fn(value) { value.value }).unwrap_or(0)
 }
 
 ///|
-fn zindex_value(entity : @entity.Entity) -> Int32 {
+fn zindex_value(entity : @ecs.Entity) -> Int32 {
   z_indexes().get(entity).map(fn(value) { value.value }).unwrap_or(0)
 }
 
 ///|
-fn compare_ui_root_order(lhs : @entity.Entity, rhs : @entity.Entity) -> Int32 {
+fn compare_ui_root_order(lhs : @ecs.Entity, rhs : @ecs.Entity) -> Int32 {
   let lg = global_zindex_value(lhs)
   let rg = global_zindex_value(rhs)
   if lg != rg {
@@ -915,7 +930,7 @@ fn compare_ui_root_order(lhs : @entity.Entity, rhs : @entity.Entity) -> Int32 {
 }
 
 ///|
-pub fn is_ui_entity(entity : @entity.Entity) -> Bool {
+pub fn is_ui_entity(entity : @ecs.Entity) -> Bool {
   nodes().contains(entity)
 }
 
@@ -925,7 +940,7 @@ fn full_screen_ui_viewport() -> @math.Rect {
 }
 
 ///|
-pub fn ui_layout_space(target_camera : @entity.Entity?) -> UiLayoutSpace {
+pub fn ui_layout_space(target_camera : @ecs.Entity?) -> UiLayoutSpace {
   match target_camera {
     Some(target_camera) => {
       if !@transform.global_transforms().contains(target_camera) {
@@ -981,8 +996,8 @@ pub fn to_screen_rect(rect : @math.Rect, space : UiLayoutSpace) -> @math.Rect {
 }
 
 ///|
-fn top_level_ui_nodes() -> Array[@entity.Entity] {
-  let roots : Array[@entity.Entity] = []
+fn top_level_ui_nodes() -> Array[@ecs.Entity] {
+  let roots : Array[@ecs.Entity] = []
   for entity, node in nodes() {
     guard entity.is_alive() else { continue }
     guard node.active && node.display != None else { continue }
@@ -996,8 +1011,8 @@ fn top_level_ui_nodes() -> Array[@entity.Entity] {
 }
 
 ///|
-fn ui_children(entity : @entity.Entity) -> Array[@entity.Entity] {
-  let children : Array[@entity.Entity] = []
+fn ui_children(entity : @ecs.Entity) -> Array[@ecs.Entity] {
+  let children : Array[@ecs.Entity] = []
   for child in entity.get_children() {
     if child.is_alive() && nodes().contains(child) {
       children.push(child)
@@ -1007,7 +1022,7 @@ fn ui_children(entity : @entity.Entity) -> Array[@entity.Entity] {
 }
 
 ///|
-fn is_stacked_ui_entity(entity : @entity.Entity) -> Bool {
+fn is_stacked_ui_entity(entity : @ecs.Entity) -> Bool {
   guard entity.is_alive() &&
     global_ui_nodes().contains(entity) &&
     nodes().get(entity) is Some(node) else {
@@ -1017,7 +1032,7 @@ fn is_stacked_ui_entity(entity : @entity.Entity) -> Bool {
 }
 
 ///|
-fn compare_ui_stack_root(lhs : @entity.Entity, rhs : @entity.Entity) -> Int32 {
+fn compare_ui_stack_root(lhs : @ecs.Entity, rhs : @ecs.Entity) -> Int32 {
   let global_order = global_zindex_value(lhs).compare(global_zindex_value(rhs))
   if global_order != 0 {
     return global_order
@@ -1038,10 +1053,7 @@ fn compare_ui_stack_root(lhs : @entity.Entity, rhs : @entity.Entity) -> Int32 {
 }
 
 ///|
-fn compare_ui_stack_sibling(
-  lhs : @entity.Entity,
-  rhs : @entity.Entity,
-) -> Int32 {
+fn compare_ui_stack_sibling(lhs : @ecs.Entity, rhs : @ecs.Entity) -> Int32 {
   let local_order = zindex_value(lhs).compare(zindex_value(rhs))
   if local_order != 0 {
     return local_order
@@ -1061,7 +1073,7 @@ fn compare_ui_stack_sibling(
 fn rebuild_ui_stack() -> Unit {
   let ordered = ui_stack()
   ordered.clear()
-  let roots : Array[@entity.Entity] = []
+  let roots : Array[@ecs.Entity] = []
   for entity, _ in global_ui_nodes() {
     guard is_stacked_ui_entity(entity) else { continue }
     let hierarchy_root = match entity.get_parent() {
@@ -1073,12 +1085,12 @@ fn rebuild_ui_stack() -> Unit {
     }
   }
   roots.sort_by(compare_ui_stack_root)
-  let pending : Array[@entity.Entity] = []
+  let pending : Array[@ecs.Entity] = []
   for root in roots {
     pending.push(root)
     while pending.pop() is Some(entity) {
       ordered.push(entity)
-      let children : Array[@entity.Entity] = []
+      let children : Array[@ecs.Entity] = []
       for child in ui_children(entity) {
         guard !global_zindexes().contains(child) else { continue }
         guard is_stacked_ui_entity(child) else { continue }

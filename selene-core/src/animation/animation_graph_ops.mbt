@@ -1,30 +1,30 @@
 ///|
-pub fn animation_transitions() -> Map[@entity.Entity, AnimationTransitions] {
-  animation_world_store().animation_transitions
+pub fn animation_transitions() -> @ecs.ComponentStore[AnimationTransitions] {
+  @ecs.components()
 }
 
 ///|
-pub fn animation_target_ids() -> Map[@entity.Entity, AnimationTargetId] {
-  animation_world_store().animation_target_ids
+pub fn animation_target_ids() -> @ecs.ComponentStore[AnimationTargetId] {
+  @ecs.components()
 }
 
 ///|
-pub fn animated_bys() -> Map[@entity.Entity, AnimatedBy] {
-  animation_world_store().animated_bys
+pub fn animated_bys() -> @ecs.ComponentStore[AnimatedBy] {
+  @ecs.components()
 }
 
 ///|
-fn skinned_meshes() -> Map[@entity.Entity, SkinnedMeshBinding3D] {
-  animation_world_store().skinned_meshes
+fn skinned_meshes() -> @ecs.ComponentStore[SkinnedMeshBinding3D] {
+  @ecs.components()
 }
 
 ///|
-fn morphed_meshes() -> Map[@entity.Entity, MorphMeshBinding3D] {
-  animation_world_store().morphed_meshes
+fn morphed_meshes() -> @ecs.ComponentStore[MorphMeshBinding3D] {
+  @ecs.components()
 }
 
 ///|
-pub fn AnimatedBy::AnimatedBy(player : @entity.Entity) -> AnimatedBy {
+pub fn AnimatedBy::AnimatedBy(player : @ecs.Entity) -> AnimatedBy {
   { player, }
 }
 

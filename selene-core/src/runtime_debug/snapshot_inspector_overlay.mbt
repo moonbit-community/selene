@@ -15,7 +15,7 @@ pub fn unregister_snapshot_provider(name : String) -> Unit {
 pub fn world_snapshot() -> WorldSnapshot {
   let world = current_world()
   let entities : Array[EntitySnapshot] = []
-  for entity in @entity.iter_entities() {
+  for entity in @ecs.iter_entities() {
     if !entity.is_alive() {
       continue
     }

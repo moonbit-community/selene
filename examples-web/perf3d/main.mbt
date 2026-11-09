@@ -35,7 +35,7 @@ priv struct PerfConfig {
 ///|
 priv struct PerfState {
   config : PerfConfig
-  entities : Array[@entity.Entity]
+  entities : Array[@ecs.Entity]
   frame_samples : Array[Double]
   work_samples : Array[Double]
   game_samples : Array[Double]
@@ -44,17 +44,39 @@ priv struct PerfState {
   render3d_items_samples : Array[Double]
   render3d_flush_samples : Array[Double]
   start_ms : Double
+  animation_start : Double
   mut last_ms : Double
   mut last_live_ms : Double
   mut frames : Int32
   mut max_frame_ms : Double
   mut max_work_ms : Double
   mut finished : Bool
-  hud : @entity.Entity
+  hud : @ecs.Entity
 }
 
 ///|
-let perf_state : Ref[PerfState?] = Ref(None)
+#selene.resource
+priv struct PerfRuntime {
+  entities : Array[@ecs.Entity]
+  mut state : PerfState?
+}
+
+///|
+fn new_perf_runtime() -> PerfRuntime {
+  { entities: [], state: None, }
+}
+
+///|
+fn perf_runtime() -> PerfRuntime {
+  @ecs.require_current_world().resource()
+}
+
+///|
+fn spawn_perf_entity() -> @ecs.Entity {
+  let entity = @ecs.Entity()
+  perf_runtime().entities.push(entity)
+  entity
+}
 
 ///|
 fn color(r : UInt32, g : UInt32, b : UInt32, a : Double) -> @render.Color {
@@ -114,7 +136,15 @@ pub fn run() -> Unit {
 }
 
 ///|
-fn setup_perf3d(_world : @ecs.World) -> Unit {
+fn setup_perf3d(world : @ecs.World) -> Unit {
+  let previous : PerfRuntime? = world.get_resource()
+  if previous is Some(previous) {
+    for entity in previous.entities {
+      ignore(entity.delete())
+    }
+  }
+  let runtime = new_perf_runtime()
+  world.insert_resource(runtime)
   let config = read_perf_config()
   configure_lighting_mode(config.mode)
   setup_camera(config)
@@ -125,7 +155,7 @@ fn setup_perf3d(_world : @ecs.World) -> Unit {
   let entities = spawn_grid(config, meshes, material)
   let hud = setup_hud(config)
   let now = perf_now_ms()
-  perf_state.val = Some({
+  runtime.state = Some({
     config,
     entities,
     frame_samples: [],
@@ -136,6 +166,7 @@ fn setup_perf3d(_world : @ecs.World) -> Unit {
     render3d_items_samples: [],
     render3d_flush_samples: [],
     start_ms: now,
+    animation_start: @time.elapsed(),
     last_ms: now,
     last_live_ms: now,
     frames: 0,
@@ -148,7 +179,7 @@ fn setup_perf3d(_world : @ecs.World) -> Unit {
 
 ///|
 fn setup_camera(config : PerfConfig) -> Unit {
-  let camera = @entity.Entity()
+  let camera = spawn_perf_entity()
   let side = ceil_sqrt(config.count).to_double()
   let distance = (side * 1.65).max(34.0)
   let position = vec3(0.0, distance * 0.55, distance)
@@ -170,7 +201,7 @@ fn setup_lights(config : PerfConfig) -> Unit {
   @render3d.set_ambient_light3d(
     Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.08, }),
   )
-  let dir_light = @entity.Entity()
+  let dir_light = spawn_perf_entity()
   @render3d.directional_lights3d().set(dir_light, {
     ..@render3d.default_directional_light3d(),
     direction: vec3(-0.35, -0.8, -0.45).normalize(),
@@ -181,8 +212,8 @@ fn setup_lights(config : PerfConfig) -> Unit {
 }
 
 ///|
-fn setup_hud(config : PerfConfig) -> @entity.Entity {
-  let hud = @entity.Entity()
+fn setup_hud(config : PerfConfig) -> @ecs.Entity {
+  let hud = spawn_perf_entity()
   @ui.nodes().set(
     hud,
     @ui.Node::absolute(Vec2(16.0, 16.0), size=Vec2(900.0, 92.0)),
@@ -234,15 +265,15 @@ fn spawn_grid(
   config : PerfConfig,
   meshes : Array[@render3d.MeshHandle],
   material : @render3d.MaterialHandle,
-) -> Array[@entity.Entity] {
-  let entities : Array[@entity.Entity] = []
+) -> Array[@ecs.Entity] {
+  let entities : Array[@ecs.Entity] = []
   let side = ceil_sqrt(config.count)
   let spacing = if config.case_name == "shadow-casters" { 1.35 } else { 1.15 }
   let half = (side - 1).to_double() * spacing * 0.5
   for index in 0..<config.count {
     let row = index / side
     let col = index % side
-    let entity = @entity.Entity()
+    let entity = spawn_perf_entity()
     @transform.transforms().set(entity, {
       translation: vec3(
         col.to_double() * spacing - half,
@@ -275,11 +306,11 @@ fn ceil_sqrt(value : Int32) -> Int32 {
 
 ///|
 fn animate_perf3d(_world : @ecs.World) -> Unit {
-  guard perf_state.val is Some(state) else { return }
+  guard perf_runtime().state is Some(state) else { return }
   if state.config.case_name != "dynamic-cubes" {
     return
   }
-  let elapsed = @time.elapsed()
+  let elapsed = @time.elapsed() - state.animation_start
   for index in 0..<state.entities.length() {
     let entity = state.entities[index]
     guard @transform.transforms().get(entity) is Some(transform) else {
@@ -297,7 +328,7 @@ fn animate_perf3d(_world : @ecs.World) -> Unit {
 
 ///|
 fn update_perf3d_stats(_world : @ecs.World) -> Unit {
-  guard perf_state.val is Some(state) else { return }
+  guard perf_runtime().state is Some(state) else { return }
   if state.finished {
     return
   }

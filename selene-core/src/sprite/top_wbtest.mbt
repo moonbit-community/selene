@@ -8,8 +8,8 @@ fn with_sprite_test_world(action : () -> Unit raise) -> Unit raise {
 }
 
 ///|
-fn spawn_test_camera(viewport : @math.Rect) -> @entity.Entity {
-  let camera_entity = @entity.Entity()
+fn spawn_test_camera(viewport : @math.Rect) -> @ecs.Entity {
+  let camera_entity = @ecs.Entity()
   @camera.cameras().set(
     camera_entity,
     Camera(viewport=Some(@camera.CameraViewport::from_rect(viewport))),
@@ -25,8 +25,8 @@ fn spawn_test_camera(viewport : @math.Rect) -> @entity.Entity {
 }
 
 ///|
-fn spawn_color_sprite(position : @math.Vec2) -> @entity.Entity {
-  let entity = @entity.Entity()
+fn spawn_color_sprite(position : @math.Vec2) -> @ecs.Entity {
+  let entity = @ecs.Entity()
   sprites().set(
     entity,
     Sprite::from_color({ r: 255U, g: 255U, b: 255U, a: 1.0, }, Vec2(16.0, 16.0)),
@@ -81,5 +81,29 @@ test "sprite rendering keeps visible sprites inside the camera viewport" {
       content="1",
     )
     ignore(sprite_entity)
+  })
+}
+
+///|
+test "sprite draw ties keep insertion order after a component moves rows" {
+  with_sprite_test_world(fn() raise {
+    @system.configure_display(100.0, 100.0, 1.0)
+    let first = spawn_color_sprite(Vec2(0.0, 0.0))
+    let second = spawn_color_sprite(Vec2(0.0, 0.0))
+    let globals = @transform.global_transforms()
+    let first_transform = globals.get(first).unwrap()
+    globals.remove(first)
+    @render2d.begin_frame2d_system(0.0)
+    render_sprite_system(0.0)
+    let commands = @render2d.get_screen_world_commands_with_depth()
+    assert_eq(commands.map(command => command.entity_id), [Some(second.id())])
+    globals.set(first, first_transform)
+    @render2d.begin_frame2d_system(0.0)
+    render_sprite_system(0.0)
+    let commands = @render2d.get_screen_world_commands_with_depth()
+    assert_eq(commands.map(command => command.entity_id), [
+      Some(first.id()),
+      Some(second.id()),
+    ])
   })
 }

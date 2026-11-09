@@ -14,11 +14,13 @@
 
 ///|
 /// Sensor area component.
+#derive(Eq)
+#selene.component
 pub(all) struct Area {
   mut active : Bool
   filter : CollisionFilter
-  mut contains : Set[@entity.Entity]
-} derive(Eq)
+  mut contains : Set[@ecs.Entity]
+}
 
 ///|
 pub fn Area::Area(filter : CollisionFilter) -> Area {
@@ -26,30 +28,16 @@ pub fn Area::Area(filter : CollisionFilter) -> Area {
 }
 
 ///|
-priv struct AreaWorldStore {
-  areas : Map[@entity.Entity, Area]
-}
-
-///|
-let area_world_stores : Map[UInt32, AreaWorldStore] = Map([])
-
-///|
-fn area_world_store() -> AreaWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  area_world_stores.get_or_init(world_id, () => { areas: Map([]), })
-}
-
-///|
 /// All area components.
-pub fn areas() -> Map[@entity.Entity, Area] {
-  area_world_store().areas
+pub fn areas() -> @ecs.ComponentStore[Area] {
+  @ecs.components()
 }
 
 ///|
 /// Trigger event emitted by the fixed-step physics system.
 pub struct TriggerEvent {
-  area : @entity.Entity
-  other : @entity.Entity
+  area : @ecs.Entity
+  other : @ecs.Entity
   entered : Bool
 }
 
@@ -63,6 +51,6 @@ fn push_trigger_event(event : TriggerEvent) -> Unit {
 }
 
 ///|
-pub fn get_contains(area : @entity.Entity) -> Set[@entity.Entity] {
+pub fn get_contains(area : @ecs.Entity) -> Set[@ecs.Entity] {
   areas().get(area).map_or(Set([]), fn(area) { area.contains })
 }

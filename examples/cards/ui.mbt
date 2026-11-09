@@ -22,9 +22,6 @@ const BUTTON_ZINDEX : Int32 = 110
 const BUTTON_LABEL_ZINDEX : Int32 = 111
 
 ///|
-let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = EventReader()
-
-///|
 priv enum TouchAction {
   TouchFold
   TouchCall
@@ -32,7 +29,7 @@ priv enum TouchAction {
 }
 
 ///|
-fn set_text(entity : @entity.Entity, content : String) -> Unit {
+fn set_text(entity : @ecs.Entity, content : String) -> Unit {
   let text = @ui.texts().get_or_init(entity, fn() { Text(content) })
   text.content = content
 }
@@ -69,7 +66,7 @@ fn with_display(node : @ui.Node, display : @ui.Display) -> @ui.Node {
 }
 
 ///|
-fn set_display(entity : @entity.Entity, display : @ui.Display) -> Unit {
+fn set_display(entity : @ecs.Entity, display : @ui.Display) -> Unit {
   match @ui.nodes().get(entity) {
     Some(node) => @ui.nodes().set(entity, with_display(node, display))
     None => @ui.nodes().set(entity, Node(display~))
@@ -78,7 +75,7 @@ fn set_display(entity : @entity.Entity, display : @ui.Display) -> Unit {
 
 ///|
 fn configure_text(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   offset : @math.Vec2,
   content : String,
   color : String,
@@ -98,7 +95,7 @@ fn configure_text(
 
 ///|
 fn configure_button(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   offset : @math.Vec2,
   size : @math.Vec2,
   background : String,
@@ -115,7 +112,8 @@ fn configure_button(
 ///|
 /// Setup UI elements
 fn setup_ui() -> Unit {
-  let table_entity = @entity.Entity()
+  let game = game_state()
+  let table_entity = spawn_cards_entity()
   @transform.transforms().set(
     table_entity,
     @transform.Transform::from_xyz(0.0, 0.0, 0.0),
@@ -130,7 +128,7 @@ fn setup_ui() -> Unit {
   )
 
   configure_text(
-    game_state.blind_label,
+    game.blind_label,
     Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, 20.0),
     "Blind: $20",
     "gold",
@@ -139,7 +137,7 @@ fn setup_ui() -> Unit {
     align=Center,
   )
   configure_text(
-    game_state.chips_label,
+    game.chips_label,
     Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, 42.0),
     "Chips: $1000",
     "lightgreen",
@@ -148,14 +146,14 @@ fn setup_ui() -> Unit {
     align=Center,
   )
   configure_text(
-    game_state.phase_label,
+    game.phase_label,
     Vec2(20.0, 20.0),
     "Pre-Flop",
     "white",
     "18px ThaleahFat",
   )
   configure_text(
-    game_state.turns_label,
+    game.turns_label,
     Vec2(VIEWPORT_WIDTH - 110.0, 20.0),
     "Turns: 10/10",
     "white",
@@ -164,7 +162,7 @@ fn setup_ui() -> Unit {
     align=Right,
   )
   configure_text(
-    game_state.hand_strength_label,
+    game.hand_strength_label,
     Vec2(VIEWPORT_WIDTH / 2.0 - 100.0, VIEWPORT_HEIGHT / 2.0 - 82.0),
     "",
     "cyan",
@@ -173,7 +171,7 @@ fn setup_ui() -> Unit {
     align=Center,
   )
   configure_text(
-    game_state.action_label,
+    game.action_label,
     Vec2(VIEWPORT_WIDTH / 2.0 - 110.0, VIEWPORT_HEIGHT - 64.0),
     "",
     "yellow",
@@ -188,6 +186,7 @@ fn setup_ui() -> Unit {
 ///|
 /// Create action buttons for player
 fn create_action_buttons() -> Unit {
+  let game = game_state()
   let button_y = VIEWPORT_HEIGHT - 35.0
   let button_width = 70.0
   let button_height = 25.0
@@ -205,15 +204,9 @@ fn create_action_buttons() -> Unit {
     button_y,
   )
 
-  configure_button(
-    game_state.fold_button,
-    fold_offset,
-    button_size,
-    "#cc0000",
-    0,
-  )
+  configure_button(game.fold_button, fold_offset, button_size, "#cc0000", 0)
   configure_text(
-    game_state.fold_button_label,
+    game.fold_button_label,
     fold_offset,
     "Fold",
     "white",
@@ -224,15 +217,9 @@ fn create_action_buttons() -> Unit {
     zindex=BUTTON_LABEL_ZINDEX,
   )
 
-  configure_button(
-    game_state.call_button,
-    call_offset,
-    button_size,
-    "#00aa00",
-    1,
-  )
+  configure_button(game.call_button, call_offset, button_size, "#00aa00", 1)
   configure_text(
-    game_state.call_button_label,
+    game.call_button_label,
     call_offset,
     "Call",
     "white",
@@ -243,15 +230,9 @@ fn create_action_buttons() -> Unit {
     zindex=BUTTON_LABEL_ZINDEX,
   )
 
-  configure_button(
-    game_state.raise_button,
-    raise_offset,
-    button_size,
-    "#0066cc",
-    2,
-  )
+  configure_button(game.raise_button, raise_offset, button_size, "#0066cc", 2)
   configure_text(
-    game_state.raise_button_label,
+    game.raise_button_label,
     raise_offset,
     "Raise",
     "white",
@@ -268,36 +249,23 @@ fn create_action_buttons() -> Unit {
 ///|
 /// Show action buttons
 fn show_action_buttons() -> Unit {
-  game_state.waiting_for_player = true
-  let show_fold_and_raise = game_state.phase != River
-  set_display(game_state.call_button, Flex)
-  set_display(game_state.call_button_label, Flex)
+  let game = game_state()
+  game.waiting_for_player = true
+  let show_fold_and_raise = game.phase != River
+  set_display(game.call_button, Flex)
+  set_display(game.call_button_label, Flex)
+  set_display(game.fold_button, if show_fold_and_raise { Flex } else { None })
   set_display(
-    game_state.fold_button,
+    game.fold_button_label,
     if show_fold_and_raise {
       Flex
     } else {
       None
     },
   )
+  set_display(game.raise_button, if show_fold_and_raise { Flex } else { None })
   set_display(
-    game_state.fold_button_label,
-    if show_fold_and_raise {
-      Flex
-    } else {
-      None
-    },
-  )
-  set_display(
-    game_state.raise_button,
-    if show_fold_and_raise {
-      Flex
-    } else {
-      None
-    },
-  )
-  set_display(
-    game_state.raise_button_label,
+    game.raise_button_label,
     if show_fold_and_raise {
       Flex
     } else {
@@ -305,26 +273,27 @@ fn show_action_buttons() -> Unit {
     },
   )
 
-  let call_amount = game_state.current_bet - game_state.player.current_bet
+  let call_amount = game.current_bet - game.player.current_bet
   if call_amount == 0 {
-    set_text(game_state.call_button_label, "Check")
+    set_text(game.call_button_label, "Check")
   } else {
-    set_text(game_state.call_button_label, "Call $" + call_amount.to_string())
+    set_text(game.call_button_label, "Call $" + call_amount.to_string())
   }
 }
 
 ///|
 /// Hide action buttons
 fn hide_action_buttons() -> Unit {
-  game_state.waiting_for_player = false
+  let game = game_state()
+  game.waiting_for_player = false
   for
     entity in [
-      game_state.fold_button,
-      game_state.fold_button_label,
-      game_state.call_button,
-      game_state.call_button_label,
-      game_state.raise_button,
-      game_state.raise_button_label,
+      game.fold_button,
+      game.fold_button_label,
+      game.call_button,
+      game.call_button_label,
+      game.raise_button,
+      game.raise_button_label,
     ] {
     set_display(entity, None)
   }
@@ -333,30 +302,29 @@ fn hide_action_buttons() -> Unit {
 ///|
 /// Handle fold button click
 fn on_fold_click() -> Unit {
-  let human = game_state.player
+  let game = game_state()
+  let human = game.player
   human.has_folded = true
-  set_text(game_state.action_label, "You folded")
+  set_text(game.action_label, "You folded")
   hide_action_buttons()
-  game_state.phase = Showdown
+  game.phase = Showdown
 }
 
 ///|
 /// Handle call button click
 fn on_call_click() -> Unit {
-  let human = game_state.player
-  let call_amount = game_state.current_bet - human.current_bet
+  let game = game_state()
+  let human = game.player
+  let call_amount = game.current_bet - human.current_bet
   let actual_amount = call_amount.min(human.chips)
   human.chips -= actual_amount
   human.current_bet += actual_amount
   if human.chips == 0 {
-    set_text(game_state.action_label, "You went All-In!")
+    set_text(game.action_label, "You went All-In!")
   } else if call_amount == 0 {
-    set_text(game_state.action_label, "You checked")
+    set_text(game.action_label, "You checked")
   } else {
-    set_text(
-      game_state.action_label,
-      "You called $" + actual_amount.to_string(),
-    )
+    set_text(game.action_label, "You called $" + actual_amount.to_string())
   }
   hide_action_buttons()
   advance_to_next_phase()
@@ -366,17 +334,18 @@ fn on_call_click() -> Unit {
 ///|
 /// Handle raise button click
 fn on_raise_click() -> Unit {
-  let human = game_state.player
-  let min_raise = game_state.big_blind
+  let game = game_state()
+  let human = game.player
+  let min_raise = game.big_blind
   let raise_amount = min_raise.min(human.chips)
   human.chips -= raise_amount
   human.current_bet += raise_amount
-  game_state.current_bet = human.current_bet
-  game_state.magnification += 1
+  game.current_bet = human.current_bet
+  game.magnification += 1
   if human.chips == 0 {
-    set_text(game_state.action_label, "You went All-In!")
+    set_text(game.action_label, "You went All-In!")
   } else {
-    set_text(game_state.action_label, "You raised $" + raise_amount.to_string())
+    set_text(game.action_label, "You raised $" + raise_amount.to_string())
   }
   hide_action_buttons()
   advance_to_next_phase()
@@ -399,16 +368,17 @@ fn touch_action_at(position : @math.Vec2, screen : @math.Vec2) -> TouchAction? {
 
 ///|
 fn apply_touch_action(action : TouchAction) -> Unit {
+  let game = game_state()
   match action {
-    TouchFold => if game_state.phase != River { on_fold_click() }
+    TouchFold => if game.phase != River { on_fold_click() }
     TouchCall => on_call_click()
-    TouchRaise => if game_state.phase != River { on_raise_click() }
+    TouchRaise => if game.phase != River { on_raise_click() }
   }
 }
 
 ///|
 fn handle_cards_touch_shortcuts() -> Bool {
-  if !game_state.waiting_for_player {
+  if !game_state().waiting_for_player {
     return false
   }
   let screen = @system.get_screen_size()
@@ -428,19 +398,20 @@ fn handle_cards_touch_shortcuts() -> Bool {
 
 ///|
 fn cards_ui_pointer_system(_world : @ecs.World) -> Unit {
+  let game = game_state()
   let mut handled_ui_click = false
-  for event in @ui.click_event_bus.read(ui_click_reader) {
-    if event.entity == game_state.fold_button {
+  for event in @ui.click_event_bus.read(cards_runtime().click_reader) {
+    if event.entity == game.fold_button {
       on_fold_click()
       handled_ui_click = true
       continue
     }
-    if event.entity == game_state.call_button {
+    if event.entity == game.call_button {
       on_call_click()
       handled_ui_click = true
       continue
     }
-    if event.entity == game_state.raise_button {
+    if event.entity == game.raise_button {
       on_raise_click()
       handled_ui_click = true
       continue
@@ -454,29 +425,30 @@ fn cards_ui_pointer_system(_world : @ecs.World) -> Unit {
 ///|
 /// Display all players' cards
 fn display_all_cards() -> Unit {
-  for entity in game_state.hole_card_entities {
+  let game = game_state()
+  for entity in game.hole_card_entities {
     entity.destroy()
   }
-  game_state.hole_card_entities.clear()
-  for entity in game_state.community_card_entities {
+  game.hole_card_entities.clear()
+  for entity in game.community_card_entities {
     entity.destroy()
   }
-  game_state.community_card_entities.clear()
+  game.community_card_entities.clear()
 
-  let player = game_state.player
+  let player = game.player
   let pos = player.position
   let x_base = pos.0
   let y_base = pos.1 - 40.0
 
   for j, card in player.hole_cards {
     let card_x = x_base + (j.to_double() - 0.5) * 30.0 - 30
-    let card_entity = @entity.Entity()
+    let card_entity = spawn_cards_entity()
     @transform.transforms().set(
       card_entity,
       @transform.Transform::from_xyz(card_x, y_base, j.to_double()),
     )
     @sprite.sprites().set(card_entity, card.to_sprite())
-    game_state.hole_card_entities.push(card_entity)
+    game.hole_card_entities.push(card_entity)
   }
 
   display_community_cards()
@@ -485,38 +457,34 @@ fn display_all_cards() -> Unit {
 ///|
 /// Display community cards
 fn display_community_cards() -> Unit {
-  for entity in game_state.community_card_entities {
+  let game = game_state()
+  for entity in game.community_card_entities {
     entity.destroy()
   }
-  game_state.community_card_entities.clear()
+  game.community_card_entities.clear()
   let center_x = VIEWPORT_WIDTH / 2.0
   let center_y = VIEWPORT_HEIGHT / 2.0 - 60.0
-  for i, card in game_state.community_cards {
+  for i, card in game.community_cards {
     let card_x = center_x + (i.to_double() - 2.5) * 30.0 - 15
-    let card_entity = @entity.Entity()
+    let card_entity = spawn_cards_entity()
     @transform.transforms().set(
       card_entity,
       @transform.Transform::from_xyz(card_x, center_y, (10 + i).to_double()),
     )
     @sprite.sprites().set(card_entity, card.to_sprite())
-    game_state.community_card_entities.push(card_entity)
+    game.community_card_entities.push(card_entity)
   }
 }
 
 ///|
 /// Update UI displays
 fn update_ui() -> Unit {
+  let game = game_state()
+  set_text(game.blind_label, "Blind: $" + game.big_blind.to_string())
+  set_text(game.chips_label, "Chips: $" + game.player.chips.to_string())
   set_text(
-    game_state.blind_label,
-    "Blind: $" + game_state.big_blind.to_string(),
-  )
-  set_text(
-    game_state.chips_label,
-    "Chips: $" + game_state.player.chips.to_string(),
-  )
-  set_text(
-    game_state.phase_label,
-    match game_state.phase {
+    game.phase_label,
+    match game.phase {
       PreFlop => "Pre-Flop"
       Flop => "Flop"
       Turn => "Turn"
@@ -526,31 +494,32 @@ fn update_ui() -> Unit {
     },
   )
   set_text(
-    game_state.turns_label,
-    "Turns: " + game_state.turns_remaining.to_string() + "/10",
+    game.turns_label,
+    "Turns: " + game.turns_remaining.to_string() + "/10",
   )
 
   update_hand_strength()
 
-  if game_state.phase == GameOver {
-    let player = game_state.player
-    let profit = player.chips - game_state.starting_chips
+  if game.phase == GameOver {
+    let player = game.player
+    let profit = player.chips - game.starting_chips
     let profit_text = if profit >= 0 {
       "Profit: +$" + profit.to_string()
     } else {
       "Loss: $" + profit.to_string()
     }
-    set_text(game_state.hand_strength_label, profit_text)
+    set_text(game.hand_strength_label, profit_text)
   }
 }
 
 ///|
 /// Update hand strength display based on current cards
 fn update_hand_strength() -> Unit {
-  let player = game_state.player
+  let game = game_state()
+  let player = game.player
 
-  if player.hole_cards.length() + game_state.community_cards.length() < 5 {
-    set_text(game_state.hand_strength_label, "")
+  if player.hole_cards.length() + game.community_cards.length() < 5 {
+    set_text(game.hand_strength_label, "")
     return
   }
 
@@ -558,16 +527,16 @@ fn update_hand_strength() -> Unit {
   for card in player.hole_cards {
     hand.push(card)
   }
-  for card in game_state.community_cards {
+  for card in game.community_cards {
     hand.push(card)
   }
 
   if hand.length() >= 5 {
     let rank = find_best_hand(hand)
     let hand_name = rank.hand_rank_to_string()
-    let magnification = game_state.magnification
+    let magnification = game.magnification
     set_text(
-      game_state.hand_strength_label,
+      game.hand_strength_label,
       "Hand: " + hand_name + " x " + magnification.to_string(),
     )
   }

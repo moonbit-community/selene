@@ -1,6 +1,6 @@
 ///|
 fn tiled_world_set_entity_translation_2d(
-  entity : @entity.Entity,
+  entity : @ecs.Entity,
   position : @math.Vec2,
 ) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
@@ -11,7 +11,7 @@ fn tiled_world_set_entity_translation_2d(
 }
 
 ///|
-fn tiled_world_entity_translation_2d(entity : @entity.Entity) -> @math.Vec2? {
+fn tiled_world_entity_translation_2d(entity : @ecs.Entity) -> @math.Vec2? {
   @transform.transforms()
   .get(entity)
   .map(fn(transform) { Vec2(transform.translation.x, transform.translation.y) })
@@ -55,17 +55,19 @@ pub struct TiledWorldLoadedMap {
 }
 
 ///|
+#selene.component
 pub struct TiledWorldInstance {
   world : TiledWorld
   settings : TiledWorldSpawnSettings
   loaded_maps : Array[TiledWorldLoadedMap]
-  spawned_maps : Map[Int32, @entity.Entity]
+  spawned_maps : Map[Int32, @ecs.Entity]
 }
 
 ///|
+#selene.component
 pub struct TiledWorldMapInstance {
-  world_entity : @entity.Entity
-  map_entity : @entity.Entity
+  world_entity : @ecs.Entity
+  map_entity : @ecs.Entity
   world_map : TiledWorldMap
   resolved_map_path : String
 }
@@ -82,31 +84,13 @@ pub(all) struct TiledWorldSpawnSettings {
 }
 
 ///|
-priv struct TiledWorldRuntimeStore {
-  tiled_world_instances : Map[@entity.Entity, TiledWorldInstance]
-  tiled_world_map_instances : Map[@entity.Entity, TiledWorldMapInstance]
+pub fn tiled_world_instances() -> @ecs.ComponentStore[TiledWorldInstance] {
+  @ecs.components()
 }
 
 ///|
-let tiled_world_runtime_stores : Map[UInt32, TiledWorldRuntimeStore] = Map([])
-
-///|
-fn tiled_world_runtime_store() -> TiledWorldRuntimeStore {
-  let world_id = @ecs.require_current_world().id()
-  tiled_world_runtime_stores.get_or_init(world_id, () => {
-    tiled_world_instances: Map([]),
-    tiled_world_map_instances: Map([]),
-  })
-}
-
-///|
-pub fn tiled_world_instances() -> Map[@entity.Entity, TiledWorldInstance] {
-  tiled_world_runtime_store().tiled_world_instances
-}
-
-///|
-pub fn tiled_world_map_instances() -> Map[@entity.Entity, TiledWorldMapInstance] {
-  tiled_world_runtime_store().tiled_world_map_instances
+pub fn tiled_world_map_instances() -> @ecs.ComponentStore[TiledWorldMapInstance] {
+  @ecs.components()
 }
 
 ///|
@@ -152,7 +136,7 @@ pub fn load_tiled_world(path : String) -> TiledWorld {
 pub fn load_and_spawn_tiled_world(
   path : String,
   settings~ : TiledWorldSpawnSettings = default_tiled_world_spawn_settings(),
-) -> @entity.Entity {
+) -> @ecs.Entity {
   spawn_tiled_world(load_tiled_world(path), settings~)
 }
 
@@ -160,15 +144,15 @@ pub fn load_and_spawn_tiled_world(
 pub fn spawn_tiled_world(
   world : TiledWorld,
   settings~ : TiledWorldSpawnSettings = default_tiled_world_spawn_settings(),
-) -> @entity.Entity {
-  let world_entity = @entity.Entity()
+) -> @ecs.Entity {
+  let world_entity = @ecs.Entity()
   spawn_tiled_world_root(world_entity, world, settings)
   world_entity
 }
 
 ///|
 pub fn spawn_tiled_world_into_entity(
-  root : @entity.Entity,
+  root : @ecs.Entity,
   world : TiledWorld,
   settings~ : TiledWorldSpawnSettings = default_tiled_world_spawn_settings(),
 ) -> Unit {
@@ -177,19 +161,18 @@ pub fn spawn_tiled_world_into_entity(
 
 ///|
 pub fn respawn_tiled_world_into_entity(
-  root : @entity.Entity,
+  root : @ecs.Entity,
   world : TiledWorld,
   settings~ : TiledWorldSpawnSettings = default_tiled_world_spawn_settings(),
 ) -> Unit {
   clear_tiled_children(root)
-  @entity.entity_flush_system(0.0)
   clear_tiled_root_components(root)
   spawn_tiled_world_root(root, world, settings)
 }
 
 ///|
 fn spawn_tiled_world_root(
-  world_entity : @entity.Entity,
+  world_entity : @ecs.Entity,
   world : TiledWorld,
   settings : TiledWorldSpawnSettings,
 ) -> Unit {
@@ -210,7 +193,7 @@ fn spawn_tiled_world_root(
       ),
     })
   }
-  let spawned_maps : Map[Int32, @entity.Entity] = Map([])
+  let spawned_maps : Map[Int32, @ecs.Entity] = Map([])
   tiled_world_instances().set(world_entity, {
     world,
     settings,
@@ -249,7 +232,7 @@ pub fn tiled_world_chunking_system(_delta : Double) -> Unit {
 }
 
 ///|
-fn tiled_world_update_chunking(world_entity : @entity.Entity) -> Unit {
+fn tiled_world_update_chunking(world_entity : @ecs.Entity) -> Unit {
   guard tiled_world_instances().get(world_entity) is Some(instance) else {
     return
   }
@@ -329,7 +312,7 @@ fn tiled_camera_view_bounds() -> (@math.Vec2, @math.Vec2) {
 
 ///|
 fn tiled_world_spawn_loaded_map(
-  world_entity : @entity.Entity,
+  world_entity : @ecs.Entity,
   index : Int32,
 ) -> Unit {
   guard tiled_world_instances().get(world_entity) is Some(instance) else {

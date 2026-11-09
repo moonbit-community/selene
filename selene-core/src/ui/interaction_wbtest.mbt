@@ -8,7 +8,7 @@ fn with_ui_interaction_test_world(action : () -> Unit raise) -> Unit raise {
 }
 
 ///|
-fn cleanup_interaction_test_entity(entity : @entity.Entity) -> Unit {
+fn cleanup_interaction_test_entity(entity : @ecs.Entity) -> Unit {
   nodes().remove(entity)
   computed_ui_nodes().remove(entity)
   global_ui_nodes().remove(entity)
@@ -84,8 +84,8 @@ fn spawn_interaction_test_node(
   rect : @math.Rect,
   interactive~ : Bool = true,
   overflow_y~ : Overflow = Visible,
-) -> @entity.Entity {
-  let entity = @entity.Entity()
+) -> @ecs.Entity {
+  let entity = @ecs.Entity()
   nodes().set(entity, Node(overflow_y~))
   global_ui_nodes().set(entity, interaction_test_global_node(rect))
   if interactive {
@@ -168,7 +168,7 @@ fn apply_ui_mouse_frame(position : @math.Vec2, down : Bool) -> Unit {
 ///|
 test "ui relative cursor positions use centered normalized coordinates" {
   reset_interaction_test_state()
-  let entity = @entity.Entity()
+  let entity = @ecs.Entity()
   let rect : @math.Rect = {
     position: Vec2(100.0, 50.0),
     size: Vec2(40.0, 20.0),
@@ -230,7 +230,7 @@ test "ui pointer picks the pause menu dimmer above the HUD" {
 test "ui focus candidates only include nodes in the layout stack" {
   with_ui_interaction_test_world(fn() raise {
     reset_interaction_test_state()
-    let root = @entity.Entity()
+    let root = @ecs.Entity()
     let visible = root.spawn_child()
     let hidden = root.spawn_child()
     nodes().set(root, Node(width=Val::px(100.0), height=Val::px(100.0)))
@@ -414,7 +414,7 @@ test "ui touch release outside pressed target does not click" {
 test "ui touch drag scrolls non-button scrollable panels" {
   with_ui_interaction_test_world(fn() raise {
     reset_interaction_test_state()
-    let entity = @entity.Entity()
+    let entity = @ecs.Entity()
     let child = entity.spawn_child()
     nodes().set(
       entity,
@@ -448,7 +448,7 @@ test "ui touch drag scrolls non-button scrollable panels" {
 test "ui scroll deltas stop at the computed content bounds" {
   with_ui_interaction_test_world(fn() raise {
     reset_interaction_test_state()
-    let entity = @entity.Entity()
+    let entity = @ecs.Entity()
     let child = entity.spawn_child()
     nodes().set(
       entity,
@@ -617,7 +617,7 @@ test "ui input capture leaves gameplay touches unconsumed" {
 ///|
 test "ui relative cursor positions keep normalized values outside calculated clip" {
   reset_interaction_test_state()
-  let entity = @entity.Entity()
+  let entity = @ecs.Entity()
   let rect : @math.Rect = {
     position: Vec2(100.0, 50.0),
     size: Vec2(40.0, 20.0),

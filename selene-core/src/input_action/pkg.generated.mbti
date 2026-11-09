@@ -29,37 +29,41 @@ pub fn input_action_system(Double) -> Unit
 // Errors
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) struct ActionEvent {
   action : InputAction
   kind : ActionEventKind
   value : Double
-} derive(Eq, @debug.Debug)
+}
 pub fn ActionEvent::equal(Self, Self) -> Bool
 pub fn ActionEvent::not_equal(Self, Self) -> Bool
 pub fn ActionEvent::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) enum ActionEventKind {
   Pressed
   Released
   ValueChanged
-} derive(Eq, @debug.Debug)
+}
 pub fn ActionEventKind::equal(Self, Self) -> Bool
 pub fn ActionEventKind::not_equal(Self, Self) -> Bool
 pub fn ActionEventKind::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) struct ActionState {
   mut pressed : Bool
   mut just_pressed : Bool
   mut just_released : Bool
   mut value : Double
-} derive(Eq, @debug.Debug)
+}
 pub fn ActionState::equal(Self, Self) -> Bool
 pub fn ActionState::not_equal(Self, Self) -> Bool
 pub fn ActionState::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, Hash, @debug.Debug)
 pub(all) struct InputAction {
   name : String
-} derive(Eq, Hash, @debug.Debug)
+}
 pub fn InputAction::InputAction(String) -> Self
 pub fn InputAction::equal(Self, Self) -> Bool
 pub fn InputAction::hash(Self) -> Int32

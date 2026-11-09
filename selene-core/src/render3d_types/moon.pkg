@@ -1,6 +1,9 @@
 import {
+  "Milky2018/selene/ecs",
   "moonbitlang/core/debug",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
   "moonbitlang/core/math" @cmath,
 }
+
+formatter(ignore: [ "top.g.mbt" ])

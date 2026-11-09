@@ -1,0 +1,13 @@
+import {
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/async/stdio",
+  "moonbitlang/core/env",
+  "moonbitlang/lexer",
+  "moonbitlang/parser",
+  "moonbitlang/parser/fmt",
+}
+
+pkgtype(kind: "executable")
+
+supported_targets = "wasm"

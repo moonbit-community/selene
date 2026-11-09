@@ -1,6 +1,6 @@
 ///|
 test "render3d extract preserves mesh shadow toggles" {
-  let entity = @entity.Entity()
+  let entity = @ecs.Entity()
   let mesh = @render3d_types.MeshHandle(9901U)
   let material = @render3d_types.MaterialHandle(9902U)
   meshes.set(mesh, cube_mesh(Vec3(1.0, 1.0, 1.0)))
@@ -173,7 +173,7 @@ test "render3d cubemap assets participate in dirty and release sync" {
 
 ///|
 test "render3d extracts skybox from active camera" {
-  let camera_entity = @entity.Entity()
+  let camera_entity = @ecs.Entity()
   let px = register_image_asset({ path: "sky/px.png", })
   let nx = register_image_asset({ path: "sky/nx.png", })
   let py = register_image_asset({ path: "sky/py.png", })
