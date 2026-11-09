@@ -88,6 +88,17 @@ let audio_event_reader : @event.EventReader[AudioEvent] = EventReader()
 let global_volume_ref : Ref[Double] = Ref(1.0)
 
 ///|
+// Keep backend ownership independent of the AudioSink component's lifetime.
+let active_audio_key : @ecs.ResourceKey[
+  Map[@ecs.Entity, @platform_audio.AudioInstance],
+] = ResourceKey()
+
+///|
+fn active_audio_instances() -> Map[@ecs.Entity, @platform_audio.AudioInstance] {
+  active_audio_key.get_or_insert_with(@ecs.require_current_world(), _ => Map([]))
+}
+
+///|
 fn sanitize_volume(volume : Double) -> Double {
   if volume < 0.0 {
     0.0
@@ -292,10 +303,7 @@ pub fn attach_audio(
 ) -> Unit {
   audio_players().set(entity, player)
   audio_playback_settings().set(entity, normalize_settings(settings))
-  if audio_sinks().get(entity) is Some(sink) {
-    @platform_audio.stop(instance=sink.instance)
-    audio_sinks().remove(entity)
-  }
+  remove_audio_sink(entity)
 }
 
 ///|
@@ -326,29 +334,50 @@ pub fn play_one_shot(source : AudioHandle, volume~ : Double = 1.0) -> Unit {
 }
 
 ///|
-pub fn restart_audio(entity : @ecs.Entity) -> Unit {
-  if audio_sinks().get(entity) is Some(sink) {
-    @platform_audio.stop(instance=sink.instance)
-    audio_sinks().remove(entity)
+fn remove_audio_sink(entity : @ecs.Entity) -> Unit {
+  let sinks = audio_sinks()
+  let tracked = active_audio_instances().remove_and_get(entity)
+  let instance = match sinks.get(entity) {
+    Some(sink) => Some(sink.instance)
+    None => tracked
   }
+  if instance is Some(instance) {
+    @platform_audio.stop(instance~)
+  }
+  sinks.remove(entity)
+}
+
+///|
+pub fn restart_audio(entity : @ecs.Entity) -> Unit {
+  remove_audio_sink(entity)
 }
 
 ///|
 pub fn stop_audio(entity : @ecs.Entity) -> Unit {
-  if audio_sinks().get(entity) is Some(sink) {
-    @platform_audio.stop(instance=sink.instance)
-    audio_sinks().remove(entity)
-  }
+  remove_audio_sink(entity)
   audio_players().remove(entity)
   audio_playback_settings().remove(entity)
 }
 
 ///|
-fn cleanup_orphaned_audio() -> Unit {
-  for pair in audio_sinks().to_array() {
-    if !pair.0.is_alive() || !audio_players().contains(pair.0) {
-      @platform_audio.stop(instance=pair.1.instance)
-      audio_sinks().remove(pair.0)
+fn cleanup_orphaned_audio(
+  stop : (@platform_audio.AudioInstance) -> Unit,
+) -> Unit {
+  let sinks = audio_sinks()
+  let players = audio_players()
+  let active = active_audio_instances()
+  active.retain((entity, instance) => {
+    if sinks.contains(entity) {
+      return true
+    }
+    stop(instance)
+    false
+  })
+  for (entity, sink) in sinks.to_array() {
+    if !entity.is_alive() || !players.contains(entity) {
+      active.remove(entity)
+      stop(sink.instance)
+      sinks.remove(entity)
     }
   }
   for pair in audio_playback_settings().to_array() {
@@ -391,17 +420,18 @@ fn start_audio_sink(
     finished: false,
   }
   audio_sinks().set(entity, sink)
+  active_audio_instances().set(entity, sink.instance)
 }
 
 ///|
 fn finish_audio_sink(entity : @ecs.Entity) -> Unit {
   guard audio_sinks().get(entity) is Some(sink) else { return }
   match sink.mode {
-    Once => sink.finished = true
-    Loop => {
-      @platform_audio.stop(instance=sink.instance)
-      audio_sinks().remove(entity)
+    Once => {
+      sink.finished = true
+      active_audio_instances().remove(entity)
     }
+    Loop => remove_audio_sink(entity)
     Remove => stop_audio(entity)
     Despawn => {
       stop_audio(entity)
@@ -415,6 +445,7 @@ fn sync_audio_sink(entity : @ecs.Entity, sink : AudioSink) -> Unit {
   if sink.stopped {
     if !sink.finished {
       @platform_audio.stop(instance=sink.instance)
+      active_audio_instances().remove(entity)
       sink.finished = true
     }
     return
@@ -450,7 +481,7 @@ pub fn audio_event_playback_system(_delta : Double) -> Unit {
 
 ///|
 pub fn audio_playback_system(_delta : Double) -> Unit {
-  cleanup_orphaned_audio()
+  cleanup_orphaned_audio(instance => @platform_audio.stop(instance~))
   for entity, player in audio_players() {
     if !entity.is_alive() {
       continue

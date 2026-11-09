@@ -73,6 +73,7 @@
 
 ### Fixed
 
+- Stop looping audio after permanently deleting its entity or an ancestor.
 - Avoid duplicate CI builds on pushes to pull request branches.
 - Reclaim Pixel Adventure entities when restarting in the same World.
 - Diagnose misplaced Selene attributes and check generated companions from
