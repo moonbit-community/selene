@@ -266,6 +266,8 @@ are checked for missing or stale companions. Review and commit these changes.
 The engine module versions and example engine dependencies retain their current
 release versions throughout this development-tool step.
 
+Codegen publication uses the workspace configuration, as engine publication does.
+
 For the stable release, move the released notes into a dated
 `## [0.40.0] - YYYY-MM-DD` section in `docs/CHANGELOG.md` and keep a new empty
 `Unreleased` section at the top. Then run:

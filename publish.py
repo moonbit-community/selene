@@ -3,7 +3,6 @@
 Release publish script for Selene modules.
 """
 
-import os
 import re
 import subprocess
 import sys
@@ -87,7 +86,6 @@ def run_cmd(
     cwd: Path,
     *,
     fail_on_warning: bool = False,
-    env: dict[str, str] | None = None,
 ):
     print(f"$ (cd {cwd} && {' '.join(cmd)})")
     proc = subprocess.run(
@@ -96,7 +94,6 @@ def run_cmd(
         text=True,
         capture_output=True,
         check=False,
-        env=env,
     )
 
     if proc.stdout:
@@ -123,7 +120,6 @@ def run_publish_cmd(module: ModuleConfig):
         ["moon", "-C", str(module.path), "publish"],
         ROOT_DIR,
         fail_on_warning=False,
-        env={**os.environ, "MOON_WORK": "off"} if module.name == "selene-codegen" else None,
     )
 
 
