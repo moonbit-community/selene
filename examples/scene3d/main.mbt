@@ -35,7 +35,7 @@ priv struct Scene3dState {
 }
 
 ///|
-fn new_scene3d_state() -> Scene3dState {
+fn Scene3dState::Scene3dState() -> Scene3dState {
   {
     entities: [],
     rotating_cube: None,
@@ -110,7 +110,7 @@ fn spawn_sphere(
 ) -> @ecs.Entity {
   let mesh = @render3d.register_mesh_asset(@render3d.sphere_mesh(radius))
   let material = @render3d.register_material_asset({
-    ..@render3d.default_standard_material3d(),
+    ..@render3d.StandardMaterial3D(),
     base_color,
     roughness: 0.3,
   })
@@ -252,7 +252,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
       ignore(entity.delete())
     }
   }
-  let state = new_scene3d_state()
+  let state = Scene3dState()
   world.insert_resource(state)
   configure_scene3d_input()
   let camera = spawn_scene3d_entity()
@@ -262,7 +262,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
     scale: @math.Vec3::one(),
   })
   @camera3d.cameras3d().set(camera, {
-    ..@camera3d.Camera3DComponent::default(),
+    ..@camera3d.Camera3DComponent(),
     clear_color: color(20U, 20U, 24U, 1.0),
   })
 
@@ -275,7 +275,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
     @render3d.plane_mesh(vec3(10.0, 0.02, 10.0)),
   )
   let floor_material = @render3d.register_material_asset({
-    ..@render3d.default_standard_material3d(),
+    ..@render3d.StandardMaterial3D(),
     base_color: color(96U, 104U, 110U, 1.0),
     roughness: 0.9,
   })
@@ -299,7 +299,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
 
   let cube_mesh = @render3d.register_mesh_asset(lit_cube_mesh(1.0))
   let cube_material = @render3d.register_material_asset({
-    ..@render3d.default_standard_material3d(),
+    ..@render3d.StandardMaterial3D(),
     base_color: color(124U, 144U, 255U, 1.0),
     roughness: 0.25,
   })
@@ -321,7 +321,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
 
   let target_mesh = @render3d.register_mesh_asset(@render3d.sphere_mesh(0.45))
   let target_material = @render3d.register_material_asset({
-    ..@render3d.default_standard_material3d(),
+    ..@render3d.StandardMaterial3D(),
     base_color: color(244U, 199U, 124U, 1.0),
     roughness: 0.25,
   })
@@ -343,7 +343,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
     @render3d.cube_mesh(vec3(8.0, 3.2, 0.16)),
   )
   let shadow_wall_material = @render3d.register_material_asset({
-    ..@render3d.default_standard_material3d(),
+    ..@render3d.StandardMaterial3D(),
     base_color: color(86U, 96U, 112U, 1.0),
     roughness: 0.82,
   })
@@ -370,7 +370,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
   @render3d.mesh3d_renderers().set(off_axis_cube, {
     mesh: cube_mesh,
     material: @render3d.register_material_asset({
-      ..@render3d.default_standard_material3d(),
+      ..@render3d.StandardMaterial3D(),
       base_color: color(118U, 168U, 240U, 1.0),
       roughness: 0.6,
     }),
@@ -416,7 +416,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
   @render3d.mesh3d_renderers().set(compound_body, {
     mesh: cube_mesh,
     material: @render3d.register_material_asset({
-      ..@render3d.default_standard_material3d(),
+      ..@render3d.StandardMaterial3D(),
       base_color: color(122U, 199U, 156U, 1.0),
       roughness: 0.5,
     }),
@@ -439,7 +439,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
   @render3d.mesh3d_renderers().set(child_collider, {
     mesh: @render3d.register_mesh_asset(@render3d.sphere_mesh(0.22)),
     material: @render3d.register_material_asset({
-      ..@render3d.default_standard_material3d(),
+      ..@render3d.StandardMaterial3D(),
       base_color: color(178U, 240U, 212U, 1.0),
       roughness: 0.3,
     }),
@@ -489,7 +489,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
   @physics3d.colliders().set(controller, @physics3d.Collider::ball(0.3))
   @physics3d.kinematic_character_controllers().set(
     controller,
-    @physics3d.KinematicCharacterController::default(),
+    @physics3d.KinematicCharacterController(),
   )
   state.controller_entity = Some(controller)
 
@@ -500,7 +500,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
     scale: @math.Vec3::one(),
   })
   @render3d.spot_lights3d().set(spotlight, {
-    ..@render3d.default_spot_light3d(),
+    ..@render3d.SpotLight3D(),
     direction: vec3(-1.0, -1.2, 0.0).normalize(),
     color: color(255U, 236U, 186U, 1.0),
     intensity: 8.0,
@@ -517,7 +517,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
     @render3d.sphere_mesh(0.14),
   )
   let spotlight_marker_material = @render3d.register_material_asset({
-    ..@render3d.default_standard_material3d(),
+    ..@render3d.StandardMaterial3D(),
     base_color: color(255U, 236U, 186U, 1.0),
     roughness: 0.05,
   })
@@ -536,7 +536,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
 
   let dir_light = spawn_scene3d_entity()
   @render3d.directional_lights3d().set(dir_light, {
-    ..@render3d.default_directional_light3d(),
+    ..@render3d.DirectionalLight3D(),
     direction: vec3(-0.72, -1.0, -0.42).normalize(),
     color: color(255U, 255U, 255U, 1.0),
     intensity: 1.15,

@@ -313,12 +313,12 @@ fn ldtk_apply_int_grid_physics(
   if physics_settings.as_sensor {
     @physics2d.areas().set(
       cell_entity,
-      @physics2d.new_sensor(physics_settings.sensor_filter),
+      @physics2d.Area(physics_settings.sensor_filter),
     )
   } else {
     @physics2d.colliders().set(
       cell_entity,
-      @physics2d.collider(physics_settings.collision_filter),
+      @physics2d.Collider(physics_settings.collision_filter),
     )
   }
   @physics2d.shapes().set(cell_entity, shape)

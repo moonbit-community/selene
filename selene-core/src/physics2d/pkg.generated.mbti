@@ -18,8 +18,6 @@ pub fn add_force_at_point(@ecs.Entity, @math.Vec2, @math.Vec2, wake_up? : Bool) 
 
 pub fn add_torque(@ecs.Entity, Double, wake_up? : Bool) -> Unit
 
-pub fn all_collision_layers(@Milky2018/selene/collision.CollisionGroup) -> @Milky2018/selene/collision.CollisionFilter
-
 pub fn apply_impulse(@ecs.Entity, @math.Vec2, wake_up? : Bool) -> Unit
 
 pub fn apply_impulse_at_point(@ecs.Entity, @math.Vec2, @math.Vec2, wake_up? : Bool) -> Unit
@@ -28,15 +26,9 @@ pub fn apply_torque_impulse(@ecs.Entity, Double, wake_up? : Bool) -> Unit
 
 pub fn areas() -> @ecs.ComponentStore[@Milky2018/selene/collision.Area]
 
-pub fn collider(@Milky2018/selene/collision.CollisionFilter) -> @Milky2018/selene/collision.Collider
-
 pub fn collider_handle(@ecs.Entity) -> @Milky2018/moon_rapier/collision.ColliderHandle?
 
 pub fn colliders() -> @ecs.ComponentStore[@Milky2018/selene/collision.Collider]
-
-pub fn collision_filter(@Milky2018/selene/collision.CollisionGroup, Array[@Milky2018/selene/collision.CollisionGroup]) -> @Milky2018/selene/collision.CollisionFilter
-
-pub fn collision_group() -> @Milky2018/selene/collision.CollisionGroup
 
 pub fn configure_physics(gravity? : @math.Vec2, pixels_per_meter? : Double, max_ccd_substeps? : Int32) -> Unit
 
@@ -45,8 +37,6 @@ pub let contact_event_bus : @event.Events[@Milky2018/selene/collision.ContactEve
 pub fn debug_colliders_system(Double) -> Unit
 
 pub fn emit_pickable_just_pressed(@ecs.Entity, button? : @inputs.MouseButton) -> Unit
-
-pub fn empty_collision_layers(@Milky2018/selene/collision.CollisionGroup) -> @Milky2018/selene/collision.CollisionFilter
 
 pub fn get_contains(@ecs.Entity) -> @set.Set[@ecs.Entity]
 
@@ -64,10 +54,6 @@ pub fn joints() -> @ecs.ComponentStore[@Milky2018/selene/collision.Joint]
 
 pub fn linear_velocities() -> @ecs.ComponentStore[@velocity.Velocity]
 
-pub fn make_linear_velocity(@math.Vec2) -> @velocity.Velocity
-
-pub fn make_velocity(@math.Vec2) -> @velocity.Velocity
-
 pub fn move_system(Double) -> Unit
 
 pub fn multibody_joint_handle(@ecs.Entity) -> @dynamics.MultibodyJointHandle?
@@ -75,10 +61,6 @@ pub fn multibody_joint_handle(@ecs.Entity) -> @dynamics.MultibodyJointHandle?
 pub fn multibody_joints() -> @ecs.ComponentStore[@Milky2018/selene/collision.MultibodyJoint]
 
 pub fn multibody_link(@ecs.Entity) -> @dynamics.MultibodyLinkId?
-
-pub fn new_collision_layers(@Milky2018/selene/collision.CollisionGroup, Array[@Milky2018/selene/collision.CollisionGroup]) -> @Milky2018/selene/collision.CollisionFilter
-
-pub fn new_sensor(@Milky2018/selene/collision.CollisionFilter) -> @Milky2018/selene/collision.Area
 
 pub let physics_config : @Milky2018/selene/collision.PhysicsConfig
 
@@ -109,8 +91,6 @@ pub fn rigid_body_linear_velocity(@ecs.Entity) -> @math.Vec2?
 pub fn rigid_body_rotation(@ecs.Entity) -> Double?
 
 pub fn rigid_body_translation(@ecs.Entity) -> @math.Vec2?
-
-pub fn sensor(@Milky2018/selene/collision.CollisionFilter) -> @Milky2018/selene/collision.Area
 
 pub fn sensors() -> @ecs.ComponentStore[@Milky2018/selene/collision.Area]
 

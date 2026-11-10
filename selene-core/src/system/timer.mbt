@@ -41,7 +41,7 @@ priv struct Timers {
 }
 
 ///|
-fn new_timers() -> Timers {
+fn Timers::Timers() -> Timers {
   { pending: [], ticking: false, }
 }
 
@@ -61,7 +61,7 @@ pub fn timeout(
   let state = match existing {
     Some(state) => state
     None => {
-      let state = new_timers()
+      let state = Timers()
       world.insert_resource(state)
       state
     }

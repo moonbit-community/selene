@@ -129,7 +129,7 @@ fn joint_endpoint_handles(
 }
 
 ///|
-fn entity_joint_config_key(
+fn EntityJointConfigKey::EntityJointConfigKey(
   joint : Joint,
   body1 : @rapier_dynamics.RigidBodyHandle,
   body2 : @rapier_dynamics.RigidBodyHandle,
@@ -391,7 +391,7 @@ fn sync_world_joints() -> Unit {
       remove_joint_physics(entity)
       continue
     }
-    let config_key = entity_joint_config_key(joint, body1, body2)
+    let config_key = EntityJointConfigKey(joint, body1, body2)
     if world().entity_joints.get(entity) is Some(handle) &&
       world().impulse_joints.contains(handle) &&
       entity_joint_config_keys().get(entity) == Some(config_key) {

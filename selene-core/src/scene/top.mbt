@@ -25,7 +25,7 @@ fn scene_instances() -> @ecs.ComponentStore[SceneHandle] {
 pub let scene_instance_ready_events : @event.Events[SceneInstanceReadyEvent] = Events()
 
 ///|
-pub fn spawner() -> SceneSpawner {
+pub fn SceneSpawner::SceneSpawner() -> SceneSpawner {
   { _tag: (), }
 }
 

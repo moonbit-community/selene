@@ -62,7 +62,7 @@ priv struct PerfRuntime {
 }
 
 ///|
-fn new_perf_runtime() -> PerfRuntime {
+fn PerfRuntime::PerfRuntime() -> PerfRuntime {
   { entities: [], state: None, }
 }
 
@@ -142,7 +142,7 @@ fn setup_perf3d(world : @ecs.World) -> Unit {
       ignore(entity.delete())
     }
   }
-  let runtime = new_perf_runtime()
+  let runtime = PerfRuntime()
   world.insert_resource(runtime)
   let config = read_perf_config()
   configure_lighting_mode(config.mode)
@@ -188,7 +188,7 @@ fn setup_camera(config : PerfConfig) -> Unit {
     scale: @math.Vec3::one(),
   })
   @camera3d.cameras3d().set(camera, {
-    ..@camera3d.Camera3DComponent::default(),
+    ..@camera3d.Camera3DComponent(),
     clear_color: color(18U, 20U, 26U, 1.0),
     fov_y: 75.0,
     far: 500.0,
@@ -202,7 +202,7 @@ fn setup_lights(config : PerfConfig) -> Unit {
   )
   let dir_light = spawn_perf_entity()
   @render3d.directional_lights3d().set(dir_light, {
-    ..@render3d.default_directional_light3d(),
+    ..@render3d.DirectionalLight3D(),
     direction: vec3(-0.35, -0.8, -0.45).normalize(),
     color: color(255U, 245U, 220U, 1.0),
     intensity: 1.8,
@@ -253,7 +253,7 @@ fn material_for_case(case_name : String) -> @render3d.MaterialHandle {
     _ => color(130U, 210U, 145U, 1.0)
   }
   @render3d.register_material_asset({
-    ..@render3d.default_standard_material3d(),
+    ..@render3d.StandardMaterial3D(),
     base_color: base,
     roughness: 0.75,
   })

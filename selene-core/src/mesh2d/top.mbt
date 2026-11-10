@@ -100,7 +100,7 @@ fn centered_quad_transform(size : @math.Vec2) -> @math.Transform {
 pub fn render_mesh2d_system(delta : Double) -> Unit {
   ignore(delta)
   let camera_views = @camera.active_camera2d_views()
-  let camera_extract = @culling2d.build_camera_extract2d_context(camera_views)
+  let camera_extract = @culling2d.CameraExtract2dContext(camera_views)
   for entity, mesh in mesh2ds() {
     guard entity.is_alive() else { continue }
     guard @visibility.is_visible(entity) else { continue }

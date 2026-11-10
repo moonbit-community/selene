@@ -12,7 +12,7 @@ pub(all) struct InputSnapshot {
 }
 
 ///|
-pub fn empty_input_snapshot() -> InputSnapshot {
+pub fn InputSnapshot::InputSnapshot() -> InputSnapshot {
   {
     pressed_keys: Set([]),
     mouse: {

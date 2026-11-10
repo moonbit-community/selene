@@ -19,7 +19,7 @@ pub(all) struct CameraExtract2dContext {
 }
 
 ///|
-pub fn build_camera_extract2d_context(
+pub fn CameraExtract2dContext::CameraExtract2dContext(
   camera_views : Array[@camera.Camera2dView],
 ) -> CameraExtract2dContext {
   let all_camera_ids = camera_views.map(fn(camera_view) {
@@ -38,7 +38,7 @@ pub fn build_camera_extract2d_context(
     camera_views,
     all_camera_ids,
     camera_views_by_id,
-    camera_grid: build_spatial_grid2d(camera_grid_entries),
+    camera_grid: SpatialGrid2d(camera_grid_entries),
   }
 }
 
@@ -105,7 +105,7 @@ fn bucket_key(x : Int32, y : Int32) -> String {
 }
 
 ///|
-pub fn build_spatial_grid2d(
+pub fn SpatialGrid2d::SpatialGrid2d(
   entries : Array[SpatialGridEntry2d],
   cell_size~ : Double = 256.0,
 ) -> SpatialGrid2d {
@@ -152,7 +152,7 @@ pub fn SpatialGrid2d::query(
 
 ///|
 test "spatial grid query returns deterministic ids from overlapping cells" {
-  let grid = build_spatial_grid2d(
+  let grid = SpatialGrid2d(
     [
       { id: 5U, bounds: { position: Vec2(0.0, 0.0), size: Vec2(16.0, 16.0), }, },
       {

@@ -101,7 +101,7 @@ pub struct LdtkSpawnExclusions {
 }
 
 ///|
-pub fn default_ldtk_spawn_exclusions() -> LdtkSpawnExclusions {
+pub fn LdtkSpawnExclusions::LdtkSpawnExclusions() -> LdtkSpawnExclusions {
   { layer_identifiers: [], }
 }
 
@@ -124,8 +124,8 @@ pub struct LdtkIntGridPhysicsSettings {
 }
 
 ///|
-pub fn default_ldtk_int_grid_physics_settings() -> LdtkIntGridPhysicsSettings {
-  let group = @physics2d.collision_group()
+pub fn LdtkIntGridPhysicsSettings::LdtkIntGridPhysicsSettings() -> LdtkIntGridPhysicsSettings {
+  let group = @physics2d.CollisionGroup()
   {
     enabled: false,
     layer_identifiers: [],
@@ -163,11 +163,11 @@ pub struct LdtkSettings {
 }
 
 ///|
-pub fn default_ldtk_settings() -> LdtkSettings {
+pub fn LdtkSettings::LdtkSettings() -> LdtkSettings {
   {
     level_spawn_behavior: UseZeroTranslation,
     int_grid_rendering: Colorful,
-    spawn_exclusions: default_ldtk_spawn_exclusions(),
+    spawn_exclusions: LdtkSpawnExclusions(),
   }
 }
 
@@ -179,11 +179,11 @@ pub fn ldtk_level_spawn_behavior_world_translation(
 }
 
 ///|
-pub let ldtk_settings : Ref[LdtkSettings] = { val: default_ldtk_settings(), }
+pub let ldtk_settings : Ref[LdtkSettings] = { val: LdtkSettings(), }
 
 ///|
 pub let ldtk_int_grid_physics_settings : Ref[LdtkIntGridPhysicsSettings] = {
-  val: default_ldtk_int_grid_physics_settings(),
+  val: LdtkIntGridPhysicsSettings(),
 }
 
 ///|
@@ -214,12 +214,7 @@ pub struct LdtkLevelSet {
 }
 
 ///|
-pub fn empty_ldtk_level_set() -> LdtkLevelSet {
-  { iids: [], }
-}
-
-///|
-pub fn ldtk_level_set_from_iids(iids : Array[String]) -> LdtkLevelSet {
+pub fn LdtkLevelSet::LdtkLevelSet(iids : Array[String]) -> LdtkLevelSet {
   { iids: unique_ldtk_iids(iids), }
 }
 

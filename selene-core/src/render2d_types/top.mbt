@@ -119,6 +119,6 @@ pub(all) struct RenderFrame2D {
 }
 
 ///|
-pub fn empty_render_frame2d() -> RenderFrame2D {
+pub fn RenderFrame2D::RenderFrame2D() -> RenderFrame2D {
   { passes: [], world_commands: [], ui_commands: [], }
 }

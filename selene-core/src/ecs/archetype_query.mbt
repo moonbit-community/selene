@@ -9,7 +9,7 @@ priv struct ArchetypeQuery[Columns] {
 }
 
 ///|
-fn[A, Columns] new_archetype_query(
+fn[A, Columns] ArchetypeQuery::ArchetypeQuery(
   first : ComponentStore[A],
   other_worlds : Array[UInt32],
   bind : (Int32) -> Columns?,
@@ -76,7 +76,7 @@ pub fn[A, B] Query2::Query2(
   a : ComponentStore[A],
   b : ComponentStore[B],
 ) -> Query2[A, B] {
-  let plan = new_archetype_query(a, [b.world_id], id => {
+  let plan = ArchetypeQuery(a, [b.world_id], id => {
     guard a.column(id) is Some(column_a) else { None }
     guard b.column(id) is Some(column_b) else { None }
     Some((column_a, column_b))
@@ -145,7 +145,7 @@ pub fn[A, B, C] Query3::Query3(
   b : ComponentStore[B],
   c : ComponentStore[C],
 ) -> Query3[A, B, C] {
-  let plan = new_archetype_query(a, [b.world_id, c.world_id], id => {
+  let plan = ArchetypeQuery(a, [b.world_id, c.world_id], id => {
     guard a.column(id) is Some(column_a) else { None }
     guard b.column(id) is Some(column_b) else { None }
     guard c.column(id) is Some(column_c) else { None }
@@ -219,7 +219,7 @@ pub fn[A, B, C, D] Query4::Query4(
   c : ComponentStore[C],
   d : ComponentStore[D],
 ) -> Query4[A, B, C, D] {
-  let plan = new_archetype_query(a, [b.world_id, c.world_id, d.world_id], id => {
+  let plan = ArchetypeQuery(a, [b.world_id, c.world_id, d.world_id], id => {
     guard a.column(id) is Some(column_a) else { None }
     guard b.column(id) is Some(column_b) else { None }
     guard c.column(id) is Some(column_c) else { None }
@@ -307,7 +307,7 @@ pub fn[A, B, C, D, E] Query5::Query5(
   d : ComponentStore[D],
   e : ComponentStore[E],
 ) -> Query5[A, B, C, D, E] {
-  let plan = new_archetype_query(
+  let plan = ArchetypeQuery(
     a,
     [b.world_id, c.world_id, d.world_id, e.world_id],
     id => {

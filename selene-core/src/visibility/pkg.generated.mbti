@@ -7,8 +7,6 @@ import {
 }
 
 // Values
-pub fn default_render_layers() -> RenderLayers
-
 pub fn entity_render_layers(@ecs.Entity) -> RenderLayers
 
 pub fn inherited_visibilities() -> @ecs.ComponentStore[InheritedVisibility]
@@ -45,6 +43,7 @@ pub impl @ecs.Component for InheritedVisibility
 pub(all) struct RenderLayers {
   mask : UInt32
 }
+pub fn RenderLayers::RenderLayers() -> Self
 pub fn RenderLayers::equal(Self, Self) -> Bool
 pub fn RenderLayers::not_equal(Self, Self) -> Bool
 pub fn RenderLayers::to_repr(Self) -> @debug.Repr

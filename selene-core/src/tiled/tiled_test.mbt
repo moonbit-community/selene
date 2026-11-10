@@ -1,15 +1,15 @@
 ///|
 test "tiled settings are configurable from external packages" {
   let map_settings = {
-    ..@tiled.default_tiled_spawn_settings(),
+    ..@tiled.TiledSpawnSettings(),
     image_layer_hook: Some(fn(_event) { () }),
   }
   let physics_settings = {
-    ..@tiled.default_tiled_physics_settings(),
+    ..@tiled.TiledPhysicsSettings(),
     collider_hook: Some(fn(_event) { () }),
   }
   let world_settings = {
-    ..@tiled.default_tiled_world_spawn_settings(),
+    ..@tiled.TiledWorldSpawnSettings(),
     map_settings,
     world_hook: Some(fn(_event) { () }),
   }

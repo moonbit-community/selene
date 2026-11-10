@@ -48,7 +48,7 @@ fn spawn_pickable_camera(
 fn spawn_pickable_shape(
   position : @math.Vec2,
   shape : CollisionShape,
-  layers~ : @visibility.RenderLayers = @visibility.default_render_layers(),
+  layers~ : @visibility.RenderLayers = @visibility.RenderLayers(),
 ) -> @ecs.Entity {
   let entity = @ecs.Entity()
   pickables().set(entity, Pickable())

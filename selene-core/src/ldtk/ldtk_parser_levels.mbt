@@ -5,7 +5,7 @@ pub fn LdtkProject::level_set_for_selection(
   behavior : LdtkLevelSpawnBehavior,
 ) -> LdtkLevelSet {
   guard self.find_level_by_selection(selection) is Some(selected) else {
-    return empty_ldtk_level_set()
+    return LdtkLevelSet([])
   }
   let iids : Array[String] = [selected.level.iid]
   match behavior {
@@ -19,7 +19,7 @@ pub fn LdtkProject::level_set_for_selection(
         }
       }
   }
-  ldtk_level_set_from_iids(iids)
+  LdtkLevelSet(iids)
 }
 
 ///|
@@ -262,9 +262,7 @@ fn load_ldtk_text_document(path : String) -> String? {
 
 ///|
 fn parse_ldtk_project_source(source : String) -> LdtkProject {
-  let root_json = @json.parse(source[:]) catch {
-    _ => return empty_ldtk_project()
-  }
+  let root_json = @json.parse(source[:]) catch { _ => return LdtkProject() }
   LdtkProject::from_ldtk_json(root_json)
 }
 
@@ -287,9 +285,7 @@ fn parse_ldtk_project(root_object : Map[String, Json]) -> LdtkProject {
 fn parse_ldtk_project_definitions(
   defs_object : Map[String, Json]?,
 ) -> LdtkProjectDefinitions {
-  guard defs_object is Some(object) else {
-    return empty_ldtk_project_definitions()
-  }
+  guard defs_object is Some(object) else { return LdtkProjectDefinitions() }
   {
     tilesets: parse_ldtk_tilesets(field_json(object, "tilesets")),
     layers: parse_ldtk_layer_definitions(field_json(object, "layers")),

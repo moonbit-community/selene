@@ -86,11 +86,11 @@ pub type LinearVelocity = @velocity.Velocity
 
 ///|
 /// Backward-compatible velocity alias.
-pub type Velocity = @velocity.Velocity
+pub using @velocity {type Velocity}
 
 ///|
 /// Collider component.
-pub type Collider = @collision.Collider
+pub using @collision {type Collider}
 
 ///|
 /// Sensor area component.
@@ -98,7 +98,7 @@ pub type Sensor = @collision.Area
 
 ///|
 /// Backward-compatible area alias.
-pub type Area = @collision.Area
+pub using @collision {type Area}
 
 ///|
 /// Collision shape component.
@@ -114,11 +114,11 @@ pub type CollisionLayers = @collision.CollisionFilter
 
 ///|
 /// Backward-compatible filter alias.
-pub type CollisionFilter = @collision.CollisionFilter
+pub using @collision {type CollisionFilter}
 
 ///|
 /// Collision group id.
-pub type CollisionGroup = @collision.CollisionGroup
+pub using @collision {type CollisionGroup}
 
 ///|
 /// Physics config descriptor.
@@ -246,62 +246,6 @@ pub let trigger_event_bus : @event.Events[TriggerEvent] = @collision.trigger_eve
 pub let pointer_event_bus : @event.Events[PointerEvent] = @collision.pointer_event_bus
 
 ///|
-pub fn make_velocity(value : @math.Vec2) -> Velocity {
-  Velocity(value)
-}
-
-///|
-pub fn make_linear_velocity(value : @math.Vec2) -> LinearVelocity {
-  make_velocity(value)
-}
-
-///|
-pub fn collision_group() -> CollisionGroup {
-  CollisionGroup()
-}
-
-///|
-pub fn collision_filter(
-  memberships : CollisionGroup,
-  filters : Array[CollisionGroup],
-) -> CollisionFilter {
-  CollisionFilter(memberships, filters)
-}
-
-///|
-pub fn collider(filter : CollisionFilter) -> Collider {
-  Collider(filter)
-}
-
-///|
-pub fn sensor(filter : CollisionFilter) -> Sensor {
-  Area(filter)
-}
-
-///|
-pub fn new_collision_layers(
-  memberships : CollisionGroup,
-  filters : Array[CollisionGroup],
-) -> CollisionLayers {
-  collision_filter(memberships, filters)
-}
-
-///|
-pub fn empty_collision_layers(memberships : CollisionGroup) -> CollisionLayers {
-  @collision.CollisionFilter::empty(memberships)
-}
-
-///|
-pub fn all_collision_layers(memberships : CollisionGroup) -> CollisionLayers {
-  @collision.CollisionFilter::all(memberships)
-}
-
-///|
-pub fn new_sensor(filter : CollisionLayers) -> Sensor {
-  Area(filter)
-}
-
-///|
 pub fn rigid_body_handle(entity : @ecs.Entity) -> RigidBodyHandle? {
   @collision.rigid_body_handle(entity)
 }
@@ -332,7 +276,7 @@ pub fn raycast(
   direction : @math.Vec2,
   max_toi~ : Double = 1000.0,
   solid~ : Bool = true,
-  query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
+  query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter(),
 ) -> RaycastHit? {
   @collision.raycast(origin, direction, max_toi~, solid~, query_filter~)
 }
@@ -345,7 +289,7 @@ pub fn shape_cast(
   direction~ : @math.Vec2 = Vec2(0.0, -1.0),
   max_toi~ : Double = 1000.0,
   stop_at_penetration~ : Bool = false,
-  query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
+  query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter(),
 ) -> ShapeCastHit? {
   @collision.shape_cast(
     shape,
@@ -361,7 +305,7 @@ pub fn shape_cast(
 ///|
 pub fn intersect_point(
   point : @math.Vec2,
-  query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
+  query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter(),
 ) -> Array[@ecs.Entity] {
   @collision.intersect_point(point, query_filter~)
 }
@@ -371,7 +315,7 @@ pub fn intersect_shape(
   shape : CollisionShape,
   origin : @math.Vec2,
   rotation~ : Double = 0.0,
-  query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
+  query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter(),
 ) -> Array[@ecs.Entity] {
   @collision.intersect_shape(shape, origin, rotation~, query_filter~)
 }

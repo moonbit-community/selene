@@ -1,11 +1,11 @@
 ///|
 pub fn QueryFilter::only_fixed() -> QueryFilter {
-  { ..QueryFilter::default(), body_filter: Fixed, }
+  { ..QueryFilter(), body_filter: Fixed, }
 }
 
 ///|
 pub fn QueryFilter::only_kinematic() -> QueryFilter {
-  { ..QueryFilter::default(), body_filter: Kinematic, }
+  { ..QueryFilter(), body_filter: Kinematic, }
 }
 
 ///|
@@ -80,7 +80,7 @@ pub fn SphericalJoint::SphericalJoint() -> SphericalJoint {
 }
 
 ///|
-pub fn KinematicCharacterController::default() -> KinematicCharacterController {
+pub fn KinematicCharacterController::KinematicCharacterController() -> KinematicCharacterController {
   {
     translation: None,
     offset: CharacterLength::absolute(0.01),
@@ -96,7 +96,7 @@ pub fn KinematicCharacterController::default() -> KinematicCharacterController {
 }
 
 ///|
-pub fn KinematicCharacterControllerCollisions::empty() -> KinematicCharacterControllerCollisions {
+pub fn KinematicCharacterControllerCollisions::KinematicCharacterControllerCollisions() -> KinematicCharacterControllerCollisions {
   { collisions: [], }
 }
 
@@ -113,7 +113,7 @@ let physics3d_component_world_store_key : @ecs.ResourceKey[
 ] = ResourceKey()
 
 ///|
-fn new_physics3d_component_world_store(
+fn Physics3DComponentWorldStore::Physics3DComponentWorldStore(
   world : @ecs.World,
 ) -> Physics3DComponentWorldStore {
   {
@@ -127,7 +127,7 @@ fn new_physics3d_component_world_store(
 fn physics3d_component_world_store() -> Physics3DComponentWorldStore {
   physics3d_component_world_store_key.get_or_insert_with(
     @ecs.require_current_world(),
-    new_physics3d_component_world_store,
+    world => Physics3DComponentWorldStore(world),
   )
 }
 

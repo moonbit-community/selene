@@ -1,5 +1,5 @@
 ///|
-let snapshot : @inputs.InputSnapshot = @inputs.empty_input_snapshot()
+let snapshot : @inputs.InputSnapshot = @inputs.InputSnapshot()
 
 ///|
 let mouse_relative_delta : Ref[@math.Vec2?] = Ref(None)

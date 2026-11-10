@@ -121,11 +121,11 @@ fn rigid_body_desc(entity : @ecs.Entity) -> RigidBodyDesc {
   {
     body_type: rigid_bodies().get(entity).unwrap_or(Dynamic),
     velocity: velocities().get(entity).unwrap_or(Velocity::zero()),
-    damping: dampings().get(entity).unwrap_or(Damping::default()),
+    damping: dampings().get(entity).unwrap_or(Damping()),
     gravity_scale: gravity_scales()
     .get(entity)
     .unwrap_or(GravityScale::default()),
-    locked_axes: locked_axes().get(entity).unwrap_or(LockedAxes::default()),
+    locked_axes: locked_axes().get(entity).unwrap_or(LockedAxes()),
     ccd_enabled: ccds().contains(entity),
     dominance: dominances().get(entity),
     additional_mass_properties: additional_mass_properties().get(entity),

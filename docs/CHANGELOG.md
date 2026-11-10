@@ -26,6 +26,17 @@
 
 ### Changed
 
+- Use `Type::Type` constructors for engine and example state, map settings,
+  autotile rules, render frames, lights, materials, cameras, and physics
+  descriptors. For example, use `@ldtk.LdtkSettings()`,
+  `@tiled.TiledSpawnSettings()`, and `@render3d.StandardMaterial3D()` in
+  place of their previous `default_*` functions.
+- Replace `Audio::new(...)` with `Audio(...)`. In `@physics2d`, use
+  `Velocity(...)`, `CollisionGroup()`, `CollisionFilter(...)`,
+  `Collider(...)`, and `Area(...)` in place of the old factory functions.
+  Use `CollisionFilter::empty(...)` and `CollisionFilter::all(...)` for the
+  corresponding layer filters.
+- Use the standard comparison helper to clamp time deltas and shadow biases.
 - Build example pages directly with `moon build`. The Pages workflow updates
   the registry before building and copies the public files for deployment.
 - Replace the Python release script with `publish.mbtx`, run through

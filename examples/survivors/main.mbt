@@ -172,7 +172,7 @@ priv struct SurvivorsRuntime {
 }
 
 ///|
-fn new_survivors_runtime() -> SurvivorsRuntime {
+fn SurvivorsRuntime::SurvivorsRuntime() -> SurvivorsRuntime {
   {
     entities: [],
     game: None,
@@ -230,7 +230,7 @@ fn reset_survivors_runtime() -> Unit {
       ignore(entity.delete())
     }
   }
-  world.insert_resource(new_survivors_runtime())
+  world.insert_resource(SurvivorsRuntime())
   reset_wave_state()
 }
 
@@ -240,13 +240,13 @@ fn game_state() -> GameState {
   if runtime.game is Some(state) {
     return state
   }
-  let state = new_game_state()
+  let state = GameState()
   runtime.game = Some(state)
   state
 }
 
 ///|
-fn new_game_state() -> GameState {
+fn GameState::GameState() -> GameState {
   {
     player_entity: spawn_survivors_entity(),
     camera_entity: spawn_survivors_entity(),
@@ -483,7 +483,7 @@ fn select_weighted_powerup(
       }
     }
     if !already_has {
-      let powerup = create_powerup(powerup_type)
+      let powerup = Powerup(powerup_type)
       let weight = (powerup.weight_formula)(level)
       if weight > 0.0 {
         available_types.push(powerup_type)
@@ -494,7 +494,7 @@ fn select_weighted_powerup(
 
   // Weighted random selection
   match weighted_random_selection(available_types, available_weights) {
-    Some(powerup_type) => Some(create_powerup(powerup_type))
+    Some(powerup_type) => Some(Powerup(powerup_type))
     None => None
   }
 }

@@ -46,16 +46,15 @@ priv struct Text2dWorldStore {
 let text2d_world_store_key : @ecs.ResourceKey[Text2dWorldStore] = ResourceKey()
 
 ///|
-fn new_text2d_world_store(_ : @ecs.World) -> Text2dWorldStore {
+fn Text2dWorldStore::Text2dWorldStore() -> Text2dWorldStore {
   { text_layout_caches: Map([]), }
 }
 
 ///|
 fn text2d_world_store() -> Text2dWorldStore {
-  text2d_world_store_key.get_or_insert_with(
-    @ecs.require_current_world(),
-    new_text2d_world_store,
-  )
+  text2d_world_store_key.get_or_insert_with(@ecs.require_current_world(), _ => {
+    Text2dWorldStore()
+  })
 }
 
 ///|
@@ -291,7 +290,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
     }
   }
   let camera_views = @camera.active_camera2d_views()
-  let camera_extract = @culling2d.build_camera_extract2d_context(camera_views)
+  let camera_extract = @culling2d.CameraExtract2dContext(camera_views)
   for entity, text2d in text2ds() {
     guard entity.is_alive() else { continue }
     guard @visibility.is_visible(entity) else { continue }

@@ -186,7 +186,7 @@ fn chicle_style_snapshot(node : Node) -> UiChicleStyleSnapshot {
       border: normalize_style_rect(node.border),
       row_gap: @cmp.maximum(0.0, node.row_gap),
       column_gap: @cmp.maximum(0.0, node.column_gap),
-      overflow_clip_margin: default_overflow_clip_margin(),
+      overflow_clip_margin: OverflowClipMargin::content_box(),
       flex_basis: normalize_style_val(node.flex_basis),
       aspect_ratio: match node.aspect_ratio {
         Some(value) if value > 0.0 => Some(value)
@@ -236,7 +236,7 @@ fn ui_projection_snapshot(entity : @ecs.Entity) -> UiProjectionSnapshot {
   let overflow_clip_margin = nodes()
     .get(entity)
     .map(fn(node) { node.overflow_clip_margin })
-    .unwrap_or(default_overflow_clip_margin())
+    .unwrap_or(OverflowClipMargin::content_box())
   let (target_camera, target_viewport_position, target_viewport_size) = match
     ui_target_cameras().get(entity) {
     Some(target) => {

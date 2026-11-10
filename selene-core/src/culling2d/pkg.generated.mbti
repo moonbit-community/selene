@@ -8,9 +8,6 @@ import {
 }
 
 // Values
-pub fn build_camera_extract2d_context(Array[@camera.Camera2dView]) -> CameraExtract2dContext
-
-pub fn build_spatial_grid2d(Array[SpatialGridEntry2d], cell_size? : Double) -> SpatialGrid2d
 
 // Errors
 
@@ -21,12 +18,14 @@ pub(all) struct CameraExtract2dContext {
   camera_views_by_id : Map[UInt32, @camera.Camera2dView]
   camera_grid : SpatialGrid2d
 }
+pub fn CameraExtract2dContext::CameraExtract2dContext(Array[@camera.Camera2dView]) -> Self
 pub fn CameraExtract2dContext::camera_views_for_bounds(Self, @math.Rect, @visibility.RenderLayers, Bool) -> Array[@camera.Camera2dView]
 
 pub(all) struct SpatialGrid2d {
   cell_size : Double
   buckets : Map[String, Array[UInt32]]
 }
+pub fn SpatialGrid2d::SpatialGrid2d(Array[SpatialGridEntry2d], cell_size? : Double) -> Self
 pub fn SpatialGrid2d::query(Self, @math.Rect) -> Array[UInt32]
 
 pub(all) struct SpatialGridEntry2d {

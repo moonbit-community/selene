@@ -35,7 +35,7 @@ priv struct Powerup {
 }
 
 ///|
-fn create_powerup(powerup_type : PowerupType) -> Powerup {
+fn Powerup::Powerup(powerup_type : PowerupType) -> Powerup {
   match powerup_type {
     AttackLv1 =>
       {

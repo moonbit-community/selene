@@ -35,7 +35,7 @@ pub(all) struct Camera3DComponent {
   clear_color : @render.Color
   mut enabled : Bool
 }
-pub fn Camera3DComponent::default() -> Self
+pub fn Camera3DComponent::Camera3DComponent() -> Self
 pub impl @ecs.Component for Camera3DComponent
 
 // Type aliases

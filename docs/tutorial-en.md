@@ -328,8 +328,8 @@ if @inputs.is_just_pressed(@inputs.ArrowUp) && @physics2d.is_grounded(player) {
 Configure collision groups, shape, and collider to block terrain penetration:
 
 ```moonbit
-let terrain_collision_group = @physics2d.collision_group()
-let player_collision_group = @physics2d.collision_group()
+let terrain_collision_group = @physics2d.CollisionGroup()
+let player_collision_group = @physics2d.CollisionGroup()
 
 @physics2d.shapes().set(
   player,
@@ -337,8 +337,8 @@ let player_collision_group = @physics2d.collision_group()
 )
 @physics2d.colliders().set(
   player,
-  @physics2d.collider(
-    @physics2d.collision_filter(player_collision_group, [
+  @physics2d.Collider(
+    @physics2d.CollisionFilter(player_collision_group, [
       terrain_collision_group,
     ]),
   ),
@@ -371,8 +371,8 @@ let center_y = target_y.clamp(half_height, session.world_size.y - half_height)
 Apples should not block movement, but should trigger collection behavior. Add `Area` and detect contain state in system:
 
 ```moonbit
-let area = @physics2d.sensor(
-  @physics2d.collision_filter(trigger_collision_group, [
+let area = @physics2d.Area(
+  @physics2d.CollisionFilter(trigger_collision_group, [
     player_collision_group,
   ]),
 )

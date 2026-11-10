@@ -33,13 +33,11 @@ test "input queue supports event injection and fallback polling" {
   with_runtime_debug_world(fn() raise {
     clear_queued_inputs()
     queue_input_event(KeyDown(Space))
-    let injected = consume_injected_input_or(fn() {
-      @inputs.empty_input_snapshot()
-    })
+    let injected = consume_injected_input_or(fn() { @inputs.InputSnapshot() })
     inspect(injected.pressed_keys.contains(Space), content="true")
     inspect(queued_input_count(), content="0")
     let fallback = consume_injected_input_or(fn() {
-      let snapshot = @inputs.empty_input_snapshot()
+      let snapshot = @inputs.InputSnapshot()
       snapshot.pressed_keys.add(KeyA)
       snapshot
     })
@@ -117,8 +115,8 @@ test "render submission keeps entity ids and exposes offscreen capture API" {
     }
     let frame : @render_pipeline.RenderFrame = {
       frame2d: { passes: [], world_commands: [], ui_commands: [], },
-      frame3d: @render3d_types.empty_render_frame3d(),
-      assets3d: @render_pipeline.empty_asset_sync3d(),
+      frame3d: @render3d_types.RenderFrame3D(),
+      assets3d: @render_pipeline.RenderAssetSync3D(),
     }
     record_render_submission(frame, [world_command])
     let submission = latest_render_submission().unwrap()
@@ -193,8 +191,8 @@ test "atlas overlay decoration appends highlight rects when enabled" {
         world_commands: [Image(draw_image)],
         ui_commands: [],
       },
-      frame3d: @render3d_types.empty_render_frame3d(),
-      assets3d: @render_pipeline.empty_asset_sync3d(),
+      frame3d: @render3d_types.RenderFrame3D(),
+      assets3d: @render_pipeline.RenderAssetSync3D(),
     }
     set_atlas_overlay_enabled(false)
     let disabled = decorate_frame_for_debug(frame, [world_command])
@@ -233,8 +231,8 @@ test "frame metadata export includes draw commands and atlas overlay entries" {
         world_commands: [Image(draw_image)],
         ui_commands: [],
       },
-      frame3d: @render3d_types.empty_render_frame3d(),
-      assets3d: @render_pipeline.empty_asset_sync3d(),
+      frame3d: @render3d_types.RenderFrame3D(),
+      assets3d: @render_pipeline.RenderAssetSync3D(),
     }
     record_render_submission(frame, [world_command])
     let metadata = capture_last_frame_metadata().unwrap()

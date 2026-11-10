@@ -46,12 +46,12 @@ test "virtual axis binding applies dead zone and direction" {
 ///|
 test "pointer primary binding follows primary pointer state" {
   clear_all_action_bindings()
-  @inputs.apply_input_snapshot(@inputs.empty_input_snapshot())
+  @inputs.apply_input_snapshot(@inputs.InputSnapshot())
   let action = InputAction("primary")
   bind_action(action, PointerPrimary)
   @inputs.mouse.left_button = true
   input_action_system(0.0)
   inspect(action_pressed(action), content="true")
   clear_all_action_bindings()
-  @inputs.apply_input_snapshot(@inputs.empty_input_snapshot())
+  @inputs.apply_input_snapshot(@inputs.InputSnapshot())
 }

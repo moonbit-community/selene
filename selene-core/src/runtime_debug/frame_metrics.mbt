@@ -1,5 +1,7 @@
 ///|
-fn default_metrics(world : @ecs.World) -> FramePerformanceMetrics {
+fn FramePerformanceMetrics::FramePerformanceMetrics(
+  world : @ecs.World,
+) -> FramePerformanceMetrics {
   {
     frame_index: world.frame_index(),
     fixed_step_index: world.fixed_step_index(),
@@ -16,7 +18,9 @@ fn default_metrics(world : @ecs.World) -> FramePerformanceMetrics {
 ///|
 fn ensure_metrics() -> FramePerformanceMetrics {
   let world = current_world()
-  frame_metrics_by_world.get_or_init(world.id(), () => default_metrics(world))
+  frame_metrics_by_world.get_or_init(world.id(), () => {
+    FramePerformanceMetrics(world)
+  })
 }
 
 ///|

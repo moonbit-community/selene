@@ -56,7 +56,7 @@ pub fn clear_ldtk_int_grid_value_spawn_hooks() -> Unit {
 ///|
 pub fn load_and_spawn_ldtk_world(
   path : String,
-  settings~ : LdtkWorldSpawnSettings = default_ldtk_world_spawn_settings(),
+  settings~ : LdtkWorldSpawnSettings = LdtkWorldSpawnSettings(),
 ) -> @ecs.Entity {
   spawn_ldtk_world(load_ldtk_project(path), settings~)
 }
@@ -64,7 +64,7 @@ pub fn load_and_spawn_ldtk_world(
 ///|
 pub fn spawn_ldtk_world(
   project : LdtkProject,
-  settings~ : LdtkWorldSpawnSettings = default_ldtk_world_spawn_settings(),
+  settings~ : LdtkWorldSpawnSettings = LdtkWorldSpawnSettings(),
 ) -> @ecs.Entity {
   let world_entity = @ecs.Entity()
   spawn_ldtk_world_root(world_entity, project, settings)
@@ -75,7 +75,7 @@ pub fn spawn_ldtk_world(
 pub fn spawn_ldtk_world_into_entity(
   root : @ecs.Entity,
   project : LdtkProject,
-  settings~ : LdtkWorldSpawnSettings = default_ldtk_world_spawn_settings(),
+  settings~ : LdtkWorldSpawnSettings = LdtkWorldSpawnSettings(),
 ) -> Unit {
   spawn_ldtk_world_root(root, project, settings)
 }
@@ -84,7 +84,7 @@ pub fn spawn_ldtk_world_into_entity(
 pub fn respawn_ldtk_world_into_entity(
   root : @ecs.Entity,
   project : LdtkProject,
-  settings~ : LdtkWorldSpawnSettings = default_ldtk_world_spawn_settings(),
+  settings~ : LdtkWorldSpawnSettings = LdtkWorldSpawnSettings(),
 ) -> Unit {
   clear_ldtk_children(root)
   clear_ldtk_root_components(root)
@@ -213,7 +213,7 @@ fn spawn_ldtk_world_root(
       ldtk_world_spawn_behavior(settings),
     )
   } else {
-    empty_ldtk_level_set()
+    LdtkLevelSet([])
   }
   ldtk_world_instances().set(world_entity, {
     project,

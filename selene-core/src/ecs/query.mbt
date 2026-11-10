@@ -95,12 +95,12 @@ pub fn[T : Eq] QueryReader::read(
 }
 
 ///|
-pub fn[T] with_component(storage : ComponentStore[T]) -> With[T] {
+pub fn[T] With::With(storage : ComponentStore[T]) -> With[T] {
   { storage, }
 }
 
 ///|
-pub fn[T] without_component(storage : ComponentStore[T]) -> Without[T] {
+pub fn[T] Without::Without(storage : ComponentStore[T]) -> Without[T] {
   { storage, }
 }
 

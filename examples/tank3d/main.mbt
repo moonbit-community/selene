@@ -33,7 +33,7 @@ priv struct Tank3dState {
 }
 
 ///|
-fn new_tank3d_state() -> Tank3dState {
+fn Tank3dState::Tank3dState() -> Tank3dState {
   { entities: [], root: None, start_time: 0.0, }
 }
 
@@ -102,7 +102,7 @@ fn setup_tank3d(world : @ecs.World) -> Unit {
       ignore(entity.delete())
     }
   }
-  let state = new_tank3d_state()
+  let state = Tank3dState()
   world.insert_resource(state)
   state.start_time = @time.elapsed()
   setup_camera()
@@ -128,7 +128,7 @@ fn setup_camera() -> Unit {
     scale: @math.Vec3::one(),
   })
   @camera3d.cameras3d().set(camera, {
-    ..@camera3d.Camera3DComponent::default(),
+    ..@camera3d.Camera3DComponent(),
     clear_color: color(18U, 22U, 28U, 1.0),
     fov_y: 50.0,
     near: 0.05,
@@ -143,7 +143,7 @@ fn setup_lighting() -> Unit {
   )
   let light = spawn_tank3d_entity()
   @render3d.directional_lights3d().set(light, {
-    ..@render3d.default_directional_light3d(),
+    ..@render3d.DirectionalLight3D(),
     direction: vec3(-0.35, -0.82, -0.46).normalize(),
     color: color(255U, 244U, 220U, 1.0),
     intensity: 2.1,
@@ -157,7 +157,7 @@ fn setup_floor() -> Unit {
     @render3d.plane_mesh(vec3(8.0, 0.02, 8.0)),
   )
   let material = @render3d.register_material_asset({
-    ..@render3d.default_standard_material3d(),
+    ..@render3d.StandardMaterial3D(),
     base_color: color(54U, 61U, 68U, 1.0),
     roughness: 0.85,
   })

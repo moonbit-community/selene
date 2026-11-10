@@ -110,7 +110,7 @@ pub fn AnimationPlayer::start(
   node : AnimationNodeIndex,
   repeat~ : RepeatAnimation = Forever,
 ) -> ActiveAnimation {
-  self.active_animations.set(node, active_animation_default(repeat))
+  self.active_animations.set(node, ActiveAnimation(repeat))
   self.active_animations.get(node).unwrap()
 }
 

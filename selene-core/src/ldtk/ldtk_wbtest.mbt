@@ -138,8 +138,8 @@ fn reset_ldtk_runtime() -> Unit {
   ldtk_int_grid_cell_spawned_event_bus.clear()
   ldtk_int_grid_collider_spawned_event_bus.clear()
   ldtk_level_event_bus.clear()
-  set_ldtk_settings(default_ldtk_settings())
-  set_ldtk_int_grid_physics_settings(default_ldtk_int_grid_physics_settings())
+  set_ldtk_settings(LdtkSettings())
+  set_ldtk_int_grid_physics_settings(LdtkIntGridPhysicsSettings())
   set_ldtk_level_selection(default_ldtk_level_selection())
 }
 
@@ -210,10 +210,10 @@ fn test_project_with_layers(
     bg_color: None,
     default_level_width: Some(4),
     default_level_height: Some(4),
-    defs: empty_ldtk_project_definitions(),
+    defs: LdtkProjectDefinitions(),
     levels: [
       {
-        ..empty_ldtk_level(),
+        ..LdtkLevel(),
         identifier: "Main",
         iid: level_iid,
         uid: 1,
@@ -541,10 +541,10 @@ test "ldtk_world_sync_system updates spawned levels from selection" {
     bg_color: None,
     default_level_width: None,
     default_level_height: None,
-    defs: empty_ldtk_project_definitions(),
+    defs: LdtkProjectDefinitions(),
     levels: [
       {
-        ..empty_ldtk_level(),
+        ..LdtkLevel(),
         identifier: "A",
         iid: "iid-a",
         uid: 1,
@@ -552,7 +552,7 @@ test "ldtk_world_sync_system updates spawned levels from selection" {
         world_y: 20,
       },
       {
-        ..empty_ldtk_level(),
+        ..LdtkLevel(),
         identifier: "B",
         iid: "iid-b",
         uid: 2,
@@ -563,7 +563,7 @@ test "ldtk_world_sync_system updates spawned levels from selection" {
     worlds: [],
   }
   set_ldtk_settings({
-    ..default_ldtk_settings(),
+    ..LdtkSettings(),
     level_spawn_behavior: UseWorldTranslation(false),
   })
   set_ldtk_level_selection(ldtk_level_selection_index(0))
@@ -607,10 +607,10 @@ test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
       bg_color: None,
       default_level_width: None,
       default_level_height: None,
-      defs: empty_ldtk_project_definitions(),
+      defs: LdtkProjectDefinitions(),
       levels: [
         {
-          ..empty_ldtk_level(),
+          ..LdtkLevel(),
           identifier: "Main",
           iid: "level-main",
           uid: 1,
@@ -630,7 +630,7 @@ test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
       ],
       worlds: [],
     }
-    set_ldtk_settings(default_ldtk_settings())
+    set_ldtk_settings(LdtkSettings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
     let world = spawn_ldtk_world(project)
     inspect(level_background_count("level-main"), content="2")
@@ -821,7 +821,7 @@ test "spawn_ldtk_world spawns layer tiles entities and intgrid cells" {
       },
       levels: [
         {
-          ..empty_ldtk_level(),
+          ..LdtkLevel(),
           identifier: "Main",
           iid: "level-main",
           uid: 1,
@@ -830,7 +830,7 @@ test "spawn_ldtk_world spawns layer tiles entities and intgrid cells" {
       ],
       worlds: [],
     }
-    set_ldtk_settings(default_ldtk_settings())
+    set_ldtk_settings(LdtkSettings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
     let world = spawn_ldtk_world(project)
     let world_instance = ldtk_world_instances().get(world).unwrap()
@@ -945,7 +945,7 @@ test "ldtk entity tile sprite registration inserts placeholder sprite from __til
       },
       levels: [
         {
-          ..empty_ldtk_level(),
+          ..LdtkLevel(),
           identifier: "Main",
           iid: "level-main",
           uid: 1,
@@ -954,7 +954,7 @@ test "ldtk entity tile sprite registration inserts placeholder sprite from __til
       ],
       worlds: [],
     }
-    set_ldtk_settings(default_ldtk_settings())
+    set_ldtk_settings(LdtkSettings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
     let world = spawn_ldtk_world(project)
     let enemy = ldtk_entity_by_iid(world, "enemy-1").unwrap()
@@ -1021,7 +1021,7 @@ test "ldtk tile source uses tileset spacing and padding" {
       },
       levels: [
         {
-          ..empty_ldtk_level(),
+          ..LdtkLevel(),
           identifier: "Main",
           iid: "level-main",
           uid: 1,
@@ -1066,7 +1066,7 @@ test "ldtk tile source uses tileset spacing and padding" {
       ],
       worlds: [],
     }
-    set_ldtk_settings(default_ldtk_settings())
+    set_ldtk_settings(LdtkSettings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
     let world = spawn_ldtk_world(project)
     let tile_entity = ldtk_spawned_tile_instances().to_array()[0].0
@@ -1113,7 +1113,7 @@ test "ldtk tile render alpha multiplies layer opacity and tile alpha" {
       },
       levels: [
         {
-          ..empty_ldtk_level(),
+          ..LdtkLevel(),
           identifier: "Main",
           iid: "level-main",
           uid: 1,
@@ -1158,7 +1158,7 @@ test "ldtk tile render alpha multiplies layer opacity and tile alpha" {
       ],
       worlds: [],
     }
-    set_ldtk_settings(default_ldtk_settings())
+    set_ldtk_settings(LdtkSettings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
     let world = spawn_ldtk_world(project)
     let tile_entity = ldtk_spawned_tile_instances().to_array()[0].0
@@ -1251,7 +1251,7 @@ test "ldtk spawned tile metadata includes custom data and enum tags" {
       },
       levels: [
         {
-          ..empty_ldtk_level(),
+          ..LdtkLevel(),
           identifier: "Main",
           iid: "level-main",
           uid: 1,
@@ -1296,7 +1296,7 @@ test "ldtk spawned tile metadata includes custom data and enum tags" {
       ],
       worlds: [],
     }
-    set_ldtk_settings(default_ldtk_settings())
+    set_ldtk_settings(LdtkSettings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
     let world = spawn_ldtk_world(project)
     let tile_entity = ldtk_spawned_tile_instances().to_array()[0].0
@@ -1347,7 +1347,7 @@ test "ldtk entity spawn hook applies by identifier" {
     ldtk_respawns().set(event.entity, { requested: true, })
   })
 
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
   let enemy = ldtk_entity_by_iid(world, "entity-enemy").unwrap()
@@ -1425,7 +1425,7 @@ test "ldtk entity spawn hooks support layer and default scopes" {
   })
   register_ldtk_entity_default_spawn_hook(fn(_event) { default_hits.val += 1 })
 
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
 
@@ -1492,7 +1492,7 @@ test "ldtk entity optional hook registration routes by scope" {
     default_hits.val += 1
   })
 
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
   inspect(scoped_hits.val, content="1")
@@ -1580,7 +1580,7 @@ test "ldtk typed entity registrations use most specific scope" {
   })
   register_default_ldtk_entity(fn(_event) { default_hits.val += 1 })
 
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
 
@@ -1628,7 +1628,7 @@ test "ldtk add entity registration composes handlers in same scope" {
     second_hits.val += 1
   })
 
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
   inspect(first_hits.val, content="1")
@@ -1684,7 +1684,7 @@ test "ldtk add entity component helpers can build bundle-like sets" {
     event.instance.identifier
   })
 
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
 
@@ -1711,7 +1711,7 @@ test "ldtk intgrid spawn hooks apply by layer and cell value" {
     ldtk_int_grid_colliders().set(event.cell_entity, { sensor: true, })
   })
 
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
 
@@ -1761,7 +1761,7 @@ test "ldtk typed int cell registrations use most specific scope" {
   })
   register_default_ldtk_int_cell(fn(_event) { default_hits.val += 1 })
 
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
 
@@ -1795,7 +1795,7 @@ test "ldtk add int cell component helpers can compose per scope" {
   add_ldtk_int_cell_component(2, cell_labels, fn(_event) { "solid" })
   add_ldtk_int_cell_component(2, cell_values_x2, fn(event) { event.value * 2 })
 
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
 
@@ -1846,7 +1846,7 @@ test "ldtk intgrid optional hook registration routes by scope" {
     default_hits.val += 1
   })
 
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
   inspect(scoped_hits.val, content="1")
@@ -1887,7 +1887,7 @@ test "ldtk intgrid spawn hooks support value and default scopes" {
   register_ldtk_int_grid_value_spawn_hook(2, fn(_event) { value_hits.val += 1 })
   register_ldtk_int_grid_default_spawn_hook(fn(_event) { default_hits.val += 1 })
 
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
 
@@ -1909,10 +1909,10 @@ test "ldtk layer display order uses LDtk top-most first ordering" {
     bg_color: None,
     default_level_width: Some(1),
     default_level_height: Some(1),
-    defs: empty_ldtk_project_definitions(),
+    defs: LdtkProjectDefinitions(),
     levels: [
       {
-        ..empty_ldtk_level(),
+        ..LdtkLevel(),
         identifier: "Main",
         iid: "level-main",
         uid: 1,
@@ -1972,7 +1972,7 @@ test "ldtk layer display order uses LDtk top-most first ordering" {
     ],
     worlds: [],
   }
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
   let mut top_zindex = 0
@@ -2036,7 +2036,7 @@ test "ldtk intgrid with tileset skips colorful fallback sprites" {
       },
       levels: [
         {
-          ..empty_ldtk_level(),
+          ..LdtkLevel(),
           identifier: "Main",
           iid: "level-main",
           uid: 1,
@@ -2091,7 +2091,7 @@ test "ldtk intgrid with tileset skips colorful fallback sprites" {
       ],
       worlds: [],
     }
-    set_ldtk_settings(default_ldtk_settings())
+    set_ldtk_settings(LdtkSettings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
     let world = spawn_ldtk_world(project)
     let int_grid_cell = ldtk_spawned_int_grid_cells().to_array()[0].0
@@ -2161,7 +2161,7 @@ test "ldtk settings intgrid invisible and layer exclusion apply at spawn" {
       },
       levels: [
         {
-          ..empty_ldtk_level(),
+          ..LdtkLevel(),
           identifier: "Main",
           iid: "level-main",
           uid: 1,
@@ -2255,7 +2255,7 @@ test "ldtk settings intgrid invisible and layer exclusion apply at spawn" {
 test "ldtk transformed event is emitted on next sync tick" {
   reset_ldtk_runtime()
   let project = test_project_with_layers("level-main", [])
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let reader = @event.EventReader()
   let world = spawn_ldtk_world(project)
@@ -2312,7 +2312,7 @@ test "ldtk level respawn keeps worldly entities and respawns level entities" {
       },
     ]),
   ])
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
 
@@ -2386,7 +2386,7 @@ test "ldtk world respawn recreates worldly entities" {
       },
     ]),
   ])
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
 
@@ -2415,9 +2415,9 @@ test "ldtk intgrid physics spawns collider from matching cells" {
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 1, 1, [1]),
   ])
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_int_grid_physics_settings({
-    ..default_ldtk_int_grid_physics_settings(),
+    ..LdtkIntGridPhysicsSettings(),
     enabled: true,
     layer_identifiers: ["Collision"],
     values: [1],
@@ -2446,9 +2446,9 @@ test "ldtk intgrid physics supports sensor mode" {
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 1, 1, [1]),
   ])
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_int_grid_physics_settings({
-    ..default_ldtk_int_grid_physics_settings(),
+    ..LdtkIntGridPhysicsSettings(),
     enabled: true,
     as_sensor: true,
   })
@@ -2473,7 +2473,7 @@ test "ldtk intgrid physics supports sensor mode" {
 test "ldtk transformed remains delayed after level respawn" {
   reset_ldtk_runtime()
   let project = test_project_with_layers("level-main", [])
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let reader = @event.EventReader()
   let world = spawn_ldtk_world(project)
@@ -2502,7 +2502,7 @@ test "ldtk transformed remains delayed after level respawn" {
 test "despawn_ldtk_tree clears pending transformed levels before sync" {
   reset_ldtk_runtime()
   let project = test_project_with_layers("level-main", [])
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let reader = @event.EventReader()
   let world = spawn_ldtk_world(project)
@@ -2537,9 +2537,9 @@ test "despawn_ldtk_tree clears intgrid runtime maps and physics components" {
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 1, 1, [1]),
   ])
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_int_grid_physics_settings({
-    ..default_ldtk_int_grid_physics_settings(),
+    ..LdtkIntGridPhysicsSettings(),
     enabled: true,
   })
   set_ldtk_level_selection(ldtk_level_selection_index(0))
@@ -2576,9 +2576,9 @@ test "reset_ldtk_runtime clears runtime maps and intgrid physics components" {
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 1, 1, [1]),
   ])
-  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_settings(LdtkSettings())
   set_ldtk_int_grid_physics_settings({
-    ..default_ldtk_int_grid_physics_settings(),
+    ..LdtkIntGridPhysicsSettings(),
     enabled: true,
   })
   set_ldtk_level_selection(ldtk_level_selection_index(0))

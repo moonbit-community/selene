@@ -30,7 +30,11 @@ pub struct AutoTileCell {
 }
 
 ///|
-pub fn autotile_cell(x : Int32, y : Int32, terrain : Int32) -> AutoTileCell {
+pub fn AutoTileCell::AutoTileCell(
+  x : Int32,
+  y : Int32,
+  terrain : Int32,
+) -> AutoTileCell {
   { x, y, terrain, }
 }
 
@@ -43,7 +47,7 @@ pub struct AutoTileMaskRule {
 }
 
 ///|
-pub fn autotile_mask_rule(
+pub fn AutoTileMaskRule::AutoTileMaskRule(
   mask : Int32,
   region_name : String,
   atlas_index~ : Int32 = 0,
@@ -63,7 +67,7 @@ pub struct AutoTileWangRule {
 }
 
 ///|
-pub fn autotile_wang_rule(
+pub fn AutoTileWangRule::AutoTileWangRule(
   north : Int32,
   east : Int32,
   south : Int32,
@@ -86,7 +90,7 @@ pub struct AutoTilePaletteEntry {
 }
 
 ///|
-pub fn autotile_palette_entry(
+pub fn AutoTilePaletteEntry::AutoTilePaletteEntry(
   terrain : Int32,
   fallback_region_name : String,
   fallback_atlas_index~ : Int32 = 0,
@@ -118,7 +122,7 @@ pub struct AutoTileLayerSource {
 }
 
 ///|
-pub fn autotile_layer_source(
+pub fn AutoTileLayerSource::AutoTileLayerSource(
   tile_width~ : Double = 16.0,
   tile_height~ : Double = 16.0,
   origin_x~ : Double = 0.0,
@@ -150,7 +154,7 @@ pub struct AutoTileSolvedTile {
 }
 
 ///|
-pub fn autotile_solved_tile(
+pub fn AutoTileSolvedTile::AutoTileSolvedTile(
   x : Int32,
   y : Int32,
   region_name : String,
@@ -167,7 +171,10 @@ pub struct AutoTileGridPos {
 }
 
 ///|
-pub fn autotile_grid_pos(x : Int32, y : Int32) -> AutoTileGridPos {
+pub fn AutoTileGridPos::AutoTileGridPos(
+  x : Int32,
+  y : Int32,
+) -> AutoTileGridPos {
   { x, y, }
 }
 
@@ -180,7 +187,7 @@ pub struct AutoTileDiff {
 }
 
 ///|
-pub fn autotile_diff(
+pub fn AutoTileDiff::AutoTileDiff(
   source : AutoTileLayerSource,
   changed_tiles~ : Array[AutoTileSolvedTile] = [],
   removed_tiles~ : Array[AutoTileGridPos] = [],
@@ -197,7 +204,7 @@ pub struct AutoTileVisual {
 }
 
 ///|
-pub fn autotile_visual(
+pub fn AutoTileVisual::AutoTileVisual(
   image_path~ : String? = None,
   rect~ : @math.Rect? = None,
   custom_size~ : @math.Vec2? = None,
@@ -216,7 +223,7 @@ pub struct AutoTileRuntimeContext {
 }
 
 ///|
-pub fn autotile_runtime_context(
+pub fn AutoTileRuntimeContext::AutoTileRuntimeContext(
   visual_resolver~ : AutoTileVisualResolver? = None,
   z~ : Double = 0.0,
 ) -> AutoTileRuntimeContext {
@@ -608,7 +615,7 @@ fn destroy_layer_tiles(state : RuntimeLayerState) -> Unit {
 pub fn register_runtime_layer(
   layer_entity : @ecs.Entity,
   source : AutoTileLayerSource,
-  context~ : AutoTileRuntimeContext = autotile_runtime_context(),
+  context~ : AutoTileRuntimeContext = AutoTileRuntimeContext(),
 ) -> Unit {
   let layers = runtime_layers()
   if layers.get(layer_entity) is Some(previous) {

@@ -66,7 +66,7 @@ fn bench_steady_population(b : @bench.T, replacements : Int32) -> Unit raise {
   }
   assert_eq(alive_entity_count(), population.length())
   let is_alive = alive_in_world(world)
-  let slots = entity_store_key.get_or_insert_with(world, new_entity_store).archetypes.slots.length()
+  let slots = entity_store(world~).archetypes.slots.length()
   b.bench(
     name="live-update/n=4096/replaced=\{replacements}/slots=\{slots}",
     count=10,

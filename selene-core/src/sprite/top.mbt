@@ -101,7 +101,7 @@ pub fn for_each_sprite_transform(
 pub fn render_sprite_system(delta : Double) -> Unit {
   ignore(delta)
   let camera_views = @camera.active_camera2d_views()
-  let camera_extract = @culling2d.build_camera_extract2d_context(camera_views)
+  let camera_extract = @culling2d.CameraExtract2dContext(camera_views)
   let is_alive = @ecs.alive_in_world(@ecs.require_current_world())
   let sprites = sprites()
   let sorting2ds = @render2d.sorting2ds()

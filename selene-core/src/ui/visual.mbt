@@ -516,23 +516,13 @@ pub fn release_ui_material_asset(handle : UiMaterialHandle) -> Unit {
 }
 
 ///|
-fn default_text_font() -> TextFont {
-  TextFont()
-}
-
-///|
 fn default_text_color() -> TextColor {
   TextColor::from_css("white")
 }
 
 ///|
-fn default_text_layout() -> TextLayout {
-  TextLayout()
-}
-
-///|
 fn text_font(entity : @ecs.Entity) -> TextFont {
-  text_fonts().get(entity).unwrap_or(default_text_font())
+  text_fonts().get(entity).unwrap_or(TextFont())
 }
 
 ///|
@@ -542,7 +532,7 @@ fn text_color(entity : @ecs.Entity) -> TextColor {
 
 ///|
 fn text_layout(entity : @ecs.Entity) -> TextLayout {
-  text_layouts().get(entity).unwrap_or(default_text_layout())
+  text_layouts().get(entity).unwrap_or(TextLayout())
 }
 
 ///|

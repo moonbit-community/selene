@@ -247,7 +247,7 @@ fn json_entity_reference(value : Json) -> LdtkEntityReference? {
     if iid.length() == 0 {
       return None
     }
-    return Some({ ..empty_ldtk_entity_reference(), entity_iid: Some(iid), })
+    return Some({ ..LdtkEntityReference(), entity_iid: Some(iid), })
   }
   guard json_object(value) is Some(object) else { return None }
   Some({

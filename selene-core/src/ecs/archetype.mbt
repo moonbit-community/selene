@@ -24,7 +24,7 @@ priv struct ArchetypeWorld {
 }
 
 ///|
-fn make_archetype_world(slots : Array[EntitySlot]) -> ArchetypeWorld {
+fn ArchetypeWorld::ArchetypeWorld(slots : Array[EntitySlot]) -> ArchetypeWorld {
   {
     tables: [],
     table_ids: {},

@@ -114,7 +114,7 @@ test "lit primitive mesh resource keys are owned by MoonBit" {
 
 ///|
 test "MoonBit forms lit primitive instance batches before WebGPU FFI" {
-  let batches = new_lit_primitive_mesh_batch_accumulator()
+  let batches = LitPrimitiveMeshBatchAccumulator()
   let batch_key = {
     mesh: MeshHandle(1U),
     material: MaterialHandle(2U),
@@ -349,8 +349,8 @@ test "render3d submission stats record repeated primitive pressure" {
   let mesh = webgpu_test_mesh_handle(9100)
   let material = webgpu_test_material_handle(9101)
   sync_mesh_asset(mesh, { primitive: Cube(Vec3(1.0, 1.0, 1.0)), })
-  sync_material_asset(material, @render3d_types.default_standard_material3d())
-  let frame = @render3d_types.empty_render_frame3d()
+  sync_material_asset(material, @render3d_types.StandardMaterial3D())
+  let frame = @render3d_types.RenderFrame3D()
   frame.camera = Some(webgpu_test_camera())
   frame.items = [
     webgpu_test_item(mesh, material, 0.0),
@@ -382,8 +382,8 @@ test "render3d submission stats reuse retained static primitive instances" {
   let mesh = webgpu_test_mesh_handle(9120)
   let material = webgpu_test_material_handle(9121)
   sync_mesh_asset(mesh, { primitive: Cube(Vec3(1.0, 1.0, 1.0)), })
-  sync_material_asset(material, @render3d_types.default_standard_material3d())
-  let frame = @render3d_types.empty_render_frame3d()
+  sync_material_asset(material, @render3d_types.StandardMaterial3D())
+  let frame = @render3d_types.RenderFrame3D()
   frame.camera = Some(webgpu_test_camera())
   frame.items = [
     webgpu_test_item(mesh, material, 10.0),
@@ -407,10 +407,10 @@ test "render3d submission stats keep textured primitives unbatched" {
   webgpu_test_sync_image(image, "wbtest://base")
   sync_mesh_asset(mesh, { primitive: Cube(Vec3(1.0, 1.0, 1.0)), })
   sync_material_asset(material, {
-    ..@render3d_types.default_standard_material3d(),
-    base_color_texture: Some(@render3d_types.texture_binding3d(image)),
+    ..@render3d_types.StandardMaterial3D(),
+    base_color_texture: Some(@render3d_types.TextureBinding3D(image)),
   })
-  let frame = @render3d_types.empty_render_frame3d()
+  let frame = @render3d_types.RenderFrame3D()
   frame.camera = Some(webgpu_test_camera())
   frame.items = [
     webgpu_test_item(mesh, material, 0.0),
@@ -446,7 +446,7 @@ test "2D pipeline codes are selected in MoonBit" {
 
 ///|
 test "pack directional shadow cascades in MoonBit" {
-  let frame = @render3d_types.empty_render_frame3d()
+  let frame = @render3d_types.RenderFrame3D()
   frame.camera = Some(webgpu_test_camera())
   frame.directional_lights = [
     {
@@ -499,7 +499,7 @@ test "pack directional shadow cascades in MoonBit" {
 
 ///|
 test "pack WebGPU shadow runtime metadata in MoonBit" {
-  let frame = @render3d_types.empty_render_frame3d()
+  let frame = @render3d_types.RenderFrame3D()
   frame.directional_lights = [
     {
       direction: Vec3(0.0, -1.0, 0.0),
@@ -566,7 +566,7 @@ test "pack WebGPU shadow runtime metadata in MoonBit" {
 
 ///|
 test "pack spot and point shadow view projections in MoonBit" {
-  let frame = @render3d_types.empty_render_frame3d()
+  let frame = @render3d_types.RenderFrame3D()
   frame.point_lights = [
     {
       position: Vec3(1.0, 2.0, 3.0),
@@ -632,7 +632,7 @@ test "pack spot and point shadow view projections in MoonBit" {
 
 ///|
 test "render3d lighting modes filter light packets in MoonBit" {
-  let frame = @render3d_types.empty_render_frame3d()
+  let frame = @render3d_types.RenderFrame3D()
   frame.directional_lights = [
     {
       direction: Vec3(0.0, -1.0, 0.0),
@@ -719,7 +719,7 @@ test "render3d lighting modes filter light packets in MoonBit" {
 
 ///|
 test "pack_light_uniform_data owns shader light layout in MoonBit" {
-  let frame = @render3d_types.empty_render_frame3d()
+  let frame = @render3d_types.RenderFrame3D()
   frame.directional_lights = [
     {
       direction: Vec3(0.0, -2.0, 0.0),
@@ -803,7 +803,7 @@ test "pack_light_uniform_data owns shader light layout in MoonBit" {
 
 ///|
 test "resolve_material_texture_bundle keeps independent UV channels when samplers match" {
-  let sampler = @render3d_types.default_texture_sampler3d()
+  let sampler = @render3d_types.TextureSampler3D()
   let base_handle = webgpu_test_handle(9000)
   let emissive_handle = webgpu_test_handle(9001)
   let occlusion_handle = webgpu_test_handle(9002)
@@ -811,19 +811,19 @@ test "resolve_material_texture_bundle keeps independent UV channels when sampler
   webgpu_test_sync_image(emissive_handle, "wbtest://emissive")
   webgpu_test_sync_image(occlusion_handle, "wbtest://occlusion")
   let material = {
-    ..@render3d_types.default_standard_material3d(),
+    ..@render3d_types.StandardMaterial3D(),
     base_color_texture: Some(
-      @render3d_types.texture_binding3d(base_handle, texcoord_set=1, sampler~),
+      @render3d_types.TextureBinding3D(base_handle, texcoord_set=1, sampler~),
     ),
     emissive_texture: Some(
-      @render3d_types.texture_binding3d(
+      @render3d_types.TextureBinding3D(
         emissive_handle,
         texcoord_set=3,
         sampler~,
       ),
     ),
     occlusion_texture: Some(
-      @render3d_types.texture_binding3d(
+      @render3d_types.TextureBinding3D(
         occlusion_handle,
         texcoord_set=5,
         sampler~,
@@ -842,7 +842,7 @@ test "resolve_material_texture_bundle keeps independent UV channels when sampler
 
 ///|
 test "resolve_material_texture_bundle keeps textures with independent sampler codes" {
-  let repeat_sampler = @render3d_types.default_texture_sampler3d()
+  let repeat_sampler = @render3d_types.TextureSampler3D()
   let clamp_sampler = {
     ..repeat_sampler,
     wrap_u: ClampToEdge,
@@ -853,16 +853,16 @@ test "resolve_material_texture_bundle keeps textures with independent sampler co
   webgpu_test_sync_image(base_handle, "wbtest://base-repeat")
   webgpu_test_sync_image(emissive_handle, "wbtest://emissive-clamp")
   let material = {
-    ..@render3d_types.default_standard_material3d(),
+    ..@render3d_types.StandardMaterial3D(),
     base_color_texture: Some(
-      @render3d_types.texture_binding3d(
+      @render3d_types.TextureBinding3D(
         base_handle,
         texcoord_set=0,
         sampler=repeat_sampler,
       ),
     ),
     emissive_texture: Some(
-      @render3d_types.texture_binding3d(
+      @render3d_types.TextureBinding3D(
         emissive_handle,
         texcoord_set=1,
         sampler=clamp_sampler,
@@ -896,7 +896,7 @@ test "resolve_material_texture_input applies bound texture transforms and falls 
     Some({ path: "wbtest://emissive", texcoord_set: 1, sampler_code: 3, }),
     fallback_uvs,
     transform_binding=Some({
-      ..@render3d_types.texture_binding3d(
+      ..@render3d_types.TextureBinding3D(
         webgpu_test_handle(9020),
         texcoord_set=1,
       ),
@@ -938,7 +938,7 @@ test "flatten_colored_vertices3d packs unlit material metadata" {
     None,
     Vec3(1.0, 1.0, 1.0),
     {
-      ..@render3d_types.default_standard_material3d(),
+      ..@render3d_types.StandardMaterial3D(),
       alpha_mode: Mask,
       alpha_cutoff: 0.25,
       unlit: true,
@@ -979,7 +979,7 @@ test "flatten_textured_vertices3d packs unlit surface metadata" {
     None,
     Vec3(1.0, 1.0, 1.0),
     {
-      ..@render3d_types.default_standard_material3d(),
+      ..@render3d_types.StandardMaterial3D(),
       occlusion_strength: 0.5,
       normal_scale: 0.75,
       unlit: true,

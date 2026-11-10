@@ -22,33 +22,9 @@ pub fn cubemap_asset(@render3d_types.CubemapHandle) -> @render3d_types.CubemapAs
 
 pub fn cubemap_asset_six_faces(@render3d_types.CubemapFaces3D) -> @render3d_types.CubemapAsset3D
 
-pub fn cubemap_faces3d(@render3d_types.ImageHandle, @render3d_types.ImageHandle, @render3d_types.ImageHandle, @render3d_types.ImageHandle, @render3d_types.ImageHandle, @render3d_types.ImageHandle) -> @render3d_types.CubemapFaces3D
-
 pub fn cylinder_mesh(Double, Double, Double, slices? : Int32) -> @render3d_types.MeshAsset
 
-pub fn default_cascade_shadow_config3d() -> @render3d_types.CascadeShadowConfig3D
-
-pub fn default_cascade_shadow_config_builder3d() -> @render3d_types.CascadeShadowConfigBuilder3D
-
-pub fn default_directional_light3d() -> @render3d_types.DirectionalLight3D
-
-pub fn default_directional_light_shadow_map3d() -> @render3d_types.DirectionalLightShadowMap3D
-
-pub fn default_point_light3d() -> @render3d_types.PointLight3D
-
-pub fn default_point_light_shadow_map3d() -> @render3d_types.PointLightShadowMap3D
-
-pub fn default_spot_light3d() -> @render3d_types.SpotLight3D
-
-pub fn default_standard_material3d() -> @render3d_types.StandardMaterial3D
-
-pub fn default_texture_sampler3d() -> @render3d_types.TextureSampler3D
-
-pub fn default_texture_transform3d() -> @render3d_types.TextureTransform3D
-
 pub fn directional_lights3d() -> @ecs.ComponentStore[@render3d_types.DirectionalLight3D]
-
-pub fn empty_render_frame3d() -> @render3d_types.RenderFrame3D
 
 pub fn get_ambient_light3d() -> @render3d_types.AmbientLight3D?
 
@@ -96,8 +72,6 @@ pub fn set_directional_light_shadow_map3d(@render3d_types.DirectionalLightShadow
 
 pub fn set_point_light_shadow_map3d(@render3d_types.PointLightShadowMap3D) -> Unit
 
-pub fn skybox3d(@render3d_types.CubemapHandle, brightness? : Double, rotation? : @math.Quat) -> @render3d_types.Skybox3D
-
 pub fn sphere_mesh(Double) -> @render3d_types.MeshAsset
 
 pub fn spot_lights3d() -> @ecs.ComponentStore[@render3d_types.SpotLight3D]
@@ -117,8 +91,6 @@ pub fn take_released_image_assets() -> Array[@render3d_types.ImageHandle]
 pub fn take_released_material_assets() -> Array[@render3d_types.MaterialHandle]
 
 pub fn take_released_mesh_assets() -> Array[@render3d_types.MeshHandle]
-
-pub fn texture_binding3d(@render3d_types.ImageHandle, texcoord_set? : Int32, sampler? : @render3d_types.TextureSampler3D, transform? : @render3d_types.TextureTransform3D) -> @render3d_types.TextureBinding3D
 
 pub fn triangle_mesh(Array[@math.Vec3], uvs? : Array[@math.Vec2]?, normals? : Array[@math.Vec3]?, tangents? : Array[@render3d_types.Tangent3D]?, colors? : Array[@render.Color]?, uv_sets? : Array[Array[@math.Vec2]], indices? : Array[Int32]?, topology? : @render3d_types.TriangleTopology3D) -> @render3d_types.MeshAsset
 

@@ -32,7 +32,7 @@ pub(all) struct ActiveCamera3D {
 }
 
 ///|
-pub fn Camera3DComponent::default() -> Camera3DComponent {
+pub fn Camera3DComponent::Camera3DComponent() -> Camera3DComponent {
   {
     projection: Perspective,
     orthographic_size: None,

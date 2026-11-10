@@ -7,7 +7,7 @@ pub struct World {
 }
 
 ///|
-fn make_world(id : UInt32) -> World {
+fn World::with_id(id : UInt32) -> World {
   { id, frame_index: 0, fixed_step_index: 0, storage: {}, }
 }
 
@@ -15,7 +15,7 @@ fn make_world(id : UInt32) -> World {
 let next_world_id : Ref[UInt32] = Ref(1U)
 
 ///|
-let bootstrap_world_value : World = make_world(0U)
+let bootstrap_world_value : World = World::with_id(0U)
 
 ///|
 let current_world_ref : Ref[World?] = Ref(Some(bootstrap_world_value))
@@ -24,7 +24,7 @@ let current_world_ref : Ref[World?] = Ref(Some(bootstrap_world_value))
 pub fn World::World() -> World {
   let id = next_world_id.val
   next_world_id.val += 1U
-  make_world(id)
+  World::with_id(id)
 }
 
 ///|

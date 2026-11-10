@@ -188,7 +188,7 @@ fn ensure_preloaded_audio_template(
   } else {
     clear_preloaded_audio_template(path)
   }
-  let audio = Audio::new(resolved_audio_source(path, refresh~))
+  let audio = Audio(resolved_audio_source(path, refresh~))
   audio.load()
   preloaded_audio_templates.set(path, audio)
   audio

@@ -52,7 +52,7 @@ fn apply_touch_frame(
     None => ()
   }
   @inputs.apply_input_snapshot({
-    ..@inputs.empty_input_snapshot(),
+    ..@inputs.InputSnapshot(),
     touches: active,
     touch_changes: changes,
   })

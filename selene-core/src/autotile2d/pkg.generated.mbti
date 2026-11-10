@@ -10,31 +10,11 @@ import {
 }
 
 // Values
-pub fn autotile_cell(Int32, Int32, Int32) -> AutoTileCell
-
-pub fn autotile_diff(AutoTileLayerSource, changed_tiles? : Array[AutoTileSolvedTile], removed_tiles? : Array[AutoTileGridPos]) -> AutoTileDiff
-
-pub fn autotile_grid_pos(Int32, Int32) -> AutoTileGridPos
-
-pub fn autotile_layer_source(tile_width? : Double, tile_height? : Double, origin_x? : Double, origin_y? : Double, atlas_asset_path? : String, rule_set? : AutoTileRuleSetKind, palette? : Array[AutoTilePaletteEntry], cells? : Array[AutoTileCell]) -> AutoTileLayerSource
-
-pub fn autotile_mask_rule(Int32, String, atlas_index? : Int32) -> AutoTileMaskRule
-
-pub fn autotile_palette_entry(Int32, String, fallback_atlas_index? : Int32, bitmask4_rules? : Array[AutoTileMaskRule], bitmask8_rules? : Array[AutoTileMaskRule], wang_rules? : Array[AutoTileWangRule]) -> AutoTilePaletteEntry
-
 pub fn autotile_rule_set_bitmask4() -> AutoTileRuleSetKind
 
 pub fn autotile_rule_set_bitmask8() -> AutoTileRuleSetKind
 
 pub fn autotile_rule_set_wang() -> AutoTileRuleSetKind
-
-pub fn autotile_runtime_context(visual_resolver? : ((AutoTileLayerSource, AutoTileSolvedTile) -> AutoTileVisual?)?, z? : Double) -> AutoTileRuntimeContext
-
-pub fn autotile_solved_tile(Int32, Int32, String, atlas_index? : Int32) -> AutoTileSolvedTile
-
-pub fn autotile_visual(image_path? : String?, rect? : @math.Rect?, custom_size? : @math.Vec2?, anchor? : @sprite.Anchor) -> AutoTileVisual
-
-pub fn autotile_wang_rule(Int32, Int32, Int32, Int32, String, atlas_index? : Int32) -> AutoTileWangRule
 
 pub fn rebuild_runtime_layer(@ecs.Entity) -> Unit
 
@@ -59,6 +39,7 @@ pub struct AutoTileCell {
   y : Int32
   terrain : Int32
 }
+pub fn AutoTileCell::AutoTileCell(Int32, Int32, Int32) -> Self
 pub fn AutoTileCell::equal(Self, Self) -> Bool
 pub fn AutoTileCell::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn AutoTileCell::not_equal(Self, Self) -> Bool
@@ -71,6 +52,7 @@ pub struct AutoTileDiff {
   changed_tiles : Array[AutoTileSolvedTile]
   removed_tiles : Array[AutoTileGridPos]
 }
+pub fn AutoTileDiff::AutoTileDiff(AutoTileLayerSource, changed_tiles? : Array[AutoTileSolvedTile], removed_tiles? : Array[AutoTileGridPos]) -> Self
 pub fn AutoTileDiff::equal(Self, Self) -> Bool
 pub fn AutoTileDiff::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn AutoTileDiff::not_equal(Self, Self) -> Bool
@@ -82,6 +64,7 @@ pub struct AutoTileGridPos {
   x : Int32
   y : Int32
 }
+pub fn AutoTileGridPos::AutoTileGridPos(Int32, Int32) -> Self
 pub fn AutoTileGridPos::equal(Self, Self) -> Bool
 pub fn AutoTileGridPos::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn AutoTileGridPos::not_equal(Self, Self) -> Bool
@@ -99,6 +82,7 @@ pub struct AutoTileLayerSource {
   palette : Array[AutoTilePaletteEntry]
   cells : Array[AutoTileCell]
 }
+pub fn AutoTileLayerSource::AutoTileLayerSource(tile_width? : Double, tile_height? : Double, origin_x? : Double, origin_y? : Double, atlas_asset_path? : String, rule_set? : AutoTileRuleSetKind, palette? : Array[AutoTilePaletteEntry], cells? : Array[AutoTileCell]) -> Self
 pub fn AutoTileLayerSource::equal(Self, Self) -> Bool
 pub fn AutoTileLayerSource::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn AutoTileLayerSource::not_equal(Self, Self) -> Bool
@@ -111,6 +95,7 @@ pub struct AutoTileMaskRule {
   region_name : String
   atlas_index : Int32
 }
+pub fn AutoTileMaskRule::AutoTileMaskRule(Int32, String, atlas_index? : Int32) -> Self
 pub fn AutoTileMaskRule::equal(Self, Self) -> Bool
 pub fn AutoTileMaskRule::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn AutoTileMaskRule::not_equal(Self, Self) -> Bool
@@ -126,6 +111,7 @@ pub struct AutoTilePaletteEntry {
   bitmask8_rules : Array[AutoTileMaskRule]
   wang_rules : Array[AutoTileWangRule]
 }
+pub fn AutoTilePaletteEntry::AutoTilePaletteEntry(Int32, String, fallback_atlas_index? : Int32, bitmask4_rules? : Array[AutoTileMaskRule], bitmask8_rules? : Array[AutoTileMaskRule], wang_rules? : Array[AutoTileWangRule]) -> Self
 pub fn AutoTilePaletteEntry::equal(Self, Self) -> Bool
 pub fn AutoTilePaletteEntry::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn AutoTilePaletteEntry::not_equal(Self, Self) -> Bool
@@ -148,6 +134,7 @@ pub struct AutoTileRuntimeContext {
   visual_resolver : ((AutoTileLayerSource, AutoTileSolvedTile) -> AutoTileVisual?)?
   z : Double
 }
+pub fn AutoTileRuntimeContext::AutoTileRuntimeContext(visual_resolver? : ((AutoTileLayerSource, AutoTileSolvedTile) -> AutoTileVisual?)?, z? : Double) -> Self
 
 #derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
 pub struct AutoTileSolvedTile {
@@ -156,6 +143,7 @@ pub struct AutoTileSolvedTile {
   region_name : String
   atlas_index : Int32
 }
+pub fn AutoTileSolvedTile::AutoTileSolvedTile(Int32, Int32, String, atlas_index? : Int32) -> Self
 pub fn AutoTileSolvedTile::equal(Self, Self) -> Bool
 pub fn AutoTileSolvedTile::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn AutoTileSolvedTile::not_equal(Self, Self) -> Bool
@@ -168,6 +156,7 @@ pub struct AutoTileVisual {
   custom_size : @math.Vec2?
   anchor : @sprite.Anchor
 }
+pub fn AutoTileVisual::AutoTileVisual(image_path? : String?, rect? : @math.Rect?, custom_size? : @math.Vec2?, anchor? : @sprite.Anchor) -> Self
 
 #derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
 pub struct AutoTileWangRule {
@@ -178,6 +167,7 @@ pub struct AutoTileWangRule {
   region_name : String
   atlas_index : Int32
 }
+pub fn AutoTileWangRule::AutoTileWangRule(Int32, Int32, Int32, Int32, String, atlas_index? : Int32) -> Self
 pub fn AutoTileWangRule::equal(Self, Self) -> Bool
 pub fn AutoTileWangRule::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn AutoTileWangRule::not_equal(Self, Self) -> Bool

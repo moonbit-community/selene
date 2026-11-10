@@ -10,7 +10,7 @@ struct ComponentStore[T] {
 
 ///|
 pub fn[T] ComponentStore::ComponentStore(world : World) -> ComponentStore[T] {
-  let storage = entity_store_key.get_or_insert_with(world, new_entity_store).archetypes
+  let storage = entity_store(world~).archetypes
   let columns : Array[Array[T]?] = []
   let order = { entries: [], head: None, tail: None, length: 0, next_rank: 0, }
   let component = storage.create_columns.length()

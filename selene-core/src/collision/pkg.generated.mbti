@@ -358,7 +358,7 @@ pub struct SpatialQueryFilter {
   exclude_solids : Bool
   body_filter : SpatialQueryBodyFilter
 }
-pub fn SpatialQueryFilter::default() -> Self
+pub fn SpatialQueryFilter::SpatialQueryFilter() -> Self
 pub fn SpatialQueryFilter::equal(Self, Self) -> Bool
 pub fn SpatialQueryFilter::not_equal(Self, Self) -> Bool
 pub fn SpatialQueryFilter::only_dynamic() -> Self

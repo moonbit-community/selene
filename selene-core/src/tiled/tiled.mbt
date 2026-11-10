@@ -228,7 +228,7 @@ pub struct TiledMap {
 }
 
 ///|
-pub fn empty_tiled_gid() -> TiledGid {
+pub fn TiledGid::TiledGid() -> TiledGid {
   {
     raw: 0,
     tile_id: 0,
@@ -241,7 +241,7 @@ pub fn empty_tiled_gid() -> TiledGid {
 ///|
 pub fn decode_tiled_gid(raw : Int32) -> TiledGid {
   if raw <= 0 {
-    return empty_tiled_gid()
+    return TiledGid()
   }
   {
     raw,
@@ -273,7 +273,7 @@ pub fn TiledGid::is_empty(self : TiledGid) -> Bool {
 }
 
 ///|
-pub fn empty_tiled_map() -> TiledMap {
+pub fn TiledMap::TiledMap() -> TiledMap {
   {
     width: 0,
     height: 0,
@@ -300,7 +300,7 @@ pub fn empty_tiled_map() -> TiledMap {
 ///|
 pub fn load_tiled_map(path : String) -> TiledMap {
   guard load_tiled_text_document(path) is Some(source) else {
-    return empty_tiled_map()
+    return TiledMap()
   }
   let map = parse_tiled_map_source(source)
   resolve_external_tiled_tilesets({ ..map, source_path: Some(path), })
@@ -308,7 +308,7 @@ pub fn load_tiled_map(path : String) -> TiledMap {
 
 ///|
 pub fn TiledMap::from_tiled_json(json : Json) -> TiledMap {
-  guard json_object(json) is Some(root_object) else { return empty_tiled_map() }
+  guard json_object(json) is Some(root_object) else { return TiledMap() }
   {
     width: field_int(root_object, "width").unwrap_or(0),
     height: field_int(root_object, "height").unwrap_or(0),
@@ -508,25 +508,25 @@ pub fn TiledTileLayer::tile_gid_at(
       let local_y = y - chunk.y
       let index = local_y * chunk.width + local_x
       if index < 0 || index >= chunk.data.length() {
-        return empty_tiled_gid()
+        return TiledGid()
       }
       return chunk.data[index]
     }
-    return empty_tiled_gid()
+    return TiledGid()
   }
   let origin_x = if self.start_x != 0 { self.start_x } else { self.x }
   let origin_y = if self.start_y != 0 { self.start_y } else { self.y }
   let local_x = x - origin_x
   let local_y = y - origin_y
   if local_x < 0 || local_y < 0 {
-    return empty_tiled_gid()
+    return TiledGid()
   }
   if local_x >= self.width || local_y >= self.height {
-    return empty_tiled_gid()
+    return TiledGid()
   }
   let index = local_y * self.width + local_x
   if index < 0 || index >= self.data.length() {
-    return empty_tiled_gid()
+    return TiledGid()
   }
   self.data[index]
 }
@@ -602,7 +602,7 @@ fn parse_tiled_tileset_source(
 
 ///|
 fn parse_tiled_json_map_source(source : String) -> TiledMap {
-  let document = @json.parse(source[:]) catch { _ => return empty_tiled_map() }
+  let document = @json.parse(source[:]) catch { _ => return TiledMap() }
   TiledMap::from_tiled_json(document)
 }
 
@@ -749,7 +749,7 @@ fn parse_gid_array(data_json : Json?) -> Array[TiledGid] {
     } else if json_number(item) is Some(number) {
       gids.push(decode_tiled_gid(number.to_int()))
     } else {
-      gids.push(empty_tiled_gid())
+      gids.push(TiledGid())
     }
   }
   gids
@@ -864,7 +864,7 @@ fn parse_tiled_gid_csv(source : String) -> Array[TiledGid] {
       if token_string.length() > 0 {
         let raw = @string.parse_int(token_string[:]) catch {
           _ => {
-            gids.push(empty_tiled_gid())
+            gids.push(TiledGid())
             token = StringBuilder()
             continue
           }
@@ -880,7 +880,7 @@ fn parse_tiled_gid_csv(source : String) -> Array[TiledGid] {
   if token_string.length() > 0 {
     let raw = @string.parse_int(token_string[:]) catch {
       _ => {
-        gids.push(empty_tiled_gid())
+        gids.push(TiledGid())
         return gids
       }
     }

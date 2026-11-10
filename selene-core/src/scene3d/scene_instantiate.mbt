@@ -314,13 +314,13 @@ fn parse_glb_source(bytes : Bytes) -> GltfSource? {
 fn load_scene_template(path : String) -> SceneTemplate {
   guard @asset.read_bytes(path) is Some(bytes) else {
     report_scene_load_failure(path, "Scene asset could not be read")
-    return empty_scene_template()
+    return SceneTemplate()
   }
   match parse_gltf_source(bytes) {
     Some(source) => parse_scene_template(path, source)
     None => {
       report_scene_load_failure(path, "Scene asset is not valid glTF/GLB")
-      empty_scene_template()
+      SceneTemplate()
     }
   }
 }
@@ -338,7 +338,7 @@ fn parse_gltf_source(bytes : Bytes) -> GltfSource? {
 ///|
 fn parse_scene_template(path : String, source : GltfSource) -> SceneTemplate {
   guard json_object(source.document) is Some(root_object) else {
-    return empty_scene_template()
+    return SceneTemplate()
   }
   let buffers = parse_buffer_blobs(path, root_object, source.glb_buffers)
   let buffer_views = parse_buffer_views(root_object)

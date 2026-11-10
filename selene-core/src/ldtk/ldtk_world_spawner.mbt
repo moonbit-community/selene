@@ -4,7 +4,7 @@ pub fn ldtk_pending_transformed_level_iids() -> Map[String, Bool] {
 }
 
 ///|
-pub fn default_ldtk_world_spawn_settings() -> LdtkWorldSpawnSettings {
+pub fn LdtkWorldSpawnSettings::LdtkWorldSpawnSettings() -> LdtkWorldSpawnSettings {
   {
     position: @math.Vec2::zero(),
     zindex: 0,

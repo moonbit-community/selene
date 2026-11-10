@@ -130,7 +130,7 @@ test "bitmask8 reachable mask set is the canonical 47-tiles subset" {
     rules.push(mask_rule(mask, "m" + mask.to_string()))
   }
   let palette = [
-    autotile_palette_entry(
+    AutoTilePaletteEntry(
       7,
       "fallback8",
       fallback_atlas_index=999,
@@ -141,30 +141,30 @@ test "bitmask8 reachable mask set is the canonical 47-tiles subset" {
   // Neighbor bit order (for generated input combinations):
   // 0:N, 1:E, 2:S, 3:W, 4:NE, 5:SE, 6:SW, 7:NW
   for combo = 0; combo < 256; combo = combo + 1 {
-    let cells : Array[AutoTileCell] = [autotile_cell(0, 0, 7)]
+    let cells : Array[AutoTileCell] = [AutoTileCell(0, 0, 7)]
     if (combo & 1) != 0 {
-      cells.push(autotile_cell(0, -1, 7))
+      cells.push(AutoTileCell(0, -1, 7))
     }
     if (combo & 2) != 0 {
-      cells.push(autotile_cell(1, 0, 7))
+      cells.push(AutoTileCell(1, 0, 7))
     }
     if (combo & 4) != 0 {
-      cells.push(autotile_cell(0, 1, 7))
+      cells.push(AutoTileCell(0, 1, 7))
     }
     if (combo & 8) != 0 {
-      cells.push(autotile_cell(-1, 0, 7))
+      cells.push(AutoTileCell(-1, 0, 7))
     }
     if (combo & 16) != 0 {
-      cells.push(autotile_cell(1, -1, 7))
+      cells.push(AutoTileCell(1, -1, 7))
     }
     if (combo & 32) != 0 {
-      cells.push(autotile_cell(1, 1, 7))
+      cells.push(AutoTileCell(1, 1, 7))
     }
     if (combo & 64) != 0 {
-      cells.push(autotile_cell(-1, 1, 7))
+      cells.push(AutoTileCell(-1, 1, 7))
     }
     if (combo & 128) != 0 {
-      cells.push(autotile_cell(-1, -1, 7))
+      cells.push(AutoTileCell(-1, -1, 7))
     }
     let source = test_source(Bitmask8, palette, cells)
     let solved = solve_autotile_layer(source)
@@ -200,13 +200,13 @@ test "wang rules are matched by cardinal neighbor terrains" {
 ///|
 test "wang rules fallback when no explicit edge tuple matches" {
   let palette = [
-    autotile_palette_entry(5, "wang-fallback", wang_rules=[
+    AutoTilePaletteEntry(5, "wang-fallback", wang_rules=[
       wang_rule(1, 1, 1, 1, "never-hit", 2),
     ]),
   ]
   let source = test_source(Wang, palette, [
-    autotile_cell(0, 0, 5),
-    autotile_cell(1, 0, 3),
+    AutoTileCell(0, 0, 5),
+    AutoTileCell(1, 0, 3),
   ])
   let solved = solve_autotile_layer(source)
   inspect(solved_name_at(solved, 0, 0), content="wang-fallback")
@@ -248,8 +248,8 @@ test "update_cell_and_resolve_diff only changes local neighborhood" {
 test "runtime layer cell updates keep source state in sync" {
   let source = test_source(
     Bitmask4,
-    [autotile_palette_entry(1, "base", bitmask4_rules=[mask_rule(0, "m0")])],
-    [autotile_cell(0, 0, 1)],
+    [AutoTilePaletteEntry(1, "base", bitmask4_rules=[mask_rule(0, "m0")])],
+    [AutoTileCell(0, 0, 1)],
   )
   let layer = @ecs.Entity()
   register_runtime_layer(layer, source)

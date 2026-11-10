@@ -51,12 +51,12 @@ let scene_templates : Map[@render3d.SceneHandle, SceneTemplate] = Map([])
 let scene_paths : Map[@render3d.SceneHandle, String] = Map([])
 
 ///|
-fn empty_scene_template() -> SceneTemplate {
+fn SceneTemplate::SceneTemplate() -> SceneTemplate {
   { roots: [], nodes: [], skins: [], animations: Map([]), }
 }
 
 ///|
-fn default_scene_node_template() -> SceneNodeTemplate {
+fn SceneNodeTemplate::SceneNodeTemplate() -> SceneNodeTemplate {
   {
     name: None,
     transform: {

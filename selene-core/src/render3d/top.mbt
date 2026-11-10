@@ -37,13 +37,13 @@ pub type TextureWrap3D = @render3d_types.TextureWrap3D
 pub type TextureFilter3D = @render3d_types.TextureFilter3D
 
 ///|
-pub type TextureSampler3D = @render3d_types.TextureSampler3D
+pub using @render3d_types {type TextureSampler3D}
 
 ///|
-pub type TextureTransform3D = @render3d_types.TextureTransform3D
+pub using @render3d_types {type TextureTransform3D}
 
 ///|
-pub type TextureBinding3D = @render3d_types.TextureBinding3D
+pub using @render3d_types {type TextureBinding3D}
 
 ///|
 pub type Tangent3D = @render3d_types.Tangent3D
@@ -61,22 +61,22 @@ pub type MeshAsset = @render3d_types.MeshAsset
 pub type ImageAsset = @render3d_types.ImageAsset
 
 ///|
-pub type CubemapFaces3D = @render3d_types.CubemapFaces3D
+pub using @render3d_types {type CubemapFaces3D}
 
 ///|
 pub type CubemapAsset3D = @render3d_types.CubemapAsset3D
 
 ///|
-pub type Skybox3D = @render3d_types.Skybox3D
+pub using @render3d_types {type Skybox3D}
 
 ///|
-pub type StandardMaterial3D = @render3d_types.StandardMaterial3D
+pub using @render3d_types {type StandardMaterial3D}
 
 ///|
-pub type DirectionalLight3D = @render3d_types.DirectionalLight3D
+pub using @render3d_types {type DirectionalLight3D}
 
 ///|
-pub type PointLight3D = @render3d_types.PointLight3D
+pub using @render3d_types {type PointLight3D}
 
 ///|
 pub type FramePointLight3D = @render3d_types.FramePointLight3D
@@ -85,22 +85,22 @@ pub type FramePointLight3D = @render3d_types.FramePointLight3D
 pub type FrameSpotLight3D = @render3d_types.FrameSpotLight3D
 
 ///|
-pub type SpotLight3D = @render3d_types.SpotLight3D
+pub using @render3d_types {type SpotLight3D}
 
 ///|
 pub type AmbientLight3D = @render3d_types.AmbientLight3D
 
 ///|
-pub type DirectionalLightShadowMap3D = @render3d_types.DirectionalLightShadowMap3D
+pub using @render3d_types {type DirectionalLightShadowMap3D}
 
 ///|
-pub type PointLightShadowMap3D = @render3d_types.PointLightShadowMap3D
+pub using @render3d_types {type PointLightShadowMap3D}
 
 ///|
-pub type CascadeShadowConfigBuilder3D = @render3d_types.CascadeShadowConfigBuilder3D
+pub using @render3d_types {type CascadeShadowConfigBuilder3D}
 
 ///|
-pub type CascadeShadowConfig3D = @render3d_types.CascadeShadowConfig3D
+pub using @render3d_types {type CascadeShadowConfig3D}
 
 ///|
 pub type RenderItem3D = @render3d_types.RenderItem3D
@@ -109,7 +109,7 @@ pub type RenderItem3D = @render3d_types.RenderItem3D
 pub type RenderLine3D = @render3d_types.RenderLine3D
 
 ///|
-pub type RenderFrame3D = @render3d_types.RenderFrame3D
+pub using @render3d_types {type RenderFrame3D}
 
 ///|
 #derive(Eq, Debug)
@@ -163,9 +163,9 @@ fn render3d_world_state() -> Render3DWorldState {
   let world_id = @ecs.require_current_world().id()
   render3d_world_states.get_or_init(world_id, () => {
     ambient_light: None,
-    directional_shadow_map: @render3d_types.default_directional_light_shadow_map3d(),
-    point_shadow_map: @render3d_types.default_point_light_shadow_map3d(),
-    extracted_frame: empty_render_frame3d(),
+    directional_shadow_map: @render3d_types.DirectionalLightShadowMap3D(),
+    point_shadow_map: @render3d_types.PointLightShadowMap3D(),
+    extracted_frame: RenderFrame3D(),
   })
 }
 
@@ -224,28 +224,8 @@ let released_image_assets : Array[ImageHandle] = []
 let released_cubemap_assets : Array[CubemapHandle] = []
 
 ///|
-pub fn empty_render_frame3d() -> RenderFrame3D {
-  @render3d_types.empty_render_frame3d()
-}
-
-///|
 pub fn push_line3d(line : RenderLine3D) -> Unit {
   render3d_world_state().extracted_frame.lines.push(line)
-}
-
-///|
-pub fn default_directional_light3d() -> DirectionalLight3D {
-  @render3d_types.default_directional_light3d()
-}
-
-///|
-pub fn default_directional_light_shadow_map3d() -> DirectionalLightShadowMap3D {
-  @render3d_types.default_directional_light_shadow_map3d()
-}
-
-///|
-pub fn default_cascade_shadow_config_builder3d() -> CascadeShadowConfigBuilder3D {
-  @render3d_types.default_cascade_shadow_config_builder3d()
 }
 
 ///|
@@ -253,41 +233,6 @@ pub fn build_cascade_shadow_config3d(
   builder : CascadeShadowConfigBuilder3D,
 ) -> CascadeShadowConfig3D {
   @render3d_types.build_cascade_shadow_config3d(builder)
-}
-
-///|
-pub fn default_cascade_shadow_config3d() -> CascadeShadowConfig3D {
-  @render3d_types.default_cascade_shadow_config3d()
-}
-
-///|
-pub fn default_point_light3d() -> PointLight3D {
-  @render3d_types.default_point_light3d()
-}
-
-///|
-pub fn default_point_light_shadow_map3d() -> PointLightShadowMap3D {
-  @render3d_types.default_point_light_shadow_map3d()
-}
-
-///|
-pub fn default_spot_light3d() -> SpotLight3D {
-  @render3d_types.default_spot_light3d()
-}
-
-///|
-pub fn default_standard_material3d() -> StandardMaterial3D {
-  @render3d_types.default_standard_material3d()
-}
-
-///|
-pub fn default_texture_sampler3d() -> TextureSampler3D {
-  @render3d_types.default_texture_sampler3d()
-}
-
-///|
-pub fn default_texture_transform3d() -> TextureTransform3D {
-  @render3d_types.default_texture_transform3d()
 }
 
 ///|
@@ -299,41 +244,8 @@ pub fn apply_texture_transform3d(
 }
 
 ///|
-pub fn texture_binding3d(
-  image : ImageHandle,
-  texcoord_set~ : Int32 = 0,
-  sampler~ : TextureSampler3D = default_texture_sampler3d(),
-  transform~ : TextureTransform3D = default_texture_transform3d(),
-) -> TextureBinding3D {
-  @render3d_types.texture_binding3d(image, texcoord_set~, sampler~, transform~)
-}
-
-///|
-pub fn cubemap_faces3d(
-  positive_x : ImageHandle,
-  negative_x : ImageHandle,
-  positive_y : ImageHandle,
-  negative_y : ImageHandle,
-  positive_z : ImageHandle,
-  negative_z : ImageHandle,
-) -> CubemapFaces3D {
-  @render3d_types.cubemap_faces3d(
-    positive_x, negative_x, positive_y, negative_y, positive_z, negative_z,
-  )
-}
-
-///|
 pub fn cubemap_asset_six_faces(faces : CubemapFaces3D) -> CubemapAsset3D {
   @render3d_types.cubemap_asset_six_faces(faces)
-}
-
-///|
-pub fn skybox3d(
-  cubemap : CubemapHandle,
-  brightness~ : Double = 1.0,
-  rotation~ : @math.Quat = @math.Quat::identity(),
-) -> Skybox3D {
-  @render3d_types.skybox3d(cubemap, brightness~, rotation~)
 }
 
 ///|
@@ -721,8 +633,8 @@ fn _is_visible_in_camera_frustum(
 ///|
 pub fn render3d_extract_system(_delta : Double) -> Unit {
   let state = render3d_world_state()
-  let frame = empty_render_frame3d()
-  let mut active_camera_layers = @visibility.default_render_layers()
+  let frame = RenderFrame3D()
+  let mut active_camera_layers = @visibility.RenderLayers()
   if @camera3d.get_active_camera3d() is Some(camera) {
     frame.camera = Some(camera.camera)
     frame.clear_color = camera.camera.clear_color

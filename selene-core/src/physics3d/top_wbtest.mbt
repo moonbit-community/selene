@@ -856,7 +856,7 @@ test "kinematic character controller writes output and clears consumed translati
     rigid_bodies().set(actor, KinematicPositionBased)
     colliders().set(actor, Collider::ball(0.5))
     kinematic_character_controllers().set(actor, {
-      ..KinematicCharacterController::default(),
+      ..KinematicCharacterController(),
       translation: Some(Vec3(0.0, -1.0, 0.0)),
     })
 
@@ -883,7 +883,7 @@ test "character controller options are forwarded to rapier controller" {
     CharacterLength::absolute(1.2),
   ).with_include_dynamic_bodies(false)
   let controller = {
-    ..KinematicCharacterController::default(),
+    ..KinematicCharacterController(),
     offset: CharacterLength::absolute(0.02),
     slide: false,
     autostep: Some(autostep),

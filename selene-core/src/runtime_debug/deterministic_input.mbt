@@ -1,5 +1,5 @@
 ///|
-fn default_deterministic_mode() -> DeterministicModeConfig {
+fn DeterministicModeConfig::DeterministicModeConfig() -> DeterministicModeConfig {
   {
     rng_seed: 0U,
     fixed_delta_override: None,
@@ -17,10 +17,9 @@ pub fn set_deterministic_mode(config : DeterministicModeConfig) -> Unit {
 
 ///|
 pub fn deterministic_mode() -> DeterministicModeConfig {
-  deterministic_mode_by_world.get_or_init(
-    current_world_id(),
-    default_deterministic_mode,
-  )
+  deterministic_mode_by_world.get_or_init(current_world_id(), () => {
+    DeterministicModeConfig()
+  })
 }
 
 ///|
@@ -139,10 +138,9 @@ fn copy_snapshot(snapshot : @inputs.InputSnapshot) -> @inputs.InputSnapshot {
 
 ///|
 fn staged_snapshot() -> @inputs.InputSnapshot {
-  staged_input_by_world.get_or_init(
-    current_world_id(),
-    @inputs.empty_input_snapshot,
-  )
+  staged_input_by_world.get_or_init(current_world_id(), () => {
+    @inputs.InputSnapshot()
+  })
 }
 
 ///|

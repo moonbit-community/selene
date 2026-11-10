@@ -229,7 +229,9 @@ pub fn VariableCurve::weights(
 }
 
 ///|
-fn active_animation_default(repeat : RepeatAnimation) -> ActiveAnimation {
+fn ActiveAnimation::ActiveAnimation(
+  repeat : RepeatAnimation,
+) -> ActiveAnimation {
   {
     time: 0.0,
     last_time: 0.0,

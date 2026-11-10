@@ -22,11 +22,9 @@ priv struct TiledXmlNode {
 
 ///|
 pub fn TiledMap::from_tiled_xml(source : String) -> TiledMap {
-  guard parse_tiled_xml_root(source) is Some(root) else {
-    return empty_tiled_map()
-  }
+  guard parse_tiled_xml_root(source) is Some(root) else { return TiledMap() }
   if root.name != "map" {
-    return empty_tiled_map()
+    return TiledMap()
   }
   parse_tiled_xml_map(root)
 }
@@ -63,7 +61,7 @@ fn read_tiled_xml_root(
       Start(element) => return Some(read_tiled_xml_node(reader, element))
       Empty(element) =>
         return Some(
-          tiled_xml_node(
+          TiledXmlNode(
             element.name,
             element.attributes.map(a => (a.name, a.value)),
           ),
@@ -93,10 +91,7 @@ fn read_tiled_xml_node(
       Start(child) => children.push(read_tiled_xml_node(reader, child))
       Empty(child) =>
         children.push(
-          tiled_xml_node(
-            child.name,
-            child.attributes.map(a => (a.name, a.value)),
-          ),
+          TiledXmlNode(child.name, child.attributes.map(a => (a.name, a.value))),
         )
       Text(content) => text.write_string(content)
       CData(content) => text.write_string(content)
@@ -112,7 +107,7 @@ fn read_tiled_xml_node(
           text: text.to_string(),
         }
       Eof =>
-        return tiled_xml_node(
+        return TiledXmlNode(
           element.name,
           element.attributes.map(a => (a.name, a.value)),
           children~,
@@ -124,7 +119,7 @@ fn read_tiled_xml_node(
 }
 
 ///|
-fn tiled_xml_node(
+fn TiledXmlNode::TiledXmlNode(
   name : String,
   attributes : Array[(String, String)],
   children~ : Array[TiledXmlNode] = [],

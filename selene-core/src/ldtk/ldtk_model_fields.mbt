@@ -176,7 +176,7 @@ pub struct LdtkEntityReference {
 }
 
 ///|
-pub fn empty_ldtk_entity_reference() -> LdtkEntityReference {
+pub fn LdtkEntityReference::LdtkEntityReference() -> LdtkEntityReference {
   { entity_iid: None, level_iid: None, world_iid: None, layer_iid: None, }
 }
 
@@ -190,7 +190,7 @@ pub struct LdtkTilesetRect {
 }
 
 ///|
-pub fn empty_ldtk_tileset_rect() -> LdtkTilesetRect {
+pub fn LdtkTilesetRect::LdtkTilesetRect() -> LdtkTilesetRect {
   { tileset_uid: None, x: 0, y: 0, w: 0, h: 0, }
 }
 

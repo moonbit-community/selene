@@ -237,7 +237,7 @@ fn parse_camera_templates(
 fn parse_camera_component(
   camera_object : Map[String, Json],
 ) -> @camera3d.Camera3DComponent? {
-  let defaults = @camera3d.Camera3DComponent::default()
+  let defaults = @camera3d.Camera3DComponent()
   match
     field_string(camera_object, "type").map_or("", fn(value) {
       value.to_lower()
@@ -312,7 +312,7 @@ fn parse_light_template(
     "directional" =>
       Some({
         directional: Some({
-          ..@render3d.default_directional_light3d(),
+          ..@render3d.DirectionalLight3D(),
           color,
           intensity,
         }),
@@ -322,12 +322,7 @@ fn parse_light_template(
     "point" =>
       Some({
         directional: None,
-        point: Some({
-          ..@render3d.default_point_light3d(),
-          color,
-          intensity,
-          range,
-        }),
+        point: Some({ ..@render3d.PointLight3D(), color, intensity, range, }),
         spot: None,
       })
     "spot" => {
@@ -336,7 +331,7 @@ fn parse_light_template(
         directional: None,
         point: None,
         spot: Some({
-          ..@render3d.default_spot_light3d(),
+          ..@render3d.SpotLight3D(),
           color,
           intensity,
           range,
@@ -383,7 +378,7 @@ fn parse_node_templates(
   let templates : Array[SceneNodeTemplate] = []
   for node_json in nodes {
     guard json_object(node_json) is Some(node_object) else {
-      templates.push(default_scene_node_template())
+      templates.push(SceneNodeTemplate())
       continue
     }
     let transform = parse_node_transform(node_object)

@@ -24,7 +24,7 @@ pub(all) struct RenderFrame {
 }
 
 ///|
-pub fn empty_asset_sync3d() -> RenderAssetSync3D {
+pub fn RenderAssetSync3D::RenderAssetSync3D() -> RenderAssetSync3D {
   {
     mesh_upserts: [],
     material_upserts: [],
@@ -38,10 +38,10 @@ pub fn empty_asset_sync3d() -> RenderAssetSync3D {
 }
 
 ///|
-pub fn empty_render_frame() -> RenderFrame {
+pub fn RenderFrame::RenderFrame() -> RenderFrame {
   {
-    frame2d: @render2d_types.empty_render_frame2d(),
-    frame3d: @render3d_types.empty_render_frame3d(),
-    assets3d: empty_asset_sync3d(),
+    frame2d: @render2d_types.RenderFrame2D(),
+    frame3d: @render3d_types.RenderFrame3D(),
+    assets3d: RenderAssetSync3D(),
   }
 }

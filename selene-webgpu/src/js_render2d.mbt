@@ -192,7 +192,7 @@ extern "js" fn webgpu_draw_skybox_textured_triangles_3d_ffi(
   #| }
 
 ///|
-pub extern "js" fn Audio::new(path : String) -> Audio =
+pub extern "js" fn Audio::Audio(path : String) -> Audio =
   #| (path) => {
   #|   const init = globalThis.__selene_init_audio_element || (
   #|     globalThis.__selene_init_audio_element = (audio) => {

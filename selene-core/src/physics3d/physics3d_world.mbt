@@ -1,7 +1,7 @@
 ///|
 pub fn LockedAxes::lock_rotations() -> LockedAxes {
   {
-    ..LockedAxes::default(),
+    ..LockedAxes(),
     lock_rotation_x: true,
     lock_rotation_y: true,
     lock_rotation_z: true,
@@ -11,7 +11,7 @@ pub fn LockedAxes::lock_rotations() -> LockedAxes {
 ///|
 pub fn LockedAxes::lock_translations() -> LockedAxes {
   {
-    ..LockedAxes::default(),
+    ..LockedAxes(),
     lock_translation_x: true,
     lock_translation_y: true,
     lock_translation_z: true,
@@ -143,7 +143,7 @@ pub fn ColliderMassProperties::density(
 }
 
 ///|
-pub fn QueryFilter::default() -> QueryFilter {
+pub fn QueryFilter::QueryFilter() -> QueryFilter {
   {
     groups: None,
     exclude_entity: None,
@@ -157,10 +157,10 @@ pub fn QueryFilter::default() -> QueryFilter {
 
 ///|
 pub fn QueryFilter::all() -> QueryFilter {
-  QueryFilter::default()
+  QueryFilter()
 }
 
 ///|
 pub fn QueryFilter::only_dynamic() -> QueryFilter {
-  { ..QueryFilter::default(), body_filter: Dynamic, }
+  { ..QueryFilter(), body_filter: Dynamic, }
 }

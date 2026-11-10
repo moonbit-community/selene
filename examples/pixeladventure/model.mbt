@@ -197,7 +197,7 @@ priv struct PixelAdventureWorldState {
 }
 
 ///|
-fn new_pixeladventure_world_state() -> PixelAdventureWorldState {
+fn PixelAdventureWorldState::PixelAdventureWorldState() -> PixelAdventureWorldState {
   { entities: [], click_reader: EventReader(), }
 }
 
@@ -222,7 +222,7 @@ fn reset_pixeladventure_world_store() -> Unit {
       ignore(entity.delete())
     }
   }
-  world.insert_resource(new_pixeladventure_world_state())
+  world.insert_resource(PixelAdventureWorldState())
 }
 
 ///|
@@ -251,7 +251,7 @@ fn ui_click_reader() -> @event.EventReader[@ui.UiClickEvent] {
 }
 
 ///|
-fn sprite_clip(
+fn SpriteAnimationDef::SpriteAnimationDef(
   path : String,
   frame_count : Int32,
   loop_~ : Bool = true,
@@ -321,62 +321,62 @@ fn volume_off_ui_image() -> @ui.UiImage {
 }
 
 ///|
-let player_idle_right_animation : SpriteAnimationDef = sprite_clip(
+let player_idle_right_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/pixeladventure/Main Characters/Mask Dude/Idle (32x32).png", 11,
 )
 
 ///|
-let player_idle_left_animation : SpriteAnimationDef = sprite_clip(
+let player_idle_left_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/pixeladventure/Main Characters/Mask Dude/Idle (32x32).png",
   11,
   flip_x=true,
 )
 
 ///|
-let player_run_right_animation : SpriteAnimationDef = sprite_clip(
+let player_run_right_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/pixeladventure/Main Characters/Mask Dude/Run (32x32).png", 12,
 )
 
 ///|
-let player_run_left_animation : SpriteAnimationDef = sprite_clip(
+let player_run_left_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/pixeladventure/Main Characters/Mask Dude/Run (32x32).png",
   12,
   flip_x=true,
 )
 
 ///|
-let player_fall_right_animation : SpriteAnimationDef = sprite_clip(
+let player_fall_right_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/pixeladventure/Main Characters/Mask Dude/Fall (32x32).png", 1,
 )
 
 ///|
-let player_fall_left_animation : SpriteAnimationDef = sprite_clip(
+let player_fall_left_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/pixeladventure/Main Characters/Mask Dude/Fall (32x32).png",
   1,
   flip_x=true,
 )
 
 ///|
-let player_jump_right_animation : SpriteAnimationDef = sprite_clip(
+let player_jump_right_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/pixeladventure/Main Characters/Mask Dude/Jump (32x32).png", 1,
 )
 
 ///|
-let player_jump_left_animation : SpriteAnimationDef = sprite_clip(
+let player_jump_left_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/pixeladventure/Main Characters/Mask Dude/Jump (32x32).png",
   1,
   flip_x=true,
 )
 
 ///|
-let player_hit_right_animation : SpriteAnimationDef = sprite_clip(
+let player_hit_right_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/pixeladventure/Main Characters/Mask Dude/Hit (32x32).png",
   7,
   loop_=false,
 )
 
 ///|
-let player_hit_left_animation : SpriteAnimationDef = sprite_clip(
+let player_hit_left_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/pixeladventure/Main Characters/Mask Dude/Hit (32x32).png",
   7,
   loop_=false,
@@ -384,19 +384,19 @@ let player_hit_left_animation : SpriteAnimationDef = sprite_clip(
 )
 
 ///|
-let bird_fly_right_animation : SpriteAnimationDef = sprite_clip(
+let bird_fly_right_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/pixeladventure/Enemies/BlueBird/Flying (32x32).png",
   9,
   flip_x=true,
 )
 
 ///|
-let bird_fly_left_animation : SpriteAnimationDef = sprite_clip(
+let bird_fly_left_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/pixeladventure/Enemies/BlueBird/Flying (32x32).png", 9,
 )
 
 ///|
-let bird_hit_right_animation : SpriteAnimationDef = sprite_clip(
+let bird_hit_right_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/pixeladventure/Enemies/BlueBird/Hit (32x32).png",
   5,
   loop_=false,
@@ -404,32 +404,32 @@ let bird_hit_right_animation : SpriteAnimationDef = sprite_clip(
 )
 
 ///|
-let bird_hit_left_animation : SpriteAnimationDef = sprite_clip(
+let bird_hit_left_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/pixeladventure/Enemies/BlueBird/Hit (32x32).png",
   5,
   loop_=false,
 )
 
 ///|
-let apple_spin_animation : SpriteAnimationDef = sprite_clip(
+let apple_spin_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/pixeladventure/Items/Fruits/Apple.png", 17,
 )
 
 ///|
-let flag_idle_animation : SpriteAnimationDef = sprite_clip(
+let flag_idle_animation : SpriteAnimationDef = SpriteAnimationDef(
   FLAG_IDLE_PATH,
   10,
   size=Vec2(64.0, 64.0),
 )
 
 ///|
-let player_collision_group : @physics2d.CollisionGroup = @physics2d.collision_group()
+let player_collision_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup()
 
 ///|
-let terrain_collision_group : @physics2d.CollisionGroup = @physics2d.collision_group()
+let terrain_collision_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup()
 
 ///|
-let enemy_collision_group : @physics2d.CollisionGroup = @physics2d.collision_group()
+let enemy_collision_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup()
 
 ///|
-let trigger_collision_group : @physics2d.CollisionGroup = @physics2d.collision_group()
+let trigger_collision_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup()

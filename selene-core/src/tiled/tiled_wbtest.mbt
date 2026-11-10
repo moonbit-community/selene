@@ -434,7 +434,7 @@ test "spawn_tiled_map creates tile object and image layer entities" {
   files.set("maps/bg.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
     let root = load_and_spawn_tiled_map("maps/level.tmj", settings={
-      ..default_tiled_spawn_settings(),
+      ..TiledSpawnSettings(),
       position: Vec2(10.0, 20.0),
       zindex: 5,
       layer_z_step: 10,
@@ -546,7 +546,7 @@ test "respawn_tiled_map_into_entity replaces previous tiled children and metadat
   with_fake_asset_io(files, fn() raise {
     let root = @ecs.Entity()
     spawn_tiled_map_into_entity(root, load_tiled_map("maps/a.tmj"), settings={
-      ..default_tiled_spawn_settings(),
+      ..TiledSpawnSettings(),
       position: Vec2(1.0, 2.0),
     })
     defer cleanup_spawned_tiled_tree(root)
@@ -561,7 +561,7 @@ test "respawn_tiled_map_into_entity replaces previous tiled children and metadat
     )
 
     respawn_tiled_map_into_entity(root, load_tiled_map("maps/b.tmj"), settings={
-      ..default_tiled_spawn_settings(),
+      ..TiledSpawnSettings(),
       position: Vec2(3.0, 4.0),
     })
 
@@ -603,9 +603,9 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
   files.set("maps/terrain.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
     let root = load_and_spawn_tiled_map("maps/physics.tmj", settings={
-      ..default_tiled_spawn_settings(),
+      ..TiledSpawnSettings(),
       physics_settings: Some({
-        ..default_tiled_physics_settings(),
+        ..TiledPhysicsSettings(),
         objects_filter: TiledNameFilter::names([
           "sensor_rect", "ellipse", "polyline", "polygon", "point", "TileObject",
           "solid",
@@ -734,8 +734,8 @@ test "spawn_tiled_map applies physics body and material properties" {
   )
   with_fake_asset_io(files, fn() raise {
     let root = load_and_spawn_tiled_map("maps/physics-properties.tmj", settings={
-      ..default_tiled_spawn_settings(),
-      physics_settings: Some(default_tiled_physics_settings()),
+      ..TiledSpawnSettings(),
+      physics_settings: Some(TiledPhysicsSettings()),
     })
     defer cleanup_spawned_tiled_tree(root)
 
@@ -829,7 +829,7 @@ test "spawn_tiled_world loads adjacent maps and emits world events" {
     let hooked_paths : Array[String] = []
     let world = load_tiled_world("worlds/demo.world")
     let root = spawn_tiled_world(world, settings={
-      ..default_tiled_world_spawn_settings(),
+      ..TiledWorldSpawnSettings(),
       position: Vec2(5.0, 7.0),
       focus_map_path: Some("maps/a.tmj"),
       world_map_hook: Some(fn(event) {
@@ -906,7 +906,7 @@ test "respawn_tiled_world_into_entity replaces previous spawned maps" {
   with_fake_asset_io(files, fn() raise {
     let root = @ecs.Entity()
     spawn_tiled_world_into_entity(root, load_tiled_world("worlds/a.world"), settings={
-      ..default_tiled_world_spawn_settings(),
+      ..TiledWorldSpawnSettings(),
       position: Vec2(5.0, 7.0),
     })
     defer cleanup_spawned_tiled_tree(root)
@@ -917,7 +917,7 @@ test "respawn_tiled_world_into_entity replaces previous spawned maps" {
     )
 
     respawn_tiled_world_into_entity(root, load_tiled_world("worlds/b.world"), settings={
-      ..default_tiled_world_spawn_settings(),
+      ..TiledWorldSpawnSettings(),
       position: Vec2(11.0, 13.0),
     })
 
@@ -985,12 +985,9 @@ test "tiled world chunking spawns maps around camera view" {
   )
   with_fake_asset_io(files, fn() raise {
     let root = load_and_spawn_tiled_world("worlds/chunk.world", settings={
-      ..default_tiled_world_spawn_settings(),
+      ..TiledWorldSpawnSettings(),
       chunking: Some(@math.Vec2::zero()),
-      map_settings: {
-        ..default_tiled_spawn_settings(),
-        position: @math.Vec2::zero(),
-      },
+      map_settings: { ..TiledSpawnSettings(), position: @math.Vec2::zero(), },
     })
     defer cleanup_spawned_tiled_tree(root)
 
@@ -1058,12 +1055,9 @@ test "tiled world chunking unions multiple active camera views" {
   )
   with_fake_asset_io(files, fn() raise {
     let root = load_and_spawn_tiled_world("worlds/chunk.world", settings={
-      ..default_tiled_world_spawn_settings(),
+      ..TiledWorldSpawnSettings(),
       chunking: Some(@math.Vec2::zero()),
-      map_settings: {
-        ..default_tiled_spawn_settings(),
-        position: @math.Vec2::zero(),
-      },
+      map_settings: { ..TiledSpawnSettings(), position: @math.Vec2::zero(), },
     })
     defer cleanup_spawned_tiled_tree(root)
 
@@ -1195,7 +1189,7 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
   files.set("maps/bg.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
     let root = load_and_spawn_tiled_map("maps/level.tmx", settings={
-      ..default_tiled_spawn_settings(),
+      ..TiledSpawnSettings(),
       position: Vec2(10.0, 20.0),
       zindex: 5,
       layer_z_step: 10,
@@ -1340,7 +1334,7 @@ test "tiled_cell_position supports isometric hexagonal and staggered layouts" {
   let tileset = test_tileset_16x16()
 
   let iso_map = {
-    ..empty_tiled_map(),
+    ..TiledMap(),
     width: 2,
     height: 2,
     tile_width: 16,
@@ -1361,7 +1355,7 @@ test "tiled_cell_position supports isometric hexagonal and staggered layouts" {
   )
 
   let hex_map = {
-    ..empty_tiled_map(),
+    ..TiledMap(),
     width: 2,
     height: 2,
     tile_width: 16,
@@ -1385,7 +1379,7 @@ test "tiled_cell_position supports isometric hexagonal and staggered layouts" {
   )
 
   let staggered_map = {
-    ..empty_tiled_map(),
+    ..TiledMap(),
     width: 2,
     height: 2,
     tile_width: 16,
@@ -1432,7 +1426,7 @@ test "tiled tile object origin shifts on isometric maps" {
   }
 
   let ortho_map = {
-    ..empty_tiled_map(),
+    ..TiledMap(),
     tile_width: 16,
     tile_height: 16,
     orientation: "orthogonal",
@@ -1443,7 +1437,7 @@ test "tiled tile object origin shifts on isometric maps" {
   )
 
   let iso_map = {
-    ..empty_tiled_map(),
+    ..TiledMap(),
     tile_width: 16,
     tile_height: 16,
     orientation: "isometric",

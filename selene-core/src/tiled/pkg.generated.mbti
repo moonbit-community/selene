@@ -14,21 +14,7 @@ pub fn clear_tiled_children(@ecs.Entity) -> Unit
 
 pub fn decode_tiled_gid(Int32) -> TiledGid
 
-pub fn default_tiled_physics_settings() -> TiledPhysicsSettings
-
-pub fn default_tiled_spawn_settings() -> TiledSpawnSettings
-
-pub fn default_tiled_world_spawn_settings() -> TiledWorldSpawnSettings
-
 pub fn despawn_tiled_tree(@ecs.Entity) -> Unit
-
-pub fn empty_tiled_gid() -> TiledGid
-
-pub fn empty_tiled_map() -> TiledMap
-
-pub fn empty_tiled_map_storage() -> TiledMapStorage
-
-pub fn empty_tiled_world() -> TiledWorld
 
 pub fn encode_tiled_gid(TiledGid) -> Int32
 
@@ -156,6 +142,7 @@ pub struct TiledGid {
   flipped_vertically : Bool
   flipped_diagonally : Bool
 }
+pub fn TiledGid::TiledGid() -> Self
 pub fn TiledGid::is_empty(Self) -> Bool
 
 pub struct TiledImageLayer {
@@ -245,6 +232,7 @@ pub struct TiledMap {
   tilesets : Array[TiledTileset]
   properties : Array[TiledProperty]
 }
+pub fn TiledMap::TiledMap() -> Self
 pub fn TiledMap::from_tiled_json(@json.Json) -> Self
 pub fn TiledMap::from_tiled_xml(String) -> Self
 pub fn TiledMap::layer(Self, String) -> TiledLayer?
@@ -271,6 +259,7 @@ pub struct TiledMapStorage {
   objects : Map[Int32, @ecs.Entity]
   tiles : Map[Int32, Array[@ecs.Entity]]
 }
+pub fn TiledMapStorage::TiledMapStorage() -> Self
 pub fn TiledMapStorage::layer_entity(Self, Int32) -> @ecs.Entity?
 pub fn TiledMapStorage::object_entity(Self, Int32) -> @ecs.Entity?
 pub fn TiledMapStorage::tile_entities(Self, Int32) -> Array[@ecs.Entity]
@@ -345,6 +334,7 @@ pub(all) struct TiledPhysicsSettings {
   merge_tile_rects : Bool
   collider_hook : ((TiledColliderSpawnedEvent) -> Unit)?
 }
+pub fn TiledPhysicsSettings::TiledPhysicsSettings() -> Self
 
 pub struct TiledPoint {
   x : Double
@@ -386,6 +376,7 @@ pub(all) struct TiledSpawnSettings {
   object_hook : ((TiledObjectSpawnedEvent) -> Unit)?
   image_layer_hook : ((TiledImageLayerSpawnedEvent) -> Unit)?
 }
+pub fn TiledSpawnSettings::TiledSpawnSettings() -> Self
 
 pub struct TiledText {
   text : String
@@ -473,6 +464,7 @@ pub struct TiledWorld {
   patterns : Array[TiledWorldPattern]
   source_path : String?
 }
+pub fn TiledWorld::TiledWorld() -> Self
 pub fn TiledWorld::map(Self, String) -> TiledWorldMap?
 pub fn TiledWorld::resolve_map_path(Self, String) -> String
 
@@ -535,6 +527,7 @@ pub(all) struct TiledWorldSpawnSettings {
   world_hook : ((TiledWorldSpawnedEvent) -> Unit)?
   world_map_hook : ((TiledWorldMapSpawnedEvent) -> Unit)?
 }
+pub fn TiledWorldSpawnSettings::TiledWorldSpawnSettings() -> Self
 
 pub struct TiledWorldSpawnedEvent {
   world_entity : @ecs.Entity

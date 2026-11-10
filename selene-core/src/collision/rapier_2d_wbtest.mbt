@@ -255,15 +255,9 @@ test "spatial queries resolve hits, overlaps, and body filters" {
     content="true",
   )
 
-  let dynamic_filter = {
-    ..SpatialQueryFilter::default(),
-    body_filter: Dynamic,
-  }
-  let fixed_filter = { ..SpatialQueryFilter::default(), body_filter: Fixed, }
-  let kinematic_filter = {
-    ..SpatialQueryFilter::default(),
-    body_filter: Kinematic,
-  }
+  let dynamic_filter = { ..SpatialQueryFilter(), body_filter: Dynamic, }
+  let fixed_filter = { ..SpatialQueryFilter(), body_filter: Fixed, }
+  let kinematic_filter = { ..SpatialQueryFilter(), body_filter: Kinematic, }
   inspect(
     intersect_point(Vec2(240.0, 100.0), query_filter=dynamic_filter).contains(
       dynamic_entity,
@@ -284,7 +278,7 @@ test "spatial queries resolve hits, overlaps, and body filters" {
   )
   inspect(
     raycast(Vec2(180.0, 100.0), Vec2(1.0, 0.0), query_filter={
-      ..SpatialQueryFilter::default(),
+      ..SpatialQueryFilter(),
       exclude_entity: Some(dynamic_entity),
     }).map_or(false, fn(hit) { hit.entity == kinematic_entity }),
     content="true",

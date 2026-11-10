@@ -218,12 +218,12 @@ pub struct LdtkIndexedLevel {
 }
 
 ///|
-pub fn empty_ldtk_project_definitions() -> LdtkProjectDefinitions {
+pub fn LdtkProjectDefinitions::LdtkProjectDefinitions() -> LdtkProjectDefinitions {
   { tilesets: [], layers: [], entities: [], enums: [], external_enums: [], }
 }
 
 ///|
-pub fn empty_ldtk_level() -> LdtkLevel {
+pub fn LdtkLevel::LdtkLevel() -> LdtkLevel {
   {
     identifier: "",
     iid: "",
@@ -243,7 +243,7 @@ pub fn empty_ldtk_level() -> LdtkLevel {
 }
 
 ///|
-pub fn empty_ldtk_project() -> LdtkProject {
+pub fn LdtkProject::LdtkProject() -> LdtkProject {
   {
     source_path: None,
     external_levels: false,
@@ -251,7 +251,7 @@ pub fn empty_ldtk_project() -> LdtkProject {
     bg_color: None,
     default_level_width: None,
     default_level_height: None,
-    defs: empty_ldtk_project_definitions(),
+    defs: LdtkProjectDefinitions(),
     levels: [],
     worlds: [],
   }
@@ -266,14 +266,14 @@ pub fn load_ldtk_project(path : String) -> LdtkProject {
 ///|
 pub fn load_ldtk_project_raw(path : String) -> LdtkProject {
   guard load_ldtk_text_document(path) is Some(source) else {
-    return empty_ldtk_project()
+    return LdtkProject()
   }
   { ..parse_ldtk_project_source(source), source_path: Some(path), }
 }
 
 ///|
 pub fn LdtkProject::from_ldtk_json(json : Json) -> LdtkProject {
-  guard json_object(json) is Some(root) else { return empty_ldtk_project() }
+  guard json_object(json) is Some(root) else { return LdtkProject() }
   parse_ldtk_project(root)
 }
 

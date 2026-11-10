@@ -160,7 +160,7 @@ fn sync_character_controllers(delta : Double) -> Unit {
       kinematic_character_controller_outputs().set(entity, output)
       kinematic_character_controller_collisions().set(
         entity,
-        KinematicCharacterControllerCollisions::empty(),
+        KinematicCharacterControllerCollisions(),
       )
       continue
     }

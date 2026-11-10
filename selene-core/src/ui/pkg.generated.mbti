@@ -55,8 +55,6 @@ pub fn consume_pointer(@inputs.PointerId) -> Unit
 
 pub fn consume_touch(@inputs.TouchId) -> Unit
 
-pub fn default_overflow_clip_margin() -> OverflowClipMargin
-
 pub fn draw_ui_material_gradient(UiMaterialContext, UiGradient) -> Unit
 
 pub fn draw_ui_material_image(UiMaterialContext, UiImage) -> Unit

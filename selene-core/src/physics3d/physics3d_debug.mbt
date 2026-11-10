@@ -129,18 +129,18 @@ fn build_box_wire(
   let p110 = @math.Vec3(max.x, max.y, min.z)
   let p111 = @math.Vec3(max.x, max.y, max.z)
   [
-    wire_segment(p000, p001),
-    wire_segment(p001, p101),
-    wire_segment(p101, p100),
-    wire_segment(p100, p000),
-    wire_segment(p010, p011),
-    wire_segment(p011, p111),
-    wire_segment(p111, p110),
-    wire_segment(p110, p010),
-    wire_segment(p000, p010),
-    wire_segment(p001, p011),
-    wire_segment(p101, p111),
-    wire_segment(p100, p110),
+    ColliderWireSegment3D(p000, p001),
+    ColliderWireSegment3D(p001, p101),
+    ColliderWireSegment3D(p101, p100),
+    ColliderWireSegment3D(p100, p000),
+    ColliderWireSegment3D(p010, p011),
+    ColliderWireSegment3D(p011, p111),
+    ColliderWireSegment3D(p111, p110),
+    ColliderWireSegment3D(p110, p010),
+    ColliderWireSegment3D(p000, p010),
+    ColliderWireSegment3D(p001, p011),
+    ColliderWireSegment3D(p101, p111),
+    ColliderWireSegment3D(p100, p110),
   ]
 }
 
@@ -159,7 +159,7 @@ fn build_capsule_wire(
   let perpendicular_b = perpendicular_axis(axis, 1)
   for sign_a in [-1.0, 1.0] {
     let offset = axis_point(perpendicular_a, radius * sign_a)
-    segments.push(wire_segment(negative + offset, positive + offset))
+    segments.push(ColliderWireSegment3D(negative + offset, positive + offset))
     append_capsule_arc(
       segments, axis, perpendicular_a, negative, false, sign_a, radius,
     )
@@ -169,7 +169,7 @@ fn build_capsule_wire(
   }
   for sign_b in [-1.0, 1.0] {
     let offset = axis_point(perpendicular_b, radius * sign_b)
-    segments.push(wire_segment(negative + offset, positive + offset))
+    segments.push(ColliderWireSegment3D(negative + offset, positive + offset))
     append_capsule_arc(
       segments, axis, perpendicular_b, negative, false, sign_b, radius,
     )
@@ -196,8 +196,12 @@ fn build_cylinder_wire(
   for sign in [-1.0, 1.0] {
     let offset_a = axis_point(perpendicular_a, radius * sign)
     let offset_b = axis_point(perpendicular_b, radius * sign)
-    segments.push(wire_segment(negative + offset_a, positive + offset_a))
-    segments.push(wire_segment(negative + offset_b, positive + offset_b))
+    segments.push(
+      ColliderWireSegment3D(negative + offset_a, positive + offset_a),
+    )
+    segments.push(
+      ColliderWireSegment3D(negative + offset_b, positive + offset_b),
+    )
   }
   segments
 }
@@ -217,7 +221,7 @@ fn build_cone_wire(
       -half_height,
       @cmath.sin(angle) * radius,
     )
-    segments.push(wire_segment(base, apex))
+    segments.push(ColliderWireSegment3D(base, apex))
   }
   segments
 }
@@ -242,10 +246,10 @@ fn build_halfspace_wire(normal : @math.Vec3) -> Array[ColliderWireSegment3D] {
   let c = -tangent.scalar_mul(size) - bitangent.scalar_mul(size)
   let d = -tangent.scalar_mul(size) + bitangent.scalar_mul(size)
   [
-    wire_segment(a, b),
-    wire_segment(b, c),
-    wire_segment(c, d),
-    wire_segment(d, a),
+    ColliderWireSegment3D(a, b),
+    ColliderWireSegment3D(b, c),
+    ColliderWireSegment3D(c, d),
+    ColliderWireSegment3D(d, a),
   ]
 }
 
@@ -276,9 +280,9 @@ fn build_trimesh_wire(
     if valid_vertex_index(vertices, a) &&
       valid_vertex_index(vertices, b) &&
       valid_vertex_index(vertices, c) {
-      segments.push(wire_segment(vertices[a], vertices[b]))
-      segments.push(wire_segment(vertices[b], vertices[c]))
-      segments.push(wire_segment(vertices[c], vertices[a]))
+      segments.push(ColliderWireSegment3D(vertices[a], vertices[b]))
+      segments.push(ColliderWireSegment3D(vertices[b], vertices[c]))
+      segments.push(ColliderWireSegment3D(vertices[c], vertices[a]))
     }
   }
   segments
@@ -298,7 +302,7 @@ fn build_heightfield_wire(
       let point = heightfield_point(heights, nrows, ncols, scale, row, col)
       if col + 1 < ncols {
         segments.push(
-          wire_segment(
+          ColliderWireSegment3D(
             point,
             heightfield_point(heights, nrows, ncols, scale, row, col + 1),
           ),
@@ -306,7 +310,7 @@ fn build_heightfield_wire(
       }
       if row + 1 < nrows {
         segments.push(
-          wire_segment(
+          ColliderWireSegment3D(
             point,
             heightfield_point(heights, nrows, ncols, scale, row + 1, col),
           ),
@@ -357,7 +361,7 @@ fn append_circle_wire(
     let a = @cmath.PI * 2.0 * index.to_double() / steps.to_double()
     let b = @cmath.PI * 2.0 * (index + 1).to_double() / steps.to_double()
     segments.push(
-      wire_segment(
+      ColliderWireSegment3D(
         center + circle_point(axis, radius, a),
         center + circle_point(axis, radius, b),
       ),
@@ -386,7 +390,7 @@ fn append_capsule_arc(
     let pb = center +
       axis_point(axis, @cmath.sin(b) * radius * axis_sign) +
       axis_point(radial_axis, @cmath.cos(b) * radius * radial_sign)
-    segments.push(wire_segment(pa, pb))
+    segments.push(ColliderWireSegment3D(pa, pb))
   }
 }
 
@@ -417,7 +421,10 @@ fn axis_point(axis : Int32, value : Double) -> @math.Vec3 {
 }
 
 ///|
-fn wire_segment(start : @math.Vec3, end : @math.Vec3) -> ColliderWireSegment3D {
+fn ColliderWireSegment3D::ColliderWireSegment3D(
+  start : @math.Vec3,
+  end : @math.Vec3,
+) -> ColliderWireSegment3D {
   { start, end, }
 }
 

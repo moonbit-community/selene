@@ -34,7 +34,7 @@ pub struct SpatialQueryFilter {
 }
 
 ///|
-pub fn SpatialQueryFilter::default() -> SpatialQueryFilter {
+pub fn SpatialQueryFilter::SpatialQueryFilter() -> SpatialQueryFilter {
   {
     groups: None,
     exclude_entity: None,
@@ -46,17 +46,17 @@ pub fn SpatialQueryFilter::default() -> SpatialQueryFilter {
 
 ///|
 pub fn SpatialQueryFilter::only_dynamic() -> SpatialQueryFilter {
-  { ..SpatialQueryFilter::default(), body_filter: Dynamic, }
+  { ..SpatialQueryFilter(), body_filter: Dynamic, }
 }
 
 ///|
 pub fn SpatialQueryFilter::only_fixed() -> SpatialQueryFilter {
-  { ..SpatialQueryFilter::default(), body_filter: Fixed, }
+  { ..SpatialQueryFilter(), body_filter: Fixed, }
 }
 
 ///|
 pub fn SpatialQueryFilter::only_kinematic() -> SpatialQueryFilter {
-  { ..SpatialQueryFilter::default(), body_filter: Kinematic, }
+  { ..SpatialQueryFilter(), body_filter: Kinematic, }
 }
 
 ///|

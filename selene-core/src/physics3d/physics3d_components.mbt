@@ -224,7 +224,7 @@ pub fn Velocity::zero() -> Velocity {
 }
 
 ///|
-pub fn Damping::default() -> Damping {
+pub fn Damping::Damping() -> Damping {
   { linear_damping: 0.0, angular_damping: 0.0, }
 }
 
@@ -234,7 +234,7 @@ pub fn GravityScale::default() -> GravityScale {
 }
 
 ///|
-pub fn LockedAxes::default() -> LockedAxes {
+pub fn LockedAxes::LockedAxes() -> LockedAxes {
   {
     lock_translation_x: false,
     lock_translation_y: false,

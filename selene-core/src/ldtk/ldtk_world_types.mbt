@@ -250,7 +250,7 @@ priv struct LdtkWorldStore {
 let ldtk_world_store_key : @ecs.ResourceKey[LdtkWorldStore] = ResourceKey()
 
 ///|
-fn new_ldtk_world_store(_ : @ecs.World) -> LdtkWorldStore {
+fn LdtkWorldStore::LdtkWorldStore() -> LdtkWorldStore {
   {
     ldtk_entity_spawn_hooks: Map([]),
     ldtk_entity_layer_spawn_hooks: Map([]),
@@ -268,10 +268,9 @@ fn new_ldtk_world_store(_ : @ecs.World) -> LdtkWorldStore {
 
 ///|
 fn ldtk_world_store() -> LdtkWorldStore {
-  ldtk_world_store_key.get_or_insert_with(
-    @ecs.require_current_world(),
-    new_ldtk_world_store,
-  )
+  ldtk_world_store_key.get_or_insert_with(@ecs.require_current_world(), _ => {
+    LdtkWorldStore()
+  })
 }
 
 ///|

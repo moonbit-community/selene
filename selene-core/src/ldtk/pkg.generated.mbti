@@ -83,29 +83,9 @@ pub fn clear_ldtk_int_grid_value_spawn_hooks() -> Unit
 
 pub fn clear_ldtk_respawn(@ecs.Entity) -> Unit
 
-pub fn default_ldtk_int_grid_physics_settings() -> LdtkIntGridPhysicsSettings
-
 pub fn default_ldtk_level_selection() -> LdtkLevelSelection
 
-pub fn default_ldtk_settings() -> LdtkSettings
-
-pub fn default_ldtk_spawn_exclusions() -> LdtkSpawnExclusions
-
-pub fn default_ldtk_world_spawn_settings() -> LdtkWorldSpawnSettings
-
 pub fn despawn_ldtk_tree(@ecs.Entity) -> Unit
-
-pub fn empty_ldtk_entity_reference() -> LdtkEntityReference
-
-pub fn empty_ldtk_level() -> LdtkLevel
-
-pub fn empty_ldtk_level_set() -> LdtkLevelSet
-
-pub fn empty_ldtk_project() -> LdtkProject
-
-pub fn empty_ldtk_project_definitions() -> LdtkProjectDefinitions
-
-pub fn empty_ldtk_tileset_rect() -> LdtkTilesetRect
 
 pub fn insert_ldtk_entity_tile_sprite(LdtkEntitySpawnedEvent, zindex? : Int32) -> Bool
 
@@ -222,8 +202,6 @@ pub fn ldtk_level_selection_indices(Int32, Int32) -> LdtkLevelSelection
 pub fn ldtk_level_selection_uid(Int32) -> LdtkLevelSelection
 
 pub fn ldtk_level_set_equals(LdtkLevelSet, LdtkLevelSet) -> Bool
-
-pub fn ldtk_level_set_from_iids(Array[String]) -> LdtkLevelSet
 
 pub fn ldtk_level_spawn_behavior_world_translation(Bool) -> LdtkLevelSpawnBehavior
 
@@ -430,6 +408,7 @@ pub struct LdtkEntityReference {
   world_iid : String?
   layer_iid : String?
 }
+pub fn LdtkEntityReference::LdtkEntityReference() -> Self
 
 pub struct LdtkEntitySpawnedEvent {
   world_entity : @ecs.Entity
@@ -550,6 +529,7 @@ pub struct LdtkIntGridPhysicsSettings {
   collision_filter : @collision.CollisionFilter
   sensor_filter : @collision.CollisionFilter
 }
+pub fn LdtkIntGridPhysicsSettings::LdtkIntGridPhysicsSettings() -> Self
 pub fn LdtkIntGridPhysicsSettings::matches(Self, String, Int32) -> Bool
 
 #derive(Eq, @debug.Debug)
@@ -649,6 +629,7 @@ pub struct LdtkLevel {
   field_instances : Array[LdtkFieldInstance]
   layer_instances : Array[LdtkLayerInstance]
 }
+pub fn LdtkLevel::LdtkLevel() -> Self
 pub fn LdtkLevel::field(Self, String) -> LdtkFieldInstance?
 pub fn LdtkLevel::field_bool(Self, String) -> Bool?
 pub fn LdtkLevel::field_bool_array(Self, String) -> Array[Bool]?
@@ -730,6 +711,7 @@ pub fn LdtkLevelSelection::is_match(Self, LdtkLevelIndices, LdtkLevel) -> Bool
 pub struct LdtkLevelSet {
   iids : Array[String]
 }
+pub fn LdtkLevelSet::LdtkLevelSet(Array[String]) -> Self
 pub fn LdtkLevelSet::contains(Self, String) -> Bool
 pub fn LdtkLevelSet::to_array(Self) -> Array[String]
 
@@ -761,6 +743,7 @@ pub struct LdtkProject {
   levels : Array[LdtkLevel]
   worlds : Array[LdtkWorld]
 }
+pub fn LdtkProject::LdtkProject() -> Self
 pub fn LdtkProject::entity_definition_by_identifier(Self, String) -> LdtkEntityDefinition?
 pub fn LdtkProject::entity_definition_by_uid(Self, Int32) -> LdtkEntityDefinition?
 pub fn LdtkProject::enum_definition_by_identifier(Self, String) -> LdtkEnumDefinition?
@@ -792,6 +775,7 @@ pub struct LdtkProjectDefinitions {
   enums : Array[LdtkEnumDefinition]
   external_enums : Array[LdtkEnumDefinition]
 }
+pub fn LdtkProjectDefinitions::LdtkProjectDefinitions() -> Self
 
 pub struct LdtkRespawn {
   requested : Bool
@@ -803,10 +787,12 @@ pub struct LdtkSettings {
   int_grid_rendering : LdtkIntGridRendering
   spawn_exclusions : LdtkSpawnExclusions
 }
+pub fn LdtkSettings::LdtkSettings() -> Self
 
 pub struct LdtkSpawnExclusions {
   layer_identifiers : Array[String]
 }
+pub fn LdtkSpawnExclusions::LdtkSpawnExclusions() -> Self
 pub fn LdtkSpawnExclusions::excludes_layer(Self, String) -> Bool
 
 pub struct LdtkSpawnedEntityInstance {
@@ -916,6 +902,7 @@ pub struct LdtkTilesetRect {
   w : Int32
   h : Int32
 }
+pub fn LdtkTilesetRect::LdtkTilesetRect() -> Self
 
 pub struct LdtkWorld {
   iid : String
@@ -948,6 +935,7 @@ pub struct LdtkWorldSpawnSettings {
   entity_hook : ((LdtkEntitySpawnedEvent) -> Unit)?
   int_grid_cell_hook : ((LdtkIntGridCellSpawnedEvent) -> Unit)?
 }
+pub fn LdtkWorldSpawnSettings::LdtkWorldSpawnSettings() -> Self
 
 pub struct LdtkWorldSpawnedEvent {
   world_entity : @ecs.Entity

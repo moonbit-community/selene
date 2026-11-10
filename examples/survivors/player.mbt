@@ -125,7 +125,7 @@ fn register_sprite_animation_node(
 }
 
 ///|
-fn create_player_animation_controller(
+fn PlayerAnimationController::PlayerAnimationController(
   entity : @ecs.Entity,
 ) -> PlayerAnimationController {
   let graph = @animation.AnimationGraph()
@@ -173,7 +173,7 @@ fn play_player_animation_state(
 ///|
 fn add_player() -> Unit {
   let entity = game_state().player_entity
-  let animation_controller = create_player_animation_controller(entity)
+  let animation_controller = PlayerAnimationController(entity)
   player_animation_controllers().set(entity, animation_controller)
   @sprite.sprites().set(
     entity,
@@ -190,8 +190,8 @@ fn add_player() -> Unit {
   @physics2d.linear_velocities().set(entity, Vec2(0.0, 0.0))
   @physics2d.colliders().set(
     entity,
-    @physics2d.collider(
-      @physics2d.collision_filter(player_collision_group, [wall_collision_group]),
+    @physics2d.Collider(
+      @physics2d.CollisionFilter(player_collision_group, [wall_collision_group]),
     ),
   )
   @physics2d.shapes().set(

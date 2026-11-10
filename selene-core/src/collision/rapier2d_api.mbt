@@ -82,7 +82,7 @@ pub fn raycast(
   direction : @math.Vec2,
   max_toi~ : Double = 1000.0,
   solid~ : Bool = true,
-  query_filter~ : SpatialQueryFilter = SpatialQueryFilter::default(),
+  query_filter~ : SpatialQueryFilter = SpatialQueryFilter(),
 ) -> RaycastHit? {
   if vec2_length_squared(direction) <= EPSILON {
     return None
@@ -127,7 +127,7 @@ pub fn shape_cast(
   direction~ : @math.Vec2 = Vec2(0.0, -1.0),
   max_toi~ : Double = 1000.0,
   stop_at_penetration~ : Bool = false,
-  query_filter~ : SpatialQueryFilter = SpatialQueryFilter::default(),
+  query_filter~ : SpatialQueryFilter = SpatialQueryFilter(),
 ) -> ShapeCastHit? {
   if vec2_length_squared(direction) <= EPSILON {
     return None
@@ -167,7 +167,7 @@ pub fn shape_cast(
 ///|
 pub fn intersect_point(
   point : @math.Vec2,
-  query_filter~ : SpatialQueryFilter = SpatialQueryFilter::default(),
+  query_filter~ : SpatialQueryFilter = SpatialQueryFilter(),
 ) -> Array[@ecs.Entity] {
   refresh_query_world()
   let query = make_query_pipeline(query_filter)
@@ -185,7 +185,7 @@ pub fn intersect_shape(
   shape : CollisionShape,
   origin : @math.Vec2,
   rotation~ : Double = 0.0,
-  query_filter~ : SpatialQueryFilter = SpatialQueryFilter::default(),
+  query_filter~ : SpatialQueryFilter = SpatialQueryFilter(),
 ) -> Array[@ecs.Entity] {
   guard collision_shape_to_rapier_shape(shape)
     is Some((rapier_shape, translation)) else {

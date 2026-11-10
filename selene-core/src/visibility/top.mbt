@@ -48,7 +48,7 @@ pub fn render_layers() -> @ecs.ComponentStore[RenderLayers] {
 }
 
 ///|
-pub fn default_render_layers() -> RenderLayers {
+pub fn RenderLayers::RenderLayers() -> RenderLayers {
   { mask: 1U, }
 }
 
@@ -73,7 +73,7 @@ pub fn matches(lhs : RenderLayers, rhs : RenderLayers) -> Bool {
 
 ///|
 pub fn entity_render_layers(entity : @ecs.Entity) -> RenderLayers {
-  render_layers().get(entity).unwrap_or(default_render_layers())
+  render_layers().get(entity).unwrap_or(RenderLayers())
 }
 
 ///|

@@ -237,8 +237,8 @@ fn shoot_weapon_bullet(
       offset=Vec2(-bullet_hitbox_size / 2.0, -bullet_hitbox_size / 2.0),
     ),
   )
-  let area = @physics2d.sensor(
-    @physics2d.collision_filter(bullet_collision_group, [
+  let area = @physics2d.Area(
+    @physics2d.CollisionFilter(bullet_collision_group, [
       enemy_collision_group, wall_collision_group,
     ]),
   )

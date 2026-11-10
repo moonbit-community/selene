@@ -14,8 +14,6 @@ pub fn in_set(SystemSet) -> SystemOrdering
 
 pub fn merge(SystemOrdering, SystemOrdering) -> SystemOrdering
 
-pub fn named(String) -> SystemSet
-
 // Errors
 
 // Types and methods

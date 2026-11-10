@@ -326,8 +326,8 @@ if @inputs.is_just_pressed(@inputs.ArrowUp) && @physics2d.is_grounded(player) {
 为了让玩家不会穿透障碍物，需要配置碰撞组、形状和碰撞体：
 
 ```moonbit
-let terrain_collision_group = @physics2d.collision_group()
-let player_collision_group = @physics2d.collision_group()
+let terrain_collision_group = @physics2d.CollisionGroup()
+let player_collision_group = @physics2d.CollisionGroup()
 
 @physics2d.shapes().set(
   player,
@@ -335,8 +335,8 @@ let player_collision_group = @physics2d.collision_group()
 )
 @physics2d.colliders().set(
   player,
-  @physics2d.collider(
-    @physics2d.collision_filter(player_collision_group, [
+  @physics2d.Collider(
+    @physics2d.CollisionFilter(player_collision_group, [
       terrain_collision_group,
     ]),
   ),
@@ -369,8 +369,8 @@ let center_y = target_y.clamp(half_height, session.world_size.y - half_height)
 苹果不会阻挡玩家移动，但会触发“收集”事件。示例中给苹果添加 `Area` 组件，并在系统中检测包含关系：
 
 ```moonbit
-let area = @physics2d.sensor(
-  @physics2d.collision_filter(trigger_collision_group, [
+let area = @physics2d.Area(
+  @physics2d.CollisionFilter(trigger_collision_group, [
     player_collision_group,
   ]),
 )

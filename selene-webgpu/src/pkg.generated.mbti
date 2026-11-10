@@ -124,9 +124,9 @@ pub fn webgpu_last_render3d_timing() -> WebGpuRender3DTimingSnapshot
 
 // Types and methods
 type Audio
+pub fn Audio::Audio(String) -> Self
 pub fn Audio::is_ended(Self) -> Bool
 pub fn Audio::is_paused(Self) -> Bool
-pub fn Audio::new(String) -> Self
 pub fn Audio::pause(Self) -> Unit
 pub fn Audio::play(Self) -> Unit
 pub fn Audio::set_current_time(Self, Double) -> Unit

@@ -17,11 +17,6 @@ pub fn SystemSet::SystemSet(name : String) -> SystemSet {
 }
 
 ///|
-pub fn named(name : String) -> SystemSet {
-  SystemSet(name)
-}
-
-///|
 pub fn in_set(set : SystemSet) -> SystemOrdering {
   { set: Some(set), before: [], after: [], }
 }

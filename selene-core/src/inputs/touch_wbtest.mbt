@@ -67,7 +67,7 @@ fn apply_touch_frame(
   delta : Double,
 ) -> Unit {
   apply_input_snapshot({
-    ..empty_input_snapshot(),
+    ..InputSnapshot(),
     touches: active_touch_map(points),
     touch_changes: changes,
   })
@@ -96,7 +96,7 @@ fn gesture_kind_name_at(index : Int32) -> String {
 
 ///|
 test "input snapshot carries active touches and changes" {
-  apply_input_snapshot(empty_input_snapshot())
+  apply_input_snapshot(InputSnapshot())
   let id = TouchId(7)
   let active : Map[TouchId, TouchPoint] = Map([])
   active.set(id, test_touch_point(id, Vec2(12.0, 24.0), true))
@@ -104,7 +104,7 @@ test "input snapshot carries active touches and changes" {
     test_touch_event(id, Started, Vec2(12.0, 24.0), true),
   ]
   apply_input_snapshot({
-    ..empty_input_snapshot(),
+    ..InputSnapshot(),
     touches: active,
     touch_changes: changes,
   })
@@ -115,18 +115,18 @@ test "input snapshot carries active touches and changes" {
     None => -1
   }
   inspect(primary_id, content="7")
-  apply_input_snapshot(empty_input_snapshot())
+  apply_input_snapshot(InputSnapshot())
 }
 
 ///|
 test "primary touch mirrors mouse left button for compatibility" {
-  apply_input_snapshot(empty_input_snapshot())
+  apply_input_snapshot(InputSnapshot())
   advanced_mouse_system(0.0)
   let id = TouchId(9)
   let active : Map[TouchId, TouchPoint] = Map([])
   active.set(id, test_touch_point(id, Vec2(30.0, 40.0), true))
   apply_input_snapshot({
-    ..empty_input_snapshot(),
+    ..InputSnapshot(),
     touches: active,
     touch_changes: [test_touch_event(id, Started, Vec2(30.0, 40.0), true)],
   })
@@ -134,19 +134,19 @@ test "primary touch mirrors mouse left button for compatibility" {
   inspect(mouse.left_button, content="true")
   inspect(is_mouse_just_pressed(Left), content="true")
   apply_input_snapshot({
-    ..empty_input_snapshot(),
+    ..InputSnapshot(),
     touch_changes: [test_touch_event(id, Ended, Vec2(30.0, 40.0), true)],
   })
   advanced_mouse_system(0.0)
   inspect(mouse.left_button, content="false")
   inspect(is_mouse_just_released(Left), content="true")
-  apply_input_snapshot(empty_input_snapshot())
+  apply_input_snapshot(InputSnapshot())
   advanced_mouse_system(0.0)
 }
 
 ///|
 test "pen contacts preserve their pointer source without mirrored mouse events" {
-  apply_input_snapshot(empty_input_snapshot())
+  apply_input_snapshot(InputSnapshot())
   advanced_mouse_system(0.0)
   clear_touch_state()
   let id = TouchId(12)
@@ -169,7 +169,7 @@ test "pen contacts preserve their pointer source without mirrored mouse events" 
     primary: true,
   }
   apply_input_snapshot({
-    ..empty_input_snapshot(),
+    ..InputSnapshot(),
     touches: active_touch_map([point]),
     touch_changes: [event],
   })
@@ -181,7 +181,7 @@ test "pen contacts preserve their pointer source without mirrored mouse events" 
     pointer_changes_this_frame()[0].id.source == PointerPen,
     content="true",
   )
-  apply_input_snapshot(empty_input_snapshot())
+  apply_input_snapshot(InputSnapshot())
   advanced_mouse_system(0.0)
   advanced_pointer_system(0.0)
   clear_touch_state()
@@ -189,7 +189,7 @@ test "pen contacts preserve their pointer source without mirrored mouse events" 
 
 ///|
 test "mouse produces unified pointer down move and up events" {
-  apply_input_snapshot(empty_input_snapshot())
+  apply_input_snapshot(InputSnapshot())
   last_mouse.pos = @math.Vec2::zero()
   last_mouse.left_button = false
   mouse.pos = Vec2(10.0, 20.0)
@@ -217,7 +217,7 @@ test "mouse produces unified pointer down move and up events" {
   advanced_pointer_system(0.0)
   inspect(pointer_changes_this_frame().length(), content="1")
   inspect(pointer_changes_this_frame()[0].phase == Up, content="true")
-  apply_input_snapshot(empty_input_snapshot())
+  apply_input_snapshot(InputSnapshot())
   advanced_mouse_system(0.0)
   advanced_pointer_system(0.0)
 }

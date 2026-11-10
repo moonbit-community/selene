@@ -94,7 +94,7 @@ fn register_builtin_messages(app : @app.App) -> @app.App {
 
 ///|
 pub fn debug_plugin(app : @app.App) -> @app.App {
-  let render_prepare = @system_set.named("render_prepare")
+  let render_prepare = @system_set.SystemSet("render_prepare")
   let app = add_system(
     app,
     @physics2d.debug_colliders_system,
@@ -114,21 +114,21 @@ pub fn debug_plugin(app : @app.App) -> @app.App {
 ///|
 pub fn default_plugin(app : @app.App) -> @app.App {
   let app = register_builtin_messages(app)
-  let input = @system_set.named("input")
-  let pointer_input = @system_set.named("pointer_input")
-  let ui_input = @system_set.named("ui_input")
-  let touch_controls = @system_set.named("touch_controls")
-  let physics = @system_set.named("physics")
-  let gameplay = @system_set.named("gameplay")
-  let audio = @system_set.named("audio")
-  let time = @system_set.named("time")
-  let animation = @system_set.named("animation")
-  let transform = @system_set.named("transform")
-  let ui = @system_set.named("ui")
-  let render_extract = @system_set.named("render_extract")
-  let render_prepare = @system_set.named("render_prepare")
-  let touch_controls_render = @system_set.named("touch_controls_render")
-  let render_submit = @system_set.named("render_submit")
+  let input = @system_set.SystemSet("input")
+  let pointer_input = @system_set.SystemSet("pointer_input")
+  let ui_input = @system_set.SystemSet("ui_input")
+  let touch_controls = @system_set.SystemSet("touch_controls")
+  let physics = @system_set.SystemSet("physics")
+  let gameplay = @system_set.SystemSet("gameplay")
+  let audio = @system_set.SystemSet("audio")
+  let time = @system_set.SystemSet("time")
+  let animation = @system_set.SystemSet("animation")
+  let transform = @system_set.SystemSet("transform")
+  let ui = @system_set.SystemSet("ui")
+  let render_extract = @system_set.SystemSet("render_extract")
+  let render_prepare = @system_set.SystemSet("render_prepare")
+  let touch_controls_render = @system_set.SystemSet("touch_controls_render")
+  let render_submit = @system_set.SystemSet("render_submit")
 
   let app = add_system(
     app,
@@ -394,20 +394,20 @@ pub fn default_plugin(app : @app.App) -> @app.App {
 ///|
 pub fn default_3d_plugin(app : @app.App) -> @app.App {
   let app = register_builtin_messages(app)
-  let input = @system_set.named("input")
-  let pointer_input = @system_set.named("pointer_input")
-  let ui_input = @system_set.named("ui_input")
-  let touch_controls = @system_set.named("touch_controls")
-  let physics = @system_set.named("physics3d")
-  let animation = @system_set.named("animation")
-  let transform = @system_set.named("transform")
-  let ui = @system_set.named("ui")
-  let render_extract = @system_set.named("render_extract")
-  let render_prepare = @system_set.named("render_prepare")
-  let touch_controls_render = @system_set.named("touch_controls_render")
-  let render_submit = @system_set.named("render_submit")
-  let audio = @system_set.named("audio")
-  let time = @system_set.named("time")
+  let input = @system_set.SystemSet("input")
+  let pointer_input = @system_set.SystemSet("pointer_input")
+  let ui_input = @system_set.SystemSet("ui_input")
+  let touch_controls = @system_set.SystemSet("touch_controls")
+  let physics = @system_set.SystemSet("physics3d")
+  let animation = @system_set.SystemSet("animation")
+  let transform = @system_set.SystemSet("transform")
+  let ui = @system_set.SystemSet("ui")
+  let render_extract = @system_set.SystemSet("render_extract")
+  let render_prepare = @system_set.SystemSet("render_prepare")
+  let touch_controls_render = @system_set.SystemSet("touch_controls_render")
+  let render_submit = @system_set.SystemSet("render_submit")
+  let audio = @system_set.SystemSet("audio")
+  let time = @system_set.SystemSet("time")
 
   let app = add_system(
     app,

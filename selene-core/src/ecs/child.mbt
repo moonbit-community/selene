@@ -49,16 +49,17 @@ priv struct HierarchyWorldStore {
 let hierarchy_store_key : ResourceKey[HierarchyWorldStore] = ResourceKey()
 
 ///|
-fn new_hierarchy_store(world : World) -> HierarchyWorldStore {
+fn HierarchyWorldStore::HierarchyWorldStore(
+  world : World,
+) -> HierarchyWorldStore {
   { parents: ComponentStore(world), children: ComponentStore(world), }
 }
 
 ///|
 fn hierarchy_store() -> HierarchyWorldStore {
-  hierarchy_store_key.get_or_insert_with(
-    require_current_world(),
-    new_hierarchy_store,
-  )
+  hierarchy_store_key.get_or_insert_with(require_current_world(), world => {
+    HierarchyWorldStore(world)
+  })
 }
 
 ///|

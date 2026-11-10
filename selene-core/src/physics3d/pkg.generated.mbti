@@ -213,7 +213,7 @@ pub(all) struct Damping {
   linear_damping : Double
   angular_damping : Double
 }
-pub fn Damping::default() -> Self
+pub fn Damping::Damping() -> Self
 pub fn Damping::equal(Self, Self) -> Bool
 pub fn Damping::not_equal(Self, Self) -> Bool
 pub fn Damping::to_repr(Self) -> @debug.Repr
@@ -281,7 +281,7 @@ pub(all) struct KinematicCharacterController {
   up : @math.Vec3
   apply_impulses_to_dynamic_bodies : Bool
 }
-pub fn KinematicCharacterController::default() -> Self
+pub fn KinematicCharacterController::KinematicCharacterController() -> Self
 pub impl @ecs.Component for KinematicCharacterController
 
 #derive(Eq, @debug.Debug)
@@ -300,7 +300,7 @@ pub fn KinematicCharacterControllerCollision::to_repr(Self) -> @debug.Repr
 pub(all) struct KinematicCharacterControllerCollisions {
   collisions : Array[KinematicCharacterControllerCollision]
 }
-pub fn KinematicCharacterControllerCollisions::empty() -> Self
+pub fn KinematicCharacterControllerCollisions::KinematicCharacterControllerCollisions() -> Self
 pub fn KinematicCharacterControllerCollisions::equal(Self, Self) -> Bool
 pub fn KinematicCharacterControllerCollisions::not_equal(Self, Self) -> Bool
 pub fn KinematicCharacterControllerCollisions::to_repr(Self) -> @debug.Repr
@@ -327,7 +327,7 @@ pub(all) struct LockedAxes {
   lock_rotation_y : Bool
   lock_rotation_z : Bool
 }
-pub fn LockedAxes::default() -> Self
+pub fn LockedAxes::LockedAxes() -> Self
 pub fn LockedAxes::equal(Self, Self) -> Bool
 pub fn LockedAxes::lock_rotations() -> Self
 pub fn LockedAxes::lock_translations() -> Self
@@ -380,8 +380,8 @@ pub(all) struct QueryFilter {
   exclude_solids : Bool
   body_filter : QueryFilterBody
 }
+pub fn QueryFilter::QueryFilter() -> Self
 pub fn QueryFilter::all() -> Self
-pub fn QueryFilter::default() -> Self
 pub fn QueryFilter::only_dynamic() -> Self
 pub fn QueryFilter::only_fixed() -> Self
 pub fn QueryFilter::only_kinematic() -> Self

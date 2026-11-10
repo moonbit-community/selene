@@ -32,7 +32,7 @@ fn add_background(size : @math.Vec2) -> Unit {
 fn add_border(size : @math.Vec2) -> Unit {
   fn add_one_border(pos : @math.Vec2, size : @math.Vec2) -> Unit {
     let entity = spawn_survivors_entity()
-    let collider = @physics2d.collider(
+    let collider = @physics2d.Collider(
       @physics2d.CollisionFilter::empty(wall_collision_group),
     )
     @physics2d.colliders().set(entity, collider)

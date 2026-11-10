@@ -343,7 +343,7 @@ pub(all) struct RenderFrame3D {
 }
 
 ///|
-pub fn default_texture_sampler3d() -> TextureSampler3D {
+pub fn TextureSampler3D::TextureSampler3D() -> TextureSampler3D {
   {
     wrap_u: Repeat,
     wrap_v: Repeat,
@@ -354,7 +354,7 @@ pub fn default_texture_sampler3d() -> TextureSampler3D {
 }
 
 ///|
-pub fn default_texture_transform3d() -> TextureTransform3D {
+pub fn TextureTransform3D::TextureTransform3D() -> TextureTransform3D {
   { offset: @math.Vec2::zero(), scale: Vec2(1.0, 1.0), rotation: 0.0, }
 }
 
@@ -373,17 +373,17 @@ pub fn apply_texture_transform3d(
 }
 
 ///|
-pub fn texture_binding3d(
+pub fn TextureBinding3D::TextureBinding3D(
   image : ImageHandle,
   texcoord_set~ : Int32 = 0,
-  sampler~ : TextureSampler3D = default_texture_sampler3d(),
-  transform~ : TextureTransform3D = default_texture_transform3d(),
+  sampler~ : TextureSampler3D = TextureSampler3D(),
+  transform~ : TextureTransform3D = TextureTransform3D(),
 ) -> TextureBinding3D {
   { image, sampler, texcoord_set, transform, }
 }
 
 ///|
-pub fn cubemap_faces3d(
+pub fn CubemapFaces3D::CubemapFaces3D(
   positive_x : ImageHandle,
   negative_x : ImageHandle,
   positive_y : ImageHandle,
@@ -400,7 +400,7 @@ pub fn cubemap_asset_six_faces(faces : CubemapFaces3D) -> CubemapAsset3D {
 }
 
 ///|
-pub fn skybox3d(
+pub fn Skybox3D::Skybox3D(
   cubemap : CubemapHandle,
   brightness~ : Double = 1.0,
   rotation~ : @math.Quat = @math.Quat::identity(),
@@ -417,7 +417,7 @@ pub fn skybox3d(
 }
 
 ///|
-pub fn empty_render_frame3d() -> RenderFrame3D {
+pub fn RenderFrame3D::RenderFrame3D() -> RenderFrame3D {
   {
     camera: None,
     clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0, },
@@ -428,23 +428,23 @@ pub fn empty_render_frame3d() -> RenderFrame3D {
     point_lights: [],
     spot_lights: [],
     ambient_light: None,
-    directional_shadow_map_size: default_directional_light_shadow_map3d().size,
-    point_shadow_map_size: default_point_light_shadow_map3d().size,
+    directional_shadow_map_size: DirectionalLightShadowMap3D().size,
+    point_shadow_map_size: PointLightShadowMap3D().size,
   }
 }
 
 ///|
-pub fn default_directional_light_shadow_map3d() -> DirectionalLightShadowMap3D {
+pub fn DirectionalLightShadowMap3D::DirectionalLightShadowMap3D() -> DirectionalLightShadowMap3D {
   { size: 2048, }
 }
 
 ///|
-pub fn default_point_light_shadow_map3d() -> PointLightShadowMap3D {
+pub fn PointLightShadowMap3D::PointLightShadowMap3D() -> PointLightShadowMap3D {
   { size: 1024, }
 }
 
 ///|
-pub fn default_cascade_shadow_config_builder3d() -> CascadeShadowConfigBuilder3D {
+pub fn CascadeShadowConfigBuilder3D::CascadeShadowConfigBuilder3D() -> CascadeShadowConfigBuilder3D {
   {
     num_cascades: 4,
     minimum_distance: 0.1,
@@ -505,12 +505,12 @@ pub fn build_cascade_shadow_config3d(
 }
 
 ///|
-pub fn default_cascade_shadow_config3d() -> CascadeShadowConfig3D {
-  build_cascade_shadow_config3d(default_cascade_shadow_config_builder3d())
+pub fn CascadeShadowConfig3D::CascadeShadowConfig3D() -> CascadeShadowConfig3D {
+  build_cascade_shadow_config3d(CascadeShadowConfigBuilder3D())
 }
 
 ///|
-pub fn default_directional_light3d() -> DirectionalLight3D {
+pub fn DirectionalLight3D::DirectionalLight3D() -> DirectionalLight3D {
   {
     direction: Vec3(0.0, 0.0, -1.0),
     color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
@@ -519,12 +519,12 @@ pub fn default_directional_light3d() -> DirectionalLight3D {
     // Match Bevy's current defaults for directional shadow bias tuning.
     shadow_depth_bias: 0.02,
     shadow_normal_bias: 1.8,
-    cascade_shadow_config: default_cascade_shadow_config3d(),
+    cascade_shadow_config: CascadeShadowConfig3D(),
   }
 }
 
 ///|
-pub fn default_point_light3d() -> PointLight3D {
+pub fn PointLight3D::PointLight3D() -> PointLight3D {
   {
     color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
     intensity: 1.0,
@@ -538,7 +538,7 @@ pub fn default_point_light3d() -> PointLight3D {
 }
 
 ///|
-pub fn default_spot_light3d() -> SpotLight3D {
+pub fn SpotLight3D::SpotLight3D() -> SpotLight3D {
   {
     direction: Vec3(0.0, 0.0, -1.0),
     color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
@@ -555,7 +555,7 @@ pub fn default_spot_light3d() -> SpotLight3D {
 }
 
 ///|
-pub fn default_standard_material3d() -> StandardMaterial3D {
+pub fn StandardMaterial3D::StandardMaterial3D() -> StandardMaterial3D {
   {
     base_color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
     base_color_texture: None,

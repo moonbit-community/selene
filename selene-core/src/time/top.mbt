@@ -11,7 +11,7 @@ priv struct TimeState {
 }
 
 ///|
-fn new_time_state() -> TimeState {
+fn TimeState::TimeState() -> TimeState {
   {
     raw_delta: 0.0,
     delta: 0.0,
@@ -33,23 +33,14 @@ fn time_state() -> TimeState {
 pub fn initialize(world : @ecs.World) -> Unit {
   let state : TimeState? = world.get_resource()
   if state is None {
-    world.insert_resource(new_time_state())
-  }
-}
-
-///|
-fn non_negative(value : Double) -> Double {
-  if value < 0.0 {
-    0.0
-  } else {
-    value
+    world.insert_resource(TimeState())
   }
 }
 
 ///|
 pub fn begin_frame(raw_delta : Double) -> Unit {
   let state = time_state()
-  let safe_raw = non_negative(raw_delta)
+  let safe_raw = @cmp.maximum(0.0, raw_delta)
   let scaled = safe_raw * state.scale
   state.raw_delta = safe_raw
   state.frame_delta = scaled
@@ -76,7 +67,7 @@ pub fn fixed_delta() -> Double {
 ///|
 pub fn set_delta(delta : Double) -> Unit {
   let state = time_state()
-  state.delta = non_negative(delta)
+  state.delta = @cmp.maximum(0.0, delta)
 }
 
 ///|
@@ -88,7 +79,7 @@ pub fn use_frame_delta() -> Unit {
 ///|
 pub fn use_fixed_delta(delta : Double) -> Unit {
   let state = time_state()
-  let safe = non_negative(delta)
+  let safe = @cmp.maximum(0.0, delta)
   state.fixed_delta = safe
   state.delta = safe
 }

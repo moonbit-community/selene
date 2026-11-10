@@ -424,11 +424,6 @@ pub fn OverflowClipMargin::with_margin(
 }
 
 ///|
-pub fn default_overflow_clip_margin() -> OverflowClipMargin {
-  OverflowClipMargin::content_box()
-}
-
-///|
 #derive(Eq, Debug)
 #selene.component
 pub(all) struct Node {
@@ -499,7 +494,7 @@ pub fn Node::Node(
   column_gap~ : Double = 0.0,
   overflow_x~ : Overflow = Visible,
   overflow_y~ : Overflow = Visible,
-  overflow_clip_margin~ : OverflowClipMargin = default_overflow_clip_margin(),
+  overflow_clip_margin~ : OverflowClipMargin = OverflowClipMargin::content_box(),
   flex_grow~ : Double = 0.0,
   flex_shrink~ : Double = 1.0,
   active~ : Bool = true,
@@ -578,7 +573,7 @@ pub fn Node::absolute(
   column_gap~ : Double = 0.0,
   overflow_x~ : Overflow = Visible,
   overflow_y~ : Overflow = Visible,
-  overflow_clip_margin~ : OverflowClipMargin = default_overflow_clip_margin(),
+  overflow_clip_margin~ : OverflowClipMargin = OverflowClipMargin::content_box(),
   active~ : Bool = true,
 ) -> Node {
   let (width, height) = if size[X] >= 0.0 && size[Y] >= 0.0 {
@@ -804,16 +799,17 @@ priv struct UiModelWorldStore {
 let ui_model_world_store_key : @ecs.ResourceKey[UiModelWorldStore] = ResourceKey()
 
 ///|
-fn new_ui_model_world_store(world : @ecs.World) -> UiModelWorldStore {
+fn UiModelWorldStore::UiModelWorldStore(
+  world : @ecs.World,
+) -> UiModelWorldStore {
   { tree_orders: ComponentStore(world), ui_stack_entities: [], }
 }
 
 ///|
 fn ui_model_world_store() -> UiModelWorldStore {
-  ui_model_world_store_key.get_or_insert_with(
-    @ecs.require_current_world(),
-    new_ui_model_world_store,
-  )
+  ui_model_world_store_key.get_or_insert_with(@ecs.require_current_world(), world => {
+    UiModelWorldStore(world)
+  })
 }
 
 ///|

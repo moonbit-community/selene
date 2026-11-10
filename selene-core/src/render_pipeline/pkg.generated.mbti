@@ -7,9 +7,6 @@ import {
 }
 
 // Values
-pub fn empty_asset_sync3d() -> RenderAssetSync3D
-
-pub fn empty_render_frame() -> RenderFrame
 
 // Errors
 
@@ -24,12 +21,14 @@ pub(all) struct RenderAssetSync3D {
   image_releases : Array[@render3d_types.ImageHandle]
   cubemap_releases : Array[@render3d_types.CubemapHandle]
 }
+pub fn RenderAssetSync3D::RenderAssetSync3D() -> Self
 
 pub(all) struct RenderFrame {
   frame2d : @render2d_types.RenderFrame2D
   frame3d : @render3d_types.RenderFrame3D
   assets3d : RenderAssetSync3D
 }
+pub fn RenderFrame::RenderFrame() -> Self
 
 // Type aliases
 

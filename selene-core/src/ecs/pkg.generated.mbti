@@ -40,10 +40,6 @@ pub fn run_schedule(World, (World) -> Unit) -> Unit raise ScheduleError
 
 pub fn set_current_world(World) -> Unit
 
-pub fn[T] with_component(ComponentStore[T]) -> With[T]
-
-pub fn[T] without_component(ComponentStore[T]) -> Without[T]
-
 // Errors
 pub(all) suberror ScheduleError {
   ReentrantSchedule
@@ -178,11 +174,13 @@ pub fn[T] SpawnBundle::spawn(Self[T], World, T) -> Entity
 pub(all) struct With[T] {
   storage : ComponentStore[T]
 }
+pub fn[T] With::With(ComponentStore[T]) -> Self[T]
 pub fn[T] With::to_filter(Self[T]) -> EntityFilter
 
 pub(all) struct Without[T] {
   storage : ComponentStore[T]
 }
+pub fn[T] Without::Without(ComponentStore[T]) -> Self[T]
 pub fn[T] Without::to_filter(Self[T]) -> EntityFilter
 
 pub struct World {

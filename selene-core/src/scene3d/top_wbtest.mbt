@@ -76,7 +76,7 @@ fn scene3d_test_texture_sources() -> (
   Array[TextureSourceTemplate?],
   Array[@render3d.ImageHandle],
 ) {
-  let sampler = @render3d.default_texture_sampler3d()
+  let sampler = @render3d.TextureSampler3D()
   let handles = [
     @render3d.register_image_asset({ path: "wbtest://image0", }),
     @render3d.register_image_asset({ path: "wbtest://image1", }),
@@ -431,7 +431,7 @@ test "instantiate_scene_instance installs animation components without autoplay"
   let scene = @render3d.register_scene_path("wbtest://animation-scene")
   let clip = @animation.AnimationClip("idle")
   let clip_handle = @animation.register_animation_clip_asset(clip)
-  let template = empty_scene_template()
+  let template = SceneTemplate()
   template.animations.set("idle", clip_handle)
   scene_templates.set(scene, template)
   scene_paths.set(scene, "wbtest://animation-scene")

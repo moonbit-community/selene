@@ -91,11 +91,11 @@ pub let tiled_collider_spawned_event_bus : @event.Events[
 ] = Events()
 
 ///|
-let tiled_default_physics_group : @physics2d.CollisionGroup = @physics2d.collision_group()
+let tiled_default_physics_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup()
 
 ///|
-pub fn default_tiled_physics_settings() -> TiledPhysicsSettings {
-  let filter = @physics2d.all_collision_layers(tiled_default_physics_group)
+pub fn TiledPhysicsSettings::TiledPhysicsSettings() -> TiledPhysicsSettings {
+  let filter = @physics2d.CollisionFilter::all(tiled_default_physics_group)
   {
     objects_filter: All,
     tiles_layer_filter: All,
@@ -444,9 +444,9 @@ fn spawn_tiled_physics_spec(
     settings.collision_filter
   }
   if spec.sensor {
-    @physics2d.areas().set(collider_entity, @physics2d.new_sensor(filter))
+    @physics2d.areas().set(collider_entity, @physics2d.Area(filter))
   } else {
-    @physics2d.colliders().set(collider_entity, @physics2d.collider(filter))
+    @physics2d.colliders().set(collider_entity, @physics2d.Collider(filter))
   }
   tiled_apply_physics_properties(collider_entity, spec.sensor, spec.properties)
   @physics2d.shapes().set(collider_entity, spec.shape)

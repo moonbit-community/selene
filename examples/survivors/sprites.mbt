@@ -26,7 +26,7 @@ priv struct SpriteAnimationDef {
 }
 
 ///|
-fn atlas_animation(
+fn SpriteAnimationDef::SpriteAnimationDef(
   path : String,
   frame_count : Int32,
   size : @math.Vec2,
@@ -87,7 +87,7 @@ fn static_region_sprite(
 }
 
 ///|
-let player_idle_right_animation : SpriteAnimationDef = atlas_animation(
+let player_idle_right_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/whiteboy/idle.png",
   4,
   Vec2(PLAYER_SIZE, PLAYER_SIZE),
@@ -96,7 +96,7 @@ let player_idle_right_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let player_idle_left_animation : SpriteAnimationDef = atlas_animation(
+let player_idle_left_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/whiteboy/idle.png",
   4,
   Vec2(PLAYER_SIZE, PLAYER_SIZE),
@@ -106,7 +106,7 @@ let player_idle_left_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let player_idle_up_animation : SpriteAnimationDef = atlas_animation(
+let player_idle_up_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/whiteboy/idle.png",
   4,
   Vec2(PLAYER_SIZE, PLAYER_SIZE),
@@ -115,7 +115,7 @@ let player_idle_up_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let player_idle_down_animation : SpriteAnimationDef = atlas_animation(
+let player_idle_down_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/whiteboy/idle.png",
   4,
   Vec2(PLAYER_SIZE, PLAYER_SIZE),
@@ -124,7 +124,7 @@ let player_idle_down_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let player_run_right_animation : SpriteAnimationDef = atlas_animation(
+let player_run_right_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/whiteboy/run.png",
   8,
   Vec2(PLAYER_SIZE, PLAYER_SIZE),
@@ -133,7 +133,7 @@ let player_run_right_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let player_run_left_animation : SpriteAnimationDef = atlas_animation(
+let player_run_left_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/whiteboy/run.png",
   8,
   Vec2(PLAYER_SIZE, PLAYER_SIZE),
@@ -143,7 +143,7 @@ let player_run_left_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let player_run_down_animation : SpriteAnimationDef = atlas_animation(
+let player_run_down_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/whiteboy/run.png",
   8,
   Vec2(PLAYER_SIZE, PLAYER_SIZE),
@@ -152,7 +152,7 @@ let player_run_down_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let player_run_up_animation : SpriteAnimationDef = atlas_animation(
+let player_run_up_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/whiteboy/run.png",
   8,
   Vec2(PLAYER_SIZE, PLAYER_SIZE),
@@ -174,7 +174,7 @@ fn grass_sprite() -> @sprite.Sprite {
 let background_picture = "assets/survivors/tilesets/grass.png"
 
 ///|
-let creeper_right_animation : SpriteAnimationDef = atlas_animation(
+let creeper_right_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/enemy/Creeper.png",
   4,
   Vec2(16.0, 24.0),
@@ -182,7 +182,7 @@ let creeper_right_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let creeper_left_animation : SpriteAnimationDef = atlas_animation(
+let creeper_left_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/enemy/Creeper.png",
   4,
   Vec2(16.0, 24.0),
@@ -191,7 +191,7 @@ let creeper_left_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let icecream_right_animation : SpriteAnimationDef = atlas_animation(
+let icecream_right_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/enemy/Icecream.png",
   4,
   Vec2(16.0, 24.0),
@@ -199,7 +199,7 @@ let icecream_right_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let icecream_left_animation : SpriteAnimationDef = atlas_animation(
+let icecream_left_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/enemy/Icecream.png",
   4,
   Vec2(16.0, 24.0),
@@ -208,7 +208,7 @@ let icecream_left_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let orc_right_animation : SpriteAnimationDef = atlas_animation(
+let orc_right_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/enemy/Orc.png",
   4,
   Vec2(16.0, 24.0),
@@ -216,7 +216,7 @@ let orc_right_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let orc_left_animation : SpriteAnimationDef = atlas_animation(
+let orc_left_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/enemy/Orc.png",
   4,
   Vec2(16.0, 24.0),
@@ -225,7 +225,7 @@ let orc_left_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let skull_right_animation : SpriteAnimationDef = atlas_animation(
+let skull_right_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/enemy/Skull.png",
   4,
   Vec2(16.0, 24.0),
@@ -233,7 +233,7 @@ let skull_right_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let skull_left_animation : SpriteAnimationDef = atlas_animation(
+let skull_left_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/enemy/Skull.png",
   4,
   Vec2(16.0, 24.0),
@@ -242,7 +242,7 @@ let skull_left_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let devil_right_animation : SpriteAnimationDef = atlas_animation(
+let devil_right_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/enemy/Devil.png",
   4,
   Vec2(16.0, 24.0),
@@ -250,7 +250,7 @@ let devil_right_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let devil_left_animation : SpriteAnimationDef = atlas_animation(
+let devil_left_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/enemy/Devil.png",
   4,
   Vec2(16.0, 24.0),
@@ -259,7 +259,7 @@ let devil_left_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let pirate_right_animation : SpriteAnimationDef = atlas_animation(
+let pirate_right_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/enemy/Pirate.png",
   4,
   Vec2(16.0, 24.0),
@@ -267,7 +267,7 @@ let pirate_right_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let pirate_left_animation : SpriteAnimationDef = atlas_animation(
+let pirate_left_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/enemy/Pirate.png",
   4,
   Vec2(16.0, 24.0),
@@ -276,7 +276,7 @@ let pirate_left_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let teleman_right_animation : SpriteAnimationDef = atlas_animation(
+let teleman_right_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/enemy/Teleman.png",
   4,
   Vec2(16.0, 24.0),
@@ -284,7 +284,7 @@ let teleman_right_animation : SpriteAnimationDef = atlas_animation(
 )
 
 ///|
-let teleman_left_animation : SpriteAnimationDef = atlas_animation(
+let teleman_left_animation : SpriteAnimationDef = SpriteAnimationDef(
   "assets/survivors/enemy/Teleman.png",
   4,
   Vec2(16.0, 24.0),

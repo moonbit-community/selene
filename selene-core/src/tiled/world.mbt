@@ -94,16 +94,16 @@ pub fn tiled_world_map_instances() -> @ecs.ComponentStore[TiledWorldMapInstance]
 }
 
 ///|
-pub fn empty_tiled_world() -> TiledWorld {
+pub fn TiledWorld::TiledWorld() -> TiledWorld {
   { only_show_adjacent_maps: false, maps: [], patterns: [], source_path: None, }
 }
 
 ///|
-pub fn default_tiled_world_spawn_settings() -> TiledWorldSpawnSettings {
+pub fn TiledWorldSpawnSettings::TiledWorldSpawnSettings() -> TiledWorldSpawnSettings {
   {
     position: @math.Vec2::zero(),
     map_z_step: 1000,
-    map_settings: default_tiled_spawn_settings(),
+    map_settings: TiledSpawnSettings(),
     focus_map_path: None,
     chunking: None,
     world_hook: None,
@@ -114,14 +114,10 @@ pub fn default_tiled_world_spawn_settings() -> TiledWorldSpawnSettings {
 ///|
 pub fn load_tiled_world(path : String) -> TiledWorld {
   guard load_tiled_text_document(path) is Some(source) else {
-    return empty_tiled_world()
+    return TiledWorld()
   }
-  let document = @json.parse(source[:]) catch {
-    _ => return empty_tiled_world()
-  }
-  guard json_object(document) is Some(root_object) else {
-    return empty_tiled_world()
-  }
+  let document = @json.parse(source[:]) catch { _ => return TiledWorld() }
+  guard json_object(document) is Some(root_object) else { return TiledWorld() }
   {
     only_show_adjacent_maps: field_bool(root_object, "onlyShowAdjacentMaps").unwrap_or(
       false,
@@ -135,7 +131,7 @@ pub fn load_tiled_world(path : String) -> TiledWorld {
 ///|
 pub fn load_and_spawn_tiled_world(
   path : String,
-  settings~ : TiledWorldSpawnSettings = default_tiled_world_spawn_settings(),
+  settings~ : TiledWorldSpawnSettings = TiledWorldSpawnSettings(),
 ) -> @ecs.Entity {
   spawn_tiled_world(load_tiled_world(path), settings~)
 }
@@ -143,7 +139,7 @@ pub fn load_and_spawn_tiled_world(
 ///|
 pub fn spawn_tiled_world(
   world : TiledWorld,
-  settings~ : TiledWorldSpawnSettings = default_tiled_world_spawn_settings(),
+  settings~ : TiledWorldSpawnSettings = TiledWorldSpawnSettings(),
 ) -> @ecs.Entity {
   let world_entity = @ecs.Entity()
   spawn_tiled_world_root(world_entity, world, settings)
@@ -154,7 +150,7 @@ pub fn spawn_tiled_world(
 pub fn spawn_tiled_world_into_entity(
   root : @ecs.Entity,
   world : TiledWorld,
-  settings~ : TiledWorldSpawnSettings = default_tiled_world_spawn_settings(),
+  settings~ : TiledWorldSpawnSettings = TiledWorldSpawnSettings(),
 ) -> Unit {
   spawn_tiled_world_root(root, world, settings)
 }
@@ -163,7 +159,7 @@ pub fn spawn_tiled_world_into_entity(
 pub fn respawn_tiled_world_into_entity(
   root : @ecs.Entity,
   world : TiledWorld,
-  settings~ : TiledWorldSpawnSettings = default_tiled_world_spawn_settings(),
+  settings~ : TiledWorldSpawnSettings = TiledWorldSpawnSettings(),
 ) -> Unit {
   clear_tiled_children(root)
   clear_tiled_root_components(root)

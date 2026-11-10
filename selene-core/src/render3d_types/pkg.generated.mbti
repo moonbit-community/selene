@@ -15,34 +15,6 @@ pub fn build_cascade_shadow_config3d(CascadeShadowConfigBuilder3D) -> CascadeSha
 
 pub fn cubemap_asset_six_faces(CubemapFaces3D) -> CubemapAsset3D
 
-pub fn cubemap_faces3d(ImageHandle, ImageHandle, ImageHandle, ImageHandle, ImageHandle, ImageHandle) -> CubemapFaces3D
-
-pub fn default_cascade_shadow_config3d() -> CascadeShadowConfig3D
-
-pub fn default_cascade_shadow_config_builder3d() -> CascadeShadowConfigBuilder3D
-
-pub fn default_directional_light3d() -> DirectionalLight3D
-
-pub fn default_directional_light_shadow_map3d() -> DirectionalLightShadowMap3D
-
-pub fn default_point_light3d() -> PointLight3D
-
-pub fn default_point_light_shadow_map3d() -> PointLightShadowMap3D
-
-pub fn default_spot_light3d() -> SpotLight3D
-
-pub fn default_standard_material3d() -> StandardMaterial3D
-
-pub fn default_texture_sampler3d() -> TextureSampler3D
-
-pub fn default_texture_transform3d() -> TextureTransform3D
-
-pub fn empty_render_frame3d() -> RenderFrame3D
-
-pub fn skybox3d(CubemapHandle, brightness? : Double, rotation? : @math.Quat) -> Skybox3D
-
-pub fn texture_binding3d(ImageHandle, texcoord_set? : Int32, sampler? : TextureSampler3D, transform? : TextureTransform3D) -> TextureBinding3D
-
 // Errors
 
 // Types and methods
@@ -76,6 +48,7 @@ pub(all) struct CascadeShadowConfig3D {
   minimum_distance : Double
   overlap_proportion : Double
 }
+pub fn CascadeShadowConfig3D::CascadeShadowConfig3D() -> Self
 pub fn CascadeShadowConfig3D::to_repr(Self) -> @debug.Repr
 
 #derive(Eq, @debug.Debug)
@@ -86,6 +59,7 @@ pub(all) struct CascadeShadowConfigBuilder3D {
   first_cascade_far_bound : Double
   overlap_proportion : Double
 }
+pub fn CascadeShadowConfigBuilder3D::CascadeShadowConfigBuilder3D() -> Self
 pub fn CascadeShadowConfigBuilder3D::equal(Self, Self) -> Bool
 pub fn CascadeShadowConfigBuilder3D::not_equal(Self, Self) -> Bool
 pub fn CascadeShadowConfigBuilder3D::to_repr(Self) -> @debug.Repr
@@ -107,6 +81,7 @@ pub(all) struct CubemapFaces3D {
   positive_z : ImageHandle
   negative_z : ImageHandle
 }
+pub fn CubemapFaces3D::CubemapFaces3D(ImageHandle, ImageHandle, ImageHandle, ImageHandle, ImageHandle, ImageHandle) -> Self
 pub fn CubemapFaces3D::equal(Self, Self) -> Bool
 pub fn CubemapFaces3D::not_equal(Self, Self) -> Bool
 pub fn CubemapFaces3D::to_repr(Self) -> @debug.Repr
@@ -128,12 +103,14 @@ pub(all) struct DirectionalLight3D {
   shadow_normal_bias : Double
   cascade_shadow_config : CascadeShadowConfig3D
 }
+pub fn DirectionalLight3D::DirectionalLight3D() -> Self
 pub impl @ecs.Component for DirectionalLight3D
 
 #derive(Eq, @debug.Debug)
 pub(all) struct DirectionalLightShadowMap3D {
   size : Int32
 }
+pub fn DirectionalLightShadowMap3D::DirectionalLightShadowMap3D() -> Self
 pub fn DirectionalLightShadowMap3D::equal(Self, Self) -> Bool
 pub fn DirectionalLightShadowMap3D::not_equal(Self, Self) -> Bool
 pub fn DirectionalLightShadowMap3D::to_repr(Self) -> @debug.Repr
@@ -246,12 +223,14 @@ pub(all) struct PointLight3D {
   shadow_normal_bias : Double
   shadow_map_near_z : Double
 }
+pub fn PointLight3D::PointLight3D() -> Self
 pub impl @ecs.Component for PointLight3D
 
 #derive(Eq, @debug.Debug)
 pub(all) struct PointLightShadowMap3D {
   size : Int32
 }
+pub fn PointLightShadowMap3D::PointLightShadowMap3D() -> Self
 pub fn PointLightShadowMap3D::equal(Self, Self) -> Bool
 pub fn PointLightShadowMap3D::not_equal(Self, Self) -> Bool
 pub fn PointLightShadowMap3D::to_repr(Self) -> @debug.Repr
@@ -269,6 +248,7 @@ pub(all) struct RenderFrame3D {
   mut directional_shadow_map_size : Int32
   mut point_shadow_map_size : Int32
 }
+pub fn RenderFrame3D::RenderFrame3D() -> Self
 
 pub(all) struct RenderItem3D {
   entity_id : UInt32?
@@ -304,6 +284,7 @@ pub(all) struct Skybox3D {
   brightness : Double
   rotation : @math.Quat
 }
+pub fn Skybox3D::Skybox3D(CubemapHandle, brightness? : Double, rotation? : @math.Quat) -> Self
 pub fn Skybox3D::equal(Self, Self) -> Bool
 pub fn Skybox3D::not_equal(Self, Self) -> Bool
 pub fn Skybox3D::to_repr(Self) -> @debug.Repr
@@ -321,6 +302,7 @@ pub(all) struct SpotLight3D {
   inner_angle : Double
   outer_angle : Double
 }
+pub fn SpotLight3D::SpotLight3D() -> Self
 pub impl @ecs.Component for SpotLight3D
 
 pub(all) struct StandardMaterial3D {
@@ -340,6 +322,7 @@ pub(all) struct StandardMaterial3D {
   double_sided : Bool
   unlit : Bool
 }
+pub fn StandardMaterial3D::StandardMaterial3D() -> Self
 
 #derive(Eq, @debug.Debug)
 pub(all) struct Tangent3D {
@@ -359,6 +342,7 @@ pub(all) struct TextureBinding3D {
   texcoord_set : Int32
   transform : TextureTransform3D
 }
+pub fn TextureBinding3D::TextureBinding3D(ImageHandle, texcoord_set? : Int32, sampler? : TextureSampler3D, transform? : TextureTransform3D) -> Self
 pub fn TextureBinding3D::equal(Self, Self) -> Bool
 pub fn TextureBinding3D::not_equal(Self, Self) -> Bool
 pub fn TextureBinding3D::to_repr(Self) -> @debug.Repr
@@ -380,6 +364,7 @@ pub(all) struct TextureSampler3D {
   mag_filter : TextureFilter3D
   mipmap_filter : TextureFilter3D?
 }
+pub fn TextureSampler3D::TextureSampler3D() -> Self
 pub fn TextureSampler3D::equal(Self, Self) -> Bool
 pub fn TextureSampler3D::not_equal(Self, Self) -> Bool
 pub fn TextureSampler3D::to_repr(Self) -> @debug.Repr
@@ -390,6 +375,7 @@ pub(all) struct TextureTransform3D {
   scale : @math.Vec2
   rotation : Double
 }
+pub fn TextureTransform3D::TextureTransform3D() -> Self
 pub fn TextureTransform3D::equal(Self, Self) -> Bool
 pub fn TextureTransform3D::not_equal(Self, Self) -> Bool
 pub fn TextureTransform3D::to_repr(Self) -> @debug.Repr

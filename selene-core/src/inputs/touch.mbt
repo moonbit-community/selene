@@ -399,7 +399,9 @@ fn push_gesture(
 }
 
 ///|
-fn make_gesture_touch_state(event : TouchEvent) -> GestureTouchState {
+fn GestureTouchState::GestureTouchState(
+  event : TouchEvent,
+) -> GestureTouchState {
   {
     id: event.id,
     start_position: event.position,
@@ -434,7 +436,7 @@ fn update_long_press(delta : Double) -> Unit {
 
 ///|
 fn process_started_touch(event : TouchEvent) -> Unit {
-  gesture_touches.set(event.id, make_gesture_touch_state(event))
+  gesture_touches.set(event.id, GestureTouchState(event))
 }
 
 ///|

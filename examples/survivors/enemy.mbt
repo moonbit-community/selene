@@ -160,7 +160,7 @@ priv struct WaveState {
 }
 
 ///|
-fn new_wave_state() -> WaveState {
+fn WaveState::WaveState() -> WaveState {
   {
     creeper_spawned: 0,
     icecream_spawned: 0,
@@ -179,7 +179,7 @@ fn wave_state() -> WaveState {
 
 ///|
 fn reset_wave_state() -> Unit {
-  @ecs.require_current_world().insert_resource(new_wave_state())
+  @ecs.require_current_world().insert_resource(WaveState())
 }
 
 ///|
@@ -297,8 +297,8 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
         )
         @physics2d.colliders().set(
           enemy,
-          @physics2d.collider(
-            @physics2d.collision_filter(enemy_collision_group, [
+          @physics2d.Collider(
+            @physics2d.CollisionFilter(enemy_collision_group, [
               enemy_collision_group, wall_collision_group,
             ]),
           ),
@@ -554,8 +554,8 @@ fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
     bullet_entity,
     Rect(size=Vec2(4.0, 4.0), offset=Vec2(-2.0, -2.0)),
   )
-  let area = @physics2d.sensor(
-    @physics2d.collision_filter(enemybullet_collision_group, [
+  let area = @physics2d.Area(
+    @physics2d.CollisionFilter(enemybullet_collision_group, [
       player_collision_group, wall_collision_group,
     ]),
   )

@@ -172,8 +172,8 @@ fn configure_player_entity(entity : @ecs.Entity) -> Unit {
   )
   @physics2d.colliders().set(
     entity,
-    @physics2d.collider(
-      @physics2d.collision_filter(player_collision_group, [
+    @physics2d.Collider(
+      @physics2d.CollisionFilter(player_collision_group, [
         terrain_collision_group, trigger_collision_group,
       ]),
     ),
@@ -207,8 +207,8 @@ fn configure_bird_entity(entity : @ecs.Entity) -> Unit {
   )
   @physics2d.colliders().set(
     entity,
-    @physics2d.collider(
-      @physics2d.collision_filter(enemy_collision_group, [
+    @physics2d.Collider(
+      @physics2d.CollisionFilter(enemy_collision_group, [
         terrain_collision_group,
       ]),
     ),
@@ -251,8 +251,8 @@ fn spawn_terrain_collider(pos : @math.Vec2, size : @math.Vec2) -> Unit {
   @physics2d.shapes().set(terrain, Rect(size~, offset=@math.Vec2::zero()))
   @physics2d.colliders().set(
     terrain,
-    @physics2d.collider(
-      @physics2d.collision_filter(terrain_collision_group, [
+    @physics2d.Collider(
+      @physics2d.CollisionFilter(terrain_collision_group, [
         player_collision_group, enemy_collision_group,
       ]),
     ),
@@ -328,8 +328,8 @@ fn configure_flag_entity(entity : @ecs.Entity) -> Unit {
   )
   @physics2d.areas().set(
     entity,
-    @physics2d.sensor(
-      @physics2d.collision_filter(trigger_collision_group, [
+    @physics2d.Area(
+      @physics2d.CollisionFilter(trigger_collision_group, [
         player_collision_group,
       ]),
     ),
@@ -348,8 +348,8 @@ fn configure_apple_entity(entity : @ecs.Entity) -> Unit {
   )
   @physics2d.areas().set(
     entity,
-    @physics2d.sensor(
-      @physics2d.collision_filter(trigger_collision_group, [
+    @physics2d.Area(
+      @physics2d.CollisionFilter(trigger_collision_group, [
         player_collision_group,
       ]),
     ),

@@ -9,7 +9,6 @@ import {
 }
 
 // Values
-pub fn empty_render_frame2d() -> RenderFrame2D
 
 // Errors
 
@@ -78,6 +77,7 @@ pub(all) struct RenderFrame2D {
   mut world_commands : Array[DrawCommand2D]
   mut ui_commands : Array[DrawCommand2D]
 }
+pub fn RenderFrame2D::RenderFrame2D() -> Self
 
 pub(all) struct RenderPass2D {
   camera_entity_id : UInt32?

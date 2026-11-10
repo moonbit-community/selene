@@ -217,7 +217,7 @@ priv struct LitPrimitiveMeshBatch {
 
 ///|
 let last_render3d_submission_stats : Ref[Render3DSubmissionStats] = Ref(
-  empty_render3d_submission_stats(),
+  Render3DSubmissionStats(),
 )
 
 ///|
@@ -248,7 +248,7 @@ let primitive_mesh_resource_last_seen : Map[String, Int32] = Map([])
 let uploaded_primitive_mesh_resources : Map[String, Bool] = Map([])
 
 ///|
-fn empty_render3d_submission_stats() -> Render3DSubmissionStats {
+fn Render3DSubmissionStats::Render3DSubmissionStats() -> Render3DSubmissionStats {
   {
     sections: 0,
     submitted_items: 0,
@@ -887,7 +887,7 @@ fn resolve_render3d_material(
     None => {
       let material = synced_material_assets
         .get(handle)
-        .unwrap_or(@render3d_types.default_standard_material3d())
+        .unwrap_or(@render3d_types.StandardMaterial3D())
       let color = effective_material_color(material)
       let (emissive_r, emissive_g, emissive_b) = color_rgb01(
         material.emissive_color,
@@ -913,7 +913,7 @@ fn resolve_render3d_material(
 pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
   let submit_start = webgpu_now_ms()
   begin_webgpu_resource_frame()
-  let stats = empty_render3d_submission_stats()
+  let stats = Render3DSubmissionStats()
   guard frame.camera is Some(active_camera) else {
     last_render3d_submission_stats.val = stats
     last_render3d_submission_stats_checksum.val = render3d_submission_stats_checksum(
@@ -937,7 +937,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
   configure_scene_lighting(frame, active_camera, aspect)
   begin_3d(active_camera, aspect)
   draw_skybox3d(frame, active_camera)
-  let lit_primitive_batches = new_lit_primitive_mesh_batch_accumulator()
+  let lit_primitive_batches = LitPrimitiveMeshBatchAccumulator()
   let material_cache : Map[
     @render3d_types.MaterialHandle,
     ResolvedRender3DMaterial,
@@ -1329,7 +1329,7 @@ fn begin_webgpu_resource_frame() -> Unit {
 }
 
 ///|
-fn new_lit_primitive_mesh_batch_accumulator() -> LitPrimitiveMeshBatchAccumulator {
+fn LitPrimitiveMeshBatchAccumulator::LitPrimitiveMeshBatchAccumulator() -> LitPrimitiveMeshBatchAccumulator {
   { order: [], indices: Map([]), entries: [], }
 }
 
@@ -1629,7 +1629,7 @@ fn safe_cylinder_slices(slices : Int32) -> Int32 {
 fn _collect_render3d_submission_stats(
   frame : @render3d_types.RenderFrame3D,
 ) -> Render3DSubmissionStats {
-  let stats = empty_render3d_submission_stats()
+  let stats = Render3DSubmissionStats()
   let instanced_lit_buckets : Map[String, Bool] = Map([])
   let instanced_lit_instances : Map[String, Array[Double]] = Map([])
   let instanced_lit_counts : Map[String, Int32] = Map([])
@@ -1642,7 +1642,7 @@ fn _collect_render3d_submission_stats(
     }
     let material = synced_material_assets
       .get(item.material)
-      .unwrap_or(@render3d_types.default_standard_material3d())
+      .unwrap_or(@render3d_types.StandardMaterial3D())
     let texture_bundle = resolve_material_texture_bundle(material)
     let vertex_count = render3d_item_vertex_count(mesh_asset.primitive)
     if vertex_count <= 0 {
@@ -2513,8 +2513,8 @@ fn pack_directional_shadow_metadata3d(
   for idx in 0..<count {
     let light = frame.directional_lights[idx]
     values.push(if light.shadows { 1.0 } else { 0.0 })
-    values.push(non_negative_double(light.shadow_depth_bias))
-    values.push(non_negative_double(light.shadow_normal_bias))
+    values.push(@cmp.maximum(0.0, light.shadow_depth_bias))
+    values.push(@cmp.maximum(0.0, light.shadow_normal_bias))
     values.push(0.0)
   }
   values
@@ -2533,8 +2533,8 @@ fn pack_point_shadow_metadata3d(
   for idx in 0..<count {
     let light = frame.point_lights[idx]
     values.push(if light.shadows { 1.0 } else { 0.0 })
-    values.push(non_negative_double(light.shadow_depth_bias))
-    values.push(non_negative_double(light.shadow_normal_bias))
+    values.push(@cmp.maximum(0.0, light.shadow_depth_bias))
+    values.push(@cmp.maximum(0.0, light.shadow_normal_bias))
   }
   values
 }
@@ -2552,8 +2552,8 @@ fn pack_spot_shadow_metadata3d(
   for idx in 0..<count {
     let light = frame.spot_lights[idx]
     values.push(if light.shadows { 1.0 } else { 0.0 })
-    values.push(non_negative_double(light.shadow_depth_bias))
-    values.push(non_negative_double(light.shadow_normal_bias))
+    values.push(@cmp.maximum(0.0, light.shadow_depth_bias))
+    values.push(@cmp.maximum(0.0, light.shadow_normal_bias))
   }
   values
 }
@@ -2696,15 +2696,6 @@ fn clamp01_double(value : Double) -> Double {
     0.0
   } else if value > 1.0 {
     1.0
-  } else {
-    value
-  }
-}
-
-///|
-fn non_negative_double(value : Double) -> Double {
-  if value < 0.0 {
-    0.0
   } else {
     value
   }
@@ -3028,7 +3019,7 @@ fn resolve_material_texture_uvs(
   match binding {
     Some(binding) =>
       if binding.texcoord_set == texcoord_set &&
-        binding.transform != @render3d_types.default_texture_transform3d() {
+        binding.transform != @render3d_types.TextureTransform3D() {
         uvs.map(fn(uv) {
           @render3d_types.apply_texture_transform3d(binding.transform, uv)
         })

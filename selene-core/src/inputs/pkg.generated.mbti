@@ -29,8 +29,6 @@ pub fn clear_virtual_controls() -> Unit
 
 pub fn connected_gamepads() -> @set.Set[Gamepad]
 
-pub fn empty_input_snapshot() -> InputSnapshot
-
 pub fn first_touch_change(TouchPhase) -> TouchEvent?
 
 pub let gamepad_axis_event_bus : @event.Events[GamepadAxisEvent]
@@ -316,6 +314,7 @@ pub(all) struct InputSnapshot {
   pressed_gamepad_buttons : @set.Set[GamepadButtonInput]
   gamepad_axis_values : Map[GamepadAxisInput, Double]
 }
+pub fn InputSnapshot::InputSnapshot() -> Self
 
 pub struct KeyInputEvent {
   key : Code

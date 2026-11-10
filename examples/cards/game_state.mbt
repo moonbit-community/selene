@@ -90,7 +90,7 @@ priv struct CardsRuntime {
 }
 
 ///|
-fn new_cards_runtime() -> CardsRuntime {
+fn CardsRuntime::CardsRuntime() -> CardsRuntime {
   { entities: [], game: None, click_reader: EventReader(), }
 }
 
@@ -115,7 +115,7 @@ fn reset_cards_runtime() -> Unit {
       ignore(entity.delete())
     }
   }
-  world.insert_resource(new_cards_runtime())
+  world.insert_resource(CardsRuntime())
 }
 
 ///|
@@ -124,13 +124,13 @@ fn game_state() -> GameState {
   if runtime.game is Some(state) {
     return state
   }
-  let state = new_game_state()
+  let state = GameState()
   runtime.game = Some(state)
   state
 }
 
 ///|
-fn new_game_state() -> GameState {
+fn GameState::GameState() -> GameState {
   {
     rand: Rand(),
     deck: [],

@@ -247,7 +247,7 @@ pub struct TiledParallaxLayer {
 }
 
 ///|
-pub fn empty_tiled_map_storage() -> TiledMapStorage {
+pub fn TiledMapStorage::TiledMapStorage() -> TiledMapStorage {
   { layers: Map([]), objects: Map([]), tiles: Map([]), }
 }
 
@@ -318,7 +318,7 @@ pub fn tiled_parallax_layers() -> @ecs.ComponentStore[TiledParallaxLayer] {
 }
 
 ///|
-pub fn default_tiled_spawn_settings() -> TiledSpawnSettings {
+pub fn TiledSpawnSettings::TiledSpawnSettings() -> TiledSpawnSettings {
   {
     position: @math.Vec2::zero(),
     zindex: 0,
@@ -336,7 +336,7 @@ pub fn default_tiled_spawn_settings() -> TiledSpawnSettings {
 ///|
 pub fn load_and_spawn_tiled_map(
   path : String,
-  settings~ : TiledSpawnSettings = default_tiled_spawn_settings(),
+  settings~ : TiledSpawnSettings = TiledSpawnSettings(),
 ) -> @ecs.Entity {
   spawn_tiled_map(load_tiled_map(path), settings~)
 }
@@ -344,7 +344,7 @@ pub fn load_and_spawn_tiled_map(
 ///|
 pub fn spawn_tiled_map(
   map : TiledMap,
-  settings~ : TiledSpawnSettings = default_tiled_spawn_settings(),
+  settings~ : TiledSpawnSettings = TiledSpawnSettings(),
 ) -> @ecs.Entity {
   let root = @ecs.Entity()
   spawn_tiled_map_root(root, map, settings)
@@ -355,7 +355,7 @@ pub fn spawn_tiled_map(
 pub fn spawn_tiled_map_into_entity(
   root : @ecs.Entity,
   map : TiledMap,
-  settings~ : TiledSpawnSettings = default_tiled_spawn_settings(),
+  settings~ : TiledSpawnSettings = TiledSpawnSettings(),
 ) -> Unit {
   spawn_tiled_map_root(root, map, settings)
 }
@@ -364,7 +364,7 @@ pub fn spawn_tiled_map_into_entity(
 pub fn respawn_tiled_map_into_entity(
   root : @ecs.Entity,
   map : TiledMap,
-  settings~ : TiledSpawnSettings = default_tiled_spawn_settings(),
+  settings~ : TiledSpawnSettings = TiledSpawnSettings(),
 ) -> Unit {
   clear_tiled_children(root)
   clear_tiled_root_components(root)
@@ -379,7 +379,7 @@ fn spawn_tiled_map_root(
 ) -> Unit {
   tiled_ecs_set_entity_translation_2d(root, settings.position)
   tiled_map_instances().set(root, { map, })
-  tiled_map_storages().set(root, empty_tiled_map_storage())
+  tiled_map_storages().set(root, TiledMapStorage())
   tiled_set_properties(root, map.properties)
   let map_event = { map_entity: root, map, }
   tiled_map_spawned_event_bus.trigger(map_event, Some(root))
