@@ -39,11 +39,13 @@ See the [README](README.md) for package roles and tutorials.
 The [CI workflow](.github/workflows/build.yaml) defines the required checks.
 `latest` must pass without warnings; `pre-release` may retain deprecation
 warnings while the replacement syntax is unavailable on `latest`.
-If you change `publish.py`, also run:
+If you change `publish.mbtx`, also run:
 
 ```sh
 python3 -m unittest discover -s tests -p 'test_publish.py'
 ```
+
+These tests compile the script and simulate its `moon`, `moonx`, and `git` commands.
 
 ## Generated ECS declarations
 
@@ -59,7 +61,7 @@ For codegen changes targeting the next release, publish a development beta
 before updating consumers. For example:
 
 ```sh
-python3 publish.py 0.40.0-beta1 --codegen-only
+moon run --target wasm publish.mbtx -- 0.40.0-beta1 --codegen-only
 ```
 
 Increment `betaN` for later generator changes; published versions are immutable.
@@ -71,7 +73,7 @@ script checks formatting without rewriting it and does not run `moon info`.
 Compiler checks and tests use `--deny-warn`; any failed command stops the release.
 
 For a stable release, move its notes into `## [x.y.z] - YYYY-MM-DD`, leave an
-empty `Unreleased` section, then run `python3 publish.py x.y.z`. The script
+empty `Unreleased` section, then run `moon run --target wasm publish.mbtx -- x.y.z`. The script
 publishes stable codegen, validates its pinned consumers without warnings,
 and publishes core before WebGPU at the same version. Review and commit the
 updated manifests, dependency pins, and generated files. If publication fails,

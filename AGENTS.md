@@ -3,11 +3,12 @@
 ## Changelog
 - Always update `docs/CHANGELOG.md` and keep `## [Unreleased]` at the top.
 - Use only `Added` / `Changed` / `Fixed` / `Removed`.
-- Before `python3 publish.py x.y.z`, move released items from `Unreleased` into `## [x.y.z] - YYYY-MM-DD`, then keep a new empty `Unreleased`.
+- Before `moon run --target wasm publish.mbtx -- x.y.z`, move released items from `Unreleased` into `## [x.y.z] - YYYY-MM-DD`, then keep a new empty `Unreleased`.
 
-## `publish.py`
-- Stable release: `python3 publish.py x.y.z`, with a matching dated changelog section.
-- Development codegen: `python3 publish.py x.y.z-betaN --codegen-only`, with notes under `Unreleased` and N starting at 1.
+## `publish.mbtx`
+- Run release commands from the repository root.
+- Stable release: `moon run --target wasm publish.mbtx -- x.y.z`, with a matching dated changelog section.
+- Development codegen: `moon run --target wasm publish.mbtx -- x.y.z-betaN --codegen-only`, with notes under `Unreleased` and N starting at 1.
 - Publish stable codegen first, validate its pinned consumers, then publish `selene-core` before `selene-webgpu`. All checks must be warning-free.
 - Follow [CONTRIBUTING.md](CONTRIBUTING.md#release-process) for the release sequence.
 

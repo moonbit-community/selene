@@ -56,7 +56,9 @@ jobs:
 
       - name: Check formatting
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: moon fmt --check
+        run: |
+          moon fmt --check
+          moon fmt publish.mbtx --check
 
       - name: selene-core
         run: |

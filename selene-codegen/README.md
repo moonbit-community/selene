@@ -25,13 +25,13 @@ For a planned `0.40.0` Selene release, publish development generators as
 `0.40.0-beta1`, `0.40.0-beta2`, and so on:
 
 ```sh
-python3 publish.py 0.40.0-beta1 --codegen-only
+moon run --target wasm publish.mbtx -- 0.40.0-beta1 --codegen-only
 ```
 
 This command updates CI, example rules, documentation pins, and generated
 companions after the published executable becomes available. Record these
 development changes under `Unreleased`.
 
-The full `python3 publish.py 0.40.0` release publishes stable codegen first,
+The full `moon run --target wasm publish.mbtx -- 0.40.0` release publishes stable codegen first,
 validates its consumers, then publishes core and WebGPU with the same stable
 version. See the [release process](../CONTRIBUTING.md#release-process).
