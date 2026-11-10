@@ -70,7 +70,7 @@ fn add_grass() -> Unit {
           plan.spawn(
             (
               grass_sprite(),
-              @transform.Spatial(
+              Spatial(
                 @transform.Transform::from_xyz(
                   x.to_double() * 16.0,
                   y.to_double() * 16.0,

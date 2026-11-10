@@ -46,14 +46,14 @@ fn load_level_scene() -> LoadedLevelScene {
       let tile_x = x + offset
       let entity = plan.spawn(
         (
-          @transform.Spatial(
+          Spatial(
             @transform.Transform::from_xyz(
               (tile_x * TERRAIN_TILE_SIZE).to_double(),
               (y * TERRAIN_TILE_SIZE).to_double(),
               0.0,
             ),
           ),
-          @sprite.Sprite(
+          Sprite(
             image=Some(terrain_image),
             rect=Some({
               position: Vec2(atlas_x.to_double(), atlas_y.to_double()),

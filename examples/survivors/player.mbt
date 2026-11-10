@@ -172,9 +172,7 @@ fn spawn_player() -> @ecs.Entity {
         ),
         @physics2d.Velocity(@math.Vec2::zero()),
         @physics2d.Collider(
-          @physics2d.CollisionFilter(player_collision_group, [
-            wall_collision_group,
-          ]),
+          CollisionFilter(player_collision_group, [wall_collision_group]),
         ),
         shape,
       ),

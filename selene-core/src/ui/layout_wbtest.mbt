@@ -374,7 +374,7 @@ test "ui target camera layouts use the camera viewport as screen-space origin" {
   camera_draft.add_to(@camera.camera2ds(), Camera2d())
   camera_draft.add_to(
     @transform.spatials(),
-    @transform.Spatial(
+    Spatial(
       @transform.GlobalTransform::from_transform(
         @transform.Transform::default(),
       ).compute_transform(),

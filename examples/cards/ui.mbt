@@ -333,9 +333,7 @@ fn display_all_cards() -> Unit {
     let card_x = x_base + (j.to_double() - 0.5) * 30.0 - 30
     let card_entity = plan.spawn(
       (
-        @transform.Spatial(
-          @transform.Transform::from_xyz(card_x, y_base, j.to_double()),
-        ),
+        Spatial(@transform.Transform::from_xyz(card_x, y_base, j.to_double())),
         card.to_sprite(),
       ),
     )
@@ -361,7 +359,7 @@ fn display_community_cards() -> Unit {
     let card_x = center_x + (i.to_double() - 2.5) * 30.0 - 15
     let card_entity = plan.spawn(
       (
-        @transform.Spatial(
+        Spatial(
           @transform.Transform::from_xyz(card_x, center_y, (10 + i).to_double()),
         ),
         card.to_sprite(),

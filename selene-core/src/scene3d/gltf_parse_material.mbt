@@ -15,10 +15,10 @@ fn resolve_texture_binding(
   let (texcoord_set, transform) = if texture_transform {
     resolve_texture_transform(texture_object, base_texcoord_set)
   } else {
-    (base_texcoord_set, @render3d.TextureTransform3D())
+    (base_texcoord_set, TextureTransform3D())
   }
   Some(
-    @render3d.TextureBinding3D(
+    TextureBinding3D(
       image_handle,
       texcoord_set~,
       sampler=source.sampler,
@@ -33,11 +33,11 @@ fn resolve_texture_transform(
   fallback_texcoord_set : Int32,
 ) -> (Int32, @render3d.TextureTransform3D) {
   guard field_object(texture_object, "extensions") is Some(extensions) else {
-    return (fallback_texcoord_set, @render3d.TextureTransform3D())
+    return (fallback_texcoord_set, TextureTransform3D())
   }
   guard field_object(extensions, "KHR_texture_transform")
     is Some(transform_object) else {
-    return (fallback_texcoord_set, @render3d.TextureTransform3D())
+    return (fallback_texcoord_set, TextureTransform3D())
   }
   (
     field_int(transform_object, "texCoord").unwrap_or(fallback_texcoord_set),
@@ -255,9 +255,7 @@ fn parse_mesh_templates(
 ) -> Array[MeshSceneTemplate?] {
   guard root_object.get("meshes") is Some(meshes_json) else { return [] }
   guard json_array(meshes_json) is Some(meshes) else { return [] }
-  let default_material = @render3d.register_material_asset(
-    @render3d.StandardMaterial3D(),
-  )
+  let default_material = @render3d.register_material_asset(StandardMaterial3D())
   let templates : Array[MeshSceneTemplate?] = []
   for mesh_json in meshes {
     guard json_object(mesh_json) is Some(mesh_object) else {

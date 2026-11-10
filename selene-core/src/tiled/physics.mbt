@@ -98,7 +98,7 @@ pub let tiled_collider_spawned_event_bus : @event.Events[
 ] = Events()
 
 ///|
-let tiled_default_physics_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup()
+let tiled_default_physics_group : @physics2d.CollisionGroup = CollisionGroup()
 
 ///|
 pub fn TiledPhysicsSettings::TiledPhysicsSettings() -> TiledPhysicsSettings {

@@ -33,7 +33,7 @@ test "schedule rejects reentry and leaves the nested batch queued" {
       @ecs.run_schedule(world, _ => calls.push(99))
       false
     } catch {
-      @ecs.ReentrantSchedule => true
+      ReentrantSchedule => true
       _ => false
     }
     calls.push(1)
@@ -58,7 +58,7 @@ test "schedule rejects streaming and archetype batch queries" {
 
   @ecs.query(world, storage).for_each((_, _) => {
     try @ecs.run_schedule(world, _ => calls.push(99)) catch {
-      @ecs.ActiveQuery => rejected.push(true)
+      ActiveQuery => rejected.push(true)
       _ => rejected.push(false)
     } noraise {
       _ => rejected.push(false)
@@ -73,7 +73,7 @@ test "schedule rejects streaming and archetype batch queries" {
     _,
   ) => {
     try @ecs.run_schedule(world, _ => calls.push(99)) catch {
-      @ecs.ActiveQuery => rejected.push(true)
+      ActiveQuery => rejected.push(true)
       _ => rejected.push(false)
     } noraise {
       _ => rejected.push(false)
@@ -156,7 +156,7 @@ test "timeouts can be cancelled before ticking and within a due batch" {
   let calls = []
   @ecs.set_current_world(world)
   let cancelled = @system.timeout(0.0, () => calls.push(0))
-  @ecs.set_current_world(@ecs.World())
+  @ecs.set_current_world(World())
   assert_true(cancelled.cancel())
   assert_false(cancelled.cancel())
   @ecs.set_current_world(world)

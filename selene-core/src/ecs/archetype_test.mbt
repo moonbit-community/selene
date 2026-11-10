@@ -167,7 +167,7 @@ test "three to five column queries follow new tables and recycled slots" {
   assert_eq(five.get(second), None)
   assert_eq(four.get(second), Some((11, "label", false, 40)))
   assert_eq(three.get(second), Some((11, "label", false)))
-  let foreign = @ecs.commands(@ecs.World()).spawn(())
+  let foreign = @ecs.commands(World()).spawn(())
   assert_eq(foreign.slot_index(), first.slot_index())
   assert_eq(five.get(foreign), None)
 
@@ -184,8 +184,8 @@ test "three to five column queries follow new tables and recycled slots" {
 
 ///|
 test "panic joined queries reject stores from another world" {
-  let own : @ecs.ComponentStore[Int32] = ComponentStore(@ecs.World())
-  let foreign : @ecs.ComponentStore[Int32] = ComponentStore(@ecs.World())
+  let own : @ecs.ComponentStore[Int32] = ComponentStore(World())
+  let foreign : @ecs.ComponentStore[Int32] = ComponentStore(World())
   ignore(@ecs.Query5(own, own, own, own, foreign))
 }
 

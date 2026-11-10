@@ -13,7 +13,7 @@ fn make_sprite_fixture(size : Int32) -> Array[@ecs.Entity] {
     let entity = if i % 4 == 0 {
       world.spawn1(sprite)
     } else {
-      plan.spawn((sprite, @transform.Spatial(pose)))
+      plan.spawn((sprite, Spatial(pose)))
     }
     entities.push(entity)
   }

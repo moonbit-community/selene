@@ -184,13 +184,13 @@ fn setup_camera(config : PerfConfig) -> Unit {
   ignore(
     spawn_perf_entity(
       (
-        @transform.Spatial(@transform.Transform::{
+        @transform.Spatial({
           translation: position,
           rotation: look_at_rotation(position, @math.Vec3::zero()),
           scale: @math.Vec3::one(),
         }),
         @camera3d.Camera3DComponent::{
-          ..@camera3d.Camera3DComponent(),
+          ..Camera3DComponent(),
           clear_color: color(18U, 20U, 26U, 1.0),
           fov_y: 75.0,
           far: 500.0,
@@ -210,7 +210,7 @@ fn setup_lights(config : PerfConfig) -> Unit {
       (
         @transform.Spatial(@transform.Transform::identity()),
         @render3d.DirectionalLight3D::{
-          ..@render3d.DirectionalLight3D(),
+          ..DirectionalLight3D(),
           direction: vec3(-0.35, -0.8, -0.45).normalize(),
           color: color(255U, 245U, 220U, 1.0),
           intensity: 1.8,
@@ -261,7 +261,7 @@ fn material_for_case(case_name : String) -> @render3d.MaterialHandle {
     _ => color(130U, 210U, 145U, 1.0)
   }
   @render3d.register_material_asset({
-    ..@render3d.StandardMaterial3D(),
+    ..StandardMaterial3D(),
     base_color: base,
     roughness: 0.75,
   })
@@ -284,7 +284,7 @@ fn spawn_grid(
     let col = index % side
     let entity = plan.spawn(
       (
-        @transform.Spatial(@transform.Transform::{
+        Spatial({
           translation: vec3(
             col.to_double() * spacing - half,
             0.0,
@@ -293,7 +293,7 @@ fn spawn_grid(
           rotation: @math.Quat::identity(),
           scale: @math.Vec3::one(),
         }),
-        @render3d.Mesh3DRenderer::{
+        {
           mesh: meshes[index % meshes.length()],
           material,
           visible: true,

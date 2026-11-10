@@ -36,7 +36,7 @@ fn spawn_pickable_camera(
   camera_entity_draft.add_to(@camera.camera2ds(), Camera2d())
   camera_entity_draft.add_to(
     @transform.spatials(),
-    @transform.Spatial(
+    Spatial(
       @transform.GlobalTransform::from_transform(
         @transform.Transform::from_xyz(
           viewport.size[X] * 0.5,
@@ -55,14 +55,14 @@ fn spawn_pickable_camera(
 fn spawn_pickable_shape(
   position : @math.Vec2,
   shape : CollisionShape,
-  layers~ : @visibility.RenderLayers = @visibility.RenderLayers(),
+  layers~ : @visibility.RenderLayers = RenderLayers(),
 ) -> @ecs.Entity {
   let entity_draft = @ecs.require_current_world().spawn_draft()
   entity_draft.add_to(pickables(), Pickable())
   entity_draft.add_to(shapes(), shape)
   entity_draft.add_to(
     @transform.spatials(),
-    @transform.Spatial(
+    Spatial(
       @transform.GlobalTransform::from_transform(
         @transform.Transform::from_xyz(position[X], position[Y], 0.0),
       ).compute_transform(),

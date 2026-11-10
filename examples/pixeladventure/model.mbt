@@ -423,13 +423,13 @@ let flag_idle_animation : SpriteAnimationDef = SpriteAnimationDef(
 )
 
 ///|
-let player_collision_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup()
+let player_collision_group : @physics2d.CollisionGroup = CollisionGroup()
 
 ///|
-let terrain_collision_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup()
+let terrain_collision_group : @physics2d.CollisionGroup = CollisionGroup()
 
 ///|
-let enemy_collision_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup()
+let enemy_collision_group : @physics2d.CollisionGroup = CollisionGroup()
 
 ///|
-let trigger_collision_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup()
+let trigger_collision_group : @physics2d.CollisionGroup = CollisionGroup()

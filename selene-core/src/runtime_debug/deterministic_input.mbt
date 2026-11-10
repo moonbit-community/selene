@@ -138,9 +138,7 @@ fn copy_snapshot(snapshot : @inputs.InputSnapshot) -> @inputs.InputSnapshot {
 
 ///|
 fn staged_snapshot() -> @inputs.InputSnapshot {
-  staged_input_by_world.get_or_init(current_world_id(), () => {
-    @inputs.InputSnapshot()
-  })
+  staged_input_by_world.get_or_init(current_world_id(), () => InputSnapshot())
 }
 
 ///|

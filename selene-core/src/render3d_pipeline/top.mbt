@@ -18,9 +18,7 @@ let prepared_frame3d_by_world : Map[UInt32, @render3d.RenderFrame3D] = Map([])
 ///|
 fn prepared_frame3d() -> @render3d.RenderFrame3D {
   let world_id = @ecs.require_current_world().id()
-  prepared_frame3d_by_world.get_or_init(world_id, () => {
-    @render3d.RenderFrame3D()
-  })
+  prepared_frame3d_by_world.get_or_init(world_id, () => RenderFrame3D())
 }
 
 ///|

@@ -887,7 +887,7 @@ fn resolve_render3d_material(
     None => {
       let material = synced_material_assets
         .get(handle)
-        .unwrap_or(@render3d_types.StandardMaterial3D())
+        .unwrap_or(StandardMaterial3D())
       let color = effective_material_color(material)
       let (emissive_r, emissive_g, emissive_b) = color_rgb01(
         material.emissive_color,
@@ -1642,7 +1642,7 @@ fn _collect_render3d_submission_stats(
     }
     let material = synced_material_assets
       .get(item.material)
-      .unwrap_or(@render3d_types.StandardMaterial3D())
+      .unwrap_or(StandardMaterial3D())
     let texture_bundle = resolve_material_texture_bundle(material)
     let vertex_count = render3d_item_vertex_count(mesh_asset.primitive)
     if vertex_count <= 0 {
@@ -3019,7 +3019,7 @@ fn resolve_material_texture_uvs(
   match binding {
     Some(binding) =>
       if binding.texcoord_set == texcoord_set &&
-        binding.transform != @render3d_types.TextureTransform3D() {
+        binding.transform != TextureTransform3D() {
         uvs.map(fn(uv) {
           @render3d_types.apply_texture_transform3d(binding.transform, uv)
         })

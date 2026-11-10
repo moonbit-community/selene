@@ -1,6 +1,6 @@
 ///|
 fn ldtk_spatial(position : @math.Vec2, depth : Int32) -> @transform.Spatial {
-  @transform.Spatial(
+  Spatial(
     @transform.Transform::from_xyz(position[X], position[Y], depth.to_double()),
   )
 }

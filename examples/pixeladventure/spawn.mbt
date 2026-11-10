@@ -173,7 +173,7 @@ fn spawn_player_entity(x : Double, y : Double) -> @ecs.Entity {
         @physics2d.Velocity(@math.Vec2::zero()),
         shape,
         @physics2d.Collider(
-          @physics2d.CollisionFilter(player_collision_group, [
+          CollisionFilter(player_collision_group, [
             terrain_collision_group, trigger_collision_group,
           ]),
         ),
@@ -215,9 +215,7 @@ fn spawn_bird_entity(x : Double, y : Double) -> Unit {
         @physics2d.Velocity(Vec2(BIRD_SPEED, 0.0)),
         shape,
         @physics2d.Collider(
-          @physics2d.CollisionFilter(enemy_collision_group, [
-            terrain_collision_group,
-          ]),
+          CollisionFilter(enemy_collision_group, [terrain_collision_group]),
         ),
         bird,
       ),
@@ -266,10 +264,10 @@ fn spawn_terrain_collider(
   let shape : @physics2d.ColliderShape = Rect(size~, offset=@math.Vec2::zero())
   let terrain = plan.spawn(
     (
-      @transform.Spatial(@transform.Transform::from_xyz(pos[X], pos[Y], 0.0)),
+      Spatial(@transform.Transform::from_xyz(pos[X], pos[Y], 0.0)),
       shape,
-      @physics2d.Collider(
-        @physics2d.CollisionFilter(terrain_collision_group, [
+      Collider(
+        CollisionFilter(terrain_collision_group, [
           player_collision_group, enemy_collision_group,
         ]),
       ),
@@ -313,9 +311,7 @@ fn[T : @ecs.Component] spawn_animated_item(
         sprite_animation_sprite(animation),
         shape,
         @physics2d.Area(
-          @physics2d.CollisionFilter(trigger_collision_group, [
-            player_collision_group,
-          ]),
+          CollisionFilter(trigger_collision_group, [player_collision_group]),
         ),
         tag,
         graph_handle,

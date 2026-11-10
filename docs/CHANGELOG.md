@@ -112,6 +112,7 @@
 
 ### Fixed
 
+- Cleaned up redundant MoonBit annotations reported by `unnecessary_annotation`.
 - Preserve browser frame pacing remainder and tolerate timestamp jitter while
   reporting actual elapsed time, preventing skipped frames at the configured FPS.
 - Stop looping audio after permanently deleting its entity or an ancestor.

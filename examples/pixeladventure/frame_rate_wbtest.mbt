@@ -60,7 +60,7 @@ test "a jump press survives render frames without a physics step" {
       @inputs.apply_input_snapshot(pressed)
       @input_action.input_action_system(0.0)
       player_input_system(world)
-      @inputs.apply_input_snapshot(@inputs.InputSnapshot())
+      @inputs.apply_input_snapshot(InputSnapshot())
       @input_action.input_action_system(0.0)
       player_input_system(world)
       let controller = players().get(session.player).unwrap()

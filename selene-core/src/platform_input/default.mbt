@@ -1,6 +1,6 @@
 ///|
 pub fn poll_input() -> @inputs.InputSnapshot {
-  @inputs.InputSnapshot()
+  InputSnapshot()
 }
 
 ///|

@@ -311,18 +311,14 @@ fn parse_light_template(
     field_string(light_object, "type").map_or("", fn(value) { value.to_lower() }) {
     "directional" =>
       Some({
-        directional: Some({
-          ..@render3d.DirectionalLight3D(),
-          color,
-          intensity,
-        }),
+        directional: Some({ ..DirectionalLight3D(), color, intensity, }),
         point: None,
         spot: None,
       })
     "point" =>
       Some({
         directional: None,
-        point: Some({ ..@render3d.PointLight3D(), color, intensity, range, }),
+        point: Some({ ..PointLight3D(), color, intensity, range, }),
         spot: None,
       })
     "spot" => {
@@ -331,7 +327,7 @@ fn parse_light_template(
         directional: None,
         point: None,
         spot: Some({
-          ..@render3d.SpotLight3D(),
+          ..SpotLight3D(),
           color,
           intensity,
           range,

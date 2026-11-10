@@ -163,8 +163,8 @@ fn render3d_world_state() -> Render3DWorldState {
   let world_id = @ecs.require_current_world().id()
   render3d_world_states.get_or_init(world_id, () => {
     ambient_light: None,
-    directional_shadow_map: @render3d_types.DirectionalLightShadowMap3D(),
-    point_shadow_map: @render3d_types.PointLightShadowMap3D(),
+    directional_shadow_map: DirectionalLightShadowMap3D(),
+    point_shadow_map: PointLightShadowMap3D(),
     extracted_frame: RenderFrame3D(),
   })
 }

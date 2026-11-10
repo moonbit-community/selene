@@ -1,7 +1,7 @@
 ///|
 test "level up shows panel and buttons" {
   use_survivors_test_assets()
-  @ecs.set_current_world(@ecs.World())
+  @ecs.set_current_world(World())
   @time.initialize(@ecs.require_current_world())
   reset_survivors_runtime()
   setup_level_up_ui()
@@ -61,7 +61,7 @@ test "level up shows panel and buttons" {
 ///|
 test "level up click resumes game" {
   use_survivors_test_assets()
-  @ecs.set_current_world(@ecs.World())
+  @ecs.set_current_world(World())
   @time.initialize(@ecs.require_current_world())
   reset_survivors_runtime()
   setup_level_up_ui()

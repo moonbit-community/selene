@@ -592,10 +592,10 @@ fn apply_tile_visual(
   let position = tile_position(source, solved.x, solved.y)
   let tile_entity = plan.spawn(
     (
-      @transform.Spatial(
+      Spatial(
         @transform.Transform::from_xyz(position[X], position[Y], context.z),
       ),
-      @sprite.Sprite(
+      Sprite(
         image=visual.image_path.map(fn(path) { @asset.load_image(path) }),
         rect=visual.rect,
         custom_size=visual.custom_size,

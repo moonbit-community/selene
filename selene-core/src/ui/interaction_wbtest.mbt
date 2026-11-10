@@ -21,7 +21,7 @@ fn reset_interaction_test_state() -> Unit {
   runtime.focused_entity = None
   runtime.pointer_captures.clear()
   runtime.consumed_pointers.clear()
-  @inputs.apply_input_snapshot(@inputs.InputSnapshot())
+  @inputs.apply_input_snapshot(InputSnapshot())
   @inputs.just_pressed_mouse.left_button = false
   @inputs.just_pressed_mouse.right_button = false
   @inputs.just_pressed_mouse.middle_button = false
@@ -117,7 +117,7 @@ fn apply_ui_touch_frame(
     None => ()
   }
   @inputs.apply_input_snapshot({
-    ..@inputs.InputSnapshot(),
+    ..InputSnapshot(),
     touches: active,
     touch_changes: changes,
   })
@@ -128,7 +128,7 @@ fn apply_ui_touch_frame(
 ///|
 fn apply_ui_mouse_frame(position : @math.Vec2, down : Bool) -> Unit {
   @inputs.apply_input_snapshot({
-    ..@inputs.InputSnapshot(),
+    ..InputSnapshot(),
     mouse: {
       pos: position,
       left_button: down,
