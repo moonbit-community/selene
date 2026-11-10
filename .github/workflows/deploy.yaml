@@ -30,17 +30,21 @@ jobs:
           bash scripts/check_no_legacy_ui.sh
 
       - name: Build project
-        run: |
-          cd examples-web
-          moon update
-          moon build --target js --release
+        run: moon build --target js --release --deny-warn
 
-      - name: Publish example pages
+      - name: Collect Pages files
         run: |
-          python3 publish_pages.py
+          site="$RUNNER_TEMP/selene-pages"
+          mkdir -p "$site"
+          cp page/index.html "$site/index.html"
+          cp -R --parents \
+            examples/index.html examples/preload-assets.js \
+            examples/*/index.html examples/*/screenshot.png examples/*/assets \
+            _build/js/release/build/Milky2018/selene-examples-web/*/web/web.js \
+            "$site"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: page
+          publish_dir: ${{ runner.temp }}/selene-pages

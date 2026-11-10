@@ -12,8 +12,8 @@
 - Publish stable codegen first, validate its pinned consumers, then publish `selene-core` before `selene-webgpu`. All checks must be warning-free.
 - Follow [CONTRIBUTING.md](CONTRIBUTING.md#release-process) for the release sequence.
 
-## `publish_pages.py`
-- Pages: `python3 publish_pages.py` (or `python3 publish_pages.py clean`), with `examples-web` release build already in `_build`.
+## Pages
+- Build examples from the repository root with `moon build --target js --release`. Serve the repository root to preview `examples/index.html`.
 
 ## Release Manifest Behavior
 - Stable publish flow rewrites each release module `moon.mod` version and internal Selene deps to `@x.y.z`.

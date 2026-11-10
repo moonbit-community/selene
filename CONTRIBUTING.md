@@ -15,7 +15,7 @@ moon test --deny-warn
 To try a change in the browser:
 
 ```sh
-moon -C examples-web build --release
+moon build --target js --release
 python3 -m http.server 8000
 ```
 
