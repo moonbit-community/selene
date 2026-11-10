@@ -112,50 +112,14 @@ priv struct GameOverPanel {
 }
 
 ///|
-fn create_level_up_panel_entity() -> @ecs.Entity {
-  let panel = spawn_survivors_entity()
-  @ui.nodes().set(
-    panel,
-    @ui.Node::absolute(
-      Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, VIEWPORT_HEIGHT / 2.0 - 120.0),
-      size=Vec2(160.0, 250.0),
-    ),
-  )
-  @ui.z_indexes().set(panel, ZIndex(HUD_ZINDEX + 10))
-  @ui.background_colors().set(
-    panel,
-    @ui.BackgroundColor::from_css("rgba(13, 170, 26, 1)"),
-  )
-  @ui.border_colors().set(panel, @ui.BorderColor::from_css("black"))
-  panel
-}
-
-///|
-fn create_game_over_panel_entity() -> @ecs.Entity {
-  let panel = spawn_survivors_entity()
-  @ui.nodes().set(
-    panel,
-    @ui.Node::absolute(
-      Vec2(VIEWPORT_WIDTH / 2.0 - 100.0, VIEWPORT_HEIGHT / 2.0 - 60.0),
-      size=Vec2(200.0, 120.0),
-    ),
-  )
-  @ui.z_indexes().set(panel, ZIndex(HUD_ZINDEX + 10))
-  @ui.background_colors().set(
-    panel,
-    @ui.BackgroundColor::from_css("rgba(0, 0, 0, 0.8)"),
-  )
-  @ui.border_colors().set(panel, @ui.BorderColor::from_css("white"))
-  panel
-}
-
-///|
 #selene.resource
 priv struct SurvivorsRuntime {
   entities : Array[@ecs.Entity]
   mut game : GameState?
   weapon_timers : Array[Double]
   player_bullet_plan : PlayerBulletSpawnPlan
+  enemy_bullet_plan : EnemyBulletSpawnPlan
+  enemy_plan : EnemySpawnPlan
   enemy_bullets : Set[@ecs.Entity]
   ui_click_reader : @event.EventReader[@ui.UiClickEvent]
   enemy_contact_event_reader : @event.EventReader[@physics2d.ContactEvent]
@@ -179,6 +143,8 @@ fn SurvivorsRuntime::SurvivorsRuntime(world : @ecs.World) -> SurvivorsRuntime {
     game: None,
     weapon_timers: [],
     player_bullet_plan: world.prepare_spawn(),
+    enemy_bullet_plan: world.prepare_spawn(),
+    enemy_plan: world.prepare_spawn(),
     enemy_bullets: Set([]),
     ui_click_reader: EventReader(),
     enemy_contact_event_reader: EventReader(),
@@ -200,8 +166,8 @@ fn survivors_runtime() -> SurvivorsRuntime {
 }
 
 ///|
-fn spawn_survivors_entity() -> @ecs.Entity {
-  let entity = @ecs.require_current_world().spawn(())
+fn[T : @ecs.Bundle] spawn_survivors_entity(values : T) -> @ecs.Entity {
+  let entity = @ecs.require_current_world().spawn(values)
   survivors_runtime().entities.push(entity)
   entity
 }
@@ -250,24 +216,68 @@ fn game_state() -> GameState {
 ///|
 fn GameState::GameState() -> GameState {
   {
-    player_entity: spawn_survivors_entity(),
-    camera_entity: spawn_survivors_entity(),
+    player_entity: spawn_player(),
+    camera_entity: spawn_survivors_entity(
+      (
+        @camera.Camera(),
+        @camera.Camera2d(),
+        @camera.OrthographicProjection(),
+        @transform.Transform::identity(),
+      ),
+    ),
     player_direction: Down,
     rand: Rand(),
     score: 0,
-    score_box: spawn_survivors_entity(),
+    score_box: spawn_text_entity(
+      Vec2(VIEWPORT_WIDTH / 2.0 - 100.0, 16.0),
+      "Score: 0",
+      "white",
+      "24px ThaleahFat",
+      size=Vec2(200.0, 28.0),
+      align=Center,
+    ),
     invincible: false,
     game_timer: 600.0,
     game_over: false,
-    timer_box: spawn_survivors_entity(),
-    game_over_box: spawn_survivors_entity(),
+    timer_box: spawn_text_entity(
+      Vec2(VIEWPORT_WIDTH - 140.0, 16.0),
+      "Time: 10:00",
+      "white",
+      "24px ThaleahFat",
+      size=Vec2(124.0, 28.0),
+      align=Right,
+    ),
+    game_over_box: spawn_text_entity(
+      game_over_panel_origin() + Vec2(8.0, 52.0),
+      "Final Score: 0",
+      "white",
+      "24px ThaleahFat",
+      size=Vec2(184.0, 22.0),
+      align=Center,
+      zindex=PANEL_TEXT_ZINDEX,
+    ),
     game_over_displayed: false,
     current_wave: 1,
-    wave_box: spawn_survivors_entity(),
+    wave_box: spawn_text_entity(
+      Vec2(16.0, 84.0),
+      "Wave: 1",
+      "orange",
+      "24px ThaleahFat",
+    ),
     exp: 0,
-    exp_box: spawn_survivors_entity(),
+    exp_box: spawn_text_entity(
+      Vec2(16.0, 50.0),
+      "EXP: 0/16",
+      "cyan",
+      "24px ThaleahFat",
+    ),
     player_level: 1,
-    level_box: spawn_survivors_entity(),
+    level_box: spawn_text_entity(
+      Vec2(16.0, 16.0),
+      "Level: 1",
+      "yellow",
+      "24px ThaleahFat",
+    ),
     player_stats: {
       attack: 0.0,
       range: 0.0, // Base range, weapons add to this
@@ -277,13 +287,25 @@ fn GameState::GameState() -> GameState {
       weapon_instances: [Pistol], // Start with one Pistol
     },
     level_up_panel: {
-      panel_entity: create_level_up_panel_entity(),
+      panel_entity: spawn_panel_box(
+        levelup_panel_origin(),
+        Vec2(160.0, 250.0),
+        "rgba(13, 170, 26, 1)",
+        "black",
+      ),
       available_selections: [],
     },
     pending_level_ups: [],
     score_blink_timer: 0.0,
     score_is_red: false,
-    game_over_panel: { panel_entity: create_game_over_panel_entity(), },
+    game_over_panel: {
+      panel_entity: spawn_panel_box(
+        game_over_panel_origin(),
+        Vec2(200.0, 120.0),
+        "rgba(0, 0, 0, 0.8)",
+        "white",
+      ),
+    },
   }
 }
 
@@ -532,30 +554,12 @@ fn game_start(_world : @ecs.World) -> Unit {
   )
   @ui.set_ui_scale_mode(Viewport)
   configure_survivors_input()
-  add_player()
-  setup_survivors_camera()
+  survivors_camera_follow_system(@ecs.require_current_world())
   add_border(Vec2(MAP_WIDTH, MAP_HEIGHT))
   add_background(Vec2(MAP_WIDTH, MAP_HEIGHT))
   add_grass()
-  add_score_box()
-  add_timer_box()
-  add_wave_box()
-  add_level_box()
-  add_exp_box()
   setup_level_up_ui()
   setup_game_over_ui()
-}
-
-///|
-fn setup_survivors_camera() -> Unit {
-  let game = game_state()
-  @camera.cameras().set(game.camera_entity, Camera())
-  @camera.camera2ds().set(game.camera_entity, Camera2d())
-  @camera.orthographic_projections().set(
-    game.camera_entity,
-    OrthographicProjection(),
-  )
-  survivors_camera_follow_system(@ecs.require_current_world())
 }
 
 ///|

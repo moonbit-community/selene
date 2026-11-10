@@ -171,41 +171,36 @@ fn play_player_animation_state(
 }
 
 ///|
-fn add_player() -> Unit {
-  let entity = game_state().player_entity
+fn spawn_player() -> @ecs.Entity {
+  let shape : @physics2d.ColliderShape = Rect(
+    size=Vec2(PLAYER_SIZE, PLAYER_SIZE),
+    offset=Vec2(-PLAYER_SIZE / 2.0, -PLAYER_SIZE / 2.0),
+  )
+  let entity = spawn_survivors_entity(
+    (
+      sprite_animation_sprite(player_idle_right_animation),
+      @transform.Transform::from_xyz(
+        MAP_WIDTH / 2.0,
+        MAP_HEIGHT / 2.0,
+        PLAYER_ZINDEX.to_double(),
+      ),
+      @physics2d.Velocity(@math.Vec2::zero()),
+      @physics2d.Collider(
+        @physics2d.CollisionFilter(player_collision_group, [
+          wall_collision_group,
+        ]),
+      ),
+      shape,
+    ),
+  )
   let animation_controller = PlayerAnimationController(entity)
   player_animation_controllers().set(entity, animation_controller)
-  @sprite.sprites().set(
-    entity,
-    sprite_animation_sprite(player_idle_right_animation),
-  )
-  @transform.transforms().set(
-    entity,
-    @transform.Transform::from_xyz(
-      MAP_WIDTH / 2.0,
-      MAP_HEIGHT / 2.0,
-      PLAYER_ZINDEX.to_double(),
-    ),
-  )
-  @physics2d.linear_velocities().set(entity, Vec2(0.0, 0.0))
-  @physics2d.colliders().set(
-    entity,
-    @physics2d.Collider(
-      @physics2d.CollisionFilter(player_collision_group, [wall_collision_group]),
-    ),
-  )
-  @physics2d.shapes().set(
-    entity,
-    Rect(
-      size=Vec2(PLAYER_SIZE, PLAYER_SIZE),
-      offset=Vec2(-PLAYER_SIZE / 2.0, -PLAYER_SIZE / 2.0),
-    ),
-  )
   play_player_animation_state(
     entity,
     player_idle_right_animation,
     animation_controller.idle_right,
   )
+  entity
 }
 
 ///|

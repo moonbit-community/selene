@@ -78,8 +78,7 @@ fn set_ui_text_color(entity : @ecs.Entity, color : String) -> Unit {
 }
 
 ///|
-fn configure_text_entity(
-  entity : @ecs.Entity,
+fn spawn_text_entity(
   offset : @math.Vec2,
   content : String,
   color : String,
@@ -88,57 +87,64 @@ fn configure_text_entity(
   align~ : @math.HAlign = Left,
   baseline~ : @math.VAlign = Top,
   zindex~ : Int32 = HUD_LAYER_ZINDEX,
-) -> Unit {
-  @ui.nodes().set(
-    entity,
-    @ui.Node::absolute(offset, size~, border=@ui.UiRectValues::all(1.0)),
+) -> @ecs.Entity {
+  spawn_survivors_entity(
+    (
+      @ui.Node::absolute(offset, size~, border=@ui.UiRectValues::all(1.0)),
+      @ui.ZIndex(zindex),
+      @ui.Text(content),
+      @ui.TextFont::from_css(font),
+      @ui.TextColor::from_css(color),
+      @ui.TextLayout(align~, baseline~),
+    ),
   )
-  @ui.z_indexes().set(entity, ZIndex(zindex))
-  set_ui_text(entity, content)
-  @ui.text_fonts().set(entity, @ui.TextFont::from_css(font))
-  set_ui_text_color(entity, color)
-  @ui.text_layouts().set(entity, TextLayout(align~, baseline~))
 }
 
 ///|
-fn configure_panel_box(
-  entity : @ecs.Entity,
+fn spawn_panel_box(
   offset : @math.Vec2,
   size : @math.Vec2,
   background : String,
   border : String,
-) -> Unit {
-  @ui.nodes().set(
-    entity,
-    @ui.Node::absolute(offset, size~, border=@ui.UiRectValues::all(1.0)),
+) -> @ecs.Entity {
+  spawn_survivors_entity(
+    (
+      @ui.Node::absolute(offset, size~, border=@ui.UiRectValues::all(1.0)),
+      @ui.ZIndex(PANEL_LAYER_ZINDEX),
+      @ui.BackgroundColor::from_css(background),
+      @ui.BorderColor::from_css(border),
+      @ui.BorderRadius::all(@ui.Val::px(10.0)),
+    ),
   )
-  @ui.z_indexes().set(entity, ZIndex(PANEL_LAYER_ZINDEX))
-  @ui.background_colors().set(entity, @ui.BackgroundColor::from_css(background))
-  @ui.border_colors().set(entity, @ui.BorderColor::from_css(border))
-  @ui.border_radii().set(entity, @ui.BorderRadius::all(@ui.Val::px(10.0)))
 }
 
 ///|
-fn configure_panel_button(
-  entity : @ecs.Entity,
+fn spawn_panel_button(
   offset : @math.Vec2,
   size : @math.Vec2,
   background : String,
   border : String,
   label : String,
   tab_index : Int32,
-) -> Unit {
-  @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
-  @ui.z_indexes().set(entity, ZIndex(PANEL_TEXT_ZINDEX))
-  @ui.background_colors().set(entity, @ui.BackgroundColor::from_css(background))
-  @ui.border_colors().set(entity, @ui.BorderColor::from_css(border))
-  @ui.border_radii().set(entity, @ui.BorderRadius::all(@ui.Val::px(8.0)))
-  @ui.buttons().set(entity, Button())
-  @ui.tab_indexes().set(entity, TabIndex(tab_index))
-  set_ui_text(entity, label)
-  @ui.text_fonts().set(entity, @ui.TextFont::from_css("16px ThaleahFat"))
-  set_ui_text_color(entity, "white")
-  @ui.text_layouts().set(entity, TextLayout(align=Center, baseline=Center))
+  font~ : String = "16px ThaleahFat",
+) -> @ecs.Entity {
+  spawn_survivors_entity(
+    (
+      @ui.Node::absolute(offset, size~),
+      @ui.ZIndex(PANEL_TEXT_ZINDEX),
+      @ui.BackgroundColor::from_css(background),
+      @ui.BorderColor::from_css(border),
+      @ui.BorderRadius::all(@ui.Val::px(8.0)),
+      @ui.Button(),
+      @ui.TabIndex(tab_index),
+      (
+        @ui.Text(label),
+        @ui.TextFont::from_css(font),
+        @ui.TextColor::from_css("white"),
+        @ui.TextLayout(align=Center, baseline=Center),
+      ),
+    ),
+  )
 }
 
 ///|
@@ -261,35 +267,11 @@ fn show_game_over_ui() -> Unit {
 }
 
 ///|
-fn add_score_box() -> Unit {
-  configure_text_entity(
-    game_state().score_box,
-    Vec2(VIEWPORT_WIDTH / 2.0 - 100.0, 16.0),
-    "Score: 0",
-    "white",
-    "24px ThaleahFat",
-    size=Vec2(200.0, 28.0),
-    align=Center,
-  )
-}
-
-///|
 fn setup_level_up_ui() -> Unit {
   let runtime = survivors_runtime()
   runtime.levelup_buttons.clear()
   runtime.levelup_button_icons.clear()
-  configure_panel_box(
-    game_state().level_up_panel.panel_entity,
-    levelup_panel_origin(),
-    Vec2(160.0, 250.0),
-    "rgba(13, 170, 26, 1)",
-    "black",
-  )
-
-  let title = spawn_survivors_entity()
-  runtime.levelup_title = Some(title)
-  configure_text_entity(
-    title,
+  let title = spawn_text_entity(
     levelup_panel_origin() + Vec2(8.0, LEVELUP_PANEL_TITLE_OFFSET_Y),
     "LEVEL UP!",
     "gold",
@@ -299,12 +281,12 @@ fn setup_level_up_ui() -> Unit {
     zindex=PANEL_TEXT_ZINDEX,
   )
 
+  runtime.levelup_title = Some(title)
+
   for i in 0..<3 {
     let button_y = LEVELUP_PANEL_BUTTON_START_Y +
       i.to_double() * (36.0 + LEVELUP_PANEL_BUTTON_GAP_Y)
-    let button = spawn_survivors_entity()
-    configure_panel_button(
-      button,
+    let button = spawn_panel_button(
       levelup_panel_origin() + Vec2(0.0, button_y),
       Vec2(160.0, 36.0),
       "rgba(13, 167, 170, 1)",
@@ -314,16 +296,21 @@ fn setup_level_up_ui() -> Unit {
     )
     runtime.levelup_buttons.push(button)
 
-    let icon = button.spawn_child()
-    @ui.nodes().set(
-      icon,
-      @ui.Node::absolute(
-        Vec2(LEVELUP_BUTTON_ICON_OFFSET_X, LEVELUP_BUTTON_ICON_OFFSET_Y),
-        size=Vec2(LEVELUP_BUTTON_ICON_SIZE, LEVELUP_BUTTON_ICON_SIZE),
+    let icon = @ecs.require_current_world().spawn(
+      (
+        @ui.Node::absolute(
+          Vec2(LEVELUP_BUTTON_ICON_OFFSET_X, LEVELUP_BUTTON_ICON_OFFSET_Y),
+          size=Vec2(LEVELUP_BUTTON_ICON_SIZE, LEVELUP_BUTTON_ICON_SIZE),
+        ),
+        @ui.ZIndex(PANEL_TEXT_ZINDEX),
+        @ui.UiImage(
+          Vec2(LEVELUP_BUTTON_ICON_SIZE, LEVELUP_BUTTON_ICON_SIZE),
+          POWERUP_RANGE_ICON_PATH,
+          fit=Contain,
+        ),
       ),
     )
-    @ui.z_indexes().set(icon, ZIndex(PANEL_TEXT_ZINDEX))
-    set_icon_image(icon, POWERUP_RANGE_ICON_PATH)
+    icon.set_parent(button)
     runtime.levelup_button_icons.push(icon)
   }
 
@@ -396,56 +383,9 @@ fn resume_game() -> Unit {
 }
 
 ///|
-fn add_wave_box() -> Unit {
-  configure_text_entity(
-    game_state().wave_box,
-    Vec2(16.0, 84.0),
-    "Wave: 1",
-    "orange",
-    "24px ThaleahFat",
-  )
-}
-
-///|
-fn add_exp_box() -> Unit {
-  configure_text_entity(
-    game_state().exp_box,
-    Vec2(16.0, 50.0),
-    "EXP: 0/16",
-    "cyan",
-    "24px ThaleahFat",
-  )
-}
-
-///|
-fn add_timer_box() -> Unit {
-  configure_text_entity(
-    game_state().timer_box,
-    Vec2(VIEWPORT_WIDTH - 140.0, 16.0),
-    "Time: 10:00",
-    "white",
-    "24px ThaleahFat",
-    size=Vec2(124.0, 28.0),
-    align=Right,
-  )
-}
-
-///|
 fn setup_game_over_ui() -> Unit {
   let runtime = survivors_runtime()
-  let game = game_state()
-  configure_panel_box(
-    game.game_over_panel.panel_entity,
-    game_over_panel_origin(),
-    Vec2(200.0, 120.0),
-    "rgba(0, 0, 0, 0.8)",
-    "white",
-  )
-
-  let title = spawn_survivors_entity()
-  runtime.game_over_title = Some(title)
-  configure_text_entity(
-    title,
+  let title = spawn_text_entity(
     game_over_panel_origin() + Vec2(10.0, 18.0),
     "VICTORY!",
     "gold",
@@ -455,32 +395,17 @@ fn setup_game_over_ui() -> Unit {
     zindex=PANEL_TEXT_ZINDEX,
   )
 
-  configure_text_entity(
-    game.game_over_box,
-    game_over_panel_origin() + Vec2(8.0, 52.0),
-    "Final Score: 0",
-    "white",
-    "24px ThaleahFat",
-    size=Vec2(184.0, 22.0),
-    align=Center,
-    zindex=PANEL_TEXT_ZINDEX,
-  )
-
-  let restart_button = spawn_survivors_entity()
-  runtime.restart_button = Some(restart_button)
-  configure_panel_button(
-    restart_button,
+  runtime.game_over_title = Some(title)
+  let restart_button = spawn_panel_button(
     game_over_panel_origin() + Vec2(10.0, 74.0),
     Vec2(180.0, 40.0),
     "rgba(13, 167, 170, 1)",
     "white",
     "RESTART",
     10,
+    font="24px ThaleahFat",
   )
-  @ui.text_fonts().set(
-    restart_button,
-    @ui.TextFont::from_css("24px ThaleahFat"),
-  )
+  runtime.restart_button = Some(restart_button)
 
   hide_game_over_ui()
 }
@@ -488,17 +413,6 @@ fn setup_game_over_ui() -> Unit {
 ///|
 fn add_game_over_box() -> Unit {
   show_game_over_ui()
-}
-
-///|
-fn add_level_box() -> Unit {
-  configure_text_entity(
-    game_state().level_box,
-    Vec2(16.0, 16.0),
-    "Level: 1",
-    "yellow",
-    "24px ThaleahFat",
-  )
 }
 
 ///|

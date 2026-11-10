@@ -100,8 +100,8 @@ fn cards_runtime() -> CardsRuntime {
 }
 
 ///|
-fn spawn_cards_entity() -> @ecs.Entity {
-  let entity = @ecs.require_current_world().spawn(())
+fn[T : @ecs.Bundle] spawn_cards_entity(values : T) -> @ecs.Entity {
+  let entity = @ecs.require_current_world().spawn(values)
   cards_runtime().entities.push(entity)
   entity
 }
@@ -131,6 +131,12 @@ fn game_state() -> GameState {
 
 ///|
 fn GameState::GameState() -> GameState {
+  let button_y = VIEWPORT_HEIGHT - 35.0
+  let button_size = @math.Vec2(70.0, 25.0)
+  let button_x = VIEWPORT_WIDTH / 2.0 - button_size[X] / 2.0
+  let fold_offset = @math.Vec2(button_x - 85.0, button_y)
+  let call_offset = @math.Vec2(button_x, button_y)
+  let raise_offset = @math.Vec2(button_x + 85.0, button_y)
   {
     rand: Rand(),
     deck: [],
@@ -139,7 +145,7 @@ fn GameState::GameState() -> GameState {
       hole_cards: [],
       current_bet: 0,
       has_folded: false,
-      position: Vec2(VIEWPORT_WIDTH / 2.0, VIEWPORT_HEIGHT - 80.0),
+      position: @math.Vec2(VIEWPORT_WIDTH / 2.0, VIEWPORT_HEIGHT - 80.0),
     },
     phase: PreFlop,
     current_bet: 0,
@@ -150,18 +156,85 @@ fn GameState::GameState() -> GameState {
     turns_remaining: 10,
     starting_chips: 1000,
     magnification: 1,
-    blind_label: spawn_cards_entity(),
-    chips_label: spawn_cards_entity(),
-    phase_label: spawn_cards_entity(),
-    fold_button_label: spawn_cards_entity(),
-    call_button_label: spawn_cards_entity(),
-    raise_button_label: spawn_cards_entity(),
-    turns_label: spawn_cards_entity(),
-    action_label: spawn_cards_entity(),
-    hand_strength_label: spawn_cards_entity(),
-    fold_button: spawn_cards_entity(),
-    call_button: spawn_cards_entity(),
-    raise_button: spawn_cards_entity(),
+    blind_label: spawn_text(
+      @math.Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, 20.0),
+      "Blind: $20",
+      "gold",
+      "20px ThaleahFat",
+      size=@math.Vec2(160.0, 24.0),
+      align=Center,
+    ),
+    chips_label: spawn_text(
+      @math.Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, 42.0),
+      "Chips: $1000",
+      "lightgreen",
+      "18px ThaleahFat",
+      size=@math.Vec2(160.0, 22.0),
+      align=Center,
+    ),
+    phase_label: spawn_text(
+      @math.Vec2(20.0, 20.0),
+      "Pre-Flop",
+      "white",
+      "18px ThaleahFat",
+    ),
+    fold_button_label: spawn_text(
+      fold_offset,
+      "Fold",
+      "white",
+      "16px ThaleahFat",
+      size=button_size,
+      align=Center,
+      baseline=Center,
+      zindex=BUTTON_LABEL_ZINDEX,
+    ),
+    call_button_label: spawn_text(
+      call_offset,
+      "Call",
+      "white",
+      "16px ThaleahFat",
+      size=button_size,
+      align=Center,
+      baseline=Center,
+      zindex=BUTTON_LABEL_ZINDEX,
+    ),
+    raise_button_label: spawn_text(
+      raise_offset,
+      "Raise",
+      "white",
+      "16px ThaleahFat",
+      size=button_size,
+      align=Center,
+      baseline=Center,
+      zindex=BUTTON_LABEL_ZINDEX,
+    ),
+    turns_label: spawn_text(
+      @math.Vec2(VIEWPORT_WIDTH - 110.0, 20.0),
+      "Turns: 10/10",
+      "white",
+      "18px ThaleahFat",
+      size=@math.Vec2(90.0, 22.0),
+      align=Right,
+    ),
+    action_label: spawn_text(
+      @math.Vec2(VIEWPORT_WIDTH / 2.0 - 110.0, VIEWPORT_HEIGHT - 64.0),
+      "",
+      "yellow",
+      "16px ThaleahFat",
+      size=@math.Vec2(220.0, 20.0),
+      align=Center,
+    ),
+    hand_strength_label: spawn_text(
+      @math.Vec2(VIEWPORT_WIDTH / 2.0 - 100.0, VIEWPORT_HEIGHT / 2.0 - 82.0),
+      "",
+      "cyan",
+      "16px ThaleahFat",
+      size=@math.Vec2(200.0, 20.0),
+      align=Center,
+    ),
+    fold_button: spawn_button(fold_offset, button_size, "#cc0000", 0),
+    call_button: spawn_button(call_offset, button_size, "#00aa00", 1),
+    raise_button: spawn_button(raise_offset, button_size, "#0066cc", 2),
     waiting_for_player: false,
     hole_card_entities: [],
     community_card_entities: [],

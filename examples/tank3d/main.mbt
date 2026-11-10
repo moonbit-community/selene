@@ -43,8 +43,8 @@ fn tank3d_state() -> Tank3dState {
 }
 
 ///|
-fn spawn_tank3d_entity() -> @ecs.Entity {
-  let entity = @ecs.require_current_world().spawn(())
+fn[T : @ecs.Bundle] spawn_tank3d_entity(values : T) -> @ecs.Entity {
+  let entity = @ecs.require_current_world().spawn(values)
   tank3d_state().entities.push(entity)
   entity
 }
@@ -120,20 +120,25 @@ fn setup_tank3d(world : @ecs.World) -> Unit {
 
 ///|
 fn setup_camera() -> Unit {
-  let camera = spawn_tank3d_entity()
   let position = vec3(0.0, 2.1, 4.8)
-  @transform.transforms().set(camera, {
-    translation: position,
-    rotation: look_at_rotation(position, vec3(0.0, 0.55, 0.0)),
-    scale: @math.Vec3::one(),
-  })
-  @camera3d.cameras3d().set(camera, {
-    ..@camera3d.Camera3DComponent(),
-    clear_color: color(18U, 22U, 28U, 1.0),
-    fov_y: 50.0,
-    near: 0.05,
-    far: 100.0,
-  })
+  ignore(
+    spawn_tank3d_entity(
+      (
+        @transform.Transform::{
+          translation: position,
+          rotation: look_at_rotation(position, vec3(0.0, 0.55, 0.0)),
+          scale: @math.Vec3::one(),
+        },
+        @camera3d.Camera3DComponent::{
+          ..@camera3d.Camera3DComponent(),
+          clear_color: color(18U, 22U, 28U, 1.0),
+          fov_y: 50.0,
+          near: 0.05,
+          far: 100.0,
+        },
+      ),
+    ),
+  )
 }
 
 ///|
@@ -141,14 +146,15 @@ fn setup_lighting() -> Unit {
   @render3d.set_ambient_light3d(
     Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.12, }),
   )
-  let light = spawn_tank3d_entity()
-  @render3d.directional_lights3d().set(light, {
-    ..@render3d.DirectionalLight3D(),
-    direction: vec3(-0.35, -0.82, -0.46).normalize(),
-    color: color(255U, 244U, 220U, 1.0),
-    intensity: 2.1,
-    shadows: false,
-  })
+  ignore(
+    spawn_tank3d_entity(@render3d.DirectionalLight3D::{
+      ..@render3d.DirectionalLight3D(),
+      direction: vec3(-0.35, -0.82, -0.46).normalize(),
+      color: color(255U, 244U, 220U, 1.0),
+      intensity: 2.1,
+      shadows: false,
+    }),
+  )
 }
 
 ///|
@@ -161,19 +167,24 @@ fn setup_floor() -> Unit {
     base_color: color(54U, 61U, 68U, 1.0),
     roughness: 0.85,
   })
-  let floor = spawn_tank3d_entity()
-  @transform.transforms().set(floor, {
-    translation: vec3(0.0, -0.02, 0.0),
-    rotation: @math.Quat::identity(),
-    scale: @math.Vec3::one(),
-  })
-  @render3d.mesh3d_renderers().set(floor, {
-    mesh,
-    material,
-    visible: true,
-    cast_shadows: false,
-    receive_shadows: true,
-  })
+  ignore(
+    spawn_tank3d_entity(
+      (
+        @transform.Transform::{
+          translation: vec3(0.0, -0.02, 0.0),
+          rotation: @math.Quat::identity(),
+          scale: @math.Vec3::one(),
+        },
+        @render3d.Mesh3DRenderer::{
+          mesh,
+          material,
+          visible: true,
+          cast_shadows: false,
+          receive_shadows: true,
+        },
+      ),
+    ),
+  )
 }
 
 ///|

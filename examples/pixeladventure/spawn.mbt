@@ -20,13 +20,41 @@ fn game_start(world : @ecs.World) -> Unit {
   reset_pixeladventure_world_store()
   let loaded_level = load_level_scene()
 
-  let result_box = spawn_game_entity(())
-  let score_box = spawn_game_entity(())
-  let health_box = spawn_game_entity(())
-  let volume_button = spawn_game_entity(())
-
+  let result_box = spawn_text_box(
+    Vec2(VIEWPORT_WIDTH / 2.0 - 96.0, VIEWPORT_HEIGHT / 2.0 - 32.0),
+    "",
+    "white",
+    "24px ThaleahFat",
+    size=Vec2(192.0, 32.0),
+    align=Center,
+    baseline=Center,
+  )
+  let score_box = spawn_text_box(
+    Vec2(PLAYFIELD_LEFT_INSET, 16.0),
+    "Score: 0",
+    "white",
+    "20px ThaleahFat",
+    size=Vec2(VIEWPORT_WIDTH - PLAYFIELD_LEFT_INSET, 24.0),
+    align=Center,
+  )
+  let health_box = spawn_text_box(
+    Vec2(20.0, 16.0),
+    "HP: 3",
+    "red",
+    "20px ThaleahFat",
+  )
+  let volume_button = spawn_game_entity(
+    (
+      @ui.Node::absolute(
+        Vec2(VIEWPORT_WIDTH - 40.0, 18.0),
+        size=Vec2(21.0, 22.0),
+      ),
+      @ui.ZIndex(BUTTON_ZINDEX),
+      @ui.Button(),
+      volume_image(true),
+    ),
+  )
   spawn_background(loaded_level.world_size)
-  spawn_hud(result_box, score_box, health_box, volume_button)
 
   world.insert_resource(GameSession::{
     player: loaded_level.player_entity,
@@ -47,8 +75,7 @@ fn game_start(world : @ecs.World) -> Unit {
 }
 
 ///|
-fn configure_text_box(
-  entity : @ecs.Entity,
+fn spawn_text_box(
   offset : @math.Vec2,
   content : String,
   color : String,
@@ -56,55 +83,17 @@ fn configure_text_box(
   size~ : @math.Vec2 = Vec2(-1.0, -1.0),
   align~ : @math.HAlign = Left,
   baseline~ : @math.VAlign = Top,
-) -> Unit {
-  @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
-  @ui.z_indexes().set(entity, ZIndex(HUD_ZINDEX))
-  set_ui_text(entity, content)
-  @ui.text_fonts().set(entity, @ui.TextFont::from_css(font))
-  set_ui_text_color(entity, color)
-  @ui.text_layouts().set(entity, TextLayout(align~, baseline~))
-}
-
-///|
-fn spawn_hud(
-  result_box : @ecs.Entity,
-  score_box : @ecs.Entity,
-  health_box : @ecs.Entity,
-  volume_button : @ecs.Entity,
-) -> Unit {
-  configure_text_box(
-    result_box,
-    Vec2(VIEWPORT_WIDTH / 2.0 - 96.0, VIEWPORT_HEIGHT / 2.0 - 32.0),
-    "",
-    "white",
-    "24px ThaleahFat",
-    size=Vec2(192.0, 32.0),
-    align=Center,
-    baseline=Center,
+) -> @ecs.Entity {
+  spawn_game_entity(
+    (
+      @ui.Node::absolute(offset, size~),
+      @ui.ZIndex(HUD_ZINDEX),
+      @ui.Text(content),
+      @ui.TextFont::from_css(font),
+      @ui.TextColor::from_css(color),
+      @ui.TextLayout(align~, baseline~),
+    ),
   )
-  configure_text_box(
-    score_box,
-    Vec2(PLAYFIELD_LEFT_INSET, 16.0),
-    "Score: 0",
-    "white",
-    "20px ThaleahFat",
-    size=Vec2(VIEWPORT_WIDTH - PLAYFIELD_LEFT_INSET, 24.0),
-    align=Center,
-  )
-  configure_text_box(
-    health_box,
-    Vec2(20.0, 16.0),
-    "HP: 3",
-    "red",
-    "20px ThaleahFat",
-  )
-  @ui.nodes().set(
-    volume_button,
-    @ui.Node::absolute(Vec2(VIEWPORT_WIDTH - 40.0, 18.0), size=Vec2(21.0, 22.0)),
-  )
-  @ui.z_indexes().set(volume_button, ZIndex(BUTTON_ZINDEX))
-  @ui.buttons().set(volume_button, Button())
-  @ui.ui_images().set(volume_button, volume_image(true))
 }
 
 ///|
@@ -116,7 +105,10 @@ fn register_sprite_animation_node(
 }
 
 ///|
-fn build_player_animation_nodes(entity : @ecs.Entity) -> PlayerAnimationNodes {
+fn build_player_animation_nodes() -> (
+  PlayerAnimationNodes,
+  @animation.AnimationGraphHandle,
+) {
   let graph = @animation.AnimationGraph()
   let nodes = {
     idle_left: register_sprite_animation_node(graph, player_idle_left_animation),
@@ -136,14 +128,14 @@ fn build_player_animation_nodes(entity : @ecs.Entity) -> PlayerAnimationNodes {
     hit_left: register_sprite_animation_node(graph, player_hit_left_animation),
     hit_right: register_sprite_animation_node(graph, player_hit_right_animation),
   }
-  let graph_handle = @animation.register_animation_graph_asset(graph)
-  ensure_sprite_animation_binding(entity)
-  @animation.animation_graph_handles().set(entity, graph_handle)
-  nodes
+  (nodes, @animation.register_animation_graph_asset(graph))
 }
 
 ///|
-fn build_bird_animation_nodes(entity : @ecs.Entity) -> BirdAnimationNodes {
+fn build_bird_animation_nodes() -> (
+  BirdAnimationNodes,
+  @animation.AnimationGraphHandle,
+) {
   let graph = @animation.AnimationGraph()
   let nodes = {
     fly_left: register_sprite_animation_node(graph, bird_fly_left_animation),
@@ -151,75 +143,85 @@ fn build_bird_animation_nodes(entity : @ecs.Entity) -> BirdAnimationNodes {
     hit_left: register_sprite_animation_node(graph, bird_hit_left_animation),
     hit_right: register_sprite_animation_node(graph, bird_hit_right_animation),
   }
-  let graph_handle = @animation.register_animation_graph_asset(graph)
-  ensure_sprite_animation_binding(entity)
-  @animation.animation_graph_handles().set(entity, graph_handle)
-  nodes
+  (nodes, @animation.register_animation_graph_asset(graph))
 }
 
 ///|
-fn configure_player_entity(entity : @ecs.Entity) -> Unit {
-  let animation_nodes = build_player_animation_nodes(entity)
-  @sprite.sprites().set(
-    entity,
-    sprite_animation_sprite(player_idle_right_animation),
+fn spawn_player_entity(x : Double, y : Double) -> @ecs.Entity {
+  let (animations, graph) = build_player_animation_nodes()
+  let shape : @physics2d.ColliderShape = Rect(
+    size=Vec2(24.0, 32.0),
+    offset=Vec2(4.0, 0.0),
   )
-  set_entity_z(entity, PLAYER_Z)
-  @physics2d.linear_velocities().set(entity, @math.Vec2::zero())
-  @physics2d.shapes().set(
-    entity,
-    Rect(size=Vec2(24.0, 32.0), offset=Vec2(4.0, 0.0)),
-  )
-  @physics2d.colliders().set(
-    entity,
-    @physics2d.Collider(
-      @physics2d.CollisionFilter(player_collision_group, [
-        terrain_collision_group, trigger_collision_group,
-      ]),
-    ),
-  )
-  players().set(entity, {
+  let controller : PlayerController = {
     facing: Right,
     state: Idle,
     hurt_cooldown: 0.0,
     pending_bounce_velocity_y: None,
     move_direction: None,
     jump_requested: false,
-    animations: animation_nodes,
+    animations,
     active_animation: None,
-  })
-  guard! players().get(entity) is Some(controller)
+  }
+  let entity = spawn_game_entity(
+    (
+      @transform.Transform::from_xyz(x, y, PLAYER_Z),
+      sprite_animation_sprite(player_idle_right_animation),
+      @physics2d.Velocity(@math.Vec2::zero()),
+      shape,
+      @physics2d.Collider(
+        @physics2d.CollisionFilter(player_collision_group, [
+          terrain_collision_group, trigger_collision_group,
+        ]),
+      ),
+      controller,
+      (
+        graph,
+        @animation.AnimationPlayer(),
+        @animation.AnimationTransitions(),
+        @animation.AnimationTargetId("self"),
+      ),
+    ),
+  )
+  @animation.animated_bys().set(entity, @animation.AnimatedBy(entity))
   play_player_animation(entity, controller)
+  entity
 }
 
 ///|
-fn configure_bird_entity(entity : @ecs.Entity) -> Unit {
-  let animation_nodes = build_bird_animation_nodes(entity)
-  @sprite.sprites().set(
-    entity,
-    sprite_animation_sprite(bird_fly_right_animation),
+fn spawn_bird_entity(x : Double, y : Double) -> Unit {
+  let (animations, graph) = build_bird_animation_nodes()
+  let shape : @physics2d.ColliderShape = Rect(
+    size=Vec2(32.0, 32.0),
+    offset=@math.Vec2::zero(),
   )
-  @physics2d.linear_velocities().set(entity, Vec2(BIRD_SPEED, 0.0))
-  set_entity_z(entity, PLAYER_Z)
-  @physics2d.shapes().set(
-    entity,
-    Rect(size=Vec2(32.0, 32.0), offset=@math.Vec2::zero()),
-  )
-  @physics2d.colliders().set(
-    entity,
-    @physics2d.Collider(
-      @physics2d.CollisionFilter(enemy_collision_group, [
-        terrain_collision_group,
-      ]),
-    ),
-  )
-  birds().set(entity, {
+  let bird : BirdController = {
     direction: Right,
     is_hurt: false,
-    animations: animation_nodes,
+    animations,
     active_animation: None,
-  })
-  guard! birds().get(entity) is Some(bird)
+  }
+  let entity = spawn_game_entity(
+    (
+      @transform.Transform::from_xyz(x, y, PLAYER_Z),
+      sprite_animation_sprite(bird_fly_right_animation),
+      @physics2d.Velocity(Vec2(BIRD_SPEED, 0.0)),
+      shape,
+      @physics2d.Collider(
+        @physics2d.CollisionFilter(enemy_collision_group, [
+          terrain_collision_group,
+        ]),
+      ),
+      bird,
+      (
+        graph,
+        @animation.AnimationPlayer(),
+        @animation.AnimationTransitions(),
+        @animation.AnimationTargetId("self"),
+      ),
+    ),
+  )
+  @animation.animated_bys().set(entity, @animation.AnimatedBy(entity))
   play_bird_animation(entity, bird)
 }
 
@@ -269,99 +271,46 @@ fn spawn_terrain_collider(
 }
 
 ///|
-let flag_idle_frame_size : @math.Vec2 = Vec2(64.0, 64.0)
-
-///|
-fn flag_idle_frame_rect() -> @math.Rect {
-  { position: @math.Vec2::zero(), size: flag_idle_frame_size, }
+fn spawn_flag_entity(x : Double, y : Double) -> Unit {
+  spawn_animated_item(x, y, Vec2(64.0, 64.0), flag_idle_animation, FlagTag::{ })
 }
 
 ///|
-fn default_flag_sprite() -> @sprite.Sprite {
-  Sprite(
-    image=Some(@asset.load_image(FLAG_IDLE_PATH)),
-    rect=Some(flag_idle_frame_rect()),
-    custom_size=Some(flag_idle_frame_size),
-    anchor=Anchor(Vec2(-0.5, 0.5)),
-  )
+fn spawn_apple_entity(x : Double, y : Double) -> Unit {
+  spawn_animated_item(x, y, Vec2(32.0, 32.0), apple_spin_animation, AppleTag::{
+  })
 }
 
 ///|
-fn normalized_flag_sprite(sprite : @sprite.Sprite) -> @sprite.Sprite {
-  let resolved_image = match sprite.image {
-    Some(image) => Some(image)
-    None => Some(@asset.load_image(FLAG_IDLE_PATH))
-  }
-  // Checkpoint flag asset is a horizontal strip (640x64). If no rect is set,
-  // force the first 64x64 frame so we do not sample the entire strip.
-  let resolved_rect = match sprite.rect {
-    Some(rect) => Some(rect)
-    None =>
-      match resolved_image.bind(@asset.image_path) {
-        Some(path) if path == FLAG_IDLE_PATH => Some(flag_idle_frame_rect())
-        _ => None
-      }
-  }
-  let resolved_custom_size = match sprite.custom_size {
-    Some(size) => Some(size)
-    None => Some(flag_idle_frame_size)
-  }
-  Sprite(
-    image=resolved_image,
-    texture_atlas=sprite.texture_atlas,
-    rect=resolved_rect,
-    color=sprite.color,
-    custom_size=resolved_custom_size,
-    anchor=sprite.anchor,
-    flip_x=sprite.flip_x,
-    flip_y=sprite.flip_y,
-    image_mode=sprite.image_mode,
-  )
-}
-
-///|
-fn configure_flag_entity(entity : @ecs.Entity) -> Unit {
-  let flag_sprite = match @sprite.sprites().get(entity) {
-    Some(sprite) => normalized_flag_sprite(sprite)
-    None => default_flag_sprite()
-  }
-  @sprite.sprites().set(entity, flag_sprite)
-  if flag_sprite.image.bind(@asset.image_path) == Some(FLAG_IDLE_PATH) {
-    @sprite.sprites().set(entity, sprite_animation_sprite(flag_idle_animation))
-    ignore(install_sprite_animation_player(entity, flag_idle_animation))
-  }
-  set_entity_z(entity, ITEM_Z)
-  @physics2d.shapes().set(
-    entity,
-    Rect(size=Vec2(64.0, 64.0), offset=@math.Vec2::zero()),
-  )
-  @physics2d.areas().set(
-    entity,
-    @physics2d.Area(
-      @physics2d.CollisionFilter(trigger_collision_group, [
-        player_collision_group,
-      ]),
+fn[T : @ecs.Bundle] spawn_animated_item(
+  x : Double,
+  y : Double,
+  size : @math.Vec2,
+  animation : SpriteAnimationDef,
+  tag : T,
+) -> Unit {
+  let (graph, nodes) = @animation.AnimationGraph::from_clips([
+    build_sprite_animation_clip_asset(animation),
+  ])
+  let graph_handle = @animation.register_animation_graph_asset(graph)
+  let player = @animation.AnimationPlayer()
+  ignore(player.play(nodes[0], repeat=Forever))
+  let shape : @physics2d.ColliderShape = Rect(size~, offset=@math.Vec2::zero())
+  let entity = spawn_game_entity(
+    (
+      @transform.Transform::from_xyz(x, y, ITEM_Z),
+      sprite_animation_sprite(animation),
+      shape,
+      @physics2d.Area(
+        @physics2d.CollisionFilter(trigger_collision_group, [
+          player_collision_group,
+        ]),
+      ),
+      tag,
+      graph_handle,
+      player,
+      (@animation.AnimationTransitions(), @animation.AnimationTargetId("self")),
     ),
   )
-  flags().set(entity, FlagTag::{ })
-}
-
-///|
-fn configure_apple_entity(entity : @ecs.Entity) -> Unit {
-  @sprite.sprites().set(entity, sprite_animation_sprite(apple_spin_animation))
-  ignore(install_sprite_animation_player(entity, apple_spin_animation))
-  set_entity_z(entity, ITEM_Z)
-  @physics2d.shapes().set(
-    entity,
-    Rect(size=Vec2(32.0, 32.0), offset=@math.Vec2::zero()),
-  )
-  @physics2d.areas().set(
-    entity,
-    @physics2d.Area(
-      @physics2d.CollisionFilter(trigger_collision_group, [
-        player_collision_group,
-      ]),
-    ),
-  )
-  apples().set(entity, AppleTag::{ })
+  @animation.animated_bys().set(entity, @animation.AnimatedBy(entity))
 }

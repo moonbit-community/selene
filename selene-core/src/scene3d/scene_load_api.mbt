@@ -98,9 +98,9 @@ pub fn instantiate_scene_instance(
   scene : @render3d.SceneHandle,
   root_transform : @transform.Transform,
 ) -> SceneInstance {
-  let root = @ecs.require_current_world().spawn(())
-  @transform.transforms().set(root, root_transform)
-  @name.names().set(root, Name("scene_root"))
+  let root = @ecs.require_current_world().spawn(
+    (root_transform, @name.Name("scene_root")),
+  )
   let parts : Map[String, @ecs.Entity] = Map([])
   guard scene_templates.get(scene) is Some(template) else {
     return { root, parts, animations: Map([]), }
