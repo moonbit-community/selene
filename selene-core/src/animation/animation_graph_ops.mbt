@@ -14,13 +14,25 @@ pub fn animated_bys() -> @ecs.ComponentStore[AnimatedBy] {
 }
 
 ///|
-fn skinned_meshes() -> @ecs.ComponentStore[SkinnedMeshBinding3D] {
-  @ecs.components()
+let skinned_meshes_key : @ecs.ResourceKey[
+  Map[@ecs.Entity, SkinnedMeshBinding3D],
+] = ResourceKey()
+
+///|
+fn skinned_meshes() -> Map[@ecs.Entity, SkinnedMeshBinding3D] {
+  skinned_meshes_key.get_or_insert_with(@ecs.require_current_world(), _ => {
+    Map([])
+  })
 }
 
 ///|
-fn morphed_meshes() -> @ecs.ComponentStore[MorphMeshBinding3D] {
-  @ecs.components()
+let morphed_meshes_key : @ecs.ResourceKey[Map[@ecs.Entity, MorphMeshBinding3D]] = ResourceKey()
+
+///|
+fn morphed_meshes() -> Map[@ecs.Entity, MorphMeshBinding3D] {
+  morphed_meshes_key.get_or_insert_with(@ecs.require_current_world(), _ => {
+    Map([])
+  })
 }
 
 ///|

@@ -124,11 +124,11 @@ fn setup_camera() -> Unit {
   ignore(
     spawn_tank3d_entity(
       (
-        @transform.Transform::{
+        @transform.Spatial(@transform.Transform::{
           translation: position,
           rotation: look_at_rotation(position, vec3(0.0, 0.55, 0.0)),
           scale: @math.Vec3::one(),
-        },
+        }),
         @camera3d.Camera3DComponent::{
           ..@camera3d.Camera3DComponent(),
           clear_color: color(18U, 22U, 28U, 1.0),
@@ -148,13 +148,16 @@ fn setup_lighting() -> Unit {
   )
   ignore(
     spawn_tank3d_entity(
-      @ecs.Single(@render3d.DirectionalLight3D::{
-        ..@render3d.DirectionalLight3D(),
-        direction: vec3(-0.35, -0.82, -0.46).normalize(),
-        color: color(255U, 244U, 220U, 1.0),
-        intensity: 2.1,
-        shadows: false,
-      }),
+      (
+        @transform.Spatial(@transform.Transform::identity()),
+        @render3d.DirectionalLight3D::{
+          ..@render3d.DirectionalLight3D(),
+          direction: vec3(-0.35, -0.82, -0.46).normalize(),
+          color: color(255U, 244U, 220U, 1.0),
+          intensity: 2.1,
+          shadows: false,
+        },
+      ),
     ),
   )
 }
@@ -172,11 +175,11 @@ fn setup_floor() -> Unit {
   ignore(
     spawn_tank3d_entity(
       (
-        @transform.Transform::{
+        @transform.Spatial(@transform.Transform::{
           translation: vec3(0.0, -0.02, 0.0),
           rotation: @math.Quat::identity(),
           scale: @math.Vec3::one(),
-        },
+        }),
         @render3d.Mesh3DRenderer::{
           mesh,
           material,
@@ -197,7 +200,7 @@ fn rotate_tank_system(_world : @ecs.World) -> Unit {
     @math.Vec3::y_axis(),
     (@time.elapsed() - state.start_time) * 0.35,
   )
-  @transform.transforms().set(root, {
+  @transform.set_local_transform(root, {
     translation: vec3(0.0, 0.5, 0.0),
     rotation: yaw * tank_basis_rotation(),
     scale: vec3(TANK_SCALE, TANK_SCALE, TANK_SCALE),

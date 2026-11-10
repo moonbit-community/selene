@@ -104,7 +104,7 @@ pub fn render_mesh2d_system(delta : Double) -> Unit {
   for entity, mesh in mesh2ds() {
     guard entity.is_alive() else { continue }
     guard @visibility.is_visible(entity) else { continue }
-    guard @transform.global_transforms().get(entity) is Some(global_transform) else {
+    guard @transform.global_transform(entity) is Some(global_transform) else {
       continue
     }
     guard mesh2d_asset(mesh.mesh) is Some(mesh_asset) else { continue }

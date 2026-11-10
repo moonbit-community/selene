@@ -435,34 +435,10 @@ fn screen_rect_for(
 ///|
 fn cleanup_dead_ui_state() -> Unit {
   let alive = @ecs.alive_in_world(@ecs.require_current_world())
-  nodes().retain(alive)
-  computed_ui_nodes().retain(alive)
-  global_ui_nodes().retain(alive)
-  ui_target_cameras().retain(alive)
-  z_indexes().retain(alive)
-  global_zindexes().retain(alive)
-  scroll_positions().retain(alive)
-  tab_indexes().retain(alive)
-  focus_policies().retain(alive)
-  focusables().retain(alive)
-  focuseds().retain(alive)
-  override_clips().retain(alive)
-  relative_cursor_positions().retain(alive)
-  background_colors().retain(alive)
-  border_colors().retain(alive)
-  border_radii().retain(alive)
-  outlines().retain(alive)
-  material_nodes().retain(alive)
-  ui_images().retain(alive)
-  texts().retain(alive)
-  text_fonts().retain(alive)
-  text_colors().retain(alive)
-  text_layouts().retain(alive)
-  buttons().retain(alive)
-  interactions().retain(alive)
-  calculated_clips().retain(alive)
-  layout_configs().retain(alive)
-  tree_orders().retain(alive)
+  focuseds().retain((entity, _) => alive(entity))
+  interactions().retain((entity, _) => alive(entity))
+  let world = @ecs.require_current_world()
+  scroll_positions().retain((entity, _) => entity.is_valid_in(world))
 }
 
 ///|
@@ -542,7 +518,7 @@ fn apply_layout_recursive(
     effective_scroll_position = Vec2(scroll.x, scroll.y)
   }
 
-  computed_ui_nodes().set(entity, {
+  let computed : ComputedUiNode = {
     position: logical_pos,
     size: logical_size,
     content_position,
@@ -550,21 +526,22 @@ fn apply_layout_recursive(
     max_scroll_position,
     border,
     padding,
-  })
+  }
   let screen_rect = screen_rect_for(
     logical_rect, effective_layout_space, use_rounding,
   )
   let screen_content_rect = screen_rect_for(
     logical_content_rect, effective_layout_space, use_rounding,
   )
-  global_ui_nodes().set(entity, {
+  let global : GlobalUiNode = {
     logical_rect,
     screen_rect,
     logical_content_rect,
     screen_content_rect,
     target_camera: effective_target_camera,
     target_viewport: effective_layout_space.viewport,
-  })
+  }
+  ui_geometry().set(entity, { computed, global, })
 
   let inherited_clip : @math.Rect? = if override_clips().contains(entity) {
     None
@@ -584,7 +561,7 @@ fn apply_layout_recursive(
   }
   match current_clip {
     Some(rect) => calculated_clips().set(entity, CalculatedClip(rect))
-    None => calculated_clips().remove(entity)
+    None => ignore(calculated_clips().remove(entity))
   }
 
   let next_origin = @math.Vec2(

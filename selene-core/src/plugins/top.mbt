@@ -226,13 +226,6 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @tiled.tiled_parallax_system,
-    Update,
-    "Tiled Parallax System",
-    in_set=gameplay,
-  )
-  let app = add_system(
-    app,
     @audio.audio_event_playback_system,
     PostUpdate,
     "Audio Event Playback System",

@@ -21,7 +21,7 @@ fn camera2d_view(entity : @ecs.Entity) -> Camera2dView? {
   guard entity.is_alive() else { return None }
   guard cameras().get(entity) is Some(camera) else { return None }
   guard camera2ds().contains(entity) else { return None }
-  guard @transform.global_transforms().get(entity) is Some(global_transform) else {
+  guard @transform.global_transform(entity) is Some(global_transform) else {
     return None
   }
   let projection = orthographic_projections().get(entity).unwrap_or_default()

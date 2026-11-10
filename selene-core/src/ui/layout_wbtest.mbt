@@ -1,34 +1,6 @@
 ///|
 fn cleanup_layout_test_entity(entity : @ecs.Entity) -> Unit {
-  nodes().remove(entity)
-  computed_ui_nodes().remove(entity)
-  global_ui_nodes().remove(entity)
-  ui_target_cameras().remove(entity)
-  calculated_clips().remove(entity)
-  layout_configs().remove(entity)
-  z_indexes().remove(entity)
-  global_zindexes().remove(entity)
-  scroll_positions().remove(entity)
-  focus_policies().remove(entity)
-  focusables().remove(entity)
-  focuseds().remove(entity)
-  override_clips().remove(entity)
-  relative_cursor_positions().remove(entity)
-  background_colors().remove(entity)
-  border_colors().remove(entity)
-  border_radii().remove(entity)
-  box_shadows().remove(entity)
-  outlines().remove(entity)
-  material_nodes().remove(entity)
-  ui_images().remove(entity)
-  texts().remove(entity)
-  text_fonts().remove(entity)
-  text_colors().remove(entity)
-  text_layouts().remove(entity)
-  buttons().remove(entity)
-  interactions().remove(entity)
-  tree_orders().remove(entity)
-  entity.destroy()
+  ignore(entity.delete())
 }
 
 ///|
@@ -103,10 +75,11 @@ test "ui nodes map block display and aspect ratio into block layout" {
 
 ///|
 test "ui wrapped text contributes lines to auto height" {
-  let entity = @ecs.require_current_world().spawn(())
-  texts().set(entity, Text("hello world"))
-  text_fonts().set(entity, TextFont(size=16.0))
-  text_layouts().set(entity, TextLayout(wrap=WordWrap))
+  let entity_draft = @ecs.require_current_world().spawn_draft()
+  entity_draft.add_to(texts(), Text("hello world"))
+  entity_draft.add_to(text_fonts(), TextFont(size=16.0))
+  entity_draft.add_to(text_layouts(), TextLayout(wrap=WordWrap))
+  let entity = entity_draft.spawn()
 
   let measured = measure_node(
     Size(width=Some(60.0), height=None),
@@ -145,9 +118,9 @@ test "ui wrapped text contributes lines to auto height" {
 
 ///|
 test "ui layout uses wrapped text height in the computed node" {
-  let entity = @ecs.require_current_world().spawn(())
-  nodes().set(
-    entity,
+  let entity_draft = @ecs.require_current_world().spawn_draft()
+  entity_draft.add_to(
+    nodes(),
     Node(
       width=Val::px(60.0),
       position_type=Absolute,
@@ -155,16 +128,14 @@ test "ui layout uses wrapped text height in the computed node" {
       top=Val::px(0.0),
     ),
   )
-  texts().set(entity, Text("hello world"))
-  text_fonts().set(entity, TextFont(size=16.0))
-  text_layouts().set(entity, TextLayout(wrap=WordWrap))
+  entity_draft.add_to(texts(), Text("hello world"))
+  entity_draft.add_to(text_fonts(), TextFont(size=16.0))
+  entity_draft.add_to(text_layouts(), TextLayout(wrap=WordWrap))
+  let entity = entity_draft.spawn()
 
   ui_layout_system(0.0)
 
-  debug_inspect(
-    computed_ui_nodes().get(entity).unwrap().size,
-    content="Vec2(60, 32)",
-  )
+  debug_inspect(computed_ui_node(entity).unwrap().size, content="Vec2(60, 32)")
   cleanup_layout_test_entity(entity)
 }
 
@@ -284,19 +255,19 @@ test "ui nodes map style-only grid and flex fields into chicle style" {
 
 ///|
 test "ui layout uses overflow clip margins from the requested visual box" {
-  let entity = @ecs.require_current_world().spawn(())
-  nodes().set(
-    entity,
-    Node::absolute(
-      Vec2(10.0, 20.0),
-      size=Vec2(100.0, 80.0),
-      padding=UiRectValues::px(left=6.0),
-      border=UiRectValues::px(left=4.0),
-      overflow_x=Hidden,
-      overflow_y=Hidden,
-      overflow_clip_margin=OverflowClipMargin::padding_box().with_margin(3.0),
-    ),
-  )
+  let entity = nodes()
+    .spawn_plan(@ecs.require_current_world())
+    .spawn(
+      Node::absolute(
+        Vec2(10.0, 20.0),
+        size=Vec2(100.0, 80.0),
+        padding=UiRectValues::px(left=6.0),
+        border=UiRectValues::px(left=4.0),
+        overflow_x=Hidden,
+        overflow_y=Hidden,
+        overflow_clip_margin=OverflowClipMargin::padding_box().with_margin(3.0),
+      ),
+    )
 
   ui_layout_system(0.0)
 
@@ -311,11 +282,7 @@ test "ui layout uses overflow clip margins from the requested visual box" {
 
 ///|
 test "ui layout projects nested border and padding offsets exactly once" {
-  let parent = @ecs.require_current_world().spawn(())
-  let child = parent.spawn_child()
-  let grandchild = child.spawn_child()
-  nodes().set(
-    parent,
+  let parent = @ecs.require_current_world().spawn1(
     Node::absolute(
       Vec2(10.0, 20.0),
       size=Vec2(100.0, 80.0),
@@ -323,26 +290,29 @@ test "ui layout projects nested border and padding offsets exactly once" {
       border=UiRectValues::all(2.0),
     ),
   )
-  nodes().set(
-    child,
+  let child = @ecs.require_current_world().spawn1(
     Node(
       width=Val::px(40.0),
       height=Val::px(30.0),
       padding=UiRectValues::all(3.0),
       border=UiRectValues::all(1.0),
     ),
+    parent~,
   )
-  nodes().set(grandchild, Node(width=Val::px(10.0), height=Val::px(10.0)))
+  let grandchild = @ecs.require_current_world().spawn1(
+    Node(width=Val::px(10.0), height=Val::px(10.0)),
+    parent=child,
+  )
 
   ui_layout_system(0.0)
 
   debug_inspect(
     (
-      computed_ui_nodes().get(parent).unwrap().position,
-      computed_ui_nodes().get(parent).unwrap().content_position,
-      computed_ui_nodes().get(child).unwrap().position,
-      computed_ui_nodes().get(child).unwrap().content_position,
-      computed_ui_nodes().get(grandchild).unwrap().position,
+      computed_ui_node(parent).unwrap().position,
+      computed_ui_node(parent).unwrap().content_position,
+      computed_ui_node(child).unwrap().position,
+      computed_ui_node(child).unwrap().content_position,
+      computed_ui_node(grandchild).unwrap().position,
     ),
     content=(
       #|(Vec2(10, 20), Vec2(18, 28), Vec2(18, 28), Vec2(22, 32), Vec2(22, 32))
@@ -396,46 +366,49 @@ test "ui layout config controls screen-space rounding for viewport-scaled rects"
 ///|
 test "ui target camera layouts use the camera viewport as screen-space origin" {
   @system.configure_display(200.0, 120.0, 1.0)
-  let camera = @ecs.require_current_world().spawn(())
-  @camera.cameras().set(
-    camera,
+  let camera_draft = @ecs.require_current_world().spawn_draft()
+  camera_draft.add_to(
+    @camera.cameras(),
     Camera(viewport=Some(CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0)))),
   )
-  @camera.camera2ds().set(camera, Camera2d())
-  @transform.global_transforms().set(
-    camera,
-    @transform.GlobalTransform::from_transform(@transform.Transform::default()),
+  camera_draft.add_to(@camera.camera2ds(), Camera2d())
+  camera_draft.add_to(
+    @transform.spatials(),
+    @transform.Spatial(
+      @transform.GlobalTransform::from_transform(
+        @transform.Transform::default(),
+      ).compute_transform(),
+    ),
   )
+  let camera = camera_draft.spawn()
 
-  let entity = @ecs.require_current_world().spawn(())
-  nodes().set(entity, Node::absolute(Vec2(4.0, 6.0), size=Vec2(20.0, 10.0)))
-  ui_target_cameras().set(entity, UiTargetCamera(camera))
+  let entity_draft = @ecs.require_current_world().spawn_draft()
+  entity_draft.add_to(
+    nodes(),
+    Node::absolute(Vec2(4.0, 6.0), size=Vec2(20.0, 10.0)),
+  )
+  entity_draft.add_to(ui_target_cameras(), UiTargetCamera(camera))
+  let entity = entity_draft.spawn()
 
   ui_layout_system(0.0)
 
-  let global = global_ui_nodes().get(entity).unwrap()
+  let global = global_ui_node(entity).unwrap()
   inspect(global.screen_rect.position[X] == 24.0, content="true")
   inspect(global.screen_rect.position[Y] == 16.0, content="true")
   inspect(global.target_camera == Some(camera), content="true")
 
   cleanup_layout_test_entity(entity)
-  @camera.cameras().remove(camera)
-  @camera.camera2ds().remove(camera)
-  @transform.global_transforms().remove(camera)
-  camera.destroy()
+  ignore(camera.delete())
 }
 
 ///|
 test "ui layout clamps scroll positions to overflowing content" {
-  let parent = @ecs.require_current_world().spawn(())
-  let child = parent.spawn_child()
-  nodes().set(
-    parent,
+  let parent = @ecs.require_current_world().spawn1(
     Node::absolute(Vec2(0.0, 0.0), size=Vec2(100.0, 100.0), overflow_y=Scroll),
   )
-  nodes().set(
-    child,
+  let child = @ecs.require_current_world().spawn1(
     Node(width=Val::px(100.0), height=Val::px(300.0), flex_shrink=0.0),
+    parent~,
   )
   scroll_positions().set(parent, { x: 80.0, y: 1000.0, })
 
@@ -443,7 +416,7 @@ test "ui layout clamps scroll positions to overflowing content" {
 
   let scroll = scroll_positions().get(parent).unwrap()
   debug_inspect([scroll.x, scroll.y], content="[0, 200]")
-  let initial = computed_ui_nodes().get(parent).unwrap()
+  let initial = computed_ui_node(parent).unwrap()
   debug_inspect(
     [initial.max_scroll_position, Vec2(scroll.x, scroll.y)],
     content="[Vec2(0, 200), Vec2(0, 200)]",
@@ -454,7 +427,7 @@ test "ui layout clamps scroll positions to overflowing content" {
     Node::absolute(Vec2(0.0, 0.0), size=Vec2(100.0, 250.0), overflow_y=Scroll),
   )
   ui_layout_system(0.0)
-  let resized = computed_ui_nodes().get(parent).unwrap()
+  let resized = computed_ui_node(parent).unwrap()
   debug_inspect(
     [resized.max_scroll_position[Y], scroll_positions().get(parent).unwrap().y],
     content="[50, 50]",
@@ -465,7 +438,7 @@ test "ui layout clamps scroll positions to overflowing content" {
     Node(width=Val::px(100.0), height=Val::px(120.0), flex_shrink=0.0),
   )
   ui_layout_system(0.0)
-  let shrunk = computed_ui_nodes().get(parent).unwrap()
+  let shrunk = computed_ui_node(parent).unwrap()
   debug_inspect(
     [shrunk.max_scroll_position[Y], scroll_positions().get(parent).unwrap().y],
     content="[0, 0]",
@@ -481,7 +454,7 @@ test "ui layout clamps scroll positions to overflowing content" {
     Node::absolute(Vec2(0.0, 0.0), size=Vec2(100.0, 100.0), overflow_y=Hidden),
   )
   ui_layout_system(0.0)
-  let disabled = computed_ui_nodes().get(parent).unwrap()
+  let disabled = computed_ui_node(parent).unwrap()
   debug_inspect(
     [disabled.max_scroll_position[Y], scroll_positions().get(parent).unwrap().y],
     content="[0, 0]",
@@ -493,10 +466,7 @@ test "ui layout clamps scroll positions to overflowing content" {
 
 ///|
 test "ui scrolling preserves nested border and padding offsets" {
-  let parent = @ecs.require_current_world().spawn(())
-  let child = parent.spawn_child()
-  nodes().set(
-    parent,
+  let parent = @ecs.require_current_world().spawn1(
     Node::absolute(
       Vec2(10.0, 20.0),
       size=Vec2(100.0, 100.0),
@@ -505,16 +475,16 @@ test "ui scrolling preserves nested border and padding offsets" {
       overflow_y=Scroll,
     ),
   )
-  nodes().set(
-    child,
+  let child = @ecs.require_current_world().spawn1(
     Node(width=Val::px(84.0), height=Val::px(300.0), flex_shrink=0.0),
+    parent~,
   )
   scroll_positions().set(parent, { x: 0.0, y: 20.0, })
 
   ui_layout_system(0.0)
 
   debug_inspect(
-    computed_ui_nodes().get(child).unwrap().position,
+    computed_ui_node(child).unwrap().position,
     content="Vec2(18, 8)",
   )
   cleanup_layout_test_entity(child)
@@ -523,11 +493,7 @@ test "ui scrolling preserves nested border and padding offsets" {
 
 ///|
 test "ui override clip ignores inherited clipping rectangles" {
-  let parent = @ecs.require_current_world().spawn(())
-  let child = parent.spawn_child()
-
-  nodes().set(
-    parent,
+  let parent = @ecs.require_current_world().spawn1(
     Node::absolute(
       Vec2(0.0, 0.0),
       size=Vec2(120.0, 120.0),
@@ -535,8 +501,10 @@ test "ui override clip ignores inherited clipping rectangles" {
       overflow_y=Hidden,
     ),
   )
-  nodes().set(child, Node::absolute(Vec2(90.0, 20.0), size=Vec2(80.0, 40.0)))
-  override_clips().set(child, OverrideClip())
+  let child = @ecs.require_current_world().spawn(
+    (Node::absolute(Vec2(90.0, 20.0), size=Vec2(80.0, 40.0)), OverrideClip()),
+    parent~,
+  )
 
   ui_layout_system(0.0)
 

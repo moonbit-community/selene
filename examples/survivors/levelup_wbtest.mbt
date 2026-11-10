@@ -38,12 +38,10 @@ test "level up shows panel and buttons" {
     Some(survivors_runtime().levelup_buttons[0]),
     content="true",
   )
-  let button_rect = @ui.global_ui_nodes()
-    .get(survivors_runtime().levelup_buttons[0])
-    .unwrap().screen_rect
-  let icon_rect = @ui.global_ui_nodes()
-    .get(survivors_runtime().levelup_button_icons[0])
-    .unwrap().screen_rect
+  let button_rect = @ui.global_ui_node(survivors_runtime().levelup_buttons[0]).unwrap().screen_rect
+  let icon_rect = @ui.global_ui_node(
+      survivors_runtime().levelup_button_icons[0],
+    ).unwrap().screen_rect
   inspect(
     icon_rect.position[X] ==
     button_rect.position[X] + LEVELUP_BUTTON_ICON_OFFSET_X,

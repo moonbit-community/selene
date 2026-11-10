@@ -10,15 +10,15 @@ import {
 // Values
 pub fn compute_global_transform(@ecs.Entity) -> GlobalTransform?
 
-pub fn global_transforms() -> @ecs.ComponentStore[GlobalTransform]
+pub fn global_transform(@ecs.Entity) -> GlobalTransform?
 
-pub fn remove_parent_in_place(@ecs.Entity) -> Unit
+pub fn local_transform(@ecs.Entity) -> Transform?
 
-pub fn set_parent_in_place(@ecs.Entity, @ecs.Entity) -> Unit
+pub fn set_local_transform(@ecs.Entity, Transform) -> Unit
+
+pub fn spatials() -> @ecs.ComponentStore[Spatial]
 
 pub fn transform_propagate_system(Double) -> Unit
-
-pub fn transforms() -> @ecs.ComponentStore[Transform]
 
 // Errors
 
@@ -37,8 +37,16 @@ pub fn GlobalTransform::reparented_to(Self, Self) -> Transform
 pub fn GlobalTransform::to_repr(Self) -> @debug.Repr
 pub fn GlobalTransform::transform_point(Self, @math.Vec3) -> @math.Vec3
 pub fn GlobalTransform::translation(Self) -> @math.Vec3
-pub impl @ecs.Component for GlobalTransform
 pub impl Default for GlobalTransform
+
+pub struct Spatial {
+  // private fields
+}
+pub fn Spatial::Spatial(Transform) -> Self
+pub fn Spatial::global(Self) -> GlobalTransform
+pub fn Spatial::pose(Self) -> Transform
+pub fn Spatial::set_local(Self, Transform) -> Unit
+pub impl @ecs.Component for Spatial
 
 #derive(Eq, @debug.Debug)
 pub(all) struct Transform {
@@ -59,7 +67,6 @@ pub fn Transform::to_repr(Self) -> @debug.Repr
 pub fn Transform::with_rotation(Self, @math.Quat) -> Self
 pub fn Transform::with_scale(Self, @math.Vec3) -> Self
 pub fn Transform::with_translation(Self, @math.Vec3) -> Self
-pub impl @ecs.Component for Transform
 pub impl Default for Transform
 
 // Type aliases

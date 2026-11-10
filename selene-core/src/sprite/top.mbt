@@ -82,19 +82,19 @@ pub fn Sprite::from_color(
 }
 
 ///|
-let sprite_query : (@ecs.World) -> @ecs.Query2[
-  Sprite,
-  @transform.GlobalTransform,
-] = @ecs.cache_query(world => {
-  Query2(@ecs.components_in(world), @ecs.components_in(world))
-})
+let sprite_query : (@ecs.World) -> @ecs.Query2[Sprite, @transform.Spatial] = @ecs.cache_query(world => {
+    Query2(@ecs.components_in(world), @ecs.components_in(world))
+  },
+)
 
 ///|
 /// Visits Sprites with a GlobalTransform in contiguous archetype rows.
 pub fn for_each_sprite_transform(
   visit : (@ecs.Entity, Sprite, @transform.GlobalTransform) -> Unit,
 ) -> Unit {
-  sprite_query(@ecs.require_current_world()).for_each(visit)
+  sprite_query(@ecs.require_current_world()).for_each((entity, sprite, spatial) => {
+    visit(entity, sprite, spatial.global())
+  })
 }
 
 ///|

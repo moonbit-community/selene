@@ -37,70 +37,16 @@ test "load_ldtk_project reads UTF-8 LDtk asset bytes" {
 
 ///|
 fn ldtk_test_entity_translation_2d(entity : @ecs.Entity) -> @math.Vec2 {
-  let transform = @transform.transforms().get(entity).unwrap_or_default()
+  let transform = @transform.local_transform(entity).unwrap_or_default()
   Vec2(transform.translation.x, transform.translation.y)
 }
 
 ///|
 fn reset_ldtk_runtime() -> Unit {
-  for pair in ldtk_world_instances().to_array() {
-    ldtk_world_instances().remove(pair.0)
+  for entity in ldtk_world_instances().keys().collect() {
+    despawn_ldtk_tree(entity)
   }
-  for pair in ldtk_level_instances().to_array() {
-    ldtk_level_instances().remove(pair.0)
-  }
-  for pair in ldtk_layer_metadata().to_array() {
-    ldtk_layer_metadata().remove(pair.0)
-  }
-  for pair in ldtk_level_backgrounds().to_array() {
-    ldtk_level_backgrounds().remove(pair.0)
-  }
-  for pair in ldtk_level_iids().to_array() {
-    ldtk_level_iids().remove(pair.0)
-  }
-  for pair in ldtk_entity_iids().to_array() {
-    ldtk_entity_iids().remove(pair.0)
-  }
-  for pair in ldtk_grid_coords().to_array() {
-    ldtk_grid_coords().remove(pair.0)
-  }
-  for pair in ldtk_int_grid_cells().to_array() {
-    let entity = pair.0
-    @physics2d.areas().remove(entity)
-    @physics2d.colliders().remove(entity)
-    @physics2d.shapes().remove(entity)
-    @physics2d.rigid_bodies().remove(entity)
-    ldtk_int_grid_cells().remove(entity)
-  }
-  for pair in ldtk_tile_metadata().to_array() {
-    ldtk_tile_metadata().remove(pair.0)
-  }
-  for pair in ldtk_int_grid_colliders().to_array() {
-    let entity = pair.0
-    @physics2d.areas().remove(entity)
-    @physics2d.colliders().remove(entity)
-    @physics2d.shapes().remove(entity)
-    @physics2d.rigid_bodies().remove(entity)
-    ldtk_int_grid_colliders().remove(entity)
-  }
-  for pair in ldtk_worldly_entities().to_array() {
-    ldtk_worldly_entities().remove(pair.0)
-  }
-  for pair in ldtk_respawns().to_array() {
-    ldtk_respawns().remove(pair.0)
-  }
-  for pair in ldtk_spawned_layer_instances().to_array() {
-    ldtk_spawned_layer_instances().remove(pair.0)
-  }
-  for pair in ldtk_spawned_tile_instances().to_array() {
-    ldtk_spawned_tile_instances().remove(pair.0)
-  }
-  for pair in ldtk_spawned_entity_instances().to_array() {
-    ldtk_spawned_entity_instances().remove(pair.0)
-  }
-  for pair in ldtk_spawned_int_grid_cells().to_array() {
-    ldtk_spawned_int_grid_cells().remove(pair.0)
-  }
+  ldtk_respawns().clear()
   for pair in ldtk_pending_transformed_level_iids().to_array() {
     ldtk_pending_transformed_level_iids().remove(pair.0)
   }
@@ -1704,11 +1650,12 @@ test "ldtk intgrid spawn hooks apply by layer and cell value" {
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 2, 1, [1, 2]),
   ])
+  let observed : Map[@ecs.Entity, Bool] = Map([])
   register_ldtk_int_grid_layer_spawn_hook("Collision", fn(event) {
-    ldtk_int_grid_colliders().set(event.cell_entity, { sensor: false, })
+    observed.set(event.cell_entity, false)
   })
   register_ldtk_int_grid_cell_spawn_hook("Collision", 2, fn(event) {
-    ldtk_int_grid_colliders().set(event.cell_entity, { sensor: true, })
+    observed.set(event.cell_entity, true)
   })
 
   set_ldtk_settings(LdtkSettings())
@@ -1728,14 +1675,8 @@ test "ldtk intgrid spawn hooks apply by layer and cell value" {
   }
   let value_1_entity = cell_value_1.unwrap()
   let value_2_entity = cell_value_2.unwrap()
-  inspect(
-    ldtk_int_grid_colliders().get(value_1_entity).unwrap().sensor,
-    content="false",
-  )
-  inspect(
-    ldtk_int_grid_colliders().get(value_2_entity).unwrap().sensor,
-    content="true",
-  )
+  inspect(observed.get(value_1_entity).unwrap(), content="false")
+  inspect(observed.get(value_2_entity).unwrap(), content="true")
 
   cleanup_ldtk_entity(world)
 }

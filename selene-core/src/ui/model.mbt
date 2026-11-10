@@ -603,7 +603,6 @@ pub fn Node::absolute(
 }
 
 ///|
-#selene.component
 pub(all) struct ComputedUiNode {
   position : @math.Vec2
   size : @math.Vec2
@@ -615,7 +614,6 @@ pub(all) struct ComputedUiNode {
 }
 
 ///|
-#selene.component
 pub(all) struct GlobalUiNode {
   logical_rect : @math.Rect
   screen_rect : @math.Rect
@@ -652,7 +650,6 @@ pub fn UiLayoutSpace::UiLayoutSpace(
 }
 
 ///|
-#selene.component
 pub(all) struct CalculatedClip {
   clip : @math.Rect
 }
@@ -704,7 +701,6 @@ pub fn GlobalZIndex::GlobalZIndex(value : Int32) -> GlobalZIndex {
 
 ///|
 #derive(Eq, Debug)
-#selene.component
 pub(all) struct ScrollPosition {
   mut x : Double
   mut y : Double
@@ -736,7 +732,6 @@ pub(all) enum FocusPolicy {
 }
 
 ///|
-#selene.component
 pub(all) struct Focused {
   _tag : Unit
 }
@@ -791,24 +786,37 @@ pub fn RelativeCursorPosition::mouse_over(
 
 ///|
 priv struct UiModelWorldStore {
-  tree_orders : @ecs.ComponentStore[Int32]
+  scroll_positions : Map[@ecs.Entity, ScrollPosition]
+  tree_orders : Map[@ecs.Entity, Int32]
+  geometry : Map[@ecs.Entity, UiGeometry]
+  calculated_clips : Map[@ecs.Entity, CalculatedClip]
+  focuseds : Map[@ecs.Entity, Focused]
+  interactions : Map[@ecs.Entity, Interaction]
   ui_stack_entities : Array[@ecs.Entity]
+  extracted_entities : Array[@ecs.Entity]
 }
 
 ///|
 let ui_model_world_store_key : @ecs.ResourceKey[UiModelWorldStore] = ResourceKey()
 
 ///|
-fn UiModelWorldStore::UiModelWorldStore(
-  world : @ecs.World,
-) -> UiModelWorldStore {
-  { tree_orders: ComponentStore(world), ui_stack_entities: [], }
+fn UiModelWorldStore::UiModelWorldStore() -> UiModelWorldStore {
+  {
+    scroll_positions: {},
+    tree_orders: {},
+    geometry: {},
+    calculated_clips: {},
+    focuseds: {},
+    interactions: {},
+    ui_stack_entities: [],
+    extracted_entities: [],
+  }
 }
 
 ///|
 fn ui_model_world_store() -> UiModelWorldStore {
-  ui_model_world_store_key.get_or_insert_with(@ecs.require_current_world(), world => {
-    UiModelWorldStore(world)
+  ui_model_world_store_key.get_or_insert_with(@ecs.require_current_world(), _ => {
+    UiModelWorldStore()
   })
 }
 
@@ -818,13 +826,24 @@ pub fn nodes() -> @ecs.ComponentStore[Node] {
 }
 
 ///|
-pub fn computed_ui_nodes() -> @ecs.ComponentStore[ComputedUiNode] {
-  @ecs.components()
+priv struct UiGeometry {
+  computed : ComputedUiNode
+  global : GlobalUiNode
 }
 
 ///|
-pub fn global_ui_nodes() -> @ecs.ComponentStore[GlobalUiNode] {
-  @ecs.components()
+fn ui_geometry() -> Map[@ecs.Entity, UiGeometry] {
+  ui_model_world_store().geometry
+}
+
+///|
+pub fn computed_ui_node(entity : @ecs.Entity) -> ComputedUiNode? {
+  ui_geometry().get(entity).map(geometry => geometry.computed)
+}
+
+///|
+pub fn global_ui_node(entity : @ecs.Entity) -> GlobalUiNode? {
+  ui_geometry().get(entity).map(geometry => geometry.global)
 }
 
 ///|
@@ -833,8 +852,8 @@ pub fn ui_target_cameras() -> @ecs.ComponentStore[UiTargetCamera] {
 }
 
 ///|
-pub fn calculated_clips() -> @ecs.ComponentStore[CalculatedClip] {
-  @ecs.components()
+pub fn calculated_clips() -> Map[@ecs.Entity, CalculatedClip] {
+  ui_model_world_store().calculated_clips
 }
 
 ///|
@@ -853,8 +872,8 @@ pub fn global_zindexes() -> @ecs.ComponentStore[GlobalZIndex] {
 }
 
 ///|
-pub fn scroll_positions() -> @ecs.ComponentStore[ScrollPosition] {
-  @ecs.components()
+pub fn scroll_positions() -> Map[@ecs.Entity, ScrollPosition] {
+  ui_model_world_store().scroll_positions
 }
 
 ///|
@@ -873,8 +892,8 @@ pub fn focusables() -> @ecs.ComponentStore[Focusable] {
 }
 
 ///|
-pub fn focuseds() -> @ecs.ComponentStore[Focused] {
-  @ecs.components()
+pub fn focuseds() -> Map[@ecs.Entity, Focused] {
+  ui_model_world_store().focuseds
 }
 
 ///|
@@ -890,7 +909,7 @@ pub fn relative_cursor_positions() -> @ecs.ComponentStore[
 }
 
 ///|
-fn tree_orders() -> @ecs.ComponentStore[Int32] {
+fn tree_orders() -> Map[@ecs.Entity, Int32] {
   ui_model_world_store().tree_orders
 }
 
@@ -939,7 +958,7 @@ fn full_screen_ui_viewport() -> @math.Rect {
 pub fn ui_layout_space(target_camera : @ecs.Entity?) -> UiLayoutSpace {
   match target_camera {
     Some(target_camera) => {
-      if !@transform.global_transforms().contains(target_camera) {
+      if !(@transform.global_transform(target_camera) is Some(_)) {
         return UiLayoutSpace(full_screen_ui_viewport())
       }
       for view in @camera.active_camera2d_views() {
@@ -1020,7 +1039,7 @@ fn ui_children(entity : @ecs.Entity) -> Array[@ecs.Entity] {
 ///|
 fn is_stacked_ui_entity(entity : @ecs.Entity) -> Bool {
   guard entity.is_alive() &&
-    global_ui_nodes().contains(entity) &&
+    ui_geometry().contains(entity) &&
     nodes().get(entity) is Some(node) else {
     return false
   }
@@ -1070,7 +1089,7 @@ fn rebuild_ui_stack() -> Unit {
   let ordered = ui_stack()
   ordered.clear()
   let roots : Array[@ecs.Entity] = []
-  for entity, _ in global_ui_nodes() {
+  for entity, _ in ui_geometry() {
     guard is_stacked_ui_entity(entity) else { continue }
     let hierarchy_root = match entity.get_parent() {
       Some(parent) => !is_stacked_ui_entity(parent)

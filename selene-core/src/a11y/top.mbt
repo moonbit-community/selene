@@ -102,11 +102,6 @@ pub fn tree_id() -> @moon_accesskit.TreeId {
 }
 
 ///|
-pub fn attach(entity : @ecs.Entity, a11y : A11y) -> Unit {
-  a11ys().set(entity, a11y)
-}
-
-///|
 pub fn get_focused_entity() -> @ecs.Entity? {
   @ui.focused_entity()
 }
@@ -294,7 +289,7 @@ fn build_hierarchy(
 
 ///|
 fn resolve_bounds(entity : @ecs.Entity) -> @moon_accesskit.Rect? {
-  guard @ui.global_ui_nodes().get(entity) is Some(node) else { return None }
+  guard @ui.global_ui_node(entity) is Some(node) else { return None }
   Some(
     Rect(
       node.screen_rect.position[X],

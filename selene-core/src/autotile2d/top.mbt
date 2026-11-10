@@ -549,7 +549,6 @@ pub fn update_cell_and_resolve_diff(
 }
 
 ///|
-#selene.component
 priv struct RuntimeLayerState {
   source : AutoTileLayerSource
   tile_entities : Map[String, @ecs.Entity]
@@ -557,8 +556,12 @@ priv struct RuntimeLayerState {
 }
 
 ///|
-fn runtime_layers() -> @ecs.ComponentStore[RuntimeLayerState] {
-  @ecs.components()
+let runtime_layers_key : @ecs.ResourceKey[Map[@ecs.Entity, RuntimeLayerState]] = ResourceKey()
+
+///|
+fn runtime_layers() -> Map[@ecs.Entity, RuntimeLayerState] {
+  let world = @ecs.require_current_world()
+  runtime_layers_key.get_or_insert_with(world, _ => Map([]))
 }
 
 ///|
@@ -575,7 +578,7 @@ fn tile_position(
 
 ///|
 fn apply_tile_visual(
-  plan : @ecs.SpawnPlan[(@transform.Transform, @sprite.Sprite)],
+  plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)],
   layer_entity : @ecs.Entity,
   source : AutoTileLayerSource,
   solved : AutoTileSolvedTile,
@@ -589,7 +592,9 @@ fn apply_tile_visual(
   let position = tile_position(source, solved.x, solved.y)
   let tile_entity = plan.spawn(
     (
-      @transform.Transform::from_xyz(position[X], position[Y], context.z),
+      @transform.Spatial(
+        @transform.Transform::from_xyz(position[X], position[Y], context.z),
+      ),
       @sprite.Sprite(
         image=visual.image_path.map(fn(path) { @asset.load_image(path) }),
         rect=visual.rect,
@@ -597,15 +602,15 @@ fn apply_tile_visual(
         anchor=visual.anchor,
       ),
     ),
+    parent=layer_entity,
   )
-  tile_entity.set_parent(layer_entity)
   Some(tile_entity)
 }
 
 ///|
 fn destroy_layer_tiles(state : RuntimeLayerState) -> Unit {
   for _, tile_entity in state.tile_entities {
-    tile_entity.destroy()
+    ignore(tile_entity.delete())
   }
 }
 
@@ -615,13 +620,15 @@ pub fn register_runtime_layer(
   source : AutoTileLayerSource,
   context~ : AutoTileRuntimeContext = AutoTileRuntimeContext(),
 ) -> Unit {
+  let world = @ecs.require_current_world()
+  guard layer_entity.is_alive() else { return }
   let layers = runtime_layers()
+  layers.retain((entity, _) => entity.is_valid_in(world))
   if layers.get(layer_entity) is Some(previous) {
     destroy_layer_tiles(previous)
-    ignore(layers.remove(layer_entity))
   }
   let state : RuntimeLayerState = { source, tile_entities: Map([]), context, }
-  let plan : @ecs.SpawnPlan[(@transform.Transform, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
+  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
   for solved in solve_autotile_layer(source) {
     let key = cell_key(solved.x, solved.y)
     if apply_tile_visual(plan, layer_entity, source, solved, context)
@@ -645,15 +652,15 @@ fn apply_diff_to_runtime(
   for removed in diff.removed_tiles {
     let key = cell_key(removed.x, removed.y)
     if tile_entities.get(key) is Some(entity_) {
-      entity_.destroy()
+      ignore(entity_.delete())
       ignore(tile_entities.remove(key))
     }
   }
-  let plan : @ecs.SpawnPlan[(@transform.Transform, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
+  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
   for changed in diff.changed_tiles {
     let key = cell_key(changed.x, changed.y)
     if tile_entities.get(key) is Some(entity_) {
-      entity_.destroy()
+      ignore(entity_.delete())
       ignore(tile_entities.remove(key))
     }
     if apply_tile_visual(
@@ -678,7 +685,9 @@ pub fn set_runtime_cell(
   terrain : Int32,
 ) -> Unit {
   let layers = runtime_layers()
-  guard layers.get(layer_entity) is Some(state) else { return }
+  guard layer_entity.is_alive() && layers.get(layer_entity) is Some(state) else {
+    return
+  }
   let diff = update_cell_and_resolve_diff(state.source, x, y, Some(terrain))
   layers.set(layer_entity, apply_diff_to_runtime(layer_entity, state, diff))
 }
@@ -690,7 +699,9 @@ pub fn remove_runtime_cell(
   y : Int32,
 ) -> Unit {
   let layers = runtime_layers()
-  guard layers.get(layer_entity) is Some(state) else { return }
+  guard layer_entity.is_alive() && layers.get(layer_entity) is Some(state) else {
+    return
+  }
   let diff = update_cell_and_resolve_diff(state.source, x, y, None)
   layers.set(layer_entity, apply_diff_to_runtime(layer_entity, state, diff))
 }
@@ -698,11 +709,14 @@ pub fn remove_runtime_cell(
 ///|
 pub fn rebuild_runtime_layer(layer_entity : @ecs.Entity) -> Unit {
   let layers = runtime_layers()
-  guard layers.get(layer_entity) is Some(state) else { return }
+  guard layer_entity.is_alive() && layers.get(layer_entity) is Some(state) else {
+    return
+  }
   register_runtime_layer(layer_entity, state.source, context=state.context)
 }
 
 ///|
 pub fn runtime_layer_source(layer_entity : @ecs.Entity) -> AutoTileLayerSource? {
+  guard layer_entity.is_alive() else { None }
   runtime_layers().get(layer_entity).map(fn(state) { state.source })
 }

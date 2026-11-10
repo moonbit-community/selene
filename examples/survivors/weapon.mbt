@@ -143,7 +143,7 @@ priv struct PlayerBulletState {
 type PlayerBulletSpawnPlan = @ecs.SpawnPlan[
   (
     @sprite.Sprite,
-    @transform.Transform,
+    @transform.Spatial,
     @physics2d.Velocity,
     @physics2d.ColliderShape,
     @physics2d.Area,
@@ -244,10 +244,12 @@ fn shoot_weapon_bullet(
   let bullet_entity = runtime.player_bullet_plan.spawn(
     (
       player_bullet_visual(),
-      @transform.Transform::from_xyz(
-        bullet_spawn_pos[X],
-        bullet_spawn_pos[Y],
-        BULLET_ZINDEX.to_double(),
+      @transform.Spatial(
+        @transform.Transform::from_xyz(
+          bullet_spawn_pos[X],
+          bullet_spawn_pos[Y],
+          BULLET_ZINDEX.to_double(),
+        ),
       ),
       @physics2d.Velocity(dir.scalar_mul(weapon_data.bullet_speed)),
       shape,
@@ -265,10 +267,7 @@ fn shoot_weapon_bullet(
   // Calculate bullet duration based on weapon range
   let weapon_range = calculate_weapon_range(weapon_data, 0.0)
   let bullet_duration = weapon_range / weapon_data.bullet_speed
-  survivors_timeout(bullet_duration, fn() {
-    bullet_entity.destroy()
-    player_bullets().remove(bullet_entity)
-  })
+  survivors_timeout(bullet_duration, fn() { ignore(bullet_entity.delete()) })
 }
 
 ///|
@@ -278,10 +277,7 @@ fn start_bullet_despawn(bullet_entity : @ecs.Entity) -> Unit {
     return
   }
   bullet.alive = false
-  @physics2d.linear_velocities().remove(bullet_entity)
-  @physics2d.areas().remove(bullet_entity)
-  bullet_entity.destroy()
-  player_bullets().remove(bullet_entity)
+  ignore(bullet_entity.delete())
 }
 
 ///|
@@ -297,7 +293,7 @@ fn player_bullet_trigger_system(_world : @ecs.World) -> Unit {
       enemy.health -= bullet.damage
       bullet.penetration_count += 1
       if enemy.health <= 0.0 {
-        event.other.destroy()
+        ignore(event.other.delete())
         let data = get_enemy_data(enemy.enemy_type)
         set_score(game_state().score + data.points)
         add_exp(data.points)

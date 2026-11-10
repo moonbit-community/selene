@@ -18,17 +18,17 @@ test "archetype batch reads and writes" (bench : @bench.T) {
     let a : ComponentStore[Int32] = ComponentStore(world)
     let b : ComponentStore[Int32] = ComponentStore(world)
     let tag : ComponentStore[Unit] = ComponentStore(world)
-    let first = world.spawn(())
-    a.set(first, 0)
-    b.set(first, 1)
+    let single = a.spawn_plan(world)
+    let pair = single.combine(b.spawn_plan(world))
+    let tagged = pair.combine(tag.spawn_plan(world))
+    let first = pair.spawn((0, 1))
     for i in 1..<size {
-      let entity = world.spawn(())
-      a.set(entity, i)
-      if i % 4 != 0 {
-        b.set(entity, i + 1)
-        if i % 2 == 0 {
-          tag.set(entity, ())
-        }
+      if i % 4 == 0 {
+        ignore(single.spawn(i))
+      } else if i % 2 == 0 {
+        ignore(tagged.spawn(((i, i + 1), ())))
+      } else {
+        ignore(pair.spawn((i, i + 1)))
       }
     }
     let query = Query2(a, b)

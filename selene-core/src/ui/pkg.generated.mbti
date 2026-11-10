@@ -45,11 +45,11 @@ pub fn box_shadows() -> @ecs.ComponentStore[BoxShadow]
 
 pub fn buttons() -> @ecs.ComponentStore[Button]
 
-pub fn calculated_clips() -> @ecs.ComponentStore[CalculatedClip]
+pub fn calculated_clips() -> Map[@ecs.Entity, CalculatedClip]
 
 pub let click_event_bus : @event.Events[UiClickEvent]
 
-pub fn computed_ui_nodes() -> @ecs.ComponentStore[ComputedUiNode]
+pub fn computed_ui_node(@ecs.Entity) -> ComputedUiNode?
 
 pub fn consume_pointer(@inputs.PointerId) -> Unit
 
@@ -79,11 +79,11 @@ pub fn focusables() -> @ecs.ComponentStore[Focusable]
 
 pub fn focused_entity() -> @ecs.Entity?
 
-pub fn focuseds() -> @ecs.ComponentStore[Focused]
+pub fn focuseds() -> Map[@ecs.Entity, Focused]
 
 pub fn get_ui_scale_mode() -> UiScaleMode
 
-pub fn global_ui_nodes() -> @ecs.ComponentStore[GlobalUiNode]
+pub fn global_ui_node(@ecs.Entity) -> GlobalUiNode?
 
 pub fn global_zindexes() -> @ecs.ComponentStore[GlobalZIndex]
 
@@ -127,7 +127,7 @@ pub fn grid_span(Int32) -> GridPlacement
 
 pub fn hovered_entity() -> @ecs.Entity?
 
-pub fn interactions() -> @ecs.ComponentStore[Interaction]
+pub fn interactions() -> Map[@ecs.Entity, Interaction]
 
 pub fn is_pointer_consumed(@inputs.PointerId) -> Bool
 
@@ -169,7 +169,7 @@ pub fn release_ui_material_asset(UiMaterialHandle) -> Unit
 
 pub fn rgba(Int32, Int32, Int32, Double) -> @render.Color
 
-pub fn scroll_positions() -> @ecs.ComponentStore[ScrollPosition]
+pub fn scroll_positions() -> Map[@ecs.Entity, ScrollPosition]
 
 pub fn set_ui_scale_mode(UiScaleMode) -> Unit
 
@@ -303,7 +303,6 @@ pub(all) struct CalculatedClip {
   clip : @math.Rect
 }
 pub fn CalculatedClip::CalculatedClip(@math.Rect) -> Self
-pub impl @ecs.Component for CalculatedClip
 
 pub(all) struct ComputedUiNode {
   position : @math.Vec2
@@ -314,7 +313,6 @@ pub(all) struct ComputedUiNode {
   border : UiInsets
   padding : UiInsets
 }
-pub impl @ecs.Component for ComputedUiNode
 
 #derive(Eq, @debug.Debug)
 pub(all) enum Display {
@@ -368,7 +366,6 @@ pub(all) struct Focused {
   _tag : Unit
 }
 pub fn Focused::Focused() -> Self
-pub impl @ecs.Component for Focused
 
 pub(all) struct GlobalUiNode {
   logical_rect : @math.Rect
@@ -378,7 +375,6 @@ pub(all) struct GlobalUiNode {
   target_camera : @ecs.Entity?
   target_viewport : @math.Rect
 }
-pub impl @ecs.Component for GlobalUiNode
 
 #derive(Eq, @debug.Debug)
 pub(all) struct GlobalZIndex {
@@ -467,7 +463,6 @@ pub(all) enum Interaction {
 pub fn Interaction::equal(Self, Self) -> Bool
 pub fn Interaction::not_equal(Self, Self) -> Bool
 pub fn Interaction::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Component for Interaction
 
 #derive(Eq, @debug.Debug)
 pub(all) enum JustifyContent {
@@ -638,7 +633,6 @@ pub fn ScrollPosition::equal(Self, Self) -> Bool
 pub fn ScrollPosition::not_equal(Self, Self) -> Bool
 pub fn ScrollPosition::to_repr(Self) -> @debug.Repr
 pub fn ScrollPosition::zero() -> Self
-pub impl @ecs.Component for ScrollPosition
 
 #derive(Eq, @debug.Debug)
 pub(all) struct ShadowStyle {

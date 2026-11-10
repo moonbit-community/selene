@@ -9,39 +9,34 @@ fn collision_test_shape() -> CollisionShape {
 }
 
 ///|
-fn set_test_translation(entity : @ecs.Entity, position : @math.Vec2) -> Unit {
-  let current = @transform.transforms().get(entity).unwrap_or_default()
-  @transform.transforms().set(entity, {
-    ..current,
-    translation: Vec3(position[X], position[Y], current.translation.z),
-  })
+fn test_spatial(position : @math.Vec2) -> @transform.Spatial {
+  @transform.Spatial(
+    @transform.Transform::from_xyz(position[X], position[Y], 0.0),
+  )
 }
 
 ///|
-fn remove_test_transform(entity : @ecs.Entity) -> Unit {
-  @transform.transforms().remove(entity)
+fn spawn_test_body(
+  body : RigidBody,
+  position~ : @math.Vec2 = @math.Vec2::zero(),
+  shape~ : CollisionShape = collision_test_shape(),
+  collider~ : Collider = Collider(collision_test_filter()),
+) -> @ecs.Entity {
+  @ecs.require_current_world().spawn(
+    (test_spatial(position), shape, collider, body),
+  )
 }
 
 ///|
 fn test_translation(entity : @ecs.Entity) -> @math.Vec2 {
-  let transform = @transform.transforms().get(entity).unwrap_or_default()
+  let transform = @transform.local_transform(entity).unwrap_or_default()
   Vec2(transform.translation.x, transform.translation.y)
 }
 
 ///|
 fn collision_test_cleanup(entities : Array[@ecs.Entity]) -> Unit {
   for entity in entities {
-    colliders().remove(entity)
-    areas().remove(entity)
-    shapes().remove(entity)
-    rigid_bodies().remove(entity)
-    joints().remove(entity)
-    multibody_joints().remove(entity)
-    @velocity.velocities().remove(entity)
-    resolved_velocities().remove(entity)
-    grounded_entities().remove(entity)
-    remove_test_transform(entity)
-    entity.destroy()
+    ignore(entity.delete())
   }
   rapier_fixed_step(0.016)
   try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
@@ -64,27 +59,22 @@ test "explicit rigid body syncs material and rapier handles" {
     pixels_per_meter=100.0,
     max_ccd_substeps=4,
   )
-  let entity = @ecs.require_current_world().spawn(())
-  defer collision_test_cleanup([entity])
-
-  set_test_translation(entity, @math.Vec2::zero())
-  shapes().set(entity, collision_test_shape())
-  colliders().set(
-    entity,
-    Collider::with_material(
+  let entity = spawn_test_body(
+    {
+      ..RigidBody::dynamic(),
+      gravity_scale: 2.0,
+      linear_damping: 1.5,
+      angular_damping: 0.25,
+      ccd_enabled: true,
+      lock_rotation: false,
+    },
+    collider=Collider::with_material(
       collision_test_filter(),
       friction=0.2,
       restitution=0.75,
     ),
   )
-  rigid_bodies().set(entity, {
-    ..RigidBody::dynamic(),
-    gravity_scale: 2.0,
-    linear_damping: 1.5,
-    angular_damping: 0.25,
-    ccd_enabled: true,
-    lock_rotation: false,
-  })
+  defer collision_test_cleanup([entity])
 
   rapier_fixed_step(0.016)
 
@@ -139,13 +129,8 @@ test "dynamic rigid body moves under gravity without legacy velocity component" 
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let entity = @ecs.require_current_world().spawn(())
+  let entity = spawn_test_body(RigidBody::dynamic())
   defer collision_test_cleanup([entity])
-
-  set_test_translation(entity, @math.Vec2::zero())
-  shapes().set(entity, collision_test_shape())
-  colliders().set(entity, Collider(collision_test_filter()))
-  rigid_bodies().set(entity, RigidBody::dynamic())
 
   rapier_fixed_step(0.1)
 
@@ -165,18 +150,24 @@ test "explicit body type overrides legacy velocity heuristic" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let fixed_entity = @ecs.require_current_world().spawn(())
-  let kinematic_entity = @ecs.require_current_world().spawn(())
+  let world = @ecs.require_current_world()
+  let spatial = () => test_spatial(@math.Vec2::zero())
+  let shape = collision_test_shape()
+  let collider = Collider(collision_test_filter())
+  let velocity = @velocity.Velocity(Vec2(120.0, 0.0))
+  let fixed_entity = world.spawn(
+    (spatial(), shape, collider, velocity, RigidBody::fixed()),
+  )
+  let kinematic_entity = world.spawn(
+    (
+      spatial(),
+      shape,
+      collider,
+      velocity,
+      RigidBody::kinematic_velocity_based(),
+    ),
+  )
   defer collision_test_cleanup([fixed_entity, kinematic_entity])
-
-  for entity in [fixed_entity, kinematic_entity] {
-    set_test_translation(entity, @math.Vec2::zero())
-    shapes().set(entity, collision_test_shape())
-    colliders().set(entity, Collider(collision_test_filter()))
-    @velocity.velocities().set(entity, Vec2(120.0, 0.0))
-  }
-  rigid_bodies().set(fixed_entity, RigidBody::fixed())
-  rigid_bodies().set(kinematic_entity, RigidBody::kinematic_velocity_based())
 
   rapier_fixed_step(0.25)
 
@@ -197,34 +188,26 @@ test "spatial queries resolve hits, overlaps, and body filters" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let fixed_entity = @ecs.require_current_world().spawn(())
-  let dynamic_entity = @ecs.require_current_world().spawn(())
-  let kinematic_entity = @ecs.require_current_world().spawn(())
+  let shape : CollisionShape = Rect(
+    size=Vec2(40.0, 40.0),
+    offset=@math.Vec2::zero(),
+  )
+  let fixed_entity = spawn_test_body(
+    RigidBody::fixed(),
+    position=Vec2(120.0, 80.0),
+    shape~,
+  )
+  let dynamic_entity = spawn_test_body(
+    RigidBody::dynamic(),
+    position=Vec2(220.0, 80.0),
+    shape~,
+  )
+  let kinematic_entity = spawn_test_body(
+    RigidBody::kinematic_position_based(),
+    position=Vec2(320.0, 80.0),
+    shape~,
+  )
   defer collision_test_cleanup([fixed_entity, dynamic_entity, kinematic_entity])
-
-  set_test_translation(fixed_entity, Vec2(120.0, 80.0))
-  shapes().set(
-    fixed_entity,
-    Rect(size=Vec2(40.0, 40.0), offset=@math.Vec2::zero()),
-  )
-  colliders().set(fixed_entity, Collider(collision_test_filter()))
-  rigid_bodies().set(fixed_entity, RigidBody::fixed())
-
-  set_test_translation(dynamic_entity, Vec2(220.0, 80.0))
-  shapes().set(
-    dynamic_entity,
-    Rect(size=Vec2(40.0, 40.0), offset=@math.Vec2::zero()),
-  )
-  colliders().set(dynamic_entity, Collider(collision_test_filter()))
-  rigid_bodies().set(dynamic_entity, RigidBody::dynamic())
-
-  set_test_translation(kinematic_entity, Vec2(320.0, 80.0))
-  shapes().set(
-    kinematic_entity,
-    Rect(size=Vec2(40.0, 40.0), offset=@math.Vec2::zero()),
-  )
-  colliders().set(kinematic_entity, Collider(collision_test_filter()))
-  rigid_bodies().set(kinematic_entity, RigidBody::kinematic_position_based())
 
   rapier_fixed_step(0.016)
 
@@ -292,13 +275,8 @@ test "rigid body setters and getters work before insertion" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let entity = @ecs.require_current_world().spawn(())
+  let entity = spawn_test_body({ ..RigidBody::dynamic(), lock_rotation: false, })
   defer collision_test_cleanup([entity])
-
-  set_test_translation(entity, @math.Vec2::zero())
-  shapes().set(entity, collision_test_shape())
-  colliders().set(entity, Collider(collision_test_filter()))
-  rigid_bodies().set(entity, { ..RigidBody::dynamic(), lock_rotation: false, })
 
   set_rigid_body_translation(entity, Vec2(32.0, 12.0))
   set_rigid_body_rotation(entity, 0.25)
@@ -350,13 +328,8 @@ test "force and impulse helpers apply before and after body creation" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let entity = @ecs.require_current_world().spawn(())
+  let entity = spawn_test_body({ ..RigidBody::dynamic(), lock_rotation: false, })
   defer collision_test_cleanup([entity])
-
-  set_test_translation(entity, @math.Vec2::zero())
-  shapes().set(entity, collision_test_shape())
-  colliders().set(entity, Collider(collision_test_filter()))
-  rigid_bodies().set(entity, { ..RigidBody::dynamic(), lock_rotation: false, })
 
   apply_impulse(entity, Vec2(200.0, 0.0))
   apply_torque_impulse(entity, 1.0)
@@ -396,22 +369,16 @@ test "impulse joints insert and accept all supported joint kinds" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let body_a = @ecs.require_current_world().spawn(())
-  let body_b = @ecs.require_current_world().spawn(())
-  let joint_entity = @ecs.require_current_world().spawn(())
+  let body_a = spawn_test_body(RigidBody::fixed())
+  let body_b = spawn_test_body(
+    { ..RigidBody::dynamic(), lock_rotation: false, },
+    position=Vec2(32.0, 0.0),
+  )
+  let joint_entity = @ecs.require_current_world().spawn1(
+    Joint::fixed(body_a, body_b),
+  )
   defer collision_test_cleanup([body_a, body_b, joint_entity])
 
-  set_test_translation(body_a, @math.Vec2::zero())
-  shapes().set(body_a, collision_test_shape())
-  colliders().set(body_a, Collider(collision_test_filter()))
-  rigid_bodies().set(body_a, RigidBody::fixed())
-
-  set_test_translation(body_b, Vec2(32.0, 0.0))
-  shapes().set(body_b, collision_test_shape())
-  colliders().set(body_b, Collider(collision_test_filter()))
-  rigid_bodies().set(body_b, { ..RigidBody::dynamic(), lock_rotation: false, })
-
-  joints().set(joint_entity, Joint::fixed(body_a, body_b))
   rapier_fixed_step(0.016)
   inspect(joint_handle(joint_entity) is Some(_), content="true")
   inspect(world().impulse_joints.len() == 1, content="true")
@@ -480,26 +447,17 @@ test "impulse joints are removed when endpoints disappear" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let body_a = @ecs.require_current_world().spawn(())
-  let body_b = @ecs.require_current_world().spawn(())
-  let joint_entity = @ecs.require_current_world().spawn(())
+  let body_a = spawn_test_body(RigidBody::dynamic())
+  let body_b = spawn_test_body(RigidBody::dynamic(), position=Vec2(32.0, 0.0))
+  let joint_entity = @ecs.require_current_world().spawn1(
+    Joint::fixed(body_a, body_b),
+  )
   defer collision_test_cleanup([body_a, body_b, joint_entity])
-
-  for entry in [(body_a, @math.Vec2::zero()), (body_b, Vec2(32.0, 0.0))] {
-    set_test_translation(entry.0, entry.1)
-    shapes().set(entry.0, collision_test_shape())
-    colliders().set(entry.0, Collider(collision_test_filter()))
-    rigid_bodies().set(entry.0, RigidBody::dynamic())
-  }
-  joints().set(joint_entity, Joint::fixed(body_a, body_b))
 
   rapier_fixed_step(0.016)
   inspect(joint_handle(joint_entity) is Some(_), content="true")
 
-  colliders().remove(body_b)
-  shapes().remove(body_b)
-  rigid_bodies().remove(body_b)
-  remove_test_transform(body_b)
+  ignore(body_b.delete())
 
   rapier_fixed_step(0.016)
 
@@ -514,45 +472,41 @@ test "multibody joints insert, expose handles, and rebuild chains" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let parent = @ecs.require_current_world().spawn(())
-  let child = @ecs.require_current_world().spawn(())
-  let grandchild = @ecs.require_current_world().spawn(())
+  let ecs_world = @ecs.require_current_world()
+  let body = { ..RigidBody::dynamic(), lock_rotation: false, }
+  let parent = spawn_test_body(body)
+  let shape = collision_test_shape()
+  let collider = Collider(collision_test_filter())
+  let child = ecs_world.spawn(
+    (
+      test_spatial(Vec2(32.0, 0.0)),
+      shape,
+      collider,
+      body,
+      MultibodyJoint::revolute(
+        parent,
+        local_anchor1=Vec2(8.0, 0.0),
+        local_anchor2=Vec2(-8.0, 0.0),
+        limits=JointLimits(-0.5, 0.5),
+        motor=JointMotor::position(0.25, 4.0, 0.75, max_force=2.0),
+        softness=JointSoftness(0.8, 6.0),
+      ),
+    ),
+  )
+  let grandchild = ecs_world.spawn(
+    (
+      test_spatial(Vec2(64.0, 0.0)),
+      shape,
+      collider,
+      body,
+      MultibodyJoint::revolute(
+        child,
+        local_anchor1=Vec2(8.0, 0.0),
+        local_anchor2=Vec2(-8.0, 0.0),
+      ),
+    ),
+  )
   defer collision_test_cleanup([parent, child, grandchild])
-
-  for
-    entry in [
-      (parent, @math.Vec2::zero()),
-      (child, Vec2(32.0, 0.0)),
-      (grandchild, Vec2(64.0, 0.0)),
-    ] {
-    set_test_translation(entry.0, entry.1)
-    shapes().set(entry.0, collision_test_shape())
-    colliders().set(entry.0, Collider(collision_test_filter()))
-    rigid_bodies().set(entry.0, {
-      ..RigidBody::dynamic(),
-      lock_rotation: false,
-    })
-  }
-
-  multibody_joints().set(
-    child,
-    MultibodyJoint::revolute(
-      parent,
-      local_anchor1=Vec2(8.0, 0.0),
-      local_anchor2=Vec2(-8.0, 0.0),
-      limits=JointLimits(-0.5, 0.5),
-      motor=JointMotor::position(0.25, 4.0, 0.75, max_force=2.0),
-      softness=JointSoftness(0.8, 6.0),
-    ),
-  )
-  multibody_joints().set(
-    grandchild,
-    MultibodyJoint::revolute(
-      child,
-      local_anchor1=Vec2(8.0, 0.0),
-      local_anchor2=Vec2(-8.0, 0.0),
-    ),
-  )
 
   rapier_fixed_step(0.016)
 
@@ -645,17 +599,17 @@ test "multibody joints are removed when endpoints disappear" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let parent = @ecs.require_current_world().spawn(())
-  let child = @ecs.require_current_world().spawn(())
+  let parent = spawn_test_body(RigidBody::dynamic())
+  let child = @ecs.require_current_world().spawn(
+    (
+      test_spatial(Vec2(32.0, 0.0)),
+      collision_test_shape(),
+      Collider(collision_test_filter()),
+      RigidBody::dynamic(),
+      MultibodyJoint::revolute(parent),
+    ),
+  )
   defer collision_test_cleanup([parent, child])
-
-  for entry in [(parent, @math.Vec2::zero()), (child, Vec2(32.0, 0.0))] {
-    set_test_translation(entry.0, entry.1)
-    shapes().set(entry.0, collision_test_shape())
-    colliders().set(entry.0, Collider(collision_test_filter()))
-    rigid_bodies().set(entry.0, RigidBody::dynamic())
-  }
-  multibody_joints().set(child, MultibodyJoint::revolute(parent))
 
   rapier_fixed_step(0.016)
   inspect(multibody_joint_handle(child) is Some(_), content="true")
@@ -664,10 +618,7 @@ test "multibody joints are removed when endpoints disappear" {
     content="true",
   )
 
-  colliders().remove(parent)
-  shapes().remove(parent)
-  rigid_bodies().remove(parent)
-  remove_test_transform(parent)
+  ignore(parent.delete())
 
   rapier_fixed_step(0.016)
 

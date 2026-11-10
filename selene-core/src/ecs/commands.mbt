@@ -15,8 +15,23 @@ pub fn Commands::add(self : Commands, command : (World) -> Unit) -> Unit {
 
 ///|
 /// Queues a component value or tuple for insertion at the end of the schedule.
-pub fn[T : Bundle] Commands::spawn(self : Commands, values : T) -> Entity {
-  self.spawn_prepared(self.world.prepare_spawn(), values)
+pub fn[T : Bundle] Commands::spawn(
+  self : Commands,
+  values : T,
+  parent? : Entity,
+) -> Entity {
+  self.spawn_prepared(self.world.prepare_spawn(), values, parent?)
+}
+
+///|
+/// Queues an entity with one component.
+pub fn[T : Component] Commands::spawn1(
+  self : Commands,
+  value : T,
+  parent? : Entity,
+) -> Entity {
+  let plan : SpawnPlan[T] = component_spawn_plan(self.world)
+  self.spawn_prepared(plan, value, parent?)
 }
 
 ///|
@@ -25,8 +40,9 @@ pub fn[T] Commands::spawn_prepared(
   self : Commands,
   plan : SpawnPlan[T],
   values : T,
+  parent? : Entity,
 ) -> Entity {
-  plan.queue_spawn(self.world, values)
+  plan.queue_spawn(self.world, values, parent)
 }
 
 ///|
@@ -43,27 +59,4 @@ pub fn Commands::delete(self : Commands, entity : Entity) -> Unit {
 ///|
 pub fn has_pending_commands(world : World) -> Bool {
   !queues.get_or_insert_with(world, _ => CommandQueue()).pending.is_empty()
-}
-
-///|
-/// Queues an insertion into an archetype component store.
-pub fn[T] Commands::insert_component(
-  self : Commands,
-  storage : ComponentStore[T],
-  entity : Entity,
-  value : T,
-) -> Unit {
-  guard entity.belongs_to(self.world) else { return }
-  self.add(_ => storage.set(entity, value))
-}
-
-///|
-/// Queues a removal from an archetype component store.
-pub fn[T] Commands::remove_component(
-  self : Commands,
-  storage : ComponentStore[T],
-  entity : Entity,
-) -> Unit {
-  guard entity.belongs_to(self.world) else { return }
-  self.add(_ => storage.remove(entity))
 }

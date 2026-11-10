@@ -184,11 +184,11 @@ fn setup_camera(config : PerfConfig) -> Unit {
   ignore(
     spawn_perf_entity(
       (
-        @transform.Transform::{
+        @transform.Spatial(@transform.Transform::{
           translation: position,
           rotation: look_at_rotation(position, @math.Vec3::zero()),
           scale: @math.Vec3::one(),
-        },
+        }),
         @camera3d.Camera3DComponent::{
           ..@camera3d.Camera3DComponent(),
           clear_color: color(18U, 20U, 26U, 1.0),
@@ -207,13 +207,16 @@ fn setup_lights(config : PerfConfig) -> Unit {
   )
   ignore(
     spawn_perf_entity(
-      @ecs.Single(@render3d.DirectionalLight3D::{
-        ..@render3d.DirectionalLight3D(),
-        direction: vec3(-0.35, -0.8, -0.45).normalize(),
-        color: color(255U, 245U, 220U, 1.0),
-        intensity: 1.8,
-        shadows: config.case_name == "shadow-casters",
-      }),
+      (
+        @transform.Spatial(@transform.Transform::identity()),
+        @render3d.DirectionalLight3D::{
+          ..@render3d.DirectionalLight3D(),
+          direction: vec3(-0.35, -0.8, -0.45).normalize(),
+          color: color(255U, 245U, 220U, 1.0),
+          intensity: 1.8,
+          shadows: config.case_name == "shadow-casters",
+        },
+      ),
     ),
   )
 }
@@ -274,14 +277,14 @@ fn spawn_grid(
   let side = ceil_sqrt(config.count)
   let spacing = if config.case_name == "shadow-casters" { 1.35 } else { 1.15 }
   let half = (side - 1).to_double() * spacing * 0.5
-  let plan : @ecs.SpawnPlan[(@transform.Transform, @render3d.Mesh3DRenderer)] = @ecs.require_current_world().prepare_spawn()
+  let plan : @ecs.SpawnPlan[(@transform.Spatial, @render3d.Mesh3DRenderer)] = @ecs.require_current_world().prepare_spawn()
   let tracked = perf_runtime().entities
   for index in 0..<config.count {
     let row = index / side
     let col = index % side
     let entity = plan.spawn(
       (
-        @transform.Transform::{
+        @transform.Spatial(@transform.Transform::{
           translation: vec3(
             col.to_double() * spacing - half,
             0.0,
@@ -289,7 +292,7 @@ fn spawn_grid(
           ),
           rotation: @math.Quat::identity(),
           scale: @math.Vec3::one(),
-        },
+        }),
         @render3d.Mesh3DRenderer::{
           mesh: meshes[index % meshes.length()],
           material,
@@ -323,10 +326,10 @@ fn animate_perf3d(_world : @ecs.World) -> Unit {
   let elapsed = @time.elapsed() - state.animation_start
   for index in 0..<state.entities.length() {
     let entity = state.entities[index]
-    guard @transform.transforms().get(entity) is Some(transform) else {
+    guard @transform.local_transform(entity) is Some(transform) else {
       continue
     }
-    @transform.transforms().set(entity, {
+    @transform.set_local_transform(entity, {
       ..transform,
       rotation: @math.Quat::from_axis_angle(
         vec3(0.0, 1.0, 0.0),

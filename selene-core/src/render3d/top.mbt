@@ -668,7 +668,7 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
     }
     guard meshes.get(renderer.mesh) is Some(_) else { continue }
     guard materials.get(renderer.material) is Some(_) else { continue }
-    guard @transform.global_transforms().get(entity) is Some(global_transform) else {
+    guard @transform.global_transform(entity) is Some(global_transform) else {
       continue
     }
     let transform = global_transform.compute_transform()
@@ -698,7 +698,7 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
   let dir_lights : Array[DirectionalLight3D] = []
   for entity, light in directional_lights3d() {
     if entity.is_alive() {
-      guard @transform.global_transforms().get(entity) is Some(global_transform) else {
+      guard @transform.global_transform(entity) is Some(global_transform) else {
         continue
       }
       let transform = global_transform.compute_transform()
@@ -721,7 +721,7 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
   let point_lights : Array[FramePointLight3D] = []
   for entity, light in point_lights3d() {
     if entity.is_alive() {
-      guard @transform.global_transforms().get(entity) is Some(global_transform) else {
+      guard @transform.global_transform(entity) is Some(global_transform) else {
         continue
       }
       let transform = global_transform.compute_transform()
@@ -740,7 +740,7 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
   let spot_lights : Array[FrameSpotLight3D] = []
   for entity, light in spot_lights3d() {
     if entity.is_alive() {
-      guard @transform.global_transforms().get(entity) is Some(global_transform) else {
+      guard @transform.global_transform(entity) is Some(global_transform) else {
         continue
       }
       let transform = global_transform.compute_transform()

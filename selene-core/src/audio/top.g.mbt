@@ -29,18 +29,3 @@ pub impl @ecs.Component for AudioPlayer with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend AudioPlayer with @ecs.Component::{ component_key }
-
-///|
-let selene_component_key_AudioSink : @ecs.ComponentKey[AudioSink] = ComponentKey(
-
-)
-
-///|
-pub impl @ecs.Component for AudioSink with fn component_key() {
-  selene_component_key_AudioSink
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend AudioSink with @ecs.Component::{ component_key }

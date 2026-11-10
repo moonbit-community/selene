@@ -42,10 +42,12 @@ fn game_start(_world : @ecs.World) -> Unit {
         @camera.Camera(),
         @camera.Camera2d(),
         @camera.OrthographicProjection(),
-        @transform.Transform::from_xyz(
-          VIEWPORT_WIDTH / 2.0,
-          VIEWPORT_HEIGHT / 2.0,
-          0.0,
+        @transform.Spatial(
+          @transform.Transform::from_xyz(
+            VIEWPORT_WIDTH / 2.0,
+            VIEWPORT_HEIGHT / 2.0,
+            0.0,
+          ),
         ),
       ),
     ),

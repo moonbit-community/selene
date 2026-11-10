@@ -6,26 +6,21 @@ pub fn Entity::delete(self : Entity) -> Bool {
   let world = require_current_world()
   guard self.belongs_to(world) else { false }
   let store = entity_store(world~)
-  guard store.archetypes.slot(self) is Some(_) else { false }
+  guard store.archetypes.slot(self) is Some(root) else { false }
   store.archetypes.require_no_query()
 
-  let hierarchy = hierarchy_store()
-  unlink_from_parent(self)
+  store.unlink_child(root, self)
   let pending = [self]
   while pending.pop() is Some(entity) {
     guard entity.belongs_to(world) &&
       store.archetypes.slot(entity) is Some(slot) else {
       continue
     }
-    if hierarchy.parents.get(entity) is Some(parent) {
-      for child in parent.children {
-        if hierarchy.children.get(child) is Some(link) && link.parent == entity {
-          pending.push(child)
-        }
-      }
+    if slot.children is Some(children) {
+      pending.append(children[:])
     }
-    if slot.location is Some(location) {
-      store.archetypes.move_row(entity, Some(location), None)
+    if slot.location is Some((id, row)) {
+      store.archetypes.remove_entity_row(entity, id, row)
     }
     if store.all_entities.contains(entity) {
       if slot.state is Some(Alive) || slot.state is Some(PendingRespawn) {
@@ -33,13 +28,7 @@ pub fn Entity::delete(self : Entity) -> Bool {
       }
       store.all_entities.remove(entity)
     }
-    store.pending_state_changes.remove(entity)
-    slot.state = None
-    // An exhausted generation retires its slot instead of reviving old handles.
-    if slot.generation != 0xffffffffU {
-      slot.generation += 1U
-      store.free_slots.push(entity.slot)
-    }
+    store.release_slot(entity, slot)
   }
   true
 }

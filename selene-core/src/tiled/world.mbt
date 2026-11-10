@@ -1,20 +1,8 @@
 ///|
-fn tiled_world_set_entity_translation_2d(
-  entity : @ecs.Entity,
-  position : @math.Vec2,
-) -> Unit {
-  let current = @transform.transforms().get(entity).unwrap_or_default()
-  @transform.transforms().set(entity, {
-    ..current,
-    translation: Vec3(position[X], position[Y], current.translation.z),
-  })
-}
-
-///|
 fn tiled_world_entity_translation_2d(entity : @ecs.Entity) -> @math.Vec2? {
-  @transform.transforms()
-  .get(entity)
-  .map(fn(transform) { Vec2(transform.translation.x, transform.translation.y) })
+  @transform.local_transform(entity).map(fn(transform) {
+    Vec2(transform.translation.x, transform.translation.y)
+  })
 }
 
 ///|
@@ -67,7 +55,6 @@ pub struct TiledWorldInstance {
 #selene.component
 pub struct TiledWorldMapInstance {
   world_entity : @ecs.Entity
-  map_entity : @ecs.Entity
   world_map : TiledWorldMap
   resolved_map_path : String
 }
@@ -140,39 +127,8 @@ pub fn load_and_spawn_tiled_world(
 pub fn spawn_tiled_world(
   world : TiledWorld,
   settings~ : TiledWorldSpawnSettings = TiledWorldSpawnSettings(),
+  parent? : @ecs.Entity,
 ) -> @ecs.Entity {
-  let world_entity = @ecs.require_current_world().spawn(())
-  spawn_tiled_world_root(world_entity, world, settings)
-  world_entity
-}
-
-///|
-pub fn spawn_tiled_world_into_entity(
-  root : @ecs.Entity,
-  world : TiledWorld,
-  settings~ : TiledWorldSpawnSettings = TiledWorldSpawnSettings(),
-) -> Unit {
-  spawn_tiled_world_root(root, world, settings)
-}
-
-///|
-pub fn respawn_tiled_world_into_entity(
-  root : @ecs.Entity,
-  world : TiledWorld,
-  settings~ : TiledWorldSpawnSettings = TiledWorldSpawnSettings(),
-) -> Unit {
-  clear_tiled_children(root)
-  clear_tiled_root_components(root)
-  spawn_tiled_world_root(root, world, settings)
-}
-
-///|
-fn spawn_tiled_world_root(
-  world_entity : @ecs.Entity,
-  world : TiledWorld,
-  settings : TiledWorldSpawnSettings,
-) -> Unit {
-  tiled_world_set_entity_translation_2d(world_entity, settings.position)
   let loaded_maps_raw = tiled_world_load_maps(world)
   let focus_path = settings.focus_map_path.map(path => {
     world.resolve_map_path(path)
@@ -190,12 +146,13 @@ fn spawn_tiled_world_root(
     })
   }
   let spawned_maps : Map[Int32, @ecs.Entity] = Map([])
-  tiled_world_instances().set(world_entity, {
-    world,
-    settings,
-    loaded_maps,
-    spawned_maps,
-  })
+  let world_entity = @ecs.require_current_world().spawn(
+    (
+      tiled_spatial(settings.position, 0),
+      TiledWorldInstance::{ world, settings, loaded_maps, spawned_maps, },
+    ),
+    parent?,
+  )
   let world_event = { world_entity, world, }
   tiled_world_spawned_event_bus.trigger(world_event, Some(world_entity))
   if settings.world_hook is Some(world_hook) {
@@ -210,6 +167,19 @@ fn spawn_tiled_world_root(
       }
     }
   }
+  world_entity
+}
+
+///|
+/// Replaces a previously imported world under the same parent.
+pub fn replace_tiled_world(
+  root : @ecs.Entity,
+  world : TiledWorld,
+  settings~ : TiledWorldSpawnSettings = TiledWorldSpawnSettings(),
+) -> @ecs.Entity {
+  let parent = root.get_parent()
+  ignore(root.delete())
+  spawn_tiled_world(world, settings~, parent?)
 }
 
 ///|
@@ -327,14 +297,22 @@ fn tiled_world_spawn_loaded_map(
     loaded_map.world_map.y.to_double() +
     instance.settings.map_settings.position[Y],
   )
-  let map_entity = world_entity.spawn_child()
   let map_settings = {
     ..instance.settings.map_settings,
     position: child_offset,
     zindex: instance.settings.map_settings.zindex +
     index * instance.settings.map_z_step,
   }
-  spawn_tiled_map_root(map_entity, loaded_map.map, map_settings)
+  let map_entity = spawn_tiled_map_root(
+    loaded_map.map,
+    map_settings,
+    parent=Some(world_entity),
+    world_map={
+      world_entity,
+      world_map: loaded_map.world_map,
+      resolved_map_path: loaded_map.resolved_map_path,
+    },
+  )
   let world_map_event = {
     world_entity,
     map_entity,
@@ -342,12 +320,6 @@ fn tiled_world_spawn_loaded_map(
     map: loaded_map.map,
     resolved_map_path: loaded_map.resolved_map_path,
   }
-  tiled_world_map_instances().set(map_entity, {
-    world_entity,
-    map_entity,
-    world_map: loaded_map.world_map,
-    resolved_map_path: loaded_map.resolved_map_path,
-  })
   instance.spawned_maps.set(index, map_entity)
   tiled_world_map_spawned_event_bus.trigger(world_map_event, Some(map_entity))
   if instance.settings.world_map_hook is Some(world_map_hook) {

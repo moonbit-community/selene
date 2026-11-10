@@ -26,13 +26,14 @@ fn near(actual : Double, expected : Double, tolerance : Double) -> Bool {
 ///|
 test "same-entity collider uses body world transform only once" {
   with_physics3d_test_world(fn() raise {
-    let body = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      body,
-      @transform.Transform::from_xyz(4.0, 0.0, 0.0),
+    let body_draft = @ecs.require_current_world().spawn_draft()
+    body_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(4.0, 0.0, 0.0)),
     )
-    rigid_bodies().set(body, Fixed)
-    colliders().set(body, Collider::ball(1.0))
+    body_draft.add_to(rigid_bodies(), Fixed)
+    body_draft.add_to(colliders(), Collider::ball(1.0))
+    let body = body_draft.spawn()
 
     step_physics(1)
 
@@ -47,19 +48,21 @@ test "same-entity collider uses body world transform only once" {
 ///|
 test "child collider stays relative to its rigid-body ancestor" {
   with_physics3d_test_world(fn() raise {
-    let body = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      body,
-      @transform.Transform::from_xyz(4.0, 0.0, 0.0),
+    let body_draft = @ecs.require_current_world().spawn_draft()
+    body_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(4.0, 0.0, 0.0)),
     )
-    rigid_bodies().set(body, Fixed)
+    body_draft.add_to(rigid_bodies(), Fixed)
+    let body = body_draft.spawn()
 
-    let child = body.spawn_child()
-    @transform.transforms().set(
-      child,
-      @transform.Transform::from_xyz(0.0, 0.0, 2.0),
+    let child_draft = @ecs.require_current_world().spawn_draft()
+    child_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(0.0, 0.0, 2.0)),
     )
-    colliders().set(child, Collider::ball(0.5))
+    child_draft.add_to(colliders(), Collider::ball(0.5))
+    let child = child_draft.spawn(parent=body)
 
     step_physics(1)
 
@@ -85,23 +88,25 @@ test "child collider stays relative to its rigid-body ancestor" {
 ///|
 test "query filter groups and contact force events work in 3d" {
   with_physics3d_test_world(fn() raise {
-    let filtered = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      filtered,
-      @transform.Transform::from_xyz(5.0, 0.0, 0.0),
+    let filtered_draft = @ecs.require_current_world().spawn_draft()
+    filtered_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(5.0, 0.0, 0.0)),
     )
-    rigid_bodies().set(filtered, Fixed)
-    colliders().set(filtered, Collider::ball(0.5))
-    collision_groups().set(filtered, CollisionGroups(0x1, 0xFFFF_FFFF))
+    filtered_draft.add_to(rigid_bodies(), Fixed)
+    filtered_draft.add_to(colliders(), Collider::ball(0.5))
+    filtered_draft.add_to(collision_groups(), CollisionGroups(0x1, 0xFFFF_FFFF))
+    let filtered = filtered_draft.spawn()
 
-    let excluded = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      excluded,
-      @transform.Transform::from_xyz(2.0, 0.0, 0.0),
+    let excluded_draft = @ecs.require_current_world().spawn_draft()
+    excluded_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)),
     )
-    rigid_bodies().set(excluded, Fixed)
-    colliders().set(excluded, Collider::ball(0.5))
-    collision_groups().set(excluded, CollisionGroups(0x2, 0xFFFF_FFFF))
+    excluded_draft.add_to(rigid_bodies(), Fixed)
+    excluded_draft.add_to(colliders(), Collider::ball(0.5))
+    excluded_draft.add_to(collision_groups(), CollisionGroups(0x2, 0xFFFF_FFFF))
+    let excluded = excluded_draft.spawn()
 
     step_physics(1)
 
@@ -137,21 +142,23 @@ test "query filter groups and contact force events work in 3d" {
 ///|
 test "query filter exclude_entity and body filter work in 3d" {
   with_physics3d_test_world(fn() raise {
-    let dynamic_entity = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      dynamic_entity,
-      @transform.Transform::from_xyz(2.0, 0.0, 0.0),
+    let dynamic_entity_draft = @ecs.require_current_world().spawn_draft()
+    dynamic_entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)),
     )
-    rigid_bodies().set(dynamic_entity, Dynamic)
-    colliders().set(dynamic_entity, Collider::ball(0.5))
+    dynamic_entity_draft.add_to(rigid_bodies(), Dynamic)
+    dynamic_entity_draft.add_to(colliders(), Collider::ball(0.5))
+    let dynamic_entity = dynamic_entity_draft.spawn()
 
-    let fixed_entity = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      fixed_entity,
-      @transform.Transform::from_xyz(5.0, 0.0, 0.0),
+    let fixed_entity_draft = @ecs.require_current_world().spawn_draft()
+    fixed_entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(5.0, 0.0, 0.0)),
     )
-    rigid_bodies().set(fixed_entity, Fixed)
-    colliders().set(fixed_entity, Collider::ball(0.5))
+    fixed_entity_draft.add_to(rigid_bodies(), Fixed)
+    fixed_entity_draft.add_to(colliders(), Collider::ball(0.5))
+    let fixed_entity = fixed_entity_draft.spawn()
 
     step_physics(1)
 
@@ -182,20 +189,22 @@ test "query filter exclude_entity and body filter work in 3d" {
 ///|
 test "query filter exclude_sensors and exclude_solids work in 3d" {
   with_physics3d_test_world(fn() raise {
-    let sensor_entity = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      sensor_entity,
-      @transform.Transform::from_xyz(2.0, 0.0, 0.0),
+    let sensor_entity_draft = @ecs.require_current_world().spawn_draft()
+    sensor_entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)),
     )
-    colliders().set(sensor_entity, Collider::ball(0.5))
-    sensors().set(sensor_entity, Sensor())
+    sensor_entity_draft.add_to(colliders(), Collider::ball(0.5))
+    sensor_entity_draft.add_to(sensors(), Sensor())
+    let sensor_entity = sensor_entity_draft.spawn()
 
-    let solid_entity = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      solid_entity,
-      @transform.Transform::from_xyz(5.0, 0.0, 0.0),
+    let solid_entity_draft = @ecs.require_current_world().spawn_draft()
+    solid_entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(5.0, 0.0, 0.0)),
     )
-    colliders().set(solid_entity, Collider::ball(0.5))
+    solid_entity_draft.add_to(colliders(), Collider::ball(0.5))
+    let solid_entity = solid_entity_draft.spawn()
 
     step_physics(1)
 
@@ -225,21 +234,23 @@ test "query filter exclude_sensors and exclude_solids work in 3d" {
 ///|
 test "cast_shape respects body filter and exclude_entity in 3d" {
   with_physics3d_test_world(fn() raise {
-    let dynamic_entity = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      dynamic_entity,
-      @transform.Transform::from_xyz(2.0, 0.0, 0.0),
+    let dynamic_entity_draft = @ecs.require_current_world().spawn_draft()
+    dynamic_entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)),
     )
-    rigid_bodies().set(dynamic_entity, Dynamic)
-    colliders().set(dynamic_entity, Collider::ball(0.5))
+    dynamic_entity_draft.add_to(rigid_bodies(), Dynamic)
+    dynamic_entity_draft.add_to(colliders(), Collider::ball(0.5))
+    let dynamic_entity = dynamic_entity_draft.spawn()
 
-    let fixed_entity = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      fixed_entity,
-      @transform.Transform::from_xyz(5.0, 0.0, 0.0),
+    let fixed_entity_draft = @ecs.require_current_world().spawn_draft()
+    fixed_entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(5.0, 0.0, 0.0)),
     )
-    rigid_bodies().set(fixed_entity, Fixed)
-    colliders().set(fixed_entity, Collider::ball(0.5))
+    fixed_entity_draft.add_to(rigid_bodies(), Fixed)
+    fixed_entity_draft.add_to(colliders(), Collider::ball(0.5))
+    let fixed_entity = fixed_entity_draft.spawn()
 
     step_physics(1)
 
@@ -280,20 +291,22 @@ test "cast_shape respects body filter and exclude_entity in 3d" {
 ///|
 test "cast_shape respects exclude_sensors and exclude_solids in 3d" {
   with_physics3d_test_world(fn() raise {
-    let sensor_entity = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      sensor_entity,
-      @transform.Transform::from_xyz(2.0, 0.0, 0.0),
+    let sensor_entity_draft = @ecs.require_current_world().spawn_draft()
+    sensor_entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)),
     )
-    colliders().set(sensor_entity, Collider::ball(0.5))
-    sensors().set(sensor_entity, Sensor())
+    sensor_entity_draft.add_to(colliders(), Collider::ball(0.5))
+    sensor_entity_draft.add_to(sensors(), Sensor())
+    let sensor_entity = sensor_entity_draft.spawn()
 
-    let solid_entity = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      solid_entity,
-      @transform.Transform::from_xyz(5.0, 0.0, 0.0),
+    let solid_entity_draft = @ecs.require_current_world().spawn_draft()
+    solid_entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(5.0, 0.0, 0.0)),
     )
-    colliders().set(solid_entity, Collider::ball(0.5))
+    solid_entity_draft.add_to(colliders(), Collider::ball(0.5))
+    let solid_entity = solid_entity_draft.spawn()
 
     step_physics(1)
 
@@ -331,21 +344,23 @@ test "cast_shape respects exclude_sensors and exclude_solids in 3d" {
 ///|
 test "query filter only_kinematic targets kinematic bodies in 3d" {
   with_physics3d_test_world(fn() raise {
-    let kinematic_entity = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      kinematic_entity,
-      @transform.Transform::from_xyz(2.0, 0.0, 0.0),
+    let kinematic_entity_draft = @ecs.require_current_world().spawn_draft()
+    kinematic_entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)),
     )
-    rigid_bodies().set(kinematic_entity, KinematicPositionBased)
-    colliders().set(kinematic_entity, Collider::ball(0.5))
+    kinematic_entity_draft.add_to(rigid_bodies(), KinematicPositionBased)
+    kinematic_entity_draft.add_to(colliders(), Collider::ball(0.5))
+    let kinematic_entity = kinematic_entity_draft.spawn()
 
-    let dynamic_entity = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      dynamic_entity,
-      @transform.Transform::from_xyz(5.0, 0.0, 0.0),
+    let dynamic_entity_draft = @ecs.require_current_world().spawn_draft()
+    dynamic_entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(5.0, 0.0, 0.0)),
     )
-    rigid_bodies().set(dynamic_entity, Dynamic)
-    colliders().set(dynamic_entity, Collider::ball(0.5))
+    dynamic_entity_draft.add_to(rigid_bodies(), Dynamic)
+    dynamic_entity_draft.add_to(colliders(), Collider::ball(0.5))
+    let dynamic_entity = dynamic_entity_draft.spawn()
 
     step_physics(1)
 
@@ -372,20 +387,22 @@ test "query filter only_kinematic targets kinematic bodies in 3d" {
 ///|
 test "collision and intersection events map to selene event buses" {
   with_physics3d_test_world(fn() raise {
-    let sensor_entity = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      sensor_entity,
-      @transform.Transform::from_xyz(10.0, 0.0, 0.0),
+    let sensor_entity_draft = @ecs.require_current_world().spawn_draft()
+    sensor_entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(10.0, 0.0, 0.0)),
     )
-    colliders().set(sensor_entity, Collider::ball(0.5))
-    sensors().set(sensor_entity, Sensor())
+    sensor_entity_draft.add_to(colliders(), Collider::ball(0.5))
+    sensor_entity_draft.add_to(sensors(), Sensor())
+    let sensor_entity = sensor_entity_draft.spawn()
 
-    let other_entity = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      other_entity,
-      @transform.Transform::from_xyz(20.0, 0.0, 0.0),
+    let other_entity_draft = @ecs.require_current_world().spawn_draft()
+    other_entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(20.0, 0.0, 0.0)),
     )
-    colliders().set(other_entity, Collider::ball(0.5))
+    other_entity_draft.add_to(colliders(), Collider::ball(0.5))
+    let other_entity = other_entity_draft.spawn()
 
     step_physics(1)
 
@@ -424,12 +441,13 @@ test "collision and intersection events map to selene event buses" {
 ///|
 test "rapier context project_point and intersections_with_shape work" {
   with_physics3d_test_world(fn() raise {
-    let collider_entity = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      collider_entity,
-      @transform.Transform::from_xyz(1.0, 0.0, 0.0),
+    let collider_entity_draft = @ecs.require_current_world().spawn_draft()
+    collider_entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(1.0, 0.0, 0.0)),
     )
-    colliders().set(collider_entity, Collider::ball(0.5))
+    collider_entity_draft.add_to(colliders(), Collider::ball(0.5))
+    let collider_entity = collider_entity_draft.spawn()
 
     step_physics(1)
 
@@ -447,26 +465,28 @@ test "rapier context project_point and intersections_with_shape work" {
 ///|
 test "impulse joint creates a rapier handle" {
   with_physics3d_test_world(fn() raise {
-    let parent = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      parent,
-      @transform.Transform::from_xyz(0.0, 0.0, 0.0),
+    let parent_draft = @ecs.require_current_world().spawn_draft()
+    parent_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(0.0, 0.0, 0.0)),
     )
-    rigid_bodies().set(parent, Fixed)
-    colliders().set(parent, Collider::ball(0.5))
+    parent_draft.add_to(rigid_bodies(), Fixed)
+    parent_draft.add_to(colliders(), Collider::ball(0.5))
+    let parent = parent_draft.spawn()
 
-    let child = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      child,
-      @transform.Transform::from_xyz(0.0, 1.0, 0.0),
+    let child_draft = @ecs.require_current_world().spawn_draft()
+    child_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(0.0, 1.0, 0.0)),
     )
-    rigid_bodies().set(child, Dynamic)
-    colliders().set(child, Collider::ball(0.5))
-    impulse_joints().set(child, {
+    child_draft.add_to(rigid_bodies(), Dynamic)
+    child_draft.add_to(colliders(), Collider::ball(0.5))
+    child_draft.add_to(impulse_joints(), {
       parent,
       data: Fixed(FixedJoint()),
       contacts_enabled: false,
     })
+    let child = child_draft.spawn()
 
     step_physics(1)
 
@@ -477,22 +497,24 @@ test "impulse joint creates a rapier handle" {
 ///|
 test "impulse joint contacts_enabled disables body contact pairs" {
   with_physics3d_test_world(fn() raise {
-    let parent = @ecs.require_current_world().spawn(())
-    rigid_bodies().set(parent, Fixed)
-    colliders().set(parent, Collider::ball(0.5))
+    let parent_draft = @ecs.require_current_world().spawn_draft()
+    parent_draft.add_to(rigid_bodies(), Fixed)
+    parent_draft.add_to(colliders(), Collider::ball(0.5))
+    let parent = parent_draft.spawn()
 
-    let child = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      child,
-      @transform.Transform::from_xyz(0.0, 1.0, 0.0),
+    let child_draft = @ecs.require_current_world().spawn_draft()
+    child_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(0.0, 1.0, 0.0)),
     )
-    rigid_bodies().set(child, Dynamic)
-    colliders().set(child, Collider::ball(0.5))
-    impulse_joints().set(child, {
+    child_draft.add_to(rigid_bodies(), Dynamic)
+    child_draft.add_to(colliders(), Collider::ball(0.5))
+    child_draft.add_to(impulse_joints(), {
       parent,
       data: Fixed(FixedJoint()),
       contacts_enabled: false,
     })
+    ignore(child_draft.spawn())
 
     step_physics(1)
 
@@ -506,35 +528,38 @@ test "impulse joint contacts_enabled disables body contact pairs" {
 ///|
 test "impulse rope and spring contacts_enabled disable body contact pairs" {
   with_physics3d_test_world(fn() raise {
-    let parent = @ecs.require_current_world().spawn(())
-    rigid_bodies().set(parent, Fixed)
-    colliders().set(parent, Collider::ball(0.5))
+    let parent_draft = @ecs.require_current_world().spawn_draft()
+    parent_draft.add_to(rigid_bodies(), Fixed)
+    parent_draft.add_to(colliders(), Collider::ball(0.5))
+    let parent = parent_draft.spawn()
 
-    let rope_child = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      rope_child,
-      @transform.Transform::from_xyz(0.0, 1.0, 0.0),
+    let rope_child_draft = @ecs.require_current_world().spawn_draft()
+    rope_child_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(0.0, 1.0, 0.0)),
     )
-    rigid_bodies().set(rope_child, Dynamic)
-    colliders().set(rope_child, Collider::ball(0.5))
-    impulse_joints().set(rope_child, {
+    rope_child_draft.add_to(rigid_bodies(), Dynamic)
+    rope_child_draft.add_to(colliders(), Collider::ball(0.5))
+    rope_child_draft.add_to(impulse_joints(), {
       parent,
       data: Rope(RopeJoint(2.0)),
       contacts_enabled: false,
     })
+    ignore(rope_child_draft.spawn())
 
-    let spring_child = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      spring_child,
-      @transform.Transform::from_xyz(0.0, 2.0, 0.0),
+    let spring_child_draft = @ecs.require_current_world().spawn_draft()
+    spring_child_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(0.0, 2.0, 0.0)),
     )
-    rigid_bodies().set(spring_child, Dynamic)
-    colliders().set(spring_child, Collider::ball(0.5))
-    impulse_joints().set(spring_child, {
+    spring_child_draft.add_to(rigid_bodies(), Dynamic)
+    spring_child_draft.add_to(colliders(), Collider::ball(0.5))
+    spring_child_draft.add_to(impulse_joints(), {
       parent,
       data: Spring(SpringJoint(1.0, 8.0, 0.5)),
       contacts_enabled: false,
     })
+    ignore(spring_child_draft.spawn())
 
     step_physics(1)
 
@@ -548,22 +573,24 @@ test "impulse rope and spring contacts_enabled disable body contact pairs" {
 ///|
 test "multibody joint creates a rapier handle" {
   with_physics3d_test_world(fn() raise {
-    let parent = @ecs.require_current_world().spawn(())
-    rigid_bodies().set(parent, Fixed)
-    colliders().set(parent, Collider::ball(0.5))
+    let parent_draft = @ecs.require_current_world().spawn_draft()
+    parent_draft.add_to(rigid_bodies(), Fixed)
+    parent_draft.add_to(colliders(), Collider::ball(0.5))
+    let parent = parent_draft.spawn()
 
-    let child = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      child,
-      @transform.Transform::from_xyz(0.0, 1.0, 0.0),
+    let child_draft = @ecs.require_current_world().spawn_draft()
+    child_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(0.0, 1.0, 0.0)),
     )
-    rigid_bodies().set(child, Dynamic)
-    colliders().set(child, Collider::ball(0.5))
-    multibody_joints().set(child, {
+    child_draft.add_to(rigid_bodies(), Dynamic)
+    child_draft.add_to(colliders(), Collider::ball(0.5))
+    child_draft.add_to(multibody_joints(), {
       parent,
       data: Revolute(RevoluteJoint(@math.Vec3::z_axis())),
       contacts_enabled: true,
     })
+    let child = child_draft.spawn()
 
     step_physics(1)
 
@@ -574,23 +601,25 @@ test "multibody joint creates a rapier handle" {
 ///|
 test "impulse joints expose generic handles for all 3d joint variants" {
   with_physics3d_test_world(fn() raise {
-    let parent = @ecs.require_current_world().spawn(())
-    rigid_bodies().set(parent, Fixed)
-    colliders().set(parent, Collider::ball(0.5))
+    let parent_draft = @ecs.require_current_world().spawn_draft()
+    parent_draft.add_to(rigid_bodies(), Fixed)
+    parent_draft.add_to(colliders(), Collider::ball(0.5))
+    let parent = parent_draft.spawn()
 
     let spawn_child = fn(y : Double, joint : Joint) -> @ecs.Entity {
-      let child = @ecs.require_current_world().spawn(())
-      @transform.transforms().set(
-        child,
-        @transform.Transform::from_xyz(0.0, y, 0.0),
+      let child_draft = @ecs.require_current_world().spawn_draft()
+      child_draft.add_to(
+        @transform.spatials(),
+        @transform.Spatial(@transform.Transform::from_xyz(0.0, y, 0.0)),
       )
-      rigid_bodies().set(child, Dynamic)
-      colliders().set(child, Collider::ball(0.5))
-      impulse_joints().set(child, {
+      child_draft.add_to(rigid_bodies(), Dynamic)
+      child_draft.add_to(colliders(), Collider::ball(0.5))
+      child_draft.add_to(impulse_joints(), {
         parent,
         data: joint,
         contacts_enabled: true,
       })
+      let child = child_draft.spawn()
       child
     }
 
@@ -625,23 +654,25 @@ test "impulse joints expose generic handles for all 3d joint variants" {
 ///|
 test "multibody joints expose generic handles for all 3d joint variants" {
   with_physics3d_test_world(fn() raise {
-    let parent = @ecs.require_current_world().spawn(())
-    rigid_bodies().set(parent, Fixed)
-    colliders().set(parent, Collider::ball(0.5))
+    let parent_draft = @ecs.require_current_world().spawn_draft()
+    parent_draft.add_to(rigid_bodies(), Fixed)
+    parent_draft.add_to(colliders(), Collider::ball(0.5))
+    let parent = parent_draft.spawn()
 
     let spawn_child = fn(y : Double, joint : Joint) -> @ecs.Entity {
-      let child = @ecs.require_current_world().spawn(())
-      @transform.transforms().set(
-        child,
-        @transform.Transform::from_xyz(0.0, y, 0.0),
+      let child_draft = @ecs.require_current_world().spawn_draft()
+      child_draft.add_to(
+        @transform.spatials(),
+        @transform.Spatial(@transform.Transform::from_xyz(0.0, y, 0.0)),
       )
-      rigid_bodies().set(child, Dynamic)
-      colliders().set(child, Collider::ball(0.5))
-      multibody_joints().set(child, {
+      child_draft.add_to(rigid_bodies(), Dynamic)
+      child_draft.add_to(colliders(), Collider::ball(0.5))
+      child_draft.add_to(multibody_joints(), {
         parent,
         data: joint,
         contacts_enabled: true,
       })
+      let child = child_draft.spawn()
       child
     }
 
@@ -762,9 +793,10 @@ test "prismatic joint forwards limits and motor state" {
 ///|
 test "dominance is forwarded to rapier rigid body" {
   with_physics3d_test_world(fn() raise {
-    let body_entity = @ecs.require_current_world().spawn(())
-    rigid_bodies().set(body_entity, Dynamic)
-    dominances().set(body_entity, Dominance(5))
+    let body_entity_draft = @ecs.require_current_world().spawn_draft()
+    body_entity_draft.add_to(rigid_bodies(), Dynamic)
+    body_entity_draft.add_to(dominances(), Dominance(5))
+    let body_entity = body_entity_draft.spawn()
 
     step_physics(1)
 
@@ -778,9 +810,10 @@ test "dominance is forwarded to rapier rigid body" {
 ///|
 test "solver groups are forwarded to rapier collider" {
   with_physics3d_test_world(fn() raise {
-    let collider_entity = @ecs.require_current_world().spawn(())
-    colliders().set(collider_entity, Collider::ball(0.5))
-    solver_groups().set(collider_entity, SolverGroups(0x2, 0x4))
+    let collider_entity_draft = @ecs.require_current_world().spawn_draft()
+    collider_entity_draft.add_to(colliders(), Collider::ball(0.5))
+    collider_entity_draft.add_to(solver_groups(), SolverGroups(0x2, 0x4))
+    let collider_entity = collider_entity_draft.spawn()
 
     step_physics(1)
 
@@ -796,15 +829,17 @@ test "solver groups are forwarded to rapier collider" {
 ///|
 test "contact force threshold toggles contact-force active events" {
   with_physics3d_test_world(fn() raise {
-    let default_entity = @ecs.require_current_world().spawn(())
-    colliders().set(default_entity, Collider::ball(0.5))
+    let default_entity = colliders()
+      .spawn_plan(@ecs.require_current_world())
+      .spawn(Collider::ball(0.5))
 
-    let low_threshold_entity = @ecs.require_current_world().spawn(())
-    colliders().set(low_threshold_entity, Collider::ball(0.5))
-    contact_force_event_thresholds().set(
-      low_threshold_entity,
+    let low_threshold_entity_draft = @ecs.require_current_world().spawn_draft()
+    low_threshold_entity_draft.add_to(colliders(), Collider::ball(0.5))
+    low_threshold_entity_draft.add_to(
+      contact_force_event_thresholds(),
       ContactForceEventThreshold(0.5),
     )
+    let low_threshold_entity = low_threshold_entity_draft.spawn()
 
     step_physics(1)
 
@@ -841,24 +876,26 @@ test "contact force threshold toggles contact-force active events" {
 ///|
 test "kinematic character controller writes output and clears consumed translation" {
   with_physics3d_test_world(fn() raise {
-    let floor = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      floor,
-      @transform.Transform::from_xyz(0.0, -1.0, 0.0),
+    let floor_draft = @ecs.require_current_world().spawn_draft()
+    floor_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(0.0, -1.0, 0.0)),
     )
-    colliders().set(floor, Collider::cuboid(Vec3(4.0, 0.5, 4.0)))
+    floor_draft.add_to(colliders(), Collider::cuboid(Vec3(4.0, 0.5, 4.0)))
+    ignore(floor_draft.spawn())
 
-    let actor = @ecs.require_current_world().spawn(())
-    @transform.transforms().set(
-      actor,
-      @transform.Transform::from_xyz(0.0, 0.5, 0.0),
+    let actor_draft = @ecs.require_current_world().spawn_draft()
+    actor_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(@transform.Transform::from_xyz(0.0, 0.5, 0.0)),
     )
-    rigid_bodies().set(actor, KinematicPositionBased)
-    colliders().set(actor, Collider::ball(0.5))
-    kinematic_character_controllers().set(actor, {
+    actor_draft.add_to(rigid_bodies(), KinematicPositionBased)
+    actor_draft.add_to(colliders(), Collider::ball(0.5))
+    actor_draft.add_to(kinematic_character_controllers(), {
       ..KinematicCharacterController(),
       translation: Some(Vec3(0.0, -1.0, 0.0)),
     })
+    let actor = actor_draft.spawn()
 
     step_physics(1)
 
@@ -1003,18 +1040,14 @@ test "collider3d debug wire supports every collider shape" {
 ///|
 test "collider3d debug color distinguishes body and sensor types" {
   with_physics3d_test_world(fn() raise {
-    let dynamic_entity = @ecs.require_current_world().spawn(())
-    let fixed_entity = @ecs.require_current_world().spawn(())
-    let kinematic_entity = @ecs.require_current_world().spawn(())
-    let sensor_entity = @ecs.require_current_world().spawn(())
-    let disabled_entity = @ecs.require_current_world().spawn(())
-    rigid_bodies().set(dynamic_entity, Dynamic)
-    rigid_bodies().set(fixed_entity, Fixed)
-    rigid_bodies().set(kinematic_entity, KinematicPositionBased)
-    rigid_bodies().set(sensor_entity, Dynamic)
-    rigid_bodies().set(disabled_entity, Dynamic)
-    colliders().set(disabled_entity, Collider::ball(1.0))
-    sensors().set(sensor_entity, Sensor())
+    let world = @ecs.require_current_world()
+    let dynamic_entity = world.spawn1((Dynamic : RigidBody))
+    let fixed_entity = world.spawn1((Fixed : RigidBody))
+    let kinematic_entity = world.spawn1((KinematicPositionBased : RigidBody))
+    let sensor_entity = world.spawn(((Dynamic : RigidBody), Sensor()))
+    let disabled_entity = world.spawn(
+      ((Dynamic : RigidBody), Collider::ball(1.0)),
+    )
     step_physics(1)
     match collider_handle(disabled_entity) {
       Some(handle) =>
@@ -1050,14 +1083,17 @@ test "collider3d debug color distinguishes body and sensor types" {
 ///|
 test "collider3d debug system appends wire lines to render3d pipeline" {
   with_physics3d_test_world(fn() raise {
-    let entity = @ecs.require_current_world().spawn(())
-    colliders().set(entity, Collider::cuboid(Vec3(1.0, 1.0, 1.0)))
-    @transform.global_transforms().set(
-      entity,
-      @transform.GlobalTransform::from_transform(
-        @transform.Transform::from_xyz(2.0, 0.0, 0.0),
+    let entity_draft = @ecs.require_current_world().spawn_draft()
+    entity_draft.add_to(colliders(), Collider::cuboid(Vec3(1.0, 1.0, 1.0)))
+    entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(
+        @transform.GlobalTransform::from_transform(
+          @transform.Transform::from_xyz(2.0, 0.0, 0.0),
+        ).compute_transform(),
       ),
     )
+    ignore(entity_draft.spawn())
     debug_colliders_system(0.0)
     let frame = @render3d_pipeline.get_prepared_frame3d()
     inspect(frame.lines.length(), content="12")

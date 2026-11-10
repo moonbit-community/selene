@@ -1,33 +1,27 @@
 ///|
-fn make_sprite_fixture(
-  size : Int32,
-) -> (Array[@ecs.Entity], @transform.GlobalTransform) {
+fn make_sprite_fixture(size : Int32) -> Array[@ecs.Entity] {
   @system.configure_display(960.0, 540.0, 1.0)
-  let transforms = @transform.global_transforms()
-  let sprites = @sprite.sprites()
+  let world = @ecs.require_current_world()
+  let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = world.prepare_spawn()
   let entities = []
   let sprite = @sprite.Sprite::from_color(
     { r: 255U, g: 255U, b: 255U, a: 1.0, },
     Vec2(16.0, 16.0),
   )
-  let global = @transform.GlobalTransform::from_transform(
-    @transform.Transform::from_xyz(4.0, 0.0, 0.0),
-  )
+  let pose = @transform.Transform::from_xyz(4.0, 0.0, 0.0)
   for i in 0..<size {
-    let entity = @ecs.require_current_world().spawn(())
-    entities.push(entity)
-    sprites.set(entity, sprite)
-    if i % 4 != 0 {
-      transforms.set(entity, global)
+    let entity = if i % 4 == 0 {
+      world.spawn1(sprite)
+    } else {
+      plan.spawn((sprite, @transform.Spatial(pose)))
     }
+    entities.push(entity)
   }
-  (entities, global)
+  entities
 }
 
 ///|
-test "sprite CPU extraction, transform propagation, and component churn" (
-  b : @bench.T,
-) {
+test "sprite CPU extraction and transform propagation" (b : @bench.T) {
   let previous = @ecs.current_world()
   defer (match previous {
     Some(world) => @ecs.set_current_world(world)
@@ -35,7 +29,7 @@ test "sprite CPU extraction, transform propagation, and component churn" (
   })
   for size in [1000, 10000] {
     @ecs.set_current_world(World())
-    let (entities, global) = make_sprite_fixture(size)
+    ignore(make_sprite_fixture(size))
     @render2d.begin_frame2d_system(0.0)
     @sprite.render_sprite_system(0.0)
     assert_eq(
@@ -45,14 +39,6 @@ test "sprite CPU extraction, transform propagation, and component churn" (
     b.bench(name="sprite-extract/n=\{size}", count=10, () => {
       @render2d.begin_frame2d_system(0.0)
       @sprite.render_sprite_system(0.0)
-    })
-    let globals = @transform.global_transforms()
-    b.bench(name="transform-churn/n=\{size}", count=10, () => {
-      for i in 0..<(size / 20) {
-        let entity = entities[i * 20 + 1]
-        globals.remove(entity)
-        globals.set(entity, global)
-      }
     })
     @transform.transform_propagate_system(0.0)
     b.bench(name="transform-propagate/n=\{size}", count=10, () => {

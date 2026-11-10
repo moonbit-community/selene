@@ -166,21 +166,6 @@ pub impl @ecs.Component for LdtkWorldly with fn component_key() {
 pub extend LdtkWorldly with @ecs.Component::{ component_key }
 
 ///|
-let selene_component_key_LdtkRespawn : @ecs.ComponentKey[LdtkRespawn] = ComponentKey(
-
-)
-
-///|
-pub impl @ecs.Component for LdtkRespawn with fn component_key() {
-  selene_component_key_LdtkRespawn
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LdtkRespawn with @ecs.Component::{ component_key }
-
-///|
 let selene_component_key_LdtkSpawnedLayerInstance : @ecs.ComponentKey[
   LdtkSpawnedLayerInstance,
 ] = ComponentKey()

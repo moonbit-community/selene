@@ -51,10 +51,9 @@ type Commands
 pub fn Commands::add(Self, (World) -> Unit) -> Unit
 pub fn Commands::delete(Self, Entity) -> Unit
 pub fn Commands::despawn(Self, Entity) -> Unit
-pub fn[T] Commands::insert_component(Self, ComponentStore[T], Entity, T) -> Unit
-pub fn[T] Commands::remove_component(Self, ComponentStore[T], Entity) -> Unit
-pub fn[T : Bundle] Commands::spawn(Self, T) -> Entity
-pub fn[T] Commands::spawn_prepared(Self, SpawnPlan[T], T) -> Entity
+pub fn[T : Bundle] Commands::spawn(Self, T, parent? : Entity) -> Entity
+pub fn[T : Component] Commands::spawn1(Self, T, parent? : Entity) -> Entity
+pub fn[T] Commands::spawn_prepared(Self, SpawnPlan[T], T, parent? : Entity) -> Entity
 
 type ComponentKey[T]
 pub fn[T] ComponentKey::ComponentKey() -> Self[T]
@@ -66,10 +65,8 @@ pub fn[T] ComponentKey::store_in(Self[T], World) -> ComponentStore[T]
 type ComponentStore[T]
 pub fn[T] ComponentStore::ComponentStore(World) -> Self[T]
 pub fn[T] ComponentStore::belongs_to(Self[T], World) -> Bool
-pub fn[T] ComponentStore::clear(Self[T]) -> Unit
 pub fn[T] ComponentStore::contains(Self[T], Entity) -> Bool
 pub fn[T] ComponentStore::get(Self[T], Entity) -> T?
-pub fn[T] ComponentStore::get_or_init(Self[T], Entity, () -> T) -> T
 pub fn[T] ComponentStore::insertion_order(Self[T], Entity) -> Int32
 pub fn[T] ComponentStore::is_empty(Self[T]) -> Bool
 pub fn[T] ComponentStore::iter(Self[T]) -> Iter[(Entity, T)]
@@ -77,8 +74,6 @@ pub fn[T] ComponentStore::iter2(Self[T]) -> Iter2[Entity, T]
 pub fn[T] ComponentStore::keys(Self[T]) -> Iter[Entity]
 pub fn[T] ComponentStore::length(Self[T]) -> Int32
 pub fn[T] ComponentStore::order_span(Self[T]) -> Int32
-pub fn[T] ComponentStore::remove(Self[T], Entity) -> Unit
-pub fn[T] ComponentStore::retain(Self[T], (Entity) -> Bool) -> Unit
 #alias(op_set)
 pub fn[T] ComponentStore::set(Self[T], Entity, T) -> Unit
 pub fn[T] ComponentStore::spawn_plan(Self[T], World) -> SpawnPlan[T]
@@ -100,11 +95,8 @@ pub fn Entity::is_alive(Self) -> Bool
 pub fn Entity::is_child(Self) -> Bool
 pub fn Entity::is_valid_in(Self, World) -> Bool
 pub fn Entity::not_equal(Self, Self) -> Bool
-pub fn Entity::remove_parent(Self) -> Unit
 pub fn Entity::respawn(Self) -> Unit
-pub fn Entity::set_parent(Self, Self) -> Unit
 pub fn Entity::slot_index(Self) -> Int32
-pub fn Entity::spawn_child(Self) -> Self
 pub fn Entity::to_repr(Self) -> @debug.Repr
 
 pub(all) struct EntityFilter {
@@ -169,9 +161,14 @@ pub fn[T] ResourceKey::insert_in(Self[T], World, T) -> Unit
 pub(all) struct Single[T](T)
 pub impl[T : Component] Bundle for Single[T]
 
+type SpawnDraft
+pub fn[T : Component] SpawnDraft::add(Self, T) -> Unit
+pub fn[T] SpawnDraft::add_to(Self, ComponentStore[T], T) -> Unit
+pub fn SpawnDraft::spawn(Self, parent? : Entity) -> Entity
+
 type SpawnPlan[T]
 pub fn[A, B] SpawnPlan::combine(Self[A], Self[B]) -> Self[(A, B)]
-pub fn[T] SpawnPlan::spawn(Self[T], T) -> Entity
+pub fn[T] SpawnPlan::spawn(Self[T], T, parent? : Entity) -> Entity
 
 pub(all) struct With[T] {
   storage : ComponentStore[T]
@@ -201,7 +198,9 @@ pub fn World::id(Self) -> UInt32
 pub fn[T : Resource] World::insert_resource(Self, T) -> Unit
 pub fn[T : Bundle] World::prepare_spawn(Self) -> SpawnPlan[T]
 pub fn[T : Resource] World::resource(Self) -> T
-pub fn[T : Bundle] World::spawn(Self, T) -> Entity
+pub fn[T : Bundle] World::spawn(Self, T, parent? : Entity) -> Entity
+pub fn[T : Component] World::spawn1(Self, T, parent? : Entity) -> Entity
+pub fn World::spawn_draft(Self) -> SpawnDraft
 
 // Type aliases
 pub type System = (World) -> Unit

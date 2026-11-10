@@ -100,6 +100,7 @@ fn[T : @ecs.Bundle] spawn_sphere(
   translation : @math.Vec3,
   base_color : @render.Color,
   components : T,
+  active_events? : @collision.ActiveEvents,
 ) -> @ecs.Entity {
   let mesh = @render3d.register_mesh_asset(@render3d.sphere_mesh(radius))
   let material = @render3d.register_material_asset({
@@ -108,28 +109,32 @@ fn[T : @ecs.Bundle] spawn_sphere(
     roughness: 0.3,
   })
   let world = @ecs.require_current_world()
-  let plan : @ecs.SpawnPlan[(@transform.Transform, @render3d.Mesh3DRenderer)] = world.prepare_spawn()
-  let entity = plan
-    .combine(world.prepare_spawn())
-    .spawn(
-      (
-        (
-          @transform.Transform::{
-            translation,
-            rotation: @math.Quat::identity(),
-            scale: @math.Vec3::one(),
-          },
-          @render3d.Mesh3DRenderer::{
-            mesh,
-            material,
-            visible: true,
-            cast_shadows: true,
-            receive_shadows: true,
-          },
-        ),
-        components,
-      ),
-    )
+  let plan : @ecs.SpawnPlan[(@transform.Spatial, @render3d.Mesh3DRenderer)] = world.prepare_spawn()
+  let plan = plan.combine(world.prepare_spawn())
+  let values = (
+    (
+      @transform.Spatial(@transform.Transform::{
+        translation,
+        rotation: @math.Quat::identity(),
+        scale: @math.Vec3::one(),
+      }),
+      @render3d.Mesh3DRenderer::{
+        mesh,
+        material,
+        visible: true,
+        cast_shadows: true,
+        receive_shadows: true,
+      },
+    ),
+    components,
+  )
+  let entity = if active_events is Some(events) {
+    plan
+    .combine(@physics3d.active_events().spawn_plan(world))
+    .spawn((values, events))
+  } else {
+    plan.spawn(values)
+  }
   scene3d_state().entities.push(entity)
   entity
 }
@@ -262,11 +267,11 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
   ignore(
     spawn_scene3d_entity(
       (
-        @transform.Transform::{
+        @transform.Spatial(@transform.Transform::{
           translation: vec3(0.0, 1.5, 8.0),
           rotation: @math.Quat::identity(),
           scale: @math.Vec3::one(),
-        },
+        }),
         @camera3d.Camera3DComponent::{
           ..@camera3d.Camera3DComponent(),
           clear_color: color(20U, 20U, 24U, 1.0),
@@ -291,11 +296,11 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
   ignore(
     spawn_scene3d_entity(
       (
-        @transform.Transform::{
+        @transform.Spatial(@transform.Transform::{
           translation: vec3(0.0, -0.01, 0.0),
           rotation: @math.Quat::identity(),
           scale: @math.Vec3::one(),
-        },
+        }),
         @render3d.Mesh3DRenderer::{
           mesh: floor_mesh,
           material: floor_material,
@@ -317,11 +322,11 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
 
   let cube = spawn_scene3d_entity(
     (
-      @transform.Transform::{
+      @transform.Spatial(@transform.Transform::{
         translation: vec3(0.0, 0.5, 0.0),
         rotation: @math.Quat::identity(),
         scale: @math.Vec3::one(),
-      },
+      }),
       @render3d.Mesh3DRenderer::{
         mesh: cube_mesh,
         material: cube_material,
@@ -342,11 +347,11 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
   ignore(
     spawn_scene3d_entity(
       (
-        @transform.Transform::{
+        @transform.Spatial(@transform.Transform::{
           translation: vec3(1.35, 1.55, -0.75),
           rotation: @math.Quat::identity(),
           scale: @math.Vec3::one(),
-        },
+        }),
         @render3d.Mesh3DRenderer::{
           mesh: target_mesh,
           material: target_material,
@@ -369,11 +374,11 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
   ignore(
     spawn_scene3d_entity(
       (
-        @transform.Transform::{
+        @transform.Spatial(@transform.Transform::{
           translation: vec3(0.0, 1.6, -2.9),
           rotation: @math.Quat::identity(),
           scale: @math.Vec3::one(),
-        },
+        }),
         @render3d.Mesh3DRenderer::{
           mesh: shadow_wall_mesh,
           material: shadow_wall_material,
@@ -388,11 +393,11 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
   ignore(
     spawn_scene3d_entity(
       (
-        @transform.Transform::{
+        @transform.Spatial(@transform.Transform::{
           translation: vec3(-2.2, 0.5, 1.8),
           rotation: @math.Quat::from_axis_angle(vec3(0.0, 1.0, 0.0), 0.45),
           scale: vec3(0.7, 0.7, 0.7),
-        },
+        }),
         @render3d.Mesh3DRenderer::{
           mesh: cube_mesh,
           material: @render3d.register_material_asset({
@@ -423,10 +428,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
       (ccd_marker() : @physics3d.Ccd),
       @physics3d.ContactForceEventThreshold(0.0),
     ),
-  )
-  @physics3d.active_events().set(
-    dynamic_ball,
-    @collision.ActiveEvents::collision_events().union(
+    active_events=@collision.ActiveEvents::collision_events().union(
       @collision.ActiveEvents::contact_force_events(),
     ),
   )
@@ -434,11 +436,11 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
 
   let compound_body = spawn_scene3d_entity(
     (
-      @transform.Transform::{
+      @transform.Spatial(@transform.Transform::{
         translation: vec3(-3.0, 0.45, -0.8),
         rotation: @math.Quat::identity(),
         scale: @math.Vec3::one(),
-      },
+      }),
       @render3d.Mesh3DRenderer::{
         mesh: cube_mesh,
         material: @render3d.register_material_asset({
@@ -455,28 +457,30 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
     ),
   )
 
-  let child_collider = world.spawn(
-    (
-      @transform.Transform::{
-        translation: vec3(0.0, 0.75, 0.0),
-        rotation: @math.Quat::identity(),
-        scale: @math.Vec3::one(),
-      },
-      @render3d.Mesh3DRenderer::{
-        mesh: @render3d.register_mesh_asset(@render3d.sphere_mesh(0.22)),
-        material: @render3d.register_material_asset({
-          ..@render3d.StandardMaterial3D(),
-          base_color: color(178U, 240U, 212U, 1.0),
-          roughness: 0.3,
+  ignore(
+    world.spawn(
+      (
+        @transform.Spatial(@transform.Transform::{
+          translation: vec3(0.0, 0.75, 0.0),
+          rotation: @math.Quat::identity(),
+          scale: @math.Vec3::one(),
         }),
-        visible: true,
-        cast_shadows: true,
-        receive_shadows: true,
-      },
-      @physics3d.Collider::ball(0.22),
+        @render3d.Mesh3DRenderer::{
+          mesh: @render3d.register_mesh_asset(@render3d.sphere_mesh(0.22)),
+          material: @render3d.register_material_asset({
+            ..@render3d.StandardMaterial3D(),
+            base_color: color(178U, 240U, 212U, 1.0),
+            roughness: 0.3,
+          }),
+          visible: true,
+          cast_shadows: true,
+          receive_shadows: true,
+        },
+        @physics3d.Collider::ball(0.22),
+      ),
+      parent=compound_body,
     ),
   )
-  child_collider.set_parent(compound_body)
 
   let joint_anchor = spawn_sphere(
     0.14,
@@ -521,11 +525,11 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
 
   let spotlight = spawn_scene3d_entity(
     (
-      @transform.Transform::{
+      @transform.Spatial(@transform.Transform::{
         translation: vec3(3.2, 3.0, 0.0),
         rotation: @math.Quat::identity(),
         scale: @math.Vec3::one(),
-      },
+      }),
       @render3d.SpotLight3D::{
         ..@render3d.SpotLight3D(),
         direction: vec3(-1.0, -1.2, 0.0).normalize(),
@@ -550,31 +554,36 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
     base_color: color(255U, 236U, 186U, 1.0),
     roughness: 0.05,
   })
-  let spotlight_marker = world.spawn(
-    (
-      @transform.Transform::identity(),
-      @render3d.Mesh3DRenderer::{
-        mesh: spotlight_marker_mesh,
-        material: spotlight_marker_material,
-        visible: true,
-        cast_shadows: false,
-        receive_shadows: false,
-      },
+  ignore(
+    world.spawn(
+      (
+        @transform.Spatial(@transform.Transform::identity()),
+        @render3d.Mesh3DRenderer::{
+          mesh: spotlight_marker_mesh,
+          material: spotlight_marker_material,
+          visible: true,
+          cast_shadows: false,
+          receive_shadows: false,
+        },
+      ),
+      parent=spotlight,
     ),
   )
-  spotlight_marker.set_parent(spotlight)
 
   ignore(
     spawn_scene3d_entity(
-      @ecs.Single(@render3d.DirectionalLight3D::{
-        ..@render3d.DirectionalLight3D(),
-        direction: vec3(-0.72, -1.0, -0.42).normalize(),
-        color: color(255U, 255U, 255U, 1.0),
-        intensity: 1.15,
-        shadows: true,
-        shadow_depth_bias: 0.001,
-        shadow_normal_bias: 0.15,
-      }),
+      (
+        @transform.Spatial(@transform.Transform::identity()),
+        @render3d.DirectionalLight3D::{
+          ..@render3d.DirectionalLight3D(),
+          direction: vec3(-0.72, -1.0, -0.42).normalize(),
+          color: color(255U, 255U, 255U, 1.0),
+          intensity: 1.15,
+          shadows: true,
+          shadow_depth_bias: 0.001,
+          shadow_normal_bias: 0.15,
+        },
+      ),
     ),
   )
   @render3d.set_ambient_light3d(
@@ -612,9 +621,9 @@ fn rotate_cube_system(_world : @ecs.World) -> Unit {
   let state = scene3d_state()
   let delta = @time.delta()
   guard state.rotating_cube is Some(cube) else { return }
-  guard @transform.transforms().get(cube) is Some(transform) else { return }
+  guard @transform.local_transform(cube) is Some(transform) else { return }
   state.cube_rotation += delta
-  @transform.transforms().set(cube, {
+  @transform.set_local_transform(cube, {
     ..transform,
     rotation: @math.Quat::from_axis_angle(
       vec3(0.0, 1.0, 0.0),
@@ -635,8 +644,8 @@ fn animate_spotlight_system(_world : @ecs.World) -> Unit {
   let position = vec3(x, y, z)
   let focus = vec3(0.0, 0.45, 0.0)
   let direction = (focus - position).normalize()
-  if @transform.transforms().get(spotlight) is Some(transform) {
-    @transform.transforms().set(spotlight, {
+  if @transform.local_transform(spotlight) is Some(transform) {
+    @transform.set_local_transform(spotlight, {
       ..transform,
       translation: position,
     })

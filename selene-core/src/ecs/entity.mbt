@@ -34,7 +34,10 @@ priv enum EntityLifecycleState {
 priv struct EntitySlot {
   mut generation : UInt32
   mut state : EntityLifecycleState?
+  mut materialized : Bool
   mut location : (Int32, Int32)?
+  mut parent : Entity?
+  mut children : Array[Entity]?
 }
 
 ///|
@@ -87,7 +90,22 @@ pub fn Entity::is_alive(e : Entity) -> Bool {
 ///|
 fn EntityWorldStore::is_alive(self : EntityWorldStore, entity : Entity) -> Bool {
   guard self.archetypes.slot(entity) is Some(slot) else { false }
-  slot.state is Some(Alive) || slot.state is Some(PendingRespawn)
+  slot.materialized &&
+  (slot.state is Some(Alive) || slot.state is Some(PendingRespawn))
+}
+
+///|
+fn EntityWorldStore::accepts_deferred_child(
+  self : EntityWorldStore,
+  parent : Entity,
+) -> Bool {
+  guard self.archetypes.slot(parent) is Some(slot) && slot.materialized else {
+    false
+  }
+  match slot.state {
+    Some(Alive | PendingSpawn | PendingRespawn) => true
+    _ => false
+  }
 }
 
 ///|
@@ -124,7 +142,14 @@ fn EntityWorldStore::allocate(
     }
     None => {
       let index = slots.length()
-      slots.push({ generation: 0U, state: Some(state), location: None, })
+      slots.push({
+        generation: 0U,
+        state: Some(state),
+        materialized: false,
+        location: None,
+        parent: None,
+        children: None,
+      })
       index
     }
   }
@@ -137,6 +162,7 @@ fn EntityWorldStore::spawn(
   world_id : UInt32,
 ) -> Entity {
   let entity = self.allocate(world_id, Alive)
+  self.archetypes.slots[entity.slot].materialized = true
   self.all_entities.add(entity)
   self.alive_count += 1
   entity
@@ -161,12 +187,42 @@ pub fn Entity::belongs_to(self : Entity, world : World) -> Bool {
 }
 
 ///|
-fn queue_entity_spawn(world : World, initialize : (Entity) -> Unit) -> Entity {
+fn EntityWorldStore::release_slot(
+  self : EntityWorldStore,
+  entity : Entity,
+  slot : EntitySlot,
+) -> Unit {
+  self.pending_state_changes.remove(entity)
+  slot.state = None
+  slot.materialized = false
+  slot.parent = None
+  slot.children = None
+  if slot.generation != 0xffffffffU {
+    slot.generation += 1U
+    self.free_slots.push(entity.slot)
+  }
+}
+
+///|
+fn queue_entity_spawn(
+  world : World,
+  parent : Entity?,
+  initialize : (Entity) -> Unit,
+) -> Entity {
+  if parent is Some(parent) && !parent.belongs_to(world) {
+    abort("parent belongs to another World")
+  }
   let store = entity_store(world~)
   let entity = store.allocate(world.id(), PendingSpawn)
   enqueue(world, _ => {
-    guard store.archetypes.slot(entity) is Some(_) else { return }
+    guard store.archetypes.slot(entity) is Some(slot) else { return }
+    if parent is Some(parent) && !store.accepts_deferred_child(parent) {
+      store.release_slot(entity, slot)
+      return
+    }
     initialize(entity)
+    store.link_child(entity, parent)
+    slot.materialized = true
     store.pending_state_changes.add(entity)
   })
   entity
@@ -181,18 +237,14 @@ pub fn Entity::destroy(e : Entity) -> Unit {
   guard store.archetypes.slot(e) is Some(slot) else { return }
   match slot.state.unwrap() {
     Destroyed | PendingDespawn => ()
-    PendingSpawn => {
-      slot.state = Some(PendingDespawn)
-      store.pending_state_changes.add(e)
-    }
-    Alive | PendingRespawn => {
+    PendingSpawn | Alive | PendingRespawn => {
       if store.all_entities.contains(e) && store.alive_count > 0 {
         store.alive_count -= 1
       }
       slot.state = Some(PendingDespawn)
       store.pending_state_changes.add(e)
-      if hierarchy_parents().get(e) is Some(p) {
-        for c in p.children {
+      if slot.children is Some(children) {
+        for c in children {
           c.destroy()
         }
       }
@@ -206,6 +258,9 @@ pub fn Entity::respawn(e : Entity) -> Unit {
   guard e.belongs_to(world) else { return }
   let store = entity_store(world~)
   guard store.archetypes.slot(e) is Some(slot) else { return }
+  if slot.parent is Some(parent) && !store.accepts_deferred_child(parent) {
+    return
+  }
   match slot.state.unwrap() {
     Alive | PendingRespawn => ()
     Destroyed | PendingDespawn | PendingSpawn => {
@@ -214,8 +269,8 @@ pub fn Entity::respawn(e : Entity) -> Unit {
       }
       slot.state = Some(PendingRespawn)
       store.pending_state_changes.add(e)
-      if hierarchy_parents().get(e) is Some(p) {
-        for c in p.children {
+      if slot.children is Some(children) {
+        for c in children {
           c.respawn()
         }
       }
@@ -231,6 +286,7 @@ fn flush_entity_lifecycle(world : World) -> Unit {
     guard store.archetypes.slot(entity) is Some(slot) else { continue }
     match slot.state.unwrap() {
       PendingSpawn | PendingRespawn => {
+        guard slot.materialized else { continue }
         if !store.all_entities.contains(entity) {
           store.all_entities.add(entity)
           store.alive_count += 1

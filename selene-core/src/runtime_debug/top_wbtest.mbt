@@ -129,26 +129,24 @@ test "render submission keeps entity ids and exposes offscreen capture API" {
 ///|
 test "sprite inspector returns unified sprite debug entries" {
   with_runtime_debug_world(fn() raise {
-    let entity = @ecs.require_current_world().spawn(())
-    @name.names().set(entity, Name("Sprite Debug"))
     let image = @asset.load_image("assets/debug/sprite.png")
     let source_rect : @math.Rect = {
       position: Vec2(2.0, 4.0),
       size: Vec2(8.0, 16.0),
     }
     let local_transform = @transform.Transform::from_xyz(12.0, 34.0, 1.0)
-    @transform.transforms().set(entity, local_transform)
-    @transform.global_transforms().set(
-      entity,
-      @transform.GlobalTransform::from_transform(local_transform),
-    )
-    @sprite.sprites().set(
-      entity,
-      Sprite(
-        image=Some(image),
-        rect=Some(source_rect),
-        flip_x=true,
-        anchor=Anchor(Vec2(-0.5, 0.5)),
+    ignore(
+      @ecs.require_current_world().spawn(
+        (
+          @name.Name("Sprite Debug"),
+          @transform.Spatial(local_transform),
+          @sprite.Sprite(
+            image=Some(image),
+            rect=Some(source_rect),
+            flip_x=true,
+            anchor=Anchor(Vec2(-0.5, 0.5)),
+          ),
+        ),
       ),
     )
     let entries = sprite_inspector_entries()

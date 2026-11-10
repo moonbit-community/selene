@@ -10,13 +10,14 @@
 - `timeout` now returns a `TimerHandle` that can cancel a pending callback.
   Use `ignore(timeout(...))` when discarding the handle.
 - Added typed World-local storage and streaming ECS query traversal.
-- Added World-local archetypes with typed columns, dynamic component migration,
-  and cached two-component queries.
+- Added World-local archetypes with typed columns and cached joined queries.
 - Added zero-copy batch reads and in-place writes for archetype queries.
 - Added `Query3`, `Query4`, and `Query5` with cached archetype traversal and
   zero-copy batches. `Query2` through `Query5` also support direct entity reads.
-- Added reusable spawn bundles that insert an entity directly into its final
-  archetype, including through deferred commands.
+- Added reusable spawn bundles, `World::spawn1`, `Commands::spawn1`, and a
+  one-shot `SpawnDraft` for data-driven imports.
+- Added `parent=` to immediate and deferred spawns. The World keeps the
+  relationship and sibling order with each entity slot.
 - Added permanent entity deletion with generation-checked slot recycling,
   including through deferred commands. Destroyed entities remain recoverable
   through respawn until permanently deleted. Public entity IDs remain unique
@@ -27,8 +28,8 @@
 ### Changed
 
 - Spawn entities with `World::spawn` or `Commands::spawn`. Pass `Single(value)`
-  for one component, a flat tuple for multiple components, or `()` for an
-  empty entity. Components enter the final archetype together. Replace
+  or call `spawn1(value)` for one component. Pass a flat tuple for multiple
+  components or `()` for an empty entity. Replace
   `Entity()` and `commands.spawn()` with `world.spawn(())` and
   `commands.spawn(())`. Use `World::prepare_spawn` to reuse a layout and
   `Commands::spawn_prepared` to queue it.
@@ -94,18 +95,20 @@
   initializers receive the World that owns the value.
 - Run workspace tests in CI with MoonBit's default target selection.
 
-- Moved built-in ECS components and hierarchy relations into World-owned
-  archetype storage. Component accessors, queries, and LDtk registration
-  helpers now take or return typed component stores.
-
-- Moved entity, hierarchy, transform, and sprite storage into their owning
-  Worlds.
-- Sprite extraction walks matching Sprite and GlobalTransform columns directly.
-  GlobalTransform propagation updates existing rows and removes stale globals.
-- `sprites()` and `global_transforms()` now return typed component stores.
-  Point access with `.get()`, `.set()`, `.remove()`, and `.contains()` keeps
-  the same call shape. Use `Commands::insert_component` and
-  `Commands::remove_component` to queue structural changes to these stores.
+- An entity's component types are fixed at spawn. `ComponentStore::set`
+  overwrites an existing value. Permanent deletion removes the row, while
+  recoverable destruction retains component values and hierarchy.
+- Spawn `Spatial(Transform)` for an entity with a pose. It holds the local
+  `Transform` and propagated `GlobalTransform`. Sprite extraction joins the
+  `Sprite` and `Spatial` columns directly.
+- LDtk, Tiled, and glTF populate initial components before creating each entity.
+  LDtk registration hooks receive a spawn draft, and spawned events carry
+  the resulting entity. Tiled and LDtk reload helpers return a replacement
+  root under the same parent.
+- UI layout, visibility, physics outputs, and audio playback use World-local
+  runtime state. UI border rendering reads local and projected geometry together.
+- Completed one-shot sounds using `PlaybackSettings::despawn()` reclaim their
+  entities. Stopping playback preserves authored audio components.
 
 ### Fixed
 
@@ -136,8 +139,13 @@
   `@ecs.has_pending_commands` to enqueue and inspect pending work. The app
   scheduler flushes after startup, after each fixed step, and at the end of the
   game frame.
-- Removed the Map-based ECS command insertion and removal APIs. Use
-  `Commands::insert_component` and `Commands::remove_component`.
+- Removed component insertion and removal after spawning, including
+  `Commands::insert_component`, `Commands::remove_component`, and the
+  `ComponentStore` removal, bulk cleanup, and lazy insertion methods.
+- Removed `spawn_child`, `set_parent`, `remove_parent`, and the transform
+  reparenting helpers. To replace a subtree, delete it and spawn its replacement
+  under the desired parent.
+- Removed the separate `transforms()` and `global_transforms()` component stores.
 
 - Removed the deprecated raylib backend and its native example launchers from
   the workspace, CI, and release pipeline.

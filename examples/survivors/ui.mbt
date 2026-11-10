@@ -68,7 +68,7 @@ const WEAPON_SWORD_ICON_PATH = "assets/survivors/icon/weapon_sword.png"
 
 ///|
 fn set_ui_text(entity : @ecs.Entity, content : String) -> Unit {
-  let text = @ui.texts().get_or_init(entity, fn() { Text(content) })
+  guard @ui.texts().get(entity) is Some(text) else { return }
   text.content = content
 }
 
@@ -315,8 +315,8 @@ fn setup_level_up_ui() -> Unit {
           fit=Contain,
         ),
       ),
+      parent=button,
     )
-    icon.set_parent(button)
     runtime.levelup_button_icons.push(icon)
   }
 

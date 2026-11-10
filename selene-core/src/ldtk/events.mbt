@@ -36,6 +36,35 @@ pub struct LdtkTileSpawnedEvent {
 }
 
 ///|
+/// Initial values for an LDtk entity registration, before a handle exists.
+pub struct LdtkEntitySpawn {
+  draft : @ecs.SpawnDraft
+  spatial : @transform.Spatial
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
+  level : LdtkLevel
+  layer : LdtkLayerInstance
+  instance : LdtkEntityInstance
+  zindex : Int32
+}
+
+///|
+/// Initial values for an LDtk IntGrid cell registration.
+pub struct LdtkIntGridCellSpawn {
+  draft : @ecs.SpawnDraft
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
+  level : LdtkLevel
+  layer : LdtkLayerInstance
+  value : Int32
+  grid_x : Int32
+  grid_y : Int32
+  zindex : Int32
+}
+
+///|
 pub struct LdtkEntitySpawnedEvent {
   world_entity : @ecs.Entity
   level_entity : @ecs.Entity

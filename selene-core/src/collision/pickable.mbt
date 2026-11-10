@@ -216,7 +216,7 @@ fn pickable_matches_camera_view(
   entity : @ecs.Entity,
   camera_view : @camera.Camera2dView?,
 ) -> Bool {
-  if @ui.global_ui_nodes().contains(entity) {
+  if @ui.global_ui_node(entity) is Some(_) {
     return true
   }
   match camera_view {
@@ -241,7 +241,7 @@ fn hit_test_pickable(
   _mouse_virtual : @math.Vec2,
   camera_view : @camera.Camera2dView?,
 ) -> Bool {
-  if @ui.global_ui_nodes().get(entity) is Some(transform) {
+  if @ui.global_ui_node(entity) is Some(transform) {
     return point_in_rect(
       mouse_screen,
       transform.screen_rect.position,

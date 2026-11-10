@@ -24,7 +24,9 @@ fn add_background(size : @math.Vec2) -> Unit {
     spawn_survivors_entity(
       (
         background_sprite,
-        @transform.Transform::from_xyz(0.0, 0.0, GROUND_ZINDEX.to_double()),
+        @transform.Spatial(
+          @transform.Transform::from_xyz(0.0, 0.0, GROUND_ZINDEX.to_double()),
+        ),
       ),
     ),
   )
@@ -41,7 +43,9 @@ fn add_border(size : @math.Vec2) -> Unit {
             @physics2d.CollisionFilter::empty(wall_collision_group),
           ),
           shape,
-          @transform.Transform::from_xyz(pos[X], pos[Y], 0.0),
+          @transform.Spatial(
+            @transform.Transform::from_xyz(pos[X], pos[Y], 0.0),
+          ),
         ),
       ),
     )
@@ -57,7 +61,7 @@ fn add_border(size : @math.Vec2) -> Unit {
 fn add_grass() -> Unit {
   let density = 0.05
   let rand = @random.Rand()
-  let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Transform)] = @ecs.require_current_world().prepare_spawn()
+  let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = @ecs.require_current_world().prepare_spawn()
   let entities = survivors_runtime().entities
   for x in 0..<(MAP_WIDTH / 16.0).to_int() {
     for y in 0..<(MAP_HEIGHT / 16.0).to_int() {
@@ -66,10 +70,12 @@ fn add_grass() -> Unit {
           plan.spawn(
             (
               grass_sprite(),
-              @transform.Transform::from_xyz(
-                x.to_double() * 16.0,
-                y.to_double() * 16.0,
-                GRASS_ZINDEX.to_double(),
+              @transform.Spatial(
+                @transform.Transform::from_xyz(
+                  x.to_double() * 16.0,
+                  y.to_double() * 16.0,
+                  GRASS_ZINDEX.to_double(),
+                ),
               ),
             ),
           ),

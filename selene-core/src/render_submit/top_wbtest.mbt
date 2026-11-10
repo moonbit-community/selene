@@ -25,9 +25,9 @@ fn test_rect_command(
 test "build_frame2d keeps clear-only camera passes" {
   with_render_submit_test_world(fn() raise {
     @system.configure_display(200.0, 120.0, 1.0)
-    let camera_entity = @ecs.require_current_world().spawn(())
-    @camera.cameras().set(
-      camera_entity,
+    let camera_entity_draft = @ecs.require_current_world().spawn_draft()
+    camera_entity_draft.add_to(
+      @camera.cameras(),
       Camera(
         viewport=Some(CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0))),
         pass=CameraPass2D(load_op=Clear, clear_color={
@@ -38,13 +38,16 @@ test "build_frame2d keeps clear-only camera passes" {
         }),
       ),
     )
-    @camera.camera2ds().set(camera_entity, Camera2d())
-    @transform.global_transforms().set(
-      camera_entity,
-      @transform.GlobalTransform::from_transform(
-        @transform.Transform::from_xyz(0.0, 0.0, 0.0),
+    camera_entity_draft.add_to(@camera.camera2ds(), Camera2d())
+    camera_entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(
+        @transform.GlobalTransform::from_transform(
+          @transform.Transform::from_xyz(0.0, 0.0, 0.0),
+        ).compute_transform(),
       ),
     )
+    ignore(camera_entity_draft.spawn())
 
     let (frame, _) = build_frame2d(@camera.active_camera2d_views())
     inspect(frame.passes.length(), content="1")
@@ -83,9 +86,9 @@ test "build_frame2d normalizes offscreen viewport and command coordinates" {
   with_render_submit_test_world(fn() raise {
     @system.configure_display(200.0, 120.0, 1.0)
     @render2d.begin_frame2d_system(0.0)
-    let camera_entity = @ecs.require_current_world().spawn(())
-    @camera.cameras().set(
-      camera_entity,
+    let camera_entity_draft = @ecs.require_current_world().spawn_draft()
+    camera_entity_draft.add_to(
+      @camera.cameras(),
       Camera(
         viewport=Some(CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0))),
         pass=CameraPass2D(
@@ -95,13 +98,16 @@ test "build_frame2d normalizes offscreen viewport and command coordinates" {
         ),
       ),
     )
-    @camera.camera2ds().set(camera_entity, Camera2d())
-    @transform.global_transforms().set(
-      camera_entity,
-      @transform.GlobalTransform::from_transform(
-        @transform.Transform::from_xyz(0.0, 0.0, 0.0),
+    camera_entity_draft.add_to(@camera.camera2ds(), Camera2d())
+    camera_entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(
+        @transform.GlobalTransform::from_transform(
+          @transform.Transform::from_xyz(0.0, 0.0, 0.0),
+        ).compute_transform(),
       ),
     )
+    let camera_entity = camera_entity_draft.spawn()
     @render2d.push_rect_with_depth_to_camera(
       camera_entity.id(),
       0.0,
@@ -135,15 +141,18 @@ test "build_frame2d batches camera ui commands with clip barriers" {
   with_render_submit_test_world(fn() raise {
     @system.configure_display(200.0, 120.0, 1.0)
     @render2d.begin_frame2d_system(0.0)
-    let camera_entity = @ecs.require_current_world().spawn(())
-    @camera.cameras().set(camera_entity, Camera())
-    @camera.camera2ds().set(camera_entity, Camera2d())
-    @transform.global_transforms().set(
-      camera_entity,
-      @transform.GlobalTransform::from_transform(
-        @transform.Transform::from_xyz(0.0, 0.0, 0.0),
+    let camera_entity_draft = @ecs.require_current_world().spawn_draft()
+    camera_entity_draft.add_to(@camera.cameras(), Camera())
+    camera_entity_draft.add_to(@camera.camera2ds(), Camera2d())
+    camera_entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(
+        @transform.GlobalTransform::from_transform(
+          @transform.Transform::from_xyz(0.0, 0.0, 0.0),
+        ).compute_transform(),
       ),
     )
+    let camera_entity = camera_entity_draft.spawn()
 
     @render2d.push_ui_clip_for_camera(
       { position: Vec2(0.0, 0.0), size: Vec2(20.0, 20.0), },
@@ -177,9 +186,9 @@ test "build_frame2d batches camera ui commands with clip barriers" {
 test "build_frame2d maps camera offscreen pass target" {
   with_render_submit_test_world(fn() raise {
     @system.configure_display(200.0, 120.0, 1.0)
-    let camera_entity = @ecs.require_current_world().spawn(())
-    @camera.cameras().set(
-      camera_entity,
+    let camera_entity_draft = @ecs.require_current_world().spawn_draft()
+    camera_entity_draft.add_to(
+      @camera.cameras(),
       Camera(
         pass=CameraPass2D(
           load_op=Clear,
@@ -188,13 +197,16 @@ test "build_frame2d maps camera offscreen pass target" {
         ),
       ),
     )
-    @camera.camera2ds().set(camera_entity, Camera2d())
-    @transform.global_transforms().set(
-      camera_entity,
-      @transform.GlobalTransform::from_transform(
-        @transform.Transform::from_xyz(0.0, 0.0, 0.0),
+    camera_entity_draft.add_to(@camera.camera2ds(), Camera2d())
+    camera_entity_draft.add_to(
+      @transform.spatials(),
+      @transform.Spatial(
+        @transform.GlobalTransform::from_transform(
+          @transform.Transform::from_xyz(0.0, 0.0, 0.0),
+        ).compute_transform(),
       ),
     )
+    ignore(camera_entity_draft.spawn())
 
     let (frame, _) = build_frame2d(@camera.active_camera2d_views())
     inspect(frame.passes.length(), content="1")

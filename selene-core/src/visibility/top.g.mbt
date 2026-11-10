@@ -16,36 +16,6 @@ pub impl @ecs.Component for Visibility with fn component_key() {
 pub extend Visibility with @ecs.Component::{ component_key }
 
 ///|
-let selene_component_key_InheritedVisibility : @ecs.ComponentKey[
-  InheritedVisibility,
-] = ComponentKey()
-
-///|
-pub impl @ecs.Component for InheritedVisibility with fn component_key() {
-  selene_component_key_InheritedVisibility
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend InheritedVisibility with @ecs.Component::{ component_key }
-
-///|
-let selene_component_key_ViewVisibility : @ecs.ComponentKey[ViewVisibility] = ComponentKey(
-
-)
-
-///|
-pub impl @ecs.Component for ViewVisibility with fn component_key() {
-  selene_component_key_ViewVisibility
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend ViewVisibility with @ecs.Component::{ component_key }
-
-///|
 let selene_component_key_RenderLayers : @ecs.ComponentKey[RenderLayers] = ComponentKey(
 
 )

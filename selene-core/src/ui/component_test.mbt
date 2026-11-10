@@ -9,7 +9,7 @@ test "typed UI components share the named store in each World" {
 
   @ecs.run_schedule(first, _ => {
     found_by_accessor.val = @ui.nodes().contains(entity)
-    ignore(@ui.nodes().remove(entity))
+    ignore(entity.delete())
   })
 
   assert_true(found_by_accessor.val)

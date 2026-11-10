@@ -44,7 +44,6 @@ pub(all) struct TiledPhysicsSettings {
 }
 
 ///|
-#selene.component
 pub struct TiledColliders {
   entities : Array[@ecs.Entity]
 }
@@ -76,8 +75,16 @@ pub struct TiledColliderSpawnedEvent {
 }
 
 ///|
-pub fn tiled_colliders() -> @ecs.ComponentStore[TiledColliders] {
-  @ecs.components()
+pub fn tiled_colliders(source : @ecs.Entity) -> TiledColliders? {
+  let origins = tiled_collider_origins()
+  let entities = source
+    .get_children()
+    .filter(entity => origins.contains(entity))
+  if entities.is_empty() {
+    None
+  } else {
+    Some({ entities, })
+  }
 }
 
 ///|
@@ -437,20 +444,46 @@ fn spawn_tiled_physics_spec(
   spec : TiledPhysicsSpawnSpec,
   settings : TiledPhysicsSettings,
 ) -> Unit {
-  let collider_entity = spec.source_entity.spawn_child()
+  let draft = @ecs.require_current_world().spawn_draft()
   let filter = if spec.sensor {
     settings.sensor_filter
   } else {
     settings.collision_filter
   }
+  let active = tiled_property_bool(spec.properties, "physics_active").unwrap_or(
+    tiled_property_bool(spec.properties, "active").unwrap_or(true),
+  )
   if spec.sensor {
-    @physics2d.areas().set(collider_entity, @physics2d.Area(filter))
+    let area = @physics2d.Area(filter)
+    area.active = active
+    draft.add(area)
   } else {
-    @physics2d.colliders().set(collider_entity, @physics2d.Collider(filter))
+    let collider = @physics2d.Collider(filter)
+    collider.active = active
+    collider.friction = tiled_property_number(
+      spec.properties,
+      "physics_friction",
+    ).unwrap_or(
+      tiled_property_number(spec.properties, "friction").unwrap_or(
+        collider.friction,
+      ),
+    )
+    collider.restitution = tiled_property_number(
+      spec.properties,
+      "physics_restitution",
+    ).unwrap_or(
+      tiled_property_number(spec.properties, "restitution").unwrap_or(
+        collider.restitution,
+      ),
+    )
+    draft.add(collider)
   }
-  tiled_apply_physics_properties(collider_entity, spec.sensor, spec.properties)
-  @physics2d.shapes().set(collider_entity, spec.shape)
-  tiled_set_properties(collider_entity, spec.properties)
+  if tiled_physics_body(spec.properties) is Some(body) {
+    draft.add(body)
+  }
+  draft.add(spec.shape)
+  draft.add(@transform.Spatial(@transform.Transform::identity()))
+  tiled_add_properties(draft, spec.properties)
   let origin : TiledColliderOrigin = {
     map_entity,
     source_entity: spec.source_entity,
@@ -458,11 +491,8 @@ fn spawn_tiled_physics_spec(
     source_kind: spec.source_kind,
     layer: spec.layer,
   }
-  tiled_collider_origins().set(collider_entity, origin)
-  let colliders = tiled_colliders().get_or_init(spec.source_entity, () => {
-    entities: [],
-  })
-  colliders.entities.push(collider_entity)
+  draft.add(origin)
+  let collider_entity = draft.spawn(parent=spec.source_entity)
   let event = {
     collider_entity,
     origin,
@@ -473,39 +503,6 @@ fn spawn_tiled_physics_spec(
   tiled_collider_spawned_event_bus.trigger(event, Some(collider_entity))
   if settings.collider_hook is Some(collider_hook) {
     collider_hook(event)
-  }
-}
-
-///|
-fn tiled_apply_physics_properties(
-  collider_entity : @ecs.Entity,
-  sensor : Bool,
-  properties : Array[TiledProperty],
-) -> Unit {
-  let active = tiled_property_bool(properties, "physics_active").unwrap_or(
-    tiled_property_bool(properties, "active").unwrap_or(true),
-  )
-  if sensor {
-    if @physics2d.areas().get(collider_entity) is Some(area) {
-      area.active = active
-    }
-  } else if @physics2d.colliders().get(collider_entity) is Some(collider) {
-    collider.active = active
-    if tiled_property_number(properties, "physics_friction") is Some(friction) {
-      collider.friction = friction
-    } else if tiled_property_number(properties, "friction") is Some(friction) {
-      collider.friction = friction
-    }
-    if tiled_property_number(properties, "physics_restitution")
-      is Some(restitution) {
-      collider.restitution = restitution
-    } else if tiled_property_number(properties, "restitution")
-      is Some(restitution) {
-      collider.restitution = restitution
-    }
-  }
-  if tiled_physics_body(properties) is Some(body) {
-    @physics2d.rigid_bodies().set(collider_entity, body)
   }
 }
 

@@ -22,7 +22,7 @@ priv enum BirdContactOutcome {
 ///|
 fn play_sfx(sound : @audio.AudioHandle, enabled : Bool) -> Unit {
   if enabled {
-    @audio.send_audio_event(sound, settings=@audio.PlaybackSettings::remove())
+    @audio.send_audio_event(sound, settings=@audio.PlaybackSettings::despawn())
   }
 }
 
@@ -33,7 +33,7 @@ fn player_is_frozen(result : GameResult?) -> Bool {
 
 ///|
 fn set_ui_text(entity : @ecs.Entity, content : String) -> Unit {
-  let text = @ui.texts().get_or_init(entity, fn() { Text(content) })
+  guard @ui.texts().get(entity) is Some(text) else { return }
   if text.content != content {
     text.content = content
   }
@@ -46,18 +46,12 @@ fn set_ui_text_color(entity : @ecs.Entity, color : String) -> Unit {
     if current.color != next_color.color {
       current.color = next_color.color
     }
-  } else {
-    @ui.text_colors().set(entity, next_color)
   }
 }
 
 ///|
 fn set_ui_image(entity : @ecs.Entity, image : @ui.UiImage) -> Unit {
-  if @ui.ui_images().get(entity) is Some(current) {
-    if current != image {
-      @ui.ui_images().set(entity, image)
-    }
-  } else {
+  if @ui.ui_images().get(entity) is Some(current) && current != image {
     @ui.ui_images().set(entity, image)
   }
 }
@@ -87,22 +81,6 @@ fn volume_image(volume_on : Bool) -> @ui.UiImage {
   } else {
     volume_off_ui_image()
   }
-}
-
-///|
-fn ensure_sprite_animation_binding(entity : @ecs.Entity) -> Unit {
-  ignore(
-    @animation.animation_players().get_or_init(entity, fn() {
-      AnimationPlayer()
-    }),
-  )
-  ignore(
-    @animation.animation_transitions().get_or_init(entity, fn() {
-      AnimationTransitions()
-    }),
-  )
-  @animation.animation_target_ids().set(entity, AnimationTargetId("self"))
-  @animation.animated_bys().set(entity, AnimatedBy(entity))
 }
 
 ///|
@@ -226,7 +204,6 @@ fn play_player_animation(
   if controller.active_animation == Some(key) {
     return
   }
-  ensure_sprite_animation_binding(entity)
   @sprite.sprites().set(entity, sprite_animation_sprite(animation))
   let player = @animation.animation_players().get(entity).unwrap()
   let transitions = @animation.animation_transitions().get(entity).unwrap()
@@ -255,7 +232,6 @@ fn play_bird_animation(entity : @ecs.Entity, bird : BirdController) -> Unit {
   if bird.active_animation == Some(key) {
     return
   }
-  ensure_sprite_animation_binding(entity)
   @sprite.sprites().set(entity, sprite_animation_sprite(animation))
   let player = @animation.animation_players().get(entity).unwrap()
   let transitions = @animation.animation_transitions().get(entity).unwrap()
@@ -273,7 +249,7 @@ fn sprite_animation_finished(entity : @ecs.Entity) -> Bool {
 
 ///|
 fn entity_rect(entity : @ecs.Entity) -> @math.Rect? {
-  guard @transform.transforms().get(entity) is Some(transform) else {
+  guard @transform.local_transform(entity) is Some(transform) else {
     return None
   }
   guard @physics2d.shapes().get(entity) is Some(shape) else { return None }
@@ -350,8 +326,8 @@ fn apply_stomp_bounce(
   let snap_delta_y = bird_rect.position[Y] -
     (player_rect.position[Y] + player_rect.size[Y])
   if snap_delta_y < 0.0 {
-    guard! @transform.transforms().get(player_entity) is Some(player_transform)
-    @transform.transforms().set(
+    guard! @transform.local_transform(player_entity) is Some(player_transform)
+    @transform.set_local_transform(
       player_entity,
       player_transform.with_translation(
         Vec3(
@@ -531,7 +507,6 @@ fn player_bird_contact_system(world : @ecs.World) -> Unit {
   for pair in birds().to_array() {
     let bird_entity = pair.0
     if !bird_entity.is_alive() {
-      birds().remove(bird_entity)
       continue
     }
     guard birds().get(bird_entity) is Some(bird) else { continue }
@@ -570,7 +545,6 @@ fn bird_patrol_system(_world : @ecs.World) -> Unit {
   for pair in birds().to_array() {
     let bird_entity = pair.0
     if !bird_entity.is_alive() {
-      birds().remove(bird_entity)
       continue
     }
     guard birds().get(bird_entity) is Some(bird) else { continue }
@@ -581,8 +555,7 @@ fn bird_patrol_system(_world : @ecs.World) -> Unit {
       }
       play_bird_animation(bird_entity, bird)
       if sprite_animation_finished(bird_entity) {
-        bird_entity.destroy()
-        birds().remove(bird_entity)
+        ignore(bird_entity.delete())
       }
       continue
     }
@@ -621,28 +594,24 @@ fn trigger_system(world : @ecs.World) -> Unit {
   for pair in flags().to_array() {
     let flag_entity = pair.0
     if !flag_entity.is_alive() {
-      flags().remove(flag_entity)
       continue
     }
     if @physics2d.get_contains(flag_entity).contains(session.player) {
       session.score += 100
       session.result = Some(Win)
-      flag_entity.destroy()
-      flags().remove(flag_entity)
+      ignore(flag_entity.delete())
     }
   }
 
   for pair in apples().to_array() {
     let apple_entity = pair.0
     if !apple_entity.is_alive() {
-      apples().remove(apple_entity)
       continue
     }
     if @physics2d.get_contains(apple_entity).contains(session.player) {
       session.score += 10
       play_sfx(coin_sound(), session.volume_on)
-      apple_entity.destroy()
-      apples().remove(apple_entity)
+      ignore(apple_entity.delete())
     }
   }
 }
@@ -660,7 +629,7 @@ fn volume_button_system(world : @ecs.World) -> Unit {
 ///|
 fn pixeladventure_camera_follow_system(world : @ecs.World) -> Unit {
   guard (world.get_resource() : GameSession?) is Some(session) else { return }
-  guard @transform.transforms().get(session.player) is Some(player_transform) else {
+  guard @transform.local_transform(session.player) is Some(player_transform) else {
     return
   }
   let half_width = VIEWPORT_WIDTH * 0.5
@@ -687,7 +656,7 @@ fn pixeladventure_camera_follow_system(world : @ecs.World) -> Unit {
   } else {
     target_y
   }
-  @transform.transforms().set(
+  @transform.set_local_transform(
     session.camera,
     @transform.Transform::from_xyz(center_x, center_y, 0.0),
   )

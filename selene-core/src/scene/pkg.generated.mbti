@@ -15,7 +15,7 @@ pub fn despawn_all_scenes() -> Unit
 
 pub fn despawn_scene(@ecs.Entity) -> Unit
 
-pub fn instantiate_scene(@render3d_types.SceneHandle, @transform.Transform) -> @scene3d.SceneInstance
+pub fn instantiate_scene(@render3d_types.SceneHandle, @transform.Transform, parent? : @ecs.Entity) -> @scene3d.SceneInstance
 
 pub fn load_scene_gltf(String) -> @render3d_types.SceneHandle
 
@@ -41,7 +41,7 @@ pub(all) struct SceneSpawner {
   _tag : Unit
 }
 pub fn SceneSpawner::SceneSpawner() -> Self
-pub fn SceneSpawner::spawn(Self, @render3d_types.SceneHandle, @transform.Transform) -> @scene3d.SceneInstance
+pub fn SceneSpawner::spawn(Self, @render3d_types.SceneHandle, @transform.Transform, parent? : @ecs.Entity) -> @scene3d.SceneInstance
 
 // Type aliases
 pub using @render3d_types {type SceneHandle}

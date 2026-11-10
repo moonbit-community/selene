@@ -7,7 +7,6 @@ struct SpawnPlan[T] {
   signature : Array[Int32]
   mut table : Int32?
   append : (Int32, Entity, T) -> Unit
-  insert : (Entity, T) -> Unit
 }
 
 ///|
@@ -25,7 +24,6 @@ pub fn[T] ComponentStore::spawn_plan(
     signature: [self.component],
     table: None,
     append: (id, entity, value) => self.append_new(id, entity, value),
-    insert: (entity, value) => self.set(entity, value),
   }
 }
 
@@ -65,11 +63,6 @@ fn[A, B, T] SpawnPlan::combine_with(
       (self.append)(id, entity, left)
       (other.append)(id, entity, right)
     },
-    insert: (entity, values) => {
-      let (left, right) = split(values)
-      (self.insert)(entity, left)
-      (other.insert)(entity, right)
-    },
   }
 }
 
@@ -95,34 +88,33 @@ fn[T] SpawnPlan::append_row(
 
 ///|
 /// Creates a live entity and appends all bundle values to one archetype row.
-pub fn[T] SpawnPlan::spawn(self : SpawnPlan[T], values : T) -> Entity {
-  if !self.signature.is_empty() {
-    self.entities.archetypes.require_no_query()
+pub fn[T] SpawnPlan::spawn(
+  self : SpawnPlan[T],
+  values : T,
+  parent? : Entity,
+) -> Entity {
+  if parent is Some(parent) &&
+    (parent.world_id != self.world_id || !self.entities.is_alive(parent)) {
+    abort("parent must be alive in this World")
   }
+  self.entities.archetypes.require_no_query()
   let entity = self.entities.spawn(self.world_id)
   self.append_row(entity, values)
+  self.entities.link_child(entity, parent)
   entity
 }
 
 ///|
 /// Reserves a pending entity and queues initialization of its bundle.
-/// Queue later component changes to avoid migrating the row during initialization.
+/// A later command can overwrite its initialized values.
 fn[T] SpawnPlan::queue_spawn(
   self : SpawnPlan[T],
   world : World,
   values : T,
+  parent : Entity?,
 ) -> Entity {
   guard self.world_id == world.id() else {
     abort("spawn plan belongs to another world")
   }
-  queue_entity_spawn(world, entity => {
-    let storage = self.entities.archetypes
-    storage.require_no_query()
-    if storage.location(entity) is Some(_) {
-      // Immediate edits to a pending entity may already have created a row.
-      (self.insert)(entity, values)
-    } else {
-      self.append_row(entity, values)
-    }
-  })
+  queue_entity_spawn(world, parent, entity => self.append_row(entity, values))
 }

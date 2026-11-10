@@ -399,8 +399,7 @@ fn sync_layout_node(
     dirty.layout = true
     dirty.stacking = true
   }
-  if !computed_ui_nodes().contains(entity) ||
-    !global_ui_nodes().contains(entity) {
+  if !ui_geometry().contains(entity) {
     dirty.projection = true
   }
   if !tree_orders().contains(entity) {
@@ -554,9 +553,8 @@ fn project_layout(
       projected,
     )
   }
-  computed_ui_nodes().retain(entity => projected.contains(entity))
-  global_ui_nodes().retain(entity => projected.contains(entity))
-  calculated_clips().retain(entity => projected.contains(entity))
+  ui_geometry().retain((entity, _) => projected.contains(entity))
+  calculated_clips().retain((entity, _) => projected.contains(entity))
 }
 
 ///|
@@ -582,7 +580,7 @@ fn rebuild_layout_stack(
   for root in roots {
     record_ui_tree_order(runtime, root, order)
   }
-  tree_orders().retain(entity => runtime.nodes.contains(entity))
+  tree_orders().retain((entity, _) => runtime.nodes.contains(entity))
   rebuild_ui_stack()
 }
 

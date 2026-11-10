@@ -61,22 +61,6 @@ fn player_input_vector() -> @math.Vec2 {
 }
 
 ///|
-fn ensure_sprite_animation_binding(entity : @ecs.Entity) -> Unit {
-  ignore(
-    @animation.animation_players().get_or_init(entity, fn() {
-      AnimationPlayer()
-    }),
-  )
-  ignore(
-    @animation.animation_transitions().get_or_init(entity, fn() {
-      AnimationTransitions()
-    }),
-  )
-  @animation.animation_target_ids().set(entity, AnimationTargetId("self"))
-  @animation.animated_bys().set(entity, AnimatedBy(entity))
-}
-
-///|
 fn build_sprite_animation_clip_asset(
   animation : SpriteAnimationDef,
 ) -> @animation.AnimationClipHandle {
@@ -125,11 +109,12 @@ fn register_sprite_animation_node(
 }
 
 ///|
-fn PlayerAnimationController::PlayerAnimationController(
-  entity : @ecs.Entity,
-) -> PlayerAnimationController {
+fn build_player_animation_controller() -> (
+  PlayerAnimationController,
+  @animation.AnimationGraphHandle,
+) {
   let graph = @animation.AnimationGraph()
-  let controller = {
+  let controller : PlayerAnimationController = {
     idle_left: register_sprite_animation_node(graph, player_idle_left_animation),
     idle_right: register_sprite_animation_node(
       graph, player_idle_right_animation,
@@ -142,12 +127,7 @@ fn PlayerAnimationController::PlayerAnimationController(
     run_down: register_sprite_animation_node(graph, player_run_down_animation),
     current: None,
   }
-  ensure_sprite_animation_binding(entity)
-  @animation.animation_graph_handles().set(
-    entity,
-    @animation.register_animation_graph_asset(graph),
-  )
-  controller
+  (controller, @animation.register_animation_graph_asset(graph))
 }
 
 ///|
@@ -176,25 +156,38 @@ fn spawn_player() -> @ecs.Entity {
     size=Vec2(PLAYER_SIZE, PLAYER_SIZE),
     offset=Vec2(-PLAYER_SIZE / 2.0, -PLAYER_SIZE / 2.0),
   )
-  let entity = spawn_survivors_entity(
+  let (animation_controller, graph) = build_player_animation_controller()
+  let world = @ecs.require_current_world()
+  let plan = world.prepare_spawn().combine(world.prepare_spawn())
+  let entity = plan.spawn(
     (
-      sprite_animation_sprite(player_idle_right_animation),
-      @transform.Transform::from_xyz(
-        MAP_WIDTH / 2.0,
-        MAP_HEIGHT / 2.0,
-        PLAYER_ZINDEX.to_double(),
+      (
+        sprite_animation_sprite(player_idle_right_animation),
+        @transform.Spatial(
+          @transform.Transform::from_xyz(
+            MAP_WIDTH / 2.0,
+            MAP_HEIGHT / 2.0,
+            PLAYER_ZINDEX.to_double(),
+          ),
+        ),
+        @physics2d.Velocity(@math.Vec2::zero()),
+        @physics2d.Collider(
+          @physics2d.CollisionFilter(player_collision_group, [
+            wall_collision_group,
+          ]),
+        ),
+        shape,
       ),
-      @physics2d.Velocity(@math.Vec2::zero()),
-      @physics2d.Collider(
-        @physics2d.CollisionFilter(player_collision_group, [
-          wall_collision_group,
-        ]),
+      (
+        animation_controller,
+        graph,
+        @animation.AnimationPlayer(),
+        @animation.AnimationTransitions(),
+        @animation.AnimationTargetId("self"),
       ),
-      shape,
     ),
   )
-  let animation_controller = PlayerAnimationController(entity)
-  player_animation_controllers().set(entity, animation_controller)
+  survivors_runtime().entities.push(entity)
   play_player_animation_state(
     entity,
     player_idle_right_animation,
@@ -289,8 +282,7 @@ fn player_shooting_system(_world : @ecs.World) -> Unit {
   if game.game_over {
     return
   }
-  guard @transform.transforms().get(game.player_entity)
-    is Some(player_transform) else {
+  guard @transform.local_transform(game.player_entity) is Some(player_transform) else {
     return
   }
   let player_pos = @math.Vec2(
@@ -339,7 +331,7 @@ fn find_nearest_enemy_in_range(
   let mut res : @math.Vec2? = None
   for e, _enemy in enemies() {
     guard e.is_alive() else { continue }
-    guard @transform.transforms().get(e) is Some(enemy_transform) else {
+    guard @transform.local_transform(e) is Some(enemy_transform) else {
       continue
     }
     let enemy_pos = @math.Vec2(

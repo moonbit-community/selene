@@ -55,9 +55,9 @@ pub fn impulse_joint_handle(@ecs.Entity) -> @dynamics.JointHandle3DReal?
 
 pub fn impulse_joints() -> @ecs.ComponentStore[ImpulseJoint]
 
-pub fn kinematic_character_controller_collisions() -> @ecs.ComponentStore[KinematicCharacterControllerCollisions]
+pub fn kinematic_character_controller_collisions() -> Map[@ecs.Entity, KinematicCharacterControllerCollisions]
 
-pub fn kinematic_character_controller_outputs() -> @ecs.ComponentStore[KinematicCharacterControllerOutput]
+pub fn kinematic_character_controller_outputs() -> Map[@ecs.Entity, KinematicCharacterControllerOutput]
 
 pub fn kinematic_character_controllers() -> @ecs.ComponentStore[KinematicCharacterController]
 
@@ -304,7 +304,6 @@ pub fn KinematicCharacterControllerCollisions::KinematicCharacterControllerColli
 pub fn KinematicCharacterControllerCollisions::equal(Self, Self) -> Bool
 pub fn KinematicCharacterControllerCollisions::not_equal(Self, Self) -> Bool
 pub fn KinematicCharacterControllerCollisions::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Component for KinematicCharacterControllerCollisions
 
 #derive(Eq, @debug.Debug)
 pub(all) struct KinematicCharacterControllerOutput {
@@ -316,7 +315,6 @@ pub(all) struct KinematicCharacterControllerOutput {
 pub fn KinematicCharacterControllerOutput::equal(Self, Self) -> Bool
 pub fn KinematicCharacterControllerOutput::not_equal(Self, Self) -> Bool
 pub fn KinematicCharacterControllerOutput::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Component for KinematicCharacterControllerOutput
 
 #derive(Eq, @debug.Debug)
 pub(all) struct LockedAxes {

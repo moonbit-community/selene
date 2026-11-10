@@ -29,15 +29,13 @@ pub(all) enum CollisionShape {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let entity = @ecs.require_current_world().spawn(())
-/// defer entity.destroy()
-/// @collision.shapes().set(
-///   entity,
+/// let entity = @ecs.require_current_world().spawn1(
 ///   @collision.CollisionShape::Rect(
 ///     size=@math.Vec2(50.0, 30.0),
 ///     offset=@math.Vec2(0.0, 0.0),
 ///   ),
 /// )
+/// defer ignore(entity.delete())
 /// ```
 pub fn shapes() -> @ecs.ComponentStore[CollisionShape] {
   @ecs.components()

@@ -165,12 +165,8 @@ fn collider_desc(entity : @ecs.Entity, shape : Collider) -> ColliderDesc {
 
 ///|
 fn clear_controller_outputs() -> Unit {
-  for pair in kinematic_character_controller_outputs().to_array() {
-    kinematic_character_controller_outputs().remove(pair.0)
-  }
-  for pair in kinematic_character_controller_collisions().to_array() {
-    kinematic_character_controller_collisions().remove(pair.0)
-  }
+  kinematic_character_controller_outputs().clear()
+  kinematic_character_controller_collisions().clear()
 }
 
 ///|
@@ -462,10 +458,14 @@ fn sync_rapier_to_components() -> Unit {
         }
       None => world_transform
     }
-    @transform.transforms().set(entity, local_transform)
-    velocities().set(entity, {
-      linvel: @math.vec3_from_rapier(body.linvel()),
-      angvel: @math.vec3_from_rapier(body.angvel()),
-    })
+    if @transform.spatials().contains(entity) {
+      @transform.set_local_transform(entity, local_transform)
+    }
+    if velocities().contains(entity) {
+      velocities().set(entity, {
+        linvel: @math.vec3_from_rapier(body.linvel()),
+        angvel: @math.vec3_from_rapier(body.angvel()),
+      })
+    }
   }
 }

@@ -5,15 +5,15 @@ test "typed spawn binds the layout to the explicit World" {
   let sprite = @sprite.Sprite()
   let transform = @transform.Transform::from_xyz(3.0, 4.0, 0.0)
   let sprites : @ecs.ComponentStore[@sprite.Sprite] = @ecs.components_in(world)
-  let transforms : @ecs.ComponentStore[@transform.Transform] = @ecs.components_in(
+  let transforms : @ecs.ComponentStore[@transform.Spatial] = @ecs.components_in(
     world,
   )
   let foreign : @ecs.ComponentStore[@sprite.Sprite] = @ecs.components_in(other)
   let empty = world.spawn(())
   let single = world.spawn(@ecs.Single(sprite))
-  let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Transform)] = world.prepare_spawn()
-  let prepared = plan.spawn((sprite, transform))
-  let reversed = world.spawn((transform, sprite))
+  let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = world.prepare_spawn()
+  let prepared = plan.spawn((sprite, @transform.Spatial(transform)))
+  let reversed = world.spawn((@transform.Spatial(transform), sprite))
   assert_true(empty.belongs_to(world))
   assert_false(sprites.contains(empty))
   assert_true(sprites.contains(single))
@@ -25,7 +25,10 @@ test "typed spawn binds the layout to the explicit World" {
   for entity in [prepared, reversed] {
     assert_true(@ecs.alive_in_world(world)(entity))
     assert_true(sprites.contains(entity))
-    assert_eq(transforms.get(entity), Some(transform))
+    assert_eq(
+      transforms.get(entity).map(spatial => spatial.pose()),
+      Some(transform),
+    )
     assert_false(foreign.contains(entity))
   }
 }
@@ -35,7 +38,7 @@ test "typed spawn can queue an entity from a query" {
   let world = @ecs.World()
   let first = world.spawn(@ecs.Single(@sprite.Sprite()))
   let sprites : @ecs.ComponentStore[@sprite.Sprite] = @ecs.components_in(world)
-  let transforms : @ecs.ComponentStore[@transform.Transform] = @ecs.components_in(
+  let transforms : @ecs.ComponentStore[@transform.Spatial] = @ecs.components_in(
     world,
   )
   let commands = @ecs.commands(world)
@@ -46,8 +49,8 @@ test "typed spawn can queue an entity from a query" {
   @ecs.run_schedule(world, _ => {
     query.for_each((entity, sprite) => {
       if entity == first {
-        let pending = commands.spawn((sprite, transform))
-        commands.insert_component(transforms, pending, later)
+        let pending = commands.spawn((sprite, @transform.Spatial(transform)))
+        commands.add(_ => transforms.set(pending, @transform.Spatial(later)))
         spawned.push(pending)
       }
     })
@@ -60,7 +63,7 @@ test "typed spawn can queue an entity from a query" {
   guard spawned is [entity] else { fail("expected one spawned entity") }
   assert_true(@ecs.alive_in_world(world)(entity))
   assert_true(sprites.contains(entity))
-  assert_eq(transforms.get(entity), Some(later))
+  assert_eq(transforms.get(entity).map(spatial => spatial.pose()), Some(later))
 }
 
 ///|
