@@ -4,6 +4,7 @@ import {
   "moonbitlang/async@0.22.5/fs",
   "moonbitlang/async@0.22.5/process",
   "moonbitlang/async@0.22.5/stdio",
+  "moonbitlang/core/argparse",
   "moonbitlang/core/env",
   "moonbitlang/core/string",
 }
@@ -181,20 +182,37 @@ async fn publish_release(version : String) -> Unit {
 
 ///|
 async fn main {
-  let args = @env.args()
+  let command = @argparse.Command(
+    "moon run --target wasm publish.mbtx --",
+    about="Publish a coordinated Selene release or a development codegen beta.",
+    flags=[
+      @argparse.FlagArg("codegen-only", about="Publish only a codegen beta."),
+    ],
+    positionals=[
+      @argparse.PositionArg("version", num_args=@argparse.ValueRange::single()),
+    ],
+  )
+  let matches = command.parse() catch {
+    err => {
+      @stdio.stderr.write(err.to_string())
+      @env.exit(2)
+    }
+  }
+  let version = matches.values["version"][0]
+  let codegen_only = matches.flags.get("codegen-only").unwrap_or(false)
   let valid = re"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-beta[1-9][0-9]*)?$"
+  guard valid.execute(version) is Some(_) &&
+    codegen_only == version.contains("-beta") else {
+    @stdio.stderr.write(
+      "Use x.y.z for a stable release, or x.y.z-betaN with --codegen-only.\n",
+    )
+    @env.exit(2)
+  }
   try {
-    match args {
-      [_, version] if valid.execute(version) is Some(_) &&
-        !version.contains("-beta") => publish_release(version)
-      [_, version, "--codegen-only"] if valid.execute(version) is Some(_) &&
-        version.contains("-beta") => publish_codegen(version)
-      _ => {
-        println(
-          "Usage: moon run --target wasm publish.mbtx -- <x.y.z> | <x.y.z-betaN> --codegen-only",
-        )
-        @env.exit(2)
-      }
+    if codegen_only {
+      publish_codegen(version)
+    } else {
+      publish_release(version)
     }
   } catch {
     Failed(message) => {

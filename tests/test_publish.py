@@ -191,6 +191,27 @@ class PublishTests(unittest.TestCase):
                 self.invoke(*args, exit_code=2)
                 self.assertEqual(self.commands, [])
 
+    def test_cli_help_does_not_run_release_commands(self):
+        for flag in ("--help", "-h"):
+            with self.subTest(flag=flag):
+                result = self.invoke(flag)
+                self.assertIn("Usage:", result.stdout)
+                self.assertIn("version", result.stdout)
+                self.assertIn("--codegen-only", result.stdout)
+                self.assertEqual(self.commands, [])
+
+    def test_cli_rejects_missing_extra_and_unknown_arguments(self):
+        for args in ([], ["0.40.0", "extra"], ["0.40.0", "--unknown"]):
+            with self.subTest(args=args):
+                result = self.invoke(*args, exit_code=2)
+                self.assertIn("Usage:", result.stderr)
+                self.assertEqual(self.commands, [])
+
+    def test_codegen_flag_can_precede_the_version(self):
+        self.invoke("--codegen-only", "0.40.0-beta1")
+        self.assertEqual(self.publications(), ["selene-codegen"])
+        self.assertIn('version = "0.40.0-beta1"', (self.root / "selene-codegen/moon.mod").read_text())
+
     def test_missing_codegen_asset_leaves_existing_consumer_pins_in_place(self):
         original = {name: (self.root / name).read_text() for name in CODEGEN_PIN_FILES}
         self.failure = ("moonx", "Milky2018/selene_codegen@0.40.0-beta1", "--check", "selene-codegen/main.mbt")

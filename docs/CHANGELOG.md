@@ -29,6 +29,8 @@
 - Replace the Python release script with `publish.mbtx`, run through
   `moon run --target wasm publish.mbtx -- <version>`. Release tests execute the
   compiled script against simulated commands without publishing packages.
+- Parse release arguments with `core/argparse`, providing help, standard
+  argument errors, and flexible option ordering.
 - Simplify publishing to direct codegen and stable release sequences, using
   MoonBit exit codes and `--deny-warn` instead of custom warning parsing.
   Check formatting without rewriting it and leave API generation to development.
