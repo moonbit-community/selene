@@ -38,17 +38,19 @@ pub fn kinematic_character_controllers() -> @ecs.ComponentStore[
 }
 
 ///|
-pub fn kinematic_character_controller_outputs() -> @ecs.ComponentStore[
+pub fn kinematic_character_controller_outputs() -> Map[
+  @ecs.Entity,
   KinematicCharacterControllerOutput,
 ] {
-  @ecs.components()
+  physics3d_world_store().controller_outputs
 }
 
 ///|
-pub fn kinematic_character_controller_collisions() -> @ecs.ComponentStore[
+pub fn kinematic_character_controller_collisions() -> Map[
+  @ecs.Entity,
   KinematicCharacterControllerCollisions,
 ] {
-  @ecs.components()
+  physics3d_world_store().controller_collisions
 }
 
 ///|
@@ -73,6 +75,11 @@ priv struct Physics3DWorldStore {
   collider_handles : Map[@ecs.Entity, RapierColliderHandle]
   impulse_joint_handles : Map[@ecs.Entity, RapierImpulseJointHandle]
   multibody_joint_handles : Map[@ecs.Entity, RapierMultibodyJointHandle]
+  controller_outputs : Map[@ecs.Entity, KinematicCharacterControllerOutput]
+  controller_collisions : Map[
+    @ecs.Entity,
+    KinematicCharacterControllerCollisions,
+  ]
   collider_entities_by_key : Map[String, @ecs.Entity]
 }
 
@@ -100,6 +107,8 @@ fn physics3d_world_store() -> Physics3DWorldStore {
     collider_handles: Map([]),
     impulse_joint_handles: Map([]),
     multibody_joint_handles: Map([]),
+    controller_outputs: {},
+    controller_collisions: {},
     collider_entities_by_key: Map([]),
   })
 }
@@ -144,7 +153,6 @@ pub let sensor_event_bus : @event.Events[SensorEvent] = Events()
 pub let contact_force_event_bus : @event.Events[ContactForceEvent] = Events()
 
 ///|
-#warnings("-unnecessary_annotation")
 pub fn context() -> RapierContext {
   RapierContext::{ }
 }

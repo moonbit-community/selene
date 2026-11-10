@@ -49,8 +49,8 @@ pub fn ldtk_worldly_entities() -> @ecs.ComponentStore[LdtkWorldly] {
 }
 
 ///|
-pub fn ldtk_respawns() -> @ecs.ComponentStore[LdtkRespawn] {
-  @ecs.components()
+pub fn ldtk_respawns() -> Map[@ecs.Entity, LdtkRespawn] {
+  ldtk_world_store().respawns
 }
 
 ///|
@@ -146,7 +146,7 @@ pub fn ldtk_int_grid_default_spawn_hook() -> Ref[
 ///|
 pub fn ldtk_entity_typed_registrations() -> Map[
   String,
-  (LdtkEntitySpawnedEvent) -> Unit,
+  (LdtkEntitySpawn) -> Unit,
 ] {
   ldtk_world_store().ldtk_entity_typed_registrations
 }
@@ -154,7 +154,7 @@ pub fn ldtk_entity_typed_registrations() -> Map[
 ///|
 pub fn ldtk_int_cell_typed_registrations() -> Map[
   String,
-  (LdtkIntGridCellSpawnedEvent) -> Unit,
+  (LdtkIntGridCellSpawn) -> Unit,
 ] {
   ldtk_world_store().ldtk_int_cell_typed_registrations
 }

@@ -30,7 +30,7 @@ priv enum TouchAction {
 
 ///|
 fn set_text(entity : @ecs.Entity, content : String) -> Unit {
-  let text = @ui.texts().get_or_init(entity, fn() { Text(content) })
+  guard @ui.texts().get(entity) is Some(text) else { return }
   text.content = content
 }
 
@@ -69,7 +69,7 @@ fn with_display(node : @ui.Node, display : @ui.Display) -> @ui.Node {
 fn set_display(entity : @ecs.Entity, display : @ui.Display) -> Unit {
   match @ui.nodes().get(entity) {
     Some(node) => @ui.nodes().set(entity, with_display(node, display))
-    None => @ui.nodes().set(entity, Node(display~))
+    None => ()
   }
 }
 
@@ -121,7 +121,7 @@ fn setup_ui() -> Unit {
   ignore(
     spawn_cards_entity(
       (
-        @transform.Transform::from_xyz(0.0, 0.0, 0.0),
+        @transform.Spatial(@transform.Transform::from_xyz(0.0, 0.0, 0.0)),
         @sprite.Sprite(
           color=@sprite.color_from_css("#2d5016"),
           custom_size=Some(Vec2(VIEWPORT_WIDTH, VIEWPORT_HEIGHT)),
@@ -328,12 +328,14 @@ fn display_all_cards() -> Unit {
   let x_base = pos.0
   let y_base = pos.1 - 40.0
 
-  let plan : @ecs.SpawnPlan[(@transform.Transform, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
+  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
   for j, card in player.hole_cards {
     let card_x = x_base + (j.to_double() - 0.5) * 30.0 - 30
     let card_entity = plan.spawn(
       (
-        @transform.Transform::from_xyz(card_x, y_base, j.to_double()),
+        @transform.Spatial(
+          @transform.Transform::from_xyz(card_x, y_base, j.to_double()),
+        ),
         card.to_sprite(),
       ),
     )
@@ -354,12 +356,14 @@ fn display_community_cards() -> Unit {
   game.community_card_entities.clear()
   let center_x = VIEWPORT_WIDTH / 2.0
   let center_y = VIEWPORT_HEIGHT / 2.0 - 60.0
-  let plan : @ecs.SpawnPlan[(@transform.Transform, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
+  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
   for i, card in game.community_cards {
     let card_x = center_x + (i.to_double() - 2.5) * 30.0 - 15
     let card_entity = plan.spawn(
       (
-        @transform.Transform::from_xyz(card_x, center_y, (10 + i).to_double()),
+        @transform.Spatial(
+          @transform.Transform::from_xyz(card_x, center_y, (10 + i).to_double()),
+        ),
         card.to_sprite(),
       ),
     )

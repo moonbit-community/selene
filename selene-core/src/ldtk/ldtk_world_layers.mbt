@@ -9,7 +9,7 @@ pub fn clear_ldtk_int_cell_registrations() -> Unit {
 pub fn add_ldtk_entity_registration_for_layer_optional(
   layer_identifier : String?,
   entity_identifier : String?,
-  hook : (LdtkEntitySpawnedEvent) -> Unit,
+  hook : (LdtkEntitySpawn) -> Unit,
 ) -> Unit {
   ldtk_append_entity_typed_registration(
     layer_identifier, entity_identifier, hook,
@@ -20,7 +20,7 @@ pub fn add_ldtk_entity_registration_for_layer_optional(
 pub fn add_ldtk_entity_registration_for_layer(
   layer_identifier : String,
   entity_identifier : String,
-  hook : (LdtkEntitySpawnedEvent) -> Unit,
+  hook : (LdtkEntitySpawn) -> Unit,
 ) -> Unit {
   add_ldtk_entity_registration_for_layer_optional(
     Some(layer_identifier),
@@ -32,7 +32,7 @@ pub fn add_ldtk_entity_registration_for_layer(
 ///|
 pub fn add_ldtk_entity_registration(
   entity_identifier : String,
-  hook : (LdtkEntitySpawnedEvent) -> Unit,
+  hook : (LdtkEntitySpawn) -> Unit,
 ) -> Unit {
   add_ldtk_entity_registration_for_layer_optional(
     None,
@@ -44,7 +44,7 @@ pub fn add_ldtk_entity_registration(
 ///|
 pub fn add_default_ldtk_entity_registration_for_layer(
   layer_identifier : String,
-  hook : (LdtkEntitySpawnedEvent) -> Unit,
+  hook : (LdtkEntitySpawn) -> Unit,
 ) -> Unit {
   add_ldtk_entity_registration_for_layer_optional(
     Some(layer_identifier),
@@ -55,7 +55,7 @@ pub fn add_default_ldtk_entity_registration_for_layer(
 
 ///|
 pub fn add_default_ldtk_entity_registration(
-  hook : (LdtkEntitySpawnedEvent) -> Unit,
+  hook : (LdtkEntitySpawn) -> Unit,
 ) -> Unit {
   add_ldtk_entity_registration_for_layer_optional(None, None, hook)
 }
@@ -65,12 +65,12 @@ pub fn[T] add_ldtk_entity_component_for_layer_optional(
   layer_identifier : String?,
   entity_identifier : String?,
   storage : @ecs.ComponentStore[T],
-  make : (LdtkEntitySpawnedEvent) -> T,
+  make : (LdtkEntitySpawn) -> T,
 ) -> Unit {
   add_ldtk_entity_registration_for_layer_optional(
     layer_identifier,
     entity_identifier,
-    fn(event) { storage.set(event.entity, make(event)) },
+    fn(event) { event.draft.add_to(storage, make(event)) },
   )
 }
 
@@ -79,7 +79,7 @@ pub fn[T] add_ldtk_entity_component_for_layer(
   layer_identifier : String,
   entity_identifier : String,
   storage : @ecs.ComponentStore[T],
-  make : (LdtkEntitySpawnedEvent) -> T,
+  make : (LdtkEntitySpawn) -> T,
 ) -> Unit {
   add_ldtk_entity_component_for_layer_optional(
     Some(layer_identifier),
@@ -93,7 +93,7 @@ pub fn[T] add_ldtk_entity_component_for_layer(
 pub fn[T] add_ldtk_entity_component(
   entity_identifier : String,
   storage : @ecs.ComponentStore[T],
-  make : (LdtkEntitySpawnedEvent) -> T,
+  make : (LdtkEntitySpawn) -> T,
 ) -> Unit {
   add_ldtk_entity_component_for_layer_optional(
     None,
@@ -107,7 +107,7 @@ pub fn[T] add_ldtk_entity_component(
 pub fn[T] add_default_ldtk_entity_component_for_layer(
   layer_identifier : String,
   storage : @ecs.ComponentStore[T],
-  make : (LdtkEntitySpawnedEvent) -> T,
+  make : (LdtkEntitySpawn) -> T,
 ) -> Unit {
   add_ldtk_entity_component_for_layer_optional(
     Some(layer_identifier),
@@ -120,14 +120,14 @@ pub fn[T] add_default_ldtk_entity_component_for_layer(
 ///|
 pub fn[T] add_default_ldtk_entity_component(
   storage : @ecs.ComponentStore[T],
-  make : (LdtkEntitySpawnedEvent) -> T,
+  make : (LdtkEntitySpawn) -> T,
 ) -> Unit {
   add_ldtk_entity_component_for_layer_optional(None, None, storage, make)
 }
 
 ///|
 pub fn ldtk_entity_tile_sprite(
-  event : LdtkEntitySpawnedEvent,
+  event : LdtkEntitySpawn,
   zindex~ : Int32 = event.zindex,
 ) -> @sprite.Sprite? {
   guard event.instance.tile is Some(tile) else { return None }
@@ -178,15 +178,20 @@ pub fn ldtk_entity_tile_sprite(
 }
 
 ///|
-pub fn insert_ldtk_entity_tile_sprite(
-  event : LdtkEntitySpawnedEvent,
+pub fn add_ldtk_entity_tile_sprite_to_draft(
+  event : LdtkEntitySpawn,
   zindex~ : Int32 = event.zindex,
 ) -> Bool {
   guard ldtk_entity_tile_sprite(event, zindex~) is Some(sprite) else {
     return false
   }
-  set_entity_depth(event.entity, zindex)
-  @sprite.sprites().set(event.entity, sprite)
+  let pose = event.spatial.pose()
+  event.spatial.set_local(
+    pose.with_translation(
+      Vec3(pose.translation.x, pose.translation.y, zindex.to_double()),
+    ),
+  )
+  event.draft.add(sprite)
   true
 }
 
@@ -200,7 +205,10 @@ pub fn register_ldtk_entity_tile_sprite_for_layer_optional(
     event,
   ) {
     ignore(
-      insert_ldtk_entity_tile_sprite(event, zindex=event.zindex + zindex_offset),
+      add_ldtk_entity_tile_sprite_to_draft(
+        event,
+        zindex=event.zindex + zindex_offset,
+      ),
     )
   })
 }
@@ -264,7 +272,7 @@ pub fn add_ldtk_entity_tile_sprite_for_layer_optional(
     entity_identifier,
     fn(event) {
       ignore(
-        insert_ldtk_entity_tile_sprite(
+        add_ldtk_entity_tile_sprite_to_draft(
           event,
           zindex=event.zindex + zindex_offset,
         ),
@@ -319,7 +327,7 @@ pub fn add_default_ldtk_entity_tile_sprite(zindex_offset~ : Int32 = 0) -> Unit {
 pub fn add_ldtk_int_cell_registration_for_layer_optional(
   layer_identifier : String?,
   value : Int32?,
-  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+  hook : (LdtkIntGridCellSpawn) -> Unit,
 ) -> Unit {
   ldtk_append_int_cell_typed_registration(layer_identifier, value, hook)
 }
@@ -328,7 +336,7 @@ pub fn add_ldtk_int_cell_registration_for_layer_optional(
 pub fn add_ldtk_int_cell_registration_for_layer(
   layer_identifier : String,
   value : Int32,
-  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+  hook : (LdtkIntGridCellSpawn) -> Unit,
 ) -> Unit {
   add_ldtk_int_cell_registration_for_layer_optional(
     Some(layer_identifier),

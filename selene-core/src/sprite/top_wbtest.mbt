@@ -9,34 +9,40 @@ fn with_sprite_test_world(action : () -> Unit raise) -> Unit raise {
 
 ///|
 fn spawn_test_camera(viewport : @math.Rect) -> @ecs.Entity {
-  let camera_entity = @ecs.require_current_world().spawn(())
-  @camera.cameras().set(
-    camera_entity,
+  let camera_entity_draft = @ecs.require_current_world().spawn_draft()
+  camera_entity_draft.add_to(
+    @camera.cameras(),
     Camera(viewport=Some(@camera.CameraViewport::from_rect(viewport))),
   )
-  @camera.camera2ds().set(camera_entity, Camera2d())
-  @transform.global_transforms().set(
-    camera_entity,
-    @transform.GlobalTransform::from_transform(
-      @transform.Transform::from_xyz(0.0, 0.0, 0.0),
+  camera_entity_draft.add_to(@camera.camera2ds(), Camera2d())
+  camera_entity_draft.add_to(
+    @transform.spatials(),
+    @transform.Spatial(
+      @transform.GlobalTransform::from_transform(
+        @transform.Transform::from_xyz(0.0, 0.0, 0.0),
+      ).compute_transform(),
     ),
   )
+  let camera_entity = camera_entity_draft.spawn()
   camera_entity
 }
 
 ///|
 fn spawn_color_sprite(position : @math.Vec2) -> @ecs.Entity {
-  let entity = @ecs.require_current_world().spawn(())
-  sprites().set(
-    entity,
+  let entity_draft = @ecs.require_current_world().spawn_draft()
+  entity_draft.add_to(
+    sprites(),
     Sprite::from_color({ r: 255U, g: 255U, b: 255U, a: 1.0, }, Vec2(16.0, 16.0)),
   )
-  @transform.global_transforms().set(
-    entity,
-    @transform.GlobalTransform::from_transform(
-      @transform.Transform::from_xyz(position[X], position[Y], 0.0),
+  entity_draft.add_to(
+    @transform.spatials(),
+    @transform.Spatial(
+      @transform.GlobalTransform::from_transform(
+        @transform.Transform::from_xyz(position[X], position[Y], 0.0),
+      ).compute_transform(),
     ),
   )
+  let entity = entity_draft.spawn()
   entity
 }
 
@@ -85,19 +91,13 @@ test "sprite rendering keeps visible sprites inside the camera viewport" {
 }
 
 ///|
-test "sprite draw ties keep insertion order after a component moves rows" {
+test "sprite draw ties keep spawn order after swap-removal" {
   with_sprite_test_world(fn() raise {
     @system.configure_display(100.0, 100.0, 1.0)
+    let retired = spawn_color_sprite(Vec2(0.0, 0.0))
     let first = spawn_color_sprite(Vec2(0.0, 0.0))
     let second = spawn_color_sprite(Vec2(0.0, 0.0))
-    let globals = @transform.global_transforms()
-    let first_transform = globals.get(first).unwrap()
-    globals.remove(first)
-    @render2d.begin_frame2d_system(0.0)
-    render_sprite_system(0.0)
-    let commands = @render2d.get_screen_world_commands_with_depth()
-    assert_eq(commands.map(command => command.entity_id), [Some(second.id())])
-    globals.set(first, first_transform)
+    assert_true(retired.delete())
     @render2d.begin_frame2d_system(0.0)
     render_sprite_system(0.0)
     let commands = @render2d.get_screen_world_commands_with_depth()

@@ -4,9 +4,6 @@ pub fn animation_player_system(delta : Double) -> Unit {
   for _, pair in animation_players().to_array() {
     let (entity, player) = pair
     if !entity.is_alive() {
-      animation_players().remove(entity)
-      animation_graph_handles().remove(entity)
-      animation_transitions().remove(entity)
       continue
     }
     guard animation_graph_handles().get(entity) is Some(graph_handle) else {
@@ -117,7 +114,6 @@ pub fn animation_transition_system(delta : Double) -> Unit {
   for _, pair in animation_transitions().to_array() {
     let (entity, transitions) = pair
     if !entity.is_alive() {
-      animation_transitions().remove(entity)
       continue
     }
     guard animation_players().get(entity) is Some(player) else { continue }
@@ -394,7 +390,9 @@ pub fn animation_skinning_system(_delta : Double) -> Unit {
   for _, pair in morphed_meshes().to_array() {
     let (entity, binding) = pair
     if !entity.is_alive() {
-      morphed_meshes().remove(entity)
+      if !entity.is_valid_in(@ecs.require_current_world()) {
+        morphed_meshes().remove(entity)
+      }
       continue
     }
     let (positions, normals) = apply_morph_targets(
@@ -418,7 +416,9 @@ pub fn animation_skinning_system(_delta : Double) -> Unit {
   for _, pair in skinned_meshes().to_array() {
     let (entity, binding) = pair
     if !entity.is_alive() {
-      skinned_meshes().remove(entity)
+      if !entity.is_valid_in(@ecs.require_current_world()) {
+        skinned_meshes().remove(entity)
+      }
       continue
     }
     if binding.base_positions.length() != binding.influences.length() {
@@ -427,8 +427,7 @@ pub fn animation_skinning_system(_delta : Double) -> Unit {
     let joint_matrices : Array[@math.Mat4] = []
     let mut missing_joint_transform = false
     for joint_index, joint_entity in binding.joint_entities {
-      guard @transform.global_transforms().get(joint_entity)
-        is Some(global_transform) else {
+      guard @transform.global_transform(joint_entity) is Some(global_transform) else {
         missing_joint_transform = true
         break
       }

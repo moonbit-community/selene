@@ -101,7 +101,6 @@ pub(all) struct KinematicCharacterController {
 
 ///|
 #derive(Eq, Debug)
-#selene.component
 pub(all) struct KinematicCharacterControllerOutput {
   desired_translation : @math.Vec3
   effective_translation : @math.Vec3
@@ -121,7 +120,6 @@ pub(all) struct KinematicCharacterControllerCollision {
 
 ///|
 #derive(Eq, Debug)
-#selene.component
 pub(all) struct KinematicCharacterControllerCollisions {
   collisions : Array[KinematicCharacterControllerCollision]
 }

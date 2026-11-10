@@ -109,7 +109,8 @@ fn instantiate_scene_node(
   }
   guard node_index >= 0 && node_index < template.nodes.length() else { return }
   let node = template.nodes[node_index]
-  let entity = parent.spawn_child()
+  let world = @ecs.require_current_world()
+  let draft = world.spawn_draft()
   let base_name = node.name.unwrap_or("node\{node_index}")
   let path_base = "\{parent_path}/\{base_name}"
   let entity_name = if parts.contains(path_base) {
@@ -122,25 +123,23 @@ fn instantiate_scene_node(
   } else {
     path_base
   }
-  parts.set(entity_path, entity)
-  node_entities.set(node_index, entity)
-  @name.names().set(entity, Name(entity_name))
-  @animation.animation_target_ids().set(entity, AnimationTargetId(entity_path))
-  @animation.animated_bys().set(entity, AnimatedBy(root_entity))
-  @transform.transforms().set(entity, node.transform)
+  draft.add(@name.Name(entity_name))
+  draft.add(@animation.AnimationTargetId(entity_path))
+  draft.add(@animation.AnimatedBy(root_entity))
+  draft.add(@transform.Spatial(node.transform))
   if node.camera is Some(camera) {
-    @camera3d.cameras3d().set(entity, camera)
+    draft.add(camera)
   }
   if node.directional_light is Some(light) {
-    @render3d.directional_lights3d().set(entity, light)
+    draft.add(light)
   }
   if node.point_light is Some(light) {
-    @render3d.point_lights3d().set(entity, light)
+    draft.add(light)
   }
   if node.spot_light is Some(light) {
-    @render3d.spot_lights3d().set(entity, light)
+    draft.add(light)
   }
-  if node.renderers.length() == 1 {
+  let single_renderer = if node.renderers.length() == 1 {
     let template_renderer = node.renderers[0]
     let renderer = match template_renderer.skinned {
       Some(_) =>
@@ -150,9 +149,17 @@ fn instantiate_scene_node(
         }
       None => template_renderer.renderer
     }
-    @render3d.mesh3d_renderers().set(entity, renderer)
+    draft.add(renderer)
+    Some((renderer, template_renderer.skinned))
+  } else {
+    None
+  }
+  let entity = draft.spawn(parent~)
+  parts.set(entity_path, entity)
+  node_entities.set(node_index, entity)
+  if single_renderer is Some((renderer, skinned)) {
     if node.skin_index is Some(skin_index) &&
-      template_renderer.skinned is Some(skinned) &&
+      skinned is Some(skinned) &&
       skinned.influences.length() > 0 {
       pending_skin_bindings.push({
         entity,
@@ -161,8 +168,7 @@ fn instantiate_scene_node(
         skin_index,
         skinned: { ..skinned, morph_weights: node.morph_weights.copy(), },
       })
-    } else if template_renderer.skinned is Some(skinned) &&
-      skinned.morph_targets.length() > 0 {
+    } else if skinned is Some(skinned) && skinned.morph_targets.length() > 0 {
       bind_instantiated_morph_mesh(
         entity,
         entity,
@@ -173,12 +179,6 @@ fn instantiate_scene_node(
     }
   } else if node.renderers.length() > 1 {
     for primitive_index, template_renderer in node.renderers {
-      let primitive_entity = entity.spawn_child()
-      @transform.transforms().set(primitive_entity, {
-        translation: @math.Vec3::zero(),
-        rotation: @math.Quat::identity(),
-        scale: @math.Vec3::one(),
-      })
       let renderer = match template_renderer.skinned {
         Some(_) =>
           {
@@ -187,7 +187,10 @@ fn instantiate_scene_node(
           }
         None => template_renderer.renderer
       }
-      @render3d.mesh3d_renderers().set(primitive_entity, renderer)
+      let primitive_entity = world.spawn(
+        (@transform.Spatial(@transform.Transform::identity()), renderer),
+        parent=entity,
+      )
       parts.set("\{entity_path}/primitive\{primitive_index}", primitive_entity)
       if node.skin_index is Some(skin_index) &&
         template_renderer.skinned is Some(skinned) &&

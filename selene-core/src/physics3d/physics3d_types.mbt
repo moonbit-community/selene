@@ -96,12 +96,6 @@ pub(all) enum Collider {
 pub(all) struct Sensor {}
 
 ///|
-#warnings("-unnecessary_annotation-unused_value")
-fn Sensor::Sensor() -> Sensor {
-  Sensor::{ }
-}
-
-///|
 #derive(Eq, Debug)
 #selene.component
 pub(all) struct Friction(Double)

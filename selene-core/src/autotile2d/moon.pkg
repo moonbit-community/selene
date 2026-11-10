@@ -10,5 +10,3 @@ import {
 }
 
 supported_targets = "all"
-
-formatter(ignore: [ "top.g.mbt" ])

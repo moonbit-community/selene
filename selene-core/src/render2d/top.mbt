@@ -86,7 +86,6 @@ pub fn begin_frame2d_system(_delta : Double) -> Unit {
     camera_ui_commands: Map([]),
     next_order: 0,
   })
-  sorting2ds().retain(@ecs.alive_in_world(@ecs.require_current_world()))
 }
 
 ///|

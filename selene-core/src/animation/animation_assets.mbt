@@ -32,7 +32,6 @@ pub(all) struct SkinVertexInfluence3D {
 }
 
 ///|
-#selene.component
 pub(all) struct SkinnedMeshBinding3D {
   target_entity : @ecs.Entity
   mesh : @render3d.MeshHandle
@@ -51,7 +50,6 @@ pub(all) struct SkinnedMeshBinding3D {
 }
 
 ///|
-#selene.component
 pub(all) struct MorphMeshBinding3D {
   target_entity : @ecs.Entity
   mesh : @render3d.MeshHandle

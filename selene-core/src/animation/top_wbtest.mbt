@@ -92,13 +92,11 @@ test "animation transitions track the main animation and return the active anima
 ///|
 test "texture atlas index field resolves as a discrete value instead of a weighted blend" {
   with_animation_test_world(fn() raise {
-    let entity = @ecs.require_current_world().spawn(())
     let image = @asset.load_image("animation/test.png")
     let layout = @sprite.register_texture_atlas_layout(
       @sprite.TextureAtlasLayout::from_grid(Vec2(16.0, 16.0), 6, 1),
     )
-    @sprite.sprites().set(
-      entity,
+    let entity = @ecs.require_current_world().spawn1(
       @sprite.Sprite::from_atlas_image(image, TextureAtlas(layout, index=1)),
     )
     let handle = texture_atlas_index_field()
@@ -134,28 +132,27 @@ test "step scalar sampling switches at an interior keyframe boundary" {
 ///|
 test "animation graph mask groups exclude masked targets during apply" {
   with_animation_test_world(fn() raise {
-    let player_entity = @ecs.require_current_world().spawn(())
-    let target_entity = @ecs.require_current_world().spawn(())
+    let world = @ecs.require_current_world()
     let target_id = AnimationTargetId("masked")
-    @transform.transforms().set(target_entity, @transform.Transform::default())
-    animation_target_ids().set(target_entity, target_id)
-    animated_bys().set(target_entity, AnimatedBy(player_entity))
-
     let masked_clip = animation_test_translation_clip("masked", target_id, 10.0)
     let masked_graph = AnimationGraph()
     let masked_node = masked_graph.add_clip_with_mask(masked_clip, [1])
     masked_graph.add_target_to_mask_group(target_id, 1)
-    animation_graph_handles().set(
-      player_entity,
-      register_animation_graph_asset(masked_graph),
+    let masked_player = AnimationPlayer()
+    let player_entity = world.spawn(
+      (masked_player, register_animation_graph_asset(masked_graph)),
     )
-    let masked_player = animation_players().get_or_init(player_entity, fn() {
-      AnimationPlayer()
-    })
+    let target_entity = world.spawn(
+      (
+        @transform.Spatial(@transform.Transform::identity()),
+        target_id,
+        AnimatedBy(player_entity),
+      ),
+    )
     ignore(masked_player.start(masked_node, repeat=Never))
     animation_apply_system(0.0)
     inspect(
-      @transform.transforms().get(target_entity).unwrap().translation.x,
+      @transform.local_transform(target_entity).unwrap().translation.x,
       content="0",
     )
 
@@ -170,7 +167,7 @@ test "animation graph mask groups exclude masked targets during apply" {
     ignore(unmasked_player.start(unmasked_node, repeat=Never))
     animation_apply_system(0.0)
     inspect(
-      @transform.transforms().get(target_entity).unwrap().translation.x,
+      @transform.local_transform(target_entity).unwrap().translation.x,
       content="10",
     )
   })
@@ -182,11 +179,6 @@ test "animation event descriptors dispatch typed events to readers and observers
     let events : @event.Events[Int32] = Events()
     let reader : @event.EventReader[Int32] = EventReader()
     let observed : Array[Int32] = []
-    let player_entity = @ecs.require_current_world().spawn(())
-    events.observe_entity(player_entity, fn(trigger) {
-      observed.push(trigger.event)
-    })
-    |> ignore
     let descriptor = register_animation_event_descriptor(events, fn(context) {
       context.time.to_int() + 6
     })
@@ -194,13 +186,14 @@ test "animation event descriptors dispatch typed events to readers and observers
     clip.add_event(1.0, descriptor)
     let clip_handle = register_animation_clip_asset(clip)
     let (graph, nodes) = AnimationGraph::from_clips([clip_handle])
-    animation_graph_handles().set(
-      player_entity,
-      register_animation_graph_asset(graph),
+    let player = AnimationPlayer()
+    let player_entity = @ecs.require_current_world().spawn(
+      (player, register_animation_graph_asset(graph)),
     )
-    let player = animation_players().get_or_init(player_entity, fn() {
-      AnimationPlayer()
+    events.observe_entity(player_entity, fn(trigger) {
+      observed.push(trigger.event)
     })
+    |> ignore
     ignore(player.start(nodes[0], repeat=Never))
     animation_player_system(1.0)
     let reader_events = events.read(reader)

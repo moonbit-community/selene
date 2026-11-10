@@ -12,8 +12,6 @@ pub fn a11y_sync_system(Double) -> Unit
 
 pub fn a11ys() -> @ecs.ComponentStore[A11y]
 
-pub fn attach(@ecs.Entity, A11y) -> Unit
-
 pub fn blur() -> Unit
 
 pub fn focus(@ecs.Entity) -> Unit

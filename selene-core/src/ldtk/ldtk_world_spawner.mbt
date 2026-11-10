@@ -25,6 +25,7 @@ pub fn LdtkWorldSpawnSettings::LdtkWorldSpawnSettings() -> LdtkWorldSpawnSetting
 
 ///|
 pub fn mark_ldtk_respawn(entity : @ecs.Entity) -> Unit {
+  guard entity.is_valid_in(@ecs.require_current_world()) else { return }
   ldtk_respawns().set(entity, { requested: true, })
 }
 
@@ -37,7 +38,7 @@ pub fn clear_ldtk_respawn(entity : @ecs.Entity) -> Unit {
 pub fn register_ldtk_entity_for_layer_optional(
   layer_identifier : String?,
   entity_identifier : String?,
-  hook : (LdtkEntitySpawnedEvent) -> Unit,
+  hook : (LdtkEntitySpawn) -> Unit,
 ) -> Unit {
   ldtk_entity_typed_registrations().set(
     ldtk_entity_typed_registration_key(layer_identifier, entity_identifier),
@@ -49,7 +50,7 @@ pub fn register_ldtk_entity_for_layer_optional(
 pub fn register_ldtk_entity_for_layer(
   layer_identifier : String,
   entity_identifier : String,
-  hook : (LdtkEntitySpawnedEvent) -> Unit,
+  hook : (LdtkEntitySpawn) -> Unit,
 ) -> Unit {
   register_ldtk_entity_for_layer_optional(
     Some(layer_identifier),
@@ -61,7 +62,7 @@ pub fn register_ldtk_entity_for_layer(
 ///|
 pub fn register_ldtk_entity(
   entity_identifier : String,
-  hook : (LdtkEntitySpawnedEvent) -> Unit,
+  hook : (LdtkEntitySpawn) -> Unit,
 ) -> Unit {
   register_ldtk_entity_for_layer_optional(None, Some(entity_identifier), hook)
 }
@@ -69,15 +70,13 @@ pub fn register_ldtk_entity(
 ///|
 pub fn register_default_ldtk_entity_for_layer(
   layer_identifier : String,
-  hook : (LdtkEntitySpawnedEvent) -> Unit,
+  hook : (LdtkEntitySpawn) -> Unit,
 ) -> Unit {
   register_ldtk_entity_for_layer_optional(Some(layer_identifier), None, hook)
 }
 
 ///|
-pub fn register_default_ldtk_entity(
-  hook : (LdtkEntitySpawnedEvent) -> Unit,
-) -> Unit {
+pub fn register_default_ldtk_entity(hook : (LdtkEntitySpawn) -> Unit) -> Unit {
   register_ldtk_entity_for_layer_optional(None, None, hook)
 }
 
@@ -130,7 +129,7 @@ pub fn clear_ldtk_entity_registrations() -> Unit {
 pub fn register_ldtk_int_cell_for_layer_optional(
   layer_identifier : String?,
   value : Int32?,
-  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+  hook : (LdtkIntGridCellSpawn) -> Unit,
 ) -> Unit {
   ldtk_int_cell_typed_registrations().set(
     ldtk_int_cell_typed_registration_key(layer_identifier, value),
@@ -142,7 +141,7 @@ pub fn register_ldtk_int_cell_for_layer_optional(
 pub fn register_ldtk_int_cell_for_layer(
   layer_identifier : String,
   value : Int32,
-  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+  hook : (LdtkIntGridCellSpawn) -> Unit,
 ) -> Unit {
   register_ldtk_int_cell_for_layer_optional(
     Some(layer_identifier),
@@ -154,7 +153,7 @@ pub fn register_ldtk_int_cell_for_layer(
 ///|
 pub fn register_ldtk_int_cell(
   value : Int32,
-  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+  hook : (LdtkIntGridCellSpawn) -> Unit,
 ) -> Unit {
   register_ldtk_int_cell_for_layer_optional(None, Some(value), hook)
 }
@@ -162,14 +161,14 @@ pub fn register_ldtk_int_cell(
 ///|
 pub fn register_default_ldtk_int_cell_for_layer(
   layer_identifier : String,
-  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+  hook : (LdtkIntGridCellSpawn) -> Unit,
 ) -> Unit {
   register_ldtk_int_cell_for_layer_optional(Some(layer_identifier), None, hook)
 }
 
 ///|
 pub fn register_default_ldtk_int_cell(
-  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+  hook : (LdtkIntGridCellSpawn) -> Unit,
 ) -> Unit {
   register_ldtk_int_cell_for_layer_optional(None, None, hook)
 }

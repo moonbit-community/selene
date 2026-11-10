@@ -168,7 +168,7 @@ fn spawn_player_entity(x : Double, y : Double) -> @ecs.Entity {
   let entity = plan.spawn(
     (
       (
-        @transform.Transform::from_xyz(x, y, PLAYER_Z),
+        @transform.Spatial(@transform.Transform::from_xyz(x, y, PLAYER_Z)),
         sprite_animation_sprite(player_idle_right_animation),
         @physics2d.Velocity(@math.Vec2::zero()),
         shape,
@@ -188,7 +188,6 @@ fn spawn_player_entity(x : Double, y : Double) -> @ecs.Entity {
     ),
   )
   pixeladventure_world_state().entities.push(entity)
-  @animation.animated_bys().set(entity, @animation.AnimatedBy(entity))
   play_player_animation(entity, controller)
   entity
 }
@@ -211,7 +210,7 @@ fn spawn_bird_entity(x : Double, y : Double) -> Unit {
   let entity = plan.spawn(
     (
       (
-        @transform.Transform::from_xyz(x, y, PLAYER_Z),
+        @transform.Spatial(@transform.Transform::from_xyz(x, y, PLAYER_Z)),
         sprite_animation_sprite(bird_fly_right_animation),
         @physics2d.Velocity(Vec2(BIRD_SPEED, 0.0)),
         shape,
@@ -231,7 +230,6 @@ fn spawn_bird_entity(x : Double, y : Double) -> Unit {
     ),
   )
   pixeladventure_world_state().entities.push(entity)
-  @animation.animated_bys().set(entity, @animation.AnimatedBy(entity))
   play_bird_animation(entity, bird)
 }
 
@@ -248,7 +246,7 @@ fn spawn_background(size : @math.Vec2) -> Unit {
           anchor=Anchor(Vec2(-0.5, 0.5)),
           image_mode=Tiled(Repeat),
         ),
-        @transform.Transform::from_xyz(0.0, 0.0, -100.0),
+        @transform.Spatial(@transform.Transform::from_xyz(0.0, 0.0, -100.0)),
       ),
     ),
   )
@@ -256,7 +254,7 @@ fn spawn_background(size : @math.Vec2) -> Unit {
 
 ///|
 type TerrainSpawnPlan = @ecs.SpawnPlan[
-  (@transform.Transform, @physics2d.ColliderShape, @physics2d.Collider),
+  (@transform.Spatial, @physics2d.ColliderShape, @physics2d.Collider),
 ]
 
 ///|
@@ -268,7 +266,7 @@ fn spawn_terrain_collider(
   let shape : @physics2d.ColliderShape = Rect(size~, offset=@math.Vec2::zero())
   let terrain = plan.spawn(
     (
-      @transform.Transform::from_xyz(pos[X], pos[Y], 0.0),
+      @transform.Spatial(@transform.Transform::from_xyz(pos[X], pos[Y], 0.0)),
       shape,
       @physics2d.Collider(
         @physics2d.CollisionFilter(terrain_collision_group, [
@@ -311,7 +309,7 @@ fn[T : @ecs.Component] spawn_animated_item(
   let entity = plan.spawn(
     (
       (
-        @transform.Transform::from_xyz(x, y, ITEM_Z),
+        @transform.Spatial(@transform.Transform::from_xyz(x, y, ITEM_Z)),
         sprite_animation_sprite(animation),
         shape,
         @physics2d.Area(
@@ -327,5 +325,4 @@ fn[T : @ecs.Component] spawn_animated_item(
     ),
   )
   pixeladventure_world_state().entities.push(entity)
-  @animation.animated_bys().set(entity, @animation.AnimatedBy(entity))
 }

@@ -8,14 +8,12 @@ pub(all) enum Visibility {
 
 ///|
 #derive(Eq, Debug)
-#selene.component
 pub(all) struct InheritedVisibility {
   visible : Bool
 }
 
 ///|
 #derive(Eq, Debug)
-#selene.component
 pub(all) struct ViewVisibility {
   visible : Bool
 }
@@ -33,13 +31,30 @@ pub fn visibilities() -> @ecs.ComponentStore[Visibility] {
 }
 
 ///|
-pub fn inherited_visibilities() -> @ecs.ComponentStore[InheritedVisibility] {
-  @ecs.components()
+let visibility_state_key : @ecs.ResourceKey[VisibilityState] = ResourceKey()
+
+///|
+priv struct VisibilityState {
+  inherited : Map[@ecs.Entity, InheritedVisibility]
+  view : Map[@ecs.Entity, ViewVisibility]
 }
 
 ///|
-pub fn view_visibilities() -> @ecs.ComponentStore[ViewVisibility] {
-  @ecs.components()
+fn visibility_state() -> VisibilityState {
+  visibility_state_key.get_or_insert_with(@ecs.require_current_world(), _ => {
+    inherited: {},
+    view: {},
+  })
+}
+
+///|
+pub fn inherited_visibilities() -> Map[@ecs.Entity, InheritedVisibility] {
+  visibility_state().inherited
+}
+
+///|
+pub fn view_visibilities() -> Map[@ecs.Entity, ViewVisibility] {
+  visibility_state().view
 }
 
 ///|
@@ -98,19 +113,15 @@ fn compute_inherited_visibility(
 pub fn visibility_propagate_system(_delta : Double) -> Unit {
   let inherited_visibilities = inherited_visibilities()
   let view_visibilities = view_visibilities()
-  let render_layers = render_layers()
-  let visibilities = visibilities()
+  inherited_visibilities.clear()
+  view_visibilities.clear()
   let cache : Map[@ecs.Entity, Bool] = Map([])
   for entity in @ecs.iter_entities() {
+    guard entity.is_alive() else { continue }
     let visible = compute_inherited_visibility(entity, cache)
     inherited_visibilities.set(entity, { visible, })
     view_visibilities.set(entity, { visible, })
   }
-  let alive = @ecs.alive_in_world(@ecs.require_current_world())
-  inherited_visibilities.retain(alive)
-  view_visibilities.retain(alive)
-  render_layers.retain(alive)
-  visibilities.retain(alive)
 }
 
 ///|

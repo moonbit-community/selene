@@ -1,31 +1,8 @@
 ///|
-fn set_entity_translation_2d(
-  entity : @ecs.Entity,
-  position : @math.Vec2,
-) -> Unit {
-  let current = @transform.transforms().get(entity).unwrap_or_default()
-  @transform.transforms().set(entity, {
-    ..current,
-    translation: Vec3(position[X], position[Y], current.translation.z),
-  })
-}
-
-///|
-fn set_entity_depth(entity : @ecs.Entity, z : Int32) -> Unit {
-  let current = @transform.transforms().get(entity).unwrap_or_default()
-  @transform.transforms().set(entity, {
-    ..current,
-    translation: Vec3(
-      current.translation.x,
-      current.translation.y,
-      z.to_double(),
-    ),
-  })
-}
-
-///|
-fn set_entity_visibility(entity : @ecs.Entity, visible : Bool) -> Unit {
-  @visibility.visibilities().set(entity, if visible { Visible } else { Hidden })
+fn ldtk_spatial(position : @math.Vec2, depth : Int32) -> @transform.Spatial {
+  @transform.Spatial(
+    @transform.Transform::from_xyz(position[X], position[Y], depth.to_double()),
+  )
 }
 
 ///|
@@ -161,7 +138,6 @@ pub struct LdtkWorldly {
 }
 
 ///|
-#selene.component
 pub struct LdtkRespawn {
   requested : Bool
 }
@@ -235,14 +211,12 @@ priv struct LdtkWorldStore {
   ldtk_int_grid_default_spawn_hook : Ref[
     ((LdtkIntGridCellSpawnedEvent) -> Unit)?,
   ]
-  ldtk_entity_typed_registrations : Map[
-    String,
-    (LdtkEntitySpawnedEvent) -> Unit,
-  ]
+  ldtk_entity_typed_registrations : Map[String, (LdtkEntitySpawn) -> Unit]
   ldtk_int_cell_typed_registrations : Map[
     String,
-    (LdtkIntGridCellSpawnedEvent) -> Unit,
+    (LdtkIntGridCellSpawn) -> Unit,
   ]
+  respawns : Map[@ecs.Entity, LdtkRespawn]
   ldtk_pending_transformed_level_iids : Map[String, Bool]
 }
 
@@ -262,6 +236,7 @@ fn LdtkWorldStore::LdtkWorldStore() -> LdtkWorldStore {
     ldtk_int_grid_default_spawn_hook: { val: None, },
     ldtk_entity_typed_registrations: Map([]),
     ldtk_int_cell_typed_registrations: Map([]),
+    respawns: {},
     ldtk_pending_transformed_level_iids: Map([]),
   }
 }

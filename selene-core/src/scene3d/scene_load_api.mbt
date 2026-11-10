@@ -89,22 +89,37 @@ pub fn load_scene_gltf(path : String) -> @render3d.SceneHandle {
 pub fn instantiate_scene(
   scene : @render3d.SceneHandle,
   root_transform : @transform.Transform,
+  parent? : @ecs.Entity,
 ) -> @ecs.Entity {
-  instantiate_scene_instance(scene, root_transform).root
+  instantiate_scene_instance(scene, root_transform, parent?).root
 }
 
 ///|
 pub fn instantiate_scene_instance(
   scene : @render3d.SceneHandle,
   root_transform : @transform.Transform,
+  parent? : @ecs.Entity,
 ) -> SceneInstance {
-  let root = @ecs.require_current_world().spawn(
-    (root_transform, @name.Name("scene_root")),
-  )
+  let world = @ecs.require_current_world()
+  let draft = world.spawn_draft()
+  draft.add(@transform.Spatial(root_transform))
+  draft.add(@name.Name("scene_root"))
   let parts : Map[String, @ecs.Entity] = Map([])
+  let animation_nodes : Map[String, @animation.AnimationNodeIndex] = Map([])
   guard scene_templates.get(scene) is Some(template) else {
-    return { root, parts, animations: Map([]), }
+    return { root: draft.spawn(parent?), parts, animations: animation_nodes, }
   }
+  if template.animations.length() > 0 {
+    let graph = @animation.AnimationGraph()
+    for name, clip in template.animations {
+      let node = graph.add_clip(clip)
+      animation_nodes.set(name, node)
+    }
+    draft.add(@animation.register_animation_graph_asset(graph))
+    draft.add(@animation.AnimationPlayer())
+    draft.add(@animation.AnimationTransitions())
+  }
+  let root = draft.spawn(parent?)
   let node_entities : Map[Int32, @ecs.Entity] = Map([])
   let pending_skin_bindings : Array[PendingSkinBinding] = []
   for root_order, node_index in template.roots {
@@ -121,18 +136,6 @@ pub fn instantiate_scene_instance(
     )
   }
   resolve_scene_skin_bindings(template, node_entities, pending_skin_bindings)
-  let animation_nodes : Map[String, @animation.AnimationNodeIndex] = Map([])
-  if template.animations.length() > 0 {
-    let graph = @animation.AnimationGraph()
-    for name, clip in template.animations {
-      let node = graph.add_clip(clip)
-      animation_nodes.set(name, node)
-    }
-    let graph_handle = @animation.register_animation_graph_asset(graph)
-    @animation.animation_graph_handles().set(root, graph_handle)
-    @animation.animation_players().set(root, AnimationPlayer())
-    @animation.animation_transitions().set(root, AnimationTransitions())
-  }
   { root, parts, animations: animation_nodes, }
 }
 

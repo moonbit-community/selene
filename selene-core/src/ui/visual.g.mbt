@@ -169,18 +169,3 @@ pub impl @ecs.Component for Button with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend Button with @ecs.Component::{ component_key }
-
-///|
-let selene_component_key_Interaction : @ecs.ComponentKey[Interaction] = ComponentKey(
-
-)
-
-///|
-pub impl @ecs.Component for Interaction with fn component_key() {
-  selene_component_key_Interaction
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Interaction with @ecs.Component::{ component_key }

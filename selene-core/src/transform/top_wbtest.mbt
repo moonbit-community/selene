@@ -1,95 +1,36 @@
 ///|
-fn transform_test_translation(entity : @ecs.Entity) -> String {
-  let transform = transforms().get(entity).unwrap_or_default()
-  let translation = transform.translation
-  "\{translation.x.to_int()},\{translation.y.to_int()},\{translation.z.to_int()}"
-}
-
-///|
-fn transform_test_global_translation(entity : @ecs.Entity) -> String {
-  let translation = global_transforms()
-    .get(entity)
-    .unwrap_or_default()
-    .translation()
-  "\{translation.x.to_int()},\{translation.y.to_int()},\{translation.z.to_int()}"
-}
-
-///|
-test "compute_global_transform follows parent hierarchy" {
-  let parent = @ecs.require_current_world().spawn(())
-  let child = parent.spawn_child()
-  defer parent.destroy()
-  defer child.destroy()
-
-  transforms().set(parent, Transform::from_xyz(10.0, 0.0, 0.0))
-  transforms().set(child, Transform::from_xyz(2.0, 0.0, 0.0))
+test "spatial propagation passes through nonspatial parents" {
+  let world = @ecs.require_current_world()
+  let parent = world.spawn1(Spatial(Transform::from_xyz(10.0, 0.0, 0.0)))
+  let container = world.spawn((), parent~)
+  let child = world.spawn1(
+    Spatial(Transform::from_xyz(2.0, 0.0, 0.0)),
+    parent=container,
+  )
+  defer ignore(parent.delete())
 
   let child_global = compute_global_transform(child).unwrap()
-  let translation = child_global.translation()
-  inspect(translation.x == 12.0, content="true")
-  inspect(translation.y == 0.0, content="true")
-  inspect(translation.z == 0.0, content="true")
+  assert_eq(child_global.translation().x, 12.0)
+  transform_propagate_system(0.0)
+  assert_eq(global_transform(child).unwrap().translation().x, 12.0)
+  assert_true(global_transform(container) is None)
 }
 
 ///|
-test "set_parent_in_place preserves global transform" {
-  let parent_a = @ecs.require_current_world().spawn(())
-  let parent_b = @ecs.require_current_world().spawn(())
-  defer parent_a.destroy()
-  defer parent_b.destroy()
-
-  transforms().set(parent_a, Transform::from_xyz(10.0, 0.0, 0.0))
-  transforms().set(parent_b, Transform::from_xyz(100.0, 0.0, 0.0))
-
-  let child = parent_a.spawn_child()
-  defer child.destroy()
-  transforms().set(child, Transform::from_xyz(2.0, 0.0, 0.0))
+test "spatial propagation replaces the cached pose across despawn and respawn" {
+  let world = @ecs.require_current_world()
+  let entity = world.spawn1(Spatial(Transform::from_xyz(1.0, 0.0, 0.0)))
+  defer ignore(entity.delete())
   transform_propagate_system(0.0)
-
-  set_parent_in_place(child, parent_b)
+  assert_eq(global_transform(entity).unwrap().translation().x, 1.0)
+  set_local_transform(entity, Transform::from_xyz(2.0, 0.0, 0.0))
   transform_propagate_system(0.0)
-
-  inspect(child.get_parent() == Some(parent_b), content="true")
-  inspect(transform_test_translation(child), content="-88,0,0")
-  inspect(transform_test_global_translation(child), content="12,0,0")
-}
-
-///|
-test "remove_parent_in_place preserves global transform" {
-  let parent = @ecs.require_current_world().spawn(())
-  defer parent.destroy()
-  transforms().set(parent, Transform::from_xyz(10.0, 0.0, 0.0))
-
-  let child = parent.spawn_child()
-  defer child.destroy()
-  transforms().set(child, Transform::from_xyz(2.0, 0.0, 0.0))
-  transform_propagate_system(0.0)
-
-  remove_parent_in_place(child)
-  transform_propagate_system(0.0)
-
-  inspect(child.get_parent() is None, content="true")
-  inspect(transform_test_translation(child), content="12,0,0")
-  inspect(transform_test_global_translation(child), content="12,0,0")
-}
-
-///|
-test "transform propagation updates existing rows and prunes despawned globals" {
-  let entity = @ecs.require_current_world().spawn(())
-  transforms().set(entity, Transform::from_xyz(1.0, 0.0, 0.0))
-  transform_propagate_system(0.0)
-  assert_eq(transform_test_global_translation(entity), "1,0,0")
-  transforms().set(entity, Transform::from_xyz(2.0, 0.0, 0.0))
-  transform_propagate_system(0.0)
-  assert_eq(transform_test_global_translation(entity), "2,0,0")
+  assert_eq(global_transform(entity).unwrap().translation().x, 2.0)
   entity.destroy()
-  transform_propagate_system(0.0)
-  assert_false(global_transforms().contains(entity))
+  try! @ecs.run_schedule(world, _ => ())
+  assert_true(global_transform(entity) is None)
   entity.respawn()
-  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+  try! @ecs.run_schedule(world, _ => ())
   transform_propagate_system(0.0)
-  assert_eq(transform_test_global_translation(entity), "2,0,0")
-  entity.destroy()
-  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
-  transforms().remove(entity)
+  assert_eq(global_transform(entity).unwrap().translation().x, 2.0)
 }

@@ -1,3 +1,1 @@
-warnings = "-reserved_keyword"
-
 virtual(has_default: true)

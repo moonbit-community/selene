@@ -294,7 +294,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
   for entity, text2d in text2ds() {
     guard entity.is_alive() else { continue }
     guard @visibility.is_visible(entity) else { continue }
-    guard @transform.global_transforms().get(entity) is Some(global_transform) else {
+    guard @transform.global_transform(entity) is Some(global_transform) else {
       continue
     }
     guard @ui.texts().get(entity) is Some(text) else { continue }

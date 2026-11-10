@@ -33,9 +33,12 @@ pub fn set_rigid_body_linear_velocity(
   entity : @ecs.Entity,
   linear_velocity : @math.Vec2,
 ) -> Unit {
-  match entity_rigid_body(entity).body_type {
+  let body_type = entity_rigid_body(entity).body_type
+  match body_type {
     Fixed => {
-      @velocity.velocities().remove(entity)
+      if @velocity.velocities().contains(entity) {
+        @velocity.velocities().set(entity, @math.Vec2::zero())
+      }
       pending_body_linear_velocities().remove(entity)
       if world().entity_bodies.get(entity) is Some(handle) &&
         world().bodies.get_mut(handle) is Some(body) {
@@ -50,7 +53,10 @@ pub fn set_rigid_body_linear_velocity(
         pending_body_linear_velocities().set(entity, linear_velocity)
       }
     KinematicPositionBased | KinematicVelocityBased => {
-      @velocity.velocities().set(entity, linear_velocity)
+      let velocities = @velocity.velocities()
+      if body_type is KinematicPositionBased || velocities.contains(entity) {
+        velocities.set(entity, linear_velocity)
+      }
       if world().entity_bodies.get(entity) is Some(handle) &&
         world().bodies.get_mut(handle) is Some(body) {
         body.set_linvel(to_physics_vec2(linear_velocity), true) |> ignore

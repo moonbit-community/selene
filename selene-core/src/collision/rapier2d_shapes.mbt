@@ -38,7 +38,7 @@ fn quat_rotation_z(rotation : @math.Quat) -> Double {
 
 ///|
 fn entity_transform(entity : @ecs.Entity) -> @transform.Transform? {
-  @transform.transforms().get(entity)
+  @transform.local_transform(entity)
 }
 
 ///|
@@ -53,8 +53,8 @@ fn set_entity_translation(
   entity : @ecs.Entity,
   translation : @math.Vec2,
 ) -> Unit {
-  let current = @transform.transforms().get(entity).unwrap_or_default()
-  @transform.transforms().set(entity, {
+  guard @transform.local_transform(entity) is Some(current) else { return }
+  @transform.set_local_transform(entity, {
     ..current,
     translation: Vec3(translation[X], translation[Y], current.translation.z),
   })
@@ -62,8 +62,8 @@ fn set_entity_translation(
 
 ///|
 fn set_entity_rotation(entity : @ecs.Entity, rotation : Double) -> Unit {
-  let current = @transform.transforms().get(entity).unwrap_or_default()
-  @transform.transforms().set(entity, {
+  guard @transform.local_transform(entity) is Some(current) else { return }
+  @transform.set_local_transform(entity, {
     ..current,
     rotation: @math.Quat::from_axis_angle(@math.Vec3::z_axis(), rotation),
   })

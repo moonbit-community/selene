@@ -11,7 +11,6 @@ let empty_spawn_plan : WorldKey[SpawnPlan[Unit]] = WorldKey::with_world(world =>
   signature: [],
   table: None,
   append: (_, _, _) => (),
-  insert: (_, _) => (),
 })
 
 ///|
@@ -32,7 +31,6 @@ pub impl[T : Component] Bundle for Single[T] with fn prepare(world) {
     signature: plan.signature,
     table: plan.table,
     append: (id, entity, single) => (plan.append)(id, entity, single.0),
-    insert: (entity, single) => (plan.insert)(entity, single.0),
   }
 }
 
@@ -156,6 +154,21 @@ pub fn[T : Bundle] World::prepare_spawn(self : World) -> SpawnPlan[T] {
 
 ///|
 /// Creates an entity directly in the archetype for the supplied components.
-pub fn[T : Bundle] World::spawn(self : World, values : T) -> Entity {
-  self.prepare_spawn().spawn(values)
+pub fn[T : Bundle] World::spawn(
+  self : World,
+  values : T,
+  parent? : Entity,
+) -> Entity {
+  self.prepare_spawn().spawn(values, parent?)
+}
+
+///|
+/// Creates an entity with one component.
+pub fn[T : Component] World::spawn1(
+  self : World,
+  value : T,
+  parent? : Entity,
+) -> Entity {
+  let plan : SpawnPlan[T] = component_spawn_plan(self)
+  plan.spawn(value, parent?)
 }

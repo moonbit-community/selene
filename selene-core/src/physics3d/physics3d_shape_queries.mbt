@@ -272,7 +272,9 @@ fn set_entity_world_transform(
       }
     None => world_transform
   }
-  @transform.transforms().set(entity, local_transform)
+  if @transform.spatials().contains(entity) {
+    @transform.set_local_transform(entity, local_transform)
+  }
 }
 
 ///|
@@ -307,7 +309,7 @@ fn collider_relative_transform(
       @transform.GlobalTransform::from_transform(entity_world).reparented_to(
         body_global,
       )
-    _ => @transform.transforms().get(entity).unwrap_or_default()
+    _ => @transform.local_transform(entity).unwrap_or_default()
   }
 }
 

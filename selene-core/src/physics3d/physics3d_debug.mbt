@@ -11,9 +11,7 @@ let collider_wire_cache : Map[String, Array[ColliderWireSegment3D]] = Map([])
 pub fn debug_colliders_system(_delta : Double) -> Unit {
   for entity, collider in colliders() {
     guard entity.is_alive() else { continue }
-    guard @transform.global_transforms().get(entity) is Some(global) else {
-      continue
-    }
+    guard @transform.global_transform(entity) is Some(global) else { continue }
     let color = debug_collider_color(entity)
     for segment in collider_wire_segments(collider) {
       @render3d_pipeline.push_line3d({

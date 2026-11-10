@@ -224,7 +224,7 @@ Pass the initial components to the World when spawning a player.
 ```moonbit
 let world = @ecs.require_current_world()
 let player = world.spawn((
-  @transform.Transform::from_xyz(100.0, 100.0, 0.0),
+  @transform.Spatial(@transform.Transform::from_xyz(100.0, 100.0, 0.0)),
   @physics2d.Velocity(@math.Vec2::zero()),
 ))
 ```
@@ -250,12 +250,9 @@ let player_idle_image = @asset.load_image(
 Build a clip/graph pair and attach an animation player with:
 
 ```moonbit
-@sprite.sprites().set(
-  player,
-  @sprite.Sprite::from_atlas_image(
-    player_idle_image,
-    @sprite.TextureAtlas(player_idle_layout),
-  ),
+let sprite = @sprite.Sprite::from_atlas_image(
+  player_idle_image,
+  @sprite.TextureAtlas(player_idle_layout),
 )
 let clip = @animation.AnimationClip("player_idle")
 let frame_keys : Array[@animation.ScalarKeyframe] = []
@@ -278,28 +275,16 @@ clip.add_curve_to_target(
 let (graph, nodes) = @animation.AnimationGraph::from_clips([
   @animation.register_animation_clip_asset(clip),
 ])
-@animation.animation_graph_handles().set(
-  player,
+let player_animation = @animation.AnimationPlayer()
+ignore(player_animation.play(nodes[0], repeat=@animation.RepeatAnimation::Forever))
+let player = world.spawn((
+  @transform.Spatial(@transform.Transform::from_xyz(100.0, 100.0, 0.0)),
+  @physics2d.Velocity(@math.Vec2::zero()),
+  sprite,
   @animation.register_animation_graph_asset(graph),
-)
-@animation.animation_players().set(
-  player,
-  @animation.AnimationPlayer(),
-)
-@animation.animation_target_ids().set(
-  player,
+  player_animation,
   @animation.AnimationTargetId("self"),
-)
-@animation.animated_bys().set(
-  player,
-  @animation.AnimatedBy(player),
-)
-ignore(
-  @animation.animation_players().get(player).unwrap().play(
-    nodes[0],
-    repeat=@animation.RepeatAnimation::Forever,
-  ),
-)
+))
 ```
 
 Input handling uses `@inputs`:
@@ -326,18 +311,19 @@ Configure collision groups, shape, and collider to block terrain penetration:
 let terrain_collision_group = @physics2d.CollisionGroup()
 let player_collision_group = @physics2d.CollisionGroup()
 
-@physics2d.shapes().set(
-  player,
-  Rect(size=@math.Vec2(24.0, 32.0), offset=@math.Vec2(4.0, 0.0)),
+let shape = @physics2d.CollisionShape::Rect(
+  size=@math.Vec2(24.0, 32.0),
+  offset=@math.Vec2(4.0, 0.0),
 )
-@physics2d.colliders().set(
-  player,
-  @physics2d.Collider(
-    @physics2d.CollisionFilter(player_collision_group, [
-      terrain_collision_group,
-    ]),
-  ),
+let collider = @physics2d.Collider(
+  @physics2d.CollisionFilter(player_collision_group, [terrain_collision_group]),
 )
+let player = world.spawn((
+  @transform.Spatial(@transform.Transform::from_xyz(100.0, 100.0, 0.0)),
+  @physics2d.Velocity(@math.Vec2::zero()),
+  shape,
+  collider,
+))
 ```
 
 Only allowed collision-filter pairs will interact.
@@ -355,7 +341,7 @@ let target_x = player_transform.translation.x + 16.0
 let target_y = player_transform.translation.y + 16.0
 let center_x = target_x.clamp(half_width, session.world_size.x - half_width)
 let center_y = target_y.clamp(half_height, session.world_size.y - half_height)
-@transform.transforms().set(
+@transform.set_local_transform(
   session.camera,
   @transform.Transform::from_xyz(center_x, center_y, 0.0),
 )
@@ -371,7 +357,7 @@ let area = @physics2d.Area(
     player_collision_group,
   ]),
 )
-@physics2d.areas().set(apple, area)
+let apple = world.spawn((spatial, sprite, shape, area, apple_tag))
 
 fn map_trigger_system(_world : @ecs.World) -> Unit {
   for apple in apples.to_array() {
@@ -380,8 +366,7 @@ fn map_trigger_system(_world : @ecs.World) -> Unit {
       if session.volume_on {
         play_sfx(coin_sound, session.volume_on)
       }
-      apple.destroy()
-      apples.remove(apple)
+      ignore(apple.delete())
     }
   }
 }
@@ -392,7 +377,7 @@ Sound effects are sent as audio events:
 ```moonbit
 fn play_sfx(sound : @audio.AudioHandle, enabled : Bool) -> Unit {
   if enabled {
-    @audio.send_audio_event(sound, settings=@audio.PlaybackSettings::remove())
+    @audio.send_audio_event(sound, settings=@audio.PlaybackSettings::despawn())
   }
 }
 ```
@@ -402,17 +387,16 @@ fn play_sfx(sound : @audio.AudioHandle, enabled : Bool) -> Unit {
 Current UI uses `@ui` component stores for text/buttons/images. Example score text:
 
 ```moonbit
-fn add_score_box() -> Unit {
-  @ui.nodes().set(
-    session.score_box,
+fn spawn_score_box(world : @ecs.World) -> @ecs.Entity {
+  world.spawn((
     @ui.Node::absolute(
       @math.Vec2(48.0, 16.0),
       size=@math.Vec2(432.0, 24.0),
     ),
-  )
-  @ui.z_indexes().set(session.score_box, @ui.ZIndex(100))
-  @ui.texts().set(session.score_box, @ui.Text("Score: 0"))
-  @ui.text_fonts().set(session.score_box, @ui.TextFont::from_css("20px ThaleahFat"))
+    @ui.ZIndex(100),
+    @ui.Text("Score: 0"),
+    @ui.TextFont::from_css("20px ThaleahFat"),
+  ))
 }
 ```
 

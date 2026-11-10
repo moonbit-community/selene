@@ -19,84 +19,12 @@ fn ldtk_cleanup_dead_spawned_levels(instance : LdtkWorldInstance) -> Unit {
 
 ///|
 fn ldtk_cleanup_dead_runtime_entries() -> Unit {
-  for pair in ldtk_respawns().to_array() {
-    if !pair.0.is_alive() {
-      ldtk_respawns().remove(pair.0)
-    }
-  }
-  for pair in ldtk_worldly_entities().to_array() {
-    if !pair.0.is_alive() {
-      ldtk_worldly_entities().remove(pair.0)
-    }
-  }
-  for pair in ldtk_layer_metadata().to_array() {
-    if !pair.0.is_alive() {
-      ldtk_layer_metadata().remove(pair.0)
-    }
-  }
-  for pair in ldtk_level_backgrounds().to_array() {
-    if !pair.0.is_alive() {
-      ldtk_level_backgrounds().remove(pair.0)
-    }
-  }
-  for pair in ldtk_level_iids().to_array() {
-    if !pair.0.is_alive() {
-      ldtk_level_iids().remove(pair.0)
-    }
-  }
-  for pair in ldtk_entity_iids().to_array() {
-    if !pair.0.is_alive() {
-      ldtk_entity_iids().remove(pair.0)
-    }
-  }
-  for pair in ldtk_grid_coords().to_array() {
-    if !pair.0.is_alive() {
-      ldtk_grid_coords().remove(pair.0)
-    }
-  }
-  for pair in ldtk_int_grid_cells().to_array() {
-    if !pair.0.is_alive() {
-      ldtk_int_grid_cells().remove(pair.0)
-    }
-  }
-  for pair in ldtk_tile_metadata().to_array() {
-    if !pair.0.is_alive() {
-      ldtk_tile_metadata().remove(pair.0)
-    }
-  }
-  for pair in ldtk_int_grid_colliders().to_array() {
-    if !pair.0.is_alive() {
-      @physics2d.areas().remove(pair.0)
-      @physics2d.colliders().remove(pair.0)
-      @physics2d.shapes().remove(pair.0)
-      @physics2d.rigid_bodies().remove(pair.0)
-      ldtk_int_grid_colliders().remove(pair.0)
-    }
-  }
-  for pair in ldtk_spawned_layer_instances().to_array() {
-    if !pair.0.is_alive() {
-      ldtk_spawned_layer_instances().remove(pair.0)
-    }
-  }
-  for pair in ldtk_spawned_tile_instances().to_array() {
-    if !pair.0.is_alive() {
-      ldtk_spawned_tile_instances().remove(pair.0)
-    }
-  }
-  for pair in ldtk_spawned_entity_instances().to_array() {
-    if !pair.0.is_alive() {
-      ldtk_spawned_entity_instances().remove(pair.0)
-    }
-  }
-  for pair in ldtk_spawned_int_grid_cells().to_array() {
-    if !pair.0.is_alive() {
-      ldtk_spawned_int_grid_cells().remove(pair.0)
-    }
-  }
+  let alive = @ecs.alive_in_world(@ecs.require_current_world())
+  ldtk_respawns().retain((entity, _) => alive(entity))
 }
 
 ///|
-fn ldtk_apply_registered_entity(event : LdtkEntitySpawnedEvent) -> Unit {
+fn ldtk_apply_registered_entity(event : LdtkEntitySpawn) -> Unit {
   if ldtk_find_registered_entity_hook(
       event.layer.identifier,
       event.instance.identifier,
@@ -107,7 +35,7 @@ fn ldtk_apply_registered_entity(event : LdtkEntitySpawnedEvent) -> Unit {
 }
 
 ///|
-fn ldtk_apply_registered_int_cell(event : LdtkIntGridCellSpawnedEvent) -> Unit {
+fn ldtk_apply_registered_int_cell(event : LdtkIntGridCellSpawn) -> Unit {
   if ldtk_find_registered_int_cell_hook(event.layer.identifier, event.value)
     is Some(hook) {
     hook(event)
@@ -118,7 +46,7 @@ fn ldtk_apply_registered_int_cell(event : LdtkIntGridCellSpawnedEvent) -> Unit {
 fn ldtk_find_registered_entity_hook(
   layer_identifier : String,
   entity_identifier : String,
-) -> ((LdtkEntitySpawnedEvent) -> Unit)? {
+) -> ((LdtkEntitySpawn) -> Unit)? {
   if ldtk_entity_typed_registrations().get(
       ldtk_entity_typed_registration_key(
         Some(layer_identifier),
@@ -149,7 +77,7 @@ fn ldtk_find_registered_entity_hook(
 fn ldtk_find_registered_int_cell_hook(
   layer_identifier : String,
   value : Int32,
-) -> ((LdtkIntGridCellSpawnedEvent) -> Unit)? {
+) -> ((LdtkIntGridCellSpawn) -> Unit)? {
   if ldtk_int_cell_typed_registrations().get(
       ldtk_int_cell_typed_registration_key(Some(layer_identifier), Some(value)),
     )
@@ -177,7 +105,7 @@ fn ldtk_find_registered_int_cell_hook(
 fn ldtk_append_entity_typed_registration(
   layer_identifier : String?,
   entity_identifier : String?,
-  hook : (LdtkEntitySpawnedEvent) -> Unit,
+  hook : (LdtkEntitySpawn) -> Unit,
 ) -> Unit {
   let key = ldtk_entity_typed_registration_key(
     layer_identifier, entity_identifier,
@@ -196,7 +124,7 @@ fn ldtk_append_entity_typed_registration(
 fn ldtk_append_int_cell_typed_registration(
   layer_identifier : String?,
   value : Int32?,
-  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+  hook : (LdtkIntGridCellSpawn) -> Unit,
 ) -> Unit {
   let key = ldtk_int_cell_typed_registration_key(layer_identifier, value)
   if ldtk_int_cell_typed_registrations().get(key) is Some(existing_hook) {

@@ -1,6 +1,6 @@
 ///|
 priv enum SpawnMode {
-  Sequential
+  Draft
   Direct
   Prepared
 }
@@ -17,40 +17,37 @@ fn spawn_sprite_population(
     Vec2(16.0, 16.0),
   )
   let transform = @transform.Transform::from_xyz(4.0, 0.0, 0.0)
-  let global = @transform.GlobalTransform::from_transform(transform)
+  let make_spatial = () => @transform.Spatial(transform)
   let anchor = @sprite.Anchor(Vec2(0.0, 0.0))
   match mode {
-    Sequential => {
-      let sprites : @ecs.ComponentStore[@sprite.Sprite] = @ecs.components_in(
-        world,
-      )
-      let globals : @ecs.ComponentStore[@transform.GlobalTransform] = @ecs.components_in(
-        world,
-      )
-      let transforms : @ecs.ComponentStore[@transform.Transform] = @ecs.components_in(
-        world,
-      )
-      let anchors : @ecs.ComponentStore[@sprite.Anchor] = @ecs.components_in(
-        world,
-      )
+    Draft =>
       for _ in 0..<size {
-        let entity = world.spawn(())
-        sprites.set(entity, sprite)
-        globals.set(entity, global)
+        let draft = world.spawn_draft()
+        draft.add(sprite)
+        draft.add(make_spatial())
         if extra_columns {
-          transforms.set(entity, transform)
-          anchors.set(entity, anchor)
+          draft.add(@visibility.Visibility::Visible)
+          draft.add(anchor)
         }
+        ignore(draft.spawn())
       }
-    }
     Direct =>
       if extra_columns {
         for _ in 0..<size {
-          ignore(world.spawn((sprite, global, transform, anchor)))
+          ignore(
+            world.spawn(
+              (
+                sprite,
+                make_spatial(),
+                (Visible : @visibility.Visibility),
+                anchor,
+              ),
+            ),
+          )
         }
       } else {
         for _ in 0..<size {
-          ignore(world.spawn((sprite, global)))
+          ignore(world.spawn((sprite, make_spatial())))
         }
       }
     Prepared =>
@@ -58,18 +55,27 @@ fn spawn_sprite_population(
         let plan : @ecs.SpawnPlan[
           (
             @sprite.Sprite,
-            @transform.GlobalTransform,
-            @transform.Transform,
+            @transform.Spatial,
+            @visibility.Visibility,
             @sprite.Anchor,
           ),
         ] = world.prepare_spawn()
         for _ in 0..<size {
-          ignore(plan.spawn((sprite, global, transform, anchor)))
+          ignore(
+            plan.spawn(
+              (
+                sprite,
+                make_spatial(),
+                (Visible : @visibility.Visibility),
+                anchor,
+              ),
+            ),
+          )
         }
       } else {
-        let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.GlobalTransform)] = world.prepare_spawn()
+        let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = world.prepare_spawn()
         for _ in 0..<size {
-          ignore(plan.spawn((sprite, global)))
+          ignore(plan.spawn((sprite, make_spatial())))
         }
       }
   }
@@ -87,7 +93,7 @@ test "sprite spawn paths" (b : @bench.T) {
     let extra_columns = columns == 4
     for
       (mode, name) in [
-        (Sequential, "set"),
+        (Draft, "draft"),
         (Direct, "direct"),
         (Prepared, "prepared"),
       ] {

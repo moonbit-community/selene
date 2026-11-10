@@ -409,7 +409,6 @@ pub fn Button::Button(enabled~ : Bool = true) -> Button {
 
 ///|
 #derive(Eq, Debug)
-#selene.component
 pub(all) enum Interaction {
   None
   Hovered
@@ -483,8 +482,8 @@ pub fn buttons() -> @ecs.ComponentStore[Button] {
 }
 
 ///|
-pub fn interactions() -> @ecs.ComponentStore[Interaction] {
-  @ecs.components()
+pub fn interactions() -> Map[@ecs.Entity, Interaction] {
+  ui_model_world_store().interactions
 }
 
 ///|

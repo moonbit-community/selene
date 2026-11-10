@@ -65,30 +65,21 @@ pub fn load_and_spawn_ldtk_world(
 pub fn spawn_ldtk_world(
   project : LdtkProject,
   settings~ : LdtkWorldSpawnSettings = LdtkWorldSpawnSettings(),
+  parent? : @ecs.Entity,
 ) -> @ecs.Entity {
-  let world_entity = @ecs.require_current_world().spawn(())
-  spawn_ldtk_world_root(world_entity, project, settings)
-  world_entity
+  spawn_ldtk_world_root(project, settings, parent~)
 }
 
 ///|
-pub fn spawn_ldtk_world_into_entity(
+/// Replaces a previously imported world under the same parent.
+pub fn replace_ldtk_world(
   root : @ecs.Entity,
   project : LdtkProject,
   settings~ : LdtkWorldSpawnSettings = LdtkWorldSpawnSettings(),
-) -> Unit {
-  spawn_ldtk_world_root(root, project, settings)
-}
-
-///|
-pub fn respawn_ldtk_world_into_entity(
-  root : @ecs.Entity,
-  project : LdtkProject,
-  settings~ : LdtkWorldSpawnSettings = LdtkWorldSpawnSettings(),
-) -> Unit {
-  clear_ldtk_children(root)
-  clear_ldtk_root_components(root)
-  spawn_ldtk_world_root(root, project, settings)
+) -> @ecs.Entity {
+  let parent = root.get_parent()
+  despawn_ldtk_tree(root)
+  spawn_ldtk_world_root(project, settings, parent~)
 }
 
 ///|
@@ -171,7 +162,6 @@ pub fn ldtk_world_sync_system(_delta : Double) -> Unit {
   let world_entities = ldtk_world_instances().to_array().map(pair => pair.0)
   for world_entity in world_entities {
     if !world_entity.is_alive() {
-      ldtk_world_instances().remove(world_entity)
       continue
     }
     guard ldtk_world_instances().get(world_entity) is Some(instance) else {
@@ -200,11 +190,10 @@ pub fn ldtk_world_sync_system(_delta : Double) -> Unit {
 
 ///|
 fn spawn_ldtk_world_root(
-  world_entity : @ecs.Entity,
   project : LdtkProject,
   settings : LdtkWorldSpawnSettings,
-) -> Unit {
-  set_entity_translation_2d(world_entity, settings.position)
+  parent~ : @ecs.Entity?,
+) -> @ecs.Entity {
   let level_set = if settings.initial_level_set is Some(initial_level_set) {
     initial_level_set
   } else if settings.follow_level_selection {
@@ -215,18 +204,20 @@ fn spawn_ldtk_world_root(
   } else {
     LdtkLevelSet([])
   }
-  ldtk_world_instances().set(world_entity, {
-    project,
-    settings,
-    level_set,
-    spawned_levels: Map([]),
-  })
+  let world_entity = @ecs.require_current_world().spawn(
+    (
+      ldtk_spatial(settings.position, 0),
+      LdtkWorldInstance::{ project, settings, level_set, spawned_levels: {}, },
+    ),
+    parent?,
+  )
   let world_event = { world_entity, project, }
   ldtk_world_spawned_event_bus.trigger(world_event, Some(world_entity))
   if settings.world_hook is Some(world_hook) {
     world_hook(world_event)
   }
   ldtk_world_apply_level_set(world_entity)
+  world_entity
 }
 
 ///|
@@ -254,7 +245,7 @@ fn ldtk_world_apply_level_set(world_entity : @ecs.Entity) -> Unit {
       continue
     }
     let level_entity = pair.1
-    ldtk_despawn_level(world_entity, iid, level_entity)
+    ldtk_despawn_level(iid, level_entity)
     instance.spawned_levels.remove(iid)
   }
 }
@@ -269,14 +260,18 @@ fn ldtk_spawn_level_entity(
     indexed.level,
     ldtk_world_spawn_behavior(instance.settings),
   )
-  let level_entity = world_entity.spawn_child()
-  set_entity_translation_2d(level_entity, level_offset)
-  ldtk_level_instances().set(level_entity, {
-    world_entity,
-    indices: indexed.indices,
-    level: indexed.level,
-  })
-  ldtk_level_iids().set(level_entity, { iid: indexed.level.iid, })
+  let level_entity = @ecs.require_current_world().spawn(
+    (
+      ldtk_spatial(level_offset, 0),
+      LdtkLevelInstance::{
+        world_entity,
+        indices: indexed.indices,
+        level: indexed.level,
+      },
+      LdtkLevelIid::{ iid: indexed.level.iid, },
+    ),
+    parent=world_entity,
+  )
   let level_event = {
     world_entity,
     level_entity,
@@ -320,28 +315,29 @@ fn ldtk_spawn_level_background(
   let size = @math.Vec2(width, height)
   let zindex = ldtk_level_zindex(level_entity, instance.settings) - 1
   if level.bg_color is Some(bg_color) {
-    let background_entity = level_entity.spawn_child()
-    set_entity_depth(background_entity, zindex)
-    @sprite.sprites().set(
-      background_entity,
-      Sprite(
-        color=@sprite.color_from_css(bg_color),
-        custom_size=Some(size),
-        anchor=Anchor(Vec2(-0.5, 0.5)),
+    ignore(
+      @ecs.require_current_world().spawn(
+        (
+          ldtk_spatial(@math.Vec2::zero(), zindex),
+          @sprite.Sprite(
+            color=@sprite.color_from_css(bg_color),
+            custom_size=Some(size),
+            anchor=Anchor(Vec2(-0.5, 0.5)),
+          ),
+          LdtkLevelBackground::{
+            world_entity,
+            level_entity,
+            level_iid: level.iid,
+            color: Some(bg_color),
+            rel_path: None,
+            zindex,
+          },
+        ),
+        parent=level_entity,
       ),
     )
-    ldtk_level_backgrounds().set(background_entity, {
-      world_entity,
-      level_entity,
-      level_iid: level.iid,
-      color: Some(bg_color),
-      rel_path: None,
-      zindex,
-    })
   }
   if level.bg_rel_path is Some(rel_path) && rel_path.length() > 0 {
-    let background_entity = level_entity.spawn_child()
-    set_entity_depth(background_entity, zindex)
     let image = @asset.load_image(instance.project.resolve_path(rel_path))
     let mut image_size = size
     let mut image_offset = @math.Vec2::zero()
@@ -360,24 +356,29 @@ fn ldtk_spawn_level_background(
       image_size[X] * image_transform.a.abs(),
       image_size[Y] * image_transform.d.abs(),
     )
-    @sprite.sprites().set(
-      background_entity,
-      Sprite(
-        image=Some(image),
-        rect=Some({ position: image_offset, size: image_size, }),
-        color={ r: 255U, g: 255U, b: 255U, a: 1.0, },
-        custom_size=Some(scaled_size),
-        anchor=Anchor(Vec2(-0.5, 0.5)),
+    ignore(
+      @ecs.require_current_world().spawn(
+        (
+          ldtk_spatial(@math.Vec2::zero(), zindex),
+          @sprite.Sprite(
+            image=Some(image),
+            rect=Some({ position: image_offset, size: image_size, }),
+            color={ r: 255U, g: 255U, b: 255U, a: 1.0, },
+            custom_size=Some(scaled_size),
+            anchor=Anchor(Vec2(-0.5, 0.5)),
+          ),
+          LdtkLevelBackground::{
+            world_entity,
+            level_entity,
+            level_iid: level.iid,
+            color: level.bg_color,
+            rel_path: Some(rel_path),
+            zindex,
+          },
+        ),
+        parent=level_entity,
       ),
     )
-    ldtk_level_backgrounds().set(background_entity, {
-      world_entity,
-      level_entity,
-      level_iid: level.iid,
-      color: level.bg_color,
-      rel_path: Some(rel_path),
-      zindex,
-    })
   }
 }
 
@@ -411,10 +412,6 @@ fn ldtk_spawn_level_layers(
       layer.px_total_offset_x.to_double(),
       layer.px_total_offset_y.to_double(),
     )
-    let layer_entity = level_entity.spawn_child()
-    set_entity_translation_2d(layer_entity, layer_offset)
-    set_entity_depth(layer_entity, 0)
-    set_entity_visibility(layer_entity, effective_visible)
     let layer_runtime : LdtkSpawnedLayerInstance = {
       world_entity,
       level_entity,
@@ -422,8 +419,19 @@ fn ldtk_spawn_level_layers(
       effective_visible,
       zindex: layer_zindex,
     }
-    ldtk_spawned_layer_instances().set(layer_entity, layer_runtime)
-    ldtk_layer_metadata().set(layer_entity, ldtk_build_layer_metadata(layer))
+    let layer_entity = @ecs.require_current_world().spawn(
+      (
+        ldtk_spatial(layer_offset, 0),
+        if effective_visible {
+          @visibility.Visibility::Visible
+        } else {
+          Hidden
+        },
+        layer_runtime,
+        ldtk_build_layer_metadata(layer),
+      ),
+      parent=level_entity,
+    )
     let layer_event : LdtkLayerSpawnedEvent = {
       world_entity: layer_runtime.world_entity,
       level_entity,
@@ -500,9 +508,6 @@ fn ldtk_spawn_layer_tiles(
     let tile_src = ldtk_tile_source(instance.project, layer, tile)
     let tile_custom_data = ldtk_tile_custom_data(instance.project, layer, tile)
     let tile_enum_tags = ldtk_tile_enum_tags(instance.project, layer, tile)
-    let tile_entity = layer_entity.spawn_child()
-    set_entity_translation_2d(tile_entity, tile.px)
-    set_entity_depth(tile_entity, zindex)
     let runtime : LdtkSpawnedTileInstance = {
       world_entity,
       level_entity,
@@ -511,8 +516,7 @@ fn ldtk_spawn_layer_tiles(
       tile,
       zindex,
     }
-    ldtk_spawned_tile_instances().set(tile_entity, runtime)
-    ldtk_tile_metadata().set(tile_entity, {
+    let metadata : LdtkTileMetadata = {
       tile_id: tile.tile_id,
       src: tile_src,
       flip_x: tile.flip_x,
@@ -520,22 +524,25 @@ fn ldtk_spawn_layer_tiles(
       alpha: tile.alpha,
       custom_data: tile_custom_data,
       enum_tags: tile_enum_tags,
-    })
-    ldtk_grid_coords().set(
-      tile_entity,
-      ldtk_grid_coords_from_px(tile.px, tile_size),
+    }
+    let sprite = @sprite.Sprite(
+      image=Some(image),
+      rect=Some({ position: tile_src, size: Vec2(tile_size, tile_size), }),
+      color={ r: 255U, g: 255U, b: 255U, a: render_alpha, },
+      custom_size=Some(Vec2(tile_size, tile_size)),
+      anchor=Anchor(Vec2(-0.5, 0.5)),
+      flip_x=tile.flip_x,
+      flip_y=tile.flip_y,
     )
-    @sprite.sprites().set(
-      tile_entity,
-      Sprite(
-        image=Some(image),
-        rect=Some({ position: tile_src, size: Vec2(tile_size, tile_size), }),
-        color={ r: 255U, g: 255U, b: 255U, a: render_alpha, },
-        custom_size=Some(Vec2(tile_size, tile_size)),
-        anchor=Anchor(Vec2(-0.5, 0.5)),
-        flip_x=tile.flip_x,
-        flip_y=tile.flip_y,
+    let tile_entity = @ecs.require_current_world().spawn(
+      (
+        ldtk_spatial(tile.px, zindex),
+        runtime,
+        metadata,
+        ldtk_grid_coords_from_px(tile.px, tile_size),
+        sprite,
       ),
+      parent=layer_entity,
     )
     let tile_event : LdtkTileSpawnedEvent = {
       world_entity: runtime.world_entity,
@@ -576,14 +583,15 @@ fn ldtk_spawn_int_grid_cells(
     }
     let grid_x = index % width
     let grid_y = index / width
-    let cell_entity = layer_entity.spawn_child()
-    set_entity_translation_2d(
-      cell_entity,
-      Vec2(grid_x.to_double() * grid_size, grid_y.to_double() * grid_size),
+    let draft = @ecs.require_current_world().spawn_draft()
+    draft.add(
+      ldtk_spatial(
+        Vec2(grid_x.to_double() * grid_size, grid_y.to_double() * grid_size),
+        zindex,
+      ),
     )
-    set_entity_depth(cell_entity, zindex)
-    ldtk_grid_coords().set(cell_entity, { x: grid_x, y: grid_y, })
-    ldtk_int_grid_cells().set(cell_entity, { value, })
+    draft.add(LdtkGridCoords::{ x: grid_x, y: grid_y, })
+    draft.add(LdtkIntGridCell::{ value, })
     let runtime : LdtkSpawnedIntGridCell = {
       world_entity,
       level_entity,
@@ -594,7 +602,39 @@ fn ldtk_spawn_int_grid_cells(
       grid_y,
       zindex,
     }
-    ldtk_spawned_int_grid_cells().set(cell_entity, runtime)
+    draft.add(runtime)
+    ldtk_apply_registered_int_cell({
+      draft,
+      world_entity,
+      level_entity,
+      layer_entity,
+      level,
+      layer,
+      value,
+      grid_x,
+      grid_y,
+      zindex,
+    })
+    let collider = ldtk_add_int_grid_physics(
+      draft,
+      layer.identifier,
+      value,
+      grid_size,
+    )
+    if should_render_color && ldtk_settings.val.int_grid_rendering != Invisible {
+      let color = instance.project
+        .int_grid_color(layer.identifier, value)
+        .unwrap_or("rgba(255,255,255,0.2)")
+      let render_color = ldtk_color_with_alpha(color, layer.opacity)
+      draft.add(
+        @sprite.Sprite(
+          color=@sprite.color_from_css(render_color),
+          custom_size=Some(Vec2(grid_size, grid_size)),
+          anchor=Anchor(Vec2(-0.5, 0.5)),
+        ),
+      )
+    }
+    let cell_entity = draft.spawn(parent=layer_entity)
     let int_grid_event : LdtkIntGridCellSpawnedEvent = {
       world_entity: runtime.world_entity,
       level_entity: runtime.level_entity,
@@ -607,7 +647,6 @@ fn ldtk_spawn_int_grid_cells(
       grid_y,
       zindex,
     }
-    ldtk_apply_registered_int_cell(int_grid_event)
     ldtk_int_grid_cell_spawned_event_bus.trigger(
       int_grid_event,
       Some(cell_entity),
@@ -633,13 +672,7 @@ fn ldtk_spawn_int_grid_cells(
     if ldtk_int_grid_default_spawn_hook().val is Some(default_hook) {
       default_hook(int_grid_event)
     }
-    if ldtk_apply_int_grid_physics(
-        cell_entity,
-        layer.identifier,
-        value,
-        grid_size,
-      )
-      is Some(collider) {
+    if collider is Some(collider) {
       ldtk_int_grid_collider_spawned_event_bus.trigger(
         {
           world_entity: runtime.world_entity,
@@ -658,23 +691,6 @@ fn ldtk_spawn_int_grid_cells(
         Some(cell_entity),
       )
     }
-    if !should_render_color ||
-      ldtk_settings.val.int_grid_rendering == Invisible ||
-      !@visibility.is_visible(cell_entity) {
-      continue
-    }
-    let color = instance.project
-      .int_grid_color(layer.identifier, value)
-      .unwrap_or("rgba(255,255,255,0.2)")
-    let render_color = ldtk_color_with_alpha(color, layer.opacity)
-    @sprite.sprites().set(
-      cell_entity,
-      Sprite(
-        color=@sprite.color_from_css(render_color),
-        custom_size=Some(Vec2(grid_size, grid_size)),
-        anchor=Anchor(Vec2(-0.5, 0.5)),
-      ),
-    )
   }
 }
 
@@ -703,16 +719,16 @@ fn ldtk_spawn_layer_entities(
     } else {
       base_offset
     }
-    let entity = parent_entity.spawn_child()
-    set_entity_translation_2d(entity, spawn_offset)
-    set_entity_depth(entity, zindex)
-    ldtk_grid_coords().set(entity, {
+    let draft = @ecs.require_current_world().spawn_draft()
+    let spatial = ldtk_spatial(spawn_offset, zindex)
+    draft.add(spatial)
+    draft.add(LdtkGridCoords::{
       x: entity_instance.grid[X].to_int(),
       y: entity_instance.grid[Y].to_int(),
     })
-    ldtk_entity_iids().set(entity, { iid: entity_instance.iid, })
+    draft.add(LdtkEntityIid::{ iid: entity_instance.iid, })
     if is_worldly {
-      ldtk_worldly_entities().set(entity, {
+      draft.add(LdtkWorldly::{
         world_entity,
         level_iid: level.iid,
         entity_iid: entity_instance.iid,
@@ -726,7 +742,19 @@ fn ldtk_spawn_layer_entities(
       instance: entity_instance,
       zindex,
     }
-    ldtk_spawned_entity_instances().set(entity, runtime)
+    draft.add(runtime)
+    ldtk_apply_registered_entity({
+      draft,
+      spatial,
+      world_entity,
+      level_entity,
+      layer_entity,
+      level,
+      layer,
+      instance: entity_instance,
+      zindex,
+    })
+    let entity = draft.spawn(parent=parent_entity)
     let entity_event : LdtkEntitySpawnedEvent = {
       world_entity: runtime.world_entity,
       level_entity: runtime.level_entity,
@@ -737,7 +765,6 @@ fn ldtk_spawn_layer_entities(
       instance: entity_instance,
       zindex,
     }
-    ldtk_apply_registered_entity(entity_event)
     ldtk_entity_spawned_event_bus.trigger(entity_event, Some(entity))
     if instance.settings.entity_hook is Some(entity_hook) {
       entity_hook(entity_event)

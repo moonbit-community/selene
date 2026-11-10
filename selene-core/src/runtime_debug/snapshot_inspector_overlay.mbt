@@ -22,8 +22,8 @@ pub fn world_snapshot() -> WorldSnapshot {
     entities.push({
       entity_id: entity.id(),
       name: @name.name_of(entity),
-      transform: @transform.transforms().get(entity),
-      global_transform: @transform.global_transforms().get(entity),
+      transform: @transform.local_transform(entity),
+      global_transform: @transform.global_transform(entity),
       visibility: @visibility.visibilities().get(entity),
       sprite: @sprite.sprites().get(entity),
       rigid_body2d: @physics2d.rigid_bodies().get(entity),
@@ -116,12 +116,16 @@ pub fn sprite_inspector_entries() -> Array[SpriteInspectorEntry] {
     let source_rect = sprite_source_rect(sprite).map(debug_rect)
     let destination_size = sprite_destination_size(sprite).map(debug_vec2)
     let anchor = debug_vec2(sprite.anchor.as_vec())
-    let local_translation = @transform.transforms()
-      .get(entity)
-      .map(fn(transform) { debug_vec3(transform.translation) })
-    let world_translation = @transform.global_transforms()
-      .get(entity)
-      .map(fn(transform) { debug_vec3(transform.translation()) })
+    let local_translation = @transform.local_transform(entity).map(fn(
+      transform,
+    ) {
+      debug_vec3(transform.translation)
+    })
+    let world_translation = @transform.global_transform(entity).map(fn(
+      transform,
+    ) {
+      debug_vec3(transform.translation())
+    })
     entries.push({
       entity_id: entity.id(),
       entity_name: @name.name_of(entity),

@@ -14,7 +14,6 @@
 
 ///|
 #derive(Eq, Debug)
-#selene.component
 pub(all) struct Transform {
   translation : @math.Vec3
   rotation : @math.Quat
@@ -23,7 +22,6 @@ pub(all) struct Transform {
 
 ///|
 #derive(Eq, Debug)
-#selene.component
 pub(all) struct GlobalTransform {
   affine : @math.Affine3
 }
@@ -166,149 +164,102 @@ pub fn GlobalTransform::reparented_to(
 }
 
 ///|
-priv struct TransformWorldStore {
-  transforms : @ecs.ComponentStore[Transform]
-  global_transforms : @ecs.ComponentStore[GlobalTransform]
-  propagated : Array[Bool]
+/// A local pose and its world-space result for the current propagation pass.
+#selene.component
+pub struct Spatial {
+  priv mut pose : Transform
+  priv mut global : GlobalTransform
 }
 
 ///|
-let transform_store_key : @ecs.ResourceKey[TransformWorldStore] = ResourceKey()
+pub fn Spatial::Spatial(pose : Transform) -> Spatial {
+  { pose, global: GlobalTransform::from_transform(pose), }
+}
 
 ///|
-fn TransformWorldStore::TransformWorldStore(
-  world : @ecs.World,
-) -> TransformWorldStore {
-  {
-    transforms: @ecs.components_in(world),
-    global_transforms: @ecs.components_in(world),
-    propagated: [],
+pub fn Spatial::pose(self : Spatial) -> Transform {
+  self.pose
+}
+
+///|
+pub fn Spatial::set_local(self : Spatial, pose : Transform) -> Unit {
+  self.pose = pose
+}
+
+///|
+pub fn Spatial::global(self : Spatial) -> GlobalTransform {
+  self.global
+}
+
+///|
+pub fn spatials() -> @ecs.ComponentStore[Spatial] {
+  @ecs.components()
+}
+
+///|
+pub fn local_transform(entity : @ecs.Entity) -> Transform? {
+  spatials().get(entity).map(spatial => spatial.pose())
+}
+
+///|
+pub fn set_local_transform(entity : @ecs.Entity, pose : Transform) -> Unit {
+  guard spatials().get(entity) is Some(spatial) else {
+    abort("local transform write requires a Spatial component")
   }
+  spatial.set_local(pose)
 }
 
 ///|
-fn transform_world_store() -> TransformWorldStore {
-  transform_store_key.get_or_insert_with(@ecs.require_current_world(), world => {
-    TransformWorldStore(world)
-  })
+/// Returns the world-space pose from the last propagation pass.
+pub fn global_transform(entity : @ecs.Entity) -> GlobalTransform? {
+  guard entity.is_alive() else { None }
+  spatials().get(entity).map(spatial => spatial.global())
 }
 
 ///|
-pub fn transforms() -> @ecs.ComponentStore[Transform] {
-  transform_world_store().transforms
-}
-
-///|
-pub fn global_transforms() -> @ecs.ComponentStore[GlobalTransform] {
-  transform_world_store().global_transforms
-}
-
-///|
+/// Computes a world-space pose from the current pose values and parent links.
 pub fn compute_global_transform(entity : @ecs.Entity) -> GlobalTransform? {
   guard entity.is_alive() else { None }
-  let local_global = GlobalTransform::from_transform(
-    transforms().get(entity).unwrap_or_default(),
-  )
-  match entity.get_parent() {
-    Some(parent) if parent.is_alive() =>
-      match compute_global_transform(parent) {
-        Some(parent_global) =>
-          Some({ affine: parent_global.affine * local_global.affine, })
-        None => Some(local_global)
-      }
-    _ => Some(local_global)
-  }
-}
-
-///|
-pub fn set_parent_in_place(child : @ecs.Entity, parent : @ecs.Entity) -> Unit {
-  let world = @ecs.require_current_world()
-  guard child.belongs_to(world) && parent.belongs_to(world) else { return }
-  guard child != parent else { return }
-  let current_global = compute_global_transform(child)
-  let parent_global = compute_global_transform(parent)
-  child.set_parent(parent)
-  match (current_global, parent_global) {
-    (Some(child_global), Some(parent_world)) =>
-      transforms().set(child, child_global.reparented_to(parent_world))
-    (Some(child_global), None) =>
-      transforms().set(child, child_global.compute_transform())
-    _ => ()
-  }
-}
-
-///|
-pub fn remove_parent_in_place(child : @ecs.Entity) -> Unit {
-  let current_global = compute_global_transform(child)
-  child.remove_parent()
-  match current_global {
-    Some(world_transform) =>
-      transforms().set(child, world_transform.compute_transform())
-    None => ()
+  let pose = local_transform(entity).unwrap_or_default()
+  if entity.get_parent() is Some(parent) &&
+    compute_global_transform(parent) is Some(parent_global) {
+    Some({ affine: parent_global.affine * pose.compute_affine(), })
+  } else {
+    Some(GlobalTransform::from_transform(pose))
   }
 }
 
 ///|
 pub fn transform_propagate_system(_delta : Double) -> Unit {
   let is_alive = @ecs.alive_in_world(@ecs.require_current_world())
-  let store = transform_world_store()
-  let globals = store.global_transforms
-  let locals = store.transforms
-  let propagated = store.propagated
-  propagated.fill(false)
-  let write_global = (entity : @ecs.Entity, global : GlobalTransform) => {
-    let index = entity.slot_index()
-    while propagated.length() <= index {
-      propagated.push(false)
-    }
-    propagated[index] = true
-    globals.set(entity, global)
-  }
-  for entity in @ecs.iter_entities() {
-    if !is_alive(entity) || entity.get_parent() is Some(_) {
-      continue
-    }
-    let global = GlobalTransform::from_transform(
-      locals.get(entity).unwrap_or_default(),
-    )
-    write_global(entity, global)
-    propagate_children(entity, global, locals, write_global, is_alive)
-  }
-  for entity, transform in locals {
-    if !is_alive(entity) || propagated.get(entity.slot_index()).unwrap_or(false) {
-      continue
-    }
-    write_global(entity, GlobalTransform::from_transform(transform))
-  }
-  // Keep existing rows in place across frames. Only stale globals migrate.
-  let stale = []
-  for entity, _ in globals {
-    if !propagated.get(entity.slot_index()).unwrap_or(false) {
-      stale.push(entity)
-    }
-  }
-  for entity in stale {
-    globals.remove(entity)
+  let spatials = spatials()
+  for entity in @ecs.get_roots() {
+    propagate_spatial(entity, None, spatials, is_alive)
   }
 }
 
 ///|
-fn propagate_children(
+fn propagate_spatial(
   entity : @ecs.Entity,
-  parent_global : GlobalTransform,
-  locals : @ecs.ComponentStore[Transform],
-  write_global : (@ecs.Entity, GlobalTransform) -> Unit,
+  parent_global : GlobalTransform?,
+  spatials : @ecs.ComponentStore[Spatial],
   is_alive : (@ecs.Entity) -> Bool,
 ) -> Unit {
+  let global = match spatials.get(entity) {
+    Some(spatial) => {
+      let affine = spatial.pose.compute_affine()
+      let global = match parent_global {
+        Some(parent) => GlobalTransform::{ affine: parent.affine * affine, }
+        None => GlobalTransform::{ affine, }
+      }
+      spatial.global = global
+      Some(global)
+    }
+    None => parent_global
+  }
   for child in entity.get_children() {
-    if !is_alive(child) {
-      continue
+    if is_alive(child) {
+      propagate_spatial(child, global, spatials, is_alive)
     }
-    let local_transform = locals.get(child).unwrap_or_default()
-    let global = {
-      affine: parent_global.affine * local_transform.compute_affine(),
-    }
-    write_global(child, global)
-    propagate_children(child, global, locals, write_global, is_alive)
   }
 }

@@ -112,7 +112,7 @@ fn to_screen_rect(
   size : @math.Vec2,
   camera_view : @camera.Camera2dView?,
 ) -> @math.Rect {
-  if @ui.global_ui_nodes().get(entity) is Some(transform) {
+  if @ui.global_ui_node(entity) is Some(transform) {
     transform.screen_rect
   } else {
     let p0 = screen_point(
@@ -187,5 +187,5 @@ fn screen_point(
 fn debug_entity_global_transform(
   entity : @ecs.Entity,
 ) -> @transform.GlobalTransform? {
-  @transform.global_transforms().get(entity)
+  @transform.global_transform(entity)
 }

@@ -125,25 +125,23 @@ fn string_array_matches(
 }
 
 ///|
-fn tiled_test_set_entity_translation_2d(
-  entity : @ecs.Entity,
+fn spawn_tiled_test_camera(
   position : @math.Vec2,
-) -> Unit {
-  let current = @transform.transforms().get(entity).unwrap_or_default()
-  let next = {
-    ..current,
-    translation: Vec3(position[X], position[Y], current.translation.z),
-  }
-  @transform.transforms().set(entity, next)
-  @transform.global_transforms().set(
-    entity,
-    @transform.GlobalTransform::from_transform(next),
+  order~ : Int32 = 0,
+) -> @ecs.Entity {
+  @ecs.require_current_world().spawn(
+    (
+      @camera.Camera(order~),
+      @camera.Camera2d(),
+      @camera.OrthographicProjection(),
+      tiled_spatial(position, 0),
+    ),
   )
 }
 
 ///|
 fn tiled_test_entity_translation_2d(entity : @ecs.Entity) -> @math.Vec2 {
-  let transform = @transform.transforms().get(entity).unwrap_or_default()
+  let transform = @transform.local_transform(entity).unwrap_or_default()
   Vec2(transform.translation.x, transform.translation.y)
 }
 
@@ -528,7 +526,7 @@ test "spawn_tiled_map creates tile object and image layer entities" {
 }
 
 ///|
-test "respawn_tiled_map_into_entity replaces previous tiled children and metadata" {
+test "replace_tiled_map replaces previous tiled children and metadata" {
   let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/a.tmj",
@@ -544,11 +542,13 @@ test "respawn_tiled_map_into_entity replaces previous tiled children and metadat
   )
   files.set("maps/bg.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
-    let root = @ecs.require_current_world().spawn(())
-    spawn_tiled_map_into_entity(root, load_tiled_map("maps/a.tmj"), settings={
-      ..TiledSpawnSettings(),
-      position: Vec2(1.0, 2.0),
-    })
+    let anchor = @ecs.require_current_world().spawn(())
+    defer ignore(anchor.delete())
+    let root = spawn_tiled_map(
+      load_tiled_map("maps/a.tmj"),
+      settings={ ..TiledSpawnSettings(), position: Vec2(1.0, 2.0), },
+      parent=anchor,
+    )
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
@@ -560,10 +560,15 @@ test "respawn_tiled_map_into_entity replaces previous tiled children and metadat
       content="true",
     )
 
-    respawn_tiled_map_into_entity(root, load_tiled_map("maps/b.tmj"), settings={
+    let replacement = replace_tiled_map(root, load_tiled_map("maps/b.tmj"), settings={
       ..TiledSpawnSettings(),
       position: Vec2(3.0, 4.0),
     })
+    assert_false(root.is_valid_in(@ecs.require_current_world()))
+    assert_eq(replacement.get_parent(), Some(anchor))
+    assert_eq(anchor.get_children(), [replacement])
+    let root = replacement
+    defer cleanup_spawned_tiled_tree(root)
 
     inspect(
       vec2_snapshot(tiled_test_entity_translation_2d(root)),
@@ -619,8 +624,7 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
 
     let storage = tiled_map_storages().get(root).unwrap()
     let layer_entity = storage.layer_entity(1).unwrap()
-    let layer_colliders = tiled_colliders()
-      .get(layer_entity)
+    let layer_colliders = tiled_colliders(layer_entity)
       .unwrap()
       .alive_entities()
     inspect(layer_colliders.length(), content="1")
@@ -639,8 +643,7 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
     }
 
     let sensor_object = storage.object_entity(7).unwrap()
-    let sensor_colliders = tiled_colliders()
-      .get(sensor_object)
+    let sensor_colliders = tiled_colliders(sensor_object)
       .unwrap()
       .alive_entities()
     inspect(sensor_colliders.length(), content="1")
@@ -650,8 +653,7 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
     )
 
     let ellipse_object = storage.object_entity(8).unwrap()
-    let ellipse_collider = tiled_colliders()
-      .get(ellipse_object)
+    let ellipse_collider = tiled_colliders(ellipse_object)
       .unwrap()
       .alive_entities()[0]
     match @physics2d.shapes().get(ellipse_collider).unwrap() {
@@ -660,8 +662,7 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
     }
 
     let polyline_object = storage.object_entity(9).unwrap()
-    let polyline_collider = tiled_colliders()
-      .get(polyline_object)
+    let polyline_collider = tiled_colliders(polyline_object)
       .unwrap()
       .alive_entities()[0]
     match @physics2d.shapes().get(polyline_collider).unwrap() {
@@ -676,8 +677,7 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
     }
 
     let polygon_object = storage.object_entity(10).unwrap()
-    let polygon_collider = tiled_colliders()
-      .get(polygon_object)
+    let polygon_collider = tiled_colliders(polygon_object)
       .unwrap()
       .alive_entities()[0]
     match @physics2d.shapes().get(polygon_collider).unwrap() {
@@ -686,10 +686,7 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
     }
 
     let point_object = storage.object_entity(11).unwrap()
-    let point_collider = tiled_colliders()
-      .get(point_object)
-      .unwrap()
-      .alive_entities()[0]
+    let point_collider = tiled_colliders(point_object).unwrap().alive_entities()[0]
     match @physics2d.shapes().get(point_collider).unwrap() {
       Ball(radius~, offset~) => {
         inspect(radius.to_int(), content="2")
@@ -702,8 +699,7 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
     }
 
     let tile_object = storage.object_entity(12).unwrap()
-    let tile_object_colliders = tiled_colliders()
-      .get(tile_object)
+    let tile_object_colliders = tiled_colliders(tile_object)
       .unwrap()
       .alive_entities()
     inspect(tile_object_colliders.length(), content="1")
@@ -740,12 +736,10 @@ test "spawn_tiled_map applies physics body and material properties" {
     defer cleanup_spawned_tiled_tree(root)
 
     let storage = tiled_map_storages().get(root).unwrap()
-    let dynamic_entity = tiled_colliders()
-      .get(storage.object_entity(7).unwrap())
+    let dynamic_entity = tiled_colliders(storage.object_entity(7).unwrap())
       .unwrap()
       .alive_entities()[0]
-    let sensor_entity = tiled_colliders()
-      .get(storage.object_entity(8).unwrap())
+    let sensor_entity = tiled_colliders(storage.object_entity(8).unwrap())
       .unwrap()
       .alive_entities()[0]
 
@@ -877,7 +871,7 @@ test "spawn_tiled_world loads adjacent maps and emits world events" {
 }
 
 ///|
-test "respawn_tiled_world_into_entity replaces previous spawned maps" {
+test "replace_tiled_world replaces previous spawned maps" {
   let files : Map[String, Bytes] = Map([])
   files.set(
     "worlds/a.world",
@@ -904,8 +898,7 @@ test "respawn_tiled_world_into_entity replaces previous spawned maps" {
     ),
   )
   with_fake_asset_io(files, fn() raise {
-    let root = @ecs.require_current_world().spawn(())
-    spawn_tiled_world_into_entity(root, load_tiled_world("worlds/a.world"), settings={
+    let root = spawn_tiled_world(load_tiled_world("worlds/a.world"), settings={
       ..TiledWorldSpawnSettings(),
       position: Vec2(5.0, 7.0),
     })
@@ -916,10 +909,14 @@ test "respawn_tiled_world_into_entity replaces previous spawned maps" {
       content="1",
     )
 
-    respawn_tiled_world_into_entity(root, load_tiled_world("worlds/b.world"), settings={
-      ..TiledWorldSpawnSettings(),
-      position: Vec2(11.0, 13.0),
-    })
+    let replacement = replace_tiled_world(
+      root,
+      load_tiled_world("worlds/b.world"),
+      settings={ ..TiledWorldSpawnSettings(), position: Vec2(11.0, 13.0), },
+    )
+    assert_false(root.is_valid_in(@ecs.require_current_world()))
+    let root = replacement
+    defer cleanup_spawned_tiled_tree(root)
 
     inspect(
       vec2_snapshot(tiled_test_entity_translation_2d(root)),
@@ -954,15 +951,8 @@ test "tiled world chunking spawns maps around camera view" {
   let previous_zoom = @system.get_zoom()
   @system.configure_display(100.0, 100.0, 1.0)
 
-  let camera_entity = @ecs.require_current_world().spawn(())
-  defer camera_entity.destroy()
-  @camera.cameras().set(camera_entity, Camera())
-  @camera.camera2ds().set(camera_entity, Camera2d())
-  @camera.orthographic_projections().set(
-    camera_entity,
-    OrthographicProjection(),
-  )
-  tiled_test_set_entity_translation_2d(camera_entity, Vec2(50.0, 50.0))
+  let camera_entity = spawn_tiled_test_camera(Vec2(50.0, 50.0))
+  defer ignore(camera_entity.delete())
 
   let files : Map[String, Bytes] = Map([])
   files.set(
@@ -997,7 +987,11 @@ test "tiled world chunking spawns maps around camera view" {
     inspect(first_spawned.length(), content="1")
     inspect(first_spawned[0].1.resolved_map_path, content="worlds/maps/a.tmj")
 
-    tiled_test_set_entity_translation_2d(camera_entity, Vec2(250.0, 50.0))
+    @transform.set_local_transform(
+      camera_entity,
+      @transform.Transform::from_xyz(250.0, 50.0, 0.0),
+    )
+    @transform.transform_propagate_system(0.0)
     tiled_world_chunking_system(0.0)
 
     let second_spawned = tiled_world_map_instances()
@@ -1020,19 +1014,11 @@ test "tiled world chunking unions multiple active camera views" {
   let previous_zoom = @system.get_zoom()
   @system.configure_display(100.0, 100.0, 1.0)
 
-  let left_camera = @ecs.require_current_world().spawn(())
-  defer left_camera.destroy()
-  @camera.cameras().set(left_camera, Camera(order=0))
-  @camera.camera2ds().set(left_camera, Camera2d())
-  @camera.orthographic_projections().set(left_camera, OrthographicProjection())
-  tiled_test_set_entity_translation_2d(left_camera, Vec2(50.0, 50.0))
+  let left_camera = spawn_tiled_test_camera(Vec2(50.0, 50.0), order=0)
+  defer ignore(left_camera.delete())
 
-  let right_camera = @ecs.require_current_world().spawn(())
-  defer right_camera.destroy()
-  @camera.cameras().set(right_camera, Camera(order=1))
-  @camera.camera2ds().set(right_camera, Camera2d())
-  @camera.orthographic_projections().set(right_camera, OrthographicProjection())
-  tiled_test_set_entity_translation_2d(right_camera, Vec2(250.0, 50.0))
+  let right_camera = spawn_tiled_test_camera(Vec2(250.0, 50.0), order=1)
+  defer ignore(right_camera.delete())
 
   let files : Map[String, Bytes] = Map([])
   files.set(
@@ -1085,19 +1071,11 @@ test "Tiled parallax uses map origin for each camera view" {
   let previous_zoom = @system.get_zoom()
   @system.configure_display(100.0, 100.0, 1.0)
 
-  let left_camera = @ecs.require_current_world().spawn(())
-  defer left_camera.destroy()
-  @camera.cameras().set(left_camera, Camera(order=0))
-  @camera.camera2ds().set(left_camera, Camera2d())
-  @camera.orthographic_projections().set(left_camera, OrthographicProjection())
-  tiled_test_set_entity_translation_2d(left_camera, Vec2(50.0, 50.0))
+  let left_camera = spawn_tiled_test_camera(Vec2(50.0, 50.0), order=0)
+  defer ignore(left_camera.delete())
 
-  let right_camera = @ecs.require_current_world().spawn(())
-  defer right_camera.destroy()
-  @camera.cameras().set(right_camera, Camera(order=1))
-  @camera.camera2ds().set(right_camera, Camera2d())
-  @camera.orthographic_projections().set(right_camera, OrthographicProjection())
-  tiled_test_set_entity_translation_2d(right_camera, Vec2(250.0, 150.0))
+  let right_camera = spawn_tiled_test_camera(Vec2(250.0, 150.0), order=1)
+  defer ignore(right_camera.delete())
 
   let files : Map[String, Bytes] = Map([])
   files.set(

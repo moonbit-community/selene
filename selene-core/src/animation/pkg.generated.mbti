@@ -326,7 +326,6 @@ pub(all) struct MorphMeshBinding3D {
   morph_targets : Array[MorphTargetBinding3D]
   mut morph_weights : Array[Double]
 }
-pub impl @ecs.Component for MorphMeshBinding3D
 
 #derive(Eq, @debug.Debug)
 pub(all) struct MorphTargetBinding3D {
@@ -396,7 +395,6 @@ pub(all) struct SkinnedMeshBinding3D {
   joint_entities : Array[@ecs.Entity]
   inverse_bind_matrices : Array[@math.Mat4]
 }
-pub impl @ecs.Component for SkinnedMeshBinding3D
 
 pub(all) struct TransitionEntry {
   mut remaining : Double

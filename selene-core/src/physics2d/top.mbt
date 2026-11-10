@@ -216,7 +216,7 @@ pub fn shapes() -> @ecs.ComponentStore[ColliderShape] {
 
 ///|
 /// Frame-local resolved velocities after physics step.
-pub fn resolved_velocities() -> @ecs.ComponentStore[LinearVelocity] {
+pub fn resolved_velocities() -> Map[@ecs.Entity, LinearVelocity] {
   @collision.resolved_velocities()
 }
 

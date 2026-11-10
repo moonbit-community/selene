@@ -2,6 +2,4 @@ import {
   "Milky2018/selene/platform_runtime",
 }
 
-warnings = "-reserved_keyword"
-
 virtual(has_default: true)

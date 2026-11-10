@@ -37,15 +37,10 @@ pub(all) struct Velocity(@math.Vec2)
 ///
 /// ```moonbit nocheck
 /// // Set velocity for an entity
-/// let entity = @ecs.require_current_world().spawn(())
-/// defer entity.destroy()
-///
-/// @velocity.velocities().set(entity, @math.Vec2(10.0, 5.0))
-///
-/// // Get velocity for an entity
-/// let entity_vel = @velocity.velocities().get(entity)
-///
-/// inspect(entity_vel, content="Some(Velocity(Vec2(10, 5)))")
+/// let entity = @ecs.require_current_world().spawn1(
+///   @velocity.Velocity(@math.Vec2(10.0, 0.0)),
+/// )
+/// defer ignore(entity.delete())
 /// ```
 ///
 pub fn velocities() -> @ecs.ComponentStore[Velocity] {

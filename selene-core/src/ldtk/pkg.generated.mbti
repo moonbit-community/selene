@@ -7,43 +7,44 @@ import {
   "Milky2018/selene/event",
   "Milky2018/selene/math",
   "Milky2018/selene/sprite",
+  "Milky2018/selene/transform",
   "moonbitlang/core/debug",
   "moonbitlang/core/json",
   "moonbitlang/core/ref",
 }
 
 // Values
-pub fn[T] add_default_ldtk_entity_component(@ecs.ComponentStore[T], (LdtkEntitySpawnedEvent) -> T) -> Unit
+pub fn[T] add_default_ldtk_entity_component(@ecs.ComponentStore[T], (LdtkEntitySpawn) -> T) -> Unit
 
-pub fn[T] add_default_ldtk_entity_component_for_layer(String, @ecs.ComponentStore[T], (LdtkEntitySpawnedEvent) -> T) -> Unit
+pub fn[T] add_default_ldtk_entity_component_for_layer(String, @ecs.ComponentStore[T], (LdtkEntitySpawn) -> T) -> Unit
 
-pub fn add_default_ldtk_entity_registration((LdtkEntitySpawnedEvent) -> Unit) -> Unit
+pub fn add_default_ldtk_entity_registration((LdtkEntitySpawn) -> Unit) -> Unit
 
-pub fn add_default_ldtk_entity_registration_for_layer(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+pub fn add_default_ldtk_entity_registration_for_layer(String, (LdtkEntitySpawn) -> Unit) -> Unit
 
 pub fn add_default_ldtk_entity_tile_sprite(zindex_offset? : Int32) -> Unit
 
 pub fn add_default_ldtk_entity_tile_sprite_for_layer(String, zindex_offset? : Int32) -> Unit
 
-pub fn[T] add_default_ldtk_int_cell_component(@ecs.ComponentStore[T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+pub fn[T] add_default_ldtk_int_cell_component(@ecs.ComponentStore[T], (LdtkIntGridCellSpawn) -> T) -> Unit
 
-pub fn[T] add_default_ldtk_int_cell_component_for_layer(String, @ecs.ComponentStore[T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+pub fn[T] add_default_ldtk_int_cell_component_for_layer(String, @ecs.ComponentStore[T], (LdtkIntGridCellSpawn) -> T) -> Unit
 
-pub fn add_default_ldtk_int_cell_registration((LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn add_default_ldtk_int_cell_registration((LdtkIntGridCellSpawn) -> Unit) -> Unit
 
-pub fn add_default_ldtk_int_cell_registration_for_layer(String, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn add_default_ldtk_int_cell_registration_for_layer(String, (LdtkIntGridCellSpawn) -> Unit) -> Unit
 
-pub fn[T] add_ldtk_entity_component(String, @ecs.ComponentStore[T], (LdtkEntitySpawnedEvent) -> T) -> Unit
+pub fn[T] add_ldtk_entity_component(String, @ecs.ComponentStore[T], (LdtkEntitySpawn) -> T) -> Unit
 
-pub fn[T] add_ldtk_entity_component_for_layer(String, String, @ecs.ComponentStore[T], (LdtkEntitySpawnedEvent) -> T) -> Unit
+pub fn[T] add_ldtk_entity_component_for_layer(String, String, @ecs.ComponentStore[T], (LdtkEntitySpawn) -> T) -> Unit
 
-pub fn[T] add_ldtk_entity_component_for_layer_optional(String?, String?, @ecs.ComponentStore[T], (LdtkEntitySpawnedEvent) -> T) -> Unit
+pub fn[T] add_ldtk_entity_component_for_layer_optional(String?, String?, @ecs.ComponentStore[T], (LdtkEntitySpawn) -> T) -> Unit
 
-pub fn add_ldtk_entity_registration(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+pub fn add_ldtk_entity_registration(String, (LdtkEntitySpawn) -> Unit) -> Unit
 
-pub fn add_ldtk_entity_registration_for_layer(String, String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+pub fn add_ldtk_entity_registration_for_layer(String, String, (LdtkEntitySpawn) -> Unit) -> Unit
 
-pub fn add_ldtk_entity_registration_for_layer_optional(String?, String?, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+pub fn add_ldtk_entity_registration_for_layer_optional(String?, String?, (LdtkEntitySpawn) -> Unit) -> Unit
 
 pub fn add_ldtk_entity_tile_sprite(String, zindex_offset? : Int32) -> Unit
 
@@ -51,19 +52,19 @@ pub fn add_ldtk_entity_tile_sprite_for_layer(String, String, zindex_offset? : In
 
 pub fn add_ldtk_entity_tile_sprite_for_layer_optional(String?, String?, zindex_offset? : Int32) -> Unit
 
-pub fn[T] add_ldtk_int_cell_component(Int32, @ecs.ComponentStore[T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+pub fn add_ldtk_entity_tile_sprite_to_draft(LdtkEntitySpawn, zindex? : Int32) -> Bool
 
-pub fn[T] add_ldtk_int_cell_component_for_layer(String, Int32, @ecs.ComponentStore[T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+pub fn[T] add_ldtk_int_cell_component(Int32, @ecs.ComponentStore[T], (LdtkIntGridCellSpawn) -> T) -> Unit
 
-pub fn[T] add_ldtk_int_cell_component_for_layer_optional(String?, Int32?, @ecs.ComponentStore[T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+pub fn[T] add_ldtk_int_cell_component_for_layer(String, Int32, @ecs.ComponentStore[T], (LdtkIntGridCellSpawn) -> T) -> Unit
 
-pub fn add_ldtk_int_cell_registration(Int32, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn[T] add_ldtk_int_cell_component_for_layer_optional(String?, Int32?, @ecs.ComponentStore[T], (LdtkIntGridCellSpawn) -> T) -> Unit
 
-pub fn add_ldtk_int_cell_registration_for_layer(String, Int32, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn add_ldtk_int_cell_registration(Int32, (LdtkIntGridCellSpawn) -> Unit) -> Unit
 
-pub fn add_ldtk_int_cell_registration_for_layer_optional(String?, Int32?, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn add_ldtk_int_cell_registration_for_layer(String, Int32, (LdtkIntGridCellSpawn) -> Unit) -> Unit
 
-pub fn clear_ldtk_children(@ecs.Entity) -> Unit
+pub fn add_ldtk_int_cell_registration_for_layer_optional(String?, Int32?, (LdtkIntGridCellSpawn) -> Unit) -> Unit
 
 pub fn clear_ldtk_entity_default_spawn_hook() -> Unit
 
@@ -87,8 +88,6 @@ pub fn default_ldtk_level_selection() -> LdtkLevelSelection
 
 pub fn despawn_ldtk_tree(@ecs.Entity) -> Unit
 
-pub fn insert_ldtk_entity_tile_sprite(LdtkEntitySpawnedEvent, zindex? : Int32) -> Bool
-
 pub fn ldtk_entity_by_iid(@ecs.Entity, String) -> @ecs.Entity?
 
 pub fn ldtk_entity_default_spawn_hook() -> @ref.Ref[((LdtkEntitySpawnedEvent) -> Unit)?]
@@ -103,9 +102,9 @@ pub fn ldtk_entity_spawn_hooks() -> Map[String, (LdtkEntitySpawnedEvent) -> Unit
 
 pub let ldtk_entity_spawned_event_bus : @event.Events[LdtkEntitySpawnedEvent]
 
-pub fn ldtk_entity_tile_sprite(LdtkEntitySpawnedEvent, zindex? : Int32) -> @sprite.Sprite?
+pub fn ldtk_entity_tile_sprite(LdtkEntitySpawn, zindex? : Int32) -> @sprite.Sprite?
 
-pub fn ldtk_entity_typed_registrations() -> Map[String, (LdtkEntitySpawnedEvent) -> Unit]
+pub fn ldtk_entity_typed_registrations() -> Map[String, (LdtkEntitySpawn) -> Unit]
 
 pub fn ldtk_field_bool(Array[LdtkFieldInstance], String) -> Bool?
 
@@ -155,7 +154,7 @@ pub fn ldtk_field_vec2_array(Array[LdtkFieldInstance], String) -> Array[@math.Ve
 
 pub fn ldtk_grid_coords() -> @ecs.ComponentStore[LdtkGridCoords]
 
-pub fn ldtk_int_cell_typed_registrations() -> Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
+pub fn ldtk_int_cell_typed_registrations() -> Map[String, (LdtkIntGridCellSpawn) -> Unit]
 
 pub fn ldtk_int_grid_cell_spawn_hooks() -> Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
 
@@ -209,7 +208,7 @@ pub let ldtk_level_spawned_event_bus : @event.Events[LdtkLevelSpawnedEvent]
 
 pub fn ldtk_pending_transformed_level_iids() -> Map[String, Bool]
 
-pub fn ldtk_respawns() -> @ecs.ComponentStore[LdtkRespawn]
+pub fn ldtk_respawns() -> Map[@ecs.Entity, LdtkRespawn]
 
 pub let ldtk_settings : @ref.Ref[LdtkSettings]
 
@@ -243,25 +242,25 @@ pub fn load_ldtk_project_raw(String) -> LdtkProject
 
 pub fn mark_ldtk_respawn(@ecs.Entity) -> Unit
 
-pub fn register_default_ldtk_entity((LdtkEntitySpawnedEvent) -> Unit) -> Unit
+pub fn register_default_ldtk_entity((LdtkEntitySpawn) -> Unit) -> Unit
 
-pub fn register_default_ldtk_entity_for_layer(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+pub fn register_default_ldtk_entity_for_layer(String, (LdtkEntitySpawn) -> Unit) -> Unit
 
 pub fn register_default_ldtk_entity_tile_sprite(zindex_offset? : Int32) -> Unit
 
 pub fn register_default_ldtk_entity_tile_sprite_for_layer(String, zindex_offset? : Int32) -> Unit
 
-pub fn register_default_ldtk_int_cell((LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn register_default_ldtk_int_cell((LdtkIntGridCellSpawn) -> Unit) -> Unit
 
-pub fn register_default_ldtk_int_cell_for_layer(String, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn register_default_ldtk_int_cell_for_layer(String, (LdtkIntGridCellSpawn) -> Unit) -> Unit
 
-pub fn register_ldtk_entity(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+pub fn register_ldtk_entity(String, (LdtkEntitySpawn) -> Unit) -> Unit
 
 pub fn register_ldtk_entity_default_spawn_hook((LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
-pub fn register_ldtk_entity_for_layer(String, String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+pub fn register_ldtk_entity_for_layer(String, String, (LdtkEntitySpawn) -> Unit) -> Unit
 
-pub fn register_ldtk_entity_for_layer_optional(String?, String?, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+pub fn register_ldtk_entity_for_layer_optional(String?, String?, (LdtkEntitySpawn) -> Unit) -> Unit
 
 pub fn register_ldtk_entity_layer_spawn_hook(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
@@ -277,11 +276,11 @@ pub fn register_ldtk_entity_tile_sprite_for_layer(String, String, zindex_offset?
 
 pub fn register_ldtk_entity_tile_sprite_for_layer_optional(String?, String?, zindex_offset? : Int32) -> Unit
 
-pub fn register_ldtk_int_cell(Int32, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn register_ldtk_int_cell(Int32, (LdtkIntGridCellSpawn) -> Unit) -> Unit
 
-pub fn register_ldtk_int_cell_for_layer(String, Int32, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn register_ldtk_int_cell_for_layer(String, Int32, (LdtkIntGridCellSpawn) -> Unit) -> Unit
 
-pub fn register_ldtk_int_cell_for_layer_optional(String?, Int32?, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+pub fn register_ldtk_int_cell_for_layer_optional(String?, Int32?, (LdtkIntGridCellSpawn) -> Unit) -> Unit
 
 pub fn register_ldtk_int_grid_cell_spawn_hook(String, Int32, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
@@ -293,7 +292,7 @@ pub fn register_ldtk_int_grid_spawn_hook_optional(String?, Int32?, (LdtkIntGridC
 
 pub fn register_ldtk_int_grid_value_spawn_hook(Int32, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
-pub fn respawn_ldtk_world_into_entity(@ecs.Entity, LdtkProject, settings? : LdtkWorldSpawnSettings) -> Unit
+pub fn replace_ldtk_world(@ecs.Entity, LdtkProject, settings? : LdtkWorldSpawnSettings) -> @ecs.Entity
 
 pub fn set_ldtk_int_grid_physics_settings(LdtkIntGridPhysicsSettings) -> Unit
 
@@ -305,9 +304,7 @@ pub fn set_ldtk_settings(LdtkSettings) -> Unit
 
 pub fn set_ldtk_world_follow_level_selection(@ecs.Entity, Bool) -> Unit
 
-pub fn spawn_ldtk_world(LdtkProject, settings? : LdtkWorldSpawnSettings) -> @ecs.Entity
-
-pub fn spawn_ldtk_world_into_entity(@ecs.Entity, LdtkProject, settings? : LdtkWorldSpawnSettings) -> Unit
+pub fn spawn_ldtk_world(LdtkProject, settings? : LdtkWorldSpawnSettings, parent? : @ecs.Entity) -> @ecs.Entity
 
 pub fn unregister_default_ldtk_entity() -> Unit
 
@@ -410,6 +407,18 @@ pub struct LdtkEntityReference {
 }
 pub fn LdtkEntityReference::LdtkEntityReference() -> Self
 
+pub struct LdtkEntitySpawn {
+  draft : @ecs.SpawnDraft
+  spatial : @transform.Spatial
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
+  level : LdtkLevel
+  layer : LdtkLayerInstance
+  instance : LdtkEntityInstance
+  zindex : Int32
+}
+
 pub struct LdtkEntitySpawnedEvent {
   world_entity : @ecs.Entity
   level_entity : @ecs.Entity
@@ -487,6 +496,19 @@ pub struct LdtkIntGridCell {
   value : Int32
 }
 pub impl @ecs.Component for LdtkIntGridCell
+
+pub struct LdtkIntGridCellSpawn {
+  draft : @ecs.SpawnDraft
+  world_entity : @ecs.Entity
+  level_entity : @ecs.Entity
+  layer_entity : @ecs.Entity
+  level : LdtkLevel
+  layer : LdtkLayerInstance
+  value : Int32
+  grid_x : Int32
+  grid_y : Int32
+  zindex : Int32
+}
 
 pub struct LdtkIntGridCellSpawnedEvent {
   world_entity : @ecs.Entity
@@ -780,7 +802,6 @@ pub fn LdtkProjectDefinitions::LdtkProjectDefinitions() -> Self
 pub struct LdtkRespawn {
   requested : Bool
 }
-pub impl @ecs.Component for LdtkRespawn
 
 pub struct LdtkSettings {
   level_spawn_behavior : LdtkLevelSpawnBehavior

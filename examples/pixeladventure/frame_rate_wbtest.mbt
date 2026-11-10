@@ -26,7 +26,7 @@ fn player_motion_at_refresh_rate(refresh : Int32) -> Array[@math.Vec2] raise {
     .add_system(FixedLast, world => {
       if positions.length() < 60 {
         let session : GameSession = world.resource()
-        let translation = @transform.transforms().get(session.player).unwrap().translation
+        let translation = @transform.local_transform(session.player).unwrap().translation
         positions.push(@math.Vec2(translation.x, translation.y))
       }
     })

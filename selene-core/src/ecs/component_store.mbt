@@ -14,7 +14,6 @@ pub fn[T] ComponentStore::ComponentStore(world : World) -> ComponentStore[T] {
   let columns : Array[Array[T]?] = []
   let order = { entries: [], head: None, tail: None, length: 0, next_rank: 0, }
   let component = storage.create_columns.length()
-  storage.singleton_tables.push(None)
   storage.create_columns.push(table => {
     while columns.length() <= table {
       columns.push(None)
@@ -22,7 +21,6 @@ pub fn[T] ComponentStore::ComponentStore(world : World) -> ComponentStore[T] {
     let values = []
     columns[table] = Some(values)
     {
-      append_to: (target, row) => columns[target].unwrap().push(values[row]),
       remove_row: row => swap_remove_row(values, row),
       forget: entity => order.remove(entity),
     }
@@ -69,26 +67,19 @@ pub fn[T] ComponentStore::contains(
 }
 
 ///|
+/// Overwrites a value in an existing row. Aborts if the entity has no such
+/// column, belongs to another World, or has no materialized row.
 #alias(op_set)
 pub fn[T] ComponentStore::set(
   self : ComponentStore[T],
   entity : Entity,
   value : T,
 ) -> Unit {
-  guard self.world_id == entity.world_id else { return }
-  guard self.storage.slot(entity) is Some(slot) else { return }
-  let location = slot.location
-  if location is Some((id, row)) && self.column(id) is Some(column) {
-    column[row] = value
-    return
+  guard self.location(entity) is Some((id, row)) &&
+    self.column(id) is Some(column) else {
+    abort("component write requires an existing column on this entity")
   }
-  self.storage.require_no_query()
-  let id = match location {
-    Some((id, _)) => self.storage.transition(id, self.component).unwrap()
-    None => self.storage.singleton_table(self.component)
-  }
-  self.storage.move_row(entity, location, Some(id))
-  self.append_new(id, entity, value)
+  column[row] = value
 }
 
 ///|
@@ -103,22 +94,7 @@ fn[T] ComponentStore::append_new(
 }
 
 ///|
-pub fn[T] ComponentStore::remove(
-  self : ComponentStore[T],
-  entity : Entity,
-) -> Unit {
-  guard self.location(entity) is Some((id, row)) else { return }
-  guard self.column(id) is Some(_) else { return }
-  self.storage.require_no_query()
-  self.storage.move_row(
-    entity,
-    Some((id, row)),
-    self.storage.transition(id, self.component),
-  )
-}
-
-///|
-/// Visits entries in component insertion order, independently of row migration.
+/// Visits entries in component insertion order, independently of row order.
 pub fn[T] ComponentStore::iter2(self : ComponentStore[T]) -> Iter2[Entity, T] {
   let mut next = self.order.head
   let length = self.order.length
@@ -179,42 +155,6 @@ pub fn[T] ComponentStore::length(self : ComponentStore[T]) -> Int32 {
 ///|
 pub fn[T] ComponentStore::is_empty(self : ComponentStore[T]) -> Bool {
   self.order.length == 0
-}
-
-///|
-pub fn[T] ComponentStore::get_or_init(
-  self : ComponentStore[T],
-  entity : Entity,
-  create : () -> T,
-) -> T {
-  if self.get(entity) is Some(value) {
-    value
-  } else {
-    let value = create()
-    self.set(entity, value)
-    value
-  }
-}
-
-///|
-pub fn[T] ComponentStore::retain(
-  self : ComponentStore[T],
-  predicate : (Entity) -> Bool,
-) -> Unit {
-  for entity in self.keys() {
-    if !predicate(entity) {
-      self.remove(entity)
-    }
-  }
-}
-
-///|
-pub fn[T] ComponentStore::clear(self : ComponentStore[T]) -> Unit {
-  while self.order.head is Some(index) {
-    self.remove(self.order.entries[index].unwrap().entity)
-  }
-  self.order.entries.clear()
-  self.order.next_rank = 0
 }
 
 ///|

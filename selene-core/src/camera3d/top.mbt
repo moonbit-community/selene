@@ -83,7 +83,7 @@ pub fn camera3d_extract_system(_delta : Double) -> Unit {
   }
   match selected {
     Some((entity, camera)) => {
-      guard @transform.global_transforms().get(entity) is Some(global_transform) else {
+      guard @transform.global_transform(entity) is Some(global_transform) else {
         set_active_camera3d(None)
         return
       }

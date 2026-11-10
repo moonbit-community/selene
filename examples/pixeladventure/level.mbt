@@ -12,7 +12,7 @@ priv struct LoadedLevelScene {
 fn load_level_scene() -> LoadedLevelScene {
   let camera_entity = spawn_game_entity(
     (
-      @transform.Transform::identity(),
+      @transform.Spatial(@transform.Transform::identity()),
       @camera.Camera(),
       @camera.Camera2d(),
       @camera.OrthographicProjection(),
@@ -38,7 +38,7 @@ fn load_level_scene() -> LoadedLevelScene {
     "assets/pixeladventure/Terrain/Terrain (16x16).png",
   )
   let rows : Map[Int32, Array[Int32]] = Map([])
-  let plan : @ecs.SpawnPlan[(@transform.Transform, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
+  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
   let entities = pixeladventure_world_state().entities
   for run in terrain_runs {
     let (x, y, count, atlas_x, atlas_y) = run
@@ -46,10 +46,12 @@ fn load_level_scene() -> LoadedLevelScene {
       let tile_x = x + offset
       let entity = plan.spawn(
         (
-          @transform.Transform::from_xyz(
-            (tile_x * TERRAIN_TILE_SIZE).to_double(),
-            (y * TERRAIN_TILE_SIZE).to_double(),
-            0.0,
+          @transform.Spatial(
+            @transform.Transform::from_xyz(
+              (tile_x * TERRAIN_TILE_SIZE).to_double(),
+              (y * TERRAIN_TILE_SIZE).to_double(),
+              0.0,
+            ),
           ),
           @sprite.Sprite(
             image=Some(terrain_image),

@@ -185,7 +185,7 @@ pub fn unconsumed_pointer_changes_this_frame() -> Array[@inputs.PointerEvent] {
 
 ///|
 fn clear_focus_marker(entity : @ecs.Entity) -> Unit {
-  focuseds().remove(entity)
+  ignore(focuseds().remove(entity))
 }
 
 ///|
@@ -318,20 +318,18 @@ fn move_focus(direction : UiNavigationDirection) -> Unit {
   }
   let runtime = ui_interaction_runtime()
   let current = runtime.focused_entity.unwrap_or(entities[0])
-  if !global_ui_nodes().contains(current) {
+  if !ui_geometry().contains(current) {
     focus(entities[0])
     return
   }
-  let current_center = rect_center(
-    global_ui_nodes().get(current).unwrap().screen_rect,
-  )
+  let current_center = rect_center(global_ui_node(current).unwrap().screen_rect)
   let mut best_entity : @ecs.Entity? = None
   let mut best_primary = 0.0
   let mut best_secondary = 0.0
   let mut has_best = false
   for entity in entities {
     guard entity != current else { continue }
-    guard global_ui_nodes().get(entity) is Some(transform) else { continue }
+    guard global_ui_node(entity) is Some(transform) else { continue }
     guard directional_score(
         current_center,
         rect_center(transform.screen_rect),
@@ -399,8 +397,7 @@ fn point_in_rect(point : @math.Vec2, rect : @math.Rect) -> Bool {
 
 ///|
 fn screen_clip_allows(entity : @ecs.Entity, point : @math.Vec2) -> Bool {
-  let within_target_viewport = global_ui_nodes()
-    .get(entity)
+  let within_target_viewport = global_ui_node(entity)
     .map(fn(transform) { point_in_rect(point, transform.target_viewport) })
     .unwrap_or(true)
   if !within_target_viewport {
@@ -438,7 +435,7 @@ fn update_relative_cursor_positions(position : @math.Vec2) -> Unit {
       relative.cursor_over = false
       continue
     }
-    guard global_ui_nodes().get(entity) is Some(transform) else {
+    guard global_ui_node(entity) is Some(transform) else {
       relative.normalized = None
       relative.cursor_over = false
       continue
@@ -463,7 +460,7 @@ fn resolve_pointer_target(position : @math.Vec2) -> @ecs.Entity? {
   let mut index = candidates.length() - 1
   while index >= 0 {
     let entity = candidates[index]
-    guard global_ui_nodes().get(entity) is Some(transform) else {
+    guard global_ui_node(entity) is Some(transform) else {
       index -= 1
       continue
     }
@@ -487,7 +484,7 @@ fn ui_node_at(position : @math.Vec2) -> @ecs.Entity? {
   let mut index = candidates.length() - 1
   while index >= 0 {
     let entity = candidates[index]
-    guard global_ui_nodes().get(entity) is Some(transform) else {
+    guard global_ui_node(entity) is Some(transform) else {
       index -= 1
       continue
     }
@@ -544,7 +541,7 @@ fn touch_capture_target_at(position : @math.Vec2) -> @ecs.Entity? {
 fn clear_invalid_pointer_captures(runtime : UiInteractionRuntime) -> Unit {
   let stale : Array[@inputs.PointerId] = []
   for id, entity in runtime.pointer_captures {
-    if !entity.is_alive() || !global_ui_nodes().contains(entity) {
+    if !entity.is_alive() || !ui_geometry().contains(entity) {
       stale.push(id)
     }
   }
@@ -594,7 +591,7 @@ pub fn ui_input_capture_system(_delta : Double) -> Unit {
 ///|
 fn apply_scroll_delta(entity : @ecs.Entity, delta : @math.Vec2) -> Unit {
   guard nodes().get(entity) is Some(node) else { return }
-  guard computed_ui_nodes().get(entity) is Some(computed) else { return }
+  guard computed_ui_node(entity) is Some(computed) else { return }
   let scroll = scroll_positions().get_or_init(entity, ScrollPosition::zero)
   if node.overflow_x == Scroll {
     scroll.x = @cmp.minimum(
@@ -639,7 +636,7 @@ fn sanitize_focus() -> Unit {
   match ui_interaction_runtime().focused_entity {
     Some(entity) =>
       if !entity.is_alive() ||
-        !global_ui_nodes().contains(entity) ||
+        !ui_geometry().contains(entity) ||
         !is_focusable(entity) ||
         !@visibility.is_visible(entity) {
         blur()

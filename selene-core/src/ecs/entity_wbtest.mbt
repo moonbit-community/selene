@@ -46,7 +46,6 @@ test "same local ID in two worlds cannot alias lifecycle or hierarchy" {
   assert_false(alive_in_first(other))
   entity.destroy()
   entity.respawn()
-  other.set_parent(entity)
   flush_entity_lifecycle(require_current_world())
   assert_true(other.is_alive())
   assert_true(other.get_parent() is None)

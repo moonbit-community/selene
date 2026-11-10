@@ -50,7 +50,8 @@ with the same caching behavior. Use batch views within their callback and
 queue structural changes through `Commands`.
 
 Use the expected type to select a component store for point access or a spawn
-bundle. An explicit World is useful for setup, tests, or cross-World work.
+bundle. A value write requires a materialized entity with that column in the
+store's World. An explicit World is useful for setup, tests, or cross-World work.
 
 ```moonbit
 let positions : @ecs.ComponentStore[Position] = @ecs.components()
@@ -66,21 +67,24 @@ When two columns use the same value type, declare separate
 
 ## Spawning entities
 
-Pass `@ecs.Single(value)` for one component, a flat tuple of two to eight
-components, or `()` for an empty entity. The World places the initial
-components in the final archetype together.
+Use `spawn1(value)` for one component, `spawn((a, b, ...))` for a flat tuple of
+two to eight components, or `spawn(())` for an empty entity. `@ecs.Single(value)`
+also wraps one component as a bundle. The World puts all initial values in one
+archetype row. An entity keeps that component layout until permanent deletion.
+Use a mutable value, such as an optional payload or an enabled flag, for state
+that can change during the entity's lifetime.
 
 ```moonbit
 let position : Position = { x: 3.0, y: 4.0 }
 let velocity : Velocity = { x: 0.0, y: 0.0 }
-let marker = world.spawn(@ecs.Single(position))
+let marker = world.spawn1(position)
 let player = world.spawn((position, velocity))
 let empty = world.spawn(())
 ```
 
-Use `commands.spawn(values)` during a query. The returned entity is pending
-until the scheduler applies the queued spawn and activates it. Subsequent
-commands can target the pending handle.
+Use `commands.spawn(values)` or `commands.spawn1(value)` during a query.
+The scheduler initializes the returned pending handle at the command flush.
+A later command in the same batch can overwrite one of its initialized values.
 
 For repeated spawns, prepare the layout once in its owning World.
 
@@ -93,6 +97,38 @@ let pending = commands.spawn_prepared(players, (position, velocity))
 Use `SpawnPlan::combine` to join plans for larger groups. For explicitly
 selected columns, start with `store.spawn_plan(world)`. A plan belongs to
 a single World and each component column may occur only once.
+
+For imports whose columns depend on data, collect the values with
+`world.spawn_draft()` and `draft.add(value)`, then call `draft.spawn()` once.
+Use `draft.add_to(store, value)` to choose a specific column. The draft rejects
+duplicate columns and stores from another World.
+
+## Hierarchy and transforms
+
+Set a parent at spawn with `parent=`. This works for immediate and deferred
+spawns, including prepared layouts. A deferred child can name a pending parent
+queued before it. If the parent is unavailable when the command runs, the
+scheduler cancels the child and recycles its slot.
+
+```moonbit
+let room = world.spawn(())
+let player = world.spawn(
+  (@transform.Spatial(@transform.Transform::from_xyz(3.0, 4.0, 0.0)), velocity),
+  parent=room,
+)
+```
+
+`get_parent()` and `get_children()` read the hierarchy. Children are ordered by
+spawn. `destroy()` and `respawn()` preserve the subtree and its components.
+`delete()` invalidates the subtree's handles and recycles their slots. Spawn a
+replacement to change a node's parent or component layout.
+
+`Spatial` holds the local pose and the cached world transform. Use
+`@transform.set_local_transform(entity, pose)` to update a pose and
+`@transform.global_transform(entity)` to read the propagation result. When a
+system needs the current world pose before propagation, use
+`@transform.compute_global_transform(entity)`. A container without `Spatial`
+passes the parent's transform to its children.
 
 ## Multi-component queries
 
@@ -109,8 +145,7 @@ moving.for_each((entity, position, velocity, hp) => {
 
 Use `for_each_batch` for read-only column views or `for_each_batch_mut_a`
 to update the first column in place. Views are valid during the callback.
-Queue component additions, removals, and other structural changes through
-`Commands` for the next flush.
+Queue entity spawns and permanent deletions through `Commands` for the next flush.
 
 If you already have an entity or a caller-defined traversal order, use
 `moving.get(entity)`. It locates one row and returns the matching tuple,

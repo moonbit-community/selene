@@ -388,10 +388,12 @@ fn apply_character_controller_translation(
           translation.y / delta,
           translation.z / delta,
         )
-        velocities().set(entity, {
-          ..velocities().get(entity).unwrap_or(Velocity::zero()),
-          linvel: velocity,
-        })
+        if velocities().get(entity) is Some(current) {
+          velocities().set(entity, { ..current, linvel: velocity, })
+        } else if body_handles().get(entity) is Some(handle) &&
+          physics3d_world().bodies.get_mut(handle) is Some(body) {
+          body.set_linvel(velocity.to_rapier())
+        }
       }
     _ => ()
   }

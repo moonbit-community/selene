@@ -28,19 +28,26 @@ fn spawn_pickable_camera(
   order : Int32,
   layers : @visibility.RenderLayers,
 ) -> @ecs.Entity {
-  let camera_entity = @ecs.require_current_world().spawn(())
-  @camera.cameras().set(
-    camera_entity,
+  let camera_entity_draft = @ecs.require_current_world().spawn_draft()
+  camera_entity_draft.add_to(
+    @camera.cameras(),
     Camera(order~, viewport=Some(@camera.CameraViewport::from_rect(viewport))),
   )
-  @camera.camera2ds().set(camera_entity, Camera2d())
-  @transform.global_transforms().set(
-    camera_entity,
-    @transform.GlobalTransform::from_transform(
-      @transform.Transform::from_xyz(0.0, 0.0, 0.0),
+  camera_entity_draft.add_to(@camera.camera2ds(), Camera2d())
+  camera_entity_draft.add_to(
+    @transform.spatials(),
+    @transform.Spatial(
+      @transform.GlobalTransform::from_transform(
+        @transform.Transform::from_xyz(
+          viewport.size[X] * 0.5,
+          viewport.size[Y] * 0.5,
+          0.0,
+        ),
+      ).compute_transform(),
     ),
   )
-  @visibility.render_layers().set(camera_entity, layers)
+  camera_entity_draft.add_to(@visibility.render_layers(), layers)
+  let camera_entity = camera_entity_draft.spawn()
   camera_entity
 }
 
@@ -50,16 +57,19 @@ fn spawn_pickable_shape(
   shape : CollisionShape,
   layers~ : @visibility.RenderLayers = @visibility.RenderLayers(),
 ) -> @ecs.Entity {
-  let entity = @ecs.require_current_world().spawn(())
-  pickables().set(entity, Pickable())
-  shapes().set(entity, shape)
-  @transform.global_transforms().set(
-    entity,
-    @transform.GlobalTransform::from_transform(
-      @transform.Transform::from_xyz(position[X], position[Y], 0.0),
+  let entity_draft = @ecs.require_current_world().spawn_draft()
+  entity_draft.add_to(pickables(), Pickable())
+  entity_draft.add_to(shapes(), shape)
+  entity_draft.add_to(
+    @transform.spatials(),
+    @transform.Spatial(
+      @transform.GlobalTransform::from_transform(
+        @transform.Transform::from_xyz(position[X], position[Y], 0.0),
+      ).compute_transform(),
     ),
   )
-  @visibility.render_layers().set(entity, layers)
+  entity_draft.add_to(@visibility.render_layers(), layers)
+  let entity = entity_draft.spawn()
   entity
 }
 

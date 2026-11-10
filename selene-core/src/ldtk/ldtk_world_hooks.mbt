@@ -1,26 +1,9 @@
 ///|
-fn ldtk_despawn_level(
-  world_entity : @ecs.Entity,
-  level_iid : String,
-  level_entity : @ecs.Entity,
-) -> Unit {
+fn ldtk_despawn_level(level_iid : String, level_entity : @ecs.Entity) -> Unit {
   ldtk_pending_transformed_level_iids().remove(level_iid)
   ldtk_level_event_bus.trigger(Despawned(level_iid), Some(level_entity))
   despawn_ldtk_tree(level_entity)
   ldtk_respawns().remove(level_entity)
-  for pair in ldtk_worldly_entities().to_array() {
-    if pair.1.world_entity != world_entity {
-      continue
-    }
-    if pair.1.level_iid != level_iid {
-      continue
-    }
-    if !pair.0.is_alive() {
-      ldtk_worldly_entities().remove(pair.0)
-      continue
-    }
-    // Keep worldly entities alive across level despawn, matching bevy_ldtk behavior.
-  }
 }
 
 ///|
@@ -29,17 +12,14 @@ fn ldtk_force_world_respawn(world_entity : @ecs.Entity) -> Unit {
     return
   }
   for pair in instance.spawned_levels.to_array() {
-    ldtk_despawn_level(world_entity, pair.0, pair.1)
+    ldtk_despawn_level(pair.0, pair.1)
     instance.spawned_levels.remove(pair.0)
   }
   for pair in ldtk_worldly_entities().to_array() {
     if pair.1.world_entity != world_entity {
       continue
     }
-    if pair.0.is_alive() {
-      despawn_ldtk_tree(pair.0)
-    }
-    ldtk_worldly_entities().remove(pair.0)
+    despawn_ldtk_tree(pair.0)
   }
 }
 
@@ -54,7 +34,7 @@ fn ldtk_force_level_respawns(world_entity : @ecs.Entity) -> Unit {
     if !ldtk_respawns().contains(level_entity) {
       continue
     }
-    ldtk_despawn_level(world_entity, level_iid, level_entity)
+    ldtk_despawn_level(level_iid, level_entity)
     instance.spawned_levels.remove(level_iid)
     ldtk_respawns().remove(level_entity)
   }
@@ -136,7 +116,7 @@ fn ldtk_layer_tileset_image(
 
 ///|
 fn ldtk_entity_tile_image(
-  event : LdtkEntitySpawnedEvent,
+  event : LdtkEntitySpawn,
   tile : LdtkTilesetRect,
 ) -> @asset.ImageHandle? {
   guard ldtk_world_instances().get(event.world_entity) is Some(instance) else {
@@ -295,8 +275,8 @@ fn ldtk_entity_is_worldly(entity_instance : LdtkEntityInstance) -> Bool {
 }
 
 ///|
-fn ldtk_apply_int_grid_physics(
-  cell_entity : @ecs.Entity,
+fn ldtk_add_int_grid_physics(
+  draft : @ecs.SpawnDraft,
   layer_identifier : String,
   value : Int32,
   grid_size : Double,
@@ -311,19 +291,13 @@ fn ldtk_apply_int_grid_physics(
   let size = @math.Vec2(grid_size, grid_size)
   let shape = @physics2d.CollisionShape::Rect(size~, offset=@math.Vec2::zero())
   if physics_settings.as_sensor {
-    @physics2d.areas().set(
-      cell_entity,
-      @physics2d.Area(physics_settings.sensor_filter),
-    )
+    draft.add(@physics2d.Area(physics_settings.sensor_filter))
   } else {
-    @physics2d.colliders().set(
-      cell_entity,
-      @physics2d.Collider(physics_settings.collision_filter),
-    )
+    draft.add(@physics2d.Collider(physics_settings.collision_filter))
   }
-  @physics2d.shapes().set(cell_entity, shape)
-  let collider = { sensor: physics_settings.as_sensor, }
-  ldtk_int_grid_colliders().set(cell_entity, collider)
+  draft.add(shape)
+  let collider : LdtkIntGridCollider = { sensor: physics_settings.as_sensor, }
+  draft.add(collider)
   Some(collider)
 }
 

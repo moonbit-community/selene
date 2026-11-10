@@ -546,9 +546,8 @@ fn rapier_fixed_step(delta : Double) -> Unit {
   sync_world_multibody_joints()
   grounded_entities().clear()
   let resolved = resolved_velocities()
-  let written : Set[@ecs.Entity] = Set([])
+  resolved.clear()
   let write_resolved = (entity : @ecs.Entity, velocity : @math.Vec2) => {
-    written.add(entity)
     resolved.set(entity, velocity)
   }
 
@@ -582,7 +581,6 @@ fn rapier_fixed_step(delta : Double) -> Unit {
 
   step_rapier_pipeline(delta)
   sync_body_outputs(write_resolved)
-  resolved.retain(entity => written.contains(entity))
   process_contact_events()
   process_trigger_events()
 }

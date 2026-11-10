@@ -14,8 +14,8 @@ test "a three-component query is constructed once per World" {
       world.spawn(
         (
           @sprite.Sprite(),
-          @transform.Transform::from_xyz(x, 0.0, 0.0),
-          @transform.GlobalTransform::identity(),
+          @transform.Spatial(@transform.Transform::from_xyz(x, 0.0, 0.0)),
+          @sprite.default_anchor(),
         ),
       ),
     )
@@ -32,14 +32,10 @@ test "a three-component query is constructed once per World" {
       )
     },
     fn(
-      query : @ecs.Query3[
-        @sprite.Sprite,
-        @transform.Transform,
-        @transform.GlobalTransform,
-      ],
+      query : @ecs.Query3[@sprite.Sprite, @transform.Spatial, @sprite.Anchor],
     ) {
       query.for_each((_, _, transform, _) => {
-        observed.push(transform.translation.x)
+        observed.push(transform.pose().translation.x)
       })
     },
   )

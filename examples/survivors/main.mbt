@@ -222,7 +222,7 @@ fn GameState::GameState() -> GameState {
         @camera.Camera(),
         @camera.Camera2d(),
         @camera.OrthographicProjection(),
-        @transform.Transform::identity(),
+        @transform.Spatial(@transform.Transform::identity()),
       ),
     ),
     player_direction: Down,
@@ -565,8 +565,7 @@ fn game_start(_world : @ecs.World) -> Unit {
 ///|
 fn survivors_camera_follow_system(_world : @ecs.World) -> Unit {
   let game = game_state()
-  guard @transform.transforms().get(game.player_entity)
-    is Some(player_transform) else {
+  guard @transform.local_transform(game.player_entity) is Some(player_transform) else {
     return
   }
   let half_width = VIEWPORT_WIDTH * 0.5
@@ -591,7 +590,7 @@ fn survivors_camera_follow_system(_world : @ecs.World) -> Unit {
   } else {
     target_y
   }
-  @transform.transforms().set(
+  @transform.set_local_transform(
     game.camera_entity,
     @transform.Transform::from_xyz(center_x, center_y, 0.0),
   )

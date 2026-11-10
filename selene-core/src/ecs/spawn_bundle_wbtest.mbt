@@ -10,11 +10,10 @@ test "a reusable bundle spawns directly into the final table" {
   let first = bundle.spawn((true, (11, "first")))
   let second = bundle.spawn((false, (22, "second")))
   assert_eq(a.storage.tables.length(), 1)
-  assert_eq(a.storage.tables[0].signature, [
-    a.component,
-    b.component,
-    c.component,
-  ])
+  assert_eq(
+    a.storage.table_ids.get([a.component, b.component, c.component]),
+    Some(0),
+  )
   assert_eq(a.storage.tables[0].entities.map(entity => entity.id()), [
     first.id(),
     second.id(),
@@ -24,8 +23,9 @@ test "a reusable bundle spawns directly into the final table" {
   assert_eq(b.get(second), Some("second"))
   assert_eq(c.get(second), Some(false))
 
-  b.remove(first)
-  assert_eq(b.get(first), None)
+  b.set(first, "updated")
+  assert_eq(b.get(first), Some("updated"))
+  assert_eq(a.storage.tables.length(), 1)
   assert_eq(c.get(first), Some(true))
   assert_eq(a.get(second), Some(22))
   assert_eq(b.get(second), Some("second"))
@@ -46,4 +46,21 @@ test "panic a spawn bundle cannot allocate an entity in a foreign world" {
   let other = World()
   let store : ComponentStore[Int32] = ComponentStore(world)
   ignore(commands(other).spawn_prepared(store.spawn_plan(world), 1))
+}
+
+///|
+test "panic a spawn draft rejects duplicate columns" {
+  let world = World()
+  let store : ComponentStore[Int32] = ComponentStore(world)
+  let draft = world.spawn_draft()
+  draft.add_to(store, 1)
+  draft.add_to(store, 2)
+}
+
+///|
+test "panic a spawn draft cannot spawn twice" {
+  let world = World()
+  let draft = world.spawn_draft()
+  ignore(draft.spawn())
+  ignore(draft.spawn())
 }

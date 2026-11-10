@@ -285,10 +285,12 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
         let enemy = runtime.enemy_plan.spawn(
           (
             (
-              @transform.Transform::from_xyz(
-                pos[X],
-                pos[Y],
-                ENEMY_ZINDEX.to_double(),
+              @transform.Spatial(
+                @transform.Transform::from_xyz(
+                  pos[X],
+                  pos[Y],
+                  ENEMY_ZINDEX.to_double(),
+                ),
               ),
               @physics2d.Velocity(@math.Vec2::zero()),
               sprite_animation_sprite(data.right_animation),
@@ -309,7 +311,6 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
           ),
         )
         runtime.entities.push(enemy)
-        @animation.animated_bys().set(enemy, @animation.AnimatedBy(enemy))
         play_enemy_animation_state(
           enemy,
           enemy_state,
@@ -457,11 +458,11 @@ fn enemy_ai_system(_world : @ecs.World) -> Unit {
   }
   for e, state in enemies() {
     guard e.is_alive() else { continue }
-    guard @transform.transforms().get(game.player_entity)
+    guard @transform.local_transform(game.player_entity)
       is Some(player_transform) else {
       return
     }
-    guard @transform.transforms().get(e) is Some(enemy_transform) else {
+    guard @transform.local_transform(e) is Some(enemy_transform) else {
       continue
     }
     let data = get_enemy_data(state.enemy_type)
@@ -504,10 +505,10 @@ fn devil_shooting_system(_world : @ecs.World) -> Unit {
     if state.enemy_type != Devil {
       continue
     }
-    guard @transform.transforms().get(e) is Some(enemy_transform) else {
+    guard @transform.local_transform(e) is Some(enemy_transform) else {
       continue
     }
-    guard @transform.transforms().get(game.player_entity)
+    guard @transform.local_transform(game.player_entity)
       is Some(player_transform) else {
       return
     }
@@ -537,7 +538,7 @@ fn devil_shooting_system(_world : @ecs.World) -> Unit {
 type EnemySpawnPlan = @ecs.SpawnPlan[
   (
     (
-      @transform.Transform,
+      @transform.Spatial,
       @physics2d.Velocity,
       @sprite.Sprite,
       @physics2d.ColliderShape,
@@ -557,7 +558,7 @@ type EnemySpawnPlan = @ecs.SpawnPlan[
 type EnemyBulletSpawnPlan = @ecs.SpawnPlan[
   (
     @sprite.Sprite,
-    @transform.Transform,
+    @transform.Spatial,
     @physics2d.Velocity,
     @physics2d.ColliderShape,
     @physics2d.Area,
@@ -585,10 +586,12 @@ fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
         color=@sprite.color_from_css("red"),
         custom_size=Some(Vec2(4.0, 4.0)),
       ),
-      @transform.Transform::from_xyz(
-        enemy_pos[X],
-        enemy_pos[Y],
-        BULLET_ZINDEX.to_double(),
+      @transform.Spatial(
+        @transform.Transform::from_xyz(
+          enemy_pos[X],
+          enemy_pos[Y],
+          BULLET_ZINDEX.to_double(),
+        ),
       ),
       velocity,
       shape,
@@ -598,7 +601,7 @@ fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
   runtime.entities.push(bullet_entity)
   runtime.enemy_bullets.add(bullet_entity)
   survivors_timeout(5.0, fn() {
-    bullet_entity.destroy()
+    ignore(bullet_entity.delete())
     runtime.enemy_bullets.remove(bullet_entity)
   })
 }
@@ -640,7 +643,7 @@ fn enemy_collision_system(_world : @ecs.World) -> Unit {
     if event.other == game.player_entity {
       apply_player_damage()
     }
-    event.area.destroy()
+    ignore(event.area.delete())
     runtime.enemy_bullets.remove(event.area)
   }
 }

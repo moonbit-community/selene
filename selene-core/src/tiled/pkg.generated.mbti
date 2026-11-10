@@ -10,8 +10,6 @@ import {
 }
 
 // Values
-pub fn clear_tiled_children(@ecs.Entity) -> Unit
-
 pub fn decode_tiled_gid(Int32) -> TiledGid
 
 pub fn despawn_tiled_tree(@ecs.Entity) -> Unit
@@ -26,23 +24,19 @@ pub fn load_tiled_map(String) -> TiledMap
 
 pub fn load_tiled_world(String) -> TiledWorld
 
-pub fn respawn_tiled_map_into_entity(@ecs.Entity, TiledMap, settings? : TiledSpawnSettings) -> Unit
+pub fn replace_tiled_map(@ecs.Entity, TiledMap, settings? : TiledSpawnSettings) -> @ecs.Entity
 
-pub fn respawn_tiled_world_into_entity(@ecs.Entity, TiledWorld, settings? : TiledWorldSpawnSettings) -> Unit
+pub fn replace_tiled_world(@ecs.Entity, TiledWorld, settings? : TiledWorldSpawnSettings) -> @ecs.Entity
 
-pub fn spawn_tiled_map(TiledMap, settings? : TiledSpawnSettings) -> @ecs.Entity
+pub fn spawn_tiled_map(TiledMap, settings? : TiledSpawnSettings, parent? : @ecs.Entity) -> @ecs.Entity
 
-pub fn spawn_tiled_map_into_entity(@ecs.Entity, TiledMap, settings? : TiledSpawnSettings) -> Unit
-
-pub fn spawn_tiled_world(TiledWorld, settings? : TiledWorldSpawnSettings) -> @ecs.Entity
-
-pub fn spawn_tiled_world_into_entity(@ecs.Entity, TiledWorld, settings? : TiledWorldSpawnSettings) -> Unit
+pub fn spawn_tiled_world(TiledWorld, settings? : TiledWorldSpawnSettings, parent? : @ecs.Entity) -> @ecs.Entity
 
 pub fn tiled_collider_origins() -> @ecs.ComponentStore[TiledColliderOrigin]
 
 pub let tiled_collider_spawned_event_bus : @event.Events[TiledColliderSpawnedEvent]
 
-pub fn tiled_colliders() -> @ecs.ComponentStore[TiledColliders]
+pub fn tiled_colliders(@ecs.Entity) -> TiledColliders?
 
 pub fn tiled_image_layer_instances() -> @ecs.ComponentStore[TiledImageLayerInstance]
 
@@ -63,8 +57,6 @@ pub fn tiled_object_instances() -> @ecs.ComponentStore[TiledObjectInstance]
 pub let tiled_object_spawned_event_bus : @event.Events[TiledObjectSpawnedEvent]
 
 pub fn tiled_parallax_layers() -> @ecs.ComponentStore[TiledParallaxLayer]
-
-pub fn tiled_parallax_system(Double) -> Unit
 
 pub fn tiled_properties() -> @ecs.ComponentStore[TiledProperties]
 
@@ -133,7 +125,6 @@ pub struct TiledColliders {
   entities : Array[@ecs.Entity]
 }
 pub fn TiledColliders::alive_entities(Self) -> Array[@ecs.Entity]
-pub impl @ecs.Component for TiledColliders
 
 pub struct TiledGid {
   raw : Int32
@@ -494,7 +485,6 @@ pub struct TiledWorldMap {
 
 pub struct TiledWorldMapInstance {
   world_entity : @ecs.Entity
-  map_entity : @ecs.Entity
   world_map : TiledWorldMap
   resolved_map_path : String
 }

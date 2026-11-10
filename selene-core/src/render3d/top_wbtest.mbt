@@ -1,23 +1,22 @@
 ///|
 test "render3d extract preserves mesh shadow toggles" {
-  let entity = @ecs.require_current_world().spawn(())
   let mesh = @render3d_types.MeshHandle(9901U)
   let material = @render3d_types.MaterialHandle(9902U)
   meshes.set(mesh, cube_mesh(Vec3(1.0, 1.0, 1.0)))
   materials.set(material, StandardMaterial3D())
-  mesh3d_renderers().set(entity, {
-    mesh,
-    material,
-    visible: true,
-    cast_shadows: false,
-    receive_shadows: false,
-  })
-  @transform.transforms().set(entity, {
-    translation: @math.Vec3::zero(),
-    rotation: @math.Quat::identity(),
-    scale: @math.Vec3::one(),
-  })
-  @visibility.visibilities().set(entity, Visible)
+  let entity = @ecs.require_current_world().spawn(
+    (
+      Mesh3DRenderer::{
+        mesh,
+        material,
+        visible: true,
+        cast_shadows: false,
+        receive_shadows: false,
+      },
+      @transform.Spatial(@transform.Transform::identity()),
+      @visibility.Visibility::Visible,
+    ),
+  )
   @visibility.inherited_visibilities().set(entity, { visible: true, })
   @visibility.view_visibilities().set(entity, { visible: true, })
   @transform.transform_propagate_system(0.0)
@@ -29,16 +28,12 @@ test "render3d extract preserves mesh shadow toggles" {
   inspect(frame.items[0].cast_shadows, content="false")
   inspect(frame.items[0].receive_shadows, content="false")
 
-  mesh3d_renderers().remove(entity)
-  @transform.transforms().remove(entity)
-  @transform.global_transforms().remove(entity)
-  @visibility.visibilities().remove(entity)
-  @visibility.inherited_visibilities().remove(entity)
-  @visibility.view_visibilities().remove(entity)
+  ignore(@visibility.inherited_visibilities().remove(entity))
+  ignore(@visibility.view_visibilities().remove(entity))
   meshes.remove(mesh)
   materials.remove(material)
   render3d_world_state().extracted_frame = RenderFrame3D()
-  entity.destroy()
+  ignore(entity.delete())
 }
 
 ///|
@@ -173,7 +168,6 @@ test "render3d cubemap assets participate in dirty and release sync" {
 
 ///|
 test "render3d extracts skybox from active camera" {
-  let camera_entity = @ecs.require_current_world().spawn(())
   let px = register_image_asset({ path: "sky/px.png", })
   let nx = register_image_asset({ path: "sky/nx.png", })
   let py = register_image_asset({ path: "sky/py.png", })
@@ -184,7 +178,7 @@ test "render3d extracts skybox from active camera" {
     cubemap_asset_six_faces(CubemapFaces3D(px, nx, py, ny, pz, nz)),
   )
   let skybox = Skybox3D(cubemap, brightness=0.75)
-  camera_skyboxes3d().set(camera_entity, skybox)
+  let camera_entity = @ecs.require_current_world().spawn1(skybox)
   @camera3d.set_active_camera3d(
     Some({
       entity: camera_entity,
@@ -215,7 +209,6 @@ test "render3d extracts skybox from active camera" {
   }
 
   @camera3d.set_active_camera3d(None)
-  camera_skyboxes3d().remove(camera_entity)
   render3d_world_state().extracted_frame = RenderFrame3D()
   release_cubemap_asset(cubemap)
   release_image_asset(px)
@@ -228,7 +221,7 @@ test "render3d extracts skybox from active camera" {
   ignore(take_dirty_cubemap_assets())
   ignore(take_released_image_assets())
   ignore(take_released_cubemap_assets())
-  camera_entity.destroy()
+  ignore(camera_entity.delete())
 }
 
 ///|

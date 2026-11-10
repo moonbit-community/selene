@@ -98,17 +98,15 @@ pub fn transform_translation_field() -> AnimatedFieldHandle {
         name: "Transform.translation",
         kind: Vec3,
         sample: fn(entity) {
-          let transform = @transform.transforms()
-            .get(entity)
-            .unwrap_or_default()
+          let transform = @transform.local_transform(entity).unwrap_or_default()
           Vec3(transform.translation)
         },
         apply: fn(entity, value) {
           guard! value is Vec3(translation)
-          let transform = @transform.transforms()
-            .get(entity)
-            .unwrap_or_default()
-          @transform.transforms().set(
+          guard @transform.local_transform(entity) is Some(transform) else {
+            return
+          }
+          @transform.set_local_transform(
             entity,
             transform.with_translation(translation),
           )
@@ -129,17 +127,18 @@ pub fn transform_rotation_field() -> AnimatedFieldHandle {
         name: "Transform.rotation",
         kind: Quat,
         sample: fn(entity) {
-          let transform = @transform.transforms()
-            .get(entity)
-            .unwrap_or_default()
+          let transform = @transform.local_transform(entity).unwrap_or_default()
           Quat(transform.rotation)
         },
         apply: fn(entity, value) {
           guard! value is Quat(rotation)
-          let transform = @transform.transforms()
-            .get(entity)
-            .unwrap_or_default()
-          @transform.transforms().set(entity, transform.with_rotation(rotation))
+          guard @transform.local_transform(entity) is Some(transform) else {
+            return
+          }
+          @transform.set_local_transform(
+            entity,
+            transform.with_rotation(rotation),
+          )
         },
       })
       rotation_field_ref.val = Some(handle)
@@ -157,17 +156,15 @@ pub fn transform_scale_field() -> AnimatedFieldHandle {
         name: "Transform.scale",
         kind: Vec3,
         sample: fn(entity) {
-          let transform = @transform.transforms()
-            .get(entity)
-            .unwrap_or_default()
+          let transform = @transform.local_transform(entity).unwrap_or_default()
           Vec3(transform.scale)
         },
         apply: fn(entity, value) {
           guard! value is Vec3(scale)
-          let transform = @transform.transforms()
-            .get(entity)
-            .unwrap_or_default()
-          @transform.transforms().set(entity, transform.with_scale(scale))
+          guard @transform.local_transform(entity) is Some(transform) else {
+            return
+          }
+          @transform.set_local_transform(entity, transform.with_scale(scale))
         },
       })
       scale_field_ref.val = Some(handle)

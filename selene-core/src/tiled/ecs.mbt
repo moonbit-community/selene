@@ -13,36 +13,10 @@
 // limitations under the License.
 
 ///|
-fn tiled_ecs_set_entity_translation_2d(
-  entity : @ecs.Entity,
-  position : @math.Vec2,
-) -> Unit {
-  let current = @transform.transforms().get(entity).unwrap_or_default()
-  @transform.transforms().set(entity, {
-    ..current,
-    translation: Vec3(position[X], position[Y], current.translation.z),
-  })
-}
-
-///|
-fn tiled_ecs_set_entity_depth(entity : @ecs.Entity, z : Int32) -> Unit {
-  let current = @transform.transforms().get(entity).unwrap_or_default()
-  @transform.transforms().set(entity, {
-    ..current,
-    translation: Vec3(
-      current.translation.x,
-      current.translation.y,
-      z.to_double(),
-    ),
-  })
-}
-
-///|
-fn tiled_ecs_set_entity_visibility(
-  entity : @ecs.Entity,
-  visible : Bool,
-) -> Unit {
-  @visibility.visibilities().set(entity, if visible { Visible } else { Hidden })
+fn tiled_spatial(position : @math.Vec2, depth : Int32) -> @transform.Spatial {
+  @transform.Spatial(
+    @transform.Transform::from_xyz(position[X], position[Y], depth.to_double()),
+  )
 }
 
 ///|
@@ -133,30 +107,26 @@ fn tiled_sprite_from_animation(
 }
 
 ///|
-fn tiled_install_sprite_animation(
-  entity : @ecs.Entity,
+fn tiled_add_sprite(
+  draft : @ecs.SpawnDraft,
   animation : TiledSpriteAnimation,
 ) -> Unit {
-  ignore(
-    @animation.animation_players().get_or_init(entity, fn() {
-      AnimationPlayer()
-    }),
-  )
-  ignore(
-    @animation.animation_transitions().get_or_init(entity, fn() {
-      AnimationTransitions()
-    }),
-  )
-  @animation.animation_target_ids().set(entity, AnimationTargetId("self"))
-  @animation.animated_bys().set(entity, AnimatedBy(entity))
+  draft.add(tiled_sprite_from_animation(animation))
+  guard animation.fps > 0.0 &&
+    @sprite.texture_atlas_layout(animation.layout).map_or(false, layout => {
+      layout.rects.length() > 1
+    }) else {
+    return
+  }
   let (graph, nodes) = @animation.AnimationGraph::from_clips([
     tiled_sprite_animation_clip_asset(animation),
   ])
-  @animation.animation_graph_handles().set(
-    entity,
-    @animation.register_animation_graph_asset(graph),
-  )
-  ignore(@animation.animation_players().get(entity).unwrap().play(nodes[0]))
+  let player = @animation.AnimationPlayer()
+  ignore(player.play(nodes[0]))
+  draft.add(player)
+  draft.add(@animation.AnimationTransitions())
+  draft.add(@animation.AnimationTargetId("self"))
+  draft.add(@animation.register_animation_graph_asset(graph))
 }
 
 ///|
@@ -345,42 +315,50 @@ pub fn load_and_spawn_tiled_map(
 pub fn spawn_tiled_map(
   map : TiledMap,
   settings~ : TiledSpawnSettings = TiledSpawnSettings(),
+  parent? : @ecs.Entity,
 ) -> @ecs.Entity {
-  let root = @ecs.require_current_world().spawn(())
-  spawn_tiled_map_root(root, map, settings)
-  root
+  spawn_tiled_map_root(map, settings, parent~)
 }
 
 ///|
-pub fn spawn_tiled_map_into_entity(
+/// Replaces a previously imported map under the same parent.
+pub fn replace_tiled_map(
   root : @ecs.Entity,
   map : TiledMap,
   settings~ : TiledSpawnSettings = TiledSpawnSettings(),
-) -> Unit {
-  spawn_tiled_map_root(root, map, settings)
-}
-
-///|
-pub fn respawn_tiled_map_into_entity(
-  root : @ecs.Entity,
-  map : TiledMap,
-  settings~ : TiledSpawnSettings = TiledSpawnSettings(),
-) -> Unit {
-  clear_tiled_children(root)
-  clear_tiled_root_components(root)
-  spawn_tiled_map_root(root, map, settings)
+) -> @ecs.Entity {
+  let parent = root.get_parent()
+  let world_map = tiled_world_map_instances().get(root)
+  ignore(root.delete())
+  let replacement = spawn_tiled_map_root(map, settings, parent~, world_map?)
+  if world_map is Some(metadata) &&
+    tiled_world_instances().get(metadata.world_entity) is Some(instance) {
+    for (index, entity) in instance.spawned_maps.to_array() {
+      if entity == root {
+        instance.spawned_maps.set(index, replacement)
+        break
+      }
+    }
+  }
+  replacement
 }
 
 ///|
 fn spawn_tiled_map_root(
-  root : @ecs.Entity,
   map : TiledMap,
   settings : TiledSpawnSettings,
-) -> Unit {
-  tiled_ecs_set_entity_translation_2d(root, settings.position)
-  tiled_map_instances().set(root, { map, })
-  tiled_map_storages().set(root, TiledMapStorage())
-  tiled_set_properties(root, map.properties)
+  parent~ : @ecs.Entity?,
+  world_map? : TiledWorldMapInstance,
+) -> @ecs.Entity {
+  let draft = @ecs.require_current_world().spawn_draft()
+  draft.add(tiled_spatial(settings.position, 0))
+  draft.add(TiledMapInstance::{ map, })
+  draft.add(TiledMapStorage())
+  tiled_add_properties(draft, map.properties)
+  if world_map is Some(instance) {
+    draft.add(instance)
+  }
+  let root = draft.spawn(parent?)
   let map_event = { map_entity: root, map, }
   tiled_map_spawned_event_bus.trigger(map_event, Some(root))
   if settings.map_hook is Some(map_hook) {
@@ -390,6 +368,7 @@ fn spawn_tiled_map_root(
   if settings.physics_settings is Some(physics_settings) {
     spawn_tiled_map_physics(root, map, physics_settings)
   }
+  root
 }
 
 ///|
@@ -410,20 +389,33 @@ fn spawn_tiled_layers(
     }
     let layer_zindex = settings.zindex + layer_index * settings.layer_z_step
     layer_index += 1
-    let layer_entity = parent_entity.spawn_child()
-    tiled_ecs_set_entity_translation_2d(
-      layer_entity,
-      Vec2(layer.offset_x, layer.offset_y),
+    let draft = @ecs.require_current_world().spawn_draft()
+    let depth = if layer.kind is ImageLayer(image_layer) &&
+      image_layer.image is Some(_) {
+      layer_zindex
+    } else {
+      0
+    }
+    draft.add(tiled_spatial(Vec2(layer.offset_x, layer.offset_y), depth))
+    draft.add(
+      if effective_visible {
+        @visibility.Visibility::Visible
+      } else {
+        Hidden
+      },
     )
-    tiled_ecs_set_entity_visibility(layer_entity, effective_visible)
-    tiled_register_parallax_layer(layer_entity, map, layer)
-    tiled_layer_instances().set(layer_entity, {
+    tiled_add_parallax_layer(draft, map, layer)
+    draft.add(TiledLayerInstance::{
       map_entity,
       layer,
       effective_visible,
       zindex: layer_zindex,
     })
-    tiled_set_properties(layer_entity, layer.properties)
+    tiled_add_properties(draft, layer.properties)
+    if layer.kind is ImageLayer(image_layer) {
+      tiled_add_image_layer(draft, map_entity, map, layer, image_layer)
+    }
+    let layer_entity = draft.spawn(parent=parent_entity)
     tiled_register_layer_entity(map_entity, layer.id, layer_entity)
     let layer_event = {
       map_entity,
@@ -450,11 +442,7 @@ fn spawn_tiled_layers(
         layer_index = spawn_tiled_layers(
           map_entity, layer_entity, map, children, settings, effective_visible, layer_index,
         )
-      ImageLayer(image_layer) =>
-        spawn_tiled_image_layer(
-          map_entity, layer_entity, map, layer, image_layer, layer_zindex, effective_visible,
-          settings,
-        )
+      ImageLayer(_) => emit_tiled_image_layer(layer_entity, settings)
       Unknown(_) => ()
     }
   }
@@ -479,26 +467,34 @@ fn spawn_tiled_tile_layer(
       continue
     }
     let tile_position = tiled_cell_position(map, tileset, cell)
-    let tile_entity = layer_entity.spawn_child()
-    let local_transform = tiled_transform_from_2d_affine(
+    let draft = @ecs.require_current_world().spawn_draft()
+    let pose = tiled_transform_from_2d_affine(
       tiled_gid_transform(cell.gid, tiled_tileset_tile_size(map, tileset)),
     )
-    @transform.transforms().set(tile_entity, local_transform)
-    tiled_ecs_set_entity_translation_2d(
-      tile_entity,
-      tile_position +
-      Vec2(local_transform.translation.x, local_transform.translation.y),
+    draft.add(
+      @transform.Spatial(
+        pose.with_translation(
+          Vec3(
+            tile_position[X] + pose.translation.x,
+            tile_position[Y] + pose.translation.y,
+            zindex.to_double(),
+          ),
+        ),
+      ),
     )
-    tiled_ecs_set_entity_depth(tile_entity, zindex)
-    tiled_tile_instances().set(tile_entity, {
+    draft.add(TiledTileInstance::{
       map_entity,
       layer_entity,
       gid: cell.gid,
       tileset,
       cell,
     })
+    tiled_add_tile_properties(draft, tileset, cell.gid)
+    if build_tiled_tile_animation(map, tileset, cell.gid) is Some(animation) {
+      tiled_add_sprite(draft, animation)
+    }
+    let tile_entity = draft.spawn(parent=layer_entity)
     tiled_register_tile_entity(map_entity, cell.gid.tile_id, tile_entity)
-    tiled_set_tile_properties(tileset, cell.gid, tile_entity)
     let tile_event = {
       map_entity,
       layer_entity,
@@ -511,16 +507,6 @@ fn spawn_tiled_tile_layer(
     tiled_tile_spawned_event_bus.trigger(tile_event, Some(tile_entity))
     if settings.tile_hook is Some(tile_hook) {
       tile_hook(tile_event)
-    }
-    guard build_tiled_tile_animation(map, tileset, cell.gid) is Some(animation) else {
-      continue
-    }
-    @sprite.sprites().set(tile_entity, tiled_sprite_from_animation(animation))
-    if animation.fps > 0.0 &&
-      @sprite.texture_atlas_layout(animation.layout).map_or(false, fn(layout) {
-        layout.rects.length() > 1
-      }) {
-      tiled_install_sprite_animation(tile_entity, animation)
     }
   }
 }
@@ -537,25 +523,41 @@ fn spawn_tiled_object_layer(
   settings : TiledSpawnSettings,
 ) -> Unit {
   for object in object_layer.objects {
-    let object_offset = match object.gid {
-      Some(gid) =>
-        match map.tileset_for_gid(gid.tile_id) {
-          Some(tileset) => tiled_tile_object_position(map, tileset, object)
-          None => tiled_plain_object_position(object)
-        }
-      None => tiled_plain_object_position(object)
+    let draft = @ecs.require_current_world().spawn_draft()
+    let spatial = if object.gid is Some(gid) &&
+      map.tileset_for_gid(gid.tile_id) is Some(tileset) {
+      let offset = tiled_tile_object_position(map, tileset, object)
+      let size = tiled_object_size(map, tileset, object)
+      let pose = tiled_transform_from_2d_affine(
+        tiled_object_rotation_transform(object, size) *
+        tiled_gid_transform(gid, size),
+      )
+      if build_tiled_tile_animation(map, tileset, gid, size~) is Some(animation) {
+        tiled_add_sprite(draft, animation)
+      }
+      @transform.Spatial(
+        pose.with_translation(
+          Vec3(
+            offset[X] + pose.translation.x,
+            offset[Y] + pose.translation.y,
+            zindex.to_double(),
+          ),
+        ),
+      )
+    } else {
+      tiled_spatial(tiled_plain_object_position(object), zindex)
     }
-    let object_entity = layer_entity.spawn_child()
-    tiled_ecs_set_entity_translation_2d(object_entity, object_offset)
-    tiled_ecs_set_entity_depth(object_entity, zindex)
-    tiled_ecs_set_entity_visibility(object_entity, visible && object.visible)
-    tiled_object_instances().set(object_entity, {
-      map_entity,
-      layer_entity,
-      layer,
-      object,
-    })
-    tiled_set_properties(object_entity, object.properties)
+    draft.add(spatial)
+    draft.add(
+      if visible && object.visible {
+        @visibility.Visibility::Visible
+      } else {
+        Hidden
+      },
+    )
+    draft.add(TiledObjectInstance::{ map_entity, layer_entity, layer, object, })
+    tiled_add_properties(draft, object.properties)
+    let object_entity = draft.spawn(parent=layer_entity)
     tiled_register_object_entity(map_entity, object.id, object_entity)
     let object_event = {
       map_entity,
@@ -568,68 +570,25 @@ fn spawn_tiled_object_layer(
     if settings.object_hook is Some(object_hook) {
       object_hook(object_event)
     }
-    guard object.gid is Some(gid) else { continue }
-    guard map.tileset_for_gid(gid.tile_id) is Some(tileset) else { continue }
-    let object_size = tiled_object_size(map, tileset, object)
-    let local_transform = tiled_transform_from_2d_affine(
-      tiled_object_rotation_transform(object, object_size) *
-      tiled_gid_transform(gid, object_size),
-    )
-    @transform.transforms().set(object_entity, local_transform)
-    tiled_ecs_set_entity_translation_2d(
-      object_entity,
-      object_offset +
-      Vec2(local_transform.translation.x, local_transform.translation.y),
-    )
-    guard build_tiled_tile_animation(map, tileset, gid, size=object_size)
-      is Some(animation) else {
-      continue
-    }
-    @sprite.sprites().set(object_entity, tiled_sprite_from_animation(animation))
-    if animation.fps > 0.0 &&
-      @sprite.texture_atlas_layout(animation.layout).map_or(false, fn(layout) {
-        layout.rects.length() > 1
-      }) {
-      tiled_install_sprite_animation(object_entity, animation)
-    }
   }
 }
 
 ///|
-fn spawn_tiled_image_layer(
+fn tiled_add_image_layer(
+  draft : @ecs.SpawnDraft,
   map_entity : @ecs.Entity,
-  layer_entity : @ecs.Entity,
   map : TiledMap,
   layer : TiledLayer,
   image_layer : TiledImageLayer,
-  zindex : Int32,
-  visible : Bool,
-  settings : TiledSpawnSettings,
 ) -> Unit {
   let resolved_image_path = image_layer.image.map(path => map.resolve_path(path))
-  tiled_image_layer_instances().set(layer_entity, {
+  draft.add(TiledImageLayerInstance::{
     map_entity,
     layer,
     image_layer,
     resolved_image_path,
   })
-  let image_layer_event = {
-    map_entity,
-    layer_entity,
-    layer,
-    image_layer,
-    resolved_image_path,
-  }
-  tiled_image_layer_spawned_event_bus.trigger(
-    image_layer_event,
-    Some(layer_entity),
-  )
-  if settings.image_layer_hook is Some(image_layer_hook) {
-    image_layer_hook(image_layer_event)
-  }
   guard resolved_image_path is Some(image_path) else { return }
-  tiled_ecs_set_entity_depth(layer_entity, zindex)
-  tiled_ecs_set_entity_visibility(layer_entity, visible)
   let repeat = tiled_image_repeat_mode(image_layer)
   let custom_size = if repeat is NoRepeat &&
     image_layer.image_width is Some(width) &&
@@ -640,9 +599,8 @@ fn spawn_tiled_image_layer(
   } else {
     tiled_map_world_size(map)
   }
-  @sprite.sprites().set(
-    layer_entity,
-    Sprite(
+  draft.add(
+    @sprite.Sprite(
       image=Some(load_tiled_image(image_path)),
       custom_size=Some(custom_size),
       color={ r: 255U, g: 255U, b: 255U, a: layer.opacity, },
@@ -650,6 +608,25 @@ fn spawn_tiled_image_layer(
       image_mode=Tiled(repeat),
     ),
   )
+}
+
+///|
+fn emit_tiled_image_layer(
+  layer_entity : @ecs.Entity,
+  settings : TiledSpawnSettings,
+) -> Unit {
+  let instance = tiled_image_layer_instances().get(layer_entity).unwrap()
+  let event = {
+    map_entity: instance.map_entity,
+    layer_entity,
+    layer: instance.layer,
+    image_layer: instance.image_layer,
+    resolved_image_path: instance.resolved_image_path,
+  }
+  tiled_image_layer_spawned_event_bus.trigger(event, Some(layer_entity))
+  if settings.image_layer_hook is Some(hook) {
+    hook(event)
+  }
 }
 
 ///|
@@ -1096,20 +1073,8 @@ fn load_tiled_image(path : String) -> @asset.ImageHandle {
 }
 
 ///|
-pub fn tiled_parallax_system(_delta : Double) -> Unit {
-  for pair in tiled_parallax_layers().to_array() {
-    let layer_entity = pair.0
-    ignore(pair.1)
-    if !layer_entity.is_alive() {
-      tiled_parallax_layers().remove(layer_entity)
-      @parallax2d.parallax2ds().remove(layer_entity)
-    }
-  }
-}
-
-///|
-fn tiled_set_properties(
-  entity : @ecs.Entity,
+fn tiled_add_properties(
+  draft : @ecs.SpawnDraft,
   properties : Array[TiledProperty],
 ) -> Unit {
   if properties.length() == 0 {
@@ -1119,7 +1084,7 @@ fn tiled_set_properties(
   for property in properties {
     values.set(property.name, property.value)
   }
-  tiled_properties().set(entity, { values, })
+  draft.add(TiledProperties::{ values, })
 }
 
 ///|
@@ -1157,38 +1122,36 @@ fn tiled_register_tile_entity(
 }
 
 ///|
-fn tiled_set_tile_properties(
+fn tiled_add_tile_properties(
+  draft : @ecs.SpawnDraft,
   tileset : TiledTileset,
   gid : TiledGid,
-  tile_entity : @ecs.Entity,
 ) -> Unit {
   let local_id = gid.tile_id - tileset.first_gid
   if local_id < 0 {
     return
   }
   guard tileset.tile_definition(local_id) is Some(tile_def) else { return }
-  tiled_set_properties(tile_entity, tile_def.properties)
+  tiled_add_properties(draft, tile_def.properties)
 }
 
 ///|
-fn tiled_register_parallax_layer(
-  layer_entity : @ecs.Entity,
+fn tiled_add_parallax_layer(
+  draft : @ecs.SpawnDraft,
   map : TiledMap,
   layer : TiledLayer,
 ) -> Unit {
   if layer.parallax_x == 1.0 && layer.parallax_y == 1.0 {
-    @parallax2d.parallax2ds().remove(layer_entity)
     return
   }
   let base_offset = @math.Vec2(layer.offset_x, layer.offset_y)
-  tiled_parallax_layers().set(layer_entity, {
+  draft.add(TiledParallaxLayer::{
     base_offset,
     parallax_x: layer.parallax_x,
     parallax_y: layer.parallax_y,
   })
-  @parallax2d.parallax2ds().set(
-    layer_entity,
-    Parallax2d(
+  draft.add(
+    @parallax2d.Parallax2d(
       factor=Vec2(layer.parallax_x, layer.parallax_y),
       reference=@parallax2d.Parallax2dReference::view_center(
         Vec2(map.parallax_origin_x, map.parallax_origin_y),
