@@ -89,7 +89,6 @@ fn vec3(x : Double, y : Double, z : Double) -> @math.Vec3 {
 }
 
 ///|
-#warnings("-unnecessary_annotation")
 fn ccd_marker() -> @physics3d.Ccd {
   @physics3d.Ccd::{ }
 }

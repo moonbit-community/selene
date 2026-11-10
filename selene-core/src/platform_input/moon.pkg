@@ -2,6 +2,4 @@ import {
   "Milky2018/selene/inputs",
 }
 
-warnings = "-reserved_keyword"
-
 virtual(has_default: true)

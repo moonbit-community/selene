@@ -130,6 +130,7 @@
 
 ### Removed
 
+- Removed local MoonBit warning suppressions so compiler checks expose diagnostics.
 - Removed the `scripts/` directory and the legacy UI check from CI.
 - Removed the repository's Markdown issue trackers, including those under
   `docs/`. Track work in GitHub Issues.

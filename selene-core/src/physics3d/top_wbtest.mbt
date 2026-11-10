@@ -195,7 +195,7 @@ test "query filter exclude_sensors and exclude_solids work in 3d" {
       @transform.Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)),
     )
     sensor_entity_draft.add_to(colliders(), Collider::ball(0.5))
-    sensor_entity_draft.add_to(sensors(), Sensor())
+    sensor_entity_draft.add_to(sensors(), Sensor::{ })
     let sensor_entity = sensor_entity_draft.spawn()
 
     let solid_entity_draft = @ecs.require_current_world().spawn_draft()
@@ -297,7 +297,7 @@ test "cast_shape respects exclude_sensors and exclude_solids in 3d" {
       @transform.Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)),
     )
     sensor_entity_draft.add_to(colliders(), Collider::ball(0.5))
-    sensor_entity_draft.add_to(sensors(), Sensor())
+    sensor_entity_draft.add_to(sensors(), Sensor::{ })
     let sensor_entity = sensor_entity_draft.spawn()
 
     let solid_entity_draft = @ecs.require_current_world().spawn_draft()
@@ -393,7 +393,7 @@ test "collision and intersection events map to selene event buses" {
       @transform.Spatial(@transform.Transform::from_xyz(10.0, 0.0, 0.0)),
     )
     sensor_entity_draft.add_to(colliders(), Collider::ball(0.5))
-    sensor_entity_draft.add_to(sensors(), Sensor())
+    sensor_entity_draft.add_to(sensors(), Sensor::{ })
     let sensor_entity = sensor_entity_draft.spawn()
 
     let other_entity_draft = @ecs.require_current_world().spawn_draft()
@@ -1044,7 +1044,7 @@ test "collider3d debug color distinguishes body and sensor types" {
     let dynamic_entity = world.spawn1((Dynamic : RigidBody))
     let fixed_entity = world.spawn1((Fixed : RigidBody))
     let kinematic_entity = world.spawn1((KinematicPositionBased : RigidBody))
-    let sensor_entity = world.spawn(((Dynamic : RigidBody), Sensor()))
+    let sensor_entity = world.spawn(((Dynamic : RigidBody), Sensor::{ }))
     let disabled_entity = world.spawn(
       ((Dynamic : RigidBody), Collider::ball(1.0)),
     )

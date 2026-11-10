@@ -106,7 +106,6 @@ pub impl Default for Camera with fn default() -> Camera {
 pub(all) struct Camera2d {}
 
 ///|
-#warnings("-unnecessary_annotation")
 pub fn Camera2d::Camera2d() -> Camera2d {
   Camera2d::{ }
 }
