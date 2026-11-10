@@ -23,7 +23,7 @@ let example_modules : Array[String] = ["examples", "examples-web"]
 
 ///|
 let codegen_pin_files : Array[String] = [
-  ".github/workflows/build.yaml", "examples/moon.mod", "examples-web/moon.mod", "selene-codegen/README.md",
+  ".github/workflows/build.yaml", "examples/moon.mod", "selene-codegen/README.md",
   "selene-core/src/ecs/README.md",
 ]
 

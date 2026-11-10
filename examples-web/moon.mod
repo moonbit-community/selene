@@ -21,8 +21,3 @@ description = ""
 preferred_target = "js"
 
 supported_targets = "js"
-
-rule(
-  name: "selene_codegen",
-  command: "moonx Milky2018/selene_codegen@0.39.2 \"$input\" \"$output\"",
-)

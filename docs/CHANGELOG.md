@@ -131,6 +131,7 @@
 
 ### Removed
 
+- Removed the Scene 3D, Tank 3D, and Perf 3D examples and their Web launchers.
 - Removed local MoonBit warning suppressions so compiler checks expose diagnostics.
 - Removed the `scripts/` directory and the legacy UI check from CI.
 - Removed the repository's Markdown issue trackers, including those under
