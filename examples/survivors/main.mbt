@@ -144,7 +144,7 @@ fn SurvivorsRuntime::SurvivorsRuntime(world : @ecs.World) -> SurvivorsRuntime {
     weapon_timers: [],
     player_bullet_plan: world.prepare_spawn(),
     enemy_bullet_plan: world.prepare_spawn(),
-    enemy_plan: world.prepare_spawn(),
+    enemy_plan: world.prepare_spawn().combine(world.prepare_spawn()),
     enemy_bullets: Set([]),
     ui_click_reader: EventReader(),
     enemy_contact_event_reader: EventReader(),

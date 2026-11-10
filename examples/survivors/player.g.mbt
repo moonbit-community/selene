@@ -9,11 +9,3 @@ let selene_component_key_PlayerAnimationController : @ecs.ComponentKey[
 impl @ecs.Component for PlayerAnimationController with fn component_key() {
   selene_component_key_PlayerAnimationController
 }
-
-///|
-#warnings("-unused_value")
-impl @ecs.Bundle for PlayerAnimationController with fn prepare(world) {
-  selene_component_key_PlayerAnimationController
-    .store_in(world)
-    .spawn_plan(world)
-}

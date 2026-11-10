@@ -163,18 +163,22 @@ fn spawn_player_entity(x : Double, y : Double) -> @ecs.Entity {
     animations,
     active_animation: None,
   }
-  let entity = spawn_game_entity(
+  let world = @ecs.require_current_world()
+  let plan = world.prepare_spawn().combine(world.prepare_spawn())
+  let entity = plan.spawn(
     (
-      @transform.Transform::from_xyz(x, y, PLAYER_Z),
-      sprite_animation_sprite(player_idle_right_animation),
-      @physics2d.Velocity(@math.Vec2::zero()),
-      shape,
-      @physics2d.Collider(
-        @physics2d.CollisionFilter(player_collision_group, [
-          terrain_collision_group, trigger_collision_group,
-        ]),
+      (
+        @transform.Transform::from_xyz(x, y, PLAYER_Z),
+        sprite_animation_sprite(player_idle_right_animation),
+        @physics2d.Velocity(@math.Vec2::zero()),
+        shape,
+        @physics2d.Collider(
+          @physics2d.CollisionFilter(player_collision_group, [
+            terrain_collision_group, trigger_collision_group,
+          ]),
+        ),
+        controller,
       ),
-      controller,
       (
         graph,
         @animation.AnimationPlayer(),
@@ -183,6 +187,7 @@ fn spawn_player_entity(x : Double, y : Double) -> @ecs.Entity {
       ),
     ),
   )
+  pixeladventure_world_state().entities.push(entity)
   @animation.animated_bys().set(entity, @animation.AnimatedBy(entity))
   play_player_animation(entity, controller)
   entity
@@ -201,18 +206,22 @@ fn spawn_bird_entity(x : Double, y : Double) -> Unit {
     animations,
     active_animation: None,
   }
-  let entity = spawn_game_entity(
+  let world = @ecs.require_current_world()
+  let plan = world.prepare_spawn().combine(world.prepare_spawn())
+  let entity = plan.spawn(
     (
-      @transform.Transform::from_xyz(x, y, PLAYER_Z),
-      sprite_animation_sprite(bird_fly_right_animation),
-      @physics2d.Velocity(Vec2(BIRD_SPEED, 0.0)),
-      shape,
-      @physics2d.Collider(
-        @physics2d.CollisionFilter(enemy_collision_group, [
-          terrain_collision_group,
-        ]),
+      (
+        @transform.Transform::from_xyz(x, y, PLAYER_Z),
+        sprite_animation_sprite(bird_fly_right_animation),
+        @physics2d.Velocity(Vec2(BIRD_SPEED, 0.0)),
+        shape,
+        @physics2d.Collider(
+          @physics2d.CollisionFilter(enemy_collision_group, [
+            terrain_collision_group,
+          ]),
+        ),
+        bird,
       ),
-      bird,
       (
         graph,
         @animation.AnimationPlayer(),
@@ -221,6 +230,7 @@ fn spawn_bird_entity(x : Double, y : Double) -> Unit {
       ),
     ),
   )
+  pixeladventure_world_state().entities.push(entity)
   @animation.animated_bys().set(entity, @animation.AnimatedBy(entity))
   play_bird_animation(entity, bird)
 }
@@ -282,7 +292,7 @@ fn spawn_apple_entity(x : Double, y : Double) -> Unit {
 }
 
 ///|
-fn[T : @ecs.Bundle] spawn_animated_item(
+fn[T : @ecs.Component] spawn_animated_item(
   x : Double,
   y : Double,
   size : @math.Vec2,
@@ -296,21 +306,26 @@ fn[T : @ecs.Bundle] spawn_animated_item(
   let player = @animation.AnimationPlayer()
   ignore(player.play(nodes[0], repeat=Forever))
   let shape : @physics2d.ColliderShape = Rect(size~, offset=@math.Vec2::zero())
-  let entity = spawn_game_entity(
+  let world = @ecs.require_current_world()
+  let plan = world.prepare_spawn().combine(world.prepare_spawn())
+  let entity = plan.spawn(
     (
-      @transform.Transform::from_xyz(x, y, ITEM_Z),
-      sprite_animation_sprite(animation),
-      shape,
-      @physics2d.Area(
-        @physics2d.CollisionFilter(trigger_collision_group, [
-          player_collision_group,
-        ]),
+      (
+        @transform.Transform::from_xyz(x, y, ITEM_Z),
+        sprite_animation_sprite(animation),
+        shape,
+        @physics2d.Area(
+          @physics2d.CollisionFilter(trigger_collision_group, [
+            player_collision_group,
+          ]),
+        ),
+        tag,
+        graph_handle,
+        player,
       ),
-      tag,
-      graph_handle,
-      player,
       (@animation.AnimationTransitions(), @animation.AnimationTargetId("self")),
     ),
   )
+  pixeladventure_world_state().entities.push(entity)
   @animation.animated_bys().set(entity, @animation.AnimatedBy(entity))
 }

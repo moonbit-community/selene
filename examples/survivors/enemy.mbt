@@ -284,20 +284,22 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
         let runtime = survivors_runtime()
         let enemy = runtime.enemy_plan.spawn(
           (
-            @transform.Transform::from_xyz(
-              pos[X],
-              pos[Y],
-              ENEMY_ZINDEX.to_double(),
+            (
+              @transform.Transform::from_xyz(
+                pos[X],
+                pos[Y],
+                ENEMY_ZINDEX.to_double(),
+              ),
+              @physics2d.Velocity(@math.Vec2::zero()),
+              sprite_animation_sprite(data.right_animation),
+              shape,
+              @physics2d.Collider(
+                @physics2d.CollisionFilter(enemy_collision_group, [
+                  enemy_collision_group, wall_collision_group,
+                ]),
+              ),
+              enemy_state,
             ),
-            @physics2d.Velocity(@math.Vec2::zero()),
-            sprite_animation_sprite(data.right_animation),
-            shape,
-            @physics2d.Collider(
-              @physics2d.CollisionFilter(enemy_collision_group, [
-                enemy_collision_group, wall_collision_group,
-              ]),
-            ),
-            enemy_state,
             (
               graph,
               @animation.AnimationPlayer(),
@@ -534,12 +536,14 @@ fn devil_shooting_system(_world : @ecs.World) -> Unit {
 ///|
 type EnemySpawnPlan = @ecs.SpawnPlan[
   (
-    @transform.Transform,
-    @physics2d.Velocity,
-    @sprite.Sprite,
-    @physics2d.ColliderShape,
-    @physics2d.Collider,
-    Enemy,
+    (
+      @transform.Transform,
+      @physics2d.Velocity,
+      @sprite.Sprite,
+      @physics2d.ColliderShape,
+      @physics2d.Collider,
+      Enemy,
+    ),
     (
       @animation.AnimationGraphHandle,
       @animation.AnimationPlayer,

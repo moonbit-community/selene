@@ -21,12 +21,6 @@ impl @ecs.Component for PlayerController with fn component_key() {
 }
 
 ///|
-#warnings("-unused_value")
-impl @ecs.Bundle for PlayerController with fn prepare(world) {
-  selene_component_key_PlayerController.store_in(world).spawn_plan(world)
-}
-
-///|
 let selene_component_key_BirdController : @ecs.ComponentKey[BirdController] = ComponentKey(
 
 )
@@ -34,12 +28,6 @@ let selene_component_key_BirdController : @ecs.ComponentKey[BirdController] = Co
 ///|
 impl @ecs.Component for BirdController with fn component_key() {
   selene_component_key_BirdController
-}
-
-///|
-#warnings("-unused_value")
-impl @ecs.Bundle for BirdController with fn prepare(world) {
-  selene_component_key_BirdController.store_in(world).spawn_plan(world)
 }
 
 ///|
@@ -51,23 +39,11 @@ impl @ecs.Component for AppleTag with fn component_key() {
 }
 
 ///|
-#warnings("-unused_value")
-impl @ecs.Bundle for AppleTag with fn prepare(world) {
-  selene_component_key_AppleTag.store_in(world).spawn_plan(world)
-}
-
-///|
 let selene_component_key_FlagTag : @ecs.ComponentKey[FlagTag] = ComponentKey()
 
 ///|
 impl @ecs.Component for FlagTag with fn component_key() {
   selene_component_key_FlagTag
-}
-
-///|
-#warnings("-unused_value")
-impl @ecs.Bundle for FlagTag with fn prepare(world) {
-  selene_component_key_FlagTag.store_in(world).spawn_plan(world)
 }
 
 ///|

@@ -14,16 +14,6 @@ pub impl @ecs.Component for Node with fn component_key() {
 pub extend Node with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for Node with fn prepare(world) {
-  selene_component_key_Node.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Node with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_ComputedUiNode : @ecs.ComponentKey[ComputedUiNode] = ComponentKey(
 
 )
@@ -37,16 +27,6 @@ pub impl @ecs.Component for ComputedUiNode with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend ComputedUiNode with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for ComputedUiNode with fn prepare(world) {
-  selene_component_key_ComputedUiNode.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend ComputedUiNode with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_GlobalUiNode : @ecs.ComponentKey[GlobalUiNode] = ComponentKey(
@@ -64,16 +44,6 @@ pub impl @ecs.Component for GlobalUiNode with fn component_key() {
 pub extend GlobalUiNode with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for GlobalUiNode with fn prepare(world) {
-  selene_component_key_GlobalUiNode.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend GlobalUiNode with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_UiTargetCamera : @ecs.ComponentKey[UiTargetCamera] = ComponentKey(
 
 )
@@ -87,16 +57,6 @@ pub impl @ecs.Component for UiTargetCamera with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend UiTargetCamera with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for UiTargetCamera with fn prepare(world) {
-  selene_component_key_UiTargetCamera.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend UiTargetCamera with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_CalculatedClip : @ecs.ComponentKey[CalculatedClip] = ComponentKey(
@@ -114,16 +74,6 @@ pub impl @ecs.Component for CalculatedClip with fn component_key() {
 pub extend CalculatedClip with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for CalculatedClip with fn prepare(world) {
-  selene_component_key_CalculatedClip.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend CalculatedClip with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_LayoutConfig : @ecs.ComponentKey[LayoutConfig] = ComponentKey(
 
 )
@@ -139,16 +89,6 @@ pub impl @ecs.Component for LayoutConfig with fn component_key() {
 pub extend LayoutConfig with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for LayoutConfig with fn prepare(world) {
-  selene_component_key_LayoutConfig.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LayoutConfig with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_ZIndex : @ecs.ComponentKey[ZIndex] = ComponentKey()
 
 ///|
@@ -160,16 +100,6 @@ pub impl @ecs.Component for ZIndex with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend ZIndex with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for ZIndex with fn prepare(world) {
-  selene_component_key_ZIndex.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend ZIndex with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_GlobalZIndex : @ecs.ComponentKey[GlobalZIndex] = ComponentKey(
@@ -187,16 +117,6 @@ pub impl @ecs.Component for GlobalZIndex with fn component_key() {
 pub extend GlobalZIndex with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for GlobalZIndex with fn prepare(world) {
-  selene_component_key_GlobalZIndex.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend GlobalZIndex with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_ScrollPosition : @ecs.ComponentKey[ScrollPosition] = ComponentKey(
 
 )
@@ -212,16 +132,6 @@ pub impl @ecs.Component for ScrollPosition with fn component_key() {
 pub extend ScrollPosition with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for ScrollPosition with fn prepare(world) {
-  selene_component_key_ScrollPosition.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend ScrollPosition with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_TabIndex : @ecs.ComponentKey[TabIndex] = ComponentKey()
 
 ///|
@@ -233,16 +143,6 @@ pub impl @ecs.Component for TabIndex with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend TabIndex with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for TabIndex with fn prepare(world) {
-  selene_component_key_TabIndex.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend TabIndex with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_FocusPolicy : @ecs.ComponentKey[FocusPolicy] = ComponentKey(
@@ -260,16 +160,6 @@ pub impl @ecs.Component for FocusPolicy with fn component_key() {
 pub extend FocusPolicy with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for FocusPolicy with fn prepare(world) {
-  selene_component_key_FocusPolicy.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend FocusPolicy with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_Focused : @ecs.ComponentKey[Focused] = ComponentKey()
 
 ///|
@@ -281,16 +171,6 @@ pub impl @ecs.Component for Focused with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend Focused with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for Focused with fn prepare(world) {
-  selene_component_key_Focused.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Focused with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_Focusable : @ecs.ComponentKey[Focusable] = ComponentKey(
@@ -308,16 +188,6 @@ pub impl @ecs.Component for Focusable with fn component_key() {
 pub extend Focusable with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for Focusable with fn prepare(world) {
-  selene_component_key_Focusable.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Focusable with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_OverrideClip : @ecs.ComponentKey[OverrideClip] = ComponentKey(
 
 )
@@ -333,16 +203,6 @@ pub impl @ecs.Component for OverrideClip with fn component_key() {
 pub extend OverrideClip with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for OverrideClip with fn prepare(world) {
-  selene_component_key_OverrideClip.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend OverrideClip with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_RelativeCursorPosition : @ecs.ComponentKey[
   RelativeCursorPosition,
 ] = ComponentKey()
@@ -356,13 +216,3 @@ pub impl @ecs.Component for RelativeCursorPosition with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend RelativeCursorPosition with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for RelativeCursorPosition with fn prepare(world) {
-  selene_component_key_RelativeCursorPosition.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend RelativeCursorPosition with @ecs.Bundle::{ prepare }

@@ -57,17 +57,6 @@ fn generate(source : String, input : String) -> String raise CodegenError {
           if !visibility.is_empty() {
             hide_method(out, name, "@ecs.Component", "component_key")
           }
-          let bundle_warning = if visibility.is_empty() {
-            "#warnings(\"-unused_value\")\n"
-          } else {
-            ""
-          }
-          out.write_string(
-            "\n///|\n\{bundle_warning}\{visibility}impl @ecs.Bundle for \{name} with prepare(world) {\n  \{key}.store_in(world).spawn_plan(world)\n}\n",
-          )
-          if !visibility.is_empty() {
-            hide_method(out, name, "@ecs.Bundle", "prepare")
-          }
         }
         ("resource", Some(Ident(_))) => {
           let key = "selene_resource_key_\{name}"

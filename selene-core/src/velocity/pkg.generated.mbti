@@ -18,7 +18,6 @@ pub(all) struct Velocity(@math.Vec2)
 pub fn Velocity::equal(Self, Self) -> Bool
 pub fn Velocity::not_equal(Self, Self) -> Bool
 pub fn Velocity::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for Velocity
 pub impl @ecs.Component for Velocity
 
 // Type aliases

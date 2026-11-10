@@ -36,7 +36,6 @@ pub(all) struct Camera3DComponent {
   mut enabled : Bool
 }
 pub fn Camera3DComponent::Camera3DComponent() -> Self
-pub impl @ecs.Bundle for Camera3DComponent
 pub impl @ecs.Component for Camera3DComponent
 
 // Type aliases

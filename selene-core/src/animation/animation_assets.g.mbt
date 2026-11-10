@@ -16,16 +16,6 @@ pub impl @ecs.Component for AnimationTransitions with fn component_key() {
 pub extend AnimationTransitions with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for AnimationTransitions with fn prepare(world) {
-  selene_component_key_AnimationTransitions.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend AnimationTransitions with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_SkinnedMeshBinding3D : @ecs.ComponentKey[
   SkinnedMeshBinding3D,
 ] = ComponentKey()
@@ -41,16 +31,6 @@ pub impl @ecs.Component for SkinnedMeshBinding3D with fn component_key() {
 pub extend SkinnedMeshBinding3D with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for SkinnedMeshBinding3D with fn prepare(world) {
-  selene_component_key_SkinnedMeshBinding3D.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend SkinnedMeshBinding3D with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_MorphMeshBinding3D : @ecs.ComponentKey[
   MorphMeshBinding3D,
 ] = ComponentKey()
@@ -64,13 +44,3 @@ pub impl @ecs.Component for MorphMeshBinding3D with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend MorphMeshBinding3D with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for MorphMeshBinding3D with fn prepare(world) {
-  selene_component_key_MorphMeshBinding3D.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend MorphMeshBinding3D with @ecs.Bundle::{ prepare }

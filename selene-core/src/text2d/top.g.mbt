@@ -14,16 +14,6 @@ pub impl @ecs.Component for Text2d with fn component_key() {
 pub extend Text2d with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for Text2d with fn prepare(world) {
-  selene_component_key_Text2d.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Text2d with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_TextBounds : @ecs.ComponentKey[TextBounds] = ComponentKey(
 
 )
@@ -37,13 +27,3 @@ pub impl @ecs.Component for TextBounds with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend TextBounds with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for TextBounds with fn prepare(world) {
-  selene_component_key_TextBounds.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend TextBounds with @ecs.Bundle::{ prepare }

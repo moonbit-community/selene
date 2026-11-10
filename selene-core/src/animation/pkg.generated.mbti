@@ -120,7 +120,6 @@ pub(all) struct AnimatedBy {
   player : @ecs.Entity
 }
 pub fn AnimatedBy::AnimatedBy(@ecs.Entity) -> Self
-pub impl @ecs.Bundle for AnimatedBy
 pub impl @ecs.Component for AnimatedBy
 
 pub(all) struct AnimatedField {
@@ -231,7 +230,6 @@ pub fn AnimationGraphHandle::hash(Self) -> Int32
 pub fn AnimationGraphHandle::hash_combine(Self, Hasher) -> Unit
 pub fn AnimationGraphHandle::not_equal(Self, Self) -> Bool
 pub fn AnimationGraphHandle::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for AnimationGraphHandle
 pub impl @ecs.Component for AnimationGraphHandle
 
 pub(all) struct AnimationGraphNode {
@@ -272,7 +270,6 @@ pub fn AnimationPlayer::seek_all_by(Self, Double) -> Self
 pub fn AnimationPlayer::start(Self, AnimationNodeIndex, repeat? : RepeatAnimation) -> ActiveAnimation
 pub fn AnimationPlayer::stop(Self, AnimationNodeIndex) -> Self
 pub fn AnimationPlayer::stop_all(Self) -> Self
-pub impl @ecs.Bundle for AnimationPlayer
 pub impl @ecs.Component for AnimationPlayer
 
 #derive(Eq, Hash, @debug.Debug)
@@ -284,7 +281,6 @@ pub fn AnimationTargetId::hash_combine(Self, Hasher) -> Unit
 pub fn AnimationTargetId::not_equal(Self, Self) -> Bool
 pub fn AnimationTargetId::path(Self) -> String
 pub fn AnimationTargetId::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for AnimationTargetId
 pub impl @ecs.Component for AnimationTargetId
 
 pub(all) struct AnimationTransitions {
@@ -294,7 +290,6 @@ pub(all) struct AnimationTransitions {
 pub fn AnimationTransitions::AnimationTransitions() -> Self
 pub fn AnimationTransitions::get_main_animation(Self) -> AnimationNodeIndex?
 pub fn AnimationTransitions::play(Self, AnimationPlayer, AnimationNodeIndex, Double, repeat? : RepeatAnimation) -> ActiveAnimation
-pub impl @ecs.Bundle for AnimationTransitions
 pub impl @ecs.Component for AnimationTransitions
 
 #derive(Eq, @debug.Debug)
@@ -331,7 +326,6 @@ pub(all) struct MorphMeshBinding3D {
   morph_targets : Array[MorphTargetBinding3D]
   mut morph_weights : Array[Double]
 }
-pub impl @ecs.Bundle for MorphMeshBinding3D
 pub impl @ecs.Component for MorphMeshBinding3D
 
 #derive(Eq, @debug.Debug)
@@ -402,7 +396,6 @@ pub(all) struct SkinnedMeshBinding3D {
   joint_entities : Array[@ecs.Entity]
   inverse_bind_matrices : Array[@math.Mat4]
 }
-pub impl @ecs.Bundle for SkinnedMeshBinding3D
 pub impl @ecs.Component for SkinnedMeshBinding3D
 
 pub(all) struct TransitionEntry {

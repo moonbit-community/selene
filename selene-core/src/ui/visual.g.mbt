@@ -16,16 +16,6 @@ pub impl @ecs.Component for BackgroundColor with fn component_key() {
 pub extend BackgroundColor with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for BackgroundColor with fn prepare(world) {
-  selene_component_key_BackgroundColor.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend BackgroundColor with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_BorderColor : @ecs.ComponentKey[BorderColor] = ComponentKey(
 
 )
@@ -39,16 +29,6 @@ pub impl @ecs.Component for BorderColor with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend BorderColor with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for BorderColor with fn prepare(world) {
-  selene_component_key_BorderColor.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend BorderColor with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_BorderRadius : @ecs.ComponentKey[BorderRadius] = ComponentKey(
@@ -66,16 +46,6 @@ pub impl @ecs.Component for BorderRadius with fn component_key() {
 pub extend BorderRadius with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for BorderRadius with fn prepare(world) {
-  selene_component_key_BorderRadius.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend BorderRadius with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_Outline : @ecs.ComponentKey[Outline] = ComponentKey()
 
 ///|
@@ -87,16 +57,6 @@ pub impl @ecs.Component for Outline with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend Outline with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for Outline with fn prepare(world) {
-  selene_component_key_Outline.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Outline with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_BoxShadow : @ecs.ComponentKey[BoxShadow] = ComponentKey(
@@ -114,16 +74,6 @@ pub impl @ecs.Component for BoxShadow with fn component_key() {
 pub extend BoxShadow with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for BoxShadow with fn prepare(world) {
-  selene_component_key_BoxShadow.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend BoxShadow with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_UiImage : @ecs.ComponentKey[UiImage] = ComponentKey()
 
 ///|
@@ -135,16 +85,6 @@ pub impl @ecs.Component for UiImage with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend UiImage with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for UiImage with fn prepare(world) {
-  selene_component_key_UiImage.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend UiImage with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_MaterialNode : @ecs.ComponentKey[MaterialNode] = ComponentKey(
@@ -162,16 +102,6 @@ pub impl @ecs.Component for MaterialNode with fn component_key() {
 pub extend MaterialNode with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for MaterialNode with fn prepare(world) {
-  selene_component_key_MaterialNode.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend MaterialNode with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_Text : @ecs.ComponentKey[Text] = ComponentKey()
 
 ///|
@@ -185,16 +115,6 @@ pub impl @ecs.Component for Text with fn component_key() {
 pub extend Text with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for Text with fn prepare(world) {
-  selene_component_key_Text.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Text with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_TextFont : @ecs.ComponentKey[TextFont] = ComponentKey()
 
 ///|
@@ -206,16 +126,6 @@ pub impl @ecs.Component for TextFont with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend TextFont with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for TextFont with fn prepare(world) {
-  selene_component_key_TextFont.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend TextFont with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_TextColor : @ecs.ComponentKey[TextColor] = ComponentKey(
@@ -233,16 +143,6 @@ pub impl @ecs.Component for TextColor with fn component_key() {
 pub extend TextColor with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for TextColor with fn prepare(world) {
-  selene_component_key_TextColor.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend TextColor with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_TextLayout : @ecs.ComponentKey[TextLayout] = ComponentKey(
 
 )
@@ -258,16 +158,6 @@ pub impl @ecs.Component for TextLayout with fn component_key() {
 pub extend TextLayout with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for TextLayout with fn prepare(world) {
-  selene_component_key_TextLayout.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend TextLayout with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_Button : @ecs.ComponentKey[Button] = ComponentKey()
 
 ///|
@@ -279,16 +169,6 @@ pub impl @ecs.Component for Button with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend Button with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for Button with fn prepare(world) {
-  selene_component_key_Button.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Button with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_Interaction : @ecs.ComponentKey[Interaction] = ComponentKey(
@@ -304,13 +184,3 @@ pub impl @ecs.Component for Interaction with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend Interaction with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for Interaction with fn prepare(world) {
-  selene_component_key_Interaction.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Interaction with @ecs.Bundle::{ prepare }

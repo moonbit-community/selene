@@ -58,7 +58,6 @@ pub fn MeshMaterial2d::equal(Self, Self) -> Bool
 pub fn MeshMaterial2d::from_color_material(ColorMaterialHandle) -> Self
 pub fn MeshMaterial2d::not_equal(Self, Self) -> Bool
 pub fn MeshMaterial2d::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for MeshMaterial2d
 pub impl @ecs.Component for MeshMaterial2d
 
 // Type aliases

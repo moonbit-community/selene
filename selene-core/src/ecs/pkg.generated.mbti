@@ -166,6 +166,9 @@ pub fn[T] ResourceKey::get_in(Self[T], World) -> T?
 pub fn[T] ResourceKey::get_or_insert_with(Self[T], World, (World) -> T) -> T
 pub fn[T] ResourceKey::insert_in(Self[T], World, T) -> Unit
 
+pub(all) struct Single[T](T)
+pub impl[T : Component] Bundle for Single[T]
+
 type SpawnPlan[T]
 pub fn[A, B] SpawnPlan::combine(Self[A], Self[B]) -> Self[(A, B)]
 pub fn[T] SpawnPlan::spawn(Self[T], T) -> Entity
@@ -208,13 +211,13 @@ pub(open) trait Bundle {
   fn prepare(World) -> SpawnPlan[Self]
 }
 pub impl Bundle for Unit
-pub impl[A : Bundle, B : Bundle] Bundle for (A, B)
-pub impl[A : Bundle, B : Bundle, C : Bundle] Bundle for (A, B, C)
-pub impl[A : Bundle, B : Bundle, C : Bundle, D : Bundle] Bundle for (A, B, C, D)
-pub impl[A : Bundle, B : Bundle, C : Bundle, D : Bundle, E : Bundle] Bundle for (A, B, C, D, E)
-pub impl[A : Bundle, B : Bundle, C : Bundle, D : Bundle, E : Bundle, F : Bundle] Bundle for (A, B, C, D, E, F)
-pub impl[A : Bundle, B : Bundle, C : Bundle, D : Bundle, E : Bundle, F : Bundle, G : Bundle] Bundle for (A, B, C, D, E, F, G)
-pub impl[A : Bundle, B : Bundle, C : Bundle, D : Bundle, E : Bundle, F : Bundle, G : Bundle, H : Bundle] Bundle for (A, B, C, D, E, F, G, H)
+pub impl[A : Component, B : Component] Bundle for (A, B)
+pub impl[A : Component, B : Component, C : Component] Bundle for (A, B, C)
+pub impl[A : Component, B : Component, C : Component, D : Component] Bundle for (A, B, C, D)
+pub impl[A : Component, B : Component, C : Component, D : Component, E : Component] Bundle for (A, B, C, D, E)
+pub impl[A : Component, B : Component, C : Component, D : Component, E : Component, F : Component] Bundle for (A, B, C, D, E, F)
+pub impl[A : Component, B : Component, C : Component, D : Component, E : Component, F : Component, G : Component] Bundle for (A, B, C, D, E, F, G)
+pub impl[A : Component, B : Component, C : Component, D : Component, E : Component, F : Component, G : Component, H : Component] Bundle for (A, B, C, D, E, F, G, H)
 
 pub(open) trait Component {
   fn component_key() -> ComponentKey[Self]

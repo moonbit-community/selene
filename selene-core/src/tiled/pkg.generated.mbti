@@ -111,7 +111,6 @@ pub struct TiledColliderOrigin {
   source_kind : TiledColliderSourceKind
   layer : TiledLayer
 }
-pub impl @ecs.Bundle for TiledColliderOrigin
 pub impl @ecs.Component for TiledColliderOrigin
 
 #derive(Eq)
@@ -134,7 +133,6 @@ pub struct TiledColliders {
   entities : Array[@ecs.Entity]
 }
 pub fn TiledColliders::alive_entities(Self) -> Array[@ecs.Entity]
-pub impl @ecs.Bundle for TiledColliders
 pub impl @ecs.Component for TiledColliders
 
 pub struct TiledGid {
@@ -162,7 +160,6 @@ pub struct TiledImageLayerInstance {
   image_layer : TiledImageLayer
   resolved_image_path : String?
 }
-pub impl @ecs.Bundle for TiledImageLayerInstance
 pub impl @ecs.Component for TiledImageLayerInstance
 
 pub struct TiledImageLayerSpawnedEvent {
@@ -196,7 +193,6 @@ pub struct TiledLayerInstance {
   effective_visible : Bool
   zindex : Int32
 }
-pub impl @ecs.Bundle for TiledLayerInstance
 pub impl @ecs.Component for TiledLayerInstance
 
 pub enum TiledLayerKind {
@@ -251,7 +247,6 @@ pub fn TiledMap::tileset_for_gid(Self, Int32) -> TiledTileset?
 pub struct TiledMapInstance {
   map : TiledMap
 }
-pub impl @ecs.Bundle for TiledMapInstance
 pub impl @ecs.Component for TiledMapInstance
 
 pub struct TiledMapSpawnedEvent {
@@ -268,7 +263,6 @@ pub fn TiledMapStorage::TiledMapStorage() -> Self
 pub fn TiledMapStorage::layer_entity(Self, Int32) -> @ecs.Entity?
 pub fn TiledMapStorage::object_entity(Self, Int32) -> @ecs.Entity?
 pub fn TiledMapStorage::tile_entities(Self, Int32) -> Array[@ecs.Entity]
-pub impl @ecs.Bundle for TiledMapStorage
 pub impl @ecs.Component for TiledMapStorage
 
 pub enum TiledNameFilter {
@@ -307,7 +301,6 @@ pub struct TiledObjectInstance {
   layer : TiledLayer
   object : TiledObject
 }
-pub impl @ecs.Bundle for TiledObjectInstance
 pub impl @ecs.Component for TiledObjectInstance
 
 pub struct TiledObjectLayer {
@@ -329,7 +322,6 @@ pub struct TiledParallaxLayer {
   parallax_x : Double
   parallax_y : Double
 }
-pub impl @ecs.Bundle for TiledParallaxLayer
 pub impl @ecs.Component for TiledParallaxLayer
 
 pub(all) struct TiledPhysicsSettings {
@@ -353,7 +345,6 @@ pub struct TiledProperties {
   values : Map[String, TiledPropertyValue]
 }
 pub fn TiledProperties::get(Self, String) -> TiledPropertyValue?
-pub impl @ecs.Bundle for TiledProperties
 pub impl @ecs.Component for TiledProperties
 
 pub struct TiledProperty {
@@ -420,7 +411,6 @@ pub struct TiledTileInstance {
   tileset : TiledTileset
   cell : TiledCell
 }
-pub impl @ecs.Bundle for TiledTileInstance
 pub impl @ecs.Component for TiledTileInstance
 
 pub struct TiledTileLayer {
@@ -484,7 +474,6 @@ pub struct TiledWorldInstance {
   loaded_maps : Array[TiledWorldLoadedMap]
   spawned_maps : Map[Int32, @ecs.Entity]
 }
-pub impl @ecs.Bundle for TiledWorldInstance
 pub impl @ecs.Component for TiledWorldInstance
 
 pub struct TiledWorldLoadedMap {
@@ -509,7 +498,6 @@ pub struct TiledWorldMapInstance {
   world_map : TiledWorldMap
   resolved_map_path : String
 }
-pub impl @ecs.Bundle for TiledWorldMapInstance
 pub impl @ecs.Component for TiledWorldMapInstance
 
 pub struct TiledWorldMapSpawnedEvent {

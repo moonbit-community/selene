@@ -255,7 +255,6 @@ pub(all) struct BackgroundColor {
 }
 pub fn BackgroundColor::BackgroundColor(@render.Color) -> Self
 pub fn BackgroundColor::from_css(String) -> Self
-pub impl @ecs.Bundle for BackgroundColor
 pub impl @ecs.Component for BackgroundColor
 
 pub(all) struct BorderColor {
@@ -263,7 +262,6 @@ pub(all) struct BorderColor {
 }
 pub fn BorderColor::BorderColor(@render.Color) -> Self
 pub fn BorderColor::from_css(String) -> Self
-pub impl @ecs.Bundle for BorderColor
 pub impl @ecs.Component for BorderColor
 
 #derive(Eq, @debug.Debug)
@@ -278,7 +276,6 @@ pub fn BorderRadius::all(Val) -> Self
 pub fn BorderRadius::equal(Self, Self) -> Bool
 pub fn BorderRadius::not_equal(Self, Self) -> Bool
 pub fn BorderRadius::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for BorderRadius
 pub impl @ecs.Component for BorderRadius
 
 #derive(Eq, @debug.Debug)
@@ -290,7 +287,6 @@ pub fn BoxShadow::equal(Self, Self) -> Bool
 pub fn BoxShadow::not_equal(Self, Self) -> Bool
 pub fn BoxShadow::single(@render.Color, x_offset? : Val, y_offset? : Val, spread_radius? : Val, blur_radius? : Val) -> Self
 pub fn BoxShadow::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for BoxShadow
 pub impl @ecs.Component for BoxShadow
 
 #derive(Eq, @debug.Debug)
@@ -301,14 +297,12 @@ pub fn Button::Button(enabled? : Bool) -> Self
 pub fn Button::equal(Self, Self) -> Bool
 pub fn Button::not_equal(Self, Self) -> Bool
 pub fn Button::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for Button
 pub impl @ecs.Component for Button
 
 pub(all) struct CalculatedClip {
   clip : @math.Rect
 }
 pub fn CalculatedClip::CalculatedClip(@math.Rect) -> Self
-pub impl @ecs.Bundle for CalculatedClip
 pub impl @ecs.Component for CalculatedClip
 
 pub(all) struct ComputedUiNode {
@@ -320,7 +314,6 @@ pub(all) struct ComputedUiNode {
   border : UiInsets
   padding : UiInsets
 }
-pub impl @ecs.Bundle for ComputedUiNode
 pub impl @ecs.Component for ComputedUiNode
 
 #derive(Eq, @debug.Debug)
@@ -363,21 +356,18 @@ pub(all) enum FocusPolicy {
 pub fn FocusPolicy::equal(Self, Self) -> Bool
 pub fn FocusPolicy::not_equal(Self, Self) -> Bool
 pub fn FocusPolicy::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for FocusPolicy
 pub impl @ecs.Component for FocusPolicy
 
 pub(all) struct Focusable {
   _tag : Unit
 }
 pub fn Focusable::Focusable() -> Self
-pub impl @ecs.Bundle for Focusable
 pub impl @ecs.Component for Focusable
 
 pub(all) struct Focused {
   _tag : Unit
 }
 pub fn Focused::Focused() -> Self
-pub impl @ecs.Bundle for Focused
 pub impl @ecs.Component for Focused
 
 pub(all) struct GlobalUiNode {
@@ -388,7 +378,6 @@ pub(all) struct GlobalUiNode {
   target_camera : @ecs.Entity?
   target_viewport : @math.Rect
 }
-pub impl @ecs.Bundle for GlobalUiNode
 pub impl @ecs.Component for GlobalUiNode
 
 #derive(Eq, @debug.Debug)
@@ -399,7 +388,6 @@ pub fn GlobalZIndex::GlobalZIndex(Int32) -> Self
 pub fn GlobalZIndex::equal(Self, Self) -> Bool
 pub fn GlobalZIndex::not_equal(Self, Self) -> Bool
 pub fn GlobalZIndex::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for GlobalZIndex
 pub impl @ecs.Component for GlobalZIndex
 
 #derive(Eq, @debug.Debug)
@@ -479,7 +467,6 @@ pub(all) enum Interaction {
 pub fn Interaction::equal(Self, Self) -> Bool
 pub fn Interaction::not_equal(Self, Self) -> Bool
 pub fn Interaction::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for Interaction
 pub impl @ecs.Component for Interaction
 
 #derive(Eq, @debug.Debug)
@@ -506,7 +493,6 @@ pub fn LayoutConfig::LayoutConfig(use_rounding? : Bool) -> Self
 pub fn LayoutConfig::equal(Self, Self) -> Bool
 pub fn LayoutConfig::not_equal(Self, Self) -> Bool
 pub fn LayoutConfig::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for LayoutConfig
 pub impl @ecs.Component for LayoutConfig
 
 #derive(Eq, @debug.Debug)
@@ -517,7 +503,6 @@ pub fn MaterialNode::MaterialNode(UiMaterialHandle) -> Self
 pub fn MaterialNode::equal(Self, Self) -> Bool
 pub fn MaterialNode::not_equal(Self, Self) -> Bool
 pub fn MaterialNode::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for MaterialNode
 pub impl @ecs.Component for MaterialNode
 
 #derive(Eq, @debug.Debug)
@@ -569,7 +554,6 @@ pub fn Node::absolute(@math.Vec2, size? : @math.Vec2, padding? : UiRectValues, b
 pub fn Node::equal(Self, Self) -> Bool
 pub fn Node::not_equal(Self, Self) -> Bool
 pub fn Node::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for Node
 pub impl @ecs.Component for Node
 
 pub(all) struct Outline {
@@ -578,7 +562,6 @@ pub(all) struct Outline {
   color : @render.Color
 }
 pub fn Outline::Outline(Val, @render.Color, offset? : Val) -> Self
-pub impl @ecs.Bundle for Outline
 pub impl @ecs.Component for Outline
 
 #derive(Eq, @debug.Debug)
@@ -623,7 +606,6 @@ pub fn OverrideClip::OverrideClip() -> Self
 pub fn OverrideClip::equal(Self, Self) -> Bool
 pub fn OverrideClip::not_equal(Self, Self) -> Bool
 pub fn OverrideClip::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for OverrideClip
 pub impl @ecs.Component for OverrideClip
 
 #derive(Eq, @debug.Debug)
@@ -645,7 +627,6 @@ pub fn RelativeCursorPosition::equal(Self, Self) -> Bool
 pub fn RelativeCursorPosition::mouse_over(Self) -> Bool
 pub fn RelativeCursorPosition::not_equal(Self, Self) -> Bool
 pub fn RelativeCursorPosition::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for RelativeCursorPosition
 pub impl @ecs.Component for RelativeCursorPosition
 
 #derive(Eq, @debug.Debug)
@@ -657,7 +638,6 @@ pub fn ScrollPosition::equal(Self, Self) -> Bool
 pub fn ScrollPosition::not_equal(Self, Self) -> Bool
 pub fn ScrollPosition::to_repr(Self) -> @debug.Repr
 pub fn ScrollPosition::zero() -> Self
-pub impl @ecs.Bundle for ScrollPosition
 pub impl @ecs.Component for ScrollPosition
 
 #derive(Eq, @debug.Debug)
@@ -681,14 +661,12 @@ pub fn TabIndex::TabIndex(Int32) -> Self
 pub fn TabIndex::equal(Self, Self) -> Bool
 pub fn TabIndex::not_equal(Self, Self) -> Bool
 pub fn TabIndex::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for TabIndex
 pub impl @ecs.Component for TabIndex
 
 pub(all) struct Text {
   mut content : String
 }
 pub fn Text::Text(String) -> Self
-pub impl @ecs.Bundle for Text
 pub impl @ecs.Component for Text
 
 pub(all) struct TextColor {
@@ -696,7 +674,6 @@ pub(all) struct TextColor {
 }
 pub fn TextColor::TextColor(@render.Color) -> Self
 pub fn TextColor::from_css(String) -> Self
-pub impl @ecs.Bundle for TextColor
 pub impl @ecs.Component for TextColor
 
 pub(all) struct TextFont {
@@ -707,7 +684,6 @@ pub(all) struct TextFont {
 pub fn TextFont::TextFont(family? : String, size? : Double) -> Self
 pub fn TextFont::from_css(String) -> Self
 pub fn TextFont::from_font(@asset_types.FontHandle, size? : Double) -> Self
-pub impl @ecs.Bundle for TextFont
 pub impl @ecs.Component for TextFont
 
 pub(all) struct TextLayout {
@@ -718,7 +694,6 @@ pub(all) struct TextLayout {
   mut overflow : TextOverflow
 }
 pub fn TextLayout::TextLayout(align? : @math.HAlign, baseline? : @math.VAlign, line_height? : Double, wrap? : TextWrap, overflow? : TextOverflow) -> Self
-pub impl @ecs.Bundle for TextLayout
 pub impl @ecs.Component for TextLayout
 
 #derive(Eq, @debug.Debug)
@@ -774,7 +749,6 @@ pub fn UiImage::equal(Self, Self) -> Bool
 pub fn UiImage::from_image(@math.Vec2, @asset_types.ImageHandle, tint? : @render.Color, fit? : ImageFit) -> Self
 pub fn UiImage::not_equal(Self, Self) -> Bool
 pub fn UiImage::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for UiImage
 pub impl @ecs.Component for UiImage
 
 #derive(Eq, @debug.Debug)
@@ -891,7 +865,6 @@ pub fn UiTargetCamera::UiTargetCamera(@ecs.Entity) -> Self
 pub fn UiTargetCamera::equal(Self, Self) -> Bool
 pub fn UiTargetCamera::not_equal(Self, Self) -> Bool
 pub fn UiTargetCamera::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for UiTargetCamera
 pub impl @ecs.Component for UiTargetCamera
 
 #derive(Eq, @debug.Debug)
@@ -914,7 +887,6 @@ pub fn ZIndex::ZIndex(Int32) -> Self
 pub fn ZIndex::equal(Self, Self) -> Bool
 pub fn ZIndex::not_equal(Self, Self) -> Bool
 pub fn ZIndex::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for ZIndex
 pub impl @ecs.Component for ZIndex
 
 // Type aliases

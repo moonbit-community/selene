@@ -14,13 +14,3 @@ pub impl @ecs.Component for Sorting2d with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend Sorting2d with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for Sorting2d with fn prepare(world) {
-  selene_component_key_Sorting2d.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Sorting2d with @ecs.Bundle::{ prepare }

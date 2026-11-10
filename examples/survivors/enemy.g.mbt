@@ -15,9 +15,3 @@ let selene_component_key_Enemy : @ecs.ComponentKey[Enemy] = ComponentKey()
 impl @ecs.Component for Enemy with fn component_key() {
   selene_component_key_Enemy
 }
-
-///|
-#warnings("-unused_value")
-impl @ecs.Bundle for Enemy with fn prepare(world) {
-  selene_component_key_Enemy.store_in(world).spawn_plan(world)
-}

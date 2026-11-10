@@ -37,7 +37,6 @@ pub(all) struct InheritedVisibility {
 pub fn InheritedVisibility::equal(Self, Self) -> Bool
 pub fn InheritedVisibility::not_equal(Self, Self) -> Bool
 pub fn InheritedVisibility::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for InheritedVisibility
 pub impl @ecs.Component for InheritedVisibility
 
 #derive(Eq, @debug.Debug)
@@ -48,7 +47,6 @@ pub fn RenderLayers::RenderLayers() -> Self
 pub fn RenderLayers::equal(Self, Self) -> Bool
 pub fn RenderLayers::not_equal(Self, Self) -> Bool
 pub fn RenderLayers::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for RenderLayers
 pub impl @ecs.Component for RenderLayers
 
 #derive(Eq, @debug.Debug)
@@ -58,7 +56,6 @@ pub(all) struct ViewVisibility {
 pub fn ViewVisibility::equal(Self, Self) -> Bool
 pub fn ViewVisibility::not_equal(Self, Self) -> Bool
 pub fn ViewVisibility::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for ViewVisibility
 pub impl @ecs.Component for ViewVisibility
 
 #derive(Eq, @debug.Debug)
@@ -69,7 +66,6 @@ pub(all) enum Visibility {
 pub fn Visibility::equal(Self, Self) -> Bool
 pub fn Visibility::not_equal(Self, Self) -> Bool
 pub fn Visibility::to_repr(Self) -> @debug.Repr
-pub impl @ecs.Bundle for Visibility
 pub impl @ecs.Component for Visibility
 
 // Type aliases

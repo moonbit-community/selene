@@ -16,16 +16,6 @@ pub impl @ecs.Component for Visibility with fn component_key() {
 pub extend Visibility with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for Visibility with fn prepare(world) {
-  selene_component_key_Visibility.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Visibility with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_InheritedVisibility : @ecs.ComponentKey[
   InheritedVisibility,
 ] = ComponentKey()
@@ -39,16 +29,6 @@ pub impl @ecs.Component for InheritedVisibility with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend InheritedVisibility with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for InheritedVisibility with fn prepare(world) {
-  selene_component_key_InheritedVisibility.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend InheritedVisibility with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_ViewVisibility : @ecs.ComponentKey[ViewVisibility] = ComponentKey(
@@ -66,16 +46,6 @@ pub impl @ecs.Component for ViewVisibility with fn component_key() {
 pub extend ViewVisibility with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for ViewVisibility with fn prepare(world) {
-  selene_component_key_ViewVisibility.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend ViewVisibility with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_RenderLayers : @ecs.ComponentKey[RenderLayers] = ComponentKey(
 
 )
@@ -89,13 +59,3 @@ pub impl @ecs.Component for RenderLayers with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend RenderLayers with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for RenderLayers with fn prepare(world) {
-  selene_component_key_RenderLayers.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend RenderLayers with @ecs.Bundle::{ prepare }

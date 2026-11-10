@@ -16,16 +16,6 @@ pub impl @ecs.Component for TiledWorldInstance with fn component_key() {
 pub extend TiledWorldInstance with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for TiledWorldInstance with fn prepare(world) {
-  selene_component_key_TiledWorldInstance.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend TiledWorldInstance with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_TiledWorldMapInstance : @ecs.ComponentKey[
   TiledWorldMapInstance,
 ] = ComponentKey()
@@ -39,13 +29,3 @@ pub impl @ecs.Component for TiledWorldMapInstance with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend TiledWorldMapInstance with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for TiledWorldMapInstance with fn prepare(world) {
-  selene_component_key_TiledWorldMapInstance.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend TiledWorldMapInstance with @ecs.Bundle::{ prepare }

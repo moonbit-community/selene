@@ -16,16 +16,6 @@ pub impl @ecs.Component for PlaybackSettings with fn component_key() {
 pub extend PlaybackSettings with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for PlaybackSettings with fn prepare(world) {
-  selene_component_key_PlaybackSettings.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend PlaybackSettings with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_AudioPlayer : @ecs.ComponentKey[AudioPlayer] = ComponentKey(
 
 )
@@ -41,16 +31,6 @@ pub impl @ecs.Component for AudioPlayer with fn component_key() {
 pub extend AudioPlayer with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for AudioPlayer with fn prepare(world) {
-  selene_component_key_AudioPlayer.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend AudioPlayer with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_AudioSink : @ecs.ComponentKey[AudioSink] = ComponentKey(
 
 )
@@ -64,13 +44,3 @@ pub impl @ecs.Component for AudioSink with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend AudioSink with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for AudioSink with fn prepare(world) {
-  selene_component_key_AudioSink.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend AudioSink with @ecs.Bundle::{ prepare }

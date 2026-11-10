@@ -14,13 +14,3 @@ pub impl @ecs.Component for Camera3DComponent with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend Camera3DComponent with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for Camera3DComponent with fn prepare(world) {
-  selene_component_key_Camera3DComponent.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Camera3DComponent with @ecs.Bundle::{ prepare }

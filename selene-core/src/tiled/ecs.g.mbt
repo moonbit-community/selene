@@ -16,16 +16,6 @@ pub impl @ecs.Component for TiledMapInstance with fn component_key() {
 pub extend TiledMapInstance with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for TiledMapInstance with fn prepare(world) {
-  selene_component_key_TiledMapInstance.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend TiledMapInstance with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_TiledLayerInstance : @ecs.ComponentKey[
   TiledLayerInstance,
 ] = ComponentKey()
@@ -39,16 +29,6 @@ pub impl @ecs.Component for TiledLayerInstance with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend TiledLayerInstance with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for TiledLayerInstance with fn prepare(world) {
-  selene_component_key_TiledLayerInstance.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend TiledLayerInstance with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_TiledTileInstance : @ecs.ComponentKey[
@@ -66,16 +46,6 @@ pub impl @ecs.Component for TiledTileInstance with fn component_key() {
 pub extend TiledTileInstance with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for TiledTileInstance with fn prepare(world) {
-  selene_component_key_TiledTileInstance.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend TiledTileInstance with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_TiledObjectInstance : @ecs.ComponentKey[
   TiledObjectInstance,
 ] = ComponentKey()
@@ -89,16 +59,6 @@ pub impl @ecs.Component for TiledObjectInstance with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend TiledObjectInstance with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for TiledObjectInstance with fn prepare(world) {
-  selene_component_key_TiledObjectInstance.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend TiledObjectInstance with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_TiledImageLayerInstance : @ecs.ComponentKey[
@@ -116,16 +76,6 @@ pub impl @ecs.Component for TiledImageLayerInstance with fn component_key() {
 pub extend TiledImageLayerInstance with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for TiledImageLayerInstance with fn prepare(world) {
-  selene_component_key_TiledImageLayerInstance.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend TiledImageLayerInstance with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_TiledProperties : @ecs.ComponentKey[TiledProperties] = ComponentKey(
 
 )
@@ -139,16 +89,6 @@ pub impl @ecs.Component for TiledProperties with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend TiledProperties with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for TiledProperties with fn prepare(world) {
-  selene_component_key_TiledProperties.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend TiledProperties with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_TiledMapStorage : @ecs.ComponentKey[TiledMapStorage] = ComponentKey(
@@ -166,16 +106,6 @@ pub impl @ecs.Component for TiledMapStorage with fn component_key() {
 pub extend TiledMapStorage with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for TiledMapStorage with fn prepare(world) {
-  selene_component_key_TiledMapStorage.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend TiledMapStorage with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_TiledParallaxLayer : @ecs.ComponentKey[
   TiledParallaxLayer,
 ] = ComponentKey()
@@ -189,13 +119,3 @@ pub impl @ecs.Component for TiledParallaxLayer with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend TiledParallaxLayer with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for TiledParallaxLayer with fn prepare(world) {
-  selene_component_key_TiledParallaxLayer.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend TiledParallaxLayer with @ecs.Bundle::{ prepare }

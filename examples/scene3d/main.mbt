@@ -107,23 +107,31 @@ fn[T : @ecs.Bundle] spawn_sphere(
     base_color,
     roughness: 0.3,
   })
-  spawn_scene3d_entity(
-    (
-      @transform.Transform::{
-        translation,
-        rotation: @math.Quat::identity(),
-        scale: @math.Vec3::one(),
-      },
-      @render3d.Mesh3DRenderer::{
-        mesh,
-        material,
-        visible: true,
-        cast_shadows: true,
-        receive_shadows: true,
-      },
-      components,
-    ),
-  )
+  let world = @ecs.require_current_world()
+  let plan : @ecs.SpawnPlan[(@transform.Transform, @render3d.Mesh3DRenderer)] = world.prepare_spawn()
+  let entity = plan
+    .combine(world.prepare_spawn())
+    .spawn(
+      (
+        (
+          @transform.Transform::{
+            translation,
+            rotation: @math.Quat::identity(),
+            scale: @math.Vec3::one(),
+          },
+          @render3d.Mesh3DRenderer::{
+            mesh,
+            material,
+            visible: true,
+            cast_shadows: true,
+            receive_shadows: true,
+          },
+        ),
+        components,
+      ),
+    )
+  scene3d_state().entities.push(entity)
+  entity
 }
 
 ///|
@@ -557,15 +565,17 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
   spotlight_marker.set_parent(spotlight)
 
   ignore(
-    spawn_scene3d_entity(@render3d.DirectionalLight3D::{
-      ..@render3d.DirectionalLight3D(),
-      direction: vec3(-0.72, -1.0, -0.42).normalize(),
-      color: color(255U, 255U, 255U, 1.0),
-      intensity: 1.15,
-      shadows: true,
-      shadow_depth_bias: 0.001,
-      shadow_normal_bias: 0.15,
-    }),
+    spawn_scene3d_entity(
+      @ecs.Single(@render3d.DirectionalLight3D::{
+        ..@render3d.DirectionalLight3D(),
+        direction: vec3(-0.72, -1.0, -0.42).normalize(),
+        color: color(255U, 255U, 255U, 1.0),
+        intensity: 1.15,
+        shadows: true,
+        shadow_depth_bias: 0.001,
+        shadow_normal_bias: 0.15,
+      }),
+    ),
   )
   @render3d.set_ambient_light3d(
     Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.03, }),

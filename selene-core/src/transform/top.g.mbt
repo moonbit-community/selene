@@ -16,16 +16,6 @@ pub impl @ecs.Component for Transform with fn component_key() {
 pub extend Transform with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for Transform with fn prepare(world) {
-  selene_component_key_Transform.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Transform with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_GlobalTransform : @ecs.ComponentKey[GlobalTransform] = ComponentKey(
 
 )
@@ -39,13 +29,3 @@ pub impl @ecs.Component for GlobalTransform with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend GlobalTransform with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for GlobalTransform with fn prepare(world) {
-  selene_component_key_GlobalTransform.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend GlobalTransform with @ecs.Bundle::{ prepare }

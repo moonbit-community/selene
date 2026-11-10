@@ -16,16 +16,6 @@ pub impl @ecs.Component for LdtkWorldInstance with fn component_key() {
 pub extend LdtkWorldInstance with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for LdtkWorldInstance with fn prepare(world) {
-  selene_component_key_LdtkWorldInstance.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LdtkWorldInstance with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_LdtkLevelInstance : @ecs.ComponentKey[
   LdtkLevelInstance,
 ] = ComponentKey()
@@ -39,16 +29,6 @@ pub impl @ecs.Component for LdtkLevelInstance with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend LdtkLevelInstance with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for LdtkLevelInstance with fn prepare(world) {
-  selene_component_key_LdtkLevelInstance.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LdtkLevelInstance with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_LdtkLayerMetadata : @ecs.ComponentKey[
@@ -66,16 +46,6 @@ pub impl @ecs.Component for LdtkLayerMetadata with fn component_key() {
 pub extend LdtkLayerMetadata with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for LdtkLayerMetadata with fn prepare(world) {
-  selene_component_key_LdtkLayerMetadata.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LdtkLayerMetadata with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_LdtkLevelBackground : @ecs.ComponentKey[
   LdtkLevelBackground,
 ] = ComponentKey()
@@ -89,16 +59,6 @@ pub impl @ecs.Component for LdtkLevelBackground with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend LdtkLevelBackground with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for LdtkLevelBackground with fn prepare(world) {
-  selene_component_key_LdtkLevelBackground.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LdtkLevelBackground with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_LdtkLevelIid : @ecs.ComponentKey[LdtkLevelIid] = ComponentKey(
@@ -116,16 +76,6 @@ pub impl @ecs.Component for LdtkLevelIid with fn component_key() {
 pub extend LdtkLevelIid with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for LdtkLevelIid with fn prepare(world) {
-  selene_component_key_LdtkLevelIid.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LdtkLevelIid with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_LdtkEntityIid : @ecs.ComponentKey[LdtkEntityIid] = ComponentKey(
 
 )
@@ -139,16 +89,6 @@ pub impl @ecs.Component for LdtkEntityIid with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend LdtkEntityIid with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for LdtkEntityIid with fn prepare(world) {
-  selene_component_key_LdtkEntityIid.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LdtkEntityIid with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_LdtkGridCoords : @ecs.ComponentKey[LdtkGridCoords] = ComponentKey(
@@ -166,16 +106,6 @@ pub impl @ecs.Component for LdtkGridCoords with fn component_key() {
 pub extend LdtkGridCoords with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for LdtkGridCoords with fn prepare(world) {
-  selene_component_key_LdtkGridCoords.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LdtkGridCoords with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_LdtkIntGridCell : @ecs.ComponentKey[LdtkIntGridCell] = ComponentKey(
 
 )
@@ -189,16 +119,6 @@ pub impl @ecs.Component for LdtkIntGridCell with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend LdtkIntGridCell with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for LdtkIntGridCell with fn prepare(world) {
-  selene_component_key_LdtkIntGridCell.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LdtkIntGridCell with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_LdtkTileMetadata : @ecs.ComponentKey[LdtkTileMetadata] = ComponentKey(
@@ -216,16 +136,6 @@ pub impl @ecs.Component for LdtkTileMetadata with fn component_key() {
 pub extend LdtkTileMetadata with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for LdtkTileMetadata with fn prepare(world) {
-  selene_component_key_LdtkTileMetadata.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LdtkTileMetadata with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_LdtkIntGridCollider : @ecs.ComponentKey[
   LdtkIntGridCollider,
 ] = ComponentKey()
@@ -239,16 +149,6 @@ pub impl @ecs.Component for LdtkIntGridCollider with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend LdtkIntGridCollider with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for LdtkIntGridCollider with fn prepare(world) {
-  selene_component_key_LdtkIntGridCollider.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LdtkIntGridCollider with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_LdtkWorldly : @ecs.ComponentKey[LdtkWorldly] = ComponentKey(
@@ -266,16 +166,6 @@ pub impl @ecs.Component for LdtkWorldly with fn component_key() {
 pub extend LdtkWorldly with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for LdtkWorldly with fn prepare(world) {
-  selene_component_key_LdtkWorldly.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LdtkWorldly with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_LdtkRespawn : @ecs.ComponentKey[LdtkRespawn] = ComponentKey(
 
 )
@@ -289,16 +179,6 @@ pub impl @ecs.Component for LdtkRespawn with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend LdtkRespawn with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for LdtkRespawn with fn prepare(world) {
-  selene_component_key_LdtkRespawn.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LdtkRespawn with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_LdtkSpawnedLayerInstance : @ecs.ComponentKey[
@@ -316,18 +196,6 @@ pub impl @ecs.Component for LdtkSpawnedLayerInstance with fn component_key() {
 pub extend LdtkSpawnedLayerInstance with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for LdtkSpawnedLayerInstance with fn prepare(world) {
-  selene_component_key_LdtkSpawnedLayerInstance
-    .store_in(world)
-    .spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LdtkSpawnedLayerInstance with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_LdtkSpawnedTileInstance : @ecs.ComponentKey[
   LdtkSpawnedTileInstance,
 ] = ComponentKey()
@@ -341,16 +209,6 @@ pub impl @ecs.Component for LdtkSpawnedTileInstance with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend LdtkSpawnedTileInstance with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for LdtkSpawnedTileInstance with fn prepare(world) {
-  selene_component_key_LdtkSpawnedTileInstance.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LdtkSpawnedTileInstance with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_LdtkSpawnedEntityInstance : @ecs.ComponentKey[
@@ -368,18 +226,6 @@ pub impl @ecs.Component for LdtkSpawnedEntityInstance with fn component_key() {
 pub extend LdtkSpawnedEntityInstance with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for LdtkSpawnedEntityInstance with fn prepare(world) {
-  selene_component_key_LdtkSpawnedEntityInstance
-    .store_in(world)
-    .spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LdtkSpawnedEntityInstance with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_LdtkSpawnedIntGridCell : @ecs.ComponentKey[
   LdtkSpawnedIntGridCell,
 ] = ComponentKey()
@@ -393,13 +239,3 @@ pub impl @ecs.Component for LdtkSpawnedIntGridCell with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend LdtkSpawnedIntGridCell with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for LdtkSpawnedIntGridCell with fn prepare(world) {
-  selene_component_key_LdtkSpawnedIntGridCell.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LdtkSpawnedIntGridCell with @ecs.Bundle::{ prepare }

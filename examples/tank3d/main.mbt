@@ -147,13 +147,15 @@ fn setup_lighting() -> Unit {
     Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.12, }),
   )
   ignore(
-    spawn_tank3d_entity(@render3d.DirectionalLight3D::{
-      ..@render3d.DirectionalLight3D(),
-      direction: vec3(-0.35, -0.82, -0.46).normalize(),
-      color: color(255U, 244U, 220U, 1.0),
-      intensity: 2.1,
-      shadows: false,
-    }),
+    spawn_tank3d_entity(
+      @ecs.Single(@render3d.DirectionalLight3D::{
+        ..@render3d.DirectionalLight3D(),
+        direction: vec3(-0.35, -0.82, -0.46).normalize(),
+        color: color(255U, 244U, 220U, 1.0),
+        intensity: 2.1,
+        shadows: false,
+      }),
+    ),
   )
 }
 

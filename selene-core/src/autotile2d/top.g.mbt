@@ -9,9 +9,3 @@ let selene_component_key_RuntimeLayerState : @ecs.ComponentKey[
 impl @ecs.Component for RuntimeLayerState with fn component_key() {
   selene_component_key_RuntimeLayerState
 }
-
-///|
-#warnings("-unused_value")
-impl @ecs.Bundle for RuntimeLayerState with fn prepare(world) {
-  selene_component_key_RuntimeLayerState.store_in(world).spawn_plan(world)
-}

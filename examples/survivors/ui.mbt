@@ -128,15 +128,19 @@ fn spawn_panel_button(
   tab_index : Int32,
   font~ : String = "16px ThaleahFat",
 ) -> @ecs.Entity {
-  spawn_survivors_entity(
+  let world = @ecs.require_current_world()
+  let plan = world.prepare_spawn().combine(world.prepare_spawn())
+  let entity = plan.spawn(
     (
-      @ui.Node::absolute(offset, size~),
-      @ui.ZIndex(PANEL_TEXT_ZINDEX),
-      @ui.BackgroundColor::from_css(background),
-      @ui.BorderColor::from_css(border),
-      @ui.BorderRadius::all(@ui.Val::px(8.0)),
-      @ui.Button(),
-      @ui.TabIndex(tab_index),
+      (
+        @ui.Node::absolute(offset, size~),
+        @ui.ZIndex(PANEL_TEXT_ZINDEX),
+        @ui.BackgroundColor::from_css(background),
+        @ui.BorderColor::from_css(border),
+        @ui.BorderRadius::all(@ui.Val::px(8.0)),
+        @ui.Button(),
+        @ui.TabIndex(tab_index),
+      ),
       (
         @ui.Text(label),
         @ui.TextFont::from_css(font),
@@ -145,6 +149,8 @@ fn spawn_panel_button(
       ),
     ),
   )
+  survivors_runtime().entities.push(entity)
+  entity
 }
 
 ///|

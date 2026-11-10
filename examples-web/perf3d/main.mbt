@@ -206,13 +206,15 @@ fn setup_lights(config : PerfConfig) -> Unit {
     Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.08, }),
   )
   ignore(
-    spawn_perf_entity(@render3d.DirectionalLight3D::{
-      ..@render3d.DirectionalLight3D(),
-      direction: vec3(-0.35, -0.8, -0.45).normalize(),
-      color: color(255U, 245U, 220U, 1.0),
-      intensity: 1.8,
-      shadows: config.case_name == "shadow-casters",
-    }),
+    spawn_perf_entity(
+      @ecs.Single(@render3d.DirectionalLight3D::{
+        ..@render3d.DirectionalLight3D(),
+        direction: vec3(-0.35, -0.8, -0.45).normalize(),
+        color: color(255U, 245U, 220U, 1.0),
+        intensity: 1.8,
+        shadows: config.case_name == "shadow-casters",
+      }),
+    ),
   )
 }
 

@@ -361,7 +361,6 @@ pub struct LdtkEntityDefinition {
 pub struct LdtkEntityIid {
   iid : String
 }
-pub impl @ecs.Bundle for LdtkEntityIid
 pub impl @ecs.Component for LdtkEntityIid
 
 pub struct LdtkEntityInstance {
@@ -477,7 +476,6 @@ pub struct LdtkGridCoords {
   x : Int32
   y : Int32
 }
-pub impl @ecs.Bundle for LdtkGridCoords
 pub impl @ecs.Component for LdtkGridCoords
 
 pub struct LdtkIndexedLevel {
@@ -488,7 +486,6 @@ pub struct LdtkIndexedLevel {
 pub struct LdtkIntGridCell {
   value : Int32
 }
-pub impl @ecs.Bundle for LdtkIntGridCell
 pub impl @ecs.Component for LdtkIntGridCell
 
 pub struct LdtkIntGridCellSpawnedEvent {
@@ -507,7 +504,6 @@ pub struct LdtkIntGridCellSpawnedEvent {
 pub struct LdtkIntGridCollider {
   sensor : Bool
 }
-pub impl @ecs.Bundle for LdtkIntGridCollider
 pub impl @ecs.Component for LdtkIntGridCollider
 
 pub struct LdtkIntGridColliderSpawnedEvent {
@@ -605,7 +601,6 @@ pub struct LdtkLayerMetadata {
   seed : Int32
   visible : Bool
 }
-pub impl @ecs.Bundle for LdtkLayerMetadata
 pub impl @ecs.Component for LdtkLayerMetadata
 
 pub struct LdtkLayerSpawnedEvent {
@@ -667,7 +662,6 @@ pub struct LdtkLevelBackground {
   rel_path : String?
   zindex : Int32
 }
-pub impl @ecs.Bundle for LdtkLevelBackground
 pub impl @ecs.Component for LdtkLevelBackground
 
 pub struct LdtkLevelBackgroundPosition {
@@ -689,7 +683,6 @@ pub enum LdtkLevelEvent {
 pub struct LdtkLevelIid {
   iid : String
 }
-pub impl @ecs.Bundle for LdtkLevelIid
 pub impl @ecs.Component for LdtkLevelIid
 
 pub struct LdtkLevelIndices {
@@ -705,7 +698,6 @@ pub struct LdtkLevelInstance {
   indices : LdtkLevelIndices
   level : LdtkLevel
 }
-pub impl @ecs.Bundle for LdtkLevelInstance
 pub impl @ecs.Component for LdtkLevelInstance
 
 pub enum LdtkLevelSelection {
@@ -788,7 +780,6 @@ pub fn LdtkProjectDefinitions::LdtkProjectDefinitions() -> Self
 pub struct LdtkRespawn {
   requested : Bool
 }
-pub impl @ecs.Bundle for LdtkRespawn
 pub impl @ecs.Component for LdtkRespawn
 
 pub struct LdtkSettings {
@@ -812,7 +803,6 @@ pub struct LdtkSpawnedEntityInstance {
   instance : LdtkEntityInstance
   zindex : Int32
 }
-pub impl @ecs.Bundle for LdtkSpawnedEntityInstance
 pub impl @ecs.Component for LdtkSpawnedEntityInstance
 
 pub struct LdtkSpawnedIntGridCell {
@@ -825,7 +815,6 @@ pub struct LdtkSpawnedIntGridCell {
   grid_y : Int32
   zindex : Int32
 }
-pub impl @ecs.Bundle for LdtkSpawnedIntGridCell
 pub impl @ecs.Component for LdtkSpawnedIntGridCell
 
 pub struct LdtkSpawnedLayerInstance {
@@ -835,7 +824,6 @@ pub struct LdtkSpawnedLayerInstance {
   effective_visible : Bool
   zindex : Int32
 }
-pub impl @ecs.Bundle for LdtkSpawnedLayerInstance
 pub impl @ecs.Component for LdtkSpawnedLayerInstance
 
 pub struct LdtkSpawnedTileInstance {
@@ -846,7 +834,6 @@ pub struct LdtkSpawnedTileInstance {
   tile : LdtkTileInstance
   zindex : Int32
 }
-pub impl @ecs.Bundle for LdtkSpawnedTileInstance
 pub impl @ecs.Component for LdtkSpawnedTileInstance
 
 pub struct LdtkTileInstance {
@@ -868,7 +855,6 @@ pub struct LdtkTileMetadata {
   custom_data : String?
   enum_tags : Array[String]
 }
-pub impl @ecs.Bundle for LdtkTileMetadata
 pub impl @ecs.Component for LdtkTileMetadata
 
 pub struct LdtkTileSpawnedEvent {
@@ -931,7 +917,6 @@ pub struct LdtkWorldInstance {
   mut level_set : LdtkLevelSet
   spawned_levels : Map[String, @ecs.Entity]
 }
-pub impl @ecs.Bundle for LdtkWorldInstance
 pub impl @ecs.Component for LdtkWorldInstance
 
 pub struct LdtkWorldSpawnSettings {
@@ -962,7 +947,6 @@ pub struct LdtkWorldly {
   level_iid : String
   entity_iid : String
 }
-pub impl @ecs.Bundle for LdtkWorldly
 pub impl @ecs.Component for LdtkWorldly
 
 // Type aliases

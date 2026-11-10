@@ -10,15 +10,19 @@ test "typed spawn binds the layout to the explicit World" {
   )
   let foreign : @ecs.ComponentStore[@sprite.Sprite] = @ecs.components_in(other)
   let empty = world.spawn(())
-  let single = world.spawn(sprite)
+  let single = world.spawn(@ecs.Single(sprite))
   let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Transform)] = world.prepare_spawn()
   let prepared = plan.spawn((sprite, transform))
-  let nested = world.spawn(((), (transform, sprite)))
+  let reversed = world.spawn((transform, sprite))
   assert_true(empty.belongs_to(world))
   assert_false(sprites.contains(empty))
   assert_true(sprites.contains(single))
   assert_false(transforms.contains(single))
-  for entity in [prepared, nested] {
+  let pending = @ecs.commands(world).spawn(@ecs.Single(sprite))
+  assert_false(sprites.contains(pending))
+  @ecs.run_schedule(world, _ => ())
+  assert_true(sprites.contains(pending))
+  for entity in [prepared, reversed] {
     assert_true(@ecs.alive_in_world(world)(entity))
     assert_true(sprites.contains(entity))
     assert_eq(transforms.get(entity), Some(transform))
@@ -29,7 +33,7 @@ test "typed spawn binds the layout to the explicit World" {
 ///|
 test "typed spawn can queue an entity from a query" {
   let world = @ecs.World()
-  let first = world.spawn(@sprite.Sprite())
+  let first = world.spawn(@ecs.Single(@sprite.Sprite()))
   let sprites : @ecs.ComponentStore[@sprite.Sprite] = @ecs.components_in(world)
   let transforms : @ecs.ComponentStore[@transform.Transform] = @ecs.components_in(
     world,
@@ -63,5 +67,5 @@ test "typed spawn can queue an entity from a query" {
 test "panic typed spawn rejects duplicate component columns" {
   let world = @ecs.World()
   let sprite = @sprite.Sprite()
-  ignore(world.spawn((sprite, ((), sprite))))
+  ignore(world.spawn((sprite, sprite)))
 }

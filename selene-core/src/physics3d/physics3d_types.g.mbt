@@ -16,16 +16,6 @@ pub impl @ecs.Component for RigidBody with fn component_key() {
 pub extend RigidBody with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for RigidBody with fn prepare(world) {
-  selene_component_key_RigidBody.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend RigidBody with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_Velocity : @ecs.ComponentKey[Velocity] = ComponentKey()
 
 ///|
@@ -39,16 +29,6 @@ pub impl @ecs.Component for Velocity with fn component_key() {
 pub extend Velocity with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for Velocity with fn prepare(world) {
-  selene_component_key_Velocity.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Velocity with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_Damping : @ecs.ComponentKey[Damping] = ComponentKey()
 
 ///|
@@ -60,16 +40,6 @@ pub impl @ecs.Component for Damping with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend Damping with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for Damping with fn prepare(world) {
-  selene_component_key_Damping.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Damping with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_GravityScale : @ecs.ComponentKey[GravityScale] = ComponentKey(
@@ -87,16 +57,6 @@ pub impl @ecs.Component for GravityScale with fn component_key() {
 pub extend GravityScale with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for GravityScale with fn prepare(world) {
-  selene_component_key_GravityScale.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend GravityScale with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_LockedAxes : @ecs.ComponentKey[LockedAxes] = ComponentKey(
 
 )
@@ -112,16 +72,6 @@ pub impl @ecs.Component for LockedAxes with fn component_key() {
 pub extend LockedAxes with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for LockedAxes with fn prepare(world) {
-  selene_component_key_LockedAxes.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend LockedAxes with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_Ccd : @ecs.ComponentKey[Ccd] = ComponentKey()
 
 ///|
@@ -133,16 +83,6 @@ pub impl @ecs.Component for Ccd with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend Ccd with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for Ccd with fn prepare(world) {
-  selene_component_key_Ccd.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Ccd with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_Dominance : @ecs.ComponentKey[Dominance] = ComponentKey(
@@ -160,16 +100,6 @@ pub impl @ecs.Component for Dominance with fn component_key() {
 pub extend Dominance with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for Dominance with fn prepare(world) {
-  selene_component_key_Dominance.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Dominance with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_AdditionalMassProperties : @ecs.ComponentKey[
   AdditionalMassProperties,
 ] = ComponentKey()
@@ -185,18 +115,6 @@ pub impl @ecs.Component for AdditionalMassProperties with fn component_key() {
 pub extend AdditionalMassProperties with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for AdditionalMassProperties with fn prepare(world) {
-  selene_component_key_AdditionalMassProperties
-    .store_in(world)
-    .spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend AdditionalMassProperties with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_Collider : @ecs.ComponentKey[Collider] = ComponentKey()
 
 ///|
@@ -208,16 +126,6 @@ pub impl @ecs.Component for Collider with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend Collider with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for Collider with fn prepare(world) {
-  selene_component_key_Collider.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Collider with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_Sensor : @ecs.ComponentKey[Sensor] = ComponentKey()
@@ -233,16 +141,6 @@ pub impl @ecs.Component for Sensor with fn component_key() {
 pub extend Sensor with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for Sensor with fn prepare(world) {
-  selene_component_key_Sensor.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Sensor with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_Friction : @ecs.ComponentKey[Friction] = ComponentKey()
 
 ///|
@@ -254,16 +152,6 @@ pub impl @ecs.Component for Friction with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend Friction with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for Friction with fn prepare(world) {
-  selene_component_key_Friction.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Friction with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_Restitution : @ecs.ComponentKey[Restitution] = ComponentKey(
@@ -281,16 +169,6 @@ pub impl @ecs.Component for Restitution with fn component_key() {
 pub extend Restitution with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for Restitution with fn prepare(world) {
-  selene_component_key_Restitution.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend Restitution with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_CollisionGroups : @ecs.ComponentKey[CollisionGroups] = ComponentKey(
 
 )
@@ -304,16 +182,6 @@ pub impl @ecs.Component for CollisionGroups with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend CollisionGroups with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for CollisionGroups with fn prepare(world) {
-  selene_component_key_CollisionGroups.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend CollisionGroups with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_SolverGroups : @ecs.ComponentKey[SolverGroups] = ComponentKey(
@@ -331,16 +199,6 @@ pub impl @ecs.Component for SolverGroups with fn component_key() {
 pub extend SolverGroups with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for SolverGroups with fn prepare(world) {
-  selene_component_key_SolverGroups.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend SolverGroups with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_ContactForceEventThreshold : @ecs.ComponentKey[
   ContactForceEventThreshold,
 ] = ComponentKey()
@@ -356,18 +214,6 @@ pub impl @ecs.Component for ContactForceEventThreshold with fn component_key() {
 pub extend ContactForceEventThreshold with @ecs.Component::{ component_key }
 
 ///|
-pub impl @ecs.Bundle for ContactForceEventThreshold with fn prepare(world) {
-  selene_component_key_ContactForceEventThreshold
-    .store_in(world)
-    .spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend ContactForceEventThreshold with @ecs.Bundle::{ prepare }
-
-///|
 let selene_component_key_ColliderMassProperties : @ecs.ComponentKey[
   ColliderMassProperties,
 ] = ComponentKey()
@@ -381,13 +227,3 @@ pub impl @ecs.Component for ColliderMassProperties with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend ColliderMassProperties with @ecs.Component::{ component_key }
-
-///|
-pub impl @ecs.Bundle for ColliderMassProperties with fn prepare(world) {
-  selene_component_key_ColliderMassProperties.store_in(world).spawn_plan(world)
-}
-
-///|
-#deprecated("Use the typed Selene API.", skip_current_package=true)
-#doc(hidden)
-pub extend ColliderMassProperties with @ecs.Bundle::{ prepare }
