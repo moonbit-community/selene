@@ -156,7 +156,7 @@ fn blend_quat(
   if total <= 0.000001 {
     fallback
   } else {
-    @math.Quat(x / total, y / total, z / total, w / total).normalize()
+    @math.Quat(x / total, y / total, z / total, w / total).normalize_or_identity()
   }
 }
 
@@ -248,7 +248,7 @@ fn apply_additive_value(
       for pair in values {
         if pair.0 is Quat(add) {
           let weighted = @math.Quat::identity().nlerp(add, pair.1)
-          output = output.mul(weighted).normalize()
+          output = output.mul(weighted).normalize_or_identity()
         }
       }
       Quat(output)

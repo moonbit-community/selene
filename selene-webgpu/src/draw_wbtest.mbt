@@ -37,12 +37,8 @@ fn webgpu_test_camera() -> @render3d_types.FrameCamera3D {
 }
 
 ///|
-fn webgpu_test_transform(x : Double) -> @render3d_types.FrameTransform3D {
-  {
-    translation: Vec3(x, 0.0, 0.0),
-    rotation: @smath.Quat::identity(),
-    scale: @smath.Vec3::one(),
-  }
+fn webgpu_test_transform(x : Double) -> @smath.Affine3 {
+  { ..@smath.Affine3::identity(), translation: Vec3(x, 0.0, 0.0), }
 }
 
 ///|
@@ -126,16 +122,7 @@ test "MoonBit forms lit primitive instance batches before WebGPU FFI" {
     batches,
     batch_key,
     fn() { resource_key },
-    0.0,
-    1.0,
-    2.0,
-    0.0,
-    0.0,
-    0.0,
-    1.0,
-    1.0,
-    1.0,
-    1.0,
+    { ..@smath.Affine3::identity(), translation: Vec3(0.0, 1.0, 2.0), },
     false,
     true,
     true,
@@ -144,16 +131,7 @@ test "MoonBit forms lit primitive instance batches before WebGPU FFI" {
     batches,
     batch_key,
     fn() { abort("resource key should be cached") },
-    3.0,
-    4.0,
-    5.0,
-    0.0,
-    0.0,
-    0.0,
-    1.0,
-    1.0,
-    1.0,
-    1.0,
+    { ..@smath.Affine3::identity(), translation: Vec3(3.0, 4.0, 5.0), },
     false,
     true,
     true,
@@ -164,13 +142,13 @@ test "MoonBit forms lit primitive instance batches before WebGPU FFI" {
     entry.resource_key,
     content="lit-cube|1|1|1|255,255,255,1|0,0,0|0|0.5|0",
   )
-  inspect(entry.instances.length(), content="22")
+  inspect(entry.instances.length(), content="26")
 }
 
 ///|
 test "MoonBit packs WebGPU 2D rect and circle vertices before FFI" {
   let rect : @smath.Rect = { position: Vec2(10.0, 20.0), size: Vec2(2.0, 4.0), }
-  let transform = @smath.Transform(a=2.0, d=3.0, tx=5.0, ty=7.0)
+  let transform = @smath.Affine2(a=2.0, d=3.0, tx=5.0, ty=7.0)
   let fill = pack_rect_fill_vertices2d(rect, transform, {
     r: 255U,
     g: 0U,
@@ -201,7 +179,7 @@ test "MoonBit packs WebGPU 2D rect and circle vertices before FFI" {
 
   let gradient = pack_gradient_rect_vertices2d(
     rect,
-    Transform(),
+    Affine2(),
     { r: 255U, g: 0U, b: 0U, a: 1.0, },
     { r: 0U, g: 0U, b: 255U, a: 0.5, },
   )
@@ -211,7 +189,7 @@ test "MoonBit packs WebGPU 2D rect and circle vertices before FFI" {
   inspect(gradient[10], content="0.5")
   inspect(gradient[17], content="0.5")
 
-  let circle = pack_circle_fill_vertices2d(Vec2(2.0, 3.0), 4.0, Transform(), {
+  let circle = pack_circle_fill_vertices2d(Vec2(2.0, 3.0), 4.0, Affine2(), {
     r: 255U,
     g: 255U,
     b: 255U,
@@ -232,9 +210,9 @@ test "MoonBit packs WebGPU 2D image vertices before FFI" {
   }
   let repeated = pack_image_vertices2d_raw(
     destination,
-    Transform(),
+    Affine2(),
     None,
-    Transform(),
+    Affine2(),
     Repeat,
     { r: 128U, g: 255U, b: 0U, a: 0.5, },
     32.0,
@@ -254,9 +232,9 @@ test "MoonBit packs WebGPU 2D image vertices before FFI" {
 
   let sourced = pack_image_vertices2d_raw(
     destination,
-    Transform(tx=1.0, ty=2.0),
+    Affine2(tx=1.0, ty=2.0),
     Some({ position: Vec2(8.0, 4.0), size: Vec2(16.0, 8.0), }),
-    Transform(a=2.0, d=3.0),
+    Affine2(a=2.0, d=3.0),
     Repeat,
     { r: 255U, g: 255U, b: 255U, a: 1.0, },
     32.0,
@@ -277,7 +255,7 @@ test "MoonBit packs WebGPU 2D fallback text vertices before FFI" {
     {
       text: "hello",
       position: Vec2(100.0, 50.0),
-      transform: Transform(tx=1.0, ty=2.0),
+      transform: Affine2(tx=1.0, ty=2.0),
       blend_mode: Alpha,
       style: {
         font: None,
@@ -366,13 +344,13 @@ test "render3d submission stats record repeated primitive pressure" {
   inspect(stats.draw_commands, content="1")
   inspect(stats.lit_triangle_commands, content="1")
   inspect(stats.textured_triangle_commands, content="0")
-  inspect(stats.uploaded_vertex_bytes, content="176")
+  inspect(stats.uploaded_vertex_bytes, content="208")
   inspect(stats.render_bind_group_creations, content="1")
   last_render3d_submission_stats.val = stats
   let snapshot = render3d_last_submission_stats()
   inspect(snapshot.submitted_items, content="4")
   inspect(snapshot.draw_commands, content="1")
-  inspect(snapshot.uploaded_vertex_bytes, content="176")
+  inspect(snapshot.uploaded_vertex_bytes, content="208")
   release_mesh_asset(mesh)
   release_material_asset(material)
 }
@@ -392,7 +370,7 @@ test "render3d submission stats reuse retained static primitive instances" {
   let first_stats = _collect_render3d_submission_stats(frame)
   let second_stats = _collect_render3d_submission_stats(frame)
   inspect(first_stats.draw_commands, content="1")
-  inspect(first_stats.uploaded_vertex_bytes, content="88")
+  inspect(first_stats.uploaded_vertex_bytes, content="104")
   inspect(second_stats.draw_commands, content="1")
   inspect(second_stats.uploaded_vertex_bytes, content="0")
   release_mesh_asset(mesh)
@@ -890,8 +868,8 @@ test "resolve_material_texture_input applies bound texture transforms and falls 
   )
   inspect(transformed_input.path, content="wbtest://emissive")
   inspect(transformed_input.sampler_code, content="3")
-  inspect(transformed_input.uvs[0][X], content="1.25")
-  inspect(transformed_input.uvs[0][Y], content="1")
+  inspect(transformed_input.uvs[0].x, content="1.25")
+  inspect(transformed_input.uvs[0].y, content="1")
   let fallback_input = resolve_material_texture_input(
     mesh,
     Some({ path: "wbtest://missing", texcoord_set: 4, sampler_code: 3, }),
@@ -899,8 +877,8 @@ test "resolve_material_texture_input applies bound texture transforms and falls 
   )
   inspect(fallback_input.path, content="")
   inspect(fallback_input.sampler_code, content="0")
-  inspect(fallback_input.uvs[1][X], content="1")
-  inspect(fallback_input.uvs[1][Y], content="0")
+  inspect(fallback_input.uvs[1].x, content="1")
+  inspect(fallback_input.uvs[1].y, content="0")
 }
 
 ///|
@@ -978,21 +956,21 @@ test "flatten_textured_vertices3d packs unlit surface metadata" {
 ///|
 test "custom mesh transforms are applied in MoonBit before WebGPU FFI" {
   let positions = [@smath.Vec3(1.0, 2.0, 3.0)]
-  let transformed = transform_positions3d(
-    positions,
-    Vec3(10.0, 20.0, 30.0),
-    @smath.Quat::identity(),
-    Vec3(2.0, 3.0, 4.0),
-  )
-  inspect(transformed[0].x, content="12")
-  inspect(transformed[0].y, content="26")
-  inspect(transformed[0].z, content="42")
-  let normals = rotate_normals3d(
-    [Vec3(1.0, 1.0, 0.0)],
-    @smath.Quat::identity(),
-    Vec3(2.0, 1.0, 1.0),
-  )
-  inspect(normals[0].x < normals[0].y, content="true")
+  let transform : @smath.Affine3 = {
+    x_axis: Vec3(2.0, 0.0, 0.0),
+    y_axis: Vec3(1.0, 3.0, 0.0),
+    z_axis: Vec3(0.0, 0.0, 4.0),
+    translation: Vec3(10.0, 20.0, 30.0),
+  }
+  let transformed = transform_positions3d(positions, transform)
+  assert_eq(transformed[0], Vec3(14.0, 26.0, 42.0))
+  let normal = transform_normals3d([Vec3(1.0, 0.0, 0.0)], transform)[0]
+  assert_true(normal.dot(transform.y_axis).abs() < 1.0e-10)
+  let packed = []
+  push_lit_primitive_instance_values(packed, transform, true)
+  assert_eq(packed, [
+    2.0, 1.0, 0.0, 10.0, 0.0, 3.0, 0.0, 20.0, 0.0, 0.0, 4.0, 30.0, 1.0,
+  ])
 }
 
 ///|

@@ -357,7 +357,7 @@ test "load_ldtk_project parses defs entities enums and typed entity field helper
     inspect(entity.field_int("HP").unwrap(), content="3")
     inspect(entity.field_number("Speed").unwrap(), content="1.5")
     let spawn = entity.field_vec2("Spawn").unwrap()
-    inspect(spawn[X] == 5.0 && spawn[Y] == 6.0, content="true")
+    inspect(spawn.x == 5.0 && spawn.y == 6.0, content="true")
     inspect(
       entity.field_int_array("Checkpoints").unwrap().length(),
       content="3",
@@ -424,7 +424,7 @@ test "load_ldtk_project parses advanced field helpers for level and entity" {
       content="7",
     )
     let spawn_point = level.field_vec2_array("SpawnPoints").unwrap()[1]
-    inspect(spawn_point[X] == 3.0 && spawn_point[Y] == 4.0, content="true")
+    inspect(spawn_point.x == 3.0 && spawn_point.y == 4.0, content="true")
     inspect(level.field_number_array("Weights").unwrap()[0], content="1.25")
 
     let entity = level.layer_instances[0].entity_instances[0]
@@ -439,7 +439,7 @@ test "load_ldtk_project parses advanced field helpers for level and entity" {
     inspect(entity.field_tiles("Marker").unwrap()[0].h, content="16")
     inspect(entity.field_number_array("FloatList").unwrap()[1], content="2")
     let path_point = entity.field_vec2_array("Path").unwrap()[1]
-    inspect(path_point[X] == 6.0 && path_point[Y] == 7.0, content="true")
+    inspect(path_point.x == 6.0 && path_point.y == 7.0, content="true")
     let target_ref = entity.field_entity_ref("TargetRef").unwrap()
     inspect(target_ref.entity_iid.unwrap(), content="enemy-2")
     inspect(target_ref.level_iid.unwrap(), content="level-main")
@@ -469,9 +469,9 @@ test "load_ldtk_project parses level background position" {
     inspect(bg_pos.crop_y, content="2")
     inspect(bg_pos.crop_width, content="30")
     inspect(bg_pos.crop_height, content="40")
-    inspect(bg_pos.scale[X] == 1.5 && bg_pos.scale[Y] == 2.0, content="true")
+    inspect(bg_pos.scale.x == 1.5 && bg_pos.scale.y == 2.0, content="true")
     inspect(
-      bg_pos.top_left_px[X] == 7.0 && bg_pos.top_left_px[Y] == 8.0,
+      bg_pos.top_left_px.x == 7.0 && bg_pos.top_left_px.y == 8.0,
       content="true",
     )
   })
@@ -521,7 +521,7 @@ test "ldtk_world_sync_system updates spawned levels from selection" {
   let spawned_a = world_instance.spawned_levels.get("iid-a").unwrap()
   let spawned_a_translation = ldtk_test_entity_translation_2d(spawned_a)
   inspect(
-    spawned_a_translation[X] == 10.0 && spawned_a_translation[Y] == 20.0,
+    spawned_a_translation.x == 10.0 && spawned_a_translation.y == 20.0,
     content="true",
   )
 
@@ -533,7 +533,7 @@ test "ldtk_world_sync_system updates spawned levels from selection" {
   let spawned_b = updated.spawned_levels.get("iid-b").unwrap()
   let spawned_b_translation = ldtk_test_entity_translation_2d(spawned_b)
   inspect(
-    spawned_b_translation[X] == 110.0 && spawned_b_translation[Y] == 220.0,
+    spawned_b_translation.x == 110.0 && spawned_b_translation.y == 220.0,
     content="true",
   )
 
@@ -597,23 +597,23 @@ test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
       fail("expected level background rect")
     }
     inspect(
-      background_rect.position[X] == 3.0 && background_rect.position[Y] == 5.0,
+      background_rect.position.x == 3.0 && background_rect.position.y == 5.0,
       content="true",
     )
     inspect(
-      background_rect.size[X] == 20.0 && background_rect.size[Y] == 10.0,
+      background_rect.size.x == 20.0 && background_rect.size.y == 10.0,
       content="true",
     )
     inspect(
       match background_sprite.custom_size {
-        Some(size) => size[X] == 40.0 && size[Y] == 30.0
+        Some(size) => size.x == 40.0 && size.y == 30.0
         None => false
       },
       content="true",
     )
     let background_anchor = background_sprite.anchor.as_vec()
     inspect(
-      background_anchor[X] == -0.5 && background_anchor[Y] == 0.5,
+      background_anchor.x == -0.5 && background_anchor.y == 0.5,
       content="true",
     )
     cleanup_ldtk_entity(world)
@@ -910,22 +910,19 @@ test "ldtk entity tile sprite registration inserts placeholder sprite from __til
       fail("expected entity tile rect")
     }
     inspect(
-      tile_rect.position[X] == 16.0 && tile_rect.position[Y] == 24.0,
+      tile_rect.position.x == 16.0 && tile_rect.position.y == 24.0,
       content="true",
     )
-    inspect(
-      tile_rect.size[X] == 16.0 && tile_rect.size[Y] == 8.0,
-      content="true",
-    )
+    inspect(tile_rect.size.x == 16.0 && tile_rect.size.y == 8.0, content="true")
     inspect(
       match sprite.custom_size {
-        Some(size) => size[X] == 32.0 && size[Y] == 16.0
+        Some(size) => size.x == 32.0 && size.y == 16.0
         None => false
       },
       content="true",
     )
     let sprite_anchor = sprite.anchor.as_vec()
-    inspect(sprite_anchor[X] == -0.5 && sprite_anchor[Y] == 1.0, content="true")
+    inspect(sprite_anchor.x == -0.5 && sprite_anchor.y == 1.0, content="true")
     cleanup_ldtk_entity(world)
   })
 }
@@ -1017,7 +1014,7 @@ test "ldtk tile source uses tileset spacing and padding" {
     let world = spawn_ldtk_world(project)
     let tile_entity = ldtk_spawned_tile_instances().to_array()[0].0
     let src = ldtk_tile_metadata().get(tile_entity).unwrap().src
-    inspect(src[X] == 19.0 && src[Y] == 19.0, content="true")
+    inspect(src.x == 19.0 && src.y == 19.0, content="true")
     cleanup_ldtk_entity(world)
   })
 }

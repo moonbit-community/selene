@@ -65,7 +65,7 @@ fn sync_impulse_joints_to_rapier() -> Unit {
           world.impulse_joints.insert_spherical_motor_rotation(
             body_handle,
             parent_handle,
-            target.to_rapier(),
+            rotation_to_rapier(target),
             Float::from_double(stiffness),
             Float::from_double(damping),
           )
@@ -167,14 +167,14 @@ fn sync_character_controllers(delta : Double) -> Unit {
     let query_filter = { ..QueryFilter::all(), exclude_entity: Some(entity), }
     let query = make_query_pipeline(query_filter~)
     let rapier_controller = controller_to_rapier(controller)
-    let transform = current_world_transform(entity).unwrap_or_default()
+    guard current_world_transform(entity) is Some(transform) else { continue }
     let (query_shape, shape_rotation) = to_query_shape_with_rotation(
       shape,
       transform.rotation,
     )
     let position = @core.Isometry3::Isometry3(
-      transform.translation.to_rapier(),
-      shape_rotation.to_rapier(),
+      vec3_to_rapier(transform.translation),
+      rotation_to_rapier(shape_rotation),
     )
     let rapier_collisions : Array[@control.CharacterCollision3DReal] = []
     let movement = rapier_controller.move_shape(
@@ -184,7 +184,7 @@ fn sync_character_controllers(delta : Double) -> Unit {
       world.colliders,
       query_shape,
       position,
-      desired_translation.to_rapier(),
+      vec3_to_rapier(desired_translation),
       fn(collision) { rapier_collisions.push(collision) },
     )
     if controller.apply_impulses_to_dynamic_bodies {
@@ -198,7 +198,7 @@ fn sync_character_controllers(delta : Double) -> Unit {
         rapier_collisions,
       )
     }
-    let effective_translation = @math.vec3_from_rapier(movement.translation())
+    let effective_translation = vec3_from_rapier(movement.translation())
     kinematic_character_controller_outputs().set(entity, {
       desired_translation,
       effective_translation,
@@ -208,14 +208,14 @@ fn sync_character_controllers(delta : Double) -> Unit {
     kinematic_character_controller_collisions().set(entity, {
       collisions: rapier_collisions.map(collision => {
         entity: resolve_collider_entity(collision.handle()),
-        character_translation_applied: @math.vec3_from_rapier(
+        character_translation_applied: vec3_from_rapier(
           collision.translation_applied(),
         ),
-        character_translation_remaining: @math.vec3_from_rapier(
+        character_translation_remaining: vec3_from_rapier(
           collision.translation_remaining(),
         ),
         toi: collision.hit().toi().to_double(),
-        normal: @math.vec3_from_rapier(collision.hit().normal()),
+        normal: vec3_from_rapier(collision.hit().normal()),
       }),
     })
     apply_character_controller_translation(entity, effective_translation, delta)
@@ -262,13 +262,14 @@ fn sync_collider_to_rapier(
               world.bodies,
             )
           }
-          let relative_transform = collider_relative_transform(
-            entity, body_entity,
-          )
+          guard collider_transform(entity, Some(body_entity))
+            is Some(relative_transform) else {
+            return
+          }
           collider.set_local_position(
             Isometry3(
-              relative_transform.translation.to_rapier(),
-              relative_transform.rotation.to_rapier(),
+              vec3_to_rapier(relative_transform.translation),
+              rotation_to_rapier(relative_transform.rotation),
             ),
           )
         }
@@ -297,18 +298,18 @@ fn sync_collider_to_rapier(
 }
 
 ///|
-fn ensure_rigid_body(entity : @ecs.Entity) -> RapierRigidBodyHandle {
+fn ensure_rigid_body(entity : @ecs.Entity) -> Unit {
   let world = physics3d_world()
   let body_handles = body_handles()
   if body_handles.get(entity) is Some(handle) {
     if world.bodies.get(handle) is Some(_) {
-      return handle
+      return
     }
     body_handles.remove(entity)
   }
 
   let body_desc = rigid_body_desc(entity)
-  let transform = current_world_transform(entity).unwrap_or_default()
+  guard current_world_transform(entity) is Some(transform) else { return }
   let mut builder = match body_desc.body_type {
     Dynamic => @dynamics.RigidBodyBuilder3D::dynamic()
     Fixed => @dynamics.RigidBodyBuilder3D::fixed()
@@ -318,15 +319,15 @@ fn ensure_rigid_body(entity : @ecs.Entity) -> RapierRigidBodyHandle {
       @dynamics.RigidBodyBuilder3D::kinematic_velocity_based()
   }
   builder = builder
-    .translation(transform.translation.to_rapier())
-    .rotation(transform.rotation.to_rapier())
+    .translation(vec3_to_rapier(transform.translation))
+    .rotation(rotation_to_rapier(transform.rotation))
     .gravity_scale(Float::from_double(body_desc.gravity_scale.0))
     .dominance_group(body_desc.dominance.map(d => d.0).unwrap_or(0))
     .linear_damping(Float::from_double(body_desc.damping.linear_damping))
     .angular_damping(Float::from_double(body_desc.damping.angular_damping))
     .ccd_enabled(body_desc.ccd_enabled)
-    .linvel(body_desc.velocity.linvel.to_rapier())
-    .angvel(body_desc.velocity.angvel.to_rapier())
+    .linvel(vec3_to_rapier(body_desc.velocity.linvel))
+    .angvel(vec3_to_rapier(body_desc.velocity.angvel))
     .enabled_rotations(
       !body_desc.locked_axes.lock_rotation_x,
       !body_desc.locked_axes.lock_rotation_y,
@@ -344,21 +345,17 @@ fn ensure_rigid_body(entity : @ecs.Entity) -> RapierRigidBodyHandle {
   }
   let handle = world.bodies.insert(builder.build())
   body_handles.set(entity, handle)
-  handle
 }
 
 ///|
-fn ensure_collider(
-  entity : @ecs.Entity,
-  collider_desc : ColliderDesc,
-) -> RapierColliderHandle {
+fn ensure_collider(entity : @ecs.Entity, collider_desc : ColliderDesc) -> Unit {
   let world = physics3d_world()
   let body_handles = body_handles()
   let collider_handles = collider_handles()
   let collider_entities_by_key = collider_entities_by_key()
   if collider_handles.get(entity) is Some(handle) {
     if world.colliders.get(handle) is Some(_) {
-      return handle
+      return
     }
     collider_handles.remove(entity)
     collider_entities_by_key.remove(collider_key(handle))
@@ -366,13 +363,12 @@ fn ensure_collider(
 
   let mut builder = collider_builder_from_desc(collider_desc)
   let body_entity = attached_rigid_body_entity(entity)
-  let transform = match body_entity {
-    Some(parent_entity) => collider_relative_transform(entity, parent_entity)
-    None => current_world_transform(entity).unwrap_or_default()
+  guard collider_transform(entity, body_entity) is Some(transform) else {
+    return
   }
   builder = builder
-    .translation(transform.translation.to_rapier())
-    .rotation(transform.rotation.to_rapier())
+    .translation(vec3_to_rapier(transform.translation))
+    .rotation(rotation_to_rapier(transform.rotation))
   let collider = builder.build()
 
   let handle = if body_entity is Some(body_entity) &&
@@ -385,7 +381,6 @@ fn ensure_collider(
 
   collider_handles.set(entity, handle)
   collider_entities_by_key.set(collider_key(handle), entity)
-  handle
 }
 
 ///|
@@ -433,14 +428,16 @@ fn collider_builder_from_desc(
         Float::from_double(border_radius),
       )
     Halfspace(normal) =>
-      @collision.ColliderBuilder3D::halfspace(normal.normalize().to_rapier())
+      @collision.ColliderBuilder3D::halfspace(
+        vec3_to_rapier(normal.normalize_or_zero()),
+      )
     ConvexHull(points) =>
       @collision.ColliderBuilder3D::convex_hull(
-        points.map(point => point.to_rapier()),
+        points.map(point => vec3_to_rapier(point)),
       ).unwrap_or(@collision.ColliderBuilder3D::ball(0.0))
     TriMesh(vertices, indices) =>
       @collision.ColliderBuilder3D::trimesh(
-        vertices.map(point => point.to_rapier()),
+        vertices.map(point => vec3_to_rapier(point)),
         indices,
       ).unwrap_or(@collision.ColliderBuilder3D::ball(0.0))
     Heightfield(heights, nrows, ncols, scale) =>
@@ -448,7 +445,7 @@ fn collider_builder_from_desc(
         heights.map(Float::from_double),
         nrows,
         ncols,
-        scale.to_rapier(),
+        vec3_to_rapier(scale),
       ).unwrap_or(@collision.ColliderBuilder3D::ball(0.0))
   }
 

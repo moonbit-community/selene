@@ -191,7 +191,7 @@ pub fn register_touch_events(
     let primary = previous_touch.primary
     let delta = position - previous_position
     touches.set(id, { id, source, position, previous_position, delta, primary, })
-    if delta[X] != 0.0 || delta[Y] != 0.0 {
+    if delta.x != 0.0 || delta.y != 0.0 {
       push_touch_change(
         changes,
         id,

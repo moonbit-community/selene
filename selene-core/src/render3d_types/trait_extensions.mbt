@@ -51,12 +51,6 @@ pub extend DirectionalLightShadowMap3D with @moonbitlang/core/debug.Debug::{
 pub extend DirectionalLightShadowMap3D with Eq::{not_equal, equal}
 
 ///|
-pub extend FrameTransform3D with @moonbitlang/core/debug.Debug::{to_repr}
-
-///|
-pub extend FrameTransform3D with Eq::{not_equal, equal}
-
-///|
 pub extend ImageAsset with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|

@@ -95,18 +95,16 @@ pub fn unscale_value(value : Double) -> Double {
 
 ///|
 pub fn scale_vec2(vec : @math.Vec2) -> @math.Vec2 {
-  Vec2(scale_value(vec[X]), scale_value(vec[Y]))
+  Vec2(scale_value(vec.x), scale_value(vec.y))
 }
 
 ///|
 pub fn unscale_vec2(vec : @math.Vec2) -> @math.Vec2 {
-  Vec2(unscale_value(vec[X]), unscale_value(vec[Y]))
+  Vec2(unscale_value(vec.x), unscale_value(vec.y))
 }
 
 ///|
-pub fn scale_transform_translation(
-  transform : @math.Transform,
-) -> @math.Transform {
+pub fn scale_transform_translation(transform : @math.Affine2) -> @math.Affine2 {
   { ..transform, tx: scale_value(transform.tx), ty: scale_value(transform.ty), }
 }
 
@@ -124,7 +122,7 @@ pub fn screen_to_ui_virtual(pos : @math.Vec2) -> @math.Vec2 {
 test "scale transform translation only" {
   configure_display(480.0, 320.0, 2.0)
   let transformed = scale_transform_translation(
-    Transform(a=1.2, b=0.3, c=0.4, d=1.1, tx=10.0, ty=20.0),
+    Affine2(a=1.2, b=0.3, c=0.4, d=1.1, tx=10.0, ty=20.0),
   )
   assert_eq(transformed.a, 1.2)
   assert_eq(transformed.b, 0.3)

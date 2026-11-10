@@ -8,12 +8,6 @@ pub extend Affine3 with Default::{default}
 pub extend Affine3 with Eq::{not_equal, equal}
 
 ///|
-pub extend Axis with @moonbitlang/core/debug.Debug::{to_repr}
-
-///|
-pub extend Axis with Eq::{not_equal, equal}
-
-///|
 pub extend Mat4 with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -35,10 +29,10 @@ pub extend Quat with Eq::{not_equal, equal}
 pub extend Quat with Mul::{mul}
 
 ///|
-pub extend Transform with Default::{default}
+pub extend Affine2 with Default::{default}
 
 ///|
-pub extend Transform with Mul::{mul}
+pub extend Affine2 with Mul::{mul}
 
 ///|
 pub extend Vec2 with @moonbitlang/core/debug.Debug::{to_repr}
@@ -81,3 +75,21 @@ pub extend Vec3 with Neg::{neg}
 
 ///|
 pub extend Vec3 with Sub::{sub}
+
+///|
+pub extend Rotation3 with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Rotation3 with Default::{default}
+
+///|
+pub extend Rotation3 with Eq::{not_equal, equal}
+
+///|
+pub extend Rotation3 with Mul::{mul}
+
+///|
+pub extend Mat4 with Add::{add}
+
+///|
+pub extend Affine3 with Mul::{mul}

@@ -7,7 +7,7 @@ priv struct ImageVertices2D {
 ///|
 fn pack_rect_fill_vertices2d(
   rect : @smath.Rect,
-  transform : @smath.Transform,
+  transform : @smath.Affine2,
   color : @render.Color,
 ) -> Array[Double] {
   let (p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y) = rect_points2d(rect, transform)
@@ -25,7 +25,7 @@ fn pack_rect_fill_vertices2d(
 ///|
 fn pack_rect_stroke_vertices2d(
   rect : @smath.Rect,
-  transform : @smath.Transform,
+  transform : @smath.Affine2,
   color : @render.Color,
 ) -> Array[Double] {
   let (p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y) = rect_points2d(rect, transform)
@@ -45,7 +45,7 @@ fn pack_rect_stroke_vertices2d(
 ///|
 fn pack_gradient_rect_vertices2d(
   rect : @smath.Rect,
-  transform : @smath.Transform,
+  transform : @smath.Affine2,
   color_start : @render.Color,
   color_end : @render.Color,
 ) -> Array[Double] {
@@ -87,10 +87,10 @@ fn pack_image_vertices2d(
 ///|
 fn pack_image_vertices2d_raw(
   destination : @smath.Rect,
-  transform : @smath.Transform,
+  transform : @smath.Affine2,
   source : @render2d_types.ImageRegion2D?,
-  uv_transform : @smath.Transform,
-  repeat : @smath.RepeatMode,
+  uv_transform : @smath.Affine2,
+  repeat : @render2d_types.RepeatMode,
   color : @render.Color,
   image_width : Double,
   image_height : Double,
@@ -105,14 +105,14 @@ fn pack_image_vertices2d_raw(
   let mut sampler_code = 0
   match source {
     Some(source) => {
-      u0 = source.position[X] / image_width
-      v0 = source.position[Y] / image_height
-      u1 = (source.position[X] + source.size[X]) / image_width
-      v1 = (source.position[Y] + source.size[Y]) / image_height
+      u0 = source.position.x / image_width
+      v0 = source.position.y / image_height
+      u1 = (source.position.x + source.size.x) / image_width
+      v1 = (source.position.y + source.size.y) / image_height
     }
     None => {
-      let scale_u = destination.size[X] / image_width
-      let scale_v = destination.size[Y] / image_height
+      let scale_u = destination.size.x / image_width
+      let scale_v = destination.size.y / image_height
       match repeat {
         Repeat => {
           u1 = scale_u
@@ -152,8 +152,8 @@ fn pack_text_vertices2d(
   texture_width : Double,
   texture_height : Double,
 ) -> Array[Double] {
-  let mut x = command.position[X]
-  let mut y = command.position[Y]
+  let mut x = command.position.x
+  let mut y = command.position.y
   match command.style.align {
     Center => x = x - texture_width / 2.0
     Right => x = x - texture_width
@@ -173,7 +173,7 @@ fn pack_text_vertices2d(
 ///|
 fn pack_text_vertices2d_raw(
   rect : @smath.Rect,
-  transform : @smath.Transform,
+  transform : @smath.Affine2,
 ) -> Array[Double] {
   let (p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y) = rect_points2d(rect, transform)
   let vertices : Array[Double] = []
@@ -190,13 +190,13 @@ fn pack_text_vertices2d_raw(
 fn pack_circle_fill_vertices2d(
   center : @smath.Vec2,
   radius : Double,
-  transform : @smath.Transform,
+  transform : @smath.Affine2,
   color : @render.Color,
 ) -> Array[Double] {
   let vertices : Array[Double] = []
   let (r, g, b, a) = color_rgba01(color)
-  let center_x = center[X] + transform.tx
-  let center_y = center[Y] + transform.ty
+  let center_x = center.x + transform.tx
+  let center_y = center.y + transform.ty
   for index in 0..<40 {
     let angle0 = index.to_double() / 40.0 * @math.PI * 2.0
     let angle1 = (index + 1).to_double() / 40.0 * @math.PI * 2.0
@@ -223,7 +223,7 @@ fn pack_circle_fill_vertices2d(
 fn pack_circle_stroke_vertices2d(
   center : @smath.Vec2,
   radius : Double,
-  transform : @smath.Transform,
+  transform : @smath.Affine2,
   color : @render.Color,
 ) -> Array[Double] {
   let vertices : Array[Double] = []
@@ -252,11 +252,11 @@ fn pack_circle_stroke_vertices2d(
 ///|
 fn rect_points2d(
   rect : @smath.Rect,
-  transform : @smath.Transform,
+  transform : @smath.Affine2,
 ) -> (Double, Double, Double, Double, Double, Double, Double, Double) {
   let origin = rect.position
-  let width = rect.size[X]
-  let height = rect.size[Y]
+  let width = rect.size.x
+  let height = rect.size.y
   let (p0x, p0y) = transformed_local_point2d(origin, transform, 0.0, 0.0)
   let (p1x, p1y) = transformed_local_point2d(origin, transform, width, 0.0)
   let (p2x, p2y) = transformed_local_point2d(origin, transform, width, height)
@@ -267,19 +267,19 @@ fn rect_points2d(
 ///|
 fn transformed_local_point2d(
   origin : @smath.Vec2,
-  transform : @smath.Transform,
+  transform : @smath.Affine2,
   local_x : Double,
   local_y : Double,
 ) -> (Double, Double) {
   (
-    transform.a * local_x + transform.c * local_y + transform.tx + origin[X],
-    transform.b * local_x + transform.d * local_y + transform.ty + origin[Y],
+    transform.a * local_x + transform.c * local_y + transform.tx + origin.x,
+    transform.b * local_x + transform.d * local_y + transform.ty + origin.y,
   )
 }
 
 ///|
 fn transform_uv2d(
-  transform : @smath.Transform,
+  transform : @smath.Affine2,
   u : Double,
   v : Double,
 ) -> (Double, Double) {

@@ -26,11 +26,11 @@ pub fn update_color_material(ColorMaterialHandle, ColorMaterial) -> Unit
 pub(all) struct ColorMaterial {
   color : @render.Color
   texture : @asset_types.ImageHandle?
-  uv_transform : @math.Transform
+  uv_transform : @math.Affine2
   alpha_mode : @render.AlphaMode2D
   blend_mode : @render.BlendMode2D
 }
-pub fn ColorMaterial::ColorMaterial(color? : @render.Color, texture? : @asset_types.ImageHandle?, uv_transform? : @math.Transform, alpha_mode? : @render.AlphaMode2D, blend_mode? : @render.BlendMode2D) -> Self
+pub fn ColorMaterial::ColorMaterial(color? : @render.Color, texture? : @asset_types.ImageHandle?, uv_transform? : @math.Affine2, alpha_mode? : @render.AlphaMode2D, blend_mode? : @render.BlendMode2D) -> Self
 pub fn ColorMaterial::from_color(@render.Color) -> Self
 
 #derive(Eq, Hash, @debug.Debug)

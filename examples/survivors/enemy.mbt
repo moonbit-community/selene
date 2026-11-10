@@ -287,8 +287,8 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
             (
               Spatial(
                 @transform.Transform::from_xyz(
-                  pos[X],
-                  pos[Y],
+                  pos.x,
+                  pos.y,
                   ENEMY_ZINDEX.to_double(),
                 ),
               ),
@@ -475,11 +475,11 @@ fn enemy_ai_system(_world : @ecs.World) -> Unit {
       enemy_transform.translation.y,
     )
     let dir = player_position - position
-    let vel = dir.normalize().scalar_mul(state.speed)
+    let vel = dir.normalize_or_zero().scalar_mul(state.speed)
     @physics2d.linear_velocities().set(e, vel)
 
     // Use the appropriate animation based on direction
-    if vel[X] >= 0.0 {
+    if vel.x >= 0.0 {
       play_enemy_animation_state(
         e,
         state,
@@ -569,7 +569,7 @@ type EnemyBulletSpawnPlan = @ecs.SpawnPlan[
 fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
   let runtime = survivors_runtime()
   let velocity = @physics2d.Velocity(
-    (player_pos - enemy_pos).normalize().scalar_mul(120.0),
+    (player_pos - enemy_pos).normalize_or_zero().scalar_mul(120.0),
   )
   let shape : @physics2d.ColliderShape = Rect(
     size=Vec2(4.0, 4.0),
@@ -588,8 +588,8 @@ fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
       ),
       Spatial(
         @transform.Transform::from_xyz(
-          enemy_pos[X],
-          enemy_pos[Y],
+          enemy_pos.x,
+          enemy_pos.y,
           BULLET_ZINDEX.to_double(),
         ),
       ),

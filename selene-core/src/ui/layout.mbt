@@ -146,10 +146,10 @@ fn resolve_val(value : Val, basis : Double) -> Double {
 ///|
 fn resolve_insets(rect : UiRectValues, size : @math.Vec2) -> UiInsets {
   {
-    left: resolve_val(rect.left, size[X]),
-    right: resolve_val(rect.right, size[X]),
-    top: resolve_val(rect.top, size[Y]),
-    bottom: resolve_val(rect.bottom, size[Y]),
+    left: resolve_val(rect.left, size.x),
+    right: resolve_val(rect.right, size.x),
+    top: resolve_val(rect.top, size.y),
+    bottom: resolve_val(rect.bottom, size.y),
   }
 }
 
@@ -271,14 +271,14 @@ fn implicit_root_style(size : @math.Vec2) -> @style.Style {
   .with_display(@style_helpers.display_flex())
   .with_size(
     Size(
-      width=@style_helpers.length(size[X]),
-      height=@style_helpers.length(size[Y]),
+      width=@style_helpers.length(size.x),
+      height=@style_helpers.length(size.y),
     ),
   )
   .with_min_size(
     Size(
-      width=@style_helpers.length(size[X]),
-      height=@style_helpers.length(size[Y]),
+      width=@style_helpers.length(size.x),
+      height=@style_helpers.length(size.y),
     ),
   )
 }
@@ -336,7 +336,7 @@ fn measure_node(
     )
     (prepared.width, prepared.height)
   } else if ui_images().get(entity) is Some(image) {
-    (image.size[X], image.size[Y])
+    (image.size.x, image.size.y)
   } else {
     (0.0, 0.0)
   }
@@ -348,15 +348,15 @@ fn measure_node(
 
 ///|
 fn rect_intersection(lhs : @math.Rect, rhs : @math.Rect) -> @math.Rect? {
-  let left = @cmp.maximum(lhs.position[X], rhs.position[X])
-  let top = @cmp.maximum(lhs.position[Y], rhs.position[Y])
+  let left = @cmp.maximum(lhs.position.x, rhs.position.x)
+  let top = @cmp.maximum(lhs.position.y, rhs.position.y)
   let right = @cmp.minimum(
-    lhs.position[X] + lhs.size[X],
-    rhs.position[X] + rhs.size[X],
+    lhs.position.x + lhs.size.x,
+    rhs.position.x + rhs.size.x,
   )
   let bottom = @cmp.minimum(
-    lhs.position[Y] + lhs.size[Y],
-    rhs.position[Y] + rhs.size[Y],
+    lhs.position.y + lhs.size.y,
+    rhs.position.y + rhs.size.y,
   )
   if right <= left || bottom <= top {
     None
@@ -379,12 +379,12 @@ fn clip_rect_for_node(
     PaddingBox =>
       {
         position: Vec2(
-          logical_rect.position[X] + border.left,
-          logical_rect.position[Y] + border.top,
+          logical_rect.position.x + border.left,
+          logical_rect.position.y + border.top,
         ),
         size: Vec2(
-          @cmp.maximum(0.0, logical_rect.size[X] - border.left - border.right),
-          @cmp.maximum(0.0, logical_rect.size[Y] - border.top - border.bottom),
+          @cmp.maximum(0.0, logical_rect.size.x - border.left - border.right),
+          @cmp.maximum(0.0, logical_rect.size.y - border.top - border.bottom),
         ),
       }
     BorderBox => logical_rect
@@ -393,12 +393,12 @@ fn clip_rect_for_node(
   screen_rect_for(
     {
       position: Vec2(
-        base_rect.position[X] - margin,
-        base_rect.position[Y] - margin,
+        base_rect.position.x - margin,
+        base_rect.position.y - margin,
       ),
       size: Vec2(
-        @cmp.maximum(0.0, base_rect.size[X] + margin * 2.0),
-        @cmp.maximum(0.0, base_rect.size[Y] + margin * 2.0),
+        @cmp.maximum(0.0, base_rect.size.x + margin * 2.0),
+        @cmp.maximum(0.0, base_rect.size.y + margin * 2.0),
       ),
     },
     layout_space,
@@ -408,10 +408,10 @@ fn clip_rect_for_node(
 
 ///|
 fn rounded_screen_rect(rect : @math.Rect) -> @math.Rect {
-  let left = rect.position[X].round()
-  let top = rect.position[Y].round()
-  let right = (rect.position[X] + rect.size[X]).round()
-  let bottom = (rect.position[Y] + rect.size[Y]).round()
+  let left = rect.position.x.round()
+  let top = rect.position.y.round()
+  let right = (rect.position.x + rect.size.x).round()
+  let bottom = (rect.position.y + rect.size.y).round()
   {
     position: Vec2(left, top),
     size: Vec2(@cmp.maximum(0.0, right - left), @cmp.maximum(0.0, bottom - top)),
@@ -474,25 +474,17 @@ fn apply_layout_recursive(
   let border = resolve_insets(node.border, logical_size)
   let padding = resolve_insets(node.padding, logical_size)
   let content_position = @math.Vec2(
-    logical_pos[X] + border.left + padding.left,
-    logical_pos[Y] + border.top + padding.top,
+    logical_pos.x + border.left + padding.left,
+    logical_pos.y + border.top + padding.top,
   )
   let content_size = @math.Vec2(
     @cmp.maximum(
       0.0,
-      logical_size[X] -
-      border.left -
-      border.right -
-      padding.left -
-      padding.right,
+      logical_size.x - border.left - border.right - padding.left - padding.right,
     ),
     @cmp.maximum(
       0.0,
-      logical_size[Y] -
-      border.top -
-      border.bottom -
-      padding.top -
-      padding.bottom,
+      logical_size.y - border.top - border.bottom - padding.top - padding.bottom,
     ),
   )
   let logical_content_rect = @math.Rect::{
@@ -513,8 +505,8 @@ fn apply_layout_recursive(
   )
   let mut effective_scroll_position = @math.Vec2::zero()
   if scroll_positions().get(entity) is Some(scroll) {
-    scroll.x = @cmp.minimum(max_scroll_position[X], @cmp.maximum(0.0, scroll.x))
-    scroll.y = @cmp.minimum(max_scroll_position[Y], @cmp.maximum(0.0, scroll.y))
+    scroll.x = @cmp.minimum(max_scroll_position.x, @cmp.maximum(0.0, scroll.x))
+    scroll.y = @cmp.minimum(max_scroll_position.y, @cmp.maximum(0.0, scroll.y))
     effective_scroll_position = Vec2(scroll.x, scroll.y)
   }
 
@@ -565,8 +557,8 @@ fn apply_layout_recursive(
   }
 
   let next_origin = @math.Vec2(
-    logical_pos[X] - effective_scroll_position[X],
-    logical_pos[Y] - effective_scroll_position[Y],
+    logical_pos.x - effective_scroll_position.x,
+    logical_pos.y - effective_scroll_position.y,
   )
   for child in ui_children(entity) {
     apply_layout_recursive(

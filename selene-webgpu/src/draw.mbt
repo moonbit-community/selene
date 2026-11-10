@@ -350,10 +350,10 @@ pub fn render2d_begin_pass(
   }
   let (cr, cg, cb, ca) = color_rgba(clear_color)
   webgpu_begin_2d_pass(
-    viewport.position[X],
-    viewport.position[Y],
-    viewport.size[X],
-    viewport.size[Y],
+    viewport.position.x,
+    viewport.position.y,
+    viewport.size.x,
+    viewport.size.y,
     if load_op is Clear {
       1
     } else {
@@ -371,7 +371,7 @@ pub fn render2d_begin_pass(
       Offscreen(_) => { position: @smath.Vec2::zero(), size: viewport.size, }
     }
     webgpu_push_color_vertices_2d(
-      pack_rect_fill_vertices2d(clear_viewport, Transform(), clear_color),
+      pack_rect_fill_vertices2d(clear_viewport, Affine2(), clear_color),
       color_pipeline2d_code(
         "triangle",
         if clear_color.a >= 0.999999 {
@@ -393,10 +393,10 @@ pub fn render2d_end_pass() -> Unit {
 ///|
 pub fn push_clip_rect(rect : @smath.Rect) -> Unit {
   webgpu_push_clip_rect(
-    rect.position[X],
-    rect.position[Y],
-    rect.size[X],
-    rect.size[Y],
+    rect.position.x,
+    rect.position.y,
+    rect.size.x,
+    rect.size.y,
   )
 }
 
@@ -593,8 +593,8 @@ fn begin_3d(camera : @render3d_types.FrameCamera3D, aspect : Double) -> Unit {
     } else {
       0.0
     },
-    camera.orthographic_size.map_or(0.0, fn(size) { size[X] }),
-    camera.orthographic_size.map_or(0.0, fn(size) { size[Y] }),
+    camera.orthographic_size.map_or(0.0, fn(size) { size.x }),
+    camera.orthographic_size.map_or(0.0, fn(size) { size.y }),
   )
 }
 
@@ -773,10 +773,10 @@ fn skybox_half_size(camera : @render3d_types.FrameCamera3D) -> Double {
     Perspective => max_visible_half
     Orthographic =>
       camera.orthographic_size.map_or(max_visible_half, fn(size) {
-        let max_axis = if size[X].abs() > size[Y].abs() {
-          size[X].abs()
+        let max_axis = if size.x.abs() > size.y.abs() {
+          size.x.abs()
         } else {
-          size[Y].abs()
+          size.y.abs()
         }
         let cover_half = max_axis * 0.5
         if cover_half > max_visible_half {
@@ -794,7 +794,7 @@ fn skybox_half_size(camera : @render3d_types.FrameCamera3D) -> Double {
 fn draw_skybox_face(
   image : @render3d_types.ImageHandle,
   camera_position : @smath.Vec3,
-  rotation : @smath.Quat,
+  rotation : @smath.Rotation3,
   brightness : Double,
   half_size : Double,
   p0 : @smath.Vec3,
@@ -830,7 +830,7 @@ fn draw_skybox_face(
 fn push_skybox_vertex(
   vertices : Array[Double],
   camera_position : @smath.Vec3,
-  rotation : @smath.Quat,
+  rotation : @smath.Rotation3,
   half_size : Double,
   direction : @smath.Vec3,
   u : Double,
@@ -959,8 +959,6 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
       continue
     }
     stats.submitted_items += 1
-    let center = item.transform.translation
-    let rotation = item.transform.rotation
     let color = resolved_material.color
     let emissive_r = resolved_material.emissive_r
     let emissive_g = resolved_material.emissive_g
@@ -985,9 +983,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               material,
               Some(bundle),
               color,
-              center,
-              rotation,
-              item.transform.scale,
+              item.transform,
               material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
@@ -1022,16 +1018,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
                   item.receive_shadows,
                 )
               },
-              center.x,
-              center.y,
-              center.z,
-              rotation.x,
-              rotation.y,
-              rotation.z,
-              rotation.w,
-              item.transform.scale.x,
-              item.transform.scale.y,
-              item.transform.scale.z,
+              item.transform,
               material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
@@ -1053,9 +1040,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               material,
               Some(bundle),
               color,
-              center,
-              rotation,
-              item.transform.scale,
+              item.transform,
               material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
@@ -1090,16 +1075,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
                   item.receive_shadows,
                 )
               },
-              center.x,
-              center.y,
-              center.z,
-              rotation.x,
-              rotation.y,
-              rotation.z,
-              rotation.w,
-              item.transform.scale.x,
-              item.transform.scale.y,
-              item.transform.scale.z,
+              item.transform,
               material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
@@ -1122,9 +1098,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               material,
               Some(bundle),
               color,
-              center,
-              rotation,
-              item.transform.scale,
+              item.transform,
               material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
@@ -1161,16 +1135,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
                   item.receive_shadows,
                 )
               },
-              center.x,
-              center.y,
-              center.z,
-              rotation.x,
-              rotation.y,
-              rotation.z,
-              rotation.w,
-              item.transform.scale.x,
-              item.transform.scale.y,
-              item.transform.scale.z,
+              item.transform,
               material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
@@ -1193,9 +1158,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               material,
               Some(bundle),
               color,
-              center,
-              rotation,
-              item.transform.scale,
+              item.transform,
               material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
@@ -1230,16 +1193,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
                   item.receive_shadows,
                 )
               },
-              center.x,
-              center.y,
-              center.z,
-              rotation.x,
-              rotation.y,
-              rotation.z,
-              rotation.w,
-              item.transform.scale.x,
-              item.transform.scale.y,
-              item.transform.scale.z,
+              item.transform,
               material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
@@ -1264,9 +1218,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
           material,
           texture_bundle,
           color,
-          center,
-          rotation,
-          item.transform.scale,
+          item.transform,
           material.double_sided,
           item.cast_shadows,
           item.receive_shadows,
@@ -1350,16 +1302,7 @@ fn enqueue_lit_primitive_mesh_batch(
   batches : LitPrimitiveMeshBatchAccumulator,
   key : LitPrimitiveMeshBatchKey,
   build_resource_key : () -> String,
-  center_x : Double,
-  center_y : Double,
-  center_z : Double,
-  rotation_x : Double,
-  rotation_y : Double,
-  rotation_z : Double,
-  rotation_w : Double,
-  scale_x : Double,
-  scale_y : Double,
-  scale_z : Double,
+  transform : @smath.Affine3,
   double_sided : Bool,
   cast_shadows : Bool,
   receive_shadows : Bool,
@@ -1383,16 +1326,7 @@ fn enqueue_lit_primitive_mesh_batch(
   let entry = batches.entries[batch_index]
   push_lit_primitive_instance_values(
     entry.instances,
-    center_x,
-    center_y,
-    center_z,
-    rotation_x,
-    rotation_y,
-    rotation_z,
-    rotation_w,
-    scale_x,
-    scale_y,
-    scale_z,
+    transform,
     receive_shadows,
   )
 }
@@ -1451,28 +1385,22 @@ fn lit_primitive_instance_batch_key(
 ///|
 fn push_lit_primitive_instance_values(
   instances : Array[Double],
-  center_x : Double,
-  center_y : Double,
-  center_z : Double,
-  rotation_x : Double,
-  rotation_y : Double,
-  rotation_z : Double,
-  rotation_w : Double,
-  scale_x : Double,
-  scale_y : Double,
-  scale_z : Double,
+  transform : @smath.Affine3,
   receive_shadows : Bool,
 ) -> Unit {
-  instances.push(center_x)
-  instances.push(center_y)
-  instances.push(center_z)
-  instances.push(rotation_x)
-  instances.push(rotation_y)
-  instances.push(rotation_z)
-  instances.push(rotation_w)
-  instances.push(scale_x)
-  instances.push(scale_y)
-  instances.push(scale_z)
+  let { x_axis: x, y_axis: y, z_axis: z, translation, } = transform
+  instances.push(x.x)
+  instances.push(y.x)
+  instances.push(z.x)
+  instances.push(translation.x)
+  instances.push(x.y)
+  instances.push(y.y)
+  instances.push(z.y)
+  instances.push(translation.y)
+  instances.push(x.z)
+  instances.push(y.z)
+  instances.push(z.z)
+  instances.push(translation.z)
   instances.push(if receive_shadows { 1.0 } else { 0.0 })
 }
 
@@ -1630,9 +1558,7 @@ fn _collect_render3d_submission_stats(
   frame : @render3d_types.RenderFrame3D,
 ) -> Render3DSubmissionStats {
   let stats = Render3DSubmissionStats()
-  let instanced_lit_buckets : Map[String, Bool] = Map([])
   let instanced_lit_instances : Map[String, Array[Double]] = Map([])
-  let instanced_lit_counts : Map[String, Int32] = Map([])
   guard frame.camera is Some(_) else { return stats }
   stats.sections = 1
   for item in frame.items {
@@ -1657,18 +1583,11 @@ fn _collect_render3d_submission_stats(
       stats.uploaded_vertex_bytes += vertex_count * 35 * 4
     } else if render3d_item_can_use_instanced_lit_path(mesh_asset.primitive) {
       let key = render3d_lit_instance_bucket_key(item)
-      if !instanced_lit_buckets.contains(key) {
-        instanced_lit_buckets.set(key, true)
+      let instances = instanced_lit_instances.get_or_init(key, () => {
         stats.lit_triangle_commands += 1
-      }
-      instanced_lit_counts.set(
-        key,
-        instanced_lit_counts.get(key).unwrap_or(0) + 1,
-      )
-      push_render3d_item_instance_values(
-        instanced_lit_instances.get_or_init(key, fn() { [] }),
-        item,
-      )
+        []
+      })
+      push_render3d_item_instance_values(instances, item)
     } else {
       stats.lit_triangle_commands += 1
       stats.uploaded_vertex_bytes += vertex_count * 17 * 4
@@ -1677,9 +1596,7 @@ fn _collect_render3d_submission_stats(
   for key, instances in instanced_lit_instances {
     let signature = retained_lit_primitive_instance_key(key, instances)
     if !retained_render3d_instance_last_seen.contains(signature) {
-      stats.uploaded_vertex_bytes += instanced_lit_counts.get(key).unwrap_or(0) *
-        11 *
-        4
+      stats.uploaded_vertex_bytes += instances.length() * 4
     }
     ignore(mark_retained_instance_buffer_key(signature))
   }
@@ -1730,22 +1647,9 @@ fn push_render3d_item_instance_values(
   instances : Array[Double],
   item : @render3d_types.RenderItem3D,
 ) -> Unit {
-  let transform = item.transform
-  let translation = transform.translation
-  let rotation = transform.rotation
-  let scale = transform.scale
   push_lit_primitive_instance_values(
     instances,
-    translation.x,
-    translation.y,
-    translation.z,
-    rotation.x,
-    rotation.y,
-    rotation.z,
-    rotation.w,
-    scale.x,
-    scale.y,
-    scale.z,
+    item.transform,
     item.receive_shadows,
   )
 }
@@ -1827,9 +1731,7 @@ fn draw_triangle_mesh_instance(
   material : @render3d_types.StandardMaterial3D,
   texture_bundle : MaterialTextureBundle3D?,
   color : @render.Color,
-  translation : @smath.Vec3,
-  rotation : @smath.Quat,
-  scale : @smath.Vec3,
+  transform : @smath.Affine3,
   double_sided : Bool,
   cast_shadows : Bool,
   receive_shadows : Bool,
@@ -1838,13 +1740,8 @@ fn draw_triangle_mesh_instance(
     triangle_indices.length() >= 3 {
     let normals = resolve_mesh_normals(mesh)
     let tangents = resolve_mesh_tangents(mesh)
-    let transformed_positions = transform_positions3d(
-      mesh.positions,
-      translation,
-      rotation,
-      scale,
-    )
-    let transformed_normals = rotate_normals3d(normals, rotation, scale)
+    let transformed_positions = transform_positions3d(mesh.positions, transform)
+    let transformed_normals = transform_normals3d(normals, transform)
     let draw_colored = fn() {
       webgpu_draw_colored_triangles_3d(
         flatten_colored_vertices3d(
@@ -1921,7 +1818,7 @@ fn draw_triangle_mesh_instance(
                   occlusion_input.uvs,
                   normal_input.uvs,
                   transformed_normals,
-                  rotate_tangents3d(tangents, rotation, scale),
+                  transform_tangents3d(tangents, transform),
                   mesh.colors,
                   @smath.Vec3::one(),
                   material,
@@ -2225,8 +2122,8 @@ fn build_cylinder_triangle_mesh3d(
       -half_height,
       radius_bottom * @math.sin(phi1),
     )
-    let side_normal0 = @smath.Vec3(@math.cos(phi0), slope_y, @math.sin(phi0)).normalize()
-    let side_normal1 = @smath.Vec3(@math.cos(phi1), slope_y, @math.sin(phi1)).normalize()
+    let side_normal0 = @smath.Vec3(@math.cos(phi0), slope_y, @math.sin(phi0)).normalize_or_zero()
+    let side_normal1 = @smath.Vec3(@math.cos(phi1), slope_y, @math.sin(phi1)).normalize_or_zero()
     push_textured_triangle3d(
       positions,
       uvs,
@@ -2321,89 +2218,43 @@ fn build_textured_triangle_mesh3d(
 ///|
 fn transform_positions3d(
   positions : Array[@smath.Vec3],
-  translation : @smath.Vec3,
-  rotation : @smath.Quat,
-  scale : @smath.Vec3,
+  transform : @smath.Affine3,
 ) -> Array[@smath.Vec3] {
-  let transformed : Array[@smath.Vec3] = []
-  for position in positions {
-    transformed.push(
-      translation +
-      rotation.rotate_vec3(
-        Vec3(position.x * scale.x, position.y * scale.y, position.z * scale.z),
-      ),
-    )
-  }
-  transformed
+  positions.map(position => transform.transform_point3(position))
 }
 
 ///|
-fn rotate_normals3d(
+fn transform_normals3d(
   normals : Array[@smath.Vec3],
-  rotation : @smath.Quat,
-  scale : @smath.Vec3,
+  transform : @smath.Affine3,
 ) -> Array[@smath.Vec3] {
-  let transformed : Array[@smath.Vec3] = []
-  for normal in normals {
-    let rotated = rotation
-      .rotate_vec3(inverse_scale_direction3d(normal, scale))
-      .normalize()
-    transformed.push(
-      if rotated.length_squared() <= 0.00000001 {
-        Vec3(0.0, 1.0, 0.0)
-      } else {
-        rotated
-      },
-    )
-  }
-  transformed
+  let (normal_map, _) = transform.normal_matrix()
+  normals.map(normal => {
+    normal_map
+    .transform_vector3(normal)
+    .try_normalize()
+    .unwrap_or(@smath.Vec3::y_axis())
+  })
 }
 
 ///|
-fn rotate_tangents3d(
+fn transform_tangents3d(
   tangents : Array[@render3d_types.Tangent3D],
-  rotation : @smath.Quat,
-  scale : @smath.Vec3,
+  transform : @smath.Affine3,
 ) -> Array[@render3d_types.Tangent3D] {
-  let transformed : Array[@render3d_types.Tangent3D] = []
-  for tangent in tangents {
-    let rotated = rotation
-      .rotate_vec3(
-        inverse_scale_direction3d(Vec3(tangent.x, tangent.y, tangent.z), scale),
-      )
-      .normalize()
-    let safe = if rotated.length_squared() <= 0.00000001 {
-      @smath.Vec3(1.0, 0.0, 0.0)
-    } else {
-      rotated
+  let (_, handedness) = transform.normal_matrix()
+  tangents.map(tangent => {
+    let direction = transform
+      .transform_vector3(Vec3(tangent.x, tangent.y, tangent.z))
+      .try_normalize()
+      .unwrap_or(@smath.Vec3::x_axis())
+    {
+      x: direction.x,
+      y: direction.y,
+      z: direction.z,
+      w: tangent.w * handedness,
     }
-    transformed.push({ x: safe.x, y: safe.y, z: safe.z, w: tangent.w, })
-  }
-  transformed
-}
-
-///|
-fn inverse_scale_direction3d(
-  direction : @smath.Vec3,
-  scale : @smath.Vec3,
-) -> @smath.Vec3 {
-  Vec3(
-    if scale.x.abs() > 0.00000001 {
-      direction.x / scale.x
-    } else {
-      direction.x
-    },
-    if scale.y.abs() > 0.00000001 {
-      direction.y / scale.y
-    } else {
-      direction.y
-    },
-    if scale.z.abs() > 0.00000001 {
-      direction.z / scale.z
-    } else {
-      direction.z
-    },
-  )
+  })
 }
 
 ///|
@@ -2435,7 +2286,7 @@ fn sphere_vertex_normal(position : @smath.Vec3) -> @smath.Vec3 {
   if position.length_squared() <= 0.0000001 {
     Vec3(0.0, 1.0, 0.0)
   } else {
-    position.normalize()
+    position.normalize_or_zero()
   }
 }
 
@@ -2624,7 +2475,7 @@ fn pack_light_uniform_data(
     let direction = if light.direction.length_squared() <= 0.0000001 {
       @smath.Vec3(0.0, -1.0, 0.0)
     } else {
-      light.direction.normalize()
+      light.direction.normalize_or_zero()
     }
     let (r, g, b) = color_rgb01(light.color)
     let base = 16 + idx * 8
@@ -2654,7 +2505,7 @@ fn pack_light_uniform_data(
     let direction = if light.direction.length_squared() <= 0.0000001 {
       @smath.Vec3(0.0, -1.0, 0.0)
     } else {
-      light.direction.normalize()
+      light.direction.normalize_or_zero()
     }
     let (r, g, b) = color_rgb01(light.color)
     let (inner_angle, outer_angle) = if light.inner_angle <= light.outer_angle {
@@ -2686,7 +2537,7 @@ fn camera_forward3d(camera : @render3d_types.FrameCamera3D) -> @smath.Vec3 {
   if forward.length_squared() <= 0.0000001 {
     Vec3(0.0, 0.0, -1.0)
   } else {
-    forward.normalize()
+    forward.normalize_or_zero()
   }
 }
 
@@ -2837,7 +2688,7 @@ fn compute_vertex_normals(
     normals[index] = if normal.length_squared() <= 0.0000001 {
       Vec3(0.0, 1.0, 0.0)
     } else {
-      normal.normalize()
+      normal.normalize_or_zero()
     }
   }
   normals
@@ -2951,16 +2802,16 @@ fn flatten_textured_vertices3d(
     values.push(normal.x)
     values.push(normal.y)
     values.push(normal.z)
-    values.push(base_uv[X])
-    values.push(base_uv[Y])
-    values.push(emissive_uv[X])
-    values.push(emissive_uv[Y])
-    values.push(metallic_roughness_uv[X])
-    values.push(metallic_roughness_uv[Y])
-    values.push(occlusion_uv[X])
-    values.push(occlusion_uv[Y])
-    values.push(normal_uv[X])
-    values.push(normal_uv[Y])
+    values.push(base_uv.x)
+    values.push(base_uv.y)
+    values.push(emissive_uv.x)
+    values.push(emissive_uv.y)
+    values.push(metallic_roughness_uv.x)
+    values.push(metallic_roughness_uv.y)
+    values.push(occlusion_uv.x)
+    values.push(occlusion_uv.y)
+    values.push(normal_uv.x)
+    values.push(normal_uv.y)
     values.push(r)
     values.push(g)
     values.push(b)

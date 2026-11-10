@@ -18,5 +18,5 @@ pub fn Anchor::as_vec(self : Anchor) -> @math.Vec2 {
 ///|
 fn anchor_translation(anchor : Anchor, size : @math.Vec2) -> @math.Vec2 {
   let custom = anchor.as_vec()
-  Vec2(-size[X] * (custom[X] + 0.5), -size[Y] * (0.5 - custom[Y]))
+  Vec2(-size.x * (custom.x + 0.5), -size.y * (0.5 - custom.y))
 }

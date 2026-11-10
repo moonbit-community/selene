@@ -34,3 +34,31 @@ test "spatial propagation replaces the cached pose across despawn and respawn" {
   transform_propagate_system(0.0)
   assert_eq(global_transform(entity).unwrap().translation().x, 2.0)
 }
+
+///|
+test "world TRS decomposition rejects shear and round-trips reflections" {
+  let parent = Transform::from_scale(Vec3(2.0, 1.0, 1.0)).compute_affine()
+  let rotated = Transform::from_rotation(
+    @math.Rotation3::from_axis_angle(@math.Vec3::z_axis(), 0.4),
+  )
+  let shear : GlobalTransform = { affine: parent * rotated.compute_affine(), }
+  assert_true(shear.try_decompose_trs() is None)
+  let reflected = GlobalTransform::from_transform(
+    rotated
+    .with_scale(Vec3(-2.0, 3.0, 1.0))
+    .with_translation(Vec3(5.0, 3.0, -2.0)),
+  )
+  let recovered = reflected.try_decompose_trs().unwrap().compute_affine()
+  let point = @math.Vec3(3.0, 1.0, 4.0)
+  assert_true(
+    recovered.transform_point3(point).distance(reflected.transform_point(point)) <
+    1.0e-12,
+  )
+  let singular = GlobalTransform::from_transform(
+    Transform::from_scale(Vec3(0.0, 1.0, 1.0)),
+  )
+  assert_eq(
+    singular.try_decompose_trs().unwrap().compute_affine(),
+    singular.affine,
+  )
+}

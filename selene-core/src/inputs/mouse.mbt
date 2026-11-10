@@ -287,11 +287,11 @@ pub fn advanced_mouse_system(_delta : Double) -> Unit {
   let delta = pending_mouse_relative_delta.val.unwrap_or(positional_delta)
   mouse_movement.movement = delta
   pending_mouse_relative_delta.val = None
-  if delta[X] != 0.0 || delta[Y] != 0.0 {
+  if delta.x != 0.0 || delta.y != 0.0 {
     mouse_motion_event_bus.send({ position: mouse.pos, delta, })
   }
   let wheel_delta = mouse_wheel.delta
-  if wheel_delta[X] != 0.0 || wheel_delta[Y] != 0.0 {
+  if wheel_delta.x != 0.0 || wheel_delta.y != 0.0 {
     mouse_wheel_event_bus.send({ delta: wheel_delta, })
   }
 

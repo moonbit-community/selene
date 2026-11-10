@@ -84,8 +84,8 @@ fn spawn_text_entity(
   color : String,
   font : String,
   size~ : @math.Vec2 = Vec2(-1.0, -1.0),
-  align~ : @math.HAlign = Left,
-  baseline~ : @math.VAlign = Top,
+  align~ : @render2d_types.HAlign = Left,
+  baseline~ : @render2d_types.VAlign = Top,
   zindex~ : Int32 = HUD_LAYER_ZINDEX,
 ) -> @ecs.Entity {
   spawn_survivors_entity(

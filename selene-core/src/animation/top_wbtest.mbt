@@ -220,3 +220,62 @@ test "animation asset queues report dirty and released handles" {
     inspect(take_released_animation_graph_assets().length(), content="1")
   })
 }
+
+///|
+test "skinning uses the joint world affine for positions and normals" {
+  with_animation_test_world(fn() raise {
+    let world = @ecs.require_current_world()
+    let parent = world.spawn1(
+      @transform.Spatial(@transform.Transform::from_scale(Vec3(2.0, 1.0, 1.0))),
+    )
+    let joint = world.spawn1(
+      @transform.Spatial(
+        @transform.Transform::from_rotation(
+          @math.Rotation3::from_axis_angle(@math.Vec3::z_axis(), 0.7),
+        ),
+      ),
+      parent~,
+    )
+    let point = @math.Vec3(3.0, 5.0, 0.0)
+    let target = world.spawn(())
+    let mesh = @render3d.register_mesh_asset(@render3d.triangle_mesh([point]))
+    defer @render3d.release_mesh_asset(mesh)
+    bind_skinned_mesh(target, {
+      target_entity: target,
+      mesh,
+      base_positions: [point],
+      indices: None,
+      topology: TriangleList,
+      base_normals: [@math.Vec3::x_axis()],
+      uv_sets: [],
+      colors: None,
+      tangents: None,
+      morph_targets: [],
+      morph_weights: [],
+      influences: [
+        {
+          joint0: 0,
+          joint1: 0,
+          joint2: 0,
+          joint3: 0,
+          weight0: 1.0,
+          weight1: 0.0,
+          weight2: 0.0,
+          weight3: 0.0,
+        },
+      ],
+      joint_entities: [joint],
+      inverse_bind_matrices: [@math.Mat4::identity()],
+    })
+    @transform.transform_propagate_system(0.0)
+    animation_skinning_system(0.0)
+    guard @render3d.mesh_asset(mesh).unwrap().primitive is Triangles(deformed) else {
+      fail("expected a skinned triangle mesh")
+    }
+    let affine = @transform.global_transform(joint).unwrap().affine
+    assert_true(
+      deformed.positions[0].distance(affine.transform_point3(point)) < 1.0e-10,
+    )
+    assert_true(deformed.normals.unwrap()[0].dot(affine.y_axis).abs() < 1.0e-10)
+  })
+}

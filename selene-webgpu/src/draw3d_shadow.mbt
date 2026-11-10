@@ -112,11 +112,12 @@ fn directional_shadow_cascades3d(
     return cascades
   }
   let direction = normalize_or3d(light.direction, Vec3(0.0, -1.0, 0.0))
-  let light_view = mat4_look_at3d(
+  let light_view = @smath.Mat4::look_at_rh(
     Vec3(0.0, 0.0, 0.0),
     direction,
     choose_shadow_up3d(direction),
   )
+  let light_affine = light_view.affine_part()
   let (atlas_columns, atlas_rows) = directional_shadow_atlas_layout3d(
     bounds.length(),
   )
@@ -131,10 +132,10 @@ fn directional_shadow_cascades3d(
       bound.far_bound,
     )
     if corners.length() >= 8 {
-      let mut min_corner = transform_point3d(light_view, corners[0])
+      let mut min_corner = light_affine.transform_point3(corners[0])
       let mut max_corner = min_corner
       for index in 1..<corners.length() {
-        let point = transform_point3d(light_view, corners[index])
+        let point = light_affine.transform_point3(corners[index])
         min_corner = vec3_min3d(min_corner, point)
         max_corner = vec3_max3d(max_corner, point)
       }
@@ -155,11 +156,13 @@ fn directional_shadow_cascades3d(
       let far_plane = (max_corner.z - min_corner.z + near_plane).max(
         near_plane + 1.0,
       )
-      let cascade_view = mat4_multiply3d(
-        light_view,
-        mat4_translation3d(-center_x, -center_y, -(max_corner.z + near_plane)),
+      let cascade_view = light_view.mul(
+        @smath.Mat4::from_affine({
+          ..@smath.Affine3::identity(),
+          translation: Vec3(-center_x, -center_y, -(max_corner.z + near_plane)),
+        }),
       )
-      let cascade_projection = mat4_orthographic3d(
+      let cascade_projection = @smath.Mat4::orthographic_rh_zo(
         half_extent * 2.0,
         half_extent * 2.0,
         near_plane,
@@ -171,7 +174,9 @@ fn directional_shadow_cascades3d(
       cascades.push({
         light_index,
         cascade_index,
-        light_view_projection: mat4_multiply3d(cascade_projection, cascade_view),
+        light_view_projection: cascade_projection
+        .mul(cascade_view)
+        .to_column_major(),
         atlas_offset_x: offset_x,
         atlas_offset_y: offset_y,
         atlas_scale_x: scale_x,
@@ -194,19 +199,15 @@ fn spot_shadow_view_projection3d(
     light.range,
   )
   let outer_angle = light.outer_angle.max(0.008726646259971648)
-  mat4_multiply3d(
-    mat4_perspective3d(
-      outer_angle * 2.0 * 180.0 / @math.PI,
-      1.0,
-      near_plane,
-      far_plane,
-    ),
-    mat4_look_at3d(
+  @smath.Mat4::perspective_rh_zo(outer_angle * 2.0, 1.0, near_plane, far_plane)
+  .mul(
+    @smath.Mat4::look_at_rh(
       light.position,
       light.position + direction,
       choose_shadow_up3d(direction),
     ),
   )
+  .to_column_major()
 }
 
 ///|
@@ -219,10 +220,9 @@ fn point_shadow_face_view_projection3d(
     light.shadow_map_near_z,
     light.range,
   )
-  mat4_multiply3d(
-    mat4_perspective3d(90.0, 1.0, near_plane, far_plane),
-    mat4_look_at3d(light.position, light.position + direction, up),
-  )
+  @smath.Mat4::perspective_rh_zo(@math.PI * 0.5, 1.0, near_plane, far_plane)
+  .mul(@smath.Mat4::look_at_rh(light.position, light.position + direction, up))
+  .to_column_major()
 }
 
 ///|
@@ -288,8 +288,8 @@ fn camera_frustum_slice_corners3d(
   if camera.projection == Orthographic {
     let half_width = camera.orthographic_size
       .map_or(20.0, fn(size) {
-        if size[X].abs() > 0.0001 {
-          size[X]
+        if size.x.abs() > 0.0001 {
+          size.x
         } else {
           20.0
         }
@@ -299,8 +299,8 @@ fn camera_frustum_slice_corners3d(
       0.5
     let half_height = camera.orthographic_size
       .map_or(20.0, fn(size) {
-        if size[Y].abs() > 0.0001 {
-          size[Y]
+        if size.y.abs() > 0.0001 {
+          size.y
         } else {
           20.0
         }
@@ -381,14 +381,11 @@ fn push_frustum_plane_corners3d(
 
 ///|
 fn camera_basis3d(camera : @render3d_types.FrameCamera3D) -> CameraBasis3D {
-  let forward = normalize_or3d(
+  let (right, up, forward) = @smath.view_basis_rh(
     camera.target - camera.position,
-    Vec3(0.0, 0.0, -1.0),
+    camera.up,
   )
-  let up = normalize_or3d(camera.up, Vec3(0.0, 1.0, 0.0))
-  let right = normalize_or3d(forward.cross(up), Vec3(1.0, 0.0, 0.0))
-  let corrected_up = normalize_or3d(right.cross(forward), Vec3(0.0, 1.0, 0.0))
-  { forward, right, up: corrected_up, }
+  { forward, right, up, }
 }
 
 ///|
@@ -451,36 +448,6 @@ fn shadow_near_far3d(near_z : Double, range : Double) -> (Double, Double) {
   let near_plane = near_z.max(0.01)
   let far_plane = range.max(near_plane + 1.0)
   (near_plane, far_plane)
-}
-
-///|
-fn mat4_translation3d(x : Double, y : Double, z : Double) -> Array[Double] {
-  [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, x, y, z, 1.0]
-}
-
-///|
-fn transform_point3d(
-  matrix : Array[Double],
-  point : @smath.Vec3,
-) -> @smath.Vec3 {
-  if matrix.length() < 16 {
-    point
-  } else {
-    Vec3(
-      matrix[0] * point.x +
-      matrix[4] * point.y +
-      matrix[8] * point.z +
-      matrix[12],
-      matrix[1] * point.x +
-      matrix[5] * point.y +
-      matrix[9] * point.z +
-      matrix[13],
-      matrix[2] * point.x +
-      matrix[6] * point.y +
-      matrix[10] * point.z +
-      matrix[14],
-    )
-  }
 }
 
 ///|

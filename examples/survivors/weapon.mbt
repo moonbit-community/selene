@@ -224,10 +224,10 @@ fn shoot_weapon_bullet(
 ) -> Unit {
   let bullet_hitbox_size = 6.0
   let direction = target_pos - player_pos
-  let dir = if direction.distance() <= 0.0000001 {
+  let dir = if direction.length() <= 0.0000001 {
     @math.Vec2(1.0, 0.0)
   } else {
-    direction.normalize()
+    direction.normalize_or_zero()
   }
   let bullet_spawn_pos = player_pos + dir.scalar_mul(14.0)
   let shape : @physics2d.ColliderShape = Rect(
@@ -246,8 +246,8 @@ fn shoot_weapon_bullet(
       player_bullet_visual(),
       Spatial(
         @transform.Transform::from_xyz(
-          bullet_spawn_pos[X],
-          bullet_spawn_pos[Y],
+          bullet_spawn_pos.x,
+          bullet_spawn_pos.y,
           BULLET_ZINDEX.to_double(),
         ),
       ),

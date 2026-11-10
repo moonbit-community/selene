@@ -193,7 +193,7 @@ fn joint_to_rapier(joint : Joint) -> @rapier_dynamics.GenericJoint? {
         None
       } else {
         let mut builder = @rapier_dynamics.PrismaticJointBuilder::PrismaticJointBuilder(
-            to_physics_direction(axis.normalize()),
+            to_physics_direction(axis.normalize_or_zero()),
           )
           .local_anchor1(to_physics_vec2(local_anchor1))
           .local_anchor2(to_physics_vec2(local_anchor2))

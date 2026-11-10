@@ -1,7 +1,7 @@
 ///|
 pub(all) enum SpriteImageMode {
   Auto
-  Tiled(@math.RepeatMode)
+  Tiled(@render2d_types.RepeatMode)
 }
 
 ///|
@@ -114,8 +114,8 @@ pub fn render_sprite_system(delta : Double) -> Unit {
     let order = order_base + sprites.insertion_order(entity)
     let sorting = sorting2ds.get(entity).unwrap_or(Sorting2d())
     let depth = @render2d.sort_depth_for_transform(global_transform, sorting)
-    let transform = global_transform.compute_transform()
-    let base_pos = @math.Vec2(transform.translation.x, transform.translation.y)
+    let translation = global_transform.translation()
+    let base_pos = @math.Vec2(translation.x, translation.y)
     let parallax = @parallax2d.inherited_parallax2d(entity)
     let local_transform = sprite_local_transform(sprite, size)
     if camera_views.is_empty() {
@@ -195,7 +195,7 @@ fn push_sprite_draw_command(
   size : @math.Vec2,
   depth : Double,
   snapped_pos : @math.Vec2,
-  transform : @math.Transform,
+  transform : @math.Affine2,
   camera_entity_id : UInt32?,
   sorting : @render2d.Sorting2d,
   order : Int32,
@@ -207,7 +207,7 @@ fn push_sprite_draw_command(
         destination: { position: snapped_pos, size, },
         source: sprite_image_region(sprite),
         transform,
-        uv_transform: @math.Transform::identity(),
+        uv_transform: @math.Affine2::identity(),
         repeat: sprite_repeat_mode(sprite),
         alpha_mode: sprite_alpha_mode(sprite),
         blend_mode: sprite_blend_mode(sprite),
@@ -250,7 +250,7 @@ fn sprite_blend_mode(sprite : Sprite) -> @render.BlendMode2D {
 }
 
 ///|
-fn sprite_repeat_mode(sprite : Sprite) -> @math.RepeatMode {
+fn sprite_repeat_mode(sprite : Sprite) -> @render2d_types.RepeatMode {
   match sprite.image_mode {
     Auto => NoRepeat
     Tiled(repeat) => repeat
@@ -287,28 +287,25 @@ fn sprite_size(sprite : Sprite) -> @math.Vec2? {
 }
 
 ///|
-fn sprite_local_transform(
-  sprite : Sprite,
-  size : @math.Vec2,
-) -> @math.Transform {
+fn sprite_local_transform(sprite : Sprite, size : @math.Vec2) -> @math.Affine2 {
   let anchor_offset = anchor_translation(sprite.anchor, size)
-  let anchor_transform = @math.Transform::from_translation(
-    anchor_offset[X],
-    anchor_offset[Y],
+  let anchor_transform = @math.Affine2::from_translation(
+    anchor_offset.x,
+    anchor_offset.y,
   )
-  let flip_transform = @math.Transform::from_translation(
+  let flip_transform = @math.Affine2::from_translation(
       if sprite.flip_x {
-        size[X]
+        size.x
       } else {
         0.0
       },
       if sprite.flip_y {
-        size[Y]
+        size.y
       } else {
         0.0
       },
     ) *
-    @math.Transform::from_scale(
+    @math.Affine2::from_scale(
       if sprite.flip_x {
         -1.0
       } else {

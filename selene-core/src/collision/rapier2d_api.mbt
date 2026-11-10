@@ -89,7 +89,7 @@ pub fn raycast(
   }
   refresh_query_world()
   let query = make_query_pipeline(query_filter)
-  let normalized = direction.normalize()
+  let normalized = direction.normalize_or_zero()
   let ray = @rapier_collision.Ray::Ray(
     to_physics_vec2(origin),
     to_physics_direction(normalized),
@@ -109,8 +109,8 @@ pub fn raycast(
           entity,
           toi,
           point: Vec2(
-            origin[X] + normalized[X] * toi,
-            origin[Y] + normalized[Y] * toi,
+            origin.x + normalized.x * toi,
+            origin.y + normalized.y * toi,
           ),
           normal: from_physics_direction(hit.normal()),
         }
@@ -147,7 +147,7 @@ pub fn shape_cast(
       world().bodies,
       world().colliders,
       query_shape_isometry(origin, rotation, translation),
-      to_physics_direction(direction.normalize()),
+      to_physics_direction(direction.normalize_or_zero()),
       rapier_shape,
       options,
     ) {

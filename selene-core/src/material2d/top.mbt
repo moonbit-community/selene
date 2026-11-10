@@ -2,7 +2,7 @@
 pub(all) struct ColorMaterial {
   color : @render.Color
   texture : @asset.ImageHandle?
-  uv_transform : @math.Transform
+  uv_transform : @math.Affine2
   alpha_mode : @render.AlphaMode2D
   blend_mode : @render.BlendMode2D
 }
@@ -44,7 +44,7 @@ fn default_material_color() -> @render.Color {
 pub fn ColorMaterial::ColorMaterial(
   color~ : @render.Color = default_material_color(),
   texture~ : @asset.ImageHandle? = None,
-  uv_transform~ : @math.Transform = @math.Transform::identity(),
+  uv_transform~ : @math.Affine2 = @math.Affine2::identity(),
   alpha_mode~ : @render.AlphaMode2D = Blend,
   blend_mode~ : @render.BlendMode2D = Alpha,
 ) -> ColorMaterial {

@@ -348,19 +348,19 @@ test "parse_material_asset preserves glTF material factors, bindings, and textur
   )
   inspect(material.base_color_texture.unwrap().texcoord_set, content="6")
   inspect(
-    material.base_color_texture.unwrap().transform.offset[X],
+    material.base_color_texture.unwrap().transform.offset.x,
     content="0.25",
   )
   inspect(
-    material.base_color_texture.unwrap().transform.offset[Y],
+    material.base_color_texture.unwrap().transform.offset.y,
     content="0.5",
   )
   inspect(
-    material.base_color_texture.unwrap().transform.scale[X],
+    material.base_color_texture.unwrap().transform.scale.x,
     content="0.75",
   )
   inspect(
-    material.base_color_texture.unwrap().transform.scale[Y],
+    material.base_color_texture.unwrap().transform.scale.y,
     content="0.125",
   )
   inspect(
@@ -372,16 +372,16 @@ test "parse_material_asset preserves glTF material factors, bindings, and textur
     content="true",
   )
   inspect(material.emissive_texture.unwrap().texcoord_set, content="7")
-  inspect(material.emissive_texture.unwrap().transform.offset[X], content="0.9")
-  inspect(material.emissive_texture.unwrap().transform.scale[X], content="0.7")
+  inspect(material.emissive_texture.unwrap().transform.offset.x, content="0.9")
+  inspect(material.emissive_texture.unwrap().transform.scale.x, content="0.7")
   inspect(material.emissive_texture.unwrap().transform.rotation, content="0.4")
   inspect(
     material.normal_texture.unwrap().image == texture_handles[1],
     content="true",
   )
   inspect(material.normal_texture.unwrap().texcoord_set, content="8")
-  inspect(material.normal_texture.unwrap().transform.offset[X], content="0.2")
-  inspect(material.normal_texture.unwrap().transform.scale[X], content="0.4")
+  inspect(material.normal_texture.unwrap().transform.offset.x, content="0.2")
+  inspect(material.normal_texture.unwrap().transform.scale.x, content="0.4")
   inspect(material.normal_texture.unwrap().transform.rotation, content="0.6")
   inspect(material.normal_scale, content="0.25")
   inspect(
@@ -390,13 +390,10 @@ test "parse_material_asset preserves glTF material factors, bindings, and textur
   )
   inspect(material.occlusion_texture.unwrap().texcoord_set, content="9")
   inspect(
-    material.occlusion_texture.unwrap().transform.offset[X],
+    material.occlusion_texture.unwrap().transform.offset.x,
     content="0.11",
   )
-  inspect(
-    material.occlusion_texture.unwrap().transform.scale[X],
-    content="0.33",
-  )
+  inspect(material.occlusion_texture.unwrap().transform.scale.x, content="0.33")
   inspect(
     material.occlusion_texture.unwrap().transform.rotation,
     content="0.55",
@@ -411,11 +408,11 @@ test "parse_material_asset preserves glTF material factors, bindings, and textur
     content="10",
   )
   inspect(
-    material.metallic_roughness_texture.unwrap().transform.offset[X],
+    material.metallic_roughness_texture.unwrap().transform.offset.x,
     content="0.15",
   )
   inspect(
-    material.metallic_roughness_texture.unwrap().transform.scale[X],
+    material.metallic_roughness_texture.unwrap().transform.scale.x,
     content="0.45",
   )
   inspect(
@@ -465,6 +462,64 @@ test "apply_texture_transform3d matches glTF offset-rotate-scale order" {
     },
     Vec2(1.0, 2.0),
   )
-  inspect(uv[X], content="-5.75")
-  inspect(uv[Y], content="2.5000000000000004")
+  inspect(uv.x, content="-5.75")
+  inspect(uv.y, content="2.5000000000000004")
+}
+
+///|
+test "glTF cubic rotation keys keep raw derivatives" {
+  let incoming = @math.Quat(0.0, 0.0, 2.0, 0.0)
+  let outgoing = @math.Quat(0.0, 0.0, 3.0, 0.0)
+  let zero = @math.Quat(0.0, 0.0, 0.0, 0.0)
+  let start = @math.Quat::identity()
+  let end = @math.Quat(0.0, 0.0, 1.0, 0.0)
+  let bytes : Array[Byte] = []
+  for q in [zero, start, outgoing, incoming, end, zero] {
+    sparse_test_append_vec3_le(bytes, q.x, q.y, q.z)
+    sparse_test_append_f32_le(bytes, q.w)
+  }
+  let source = sparse_test_bytes(bytes)
+  let values = read_accessor_quat(
+    0,
+    [Some(source)],
+    [Some(sparse_test_buffer_view(0, source.length()))],
+    [
+      Some({
+        buffer_view: Some(0),
+        byte_offset: 0,
+        component_type: 5126,
+        count: 6,
+        type_name: "VEC4",
+        normalized: false,
+        sparse: None,
+      }),
+    ],
+  ).unwrap()
+  let keys = parse_quat_keyframes([0.0, 1.0], values, CubicSpline)
+  assert_eq(keys[0].value, start)
+  assert_eq(keys[1].value, end)
+  assert_eq(keys[0].in_tangent, Some(zero))
+  assert_eq(keys[0].out_tangent, Some(outgoing))
+  assert_eq(keys[1].in_tangent, Some(incoming))
+  assert_eq(keys[1].out_tangent, Some(zero))
+}
+
+///|
+test "glTF node matrices preserve zero scale and reject shear" {
+  let collapsed = @json.parse("[0,0,0,0, 0,0,0,0, 0,-2,0,0, 4,5,6,1]")
+  guard json_array(collapsed) is Some(values) else {
+    fail("matrix fixture must be an array")
+  }
+  let pose = parse_matrix_transform(values).unwrap().compute_affine()
+  assert_true(pose.x_axis.length() == 0.0 && pose.y_axis.length() == 0.0)
+  assert_true(
+    pose.transform_point3(Vec3(1.0, 1.0, 1.0)).distance(Vec3(4.0, 3.0, 6.0)) <
+    1.0e-12,
+  )
+
+  let sheared = @json.parse("[1,0,0,0, 1,1,0,0, 0,0,1,0, 0,0,0,1]")
+  guard json_array(sheared) is Some(values) else {
+    fail("matrix fixture must be an array")
+  }
+  assert_true(parse_matrix_transform(values) is None)
 }

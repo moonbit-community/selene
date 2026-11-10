@@ -377,8 +377,8 @@ pub(all) enum TextOverflow {
 ///|
 #selene.component
 pub(all) struct TextLayout {
-  mut align : @math.HAlign
-  mut baseline : @math.VAlign
+  mut align : @render2d_types.HAlign
+  mut baseline : @render2d_types.VAlign
   mut line_height : Double
   mut wrap : TextWrap
   mut overflow : TextOverflow
@@ -386,8 +386,8 @@ pub(all) struct TextLayout {
 
 ///|
 pub fn TextLayout::TextLayout(
-  align~ : @math.HAlign = Left,
-  baseline~ : @math.VAlign = Top,
+  align~ : @render2d_types.HAlign = Left,
+  baseline~ : @render2d_types.VAlign = Top,
   line_height~ : Double = 1.0,
   wrap~ : TextWrap = NoWrap,
   overflow~ : TextOverflow = Clip,

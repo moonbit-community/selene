@@ -358,21 +358,6 @@ fn read_f32_le(bytes : Bytes, offset : Int32) -> Double? {
 }
 
 ///|
-fn quat_from_components(
-  x : Double,
-  y : Double,
-  z : Double,
-  w : Double,
-) -> @math.Quat {
-  let length_squared = x * x + y * y + z * z + w * w
-  if length_squared <= 0.0000000001 {
-    @math.Quat::identity()
-  } else {
-    @math.Quat(x, y, z, w).normalize()
-  }
-}
-
-///|
 fn read_mat4_value(bytes : Bytes, offset : Int32) -> @math.Mat4? {
   let values : Array[Double] = []
   for index in 0..<16 {
@@ -381,24 +366,7 @@ fn read_mat4_value(bytes : Bytes, offset : Int32) -> @math.Mat4? {
     }
     values.push(value)
   }
-  Some({
-    m00: values[0],
-    m01: values[4],
-    m02: values[8],
-    m03: values[12],
-    m10: values[1],
-    m11: values[5],
-    m12: values[9],
-    m13: values[13],
-    m20: values[2],
-    m21: values[6],
-    m22: values[10],
-    m23: values[14],
-    m30: values[3],
-    m31: values[7],
-    m32: values[11],
-    m33: values[15],
-  })
+  @math.Mat4::from_column_major(values[:])
 }
 
 ///|

@@ -6,6 +6,7 @@ import {
   "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
+  "Milky2018/selene/render2d_types",
   "Milky2018/selene/transform",
   "moonbitlang/core/debug",
 }
@@ -72,7 +73,7 @@ pub impl @ecs.Component for Sprite
 
 pub(all) enum SpriteImageMode {
   Auto
-  Tiled(@math.RepeatMode)
+  Tiled(@render2d_types.RepeatMode)
 }
 
 #derive(Eq, @debug.Debug)

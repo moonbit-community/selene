@@ -262,29 +262,29 @@ fn entity_rect(entity : @ecs.Entity) -> @math.Rect? {
 
 ///|
 fn rects_touch_or_intersect(a : @math.Rect, b : @math.Rect) -> Bool {
-  a.position[X] <= b.position[X] + b.size[X] &&
-  a.position[X] + a.size[X] >= b.position[X] &&
-  a.position[Y] <= b.position[Y] + b.size[Y] &&
-  a.position[Y] + a.size[Y] >= b.position[Y]
+  a.position.x <= b.position.x + b.size.x &&
+  a.position.x + a.size.x >= b.position.x &&
+  a.position.y <= b.position.y + b.size.y &&
+  a.position.y + a.size.y >= b.position.y
 }
 
 ///|
 fn sweep_rect(from : @math.Rect, to : @math.Rect) -> @math.Rect {
-  let left = if from.position[X] < to.position[X] {
-    from.position[X]
+  let left = if from.position.x < to.position.x {
+    from.position.x
   } else {
-    to.position[X]
+    to.position.x
   }
-  let top = if from.position[Y] < to.position[Y] {
-    from.position[Y]
+  let top = if from.position.y < to.position.y {
+    from.position.y
   } else {
-    to.position[Y]
+    to.position.y
   }
-  let right_from = from.position[X] + from.size[X]
-  let right_to = to.position[X] + to.size[X]
+  let right_from = from.position.x + from.size.x
+  let right_to = to.position.x + to.size.x
   let right = if right_from > right_to { right_from } else { right_to }
-  let bottom_from = from.position[Y] + from.size[Y]
-  let bottom_to = to.position[Y] + to.size[Y]
+  let bottom_from = from.position.y + from.size.y
+  let bottom_to = to.position.y + to.size.y
   let bottom = if bottom_from > bottom_to { bottom_from } else { bottom_to }
   { position: Vec2(left, top), size: Vec2(right - left, bottom - top), }
 }
@@ -302,11 +302,10 @@ fn classify_bird_contact(
   if !rects_touch_or_intersect(player_sweep, bird_sweep) {
     return None
   }
-  let player_bottom_prev = player_prev_rect.position[Y] +
-    player_prev_rect.size[Y]
-  let player_bottom = player_rect.position[Y] + player_rect.size[Y]
-  let bird_top = bird_rect.position[Y]
-  let bird_mid_y = bird_rect.position[Y] + bird_rect.size[Y] * 0.5
+  let player_bottom_prev = player_prev_rect.position.y + player_prev_rect.size.y
+  let player_bottom = player_rect.position.y + player_rect.size.y
+  let bird_top = bird_rect.position.y
+  let bird_mid_y = bird_rect.position.y + bird_rect.size.y * 0.5
   if player_resolved_vy > 0.0 &&
     player_bottom_prev <= bird_mid_y &&
     player_bottom >= bird_top {
@@ -323,8 +322,8 @@ fn apply_stomp_bounce(
   player_rect : @math.Rect,
   bird_rect : @math.Rect,
 ) -> Unit {
-  let snap_delta_y = bird_rect.position[Y] -
-    (player_rect.position[Y] + player_rect.size[Y])
+  let snap_delta_y = bird_rect.position.y -
+    (player_rect.position.y + player_rect.size.y)
   if snap_delta_y < 0.0 {
     guard! @transform.local_transform(player_entity) is Some(player_transform)
     @transform.set_local_transform(
@@ -342,7 +341,7 @@ fn apply_stomp_bounce(
   let bounce_velocity = @physics2d.linear_velocities()
     .get(player_entity)
     .map_or(@math.Vec2(0.0, -BUMP_V), fn(velocity) {
-      velocity.0.update(Y, -BUMP_V)
+      Vec2(velocity.0.x, -BUMP_V)
     })
   @physics2d.linear_velocities().set(player_entity, bounce_velocity)
 }
@@ -353,7 +352,7 @@ fn player_motion_base_velocity(
   pending_bounce_velocity_y : Double?,
 ) -> @math.Vec2 {
   match pending_bounce_velocity_y {
-    Some(bounce_velocity_y) => resolved_velocity.update(Y, bounce_velocity_y)
+    Some(bounce_velocity_y) => Vec2(resolved_velocity.x, bounce_velocity_y)
     None => resolved_velocity
   }
 }
@@ -430,8 +429,8 @@ fn player_controller_system(world : @ecs.World) -> Unit {
   )
   controller.pending_bounce_velocity_y = None
 
-  let mut new_velocity_x = velocity[X]
-  let mut new_velocity_y = velocity[Y]
+  let mut new_velocity_x = velocity.x
+  let mut new_velocity_y = velocity.y
 
   if controller.state is Hit {
     if grounded {
@@ -440,7 +439,7 @@ fn player_controller_system(world : @ecs.World) -> Unit {
     if sprite_animation_finished(session.player) {
       controller.state = if grounded {
         Idle
-      } else if velocity[Y] > 0.0 {
+      } else if velocity.y > 0.0 {
         Fall
       } else {
         Jump
@@ -468,7 +467,7 @@ fn player_controller_system(world : @ecs.World) -> Unit {
       controller.state = Jump
       play_sfx(jump_sound(), session.volume_on)
     } else if !grounded {
-      controller.state = if velocity[Y] > 0.0 { Fall } else { Jump }
+      controller.state = if velocity.y > 0.0 { Fall } else { Jump }
     } else if new_velocity_x != 0.0 {
       controller.state = Run
     } else {
@@ -526,7 +525,7 @@ fn player_bird_contact_system(world : @ecs.World) -> Unit {
         player_rect,
         bird_prev_rect,
         bird_rect,
-        player_resolved_velocity[Y],
+        player_resolved_velocity.y,
       ) {
       None => continue
       Stomp => {
@@ -562,7 +561,7 @@ fn bird_patrol_system(_world : @ecs.World) -> Unit {
 
     let resolved_x = @physics2d.resolved_velocities()
       .get(bird_entity)
-      .map_or(0.0, fn(v) { v.0[X] })
+      .map_or(0.0, fn(v) { v.0.x })
     let blocked = match bird.direction {
       Left => resolved_x > -BIRD_SPEED * 0.5
       Right => resolved_x < BIRD_SPEED * 0.5
@@ -636,8 +635,8 @@ fn pixeladventure_camera_follow_system(world : @ecs.World) -> Unit {
   let half_height = VIEWPORT_HEIGHT * 0.5
   let target_x = player_transform.translation.x + 16.0
   let target_y = player_transform.translation.y + 16.0
-  let world_width = session.world_size[X]
-  let world_height = session.world_size[Y]
+  let world_width = session.world_size.x
+  let world_height = session.world_size.y
   let center_x = if world_width <= VIEWPORT_WIDTH {
     world_width * 0.5
   } else if target_x < half_width {

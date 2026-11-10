@@ -15,7 +15,7 @@
 ///|
 fn tiled_spatial(position : @math.Vec2, depth : Int32) -> @transform.Spatial {
   Spatial(
-    @transform.Transform::from_xyz(position[X], position[Y], depth.to_double()),
+    @transform.Transform::from_xyz(position.x, position.y, depth.to_double()),
   )
 }
 
@@ -32,29 +32,17 @@ priv struct TiledSpriteAnimation {
 
 ///|
 fn tiled_transform_from_2d_affine(
-  affine : @math.Transform,
-) -> @transform.Transform {
-  let x_axis = @math.Vec3(affine.a, affine.b, 0.0)
-  let y_axis = @math.Vec3(affine.c, affine.d, 0.0)
-  let mut scale_x = x_axis.length()
-  let mut scale_y = y_axis.length()
-  if scale_x <= 0.000000001 {
-    scale_x = 1.0
+  affine : @math.Affine2,
+) -> @transform.Transform? {
+  let global : @transform.GlobalTransform = {
+    affine: {
+      x_axis: Vec3(affine.a, affine.b, 0.0),
+      y_axis: Vec3(affine.c, affine.d, 0.0),
+      z_axis: @math.Vec3::z_axis(),
+      translation: Vec3(affine.tx, affine.ty, 0.0),
+    },
   }
-  if scale_y <= 0.000000001 {
-    scale_y = 1.0
-  }
-  let basis_x = x_axis.scalar_div(scale_x)
-  let mut basis_y = y_axis.scalar_div(scale_y)
-  if basis_x.cross(basis_y).dot(@math.Vec3::z_axis()) < 0.0 {
-    scale_y = -scale_y
-    basis_y = -basis_y
-  }
-  {
-    translation: Vec3(affine.tx, affine.ty, 0.0),
-    rotation: @math.Quat::from_basis(basis_x, basis_y, @math.Vec3::z_axis()),
-    scale: Vec3(scale_x, scale_y, 1.0),
-  }
+  global.try_decompose_trs()
 }
 
 ///|
@@ -468,15 +456,18 @@ fn spawn_tiled_tile_layer(
     }
     let tile_position = tiled_cell_position(map, tileset, cell)
     let draft = @ecs.require_current_world().spawn_draft()
-    let pose = tiled_transform_from_2d_affine(
-      tiled_gid_transform(cell.gid, tiled_tileset_tile_size(map, tileset)),
-    )
+    guard tiled_transform_from_2d_affine(
+        tiled_gid_transform(cell.gid, tiled_tileset_tile_size(map, tileset)),
+      )
+      is Some(pose) else {
+      continue
+    }
     draft.add(
       @transform.Spatial(
         pose.with_translation(
           Vec3(
-            tile_position[X] + pose.translation.x,
-            tile_position[Y] + pose.translation.y,
+            tile_position.x + pose.translation.x,
+            tile_position.y + pose.translation.y,
             zindex.to_double(),
           ),
         ),
@@ -528,18 +519,21 @@ fn spawn_tiled_object_layer(
       map.tileset_for_gid(gid.tile_id) is Some(tileset) {
       let offset = tiled_tile_object_position(map, tileset, object)
       let size = tiled_object_size(map, tileset, object)
-      let pose = tiled_transform_from_2d_affine(
-        tiled_object_rotation_transform(object, size) *
-        tiled_gid_transform(gid, size),
-      )
+      guard tiled_transform_from_2d_affine(
+          tiled_object_rotation_transform(object, size) *
+          tiled_gid_transform(gid, size),
+        )
+        is Some(pose) else {
+        continue
+      }
       if build_tiled_tile_animation(map, tileset, gid, size~) is Some(animation) {
         tiled_add_sprite(draft, animation)
       }
       @transform.Spatial(
         pose.with_translation(
           Vec3(
-            offset[X] + pose.translation.x,
-            offset[Y] + pose.translation.y,
+            offset.x + pose.translation.x,
+            offset.y + pose.translation.y,
             zindex.to_double(),
           ),
         ),
@@ -641,7 +635,7 @@ fn build_tiled_tile_animation(
     return None
   }
   let tile_size = size.unwrap_or(tiled_tileset_tile_size(map, tileset))
-  if tile_size[X] <= 0.0 || tile_size[Y] <= 0.0 {
+  if tile_size.x <= 0.0 || tile_size.y <= 0.0 {
     return None
   }
   if tileset.tile_definition(local_id) is Some(tile) &&
@@ -779,7 +773,7 @@ fn tiled_visual_regions_for_local_tile(
   local_id : Int32,
   frame_size : @math.Vec2,
 ) -> Array[(@asset.ImageHandle, @math.Rect)] {
-  if local_id < 0 || frame_size[X] <= 0.0 || frame_size[Y] <= 0.0 {
+  if local_id < 0 || frame_size.x <= 0.0 || frame_size.y <= 0.0 {
     return []
   }
   if tileset.tile_definition(local_id) is Some(tile) {
@@ -812,8 +806,8 @@ fn tiled_layout_size(rects : Array[@math.Rect]) -> @math.Vec2 {
   let mut max_x = 0.0
   let mut max_y = 0.0
   for rect in rects {
-    let right = rect.position[X] + rect.size[X]
-    let bottom = rect.position[Y] + rect.size[Y]
+    let right = rect.position.x + rect.size.x
+    let bottom = rect.position.y + rect.size.y
     if right > max_x {
       max_x = right
     }
@@ -886,7 +880,7 @@ fn tiled_orthogonal_cell_position(
 ) -> @math.Vec2 {
   Vec2(
     cell.x.to_double() * map.tile_width.to_double(),
-    (cell.y + 1).to_double() * map.tile_height.to_double() - tile_size[Y],
+    (cell.y + 1).to_double() * map.tile_height.to_double() - tile_size.y,
   )
 }
 
@@ -907,7 +901,7 @@ fn tiled_isometric_cell_position(
   }
   Vec2(
     (cell.x - cell.y).to_double() * half_width + origin_x,
-    (cell.x + cell.y).to_double() * half_height + tile_height - tile_size[Y],
+    (cell.x + cell.y).to_double() * half_height + tile_height - tile_size.y,
   )
 }
 
@@ -953,7 +947,7 @@ fn tiled_staggered_layout_cell_position(
     }
     return Vec2(
       cell.x.to_double() * column_step,
-      cell.y.to_double() * tile_height + row_offset + tile_height - tile_size[Y],
+      cell.y.to_double() * tile_height + row_offset + tile_height - tile_size.y,
     )
   }
   let row_step = (tile_height + side_length) / 2.0
@@ -964,7 +958,7 @@ fn tiled_staggered_layout_cell_position(
   }
   Vec2(
     cell.x.to_double() * tile_width + column_offset,
-    cell.y.to_double() * row_step + tile_height - tile_size[Y],
+    cell.y.to_double() * row_step + tile_height - tile_size.y,
   )
 }
 
@@ -990,11 +984,11 @@ fn tiled_tile_object_position(
 ) -> @math.Vec2 {
   let size = tiled_object_size(map, tileset, object)
   let origin_x = if map.orientation.to_lower() == "isometric" {
-    object.x - size[X] / 2.0
+    object.x - size.x / 2.0
   } else {
     object.x
   }
-  Vec2(origin_x, object.y - size[Y])
+  Vec2(origin_x, object.y - size.y)
 }
 
 ///|
@@ -1004,8 +998,8 @@ fn tiled_object_size(
   object : TiledObject,
 ) -> @math.Vec2 {
   let default_size = tiled_tileset_tile_size(map, tileset)
-  let width = if object.width > 0.0 { object.width } else { default_size[X] }
-  let height = if object.height > 0.0 { object.height } else { default_size[Y] }
+  let width = if object.width > 0.0 { object.width } else { default_size.x }
+  let height = if object.height > 0.0 { object.height } else { default_size.y }
   Vec2(width, height)
 }
 
@@ -1013,42 +1007,44 @@ fn tiled_object_size(
 fn tiled_object_rotation_transform(
   object : TiledObject,
   size : @math.Vec2,
-) -> @math.Transform {
+) -> @math.Affine2 {
   if object.rotation == 0.0 {
-    return @math.Transform::identity()
+    return @math.Affine2::identity()
   }
-  @math.Transform::from_translation(0.0, size[Y]) *
-  @math.Transform::from_rotation_deg(object.rotation) *
-  @math.Transform::from_translation(0.0, -size[Y])
+  @math.Affine2::from_translation(0.0, size.y) *
+  @math.Affine2::from_rotation_deg(object.rotation) *
+  @math.Affine2::from_translation(0.0, -size.y)
 }
 
 ///|
-fn tiled_gid_transform(gid : TiledGid, size : @math.Vec2) -> @math.Transform {
-  let width = size[X]
-  let height = size[Y]
+fn tiled_gid_transform(gid : TiledGid, size : @math.Vec2) -> @math.Affine2 {
+  let width = size.x
+  let height = size.y
   if width <= 0.0 || height <= 0.0 {
-    return @math.Transform::identity()
+    return @math.Affine2::identity()
   }
   let diagonal = if gid.flipped_diagonally {
-    @math.Transform(a=0.0, b=height / width, c=width / height, d=0.0)
+    @math.Affine2(a=0.0, b=height / width, c=width / height, d=0.0)
   } else {
-    @math.Transform::identity()
+    @math.Affine2::identity()
   }
   let horizontal = if gid.flipped_horizontally {
-    @math.Transform::flip_x(width)
+    @math.Affine2::flip_x(width)
   } else {
-    @math.Transform::identity()
+    @math.Affine2::identity()
   }
   let vertical = if gid.flipped_vertically {
-    @math.Transform::flip_y(height)
+    @math.Affine2::flip_y(height)
   } else {
-    @math.Transform::identity()
+    @math.Affine2::identity()
   }
   vertical * horizontal * diagonal
 }
 
 ///|
-fn tiled_image_repeat_mode(image_layer : TiledImageLayer) -> @math.RepeatMode {
+fn tiled_image_repeat_mode(
+  image_layer : TiledImageLayer,
+) -> @render2d_types.RepeatMode {
   match (image_layer.repeat_x, image_layer.repeat_y) {
     (true, true) => Repeat
     (true, false) => RepeatX

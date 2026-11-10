@@ -79,7 +79,7 @@ pub fn rigid_body_handle(@ecs.Entity) -> @dynamics.RigidBodyHandle?
 
 pub fn rigid_body_linear_velocity(@ecs.Entity) -> @math.Vec3?
 
-pub fn rigid_body_rotation(@ecs.Entity) -> @math.Quat?
+pub fn rigid_body_rotation(@ecs.Entity) -> @math.Rotation3?
 
 pub fn rigid_body_translation(@ecs.Entity) -> @math.Vec3?
 
@@ -93,7 +93,7 @@ pub fn set_rigid_body_angular_velocity(@ecs.Entity, @math.Vec3) -> Unit
 
 pub fn set_rigid_body_linear_velocity(@ecs.Entity, @math.Vec3) -> Unit
 
-pub fn set_rigid_body_rotation(@ecs.Entity, @math.Quat) -> Unit
+pub fn set_rigid_body_rotation(@ecs.Entity, @math.Rotation3) -> Unit
 
 pub fn set_rigid_body_translation(@ecs.Entity, @math.Vec3) -> Unit
 
@@ -230,8 +230,8 @@ pub impl @ecs.Component for Dominance
 pub(all) struct FixedJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
-  local_basis1 : @math.Quat
-  local_basis2 : @math.Quat
+  local_basis1 : @math.Rotation3
+  local_basis2 : @math.Rotation3
 }
 pub fn FixedJoint::FixedJoint() -> Self
 pub fn FixedJoint::equal(Self, Self) -> Bool
@@ -398,9 +398,9 @@ pub fn QueryFilterBody::to_repr(Self) -> @debug.Repr
 pub(all) struct RapierContext {
 }
 pub fn RapierContext::cast_ray(Self, @math.Vec3, @math.Vec3, max_toi? : Double, solid? : Bool, query_filter? : QueryFilter) -> RaycastHit?
-pub fn RapierContext::cast_shape(Self, Collider, @math.Vec3, rotation? : @math.Quat, direction? : @math.Vec3, max_toi? : Double, stop_at_penetration? : Bool, query_filter? : QueryFilter) -> ShapeCastHit?
+pub fn RapierContext::cast_shape(Self, Collider, @math.Vec3, rotation? : @math.Rotation3, direction? : @math.Vec3, max_toi? : Double, stop_at_penetration? : Bool, query_filter? : QueryFilter) -> ShapeCastHit?
 pub fn RapierContext::intersections_with_point(Self, @math.Vec3, query_filter? : QueryFilter) -> Array[@ecs.Entity]
-pub fn RapierContext::intersections_with_shape(Self, Collider, @math.Vec3, rotation? : @math.Quat, query_filter? : QueryFilter) -> Array[@ecs.Entity]
+pub fn RapierContext::intersections_with_shape(Self, Collider, @math.Vec3, rotation? : @math.Rotation3, query_filter? : QueryFilter) -> Array[@ecs.Entity]
 pub fn RapierContext::project_point(Self, @math.Vec3, solid? : Bool, query_filter? : QueryFilter) -> PointProjection?
 
 #derive(Eq, @debug.Debug)
@@ -500,7 +500,7 @@ pub impl @ecs.Component for SolverGroups
 pub(all) struct SphericalJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
-  motor_target : (@math.Quat, Double, Double)?
+  motor_target : (@math.Rotation3, Double, Double)?
 }
 pub fn SphericalJoint::SphericalJoint() -> Self
 pub fn SphericalJoint::equal(Self, Self) -> Bool

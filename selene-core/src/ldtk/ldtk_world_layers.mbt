@@ -158,8 +158,8 @@ pub fn ldtk_entity_tile_sprite(
   let scale_x = target_width / source_width
   let scale_y = target_height / source_height
   let pivot_offset = @math.Vec2(
-    target_width * (event.instance.pivot[X] - 0.5),
-    target_height * (event.instance.pivot[Y] - 0.5),
+    target_width * (event.instance.pivot.x - 0.5),
+    target_height * (event.instance.pivot.y - 0.5),
   )
   ignore(zindex)
   let target_size = @math.Vec2(source_width * scale_x, source_height * scale_y)

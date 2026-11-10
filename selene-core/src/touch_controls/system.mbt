@@ -70,16 +70,16 @@ fn update_stick_value(
     touch_position - stick_state.center,
     stick.radius,
   )
-  if delta.distance() <= stick.dead_zone {
+  if delta.length() <= stick.dead_zone {
     stick_state.value = @math.Vec2::zero()
   } else {
     stick_state.value = Vec2(
-      clamp(delta[X] / stick.radius, -1.0, 1.0),
-      clamp(delta[Y] / stick.radius, -1.0, 1.0),
+      clamp(delta.x / stick.radius, -1.0, 1.0),
+      clamp(delta.y / stick.radius, -1.0, 1.0),
     )
   }
-  @inputs.set_virtual_axis_value(stick.axis_x, stick_state.value[X])
-  @inputs.set_virtual_axis_value(stick.axis_y, stick_state.value[Y])
+  @inputs.set_virtual_axis_value(stick.axis_x, stick_state.value.x)
+  @inputs.set_virtual_axis_value(stick.axis_y, stick_state.value.y)
 }
 
 ///|

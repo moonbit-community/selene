@@ -241,10 +241,10 @@ fn estimate_direction(from : @ecs.Entity, to : @ecs.Entity) -> @math.Vec2 {
   if entity_translation(from) is Some(from_pos) &&
     entity_translation(to) is Some(to_pos) {
     let delta = to_pos - from_pos
-    if delta[X].abs() >= delta[Y].abs() {
-      Vec2(if delta[X] >= 0.0 { 1.0 } else { -1.0 }, 0.0)
+    if delta.x.abs() >= delta.y.abs() {
+      Vec2(if delta.x >= 0.0 { 1.0 } else { -1.0 }, 0.0)
     } else {
-      Vec2(0.0, if delta[Y] >= 0.0 { 1.0 } else { -1.0 })
+      Vec2(0.0, if delta.y >= 0.0 { 1.0 } else { -1.0 })
     }
   } else {
     @math.Vec2::zero()
@@ -336,8 +336,8 @@ fn move_with_kinematic_controller(
     fn(_collision) {  },
   )
   let mut applied_displacement = from_physics_vec2(effective.translation())
-  if effective.is_grounded() && applied_displacement[Y].abs() < 0.05 {
-    applied_displacement = applied_displacement.update(Y, 0.0)
+  if effective.is_grounded() && applied_displacement.y.abs() < 0.05 {
+    applied_displacement = Vec2(applied_displacement.x, 0.0)
   }
   let new_position = position + applied_displacement
   set_entity_translation(entity, new_position)

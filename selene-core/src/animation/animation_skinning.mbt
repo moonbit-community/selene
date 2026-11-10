@@ -236,7 +236,7 @@ fn apply_morph_targets(
   for index in 0..<normals.length() {
     let normal = normals[index]
     normals[index] = if normal.length_squared() > 0.0000001 {
-      normal.normalize()
+      normal.normalize_or_zero()
     } else {
       Vec3(0.0, 1.0, 0.0)
     }
@@ -247,85 +247,14 @@ fn apply_morph_targets(
 ///|
 fn skin_tangent(
   tangent : @render3d.Tangent3D,
-  skin_matrix : @math.Mat4,
+  skin_matrix : @math.Affine3,
+  handedness : Double,
 ) -> @render3d.Tangent3D {
-  let tangent_head = skin_matrix.transform_point(
-    Vec3(tangent.x, tangent.y, tangent.z),
-  )
-  let tangent_tail = skin_matrix.transform_point(@math.Vec3::zero())
-  let direction = tangent_head - tangent_tail
-  let normalized = if direction.length_squared() > 0.0000001 {
-    direction.normalize()
-  } else {
-    Vec3(1.0, 0.0, 0.0)
-  }
-  { x: normalized.x, y: normalized.y, z: normalized.z, w: tangent.w, }
-}
-
-///|
-fn zero_mat4() -> @math.Mat4 {
-  {
-    m00: 0.0,
-    m01: 0.0,
-    m02: 0.0,
-    m03: 0.0,
-    m10: 0.0,
-    m11: 0.0,
-    m12: 0.0,
-    m13: 0.0,
-    m20: 0.0,
-    m21: 0.0,
-    m22: 0.0,
-    m23: 0.0,
-    m30: 0.0,
-    m31: 0.0,
-    m32: 0.0,
-    m33: 0.0,
-  }
-}
-
-///|
-fn scale_mat4(matrix : @math.Mat4, scalar : Double) -> @math.Mat4 {
-  {
-    m00: matrix.m00 * scalar,
-    m01: matrix.m01 * scalar,
-    m02: matrix.m02 * scalar,
-    m03: matrix.m03 * scalar,
-    m10: matrix.m10 * scalar,
-    m11: matrix.m11 * scalar,
-    m12: matrix.m12 * scalar,
-    m13: matrix.m13 * scalar,
-    m20: matrix.m20 * scalar,
-    m21: matrix.m21 * scalar,
-    m22: matrix.m22 * scalar,
-    m23: matrix.m23 * scalar,
-    m30: matrix.m30 * scalar,
-    m31: matrix.m31 * scalar,
-    m32: matrix.m32 * scalar,
-    m33: matrix.m33 * scalar,
-  }
-}
-
-///|
-fn add_mat4(lhs : @math.Mat4, rhs : @math.Mat4) -> @math.Mat4 {
-  {
-    m00: lhs.m00 + rhs.m00,
-    m01: lhs.m01 + rhs.m01,
-    m02: lhs.m02 + rhs.m02,
-    m03: lhs.m03 + rhs.m03,
-    m10: lhs.m10 + rhs.m10,
-    m11: lhs.m11 + rhs.m11,
-    m12: lhs.m12 + rhs.m12,
-    m13: lhs.m13 + rhs.m13,
-    m20: lhs.m20 + rhs.m20,
-    m21: lhs.m21 + rhs.m21,
-    m22: lhs.m22 + rhs.m22,
-    m23: lhs.m23 + rhs.m23,
-    m30: lhs.m30 + rhs.m30,
-    m31: lhs.m31 + rhs.m31,
-    m32: lhs.m32 + rhs.m32,
-    m33: lhs.m33 + rhs.m33,
-  }
+  let direction = skin_matrix
+    .transform_vector3(Vec3(tangent.x, tangent.y, tangent.z))
+    .try_normalize()
+    .unwrap_or(@math.Vec3::x_axis())
+  { x: direction.x, y: direction.y, z: direction.z, w: tangent.w * handedness, }
 }
 
 ///|
@@ -345,7 +274,7 @@ fn weighted_skin_matrix(
     influence.weight2,
     influence.weight3,
   ]
-  let mut output = zero_mat4()
+  let mut output = @math.Mat4::zero()
   for index in 0..<4 {
     let joint_id = joint_ids[index]
     if joint_id < 0 || joint_id >= joint_matrices.length() {
@@ -355,7 +284,7 @@ fn weighted_skin_matrix(
     if weight <= 0.0 {
       continue
     }
-    output = add_mat4(output, scale_mat4(joint_matrices[joint_id], weight))
+    output = output + joint_matrices[joint_id].scalar_mul(weight)
   }
   output
 }
@@ -431,12 +360,7 @@ pub fn animation_skinning_system(_delta : Double) -> Unit {
         missing_joint_transform = true
         break
       }
-      let global = global_transform.compute_transform()
-      let world = @math.Mat4::from_trs(
-        global.translation,
-        global.rotation,
-        global.scale,
-      )
+      let world = @math.Mat4::from_affine(global_transform.affine)
       let inverse_bind = binding.inverse_bind_matrices
         .get(joint_index)
         .unwrap_or(@math.Mat4::identity())
@@ -456,23 +380,20 @@ pub fn animation_skinning_system(_delta : Double) -> Unit {
     let deformed_tangents : Array[@render3d.Tangent3D] = []
     for index, base_position in morphed_positions {
       let influence = binding.influences[index]
-      let skin_matrix = weighted_skin_matrix(influence, joint_matrices)
-      deformed_positions.push(skin_matrix.transform_point(base_position))
+      let skin_matrix = weighted_skin_matrix(influence, joint_matrices).affine_part()
+      deformed_positions.push(skin_matrix.transform_point3(base_position))
       let base_normal = morphed_normals
         .get(index)
         .unwrap_or(Vec3(0.0, 1.0, 0.0))
-      let normal_head = skin_matrix.transform_point(base_normal)
-      let normal_tail = skin_matrix.transform_point(@math.Vec3::zero())
-      let direction = normal_head - normal_tail
-      let normal = if direction.length_squared() > 0.0000001 {
-        direction.normalize()
-      } else {
-        Vec3(0.0, 1.0, 0.0)
-      }
+      let (normal_map, handedness) = skin_matrix.normal_matrix()
+      let normal = normal_map
+        .transform_vector3(base_normal)
+        .try_normalize()
+        .unwrap_or(@math.Vec3::y_axis())
       deformed_normals.push(normal)
       if binding.tangents is Some(tangents) &&
         tangents.get(index) is Some(tangent) {
-        deformed_tangents.push(skin_tangent(tangent, skin_matrix))
+        deformed_tangents.push(skin_tangent(tangent, skin_matrix, handedness))
       }
     }
     update_bound_mesh(

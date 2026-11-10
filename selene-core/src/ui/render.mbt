@@ -9,12 +9,12 @@ fn push_ui_rect_fill(
   color : @render.Color,
   camera_entity_id~ : UInt32? = None,
 ) -> Unit {
-  if rect.size[X] <= 0.0 || rect.size[Y] <= 0.0 || color.a <= 0.0 {
+  if rect.size.x <= 0.0 || rect.size.y <= 0.0 || color.a <= 0.0 {
     return
   }
   @render2d.push_ui_rect_to_camera(camera_entity_id, {
     rect,
-    transform: @math.Transform::identity(),
+    transform: @math.Affine2::identity(),
     alpha_mode: color_alpha_mode(color),
     blend_mode: Alpha,
     fill_color: color,
@@ -35,7 +35,7 @@ fn push_ui_circle_fill(
   @render2d.push_ui_circle_to_camera(camera_entity_id, {
     center,
     radius,
-    transform: @math.Transform::identity(),
+    transform: @math.Affine2::identity(),
     alpha_mode: color_alpha_mode(color),
     blend_mode: Alpha,
     fill_color: color,
@@ -82,7 +82,7 @@ fn has_rounded_corners(radius : ResolvedBorderRadius) -> Bool {
 
 ///|
 fn resolve_corner_radius(value : Val, size : @math.Vec2) -> Double {
-  let basis = @cmp.maximum(0.0, @cmp.minimum(size[X], size[Y]))
+  let basis = @cmp.maximum(0.0, @cmp.minimum(size.x, size.y))
   resolve_val(value, basis)
 }
 
@@ -91,7 +91,7 @@ fn resolved_border_radius(
   radius : BorderRadius,
   size : @math.Vec2,
 ) -> ResolvedBorderRadius {
-  let limit = @cmp.maximum(0.0, @cmp.minimum(size[X], size[Y]) / 2.0)
+  let limit = @cmp.maximum(0.0, @cmp.minimum(size.x, size.y) / 2.0)
   {
     top_left: @cmp.minimum(
       limit,
@@ -115,10 +115,10 @@ fn resolved_border_radius(
 ///|
 fn inset_rect(rect : @math.Rect, inset : UiInsets) -> @math.Rect {
   {
-    position: Vec2(rect.position[X] + inset.left, rect.position[Y] + inset.top),
+    position: Vec2(rect.position.x + inset.left, rect.position.y + inset.top),
     size: Vec2(
-      @cmp.maximum(0.0, rect.size[X] - inset.left - inset.right),
-      @cmp.maximum(0.0, rect.size[Y] - inset.top - inset.bottom),
+      @cmp.maximum(0.0, rect.size.x - inset.left - inset.right),
+      @cmp.maximum(0.0, rect.size.y - inset.top - inset.bottom),
     ),
   }
 }
@@ -151,10 +151,10 @@ fn inset_border_radius(
 ///|
 fn inflate_rect(rect : @math.Rect, amount : Double) -> @math.Rect {
   {
-    position: Vec2(rect.position[X] - amount, rect.position[Y] - amount),
+    position: Vec2(rect.position.x - amount, rect.position.y - amount),
     size: Vec2(
-      @cmp.maximum(0.0, rect.size[X] + amount * 2.0),
-      @cmp.maximum(0.0, rect.size[Y] + amount * 2.0),
+      @cmp.maximum(0.0, rect.size.x + amount * 2.0),
+      @cmp.maximum(0.0, rect.size.y + amount * 2.0),
     ),
   }
 }
@@ -185,7 +185,7 @@ fn push_quarter_circle(
   color : @render.Color,
   camera_entity_id~ : UInt32? = None,
 ) -> Unit {
-  if clip_rect.size[X] <= 0.0 || clip_rect.size[Y] <= 0.0 || radius <= 0.0 {
+  if clip_rect.size.x <= 0.0 || clip_rect.size.y <= 0.0 || radius <= 0.0 {
     return
   }
   @render2d.push_ui_clip_for_camera(clip_rect, camera_entity_id)
@@ -200,7 +200,7 @@ fn push_rounded_rect(
   color : @render.Color,
   camera_entity_id~ : UInt32? = None,
 ) -> Unit {
-  if rect.size[X] <= 0.0 || rect.size[Y] <= 0.0 || color.a <= 0.0 {
+  if rect.size.x <= 0.0 || rect.size.y <= 0.0 || color.a <= 0.0 {
     return
   }
   if !has_rounded_corners(radius) {
@@ -212,10 +212,10 @@ fn push_rounded_rect(
   let tr = radius.top_right
   let br = radius.bottom_right
   let bl = radius.bottom_left
-  let x = rect.position[X]
-  let y = rect.position[Y]
-  let w = rect.size[X]
-  let h = rect.size[Y]
+  let x = rect.position.x
+  let y = rect.position.y
+  let w = rect.size.x
+  let h = rect.size.y
   let left_band = @cmp.maximum(tl, bl)
   let right_band = @cmp.maximum(tr, br)
   let top_band = @cmp.maximum(tl, tr)
@@ -316,13 +316,13 @@ fn push_box_shadow(
     global.screen_rect.size,
   )
   let spread_basis = @cmp.minimum(
-    global.screen_rect.size[X],
-    global.screen_rect.size[Y],
+    global.screen_rect.size.x,
+    global.screen_rect.size.y,
   )
   for layer in shadow.layers {
     let offset = @math.Vec2(
-      resolve_val(layer.x_offset, global.screen_rect.size[X]),
-      resolve_val(layer.y_offset, global.screen_rect.size[Y]),
+      resolve_val(layer.x_offset, global.screen_rect.size.x),
+      resolve_val(layer.y_offset, global.screen_rect.size.y),
     )
     let spread = resolve_val(layer.spread_radius, spread_basis)
     let blur = resolve_val(layer.blur_radius, spread_basis)
@@ -418,7 +418,7 @@ pub fn draw_ui_material_gradient(
 ) -> Unit {
   @render2d.push_ui_gradient_rect_to_camera(context.target_camera_entity_id, {
     rect: context.rect,
-    transform: @math.Transform::identity(),
+    transform: @math.Affine2::identity(),
     alpha_mode: if gradient.color_start.a >= 0.999999 &&
       gradient.color_end.a >= 0.999999 {
       Opaque
@@ -440,8 +440,8 @@ pub fn draw_ui_material_image(
     image: image.image,
     destination: fitted_image_rect(context.rect, image),
     source: None,
-    transform: Transform(),
-    uv_transform: @math.Transform::identity(),
+    transform: Affine2(),
+    uv_transform: @math.Affine2::identity(),
     repeat: NoRepeat,
     alpha_mode: Blend,
     blend_mode: Alpha,
@@ -513,7 +513,7 @@ fn push_border(
   }
   if border.top > 0.0 {
     push_ui_rect_fill(
-      { position: rect.position, size: Vec2(rect.size[X], border.top), },
+      { position: rect.position, size: Vec2(rect.size.x, border.top), },
       border_color.color,
       camera_entity_id~,
     )
@@ -522,10 +522,10 @@ fn push_border(
     push_ui_rect_fill(
       {
         position: Vec2(
-          rect.position[X],
-          rect.position[Y] + rect.size[Y] - border.bottom,
+          rect.position.x,
+          rect.position.y + rect.size.y - border.bottom,
         ),
-        size: Vec2(rect.size[X], border.bottom),
+        size: Vec2(rect.size.x, border.bottom),
       },
       border_color.color,
       camera_entity_id~,
@@ -534,10 +534,10 @@ fn push_border(
   if border.left > 0.0 {
     push_ui_rect_fill(
       {
-        position: Vec2(rect.position[X], rect.position[Y] + border.top),
+        position: Vec2(rect.position.x, rect.position.y + border.top),
         size: Vec2(
           border.left,
-          @cmp.maximum(0.0, rect.size[Y] - border.top - border.bottom),
+          @cmp.maximum(0.0, rect.size.y - border.top - border.bottom),
         ),
       },
       border_color.color,
@@ -548,12 +548,12 @@ fn push_border(
     push_ui_rect_fill(
       {
         position: Vec2(
-          rect.position[X] + rect.size[X] - border.right,
-          rect.position[Y] + border.top,
+          rect.position.x + rect.size.x - border.right,
+          rect.position.y + border.top,
         ),
         size: Vec2(
           border.right,
-          @cmp.maximum(0.0, rect.size[Y] - border.top - border.bottom),
+          @cmp.maximum(0.0, rect.size.y - border.top - border.bottom),
         ),
       },
       border_color.color,
@@ -569,8 +569,8 @@ fn push_outline(
 ) -> Unit {
   guard outlines().get(entity) is Some(outline) else { return }
   guard global_ui_node(entity) is Some(transform) else { return }
-  let width = resolve_val(outline.width, transform.screen_rect.size[X])
-  let offset = resolve_val(outline.offset, transform.screen_rect.size[X])
+  let width = resolve_val(outline.width, transform.screen_rect.size.x)
+  let offset = resolve_val(outline.offset, transform.screen_rect.size.x)
   if width <= 0.0 || outline.color.a <= 0.0 {
     return
   }
@@ -589,8 +589,8 @@ fn push_outline(
     {
       position: outer.position,
       size: Vec2(
-        outer.size[X],
-        @cmp.maximum(0.0, inner.position[Y] - outer.position[Y]),
+        outer.size.x,
+        @cmp.maximum(0.0, inner.position.y - outer.position.y),
       ),
     },
     outline.color,
@@ -598,12 +598,12 @@ fn push_outline(
   )
   push_ui_rect_fill(
     {
-      position: Vec2(outer.position[X], inner.position[Y] + inner.size[Y]),
+      position: Vec2(outer.position.x, inner.position.y + inner.size.y),
       size: Vec2(
-        outer.size[X],
+        outer.size.x,
         @cmp.maximum(
           0.0,
-          outer.position[Y] + outer.size[Y] - inner.position[Y] - inner.size[Y],
+          outer.position.y + outer.size.y - inner.position.y - inner.size.y,
         ),
       ),
     },
@@ -612,10 +612,10 @@ fn push_outline(
   )
   push_ui_rect_fill(
     {
-      position: Vec2(outer.position[X], inner.position[Y]),
+      position: Vec2(outer.position.x, inner.position.y),
       size: Vec2(
-        @cmp.maximum(0.0, inner.position[X] - outer.position[X]),
-        inner.size[Y],
+        @cmp.maximum(0.0, inner.position.x - outer.position.x),
+        inner.size.y,
       ),
     },
     outline.color,
@@ -623,13 +623,13 @@ fn push_outline(
   )
   push_ui_rect_fill(
     {
-      position: Vec2(inner.position[X] + inner.size[X], inner.position[Y]),
+      position: Vec2(inner.position.x + inner.size.x, inner.position.y),
       size: Vec2(
         @cmp.maximum(
           0.0,
-          outer.position[X] + outer.size[X] - inner.position[X] - inner.size[X],
+          outer.position.x + outer.size.x - inner.position.x - inner.size.x,
         ),
-        inner.size[Y],
+        inner.size.y,
       ),
     },
     outline.color,
@@ -644,44 +644,44 @@ fn fitted_image_rect(container : @math.Rect, image : UiImage) -> @math.Rect {
     None => { position: container.position, size: image.size, }
     Contain => {
       let scale = @cmp.minimum(
-        if image.size[X] <= 0.0 {
+        if image.size.x <= 0.0 {
           1.0
         } else {
-          container.size[X] / image.size[X]
+          container.size.x / image.size.x
         },
-        if image.size[Y] <= 0.0 {
+        if image.size.y <= 0.0 {
           1.0
         } else {
-          container.size[Y] / image.size[Y]
+          container.size.y / image.size.y
         },
       )
-      let size = @math.Vec2(image.size[X] * scale, image.size[Y] * scale)
+      let size = @math.Vec2(image.size.x * scale, image.size.y * scale)
       {
         position: Vec2(
-          container.position[X] + (container.size[X] - size[X]) / 2.0,
-          container.position[Y] + (container.size[Y] - size[Y]) / 2.0,
+          container.position.x + (container.size.x - size.x) / 2.0,
+          container.position.y + (container.size.y - size.y) / 2.0,
         ),
         size,
       }
     }
     Cover => {
       let scale = @cmp.maximum(
-        if image.size[X] <= 0.0 {
+        if image.size.x <= 0.0 {
           1.0
         } else {
-          container.size[X] / image.size[X]
+          container.size.x / image.size.x
         },
-        if image.size[Y] <= 0.0 {
+        if image.size.y <= 0.0 {
           1.0
         } else {
-          container.size[Y] / image.size[Y]
+          container.size.y / image.size.y
         },
       )
-      let size = @math.Vec2(image.size[X] * scale, image.size[Y] * scale)
+      let size = @math.Vec2(image.size.x * scale, image.size.y * scale)
       {
         position: Vec2(
-          container.position[X] + (container.size[X] - size[X]) / 2.0,
-          container.position[Y] + (container.size[Y] - size[Y]) / 2.0,
+          container.position.x + (container.size.x - size.x) / 2.0,
+          container.position.y + (container.size.y - size.y) / 2.0,
         ),
         size,
       }
@@ -698,8 +698,8 @@ fn push_image(entity : @ecs.Entity, camera_entity_id~ : UInt32? = None) -> Unit 
     image: image.image,
     destination: fitted_image_rect(transform.screen_content_rect, image),
     source: None,
-    transform: Transform(),
-    uv_transform: @math.Transform::identity(),
+    transform: Affine2(),
+    uv_transform: @math.Affine2::identity(),
     repeat: NoRepeat,
     alpha_mode: Blend,
     blend_mode: Alpha,
@@ -724,13 +724,13 @@ fn truncate_line(
   if max_width <= 0.0 {
     return ""
   }
-  if measure_text_fragment(style, text)[X] <= max_width {
+  if measure_text_fragment(style, text).x <= max_width {
     return text
   }
   let ellipsis = "..."
   let mut current = text
   while current.length() > 0 &&
-        measure_text_fragment(style, current + ellipsis)[X] > max_width {
+        measure_text_fragment(style, current + ellipsis).x > max_width {
     current = current.unsafe_substring(start=0, end=current.length() - 1)
   }
   current + ellipsis
@@ -756,7 +756,7 @@ fn wrap_line(
   let mut current = ""
   for word in words {
     let candidate = if current == "" { word } else { current + " " + word }
-    if measure_text_fragment(style, candidate)[X] <= max_width {
+    if measure_text_fragment(style, candidate).x <= max_width {
       current = candidate
     } else if current == "" {
       lines.push(truncate_line(style, word, max_width))
@@ -789,7 +789,7 @@ fn push_text(entity : @ecs.Entity, camera_entity_id~ : UInt32? = None) -> Unit {
   let layout = text_layout(entity)
   let lines = prepared_text_lines(
     entity,
-    AvailDefinite(transform.logical_content_rect.size[X]),
+    AvailDefinite(transform.logical_content_rect.size.x),
   )
   if lines.is_empty() {
     return
@@ -797,26 +797,26 @@ fn push_text(entity : @ecs.Entity, camera_entity_id~ : UInt32? = None) -> Unit {
   let line_height = style.size * @cmp.maximum(1.0, layout.line_height)
   let block_height = line_height * lines.length().to_double()
   let start_y = match layout.baseline {
-    Top => transform.screen_content_rect.position[Y]
+    Top => transform.screen_content_rect.position.y
     Center =>
-      transform.screen_content_rect.position[Y] +
-      (transform.screen_content_rect.size[Y] - block_height) / 2.0
+      transform.screen_content_rect.position.y +
+      (transform.screen_content_rect.size.y - block_height) / 2.0
     Bottom =>
-      transform.screen_content_rect.position[Y] +
-      transform.screen_content_rect.size[Y] -
+      transform.screen_content_rect.position.y +
+      transform.screen_content_rect.size.y -
       block_height
   }
   for index, line in lines {
     let measured = measure_text_fragment(style, line)
     let x = match layout.align {
-      Left => transform.screen_content_rect.position[X]
+      Left => transform.screen_content_rect.position.x
       Center =>
-        transform.screen_content_rect.position[X] +
-        (transform.screen_content_rect.size[X] - measured[X]) / 2.0
+        transform.screen_content_rect.position.x +
+        (transform.screen_content_rect.size.x - measured.x) / 2.0
       Right =>
-        transform.screen_content_rect.position[X] +
-        transform.screen_content_rect.size[X] -
-        measured[X]
+        transform.screen_content_rect.position.x +
+        transform.screen_content_rect.size.x -
+        measured.x
     }
     // `x`/`y` are already fully resolved in UI layout space.
     // Force renderer-local alignment to top-left to avoid applying alignment twice.
@@ -824,7 +824,7 @@ fn push_text(entity : @ecs.Entity, camera_entity_id~ : UInt32? = None) -> Unit {
     @render2d.push_ui_text_to_camera(camera_entity_id, {
       text: line,
       position: Vec2(x, start_y + index.to_double() * line_height),
-      transform: @math.Transform::identity(),
+      transform: @math.Affine2::identity(),
       blend_mode: Alpha,
       style: style_for_draw,
     })

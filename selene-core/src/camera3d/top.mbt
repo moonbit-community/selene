@@ -87,10 +87,13 @@ pub fn camera3d_extract_system(_delta : Double) -> Unit {
         set_active_camera3d(None)
         return
       }
-      let global = global_transform.compute_transform()
+      let global = global_transform.affine
       let position = global.translation
-      let forward = global.rotation.rotate_vec3(Vec3(0.0, 0.0, -1.0))
-      let up = global.rotation.rotate_vec3(Vec3(0.0, 1.0, 0.0))
+      let forward = global
+        .transform_vector3(Vec3(0.0, 0.0, -1.0))
+        .try_normalize()
+        .unwrap_or(Vec3(0.0, 0.0, -1.0))
+      let up = global.y_axis.try_normalize().unwrap_or(@math.Vec3::y_axis())
       set_active_camera3d(
         Some({
           entity,

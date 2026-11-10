@@ -194,14 +194,14 @@ fn collision_shape_to_rapier_shape(
 ) -> (@rapier_collision.Shape, @math.Vec2)? {
   match shape {
     Rect(size~, offset~) =>
-      if size[X] <= 0.0 || size[Y] <= 0.0 {
+      if size.x <= 0.0 || size.y <= 0.0 {
         None
       } else {
         Some(
           (
             Cuboid(
-              Float::from_double(to_physics_scalar(size[X] * 0.5)),
-              Float::from_double(to_physics_scalar(size[Y] * 0.5)),
+              Float::from_double(to_physics_scalar(size.x * 0.5)),
+              Float::from_double(to_physics_scalar(size.y * 0.5)),
             ),
             offset + size.scalar_mul(0.5),
           ),

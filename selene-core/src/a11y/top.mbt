@@ -292,10 +292,10 @@ fn resolve_bounds(entity : @ecs.Entity) -> @moon_accesskit.Rect? {
   guard @ui.global_ui_node(entity) is Some(node) else { return None }
   Some(
     Rect(
-      node.screen_rect.position[X],
-      node.screen_rect.position[Y],
-      node.screen_rect.position[X] + node.screen_rect.size[X],
-      node.screen_rect.position[Y] + node.screen_rect.size[Y],
+      node.screen_rect.position.x,
+      node.screen_rect.position.y,
+      node.screen_rect.position.x + node.screen_rect.size.x,
+      node.screen_rect.position.y + node.screen_rect.size.y,
     ),
   )
 }

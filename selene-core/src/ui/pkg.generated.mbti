@@ -681,13 +681,13 @@ pub fn TextFont::from_font(@asset_types.FontHandle, size? : Double) -> Self
 pub impl @ecs.Component for TextFont
 
 pub(all) struct TextLayout {
-  mut align : @math.HAlign
-  mut baseline : @math.VAlign
+  mut align : @render2d_types.HAlign
+  mut baseline : @render2d_types.VAlign
   mut line_height : Double
   mut wrap : TextWrap
   mut overflow : TextOverflow
 }
-pub fn TextLayout::TextLayout(align? : @math.HAlign, baseline? : @math.VAlign, line_height? : Double, wrap? : TextWrap, overflow? : TextOverflow) -> Self
+pub fn TextLayout::TextLayout(align? : @render2d_types.HAlign, baseline? : @render2d_types.VAlign, line_height? : Double, wrap? : TextWrap, overflow? : TextOverflow) -> Self
 pub impl @ecs.Component for TextLayout
 
 #derive(Eq, @debug.Debug)

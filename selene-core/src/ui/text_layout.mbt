@@ -21,7 +21,7 @@ fn prepare_text_layout(
         for word in raw_line.split(" ") {
           longest = @cmp.maximum(
             longest,
-            measure_text_fragment(style, word.to_owned())[X],
+            measure_text_fragment(style, word.to_owned()).x,
           )
         }
       }
@@ -54,7 +54,7 @@ fn prepare_text_layout(
   }
   let mut width = 0.0
   for line in lines {
-    width = @cmp.maximum(width, measure_text_fragment(style, line)[X])
+    width = @cmp.maximum(width, measure_text_fragment(style, line).x)
   }
   let line_height = style.size * @cmp.maximum(1.0, layout.line_height)
   { lines, width, height: line_height * lines.length().to_double(), }

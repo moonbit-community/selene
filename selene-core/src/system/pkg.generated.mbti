@@ -24,7 +24,7 @@ pub fn lock_mouse() -> Unit
 
 pub fn realtime_timer_system(Double) -> Unit
 
-pub fn scale_transform_translation(@math.Transform) -> @math.Transform
+pub fn scale_transform_translation(@math.Affine2) -> @math.Affine2
 
 pub fn scale_value(Double) -> Double
 

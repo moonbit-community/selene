@@ -100,9 +100,9 @@ fn webgpu_shader3d_shadow_lit_source() -> String {
     #|  @location(0) pos: vec3<f32>,
     #|  @location(2) color: vec4<f32>,
     #|  @location(4) material: vec4<f32>,
-    #|  @location(5) instance_translation: vec3<f32>,
-    #|  @location(6) instance_rotation: vec4<f32>,
-    #|  @location(7) instance_scale: vec3<f32>,
+    #|  @location(5) instance_row_x: vec4<f32>,
+    #|  @location(6) instance_row_y: vec4<f32>,
+    #|  @location(7) instance_row_z: vec4<f32>,
     #|};
     #|struct VSOut {
     #|  @builtin(position) pos: vec4<f32>,
@@ -117,12 +117,10 @@ fn webgpu_shader3d_shadow_lit_source() -> String {
     #|  return o;
     #|}
     #|
-  ) +
-  webgpu_shader_rotate_quat_source() +
-  (
     #|@vertex fn vs_instanced(v: VSInInstanced) -> VSOut {
     #|  var o: VSOut;
-    #|  let world_pos = rotate_quat(v.pos * v.instance_scale, v.instance_rotation) + v.instance_translation;
+    #|  let local_pos = vec4<f32>(v.pos, 1.0);
+    #|  let world_pos = vec3<f32>(dot(v.instance_row_x, local_pos), dot(v.instance_row_y, local_pos), dot(v.instance_row_z, local_pos));
     #|  o.pos = u_shadow_camera.light_view_proj * vec4<f32>(world_pos, 1.0);
     #|  o.color = v.color;
     #|  o.material = v.material;
@@ -171,25 +169,6 @@ fn webgpu_shader3d_shadow_texture_source() -> String {
     #|  if (alpha_mode == 2) { discard; }
     #|  let albedo = textureSample(u_shadow_base_texture, u_shadow_base_sampler, v.base_uv) * v.color;
     #|  if (alpha_mode == 1 && albedo.a < alpha_cutoff) { discard; }
-    #|}
-    #|
-  )
-}
-
-///|
-fn webgpu_shader_rotate_quat_source() -> String {
-  (
-    #|fn rotate_quat(value: vec3<f32>, quat: vec4<f32>) -> vec3<f32> {
-    #|  let len = length(quat);
-    #|  var q = quat;
-    #|  if (len <= 0.00001) {
-    #|    q = vec4<f32>(0.0, 0.0, 0.0, 1.0);
-    #|  } else {
-    #|    q = quat / len;
-    #|  }
-    #|  let u = q.xyz;
-    #|  let s = q.w;
-    #|  return 2.0 * dot(u, value) * u + (s * s - dot(u, u)) * value + 2.0 * s * cross(u, value);
     #|}
     #|
   )
@@ -423,9 +402,9 @@ fn webgpu_shader3d_lit_color_source() -> String {
     #|  @location(2) color: vec4<f32>,
     #|  @location(3) emissive: vec3<f32>,
     #|  @location(4) material: vec4<f32>,
-    #|  @location(5) instance_translation: vec3<f32>,
-    #|  @location(6) instance_rotation: vec4<f32>,
-    #|  @location(7) instance_scale: vec3<f32>,
+    #|  @location(5) instance_row_x: vec4<f32>,
+    #|  @location(6) instance_row_y: vec4<f32>,
+    #|  @location(7) instance_row_z: vec4<f32>,
     #|  @location(8) instance_receive_shadows: f32,
     #|};
     #|struct VSOut {
@@ -447,23 +426,28 @@ fn webgpu_shader3d_lit_color_source() -> String {
     #|  return o;
     #|}
     #|
-  ) +
-  webgpu_shader_rotate_quat_source() +
-  (
-    #|fn safe_scale_component(value: f32) -> f32 {
-    #|  return select(value, 1.0, abs(value) <= 0.00001);
-    #|}
     #|@vertex fn vs_instanced(v: VSInInstanced) -> VSOut {
     #|  var o: VSOut;
-    #|  let scaled_pos = v.pos * v.instance_scale;
-    #|  let world_pos = rotate_quat(scaled_pos, v.instance_rotation) + v.instance_translation;
-    #|  let inverse_scale = vec3<f32>(
-    #|    safe_scale_component(v.instance_scale.x),
-    #|    safe_scale_component(v.instance_scale.y),
-    #|    safe_scale_component(v.instance_scale.z),
-    #|  );
-    #|  let scaled_normal = v.normal / inverse_scale;
-    #|  let world_normal = normalize(rotate_quat(scaled_normal, v.instance_rotation));
+    #|  let local_pos = vec4<f32>(v.pos, 1.0);
+    #|  let world_pos = vec3<f32>(dot(v.instance_row_x, local_pos), dot(v.instance_row_y, local_pos), dot(v.instance_row_z, local_pos));
+    #|  let x = vec3<f32>(v.instance_row_x.x, v.instance_row_y.x, v.instance_row_z.x);
+    #|  let y = vec3<f32>(v.instance_row_x.y, v.instance_row_y.y, v.instance_row_z.y);
+    #|  let z = vec3<f32>(v.instance_row_x.z, v.instance_row_y.z, v.instance_row_z.z);
+    #|  let magnitudes = max(max(abs(x), abs(y)), abs(z));
+    #|  let scale = max(max(magnitudes.x, magnitudes.y), magnitudes.z);
+    #|  var world_normal = vec3<f32>(0.0, 1.0, 0.0);
+    #|  if (scale > 0.0) {
+    #|    let scaled_x = x / scale;
+    #|    let scaled_y = y / scale;
+    #|    let scaled_z = z / scale;
+    #|    let cofactor_x = cross(scaled_y, scaled_z);
+    #|    let cofactor_y = cross(scaled_z, scaled_x);
+    #|    let cofactor_z = cross(scaled_x, scaled_y);
+    #|    let handedness = select(1.0, -1.0, dot(scaled_x, cofactor_x) < 0.0);
+    #|    let n = mat3x3<f32>(cofactor_x, cofactor_y, cofactor_z) * v.normal * handedness;
+    #|    let max_normal = max(max(abs(n.x), abs(n.y)), abs(n.z));
+    #|    if (max_normal > 0.0) { world_normal = normalize(n / max_normal); }
+    #|  }
     #|  var material = v.material;
     #|  material.w = v.instance_receive_shadows;
     #|  o.pos = u_camera.view_proj * vec4<f32>(world_pos, 1.0);

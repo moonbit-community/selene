@@ -858,7 +858,7 @@ extern "js" fn webgpu_initialize_ffi(
   #|           if (!cmd.castShadows || !cmd.meshRecord?.buffer || !cmd.instanceBuffer || !cmd.instanceArray?.length) continue;
   #|           pass.setVertexBuffer(0, cmd.meshRecord.buffer, 0, cmd.meshRecord.byteLength);
   #|           pass.setVertexBuffer(1, cmd.instanceBuffer, 0, cmd.instanceByteLength);
-  #|           pass.draw(cmd.meshRecord.vertexCount, cmd.instanceArray.length / 11, 0, 0);
+  #|           pass.draw(cmd.meshRecord.vertexCount, cmd.instanceArray.length / 13, 0, 0);
   #|         }
   #|       }
   #|       if (buffers.tex.buffer && section.texTriCommands.length > 0) {
@@ -1227,7 +1227,7 @@ extern "js" fn webgpu_initialize_ffi(
   #|           pass.setPipeline(cmd.doubleSided ? rt.pipelines.lit3dInstancedDouble : rt.pipelines.lit3dInstancedSingle);
   #|           pass.setVertexBuffer(0, cmd.meshRecord.buffer, 0, cmd.meshRecord.byteLength);
   #|           pass.setVertexBuffer(1, cmd.instanceBuffer, 0, cmd.instanceByteLength);
-  #|           pass.draw(cmd.meshRecord.vertexCount, cmd.instanceArray.length / 11, 0, 0);
+  #|           pass.draw(cmd.meshRecord.vertexCount, cmd.instanceArray.length / 13, 0, 0);
   #|         }
   #|       }
   #|       if (state.buffers.tex.buffer && section.texTriCommands.length > 0) {
@@ -1693,22 +1693,22 @@ extern "js" fn webgpu_initialize_ffi(
   #|         ],
   #|       };
   #|       const lit3dInstanceVertex = {
-  #|         arrayStride: 44,
+  #|         arrayStride: 52,
   #|         stepMode: 'instance',
   #|         attributes: [
-  #|           { shaderLocation: 5, offset: 0, format: 'float32x3' },
-  #|           { shaderLocation: 6, offset: 12, format: 'float32x4' },
-  #|           { shaderLocation: 7, offset: 28, format: 'float32x3' },
-  #|           { shaderLocation: 8, offset: 40, format: 'float32' },
+  #|           { shaderLocation: 5, offset: 0, format: 'float32x4' },
+  #|           { shaderLocation: 6, offset: 16, format: 'float32x4' },
+  #|           { shaderLocation: 7, offset: 32, format: 'float32x4' },
+  #|           { shaderLocation: 8, offset: 48, format: 'float32' },
   #|         ],
   #|       };
   #|       const lit3dShadowInstanceVertex = {
-  #|         arrayStride: 44,
+  #|         arrayStride: 52,
   #|         stepMode: 'instance',
   #|         attributes: [
-  #|           { shaderLocation: 5, offset: 0, format: 'float32x3' },
-  #|           { shaderLocation: 6, offset: 12, format: 'float32x4' },
-  #|           { shaderLocation: 7, offset: 28, format: 'float32x3' },
+  #|           { shaderLocation: 5, offset: 0, format: 'float32x4' },
+  #|           { shaderLocation: 6, offset: 16, format: 'float32x4' },
+  #|           { shaderLocation: 7, offset: 32, format: 'float32x4' },
   #|         ],
   #|       };
   #|       const litTex3dVertex = {

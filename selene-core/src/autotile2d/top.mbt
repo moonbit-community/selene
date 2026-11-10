@@ -592,9 +592,7 @@ fn apply_tile_visual(
   let position = tile_position(source, solved.x, solved.y)
   let tile_entity = plan.spawn(
     (
-      Spatial(
-        @transform.Transform::from_xyz(position[X], position[Y], context.z),
-      ),
+      Spatial(@transform.Transform::from_xyz(position.x, position.y, context.z)),
       Sprite(
         image=visual.image_path.map(fn(path) { @asset.load_image(path) }),
         rect=visual.rect,

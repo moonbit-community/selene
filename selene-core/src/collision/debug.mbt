@@ -41,18 +41,12 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
     guard e.is_alive() else { continue }
     guard collide.active else { continue }
     guard! shapes().get(e) is Some(shape)
-    guard! shape is Rect(size=Vec2(width, height), offset~)
+    guard! shape is Rect(size~, offset~)
     guard debug_entity_global_transform(e) is Some(global) else { continue }
-    let rect = to_screen_rect(
-      e,
-      global,
-      offset,
-      Vec2(width, height),
-      camera_view,
-    )
+    let rect = to_screen_rect(e, global, offset, size, camera_view)
     @render2d.push_rect({
       rect,
-      transform: @math.Transform::identity(),
+      transform: @math.Affine2::identity(),
       alpha_mode: Blend,
       blend_mode: Alpha,
       fill_color: rgba(255U, 0U, 0U, 0.5),
@@ -63,18 +57,12 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
     guard e.is_alive() else { continue }
     guard area.active else { continue }
     guard shapes().get(e) is Some(shape) else { continue }
-    guard! shape is Rect(size=Vec2(width, height), offset~)
+    guard! shape is Rect(size~, offset~)
     guard debug_entity_global_transform(e) is Some(global) else { continue }
-    let rect = to_screen_rect(
-      e,
-      global,
-      offset,
-      Vec2(width, height),
-      camera_view,
-    )
+    let rect = to_screen_rect(e, global, offset, size, camera_view)
     @render2d.push_rect({
       rect,
-      transform: @math.Transform::identity(),
+      transform: @math.Affine2::identity(),
       alpha_mode: Blend,
       blend_mode: Alpha,
       fill_color: rgba(0U, 0U, 255U, 0.5),
@@ -84,18 +72,12 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
   for e, _pickable in pickables() {
     guard e.is_alive() else { continue }
     guard shapes().get(e) is Some(shape) else { continue }
-    guard! shape is Rect(size=Vec2(width, height), offset~)
+    guard! shape is Rect(size~, offset~)
     guard debug_entity_global_transform(e) is Some(global) else { continue }
-    let rect = to_screen_rect(
-      e,
-      global,
-      offset,
-      Vec2(width, height),
-      camera_view,
-    )
+    let rect = to_screen_rect(e, global, offset, size, camera_view)
     @render2d.push_rect({
       rect,
-      transform: @math.Transform::identity(),
+      transform: @math.Affine2::identity(),
       alpha_mode: Blend,
       blend_mode: Alpha,
       fill_color: rgba(0U, 255U, 0U, 0.5),
@@ -117,50 +99,50 @@ fn to_screen_rect(
   } else {
     let p0 = screen_point(
       global_transform.transform_point(
-        Vec3(local_position[X], local_position[Y], 0.0),
+        Vec3(local_position.x, local_position.y, 0.0),
       ),
       camera_view,
     )
     let p1 = screen_point(
       global_transform.transform_point(
-        Vec3(local_position[X] + size[X], local_position[Y], 0.0),
+        Vec3(local_position.x + size.x, local_position.y, 0.0),
       ),
       camera_view,
     )
     let p2 = screen_point(
       global_transform.transform_point(
-        Vec3(local_position[X], local_position[Y] + size[Y], 0.0),
+        Vec3(local_position.x, local_position.y + size.y, 0.0),
       ),
       camera_view,
     )
     let p3 = screen_point(
       global_transform.transform_point(
-        Vec3(local_position[X] + size[X], local_position[Y] + size[Y], 0.0),
+        Vec3(local_position.x + size.x, local_position.y + size.y, 0.0),
       ),
       camera_view,
     )
-    let min_x = [p0[X], p1[X], p2[X], p3[X]].fold(init=p0[X], fn(acc, value) {
+    let min_x = [p0.x, p1.x, p2.x, p3.x].fold(init=p0.x, fn(acc, value) {
       if value < acc {
         value
       } else {
         acc
       }
     })
-    let min_y = [p0[Y], p1[Y], p2[Y], p3[Y]].fold(init=p0[Y], fn(acc, value) {
+    let min_y = [p0.y, p1.y, p2.y, p3.y].fold(init=p0.y, fn(acc, value) {
       if value < acc {
         value
       } else {
         acc
       }
     })
-    let max_x = [p0[X], p1[X], p2[X], p3[X]].fold(init=p0[X], fn(acc, value) {
+    let max_x = [p0.x, p1.x, p2.x, p3.x].fold(init=p0.x, fn(acc, value) {
       if value > acc {
         value
       } else {
         acc
       }
     })
-    let max_y = [p0[Y], p1[Y], p2[Y], p3[Y]].fold(init=p0[Y], fn(acc, value) {
+    let max_y = [p0.y, p1.y, p2.y, p3.y].fold(init=p0.y, fn(acc, value) {
       if value > acc {
         value
       } else {

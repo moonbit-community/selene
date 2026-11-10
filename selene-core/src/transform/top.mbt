@@ -16,7 +16,7 @@
 #derive(Eq, Debug)
 pub(all) struct Transform {
   translation : @math.Vec3
-  rotation : @math.Quat
+  rotation : @math.Rotation3
   scale : @math.Vec3
 }
 
@@ -30,7 +30,7 @@ pub(all) struct GlobalTransform {
 pub fn Transform::identity() -> Transform {
   {
     translation: @math.Vec3::zero(),
-    rotation: @math.Quat::identity(),
+    rotation: @math.Rotation3::identity(),
     scale: @math.Vec3::one(),
   }
 }
@@ -51,7 +51,7 @@ pub fn Transform::from_xyz(x : Double, y : Double, z : Double) -> Transform {
 }
 
 ///|
-pub fn Transform::from_rotation(rotation : @math.Quat) -> Transform {
+pub fn Transform::from_rotation(rotation : @math.Rotation3) -> Transform {
   { ..Transform::identity(), rotation, }
 }
 
@@ -71,7 +71,7 @@ pub fn Transform::with_translation(
 ///|
 pub fn Transform::with_rotation(
   self : Transform,
-  rotation : @math.Quat,
+  rotation : @math.Rotation3,
 ) -> Transform {
   { ..self, rotation, }
 }
@@ -113,34 +113,47 @@ pub fn GlobalTransform::translation(self : GlobalTransform) -> @math.Vec3 {
 }
 
 ///|
-pub fn GlobalTransform::compute_transform(self : GlobalTransform) -> Transform {
-  let x_axis = self.affine.x_axis
-  let y_axis = self.affine.y_axis
-  let z_axis = self.affine.z_axis
-  let mut scale_x = x_axis.length()
-  let mut scale_y = y_axis.length()
-  let mut scale_z = z_axis.length()
-  if scale_x <= 0.000000001 {
-    scale_x = 1.0
+/// Decomposes finite TRS, returning None for shear. A collapsed axis has no
+/// unique orientation, so its basis is completed from the surviving axes.
+pub fn GlobalTransform::try_decompose_trs(self : GlobalTransform) -> Transform? {
+  let { x_axis, y_axis, z_axis, translation, } = self.affine
+  let scale_x = x_axis.length()
+  let scale_y = y_axis.length()
+  let scale_z = z_axis.length()
+  guard translation.is_finite() &&
+    scale_x.is_finite() &&
+    scale_y.is_finite() &&
+    scale_z.is_finite() else {
+    None
   }
-  if scale_y <= 0.000000001 {
-    scale_y = 1.0
+  let x = if scale_x > 0.0 { Some(x_axis.scalar_div(scale_x)) } else { None }
+  let y = if scale_y > 0.0 { Some(y_axis.scalar_div(scale_y)) } else { None }
+  let z = if scale_z > 0.0 { Some(z_axis.scalar_div(scale_z)) } else { None }
+  let (x, y, z) = match (x, y, z) {
+    (Some(x), Some(y), Some(z)) => (x, y, z)
+    (None, Some(y), Some(z)) => (y.cross(z), y, z)
+    (Some(x), None, Some(z)) => (x, z.cross(x), z)
+    (Some(x), Some(y), None) => (x, y, x.cross(y))
+    (Some(x), None, None) => {
+      let (y, z, _) = @math.view_basis_rh(-x, @math.Vec3::y_axis())
+      (x, y, z)
+    }
+    (None, Some(y), None) => {
+      let (z, x, _) = @math.view_basis_rh(-y, @math.Vec3::y_axis())
+      (x, y, z)
+    }
+    (None, None, Some(z)) => {
+      let (x, y, _) = @math.view_basis_rh(-z, @math.Vec3::y_axis())
+      (x, y, z)
+    }
+    (None, None, None) =>
+      (@math.Vec3::x_axis(), @math.Vec3::y_axis(), @math.Vec3::z_axis())
   }
-  if scale_z <= 0.000000001 {
-    scale_z = 1.0
+  let sign = if x.cross(y).dot(z) < 0.0 { -1.0 } else { 1.0 }
+  guard @math.Rotation3::from_basis(x, y.scalar_mul(sign), z) is Some(rotation) else {
+    None
   }
-  let basis_x = x_axis.scalar_div(scale_x)
-  let basis_y = y_axis.scalar_div(scale_y)
-  let mut basis_z = z_axis.scalar_div(scale_z)
-  if basis_x.cross(basis_y).dot(basis_z) < 0.0 {
-    scale_z = -scale_z
-    basis_z = -basis_z
-  }
-  {
-    translation: self.translation(),
-    rotation: @math.Quat::from_basis(basis_x, basis_y, basis_z),
-    scale: Vec3(scale_x, scale_y, scale_z),
-  }
+  Some({ translation, rotation, scale: Vec3(scale_x, scale_y * sign, scale_z), })
 }
 
 ///|
@@ -152,15 +165,13 @@ pub fn GlobalTransform::transform_point(
 }
 
 ///|
-pub fn GlobalTransform::reparented_to(
+/// Returns the local TRS relative to an invertible parent when representable.
+pub fn GlobalTransform::relative_trs(
   self : GlobalTransform,
   parent : GlobalTransform,
-) -> Transform {
-  match parent.affine.inverse() {
-    Some(inverse_parent) =>
-      GlobalTransform::{ affine: inverse_parent * self.affine, }.compute_transform()
-    None => self.compute_transform()
-  }
+) -> Transform? {
+  guard parent.affine.inverse() is Some(inverse) else { None }
+  GlobalTransform::{ affine: inverse * self.affine, }.try_decompose_trs()
 }
 
 ///|

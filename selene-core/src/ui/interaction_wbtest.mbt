@@ -159,8 +159,8 @@ test "ui relative cursor positions use centered normalized coordinates" {
   inspect(relative.mouse_over(), content="true")
   inspect(relative.normalized is Some(_), content="true")
   let normalized = relative.normalized.unwrap()
-  inspect(normalized[X] == 0.25, content="true")
-  inspect(normalized[Y] == 0.0, content="true")
+  inspect(normalized.x == 0.25, content="true")
+  inspect(normalized.y == 0.0, content="true")
 
   cleanup_interaction_test_entity(entity)
   reset_interaction_test_state()
@@ -429,7 +429,7 @@ test "ui scroll deltas stop at the computed content bounds" {
     apply_scroll_delta(entity, Vec2(0.0, 1000.0))
     debug_inspect(
       [
-        computed_ui_node(entity).unwrap().max_scroll_position[Y],
+        computed_ui_node(entity).unwrap().max_scroll_position.y,
         scroll_positions().get(entity).unwrap().y,
       ],
       content="[120, 120]",
@@ -603,8 +603,8 @@ test "ui relative cursor positions keep normalized values outside calculated cli
   inspect(relative.mouse_over(), content="false")
   inspect(relative.normalized is Some(_), content="true")
   let normalized = relative.normalized.unwrap()
-  inspect(normalized[X] == 0.25, content="true")
-  inspect(normalized[Y] == 0.0, content="true")
+  inspect(normalized.x == 0.25, content="true")
+  inspect(normalized.y == 0.0, content="true")
 
   cleanup_interaction_test_entity(entity)
   reset_interaction_test_state()

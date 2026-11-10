@@ -7,18 +7,18 @@ test "retained UI layout stays clean until measured content changes" {
   let entity = entity_draft.spawn()
 
   ui_layout_system(0.0)
-  let initial_width = computed_ui_node(entity).unwrap().size[X]
+  let initial_width = computed_ui_node(entity).unwrap().size.x
   let runtime = ui_layout_runtime()
   let root = runtime.roots.get(entity).unwrap()
   assert_false(runtime.tree.dirty(root.node_id))
 
   ui_layout_system(0.0)
   assert_false(runtime.tree.dirty(root.node_id))
-  assert_eq(computed_ui_node(entity).unwrap().size[X], initial_width)
+  assert_eq(computed_ui_node(entity).unwrap().size.x, initial_width)
 
   texts().get(entity).unwrap().content = "A much longer label"
   ui_layout_system(0.0)
-  assert_true(computed_ui_node(entity).unwrap().size[X] > initial_width)
+  assert_true(computed_ui_node(entity).unwrap().size.x > initial_width)
   assert_false(runtime.tree.dirty(root.node_id))
 
   cleanup_layout_test_entity(entity)
@@ -44,14 +44,14 @@ test "retained UI layout updates replaced subtrees" {
   )
 
   ui_layout_system(0.0)
-  assert_eq(computed_ui_node(child).unwrap().position[X], 0.0)
+  assert_eq(computed_ui_node(child).unwrap().position.x, 0.0)
 
   assert_true(child.delete())
   let child = nodes()
     .spawn_plan(@ecs.require_current_world())
     .spawn(Node(width=Val::px(20.0), height=Val::px(20.0)), parent=right)
   ui_layout_system(0.0)
-  assert_eq(computed_ui_node(child).unwrap().position[X], 100.0)
+  assert_eq(computed_ui_node(child).unwrap().position.x, 100.0)
 
   cleanup_layout_test_entity(child)
   cleanup_layout_test_entity(right)
@@ -99,11 +99,7 @@ test "retained UI projection changes do not rebuild layout or stacking" {
   camera_draft.add_to(@camera.camera2ds(), Camera2d())
   camera_draft.add_to(
     @transform.spatials(),
-    Spatial(
-      @transform.GlobalTransform::from_transform(
-        @transform.Transform::default(),
-      ).compute_transform(),
-    ),
+    Spatial(@transform.Transform::default()),
   )
   let camera = camera_draft.spawn()
   let root = @ecs.require_current_world().spawn(

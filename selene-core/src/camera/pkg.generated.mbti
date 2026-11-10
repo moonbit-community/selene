@@ -16,9 +16,7 @@ pub fn camera2d_view_for_screen_point(@math.Vec2) -> Camera2dView?
 
 pub fn camera2ds() -> @ecs.ComponentStore[Camera2d]
 
-pub fn camera_relative_transform(@transform.GlobalTransform, Camera2dView) -> @transform.Transform
-
-pub fn camera_screen_transform(@transform.GlobalTransform, Camera2dView?) -> @math.Transform
+pub fn camera_screen_transform(@transform.GlobalTransform, Camera2dView?) -> @math.Affine2
 
 pub fn cameras() -> @ecs.ComponentStore[Camera]
 
@@ -28,11 +26,9 @@ pub fn pixel_snapped_position(@math.Vec2) -> @math.Vec2
 
 pub fn primary_camera2d_view() -> Camera2dView?
 
-pub fn screen_space_transform(@transform.Transform) -> @transform.Transform
+pub fn transformed_rect_bounds(@math.Vec2, @math.Rect, @math.Affine2) -> @math.Rect
 
-pub fn transformed_rect_bounds(@math.Vec2, @math.Rect, @math.Transform) -> @math.Rect
-
-pub fn world_transform_2d(@transform.GlobalTransform) -> @math.Transform
+pub fn world_transform_2d(@transform.GlobalTransform) -> @math.Affine2
 
 // Errors
 
@@ -54,7 +50,7 @@ pub fn Camera::viewport_rect(Self) -> @math.Rect
 pub fn Camera::viewport_to_world_2d(Self, @transform.GlobalTransform, OrthographicProjection, @math.Vec2) -> @math.Vec2
 pub fn Camera::with_pass(Self, CameraPass2D) -> Self
 pub fn Camera::with_viewport(Self, CameraViewport?) -> Self
-pub fn Camera::world_to_viewport(Self, @transform.GlobalTransform, OrthographicProjection, @math.Vec2) -> @math.Vec2
+pub fn Camera::world_to_viewport(Self, @transform.GlobalTransform, OrthographicProjection, @math.Vec2) -> @math.Vec2?
 pub impl @ecs.Component for Camera
 pub impl Default for Camera
 
@@ -69,12 +65,12 @@ pub fn Camera2d::to_repr(Self) -> @debug.Repr
 pub impl @ecs.Component for Camera2d
 pub impl Default for Camera2d
 
-pub(all) struct Camera2dView {
+pub struct Camera2dView {
   entity : @ecs.Entity
   camera : Camera
-  global_transform : @transform.GlobalTransform
   projection : OrthographicProjection
   viewport : @math.Rect
+  // private fields
 }
 pub fn Camera2dView::intersects_screen_rect(Self, @math.Rect) -> Bool
 pub fn Camera2dView::viewport_to_world_2d(Self, @math.Vec2) -> @math.Vec2

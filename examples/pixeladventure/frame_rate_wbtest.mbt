@@ -40,7 +40,7 @@ fn player_motion_at_refresh_rate(refresh : Int32) -> Array[@math.Vec2] raise {
 test "player movement follows identical fixed steps at 60 120 and 144 Hz" {
   with_pixeladventure_test_asset_io(fn() raise {
     let baseline = player_motion_at_refresh_rate(60)
-    assert_true(baseline.iter().any(position => position[Y] < 450.0))
+    assert_true(baseline.iter().any(position => position.y < 450.0))
     for refresh in [120, 144] {
       assert_eq(player_motion_at_refresh_rate(refresh), baseline)
     }
@@ -70,7 +70,7 @@ test "a jump press survives render frames without a physics step" {
       player_controller_system(world)
       assert_false(controller.jump_requested)
       let velocity = @physics2d.linear_velocities().get(session.player).unwrap()
-      assert_true((velocity.0[Y] - (-JUMP_V + GRAVITY / 60.0)).abs() < 0.000001)
+      assert_true((velocity.0.y - (-JUMP_V + GRAVITY / 60.0)).abs() < 0.000001)
     })
   })
 }

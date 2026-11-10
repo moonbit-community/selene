@@ -74,10 +74,10 @@ fn point_in_rect(
   rect_position : @math.Vec2,
   rect_size : @math.Vec2,
 ) -> Bool {
-  point[X] >= rect_position[X] &&
-  point[X] <= rect_position[X] + rect_size[X] &&
-  point[Y] >= rect_position[Y] &&
-  point[Y] <= rect_position[Y] + rect_size[Y]
+  point.x >= rect_position.x &&
+  point.x <= rect_position.x + rect_size.x &&
+  point.y >= rect_position.y &&
+  point.y <= rect_position.y + rect_size.y
 }
 
 ///|
@@ -86,8 +86,8 @@ fn point_in_circle(
   center : @math.Vec2,
   radius : Double,
 ) -> Bool {
-  let dx = point[X] - center[X]
-  let dy = point[Y] - center[Y]
+  let dx = point.x - center.x
+  let dy = point.y - center.y
   dx * dx + dy * dy <= radius * radius
 }
 
@@ -104,12 +104,12 @@ fn point_in_polygon(
   let mut last = points[points.length() - 1] + offset
   for point_on_edge in points {
     let current = point_on_edge + offset
-    if (current[Y] > point[Y]) != (last[Y] > point[Y]) {
-      let edge_height = last[Y] - current[Y]
+    if (current.y > point.y) != (last.y > point.y) {
+      let edge_height = last.y - current.y
       if edge_height.abs() > 0.000001 {
-        let edge_x = current[X] +
-          (point[Y] - current[Y]) * (last[X] - current[X]) / edge_height
-        if point[X] < edge_x {
+        let edge_x = current.x +
+          (point.y - current.y) * (last.x - current.x) / edge_height
+        if point.x < edge_x {
           inside = !inside
         }
       }
@@ -125,21 +125,21 @@ fn point_segment_distance_sq(
   start : @math.Vec2,
   end_ : @math.Vec2,
 ) -> Double {
-  let dx = end_[X] - start[X]
-  let dy = end_[Y] - start[Y]
+  let dx = end_.x - start.x
+  let dy = end_.y - start.y
   let length_sq = dx * dx + dy * dy
   if length_sq <= 0.000001 {
-    let px = point[X] - start[X]
-    let py = point[Y] - start[Y]
+    let px = point.x - start.x
+    let py = point.y - start.y
     return px * px + py * py
   }
-  let projection = ((point[X] - start[X]) * dx + (point[Y] - start[Y]) * dy) /
+  let projection = ((point.x - start.x) * dx + (point.y - start.y) * dy) /
     length_sq
   let clamped = @cmp.maximum(0.0, @cmp.minimum(1.0, projection))
-  let closest_x = start[X] + dx * clamped
-  let closest_y = start[Y] + dy * clamped
-  let px = point[X] - closest_x
-  let py = point[Y] - closest_y
+  let closest_x = start.x + dx * clamped
+  let closest_y = start.y + dy * clamped
+  let px = point.x - closest_x
+  let py = point.y - closest_y
   px * px + py * py
 }
 
@@ -252,15 +252,11 @@ fn hit_test_pickable(
     return false
   }
   guard shapes().get(entity) is Some(shape) else { return false }
-  let local_point = match transform.affine.inverse() {
-    Some(inverse_transform) =>
-      inverse_transform.transform_point3(
-        Vec3(mouse_world[X], mouse_world[Y], 0.0),
-      )
-    None => Vec3(mouse_world[X], mouse_world[Y], 0.0)
+  guard transform.affine.project_xy().inverse() is Some(inverse) else {
+    return false
   }
   point_in_collision_shape(
-    Vec2(local_point.x, local_point.y),
+    inverse.transform_point(mouse_world),
     shape,
     camera_view,
   )

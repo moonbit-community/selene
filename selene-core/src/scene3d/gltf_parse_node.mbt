@@ -1,91 +1,35 @@
 ///|
 fn parse_node_transform(
   node_object : Map[String, Json],
-) -> @transform.Transform {
-  if field_array(node_object, "matrix") is Some(matrix_json) {
-    if parse_matrix_transform(matrix_json) is Some(matrix_transform) {
-      return matrix_transform
+) -> @transform.Transform? {
+  if node_object.get("matrix") is Some(matrix) {
+    guard json_array(matrix) is Some(values) && values.length() == 16 else {
+      return None
     }
+    return parse_matrix_transform(values)
   }
-  {
+  Some({
     translation: parse_vec3(node_object.get("translation"), @math.Vec3::zero()),
-    rotation: parse_quat(node_object.get("rotation"), @math.Quat::identity()),
+    rotation: parse_rotation(
+      node_object.get("rotation"),
+      @math.Rotation3::identity(),
+    ),
     scale: parse_vec3(node_object.get("scale"), @math.Vec3::one()),
-  }
+  })
 }
 
 ///|
 fn parse_matrix_transform(values : Array[Json]) -> @transform.Transform? {
-  if values.length() < 16 {
-    return None
-  }
   let numbers : Array[Double] = []
   for index in 0..<16 {
     guard json_number(values[index]) is Some(value) else { return None }
     numbers.push(value)
   }
-  let m00 = numbers[0]
-  let m01 = numbers[4]
-  let m02 = numbers[8]
-  let m10 = numbers[1]
-  let m11 = numbers[5]
-  let m12 = numbers[9]
-  let m20 = numbers[2]
-  let m21 = numbers[6]
-  let m22 = numbers[10]
-  let translation = @math.Vec3(numbers[12], numbers[13], numbers[14])
-
-  let mut scale_x = @math.Vec3(m00, m10, m20).length()
-  let mut scale_y = @math.Vec3(m01, m11, m21).length()
-  let mut scale_z = @math.Vec3(m02, m12, m22).length()
-  if scale_x <= 0.0000001 {
-    scale_x = 1.0
+  guard @math.Mat4::from_column_major(numbers[:]) is Some(matrix) &&
+    matrix.try_to_affine() is Some(affine) else {
+    None
   }
-  if scale_y <= 0.0000001 {
-    scale_y = 1.0
-  }
-  if scale_z <= 0.0000001 {
-    scale_z = 1.0
-  }
-  let r00 = m00 / scale_x
-  let r01 = m01 / scale_y
-  let r02 = m02 / scale_z
-  let r10 = m10 / scale_x
-  let r11 = m11 / scale_y
-  let r12 = m12 / scale_z
-  let r20 = m20 / scale_x
-  let r21 = m21 / scale_y
-  let r22 = m22 / scale_z
-  let rotation = quat_from_matrix3(r00, r01, r02, r10, r11, r12, r20, r21, r22)
-  Some({ translation, rotation, scale: Vec3(scale_x, scale_y, scale_z), })
-}
-
-///|
-fn quat_from_matrix3(
-  m00 : Double,
-  m01 : Double,
-  m02 : Double,
-  m10 : Double,
-  m11 : Double,
-  m12 : Double,
-  m20 : Double,
-  m21 : Double,
-  m22 : Double,
-) -> @math.Quat {
-  let trace = m00 + m11 + m22
-  if trace > 0.0 {
-    let s = (trace + 1.0).sqrt() * 2.0
-    @math.Quat((m21 - m12) / s, (m02 - m20) / s, (m10 - m01) / s, 0.25 * s).normalize()
-  } else if m00 > m11 && m00 > m22 {
-    let s = (1.0 + m00 - m11 - m22).sqrt() * 2.0
-    @math.Quat(0.25 * s, (m01 + m10) / s, (m02 + m20) / s, (m21 - m12) / s).normalize()
-  } else if m11 > m22 {
-    let s = (1.0 + m11 - m00 - m22).sqrt() * 2.0
-    @math.Quat((m01 + m10) / s, 0.25 * s, (m12 + m21) / s, (m02 - m20) / s).normalize()
-  } else {
-    let s = (1.0 + m22 - m00 - m11).sqrt() * 2.0
-    @math.Quat((m02 + m20) / s, (m12 + m21) / s, 0.25 * s, (m10 - m01) / s).normalize()
-  }
+  @transform.GlobalTransform::{ affine, }.try_decompose_trs()
 }
 
 ///|
@@ -170,17 +114,18 @@ fn parse_vec3(value : Json?, fallback : @math.Vec3) -> @math.Vec3 {
 }
 
 ///|
-fn parse_quat(value : Json?, fallback : @math.Quat) -> @math.Quat {
+fn parse_rotation(value : Json?, fallback : @math.Rotation3) -> @math.Rotation3 {
   guard value is Some(actual) else { return fallback }
   guard json_array(actual) is Some(values) else { return fallback }
   if values.length() < 4 {
     return fallback
   }
-  let x = json_number(values[0]).unwrap_or(fallback.x)
-  let y = json_number(values[1]).unwrap_or(fallback.y)
-  let z = json_number(values[2]).unwrap_or(fallback.z)
-  let w = json_number(values[3]).unwrap_or(fallback.w)
-  @math.Quat(x, y, z, w).normalize()
+  let q = fallback.to_quat()
+  let x = json_number(values[0]).unwrap_or(q.x)
+  let y = json_number(values[1]).unwrap_or(q.y)
+  let z = json_number(values[2]).unwrap_or(q.z)
+  let w = json_number(values[3]).unwrap_or(q.w)
+  @math.Rotation3::from_quat(Quat(x, y, z, w)).unwrap_or(fallback)
 }
 
 ///|

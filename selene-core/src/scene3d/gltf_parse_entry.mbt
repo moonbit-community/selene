@@ -176,7 +176,7 @@ fn parse_quat_keyframes(
       output.push({
         time: times[index],
         in_tangent: Some(values[base]),
-        value: values[base + 1],
+        value: values[base + 1].normalize_or_identity(),
         out_tangent: Some(values[base + 2]),
       })
     }
@@ -190,7 +190,7 @@ fn parse_quat_keyframes(
   for index in 0..<count {
     output.push({
       time: times[index],
-      value: values[index],
+      value: values[index].normalize_or_identity(),
       in_tangent: None,
       out_tangent: None,
     })

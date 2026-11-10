@@ -10,7 +10,7 @@ fn collision_test_shape() -> CollisionShape {
 
 ///|
 fn test_spatial(position : @math.Vec2) -> @transform.Spatial {
-  Spatial(@transform.Transform::from_xyz(position[X], position[Y], 0.0))
+  Spatial(@transform.Transform::from_xyz(position.x, position.y, 0.0))
 }
 
 ///|
@@ -132,11 +132,11 @@ test "dynamic rigid body moves under gravity without legacy velocity component" 
 
   rapier_fixed_step(0.1)
 
-  inspect(test_translation(entity)[Y] > 0.0, content="true")
+  inspect(test_translation(entity).y > 0.0, content="true")
   inspect(
     resolved_velocities()
     .get(entity)
-    .map_or(false, fn(velocity) { velocity.0[Y] > 0.0 }),
+    .map_or(false, fn(velocity) { velocity.0.y > 0.0 }),
     content="true",
   )
 }
@@ -169,12 +169,12 @@ test "explicit body type overrides legacy velocity heuristic" {
 
   rapier_fixed_step(0.25)
 
-  inspect(test_translation(fixed_entity)[X].abs() <= 0.001, content="true")
-  inspect(test_translation(kinematic_entity)[X] > 20.0, content="true")
+  inspect(test_translation(fixed_entity).x.abs() <= 0.001, content="true")
+  inspect(test_translation(kinematic_entity).x > 20.0, content="true")
   inspect(
     resolved_velocities()
     .get(kinematic_entity)
-    .map_or(false, fn(velocity) { velocity.0[X] > 20.0 }),
+    .map_or(false, fn(velocity) { velocity.0.x > 20.0 }),
     content="true",
   )
 }
@@ -283,8 +283,7 @@ test "rigid body setters and getters work before insertion" {
 
   inspect(
     rigid_body_translation(entity).map_or(false, fn(value) {
-      collision_test_close(value[X], 32.0) &&
-      collision_test_close(value[Y], 12.0)
+      collision_test_close(value.x, 32.0) && collision_test_close(value.y, 12.0)
     }),
     content="true",
   )
@@ -296,7 +295,7 @@ test "rigid body setters and getters work before insertion" {
   )
   inspect(
     rigid_body_linear_velocity(entity).map_or(false, fn(value) {
-      collision_test_close(value[X], 120.0)
+      collision_test_close(value.x, 120.0)
     }),
     content="true",
   )
@@ -310,7 +309,7 @@ test "rigid body setters and getters work before insertion" {
   rapier_fixed_step(0.1)
 
   inspect(
-    rigid_body_translation(entity).map_or(false, fn(value) { value[X] > 40.0 }),
+    rigid_body_translation(entity).map_or(false, fn(value) { value.x > 40.0 }),
     content="true",
   )
   inspect(
@@ -333,7 +332,7 @@ test "force and impulse helpers apply before and after body creation" {
   apply_torque_impulse(entity, 1.0)
 
   rapier_fixed_step(0.05)
-  let first_x = rigid_body_translation(entity).unwrap_or(@math.Vec2::zero())[X]
+  let first_x = rigid_body_translation(entity).unwrap_or(@math.Vec2::zero()).x
 
   inspect(first_x > 0.0, content="true")
   inspect(
@@ -347,9 +346,7 @@ test "force and impulse helpers apply before and after body creation" {
   rapier_fixed_step(0.05)
 
   inspect(
-    rigid_body_translation(entity).map_or(false, fn(value) {
-      value[X] > first_x
-    }),
+    rigid_body_translation(entity).map_or(false, fn(value) { value.x > first_x }),
     content="true",
   )
   inspect(

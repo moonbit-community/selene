@@ -29,7 +29,8 @@ fn rotate_vec2(value : @math.Vec2, rotation : Double) -> @math.Vec2 {
 }
 
 ///|
-fn quat_rotation_z(rotation : @math.Quat) -> Double {
+fn quat_rotation_z(value : @math.Rotation3) -> Double {
+  let rotation = value.to_quat()
   @cmath.atan2(
     2.0 * (rotation.w * rotation.z + rotation.x * rotation.y),
     1.0 - 2.0 * (rotation.y * rotation.y + rotation.z * rotation.z),
@@ -56,7 +57,7 @@ fn set_entity_translation(
   guard @transform.local_transform(entity) is Some(current) else { return }
   @transform.set_local_transform(entity, {
     ..current,
-    translation: Vec3(translation[X], translation[Y], current.translation.z),
+    translation: Vec3(translation.x, translation.y, current.translation.z),
   })
 }
 
@@ -65,13 +66,13 @@ fn set_entity_rotation(entity : @ecs.Entity, rotation : Double) -> Unit {
   guard @transform.local_transform(entity) is Some(current) else { return }
   @transform.set_local_transform(entity, {
     ..current,
-    rotation: @math.Quat::from_axis_angle(@math.Vec3::z_axis(), rotation),
+    rotation: @math.Rotation3::from_axis_angle(@math.Vec3::z_axis(), rotation),
   })
 }
 
 ///|
 fn vec2_length_squared(value : @math.Vec2) -> Double {
-  value[X] * value[X] + value[Y] * value[Y]
+  value.x * value.x + value.y * value.y
 }
 
 ///|

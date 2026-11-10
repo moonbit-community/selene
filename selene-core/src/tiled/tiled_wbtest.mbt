@@ -72,14 +72,14 @@ test "load and spawn Tiled JSON preserves parallax origin and image size" {
     guard @sprite.sprites().get(backdrop_entity) is Some(sprite) else {
       fail("missing image layer sprite")
     }
-    debug_inspect(sprite.custom_size, content="Some(Vec2(24, 12))")
+    assert_eq(sprite.custom_size, Some(Vec2(24.0, 12.0)))
     let repeated_entity = layer_entities.filter(fn(pair) {
         pair.1.layer.name == "Repeated"
       })[0].0
     guard @sprite.sprites().get(repeated_entity) is Some(repeated_sprite) else {
       fail("missing repeated image layer sprite")
     }
-    debug_inspect(repeated_sprite.custom_size, content="Some(Vec2(32, 32))")
+    assert_eq(repeated_sprite.custom_size, Some(Vec2(32.0, 32.0)))
   })
 }
 
@@ -105,7 +105,7 @@ test "Tiled XML preserves parallax origin and image size" {
 
 ///|
 fn vec2_snapshot(vec : @math.Vec2) -> String {
-  "\{vec[X].to_int()},\{vec[Y].to_int()}"
+  "\{vec.x.to_int()},\{vec.y.to_int()}"
 }
 
 ///|
@@ -634,9 +634,9 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
       content="true",
     )
     match @physics2d.shapes().get(layer_colliders[0]).unwrap() {
-      Rect(size=Vec2(width, height), offset=Vec2(x, y)) =>
+      Rect(size~, offset~) =>
         inspect(
-          "\{width.to_int()},\{height.to_int()}@\{x.to_int()},\{y.to_int()}",
+          "\{size.x.to_int()},\{size.y.to_int()}@\{offset.x.to_int()},\{offset.y.to_int()}",
           content="32,16@0,0",
         )
       _ => inspect("wrong-shape", content="32,16@0,0")
@@ -709,9 +709,9 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
       content="true",
     )
     match @physics2d.shapes().get(tile_object_colliders[0]).unwrap() {
-      Rect(size=Vec2(width, height), offset=Vec2(x, y)) =>
+      Rect(size~, offset~) =>
         inspect(
-          "\{width.to_int()},\{height.to_int()}@\{x.to_int()},\{y.to_int()}",
+          "\{size.x.to_int()},\{size.y.to_int()}@\{offset.x.to_int()},\{offset.y.to_int()}",
           content="16,16@0,0",
         )
       _ => inspect("wrong-shape", content="16,16@0,0")
@@ -1002,8 +1002,8 @@ test "tiled world chunking spawns maps around camera view" {
   })
 
   @system.configure_display(
-    previous_viewport[X],
-    previous_viewport[Y],
+    previous_viewport.x,
+    previous_viewport.y,
     previous_zoom,
   )
 }
@@ -1059,8 +1059,8 @@ test "tiled world chunking unions multiple active camera views" {
   })
 
   @system.configure_display(
-    previous_viewport[X],
-    previous_viewport[Y],
+    previous_viewport.x,
+    previous_viewport.y,
     previous_zoom,
   )
 }
@@ -1135,8 +1135,8 @@ test "Tiled parallax uses map origin for each camera view" {
   })
 
   @system.configure_display(
-    previous_viewport[X],
-    previous_viewport[Y],
+    previous_viewport.x,
+    previous_viewport.y,
     previous_zoom,
   )
 }
@@ -1272,7 +1272,7 @@ test "spawn_tiled_map expands tiled animated tiles into frame timelines" {
           Some(layout) => {
             inspect(layout.rects.length(), content="3")
             let offsets = layout.rects.map(fn(rect) {
-              rect.position[X].to_int().to_string()
+              rect.position.x.to_int().to_string()
             })
             inspect(
               string_array_matches(offsets, ["0", "16", "16"]),
@@ -1432,10 +1432,10 @@ test "tiled diagonal flip swaps the tile axes before later flips" {
     decode_tiled_gid(tiled_gid_flip_diagonal_flag | 1),
     Vec2(16.0, 32.0),
   )
-  let (top_right_x, top_right_y) = transform.apply_to_point(16.0, 0.0)
-  let (bottom_left_x, bottom_left_y) = transform.apply_to_point(0.0, 32.0)
+  let top_right = transform.transform_point(Vec2(16.0, 0.0))
+  let bottom_left = transform.transform_point(Vec2(0.0, 32.0))
   inspect(
-    "\{top_right_x.to_int()},\{top_right_y.to_int()}|\{bottom_left_x.to_int()},\{bottom_left_y.to_int()}",
+    "\{top_right.x.to_int()},\{top_right.y.to_int()}|\{bottom_left.x.to_int()},\{bottom_left.y.to_int()}",
     content="0,32|16,0",
   )
 }

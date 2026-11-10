@@ -209,8 +209,8 @@ test "mouse produces unified pointer down move and up events" {
   advanced_pointer_system(0.0)
   inspect(pointer_changes_this_frame().length(), content="1")
   inspect(pointer_changes_this_frame()[0].phase == Move, content="true")
-  inspect(pointer_changes_this_frame()[0].delta[X], content="4")
-  inspect(pointer_changes_this_frame()[0].delta[Y], content="3")
+  inspect(pointer_changes_this_frame()[0].delta.x, content="4")
+  inspect(pointer_changes_this_frame()[0].delta.y, content="3")
 
   mouse.left_button = false
   advanced_mouse_system(0.0)

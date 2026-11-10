@@ -69,7 +69,7 @@ test "child collider stays relative to its rigid-body ancestor" {
     let collider = physics3d_world().colliders
       .get(collider_handle(child).unwrap())
       .unwrap()
-    let local_translation = @math.vec3_from_rapier(
+    let local_translation = vec3_from_rapier(
       collider.local_position().translation,
     )
     inspect(
@@ -122,9 +122,9 @@ test "query filter groups and contact force events work in 3d" {
       ContactForceEvent3D(
         @collision.ColliderHandle3D::from_raw_parts(1, 0),
         @collision.ColliderHandle3D::from_raw_parts(2, 0),
-        @math.Vec3(0.0, 3.0, 0.0).to_rapier(),
+        vec3_to_rapier(Vec3(0.0, 3.0, 0.0)),
         3.0,
-        @math.Vec3(0.0, 1.0, 0.0).to_rapier(),
+        vec3_to_rapier(Vec3(0.0, 1.0, 0.0)),
         2.0,
       ),
     )
@@ -984,7 +984,7 @@ test "character controller options are forwarded to rapier controller" {
     rapier_controller.normal_nudge_factor.to_double() < 0.016,
     content="true",
   )
-  let up = @math.vec3_from_rapier(rapier_controller.up)
+  let up = vec3_from_rapier(rapier_controller.up)
   inspect(up.x == 0.0 && up.y == 0.0 && up.z == 1.0, content="true")
 }
 
@@ -1087,16 +1087,48 @@ test "collider3d debug system appends wire lines to render3d pipeline" {
     entity_draft.add_to(colliders(), Collider::cuboid(Vec3(1.0, 1.0, 1.0)))
     entity_draft.add_to(
       @transform.spatials(),
-      Spatial(
-        @transform.GlobalTransform::from_transform(
-          @transform.Transform::from_xyz(2.0, 0.0, 0.0),
-        ).compute_transform(),
-      ),
+      Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)),
     )
     ignore(entity_draft.spawn())
     debug_colliders_system(0.0)
     let frame = @render3d_pipeline.get_prepared_frame3d()
     inspect(frame.lines.length(), content="12")
     inspect(frame.lines[0].start.x == 1.0, content="true")
+  })
+}
+
+///|
+test "3D physics removes sheared poses and restores valid colliders" {
+  with_physics3d_test_world(fn() raise {
+    let world = @ecs.require_current_world()
+    let parent = world.spawn1(
+      @transform.Spatial(@transform.Transform::identity()),
+    )
+    let child = world.spawn(
+      (
+        RigidBody::Fixed,
+        Collider::ball(1.0),
+        @transform.Spatial(
+          @transform.Transform::from_rotation(
+            @math.Rotation3::from_axis_angle(@math.Vec3::z_axis(), 0.5),
+          ).with_translation(Vec3(4.0, 0.0, 0.0)),
+        ),
+      ),
+      parent~,
+    )
+    let cast = () => {
+      context().cast_ray(@math.Vec3::zero(), @math.Vec3::x_axis())
+    }
+    step_physics(1)
+    assert_eq(cast().unwrap().entity, child)
+    @transform.set_local_transform(
+      parent,
+      @transform.Transform::from_scale(Vec3(2.0, 1.0, 1.0)),
+    )
+    step_physics(1)
+    assert_true(cast() is None)
+    @transform.set_local_transform(parent, @transform.Transform::identity())
+    step_physics(1)
+    assert_eq(cast().unwrap().entity, child)
   })
 }
