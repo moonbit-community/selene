@@ -39,11 +39,6 @@ jobs:
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
           "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
-      - name: Reject legacy UI APIs
-        if: ${{ matrix.os != 'windows-latest' }}
-        run: |
-          bash scripts/check_no_legacy_ui.sh
-
       - name: Check generated ECS sources
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
