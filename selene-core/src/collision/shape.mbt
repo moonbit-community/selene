@@ -29,7 +29,7 @@ pub(all) enum CollisionShape {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let entity = @ecs.Entity()
+/// let entity = @ecs.require_current_world().spawn(())
 /// defer entity.destroy()
 /// @collision.shapes().set(
 ///   entity,

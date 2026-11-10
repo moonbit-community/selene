@@ -155,6 +155,7 @@ priv struct SurvivorsRuntime {
   entities : Array[@ecs.Entity]
   mut game : GameState?
   weapon_timers : Array[Double]
+  player_bullet_plan : PlayerBulletSpawnPlan
   enemy_bullets : Set[@ecs.Entity]
   ui_click_reader : @event.EventReader[@ui.UiClickEvent]
   enemy_contact_event_reader : @event.EventReader[@physics2d.ContactEvent]
@@ -172,11 +173,12 @@ priv struct SurvivorsRuntime {
 }
 
 ///|
-fn SurvivorsRuntime::SurvivorsRuntime() -> SurvivorsRuntime {
+fn SurvivorsRuntime::SurvivorsRuntime(world : @ecs.World) -> SurvivorsRuntime {
   {
     entities: [],
     game: None,
     weapon_timers: [],
+    player_bullet_plan: world.prepare_spawn(),
     enemy_bullets: Set([]),
     ui_click_reader: EventReader(),
     enemy_contact_event_reader: EventReader(),
@@ -199,7 +201,7 @@ fn survivors_runtime() -> SurvivorsRuntime {
 
 ///|
 fn spawn_survivors_entity() -> @ecs.Entity {
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   survivors_runtime().entities.push(entity)
   entity
 }
@@ -230,7 +232,7 @@ fn reset_survivors_runtime() -> Unit {
       ignore(entity.delete())
     }
   }
-  world.insert_resource(SurvivorsRuntime())
+  world.insert_resource(SurvivorsRuntime(world))
   reset_wave_state()
 }
 

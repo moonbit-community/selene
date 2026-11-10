@@ -50,6 +50,7 @@ pub fn Anchor::as_vec(Self) -> @math.Vec2
 pub fn Anchor::equal(Self, Self) -> Bool
 pub fn Anchor::not_equal(Self, Self) -> Bool
 pub fn Anchor::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Bundle for Anchor
 pub impl @ecs.Component for Anchor
 
 pub(all) struct Sprite {
@@ -68,6 +69,7 @@ pub fn Sprite::Sprite(image? : @asset_types.ImageHandle?, texture_atlas? : Textu
 pub fn Sprite::from_atlas_image(@asset_types.ImageHandle, TextureAtlas) -> Self
 pub fn Sprite::from_color(@render.Color, @math.Vec2) -> Self
 pub fn Sprite::from_image(@asset_types.ImageHandle, custom_size? : @math.Vec2?) -> Self
+pub impl @ecs.Bundle for Sprite
 pub impl @ecs.Component for Sprite
 
 pub(all) enum SpriteImageMode {

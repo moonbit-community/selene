@@ -64,7 +64,7 @@ test "explicit rigid body syncs material and rapier handles" {
     pixels_per_meter=100.0,
     max_ccd_substeps=4,
   )
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   defer collision_test_cleanup([entity])
 
   set_test_translation(entity, @math.Vec2::zero())
@@ -139,7 +139,7 @@ test "dynamic rigid body moves under gravity without legacy velocity component" 
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   defer collision_test_cleanup([entity])
 
   set_test_translation(entity, @math.Vec2::zero())
@@ -165,8 +165,8 @@ test "explicit body type overrides legacy velocity heuristic" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let fixed_entity = @ecs.Entity()
-  let kinematic_entity = @ecs.Entity()
+  let fixed_entity = @ecs.require_current_world().spawn(())
+  let kinematic_entity = @ecs.require_current_world().spawn(())
   defer collision_test_cleanup([fixed_entity, kinematic_entity])
 
   for entity in [fixed_entity, kinematic_entity] {
@@ -197,9 +197,9 @@ test "spatial queries resolve hits, overlaps, and body filters" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let fixed_entity = @ecs.Entity()
-  let dynamic_entity = @ecs.Entity()
-  let kinematic_entity = @ecs.Entity()
+  let fixed_entity = @ecs.require_current_world().spawn(())
+  let dynamic_entity = @ecs.require_current_world().spawn(())
+  let kinematic_entity = @ecs.require_current_world().spawn(())
   defer collision_test_cleanup([fixed_entity, dynamic_entity, kinematic_entity])
 
   set_test_translation(fixed_entity, Vec2(120.0, 80.0))
@@ -292,7 +292,7 @@ test "rigid body setters and getters work before insertion" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   defer collision_test_cleanup([entity])
 
   set_test_translation(entity, @math.Vec2::zero())
@@ -350,7 +350,7 @@ test "force and impulse helpers apply before and after body creation" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   defer collision_test_cleanup([entity])
 
   set_test_translation(entity, @math.Vec2::zero())
@@ -396,9 +396,9 @@ test "impulse joints insert and accept all supported joint kinds" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let body_a = @ecs.Entity()
-  let body_b = @ecs.Entity()
-  let joint_entity = @ecs.Entity()
+  let body_a = @ecs.require_current_world().spawn(())
+  let body_b = @ecs.require_current_world().spawn(())
+  let joint_entity = @ecs.require_current_world().spawn(())
   defer collision_test_cleanup([body_a, body_b, joint_entity])
 
   set_test_translation(body_a, @math.Vec2::zero())
@@ -480,9 +480,9 @@ test "impulse joints are removed when endpoints disappear" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let body_a = @ecs.Entity()
-  let body_b = @ecs.Entity()
-  let joint_entity = @ecs.Entity()
+  let body_a = @ecs.require_current_world().spawn(())
+  let body_b = @ecs.require_current_world().spawn(())
+  let joint_entity = @ecs.require_current_world().spawn(())
   defer collision_test_cleanup([body_a, body_b, joint_entity])
 
   for entry in [(body_a, @math.Vec2::zero()), (body_b, Vec2(32.0, 0.0))] {
@@ -514,9 +514,9 @@ test "multibody joints insert, expose handles, and rebuild chains" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let parent = @ecs.Entity()
-  let child = @ecs.Entity()
-  let grandchild = @ecs.Entity()
+  let parent = @ecs.require_current_world().spawn(())
+  let child = @ecs.require_current_world().spawn(())
+  let grandchild = @ecs.require_current_world().spawn(())
   defer collision_test_cleanup([parent, child, grandchild])
 
   for
@@ -645,8 +645,8 @@ test "multibody joints are removed when endpoints disappear" {
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
-  let parent = @ecs.Entity()
-  let child = @ecs.Entity()
+  let parent = @ecs.require_current_world().spawn(())
+  let child = @ecs.require_current_world().spawn(())
   defer collision_test_cleanup([parent, child])
 
   for entry in [(parent, @math.Vec2::zero()), (child, Vec2(32.0, 0.0))] {

@@ -1,7 +1,7 @@
 ///|
 test "alive entity count follows lifecycle-visible entities" {
   let baseline = alive_entity_count()
-  let entity = Entity()
+  let entity = require_current_world().spawn(())
   inspect(alive_entity_count(), content="\{baseline + 1}")
   entity.destroy()
   inspect(alive_entity_count(), content="\{baseline}")
@@ -16,7 +16,7 @@ test "alive entity count follows lifecycle-visible entities" {
 test "reserved spawn increments alive count on flush" {
   let baseline = alive_entity_count()
   let world = require_current_world()
-  let entity = commands(world).spawn()
+  let entity = commands(world).spawn(())
   inspect(alive_entity_count(), content="\{baseline}")
   run_schedule(world, _ => ())
   inspect(alive_entity_count(), content="\{baseline + 1}")
@@ -35,9 +35,9 @@ test "same local ID in two worlds cannot alias lifecycle or hierarchy" {
   let first = World()
   let second = World()
   set_current_world(first)
-  let entity = Entity()
+  let entity = require_current_world().spawn(())
   set_current_world(second)
-  let other = Entity()
+  let other = require_current_world().spawn(())
   let alive_in_first = alive_in_world(first)
   assert_eq(entity.id(), other.id())
   assert_true(entity != other)

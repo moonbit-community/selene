@@ -14,18 +14,19 @@ pub fn Commands::add(self : Commands, command : (World) -> Unit) -> Unit {
 }
 
 ///|
-pub fn Commands::spawn(self : Commands) -> Entity {
-  queue_entity_spawn(self.world, _ => ())
+/// Queues a component value or tuple for insertion at the end of the schedule.
+pub fn[T : Bundle] Commands::spawn(self : Commands, values : T) -> Entity {
+  self.spawn_prepared(self.world.prepare_spawn(), values)
 }
 
 ///|
 /// Queues an entity with its initial archetype components and returns its pending handle.
-pub fn[T] Commands::spawn_bundle(
+pub fn[T] Commands::spawn_prepared(
   self : Commands,
-  bundle : SpawnBundle[T],
+  plan : SpawnPlan[T],
   values : T,
 ) -> Entity {
-  bundle.queue_spawn(self.world, values)
+  plan.queue_spawn(self.world, values)
 }
 
 ///|

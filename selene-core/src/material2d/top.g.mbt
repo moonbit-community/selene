@@ -14,3 +14,13 @@ pub impl @ecs.Component for MeshMaterial2d with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend MeshMaterial2d with @ecs.Component::{ component_key }
+
+///|
+pub impl @ecs.Bundle for MeshMaterial2d with fn prepare(world) {
+  selene_component_key_MeshMaterial2d.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend MeshMaterial2d with @ecs.Bundle::{ prepare }

@@ -10,24 +10,11 @@ test "a three-component query is constructed once per World" {
   @ecs.set_current_world(second)
   for pair in [(first, 1.0), (second, 2.0)] {
     let (world, x) = pair
-    let sprites : @ecs.ComponentStore[@sprite.Sprite] = @ecs.components_in(
-      world,
-    )
-    let transforms : @ecs.ComponentStore[@transform.Transform] = @ecs.components_in(
-      world,
-    )
-    let globals : @ecs.ComponentStore[@transform.GlobalTransform] = @ecs.components_in(
-      world,
-    )
     ignore(
-      sprites
-      .spawn_bundle()
-      .combine(transforms.spawn_bundle())
-      .combine(globals.spawn_bundle())
-      .spawn(
-        world,
+      world.spawn(
         (
-          (@sprite.Sprite(), @transform.Transform::from_xyz(x, 0.0, 0.0)),
+          @sprite.Sprite(),
+          @transform.Transform::from_xyz(x, 0.0, 0.0),
           @transform.GlobalTransform::identity(),
         ),
       ),

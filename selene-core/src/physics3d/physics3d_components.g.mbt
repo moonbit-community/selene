@@ -16,6 +16,16 @@ pub impl @ecs.Component for ImpulseJoint with fn component_key() {
 pub extend ImpulseJoint with @ecs.Component::{ component_key }
 
 ///|
+pub impl @ecs.Bundle for ImpulseJoint with fn prepare(world) {
+  selene_component_key_ImpulseJoint.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend ImpulseJoint with @ecs.Bundle::{ prepare }
+
+///|
 let selene_component_key_MultibodyJoint : @ecs.ComponentKey[MultibodyJoint] = ComponentKey(
 
 )
@@ -31,6 +41,16 @@ pub impl @ecs.Component for MultibodyJoint with fn component_key() {
 pub extend MultibodyJoint with @ecs.Component::{ component_key }
 
 ///|
+pub impl @ecs.Bundle for MultibodyJoint with fn prepare(world) {
+  selene_component_key_MultibodyJoint.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend MultibodyJoint with @ecs.Bundle::{ prepare }
+
+///|
 let selene_component_key_KinematicCharacterController : @ecs.ComponentKey[
   KinematicCharacterController,
 ] = ComponentKey()
@@ -44,6 +64,18 @@ pub impl @ecs.Component for KinematicCharacterController with fn component_key()
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend KinematicCharacterController with @ecs.Component::{ component_key }
+
+///|
+pub impl @ecs.Bundle for KinematicCharacterController with fn prepare(world) {
+  selene_component_key_KinematicCharacterController
+    .store_in(world)
+    .spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend KinematicCharacterController with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_KinematicCharacterControllerOutput : @ecs.ComponentKey[
@@ -65,6 +97,20 @@ pub extend KinematicCharacterControllerOutput with @ecs.Component::{
 }
 
 ///|
+pub impl @ecs.Bundle for KinematicCharacterControllerOutput with fn prepare(
+  world,
+) {
+  selene_component_key_KinematicCharacterControllerOutput
+    .store_in(world)
+    .spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend KinematicCharacterControllerOutput with @ecs.Bundle::{ prepare }
+
+///|
 let selene_component_key_KinematicCharacterControllerCollisions : @ecs.ComponentKey[
   KinematicCharacterControllerCollisions,
 ] = ComponentKey()
@@ -82,3 +128,17 @@ pub impl @ecs.Component for KinematicCharacterControllerCollisions with fn compo
 pub extend KinematicCharacterControllerCollisions with @ecs.Component::{
   component_key,
 }
+
+///|
+pub impl @ecs.Bundle for KinematicCharacterControllerCollisions with fn prepare(
+  world,
+) {
+  selene_component_key_KinematicCharacterControllerCollisions
+    .store_in(world)
+    .spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend KinematicCharacterControllerCollisions with @ecs.Bundle::{ prepare }

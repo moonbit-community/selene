@@ -73,7 +73,7 @@ fn perf_runtime() -> PerfRuntime {
 
 ///|
 fn spawn_perf_entity() -> @ecs.Entity {
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   perf_runtime().entities.push(entity)
   entity
 }

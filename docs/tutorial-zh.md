@@ -217,23 +217,18 @@ formatter(ignore: ["model.g.mbt"])
 
 ### 实体和组件
 
-游戏对象由实体（Entity）和组件（Component）表示。实体是唯一标识符，组件存放数据。创建玩家实体示例：
+生成玩家时，把初始组件一起交给 World。
 
 ```moonbit
-let player = @ecs.Entity()
-@transform.transforms().set(player, @transform.Transform::from_xyz(100.0, 100.0, 0.0))
-@physics2d.linear_velocities().set(player, @math.Vec2::zero())
+let world = @ecs.require_current_world()
+let player = world.spawn((
+  @transform.Transform::from_xyz(100.0, 100.0, 0.0),
+  @physics2d.Velocity(@math.Vec2::zero()),
+))
 ```
 
-上述代码做了三件事：
-
-1. 创建实体
-2. 设置位置组件
-3. 设置速度组件
-
-通过 `@transform.transforms()` 和 `@sprite.sprites()` 等类型化存储访问组件列。这些存储属于当前 World。
-
-这类初始化逻辑应放在 `Startup` 阶段系统中执行一次。
+两个组件会一起写入最终的 archetype。在查询中生成实体时，使用
+`commands.spawn(...)` 延迟到调度器 flush。
 
 ### 玩家角色实现
 

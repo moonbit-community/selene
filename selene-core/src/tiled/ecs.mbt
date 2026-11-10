@@ -346,7 +346,7 @@ pub fn spawn_tiled_map(
   map : TiledMap,
   settings~ : TiledSpawnSettings = TiledSpawnSettings(),
 ) -> @ecs.Entity {
-  let root = @ecs.Entity()
+  let root = @ecs.require_current_world().spawn(())
   spawn_tiled_map_root(root, map, settings)
   root
 }

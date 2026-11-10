@@ -44,7 +44,7 @@ fn tank3d_state() -> Tank3dState {
 
 ///|
 fn spawn_tank3d_entity() -> @ecs.Entity {
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   tank3d_state().entities.push(entity)
   entity
 }

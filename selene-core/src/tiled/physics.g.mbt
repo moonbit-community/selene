@@ -16,6 +16,16 @@ pub impl @ecs.Component for TiledColliders with fn component_key() {
 pub extend TiledColliders with @ecs.Component::{ component_key }
 
 ///|
+pub impl @ecs.Bundle for TiledColliders with fn prepare(world) {
+  selene_component_key_TiledColliders.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend TiledColliders with @ecs.Bundle::{ prepare }
+
+///|
 let selene_component_key_TiledColliderOrigin : @ecs.ComponentKey[
   TiledColliderOrigin,
 ] = ComponentKey()
@@ -29,3 +39,13 @@ pub impl @ecs.Component for TiledColliderOrigin with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend TiledColliderOrigin with @ecs.Component::{ component_key }
+
+///|
+pub impl @ecs.Bundle for TiledColliderOrigin with fn prepare(world) {
+  selene_component_key_TiledColliderOrigin.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend TiledColliderOrigin with @ecs.Bundle::{ prepare }

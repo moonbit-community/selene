@@ -30,6 +30,7 @@ pub fn Parallax2d::Parallax2d(base_offset? : @math.Vec2, factor? : @math.Vec2, r
 pub fn Parallax2d::equal(Self, Self) -> Bool
 pub fn Parallax2d::not_equal(Self, Self) -> Bool
 pub fn Parallax2d::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Bundle for Parallax2d
 pub impl @ecs.Component for Parallax2d
 
 #derive(Eq, @debug.Debug)

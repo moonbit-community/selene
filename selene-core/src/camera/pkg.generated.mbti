@@ -55,6 +55,7 @@ pub fn Camera::viewport_to_world_2d(Self, @transform.GlobalTransform, Orthograph
 pub fn Camera::with_pass(Self, CameraPass2D) -> Self
 pub fn Camera::with_viewport(Self, CameraViewport?) -> Self
 pub fn Camera::world_to_viewport(Self, @transform.GlobalTransform, OrthographicProjection, @math.Vec2) -> @math.Vec2
+pub impl @ecs.Bundle for Camera
 pub impl @ecs.Component for Camera
 pub impl Default for Camera
 
@@ -66,6 +67,7 @@ pub fn Camera2d::default() -> Self
 pub fn Camera2d::equal(Self, Self) -> Bool
 pub fn Camera2d::not_equal(Self, Self) -> Bool
 pub fn Camera2d::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Bundle for Camera2d
 pub impl @ecs.Component for Camera2d
 pub impl Default for Camera2d
 
@@ -134,6 +136,7 @@ pub fn OrthographicProjection::default() -> Self
 pub fn OrthographicProjection::equal(Self, Self) -> Bool
 pub fn OrthographicProjection::not_equal(Self, Self) -> Bool
 pub fn OrthographicProjection::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Bundle for OrthographicProjection
 pub impl @ecs.Component for OrthographicProjection
 pub impl Default for OrthographicProjection
 

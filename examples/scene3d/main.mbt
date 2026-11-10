@@ -58,7 +58,7 @@ fn scene3d_state() -> Scene3dState {
 
 ///|
 fn spawn_scene3d_entity() -> @ecs.Entity {
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   scene3d_state().entities.push(entity)
   entity
 }

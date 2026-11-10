@@ -66,7 +66,7 @@ pub fn spawn_ldtk_world(
   project : LdtkProject,
   settings~ : LdtkWorldSpawnSettings = LdtkWorldSpawnSettings(),
 ) -> @ecs.Entity {
-  let world_entity = @ecs.Entity()
+  let world_entity = @ecs.require_current_world().spawn(())
   spawn_ldtk_world_root(world_entity, project, settings)
   world_entity
 }

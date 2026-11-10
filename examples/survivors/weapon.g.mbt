@@ -9,3 +9,9 @@ let selene_component_key_PlayerBulletState : @ecs.ComponentKey[
 impl @ecs.Component for PlayerBulletState with fn component_key() {
   selene_component_key_PlayerBulletState
 }
+
+///|
+#warnings("-unused_value")
+impl @ecs.Bundle for PlayerBulletState with fn prepare(world) {
+  selene_component_key_PlayerBulletState.store_in(world).spawn_plan(world)
+}

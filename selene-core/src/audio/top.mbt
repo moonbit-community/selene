@@ -311,7 +311,7 @@ pub fn spawn_audio(
   source : AudioHandle,
   settings~ : PlaybackSettings = PlaybackSettings::once(),
 ) -> @ecs.Entity {
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   attach_audio(entity, AudioPlayer(source), settings~)
   entity
 }

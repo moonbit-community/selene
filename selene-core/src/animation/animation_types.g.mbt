@@ -16,6 +16,16 @@ pub impl @ecs.Component for AnimationTargetId with fn component_key() {
 pub extend AnimationTargetId with @ecs.Component::{ component_key }
 
 ///|
+pub impl @ecs.Bundle for AnimationTargetId with fn prepare(world) {
+  selene_component_key_AnimationTargetId.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend AnimationTargetId with @ecs.Bundle::{ prepare }
+
+///|
 let selene_component_key_AnimatedBy : @ecs.ComponentKey[AnimatedBy] = ComponentKey(
 
 )
@@ -29,6 +39,16 @@ pub impl @ecs.Component for AnimatedBy with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend AnimatedBy with @ecs.Component::{ component_key }
+
+///|
+pub impl @ecs.Bundle for AnimatedBy with fn prepare(world) {
+  selene_component_key_AnimatedBy.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend AnimatedBy with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_AnimationGraphHandle : @ecs.ComponentKey[
@@ -46,6 +66,16 @@ pub impl @ecs.Component for AnimationGraphHandle with fn component_key() {
 pub extend AnimationGraphHandle with @ecs.Component::{ component_key }
 
 ///|
+pub impl @ecs.Bundle for AnimationGraphHandle with fn prepare(world) {
+  selene_component_key_AnimationGraphHandle.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend AnimationGraphHandle with @ecs.Bundle::{ prepare }
+
+///|
 let selene_component_key_AnimationPlayer : @ecs.ComponentKey[AnimationPlayer] = ComponentKey(
 
 )
@@ -59,3 +89,13 @@ pub impl @ecs.Component for AnimationPlayer with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend AnimationPlayer with @ecs.Component::{ component_key }
+
+///|
+pub impl @ecs.Bundle for AnimationPlayer with fn prepare(world) {
+  selene_component_key_AnimationPlayer.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend AnimationPlayer with @ecs.Bundle::{ prepare }

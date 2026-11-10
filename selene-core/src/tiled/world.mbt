@@ -141,7 +141,7 @@ pub fn spawn_tiled_world(
   world : TiledWorld,
   settings~ : TiledWorldSpawnSettings = TiledWorldSpawnSettings(),
 ) -> @ecs.Entity {
-  let world_entity = @ecs.Entity()
+  let world_entity = @ecs.require_current_world().spawn(())
   spawn_tiled_world_root(world_entity, world, settings)
   world_entity
 }

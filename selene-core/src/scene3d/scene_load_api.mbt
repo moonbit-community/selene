@@ -98,7 +98,7 @@ pub fn instantiate_scene_instance(
   scene : @render3d.SceneHandle,
   root_transform : @transform.Transform,
 ) -> SceneInstance {
-  let root = @ecs.Entity()
+  let root = @ecs.require_current_world().spawn(())
   @transform.transforms().set(root, root_transform)
   @name.names().set(root, Name("scene_root"))
   let parts : Map[String, @ecs.Entity] = Map([])

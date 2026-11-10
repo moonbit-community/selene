@@ -23,7 +23,7 @@ fn set_entity_z(entity : @ecs.Entity, z : Double) -> Unit {
 
 ///|
 fn spawn_level_entity(x : Double, y : Double) -> @ecs.Entity {
-  let entity = spawn_game_entity()
+  let entity = spawn_game_entity(())
   @transform.transforms().set(entity, @transform.Transform::from_xyz(x, y, 0.0))
   entity
 }
@@ -83,6 +83,7 @@ fn load_level_scene() -> LoadedLevelScene {
 ///|
 fn build_terrain_colliders(rows : Map[Int32, Array[Int32]]) -> Unit {
   let tile_size_d = TERRAIN_TILE_SIZE.to_double()
+  let plan : TerrainSpawnPlan = @ecs.require_current_world().prepare_spawn()
   for y, columns in rows {
     columns.sort()
     let mut cursor = 0
@@ -95,6 +96,7 @@ fn build_terrain_colliders(rows : Map[Int32, Array[Int32]]) -> Unit {
         cursor += 1
       }
       spawn_terrain_collider(
+        plan,
         Vec2(start_x.to_double() * tile_size_d, y.to_double() * tile_size_d),
         Vec2((end_x - start_x + 1).to_double() * tile_size_d, tile_size_d),
       )

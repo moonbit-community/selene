@@ -37,7 +37,7 @@ pub(all) struct Velocity(@math.Vec2)
 ///
 /// ```moonbit nocheck
 /// // Set velocity for an entity
-/// let entity = @ecs.Entity()
+/// let entity = @ecs.require_current_world().spawn(())
 /// defer entity.destroy()
 ///
 /// @velocity.velocities().set(entity, @math.Vec2(10.0, 5.0))

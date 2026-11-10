@@ -14,3 +14,13 @@ pub impl @ecs.Component for CollisionShape with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend CollisionShape with @ecs.Component::{ component_key }
+
+///|
+pub impl @ecs.Bundle for CollisionShape with fn prepare(world) {
+  selene_component_key_CollisionShape.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend CollisionShape with @ecs.Bundle::{ prepare }

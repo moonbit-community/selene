@@ -14,3 +14,13 @@ pub impl @ecs.Component for Mesh3DRenderer with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend Mesh3DRenderer with @ecs.Component::{ component_key }
+
+///|
+pub impl @ecs.Bundle for Mesh3DRenderer with fn prepare(world) {
+  selene_component_key_Mesh3DRenderer.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend Mesh3DRenderer with @ecs.Bundle::{ prepare }

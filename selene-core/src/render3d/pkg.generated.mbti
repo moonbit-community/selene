@@ -116,6 +116,7 @@ pub(all) struct Mesh3DRenderer {
 pub fn Mesh3DRenderer::equal(Self, Self) -> Bool
 pub fn Mesh3DRenderer::not_equal(Self, Self) -> Bool
 pub fn Mesh3DRenderer::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Bundle for Mesh3DRenderer
 pub impl @ecs.Component for Mesh3DRenderer
 
 // Type aliases

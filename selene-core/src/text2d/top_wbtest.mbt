@@ -22,7 +22,7 @@ fn text2d_test_style() -> @render2d_types.TextStyle2D {
 ///|
 test "text2d layout cache reuses identical inputs" {
   with_text2d_test_world(fn() raise {
-    let entity = @ecs.Entity()
+    let entity = @ecs.require_current_world().spawn(())
     let style = text2d_test_style()
     let layout = @ui.TextLayout(wrap=WordWrap, overflow=Ellipsis)
     let bounds = Some(TextBounds(60.0, 100.0))
@@ -41,7 +41,7 @@ test "text2d layout cache reuses identical inputs" {
 ///|
 test "text2d layout cache invalidates when text changes" {
   with_text2d_test_world(fn() raise {
-    let entity = @ecs.Entity()
+    let entity = @ecs.require_current_world().spawn(())
     let style = text2d_test_style()
     let layout = @ui.TextLayout(wrap=WordWrap, overflow=Ellipsis)
     let bounds = Some(TextBounds(60.0, 100.0))

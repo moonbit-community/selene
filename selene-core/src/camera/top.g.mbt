@@ -14,6 +14,16 @@ pub impl @ecs.Component for Camera with fn component_key() {
 pub extend Camera with @ecs.Component::{ component_key }
 
 ///|
+pub impl @ecs.Bundle for Camera with fn prepare(world) {
+  selene_component_key_Camera.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend Camera with @ecs.Bundle::{ prepare }
+
+///|
 let selene_component_key_Camera2d : @ecs.ComponentKey[Camera2d] = ComponentKey()
 
 ///|
@@ -25,6 +35,16 @@ pub impl @ecs.Component for Camera2d with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend Camera2d with @ecs.Component::{ component_key }
+
+///|
+pub impl @ecs.Bundle for Camera2d with fn prepare(world) {
+  selene_component_key_Camera2d.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend Camera2d with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_OrthographicProjection : @ecs.ComponentKey[
@@ -40,3 +60,13 @@ pub impl @ecs.Component for OrthographicProjection with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend OrthographicProjection with @ecs.Component::{ component_key }
+
+///|
+pub impl @ecs.Bundle for OrthographicProjection with fn prepare(world) {
+  selene_component_key_OrthographicProjection.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend OrthographicProjection with @ecs.Bundle::{ prepare }

@@ -16,6 +16,16 @@ pub impl @ecs.Component for SceneHandle with fn component_key() {
 pub extend SceneHandle with @ecs.Component::{ component_key }
 
 ///|
+pub impl @ecs.Bundle for SceneHandle with fn prepare(world) {
+  selene_component_key_SceneHandle.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend SceneHandle with @ecs.Bundle::{ prepare }
+
+///|
 let selene_component_key_Skybox3D : @ecs.ComponentKey[Skybox3D] = ComponentKey()
 
 ///|
@@ -27,6 +37,16 @@ pub impl @ecs.Component for Skybox3D with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend Skybox3D with @ecs.Component::{ component_key }
+
+///|
+pub impl @ecs.Bundle for Skybox3D with fn prepare(world) {
+  selene_component_key_Skybox3D.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend Skybox3D with @ecs.Bundle::{ prepare }
 
 ///|
 let selene_component_key_DirectionalLight3D : @ecs.ComponentKey[
@@ -44,6 +64,16 @@ pub impl @ecs.Component for DirectionalLight3D with fn component_key() {
 pub extend DirectionalLight3D with @ecs.Component::{ component_key }
 
 ///|
+pub impl @ecs.Bundle for DirectionalLight3D with fn prepare(world) {
+  selene_component_key_DirectionalLight3D.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend DirectionalLight3D with @ecs.Bundle::{ prepare }
+
+///|
 let selene_component_key_PointLight3D : @ecs.ComponentKey[PointLight3D] = ComponentKey(
 
 )
@@ -59,6 +89,16 @@ pub impl @ecs.Component for PointLight3D with fn component_key() {
 pub extend PointLight3D with @ecs.Component::{ component_key }
 
 ///|
+pub impl @ecs.Bundle for PointLight3D with fn prepare(world) {
+  selene_component_key_PointLight3D.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend PointLight3D with @ecs.Bundle::{ prepare }
+
+///|
 let selene_component_key_SpotLight3D : @ecs.ComponentKey[SpotLight3D] = ComponentKey(
 
 )
@@ -72,3 +112,13 @@ pub impl @ecs.Component for SpotLight3D with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend SpotLight3D with @ecs.Component::{ component_key }
+
+///|
+pub impl @ecs.Bundle for SpotLight3D with fn prepare(world) {
+  selene_component_key_SpotLight3D.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend SpotLight3D with @ecs.Bundle::{ prepare }

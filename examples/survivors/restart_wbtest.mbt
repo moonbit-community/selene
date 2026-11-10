@@ -7,7 +7,7 @@ test "restarting Survivors replaces its entities and cancels its old timers" {
   let old_callback_ran = Ref(false)
   let other_entity = Ref(None)
   @ecs.run_schedule(world, fn(world) {
-    other_entity.val = Some(@ecs.Entity())
+    other_entity.val = Some(@ecs.require_current_world().spawn(()))
     game_start(world)
     spawn_enemy_system(world)
     previous_entities.append(survivors_runtime().entities)

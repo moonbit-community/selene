@@ -4,7 +4,7 @@ Generate a MoonBit companion file for `#selene.component` and
 `#selene.resource` declarations.
 
 ```sh
-moonx Milky2018/selene_codegen@0.39.2 movement.mbt movement.g.mbt
+moonx Milky2018/selene_codegen@0.40.0-beta1 movement.mbt movement.g.mbt
 ```
 
 Pin the generator version used by your project. See the

@@ -60,6 +60,7 @@ pub fn AudioPlayer::equal(Self, Self) -> Bool
 pub fn AudioPlayer::from_path(String) -> Self
 pub fn AudioPlayer::not_equal(Self, Self) -> Bool
 pub fn AudioPlayer::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Bundle for AudioPlayer
 pub impl @ecs.Component for AudioPlayer
 
 pub(all) struct AudioSink {
@@ -86,6 +87,7 @@ pub fn AudioSink::speed(Self) -> Double
 pub fn AudioSink::stop(Self) -> Unit
 pub fn AudioSink::stopped(Self) -> Bool
 pub fn AudioSink::volume(Self) -> Double
+pub impl @ecs.Bundle for AudioSink
 pub impl @ecs.Component for AudioSink
 
 #derive(Eq, @debug.Debug)
@@ -119,6 +121,7 @@ pub fn PlaybackSettings::with_muted(Self, Bool) -> Self
 pub fn PlaybackSettings::with_paused(Self, Bool) -> Self
 pub fn PlaybackSettings::with_speed(Self, Double) -> Self
 pub fn PlaybackSettings::with_volume(Self, Double) -> Self
+pub impl @ecs.Bundle for PlaybackSettings
 pub impl @ecs.Component for PlaybackSettings
 
 // Type aliases

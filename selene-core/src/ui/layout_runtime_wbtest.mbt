@@ -1,6 +1,6 @@
 ///|
 test "retained UI layout stays clean until measured content changes" {
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   nodes().set(entity, Node())
   texts().set(entity, Text("A"))
   text_fonts().set(entity, TextFont(size=16.0))
@@ -26,10 +26,10 @@ test "retained UI layout stays clean until measured content changes" {
 
 ///|
 test "retained UI layout updates reparented subtrees" {
-  let root = @ecs.Entity()
-  let left = @ecs.Entity()
-  let right = @ecs.Entity()
-  let child = @ecs.Entity()
+  let root = @ecs.require_current_world().spawn(())
+  let left = @ecs.require_current_world().spawn(())
+  let right = @ecs.require_current_world().spawn(())
+  let child = @ecs.require_current_world().spawn(())
   nodes().set(
     root,
     Node(width=Val::px(300.0), height=Val::px(100.0), flex_direction=Row),
@@ -57,7 +57,7 @@ test "retained UI layout updates reparented subtrees" {
 
 ///|
 test "retained UI stacking changes do not reproject or relayout" {
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   nodes().set(entity, Node(width=Val::px(100.0), height=Val::px(100.0)))
   ui_layout_system(0.0)
   let runtime = ui_layout_runtime()
@@ -85,7 +85,7 @@ test "retained UI stacking changes do not reproject or relayout" {
 
 ///|
 test "retained UI projection changes do not rebuild layout or stacking" {
-  let camera = @ecs.Entity()
+  let camera = @ecs.require_current_world().spawn(())
   @camera.cameras().set(
     camera,
     Camera(viewport=Some(CameraViewport(Vec2(0.0, 0.0), Vec2(100.0, 100.0)))),
@@ -95,7 +95,7 @@ test "retained UI projection changes do not rebuild layout or stacking" {
     camera,
     @transform.GlobalTransform::from_transform(@transform.Transform::default()),
   )
-  let root = @ecs.Entity()
+  let root = @ecs.require_current_world().spawn(())
   let child = root.spawn_child()
   nodes().set(
     root,
@@ -150,7 +150,7 @@ test "retained UI projection changes do not rebuild layout or stacking" {
 
 ///|
 test "retained UI compares normalized Chicle styles" {
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   nodes().set(
     entity,
     Node(

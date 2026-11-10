@@ -64,6 +64,35 @@ When two columns use the same value type, declare separate
 `@ecs.ComponentKey[T]` values with `ComponentKey()`. The key provides
 `get(entity)`, `set(entity, value)`, `store()`, and `store_in(world)`.
 
+## Spawning entities
+
+Pass an annotated component or a tuple of components to `World::spawn`.
+The World places them in the final archetype together. Tuples of two to eight
+items are supported and can be nested. Use `()` to create an empty entity.
+
+```moonbit
+let position : Position = { x: 3.0, y: 4.0 }
+let velocity : Velocity = { x: 0.0, y: 0.0 }
+let player = world.spawn((position, velocity))
+let empty = world.spawn(())
+```
+
+Use `commands.spawn(values)` during a query. The returned entity is pending
+until the scheduler applies the queued spawn and activates it. Subsequent
+commands can target the pending handle.
+
+For repeated spawns, prepare the layout once in its owning World.
+
+```moonbit
+let players : @ecs.SpawnPlan[(Position, Velocity)] = world.prepare_spawn()
+let player = players.spawn((position, velocity))
+let pending = commands.spawn_prepared(players, (position, velocity))
+```
+
+For explicitly selected columns, build a plan with `store.spawn_plan(world)`
+and join plans with `combine`. A plan belongs to a single World and each
+component column may occur only once.
+
 ## Multi-component queries
 
 Use `Query2`, `Query3`, `Query4`, or `Query5` with stores from the same World.
@@ -153,7 +182,7 @@ shown below.
 To regenerate a file, run:
 
 ```sh
-moonx Milky2018/selene_codegen@0.39.2 input.mbt input.g.mbt
+moonx Milky2018/selene_codegen@0.40.0-beta1 input.mbt input.g.mbt
 ```
 
 Projects can define the same rule in their `moon.mod`. During development,
@@ -165,7 +194,7 @@ Stable Selene releases use the matching stable generator. See the
 ```moonbit
 rule(
   name: "selene_codegen",
-  command: "moonx Milky2018/selene_codegen@0.39.2 \"$input\" \"$output\"",
+  command: "moonx Milky2018/selene_codegen@0.40.0-beta1 \"$input\" \"$output\"",
 )
 ```
 

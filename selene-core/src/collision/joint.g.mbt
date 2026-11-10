@@ -14,6 +14,16 @@ pub impl @ecs.Component for Joint with fn component_key() {
 pub extend Joint with @ecs.Component::{ component_key }
 
 ///|
+pub impl @ecs.Bundle for Joint with fn prepare(world) {
+  selene_component_key_Joint.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend Joint with @ecs.Bundle::{ prepare }
+
+///|
 let selene_component_key_MultibodyJoint : @ecs.ComponentKey[MultibodyJoint] = ComponentKey(
 
 )
@@ -27,3 +37,13 @@ pub impl @ecs.Component for MultibodyJoint with fn component_key() {
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend MultibodyJoint with @ecs.Component::{ component_key }
+
+///|
+pub impl @ecs.Bundle for MultibodyJoint with fn prepare(world) {
+  selene_component_key_MultibodyJoint.store_in(world).spawn_plan(world)
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend MultibodyJoint with @ecs.Bundle::{ prepare }

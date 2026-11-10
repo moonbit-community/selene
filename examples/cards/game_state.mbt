@@ -101,7 +101,7 @@ fn cards_runtime() -> CardsRuntime {
 
 ///|
 fn spawn_cards_entity() -> @ecs.Entity {
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   cards_runtime().entities.push(entity)
   entity
 }

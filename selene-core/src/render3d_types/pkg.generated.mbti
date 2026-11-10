@@ -104,6 +104,7 @@ pub(all) struct DirectionalLight3D {
   cascade_shadow_config : CascadeShadowConfig3D
 }
 pub fn DirectionalLight3D::DirectionalLight3D() -> Self
+pub impl @ecs.Bundle for DirectionalLight3D
 pub impl @ecs.Component for DirectionalLight3D
 
 #derive(Eq, @debug.Debug)
@@ -224,6 +225,7 @@ pub(all) struct PointLight3D {
   shadow_map_near_z : Double
 }
 pub fn PointLight3D::PointLight3D() -> Self
+pub impl @ecs.Bundle for PointLight3D
 pub impl @ecs.Component for PointLight3D
 
 #derive(Eq, @debug.Debug)
@@ -276,6 +278,7 @@ pub fn SceneHandle::hash(Self) -> Int32
 pub fn SceneHandle::hash_combine(Self, Hasher) -> Unit
 pub fn SceneHandle::not_equal(Self, Self) -> Bool
 pub fn SceneHandle::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Bundle for SceneHandle
 pub impl @ecs.Component for SceneHandle
 
 #derive(Eq, @debug.Debug)
@@ -288,6 +291,7 @@ pub fn Skybox3D::Skybox3D(CubemapHandle, brightness? : Double, rotation? : @math
 pub fn Skybox3D::equal(Self, Self) -> Bool
 pub fn Skybox3D::not_equal(Self, Self) -> Bool
 pub fn Skybox3D::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Bundle for Skybox3D
 pub impl @ecs.Component for Skybox3D
 
 pub(all) struct SpotLight3D {
@@ -303,6 +307,7 @@ pub(all) struct SpotLight3D {
   outer_angle : Double
 }
 pub fn SpotLight3D::SpotLight3D() -> Self
+pub impl @ecs.Bundle for SpotLight3D
 pub impl @ecs.Component for SpotLight3D
 
 pub(all) struct StandardMaterial3D {

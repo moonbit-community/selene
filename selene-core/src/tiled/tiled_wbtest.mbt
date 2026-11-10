@@ -544,7 +544,7 @@ test "respawn_tiled_map_into_entity replaces previous tiled children and metadat
   )
   files.set("maps/bg.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
-    let root = @ecs.Entity()
+    let root = @ecs.require_current_world().spawn(())
     spawn_tiled_map_into_entity(root, load_tiled_map("maps/a.tmj"), settings={
       ..TiledSpawnSettings(),
       position: Vec2(1.0, 2.0),
@@ -904,7 +904,7 @@ test "respawn_tiled_world_into_entity replaces previous spawned maps" {
     ),
   )
   with_fake_asset_io(files, fn() raise {
-    let root = @ecs.Entity()
+    let root = @ecs.require_current_world().spawn(())
     spawn_tiled_world_into_entity(root, load_tiled_world("worlds/a.world"), settings={
       ..TiledWorldSpawnSettings(),
       position: Vec2(5.0, 7.0),
@@ -954,7 +954,7 @@ test "tiled world chunking spawns maps around camera view" {
   let previous_zoom = @system.get_zoom()
   @system.configure_display(100.0, 100.0, 1.0)
 
-  let camera_entity = @ecs.Entity()
+  let camera_entity = @ecs.require_current_world().spawn(())
   defer camera_entity.destroy()
   @camera.cameras().set(camera_entity, Camera())
   @camera.camera2ds().set(camera_entity, Camera2d())
@@ -1020,14 +1020,14 @@ test "tiled world chunking unions multiple active camera views" {
   let previous_zoom = @system.get_zoom()
   @system.configure_display(100.0, 100.0, 1.0)
 
-  let left_camera = @ecs.Entity()
+  let left_camera = @ecs.require_current_world().spawn(())
   defer left_camera.destroy()
   @camera.cameras().set(left_camera, Camera(order=0))
   @camera.camera2ds().set(left_camera, Camera2d())
   @camera.orthographic_projections().set(left_camera, OrthographicProjection())
   tiled_test_set_entity_translation_2d(left_camera, Vec2(50.0, 50.0))
 
-  let right_camera = @ecs.Entity()
+  let right_camera = @ecs.require_current_world().spawn(())
   defer right_camera.destroy()
   @camera.cameras().set(right_camera, Camera(order=1))
   @camera.camera2ds().set(right_camera, Camera2d())
@@ -1085,14 +1085,14 @@ test "Tiled parallax uses map origin for each camera view" {
   let previous_zoom = @system.get_zoom()
   @system.configure_display(100.0, 100.0, 1.0)
 
-  let left_camera = @ecs.Entity()
+  let left_camera = @ecs.require_current_world().spawn(())
   defer left_camera.destroy()
   @camera.cameras().set(left_camera, Camera(order=0))
   @camera.camera2ds().set(left_camera, Camera2d())
   @camera.orthographic_projections().set(left_camera, OrthographicProjection())
   tiled_test_set_entity_translation_2d(left_camera, Vec2(50.0, 50.0))
 
-  let right_camera = @ecs.Entity()
+  let right_camera = @ecs.require_current_world().spawn(())
   defer right_camera.destroy()
   @camera.cameras().set(right_camera, Camera(order=1))
   @camera.camera2ds().set(right_camera, Camera2d())

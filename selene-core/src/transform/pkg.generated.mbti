@@ -37,6 +37,7 @@ pub fn GlobalTransform::reparented_to(Self, Self) -> Transform
 pub fn GlobalTransform::to_repr(Self) -> @debug.Repr
 pub fn GlobalTransform::transform_point(Self, @math.Vec3) -> @math.Vec3
 pub fn GlobalTransform::translation(Self) -> @math.Vec3
+pub impl @ecs.Bundle for GlobalTransform
 pub impl @ecs.Component for GlobalTransform
 pub impl Default for GlobalTransform
 
@@ -59,6 +60,7 @@ pub fn Transform::to_repr(Self) -> @debug.Repr
 pub fn Transform::with_rotation(Self, @math.Quat) -> Self
 pub fn Transform::with_scale(Self, @math.Vec3) -> Self
 pub fn Transform::with_translation(Self, @math.Vec3) -> Self
+pub impl @ecs.Bundle for Transform
 pub impl @ecs.Component for Transform
 pub impl Default for Transform
 

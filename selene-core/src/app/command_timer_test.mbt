@@ -50,7 +50,7 @@ test "schedule rejects reentry and leaves the nested batch queued" {
 test "schedule rejects streaming and archetype batch queries" {
   let world = @ecs.World()
   let storage : @ecs.ComponentStore[Int32] = ComponentStore(world)
-  ignore(storage.spawn_bundle().spawn(world, 42))
+  ignore(storage.spawn_plan(world).spawn(42))
   let commands = @ecs.commands(world)
   let calls = []
   let rejected = []
@@ -201,11 +201,13 @@ test "entities reserved during a command batch go live with the next batch" {
   let world = @ecs.World()
   let commands = @ecs.commands(world)
   let storage : @ecs.ComponentStore[Int32] = ComponentStore(world)
-  let bundle = storage.spawn_bundle()
+  let bundle = storage.spawn_plan(world)
   let spawned : Ref[(@ecs.Entity, @ecs.Entity)?] = Ref(None)
   let observed = []
   commands.add(_ => {
-    spawned.val = Some((commands.spawn(), commands.spawn_bundle(bundle, 42)))
+    spawned.val = Some(
+      (commands.spawn(()), commands.spawn_prepared(bundle, 42)),
+    )
   })
 
   @app.App()

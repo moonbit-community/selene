@@ -37,6 +37,7 @@ pub fn Mesh2d::Mesh2d(Mesh2dHandle) -> Self
 pub fn Mesh2d::equal(Self, Self) -> Bool
 pub fn Mesh2d::not_equal(Self, Self) -> Bool
 pub fn Mesh2d::to_repr(Self) -> @debug.Repr
+pub impl @ecs.Bundle for Mesh2d
 pub impl @ecs.Component for Mesh2d
 
 #derive(Eq, @debug.Debug)

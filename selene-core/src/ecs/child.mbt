@@ -150,7 +150,7 @@ fn attach_parent_link(child : Entity, parent : Entity) -> Unit {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let parent = Entity()
+/// let parent = require_current_world().spawn(())
 /// @transform.transforms().set(parent, @transform.Transform::from_xyz(100.0, 100.0, 0.0))
 ///
 /// let child = parent.spawn_child()
@@ -163,10 +163,11 @@ fn attach_parent_link(child : Entity, parent : Entity) -> Unit {
 /// ```
 ///
 pub fn Entity::spawn_child(parent : Entity) -> Entity {
-  guard parent.is_valid_in(require_current_world()) else {
+  let world = require_current_world()
+  guard parent.is_valid_in(world) else {
     abort("parent entity is invalid in this world")
   }
-  let child_entity = Entity()
+  let child_entity = world.spawn(())
   attach_parent_link(child_entity, parent)
   child_entity
 }
@@ -184,7 +185,7 @@ pub fn Entity::spawn_child(parent : Entity) -> Entity {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let parent = Entity()
+/// let parent = require_current_world().spawn(())
 /// let child1 = parent.spawn_child()
 /// let child2 = parent.spawn_child()
 ///
@@ -213,9 +214,9 @@ pub fn Entity::get_children(parent : Entity) -> Array[Entity] {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let parent = Entity()
+/// let parent = require_current_world().spawn(())
 /// let child = parent.spawn_child()
-/// let standalone = Entity()
+/// let standalone = require_current_world().spawn(())
 ///
 /// inspect(child.is_child(), content="true")
 /// inspect(standalone.is_child(), content="false")
@@ -242,7 +243,7 @@ pub fn Entity::is_child(entity : Entity) -> Bool {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let parent = Entity()
+/// let parent = require_current_world().spawn(())
 /// let child = parent.spawn_child()
 ///
 /// inspect(child.get_parent().unwrap() == parent, content="true")
@@ -282,17 +283,15 @@ pub fn Entity::remove_parent(child : Entity) -> Unit {
 /// `@transform.transform_propagate_system`.
 ///
 /// **Important**: Only entities that have called `spawn_child()` at least once
-/// can be root entities. Standalone entities created with `Entity()` that
-/// have never spawned children are not considered roots and will not be returned
-/// by this function.
+/// can be root entities. This function excludes standalone entities.
 ///
 /// Returns an `Iter[Entity]` that yields all root parent entities.
 ///
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let root1 = Entity()
-/// let root2 = Entity()
+/// let root1 = require_current_world().spawn(())
+/// let root2 = require_current_world().spawn(())
 /// let child1 = root1.spawn_child()
 /// let _grandchild = child1.spawn_child()
 ///

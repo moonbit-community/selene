@@ -53,8 +53,8 @@ pub fn Commands::delete(Self, Entity) -> Unit
 pub fn Commands::despawn(Self, Entity) -> Unit
 pub fn[T] Commands::insert_component(Self, ComponentStore[T], Entity, T) -> Unit
 pub fn[T] Commands::remove_component(Self, ComponentStore[T], Entity) -> Unit
-pub fn Commands::spawn(Self) -> Entity
-pub fn[T] Commands::spawn_bundle(Self, SpawnBundle[T], T) -> Entity
+pub fn[T : Bundle] Commands::spawn(Self, T) -> Entity
+pub fn[T] Commands::spawn_prepared(Self, SpawnPlan[T], T) -> Entity
 
 type ComponentKey[T]
 pub fn[T] ComponentKey::ComponentKey() -> Self[T]
@@ -81,13 +81,12 @@ pub fn[T] ComponentStore::remove(Self[T], Entity) -> Unit
 pub fn[T] ComponentStore::retain(Self[T], (Entity) -> Bool) -> Unit
 #alias(op_set)
 pub fn[T] ComponentStore::set(Self[T], Entity, T) -> Unit
-pub fn[T] ComponentStore::spawn_bundle(Self[T]) -> SpawnBundle[T]
+pub fn[T] ComponentStore::spawn_plan(Self[T], World) -> SpawnPlan[T]
 pub fn[T] ComponentStore::to_array(Self[T]) -> Array[(Entity, T)]
 pub fn[T] ComponentStore::values(Self[T]) -> Iter[T]
 
 #derive(Eq, Hash, @debug.Debug)
 type Entity
-pub fn Entity::Entity() -> Self
 pub fn Entity::belongs_to(Self, World) -> Bool
 pub fn Entity::delete(Self) -> Bool
 pub fn Entity::destroy(Self) -> Unit
@@ -167,9 +166,9 @@ pub fn[T] ResourceKey::get_in(Self[T], World) -> T?
 pub fn[T] ResourceKey::get_or_insert_with(Self[T], World, (World) -> T) -> T
 pub fn[T] ResourceKey::insert_in(Self[T], World, T) -> Unit
 
-type SpawnBundle[T]
-pub fn[A, B] SpawnBundle::combine(Self[A], Self[B]) -> Self[(A, B)]
-pub fn[T] SpawnBundle::spawn(Self[T], World, T) -> Entity
+type SpawnPlan[T]
+pub fn[A, B] SpawnPlan::combine(Self[A], Self[B]) -> Self[(A, B)]
+pub fn[T] SpawnPlan::spawn(Self[T], T) -> Entity
 
 pub(all) struct With[T] {
   storage : ComponentStore[T]
@@ -197,12 +196,26 @@ pub fn World::frame_index(Self) -> UInt32
 pub fn[T : Resource] World::get_resource(Self) -> T?
 pub fn World::id(Self) -> UInt32
 pub fn[T : Resource] World::insert_resource(Self, T) -> Unit
+pub fn[T : Bundle] World::prepare_spawn(Self) -> SpawnPlan[T]
 pub fn[T : Resource] World::resource(Self) -> T
+pub fn[T : Bundle] World::spawn(Self, T) -> Entity
 
 // Type aliases
 pub type System = (World) -> Unit
 
 // Traits
+pub(open) trait Bundle {
+  fn prepare(World) -> SpawnPlan[Self]
+}
+pub impl Bundle for Unit
+pub impl[A : Bundle, B : Bundle] Bundle for (A, B)
+pub impl[A : Bundle, B : Bundle, C : Bundle] Bundle for (A, B, C)
+pub impl[A : Bundle, B : Bundle, C : Bundle, D : Bundle] Bundle for (A, B, C, D)
+pub impl[A : Bundle, B : Bundle, C : Bundle, D : Bundle, E : Bundle] Bundle for (A, B, C, D, E)
+pub impl[A : Bundle, B : Bundle, C : Bundle, D : Bundle, E : Bundle, F : Bundle] Bundle for (A, B, C, D, E, F)
+pub impl[A : Bundle, B : Bundle, C : Bundle, D : Bundle, E : Bundle, F : Bundle, G : Bundle] Bundle for (A, B, C, D, E, F, G)
+pub impl[A : Bundle, B : Bundle, C : Bundle, D : Bundle, E : Bundle, F : Bundle, G : Bundle, H : Bundle] Bundle for (A, B, C, D, E, F, G, H)
+
 pub(open) trait Component {
   fn component_key() -> ComponentKey[Self]
 }
