@@ -124,13 +124,13 @@ fn setup_camera() -> Unit {
   ignore(
     spawn_tank3d_entity(
       (
-        @transform.Spatial(@transform.Transform::{
+        @transform.Spatial({
           translation: position,
           rotation: look_at_rotation(position, vec3(0.0, 0.55, 0.0)),
           scale: @math.Vec3::one(),
         }),
         @camera3d.Camera3DComponent::{
-          ..@camera3d.Camera3DComponent(),
+          ..Camera3DComponent(),
           clear_color: color(18U, 22U, 28U, 1.0),
           fov_y: 50.0,
           near: 0.05,
@@ -151,7 +151,7 @@ fn setup_lighting() -> Unit {
       (
         @transform.Spatial(@transform.Transform::identity()),
         @render3d.DirectionalLight3D::{
-          ..@render3d.DirectionalLight3D(),
+          ..DirectionalLight3D(),
           direction: vec3(-0.35, -0.82, -0.46).normalize(),
           color: color(255U, 244U, 220U, 1.0),
           intensity: 2.1,
@@ -168,14 +168,14 @@ fn setup_floor() -> Unit {
     @render3d.plane_mesh(vec3(8.0, 0.02, 8.0)),
   )
   let material = @render3d.register_material_asset({
-    ..@render3d.StandardMaterial3D(),
+    ..StandardMaterial3D(),
     base_color: color(54U, 61U, 68U, 1.0),
     roughness: 0.85,
   })
   ignore(
     spawn_tank3d_entity(
       (
-        @transform.Spatial(@transform.Transform::{
+        @transform.Spatial({
           translation: vec3(0.0, -0.02, 0.0),
           rotation: @math.Quat::identity(),
           scale: @math.Vec3::one(),

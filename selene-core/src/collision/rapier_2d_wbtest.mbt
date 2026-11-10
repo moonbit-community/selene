@@ -10,9 +10,7 @@ fn collision_test_shape() -> CollisionShape {
 
 ///|
 fn test_spatial(position : @math.Vec2) -> @transform.Spatial {
-  @transform.Spatial(
-    @transform.Transform::from_xyz(position[X], position[Y], 0.0),
-  )
+  Spatial(@transform.Transform::from_xyz(position[X], position[Y], 0.0))
 }
 
 ///|

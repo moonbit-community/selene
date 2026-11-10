@@ -12,7 +12,7 @@ test "typed spawn binds the layout to the explicit World" {
   let empty = world.spawn(())
   let single = world.spawn(@ecs.Single(sprite))
   let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = world.prepare_spawn()
-  let prepared = plan.spawn((sprite, @transform.Spatial(transform)))
+  let prepared = plan.spawn((sprite, Spatial(transform)))
   let reversed = world.spawn((@transform.Spatial(transform), sprite))
   assert_true(empty.belongs_to(world))
   assert_false(sprites.contains(empty))
@@ -50,7 +50,7 @@ test "typed spawn can queue an entity from a query" {
     query.for_each((entity, sprite) => {
       if entity == first {
         let pending = commands.spawn((sprite, @transform.Spatial(transform)))
-        commands.add(_ => transforms.set(pending, @transform.Spatial(later)))
+        commands.add(_ => transforms.set(pending, Spatial(later)))
         spawned.push(pending)
       }
     })

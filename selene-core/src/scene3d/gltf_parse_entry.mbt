@@ -319,8 +319,8 @@ fn parse_texture_sources(
     }
     let sampler = match field_int(texture_object, "sampler") {
       Some(sampler_index) =>
-        samplers.get(sampler_index).unwrap_or(@render3d.TextureSampler3D())
-      None => @render3d.TextureSampler3D()
+        samplers.get(sampler_index).unwrap_or(TextureSampler3D())
+      None => TextureSampler3D()
     }
     sources.push(Some({ image: image_handle, sampler, }))
   }
@@ -418,7 +418,7 @@ fn parse_material_asset(
   texture_sources : Array[TextureSourceTemplate?],
 ) -> @render3d.StandardMaterial3D {
   guard json_object(material_json) is Some(material_object) else {
-    return @render3d.StandardMaterial3D()
+    return StandardMaterial3D()
   }
   let mut material = @render3d.StandardMaterial3D()
   material = match field_string(material_object, "alphaMode") {

@@ -250,7 +250,7 @@ fn propagate_spatial(
       let affine = spatial.pose.compute_affine()
       let global = match parent_global {
         Some(parent) => GlobalTransform::{ affine: parent.affine * affine, }
-        None => GlobalTransform::{ affine, }
+        None => { affine, }
       }
       spatial.global = global
       Some(global)

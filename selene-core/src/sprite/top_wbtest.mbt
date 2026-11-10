@@ -17,7 +17,7 @@ fn spawn_test_camera(viewport : @math.Rect) -> @ecs.Entity {
   camera_entity_draft.add_to(@camera.camera2ds(), Camera2d())
   camera_entity_draft.add_to(
     @transform.spatials(),
-    @transform.Spatial(
+    Spatial(
       @transform.GlobalTransform::from_transform(
         @transform.Transform::from_xyz(0.0, 0.0, 0.0),
       ).compute_transform(),
@@ -36,7 +36,7 @@ fn spawn_color_sprite(position : @math.Vec2) -> @ecs.Entity {
   )
   entity_draft.add_to(
     @transform.spatials(),
-    @transform.Spatial(
+    Spatial(
       @transform.GlobalTransform::from_transform(
         @transform.Transform::from_xyz(position[X], position[Y], 0.0),
       ).compute_transform(),

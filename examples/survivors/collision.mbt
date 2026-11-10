@@ -13,16 +13,16 @@
 // limitations under the License.
 
 ///|
-let player_collision_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup()
+let player_collision_group : @physics2d.CollisionGroup = CollisionGroup()
 
 ///|
-let wall_collision_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup()
+let wall_collision_group : @physics2d.CollisionGroup = CollisionGroup()
 
 ///|
-let enemy_collision_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup()
+let enemy_collision_group : @physics2d.CollisionGroup = CollisionGroup()
 
 ///|
-let bullet_collision_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup()
+let bullet_collision_group : @physics2d.CollisionGroup = CollisionGroup()
 
 ///|
-let enemybullet_collision_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup()
+let enemybullet_collision_group : @physics2d.CollisionGroup = CollisionGroup()

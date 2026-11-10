@@ -40,8 +40,8 @@ pub fn RenderAssetSync3D::RenderAssetSync3D() -> RenderAssetSync3D {
 ///|
 pub fn RenderFrame::RenderFrame() -> RenderFrame {
   {
-    frame2d: @render2d_types.RenderFrame2D(),
-    frame3d: @render3d_types.RenderFrame3D(),
+    frame2d: RenderFrame2D(),
+    frame3d: RenderFrame3D(),
     assets3d: RenderAssetSync3D(),
   }
 }

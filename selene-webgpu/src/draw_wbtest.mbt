@@ -349,7 +349,7 @@ test "render3d submission stats record repeated primitive pressure" {
   let mesh = webgpu_test_mesh_handle(9100)
   let material = webgpu_test_material_handle(9101)
   sync_mesh_asset(mesh, { primitive: Cube(Vec3(1.0, 1.0, 1.0)), })
-  sync_material_asset(material, @render3d_types.StandardMaterial3D())
+  sync_material_asset(material, StandardMaterial3D())
   let frame = @render3d_types.RenderFrame3D()
   frame.camera = Some(webgpu_test_camera())
   frame.items = [
@@ -382,7 +382,7 @@ test "render3d submission stats reuse retained static primitive instances" {
   let mesh = webgpu_test_mesh_handle(9120)
   let material = webgpu_test_material_handle(9121)
   sync_mesh_asset(mesh, { primitive: Cube(Vec3(1.0, 1.0, 1.0)), })
-  sync_material_asset(material, @render3d_types.StandardMaterial3D())
+  sync_material_asset(material, StandardMaterial3D())
   let frame = @render3d_types.RenderFrame3D()
   frame.camera = Some(webgpu_test_camera())
   frame.items = [
@@ -407,8 +407,8 @@ test "render3d submission stats keep textured primitives unbatched" {
   webgpu_test_sync_image(image, "wbtest://base")
   sync_mesh_asset(mesh, { primitive: Cube(Vec3(1.0, 1.0, 1.0)), })
   sync_material_asset(material, {
-    ..@render3d_types.StandardMaterial3D(),
-    base_color_texture: Some(@render3d_types.TextureBinding3D(image)),
+    ..StandardMaterial3D(),
+    base_color_texture: Some(TextureBinding3D(image)),
   })
   let frame = @render3d_types.RenderFrame3D()
   frame.camera = Some(webgpu_test_camera())
@@ -813,21 +813,13 @@ test "resolve_material_texture_bundle keeps independent UV channels when sampler
   let material = {
     ..@render3d_types.StandardMaterial3D(),
     base_color_texture: Some(
-      @render3d_types.TextureBinding3D(base_handle, texcoord_set=1, sampler~),
+      TextureBinding3D(base_handle, texcoord_set=1, sampler~),
     ),
     emissive_texture: Some(
-      @render3d_types.TextureBinding3D(
-        emissive_handle,
-        texcoord_set=3,
-        sampler~,
-      ),
+      TextureBinding3D(emissive_handle, texcoord_set=3, sampler~),
     ),
     occlusion_texture: Some(
-      @render3d_types.TextureBinding3D(
-        occlusion_handle,
-        texcoord_set=5,
-        sampler~,
-      ),
+      TextureBinding3D(occlusion_handle, texcoord_set=5, sampler~),
     ),
   }
   let bundle = resolve_material_texture_bundle(material).unwrap()
@@ -855,18 +847,10 @@ test "resolve_material_texture_bundle keeps textures with independent sampler co
   let material = {
     ..@render3d_types.StandardMaterial3D(),
     base_color_texture: Some(
-      @render3d_types.TextureBinding3D(
-        base_handle,
-        texcoord_set=0,
-        sampler=repeat_sampler,
-      ),
+      TextureBinding3D(base_handle, texcoord_set=0, sampler=repeat_sampler),
     ),
     emissive_texture: Some(
-      @render3d_types.TextureBinding3D(
-        emissive_handle,
-        texcoord_set=1,
-        sampler=clamp_sampler,
-      ),
+      TextureBinding3D(emissive_handle, texcoord_set=1, sampler=clamp_sampler),
     ),
   }
   let bundle = resolve_material_texture_bundle(material).unwrap()
@@ -896,10 +880,7 @@ test "resolve_material_texture_input applies bound texture transforms and falls 
     Some({ path: "wbtest://emissive", texcoord_set: 1, sampler_code: 3, }),
     fallback_uvs,
     transform_binding=Some({
-      ..@render3d_types.TextureBinding3D(
-        webgpu_test_handle(9020),
-        texcoord_set=1,
-      ),
+      ..TextureBinding3D(webgpu_test_handle(9020), texcoord_set=1),
       transform: {
         offset: webgpu_test_uv(0.25, 0.5),
         scale: webgpu_test_uv(2.0, 1.0),
@@ -938,7 +919,7 @@ test "flatten_colored_vertices3d packs unlit material metadata" {
     None,
     Vec3(1.0, 1.0, 1.0),
     {
-      ..@render3d_types.StandardMaterial3D(),
+      ..StandardMaterial3D(),
       alpha_mode: Mask,
       alpha_cutoff: 0.25,
       unlit: true,
@@ -979,7 +960,7 @@ test "flatten_textured_vertices3d packs unlit surface metadata" {
     None,
     Vec3(1.0, 1.0, 1.0),
     {
-      ..@render3d_types.StandardMaterial3D(),
+      ..StandardMaterial3D(),
       occlusion_strength: 0.5,
       normal_scale: 0.75,
       unlit: true,

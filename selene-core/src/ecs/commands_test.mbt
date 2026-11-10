@@ -125,7 +125,7 @@ test "panic immediate spawn rejects a parent in another World" {
 ///|
 test "panic deferred spawn rejects a parent in another World" {
   let parent = @ecs.World().spawn(())
-  ignore(@ecs.commands(@ecs.World()).spawn((), parent~))
+  ignore(@ecs.commands(World()).spawn((), parent~))
 }
 
 ///|

@@ -103,7 +103,7 @@ fn[T : @ecs.Bundle] spawn_sphere(
 ) -> @ecs.Entity {
   let mesh = @render3d.register_mesh_asset(@render3d.sphere_mesh(radius))
   let material = @render3d.register_material_asset({
-    ..@render3d.StandardMaterial3D(),
+    ..StandardMaterial3D(),
     base_color,
     roughness: 0.3,
   })
@@ -112,7 +112,7 @@ fn[T : @ecs.Bundle] spawn_sphere(
   let plan = plan.combine(world.prepare_spawn())
   let values = (
     (
-      @transform.Spatial(@transform.Transform::{
+      @transform.Spatial({
         translation,
         rotation: @math.Quat::identity(),
         scale: @math.Vec3::one(),
@@ -266,13 +266,13 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
   ignore(
     spawn_scene3d_entity(
       (
-        @transform.Spatial(@transform.Transform::{
+        @transform.Spatial({
           translation: vec3(0.0, 1.5, 8.0),
           rotation: @math.Quat::identity(),
           scale: @math.Vec3::one(),
         }),
         @camera3d.Camera3DComponent::{
-          ..@camera3d.Camera3DComponent(),
+          ..Camera3DComponent(),
           clear_color: color(20U, 20U, 24U, 1.0),
         },
       ),
@@ -288,14 +288,14 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
     @render3d.plane_mesh(vec3(10.0, 0.02, 10.0)),
   )
   let floor_material = @render3d.register_material_asset({
-    ..@render3d.StandardMaterial3D(),
+    ..StandardMaterial3D(),
     base_color: color(96U, 104U, 110U, 1.0),
     roughness: 0.9,
   })
   ignore(
     spawn_scene3d_entity(
       (
-        @transform.Spatial(@transform.Transform::{
+        @transform.Spatial({
           translation: vec3(0.0, -0.01, 0.0),
           rotation: @math.Quat::identity(),
           scale: @math.Vec3::one(),
@@ -314,14 +314,14 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
 
   let cube_mesh = @render3d.register_mesh_asset(lit_cube_mesh(1.0))
   let cube_material = @render3d.register_material_asset({
-    ..@render3d.StandardMaterial3D(),
+    ..StandardMaterial3D(),
     base_color: color(124U, 144U, 255U, 1.0),
     roughness: 0.25,
   })
 
   let cube = spawn_scene3d_entity(
     (
-      @transform.Spatial(@transform.Transform::{
+      @transform.Spatial({
         translation: vec3(0.0, 0.5, 0.0),
         rotation: @math.Quat::identity(),
         scale: @math.Vec3::one(),
@@ -339,14 +339,14 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
 
   let target_mesh = @render3d.register_mesh_asset(@render3d.sphere_mesh(0.45))
   let target_material = @render3d.register_material_asset({
-    ..@render3d.StandardMaterial3D(),
+    ..StandardMaterial3D(),
     base_color: color(244U, 199U, 124U, 1.0),
     roughness: 0.25,
   })
   ignore(
     spawn_scene3d_entity(
       (
-        @transform.Spatial(@transform.Transform::{
+        @transform.Spatial({
           translation: vec3(1.35, 1.55, -0.75),
           rotation: @math.Quat::identity(),
           scale: @math.Vec3::one(),
@@ -366,14 +366,14 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
     @render3d.cube_mesh(vec3(8.0, 3.2, 0.16)),
   )
   let shadow_wall_material = @render3d.register_material_asset({
-    ..@render3d.StandardMaterial3D(),
+    ..StandardMaterial3D(),
     base_color: color(86U, 96U, 112U, 1.0),
     roughness: 0.82,
   })
   ignore(
     spawn_scene3d_entity(
       (
-        @transform.Spatial(@transform.Transform::{
+        @transform.Spatial({
           translation: vec3(0.0, 1.6, -2.9),
           rotation: @math.Quat::identity(),
           scale: @math.Vec3::one(),
@@ -392,7 +392,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
   ignore(
     spawn_scene3d_entity(
       (
-        @transform.Spatial(@transform.Transform::{
+        @transform.Spatial({
           translation: vec3(-2.2, 0.5, 1.8),
           rotation: @math.Quat::from_axis_angle(vec3(0.0, 1.0, 0.0), 0.45),
           scale: vec3(0.7, 0.7, 0.7),
@@ -400,7 +400,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
         @render3d.Mesh3DRenderer::{
           mesh: cube_mesh,
           material: @render3d.register_material_asset({
-            ..@render3d.StandardMaterial3D(),
+            ..StandardMaterial3D(),
             base_color: color(118U, 168U, 240U, 1.0),
             roughness: 0.6,
           }),
@@ -435,7 +435,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
 
   let compound_body = spawn_scene3d_entity(
     (
-      @transform.Spatial(@transform.Transform::{
+      @transform.Spatial({
         translation: vec3(-3.0, 0.45, -0.8),
         rotation: @math.Quat::identity(),
         scale: @math.Vec3::one(),
@@ -443,7 +443,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
       @render3d.Mesh3DRenderer::{
         mesh: cube_mesh,
         material: @render3d.register_material_asset({
-          ..@render3d.StandardMaterial3D(),
+          ..StandardMaterial3D(),
           base_color: color(122U, 199U, 156U, 1.0),
           roughness: 0.5,
         }),
@@ -459,7 +459,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
   ignore(
     world.spawn(
       (
-        @transform.Spatial(@transform.Transform::{
+        @transform.Spatial({
           translation: vec3(0.0, 0.75, 0.0),
           rotation: @math.Quat::identity(),
           scale: @math.Vec3::one(),
@@ -467,7 +467,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
         @render3d.Mesh3DRenderer::{
           mesh: @render3d.register_mesh_asset(@render3d.sphere_mesh(0.22)),
           material: @render3d.register_material_asset({
-            ..@render3d.StandardMaterial3D(),
+            ..StandardMaterial3D(),
             base_color: color(178U, 240U, 212U, 1.0),
             roughness: 0.3,
           }),
@@ -524,13 +524,13 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
 
   let spotlight = spawn_scene3d_entity(
     (
-      @transform.Spatial(@transform.Transform::{
+      @transform.Spatial({
         translation: vec3(3.2, 3.0, 0.0),
         rotation: @math.Quat::identity(),
         scale: @math.Vec3::one(),
       }),
       @render3d.SpotLight3D::{
-        ..@render3d.SpotLight3D(),
+        ..SpotLight3D(),
         direction: vec3(-1.0, -1.2, 0.0).normalize(),
         color: color(255U, 236U, 186U, 1.0),
         intensity: 8.0,
@@ -549,7 +549,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
     @render3d.sphere_mesh(0.14),
   )
   let spotlight_marker_material = @render3d.register_material_asset({
-    ..@render3d.StandardMaterial3D(),
+    ..StandardMaterial3D(),
     base_color: color(255U, 236U, 186U, 1.0),
     roughness: 0.05,
   })
@@ -574,7 +574,7 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
       (
         @transform.Spatial(@transform.Transform::identity()),
         @render3d.DirectionalLight3D::{
-          ..@render3d.DirectionalLight3D(),
+          ..DirectionalLight3D(),
           direction: vec3(-0.72, -1.0, -0.42).normalize(),
           color: color(255U, 255U, 255U, 1.0),
           intensity: 1.15,

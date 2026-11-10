@@ -41,7 +41,7 @@ test "build_frame2d keeps clear-only camera passes" {
     camera_entity_draft.add_to(@camera.camera2ds(), Camera2d())
     camera_entity_draft.add_to(
       @transform.spatials(),
-      @transform.Spatial(
+      Spatial(
         @transform.GlobalTransform::from_transform(
           @transform.Transform::from_xyz(0.0, 0.0, 0.0),
         ).compute_transform(),
@@ -101,7 +101,7 @@ test "build_frame2d normalizes offscreen viewport and command coordinates" {
     camera_entity_draft.add_to(@camera.camera2ds(), Camera2d())
     camera_entity_draft.add_to(
       @transform.spatials(),
-      @transform.Spatial(
+      Spatial(
         @transform.GlobalTransform::from_transform(
           @transform.Transform::from_xyz(0.0, 0.0, 0.0),
         ).compute_transform(),
@@ -146,7 +146,7 @@ test "build_frame2d batches camera ui commands with clip barriers" {
     camera_entity_draft.add_to(@camera.camera2ds(), Camera2d())
     camera_entity_draft.add_to(
       @transform.spatials(),
-      @transform.Spatial(
+      Spatial(
         @transform.GlobalTransform::from_transform(
           @transform.Transform::from_xyz(0.0, 0.0, 0.0),
         ).compute_transform(),
@@ -200,7 +200,7 @@ test "build_frame2d maps camera offscreen pass target" {
     camera_entity_draft.add_to(@camera.camera2ds(), Camera2d())
     camera_entity_draft.add_to(
       @transform.spatials(),
-      @transform.Spatial(
+      Spatial(
         @transform.GlobalTransform::from_transform(
           @transform.Transform::from_xyz(0.0, 0.0, 0.0),
         ).compute_transform(),

@@ -276,7 +276,7 @@ pub fn raycast(
   direction : @math.Vec2,
   max_toi~ : Double = 1000.0,
   solid~ : Bool = true,
-  query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter(),
+  query_filter~ : SpatialQueryFilter = SpatialQueryFilter(),
 ) -> RaycastHit? {
   @collision.raycast(origin, direction, max_toi~, solid~, query_filter~)
 }
@@ -289,7 +289,7 @@ pub fn shape_cast(
   direction~ : @math.Vec2 = Vec2(0.0, -1.0),
   max_toi~ : Double = 1000.0,
   stop_at_penetration~ : Bool = false,
-  query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter(),
+  query_filter~ : SpatialQueryFilter = SpatialQueryFilter(),
 ) -> ShapeCastHit? {
   @collision.shape_cast(
     shape,
@@ -305,7 +305,7 @@ pub fn shape_cast(
 ///|
 pub fn intersect_point(
   point : @math.Vec2,
-  query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter(),
+  query_filter~ : SpatialQueryFilter = SpatialQueryFilter(),
 ) -> Array[@ecs.Entity] {
   @collision.intersect_point(point, query_filter~)
 }
@@ -315,7 +315,7 @@ pub fn intersect_shape(
   shape : CollisionShape,
   origin : @math.Vec2,
   rotation~ : Double = 0.0,
-  query_filter~ : SpatialQueryFilter = @collision.SpatialQueryFilter(),
+  query_filter~ : SpatialQueryFilter = SpatialQueryFilter(),
 ) -> Array[@ecs.Entity] {
   @collision.intersect_shape(shape, origin, rotation~, query_filter~)
 }

@@ -285,18 +285,18 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
         let enemy = runtime.enemy_plan.spawn(
           (
             (
-              @transform.Spatial(
+              Spatial(
                 @transform.Transform::from_xyz(
                   pos[X],
                   pos[Y],
                   ENEMY_ZINDEX.to_double(),
                 ),
               ),
-              @physics2d.Velocity(@math.Vec2::zero()),
+              Velocity(@math.Vec2::zero()),
               sprite_animation_sprite(data.right_animation),
               shape,
-              @physics2d.Collider(
-                @physics2d.CollisionFilter(enemy_collision_group, [
+              Collider(
+                CollisionFilter(enemy_collision_group, [
                   enemy_collision_group, wall_collision_group,
                 ]),
               ),
@@ -304,9 +304,9 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
             ),
             (
               graph,
-              @animation.AnimationPlayer(),
-              @animation.AnimationTransitions(),
-              @animation.AnimationTargetId("self"),
+              AnimationPlayer(),
+              AnimationTransitions(),
+              AnimationTargetId("self"),
             ),
           ),
         )
@@ -576,17 +576,17 @@ fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
     offset=Vec2(-2.0, -2.0),
   )
   let area = @physics2d.Area(
-    @physics2d.CollisionFilter(enemybullet_collision_group, [
+    CollisionFilter(enemybullet_collision_group, [
       player_collision_group, wall_collision_group,
     ]),
   )
   let bullet_entity = runtime.enemy_bullet_plan.spawn(
     (
-      @sprite.Sprite(
+      Sprite(
         color=@sprite.color_from_css("red"),
         custom_size=Some(Vec2(4.0, 4.0)),
       ),
-      @transform.Spatial(
+      Spatial(
         @transform.Transform::from_xyz(
           enemy_pos[X],
           enemy_pos[Y],

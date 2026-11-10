@@ -244,17 +244,17 @@ fn shoot_weapon_bullet(
   let bullet_entity = runtime.player_bullet_plan.spawn(
     (
       player_bullet_visual(),
-      @transform.Spatial(
+      Spatial(
         @transform.Transform::from_xyz(
           bullet_spawn_pos[X],
           bullet_spawn_pos[Y],
           BULLET_ZINDEX.to_double(),
         ),
       ),
-      @physics2d.Velocity(dir.scalar_mul(weapon_data.bullet_speed)),
+      Velocity(dir.scalar_mul(weapon_data.bullet_speed)),
       shape,
-      @physics2d.Area(
-        @physics2d.CollisionFilter(bullet_collision_group, [
+      Area(
+        CollisionFilter(bullet_collision_group, [
           enemy_collision_group, wall_collision_group,
         ]),
       ),
