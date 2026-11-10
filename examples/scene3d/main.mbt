@@ -57,8 +57,8 @@ fn scene3d_state() -> Scene3dState {
 }
 
 ///|
-fn spawn_scene3d_entity() -> @ecs.Entity {
-  let entity = @ecs.Entity()
+fn[T : @ecs.Bundle] spawn_scene3d_entity(values : T) -> @ecs.Entity {
+  let entity = @ecs.require_current_world().spawn(values)
   scene3d_state().entities.push(entity)
   entity
 }
@@ -95,18 +95,11 @@ fn ccd_marker() -> @physics3d.Ccd {
 }
 
 ///|
-fn update_transform(
-  entity : @ecs.Entity,
-  transform : @transform.Transform,
-) -> Unit {
-  @transform.transforms().set(entity, transform)
-}
-
-///|
-fn spawn_sphere(
+fn[T : @ecs.Bundle] spawn_sphere(
   radius : Double,
   translation : @math.Vec3,
   base_color : @render.Color,
+  components : T,
 ) -> @ecs.Entity {
   let mesh = @render3d.register_mesh_asset(@render3d.sphere_mesh(radius))
   let material = @render3d.register_material_asset({
@@ -114,19 +107,30 @@ fn spawn_sphere(
     base_color,
     roughness: 0.3,
   })
-  let entity = spawn_scene3d_entity()
-  update_transform(entity, {
-    translation,
-    rotation: @math.Quat::identity(),
-    scale: @math.Vec3::one(),
-  })
-  @render3d.mesh3d_renderers().set(entity, {
-    mesh,
-    material,
-    visible: true,
-    cast_shadows: true,
-    receive_shadows: true,
-  })
+  let world = @ecs.require_current_world()
+  let plan : @ecs.SpawnPlan[(@transform.Transform, @render3d.Mesh3DRenderer)] = world.prepare_spawn()
+  let entity = plan
+    .combine(world.prepare_spawn())
+    .spawn(
+      (
+        (
+          @transform.Transform::{
+            translation,
+            rotation: @math.Quat::identity(),
+            scale: @math.Vec3::one(),
+          },
+          @render3d.Mesh3DRenderer::{
+            mesh,
+            material,
+            visible: true,
+            cast_shadows: true,
+            receive_shadows: true,
+          },
+        ),
+        components,
+      ),
+    )
+  scene3d_state().entities.push(entity)
   entity
 }
 
@@ -255,16 +259,21 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
   let state = Scene3dState()
   world.insert_resource(state)
   configure_scene3d_input()
-  let camera = spawn_scene3d_entity()
-  @transform.transforms().set(camera, {
-    translation: vec3(0.0, 1.5, 8.0),
-    rotation: @math.Quat::identity(),
-    scale: @math.Vec3::one(),
-  })
-  @camera3d.cameras3d().set(camera, {
-    ..@camera3d.Camera3DComponent(),
-    clear_color: color(20U, 20U, 24U, 1.0),
-  })
+  ignore(
+    spawn_scene3d_entity(
+      (
+        @transform.Transform::{
+          translation: vec3(0.0, 1.5, 8.0),
+          rotation: @math.Quat::identity(),
+          scale: @math.Vec3::one(),
+        },
+        @camera3d.Camera3DComponent::{
+          ..@camera3d.Camera3DComponent(),
+          clear_color: color(20U, 20U, 24U, 1.0),
+        },
+      ),
+    ),
+  )
 
   let scene = @scene.load_scene_gltf("assets/scene3d/scene3d.gltf")
   state.entities.push(
@@ -279,22 +288,24 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
     base_color: color(96U, 104U, 110U, 1.0),
     roughness: 0.9,
   })
-  let floor = spawn_scene3d_entity()
-  @transform.transforms().set(floor, {
-    translation: vec3(0.0, -0.01, 0.0),
-    rotation: @math.Quat::identity(),
-    scale: @math.Vec3::one(),
-  })
-  @render3d.mesh3d_renderers().set(floor, {
-    mesh: floor_mesh,
-    material: floor_material,
-    visible: true,
-    cast_shadows: false,
-    receive_shadows: true,
-  })
-  @physics3d.colliders().set(
-    floor,
-    @physics3d.Collider::cuboid(vec3(5.0, 0.02, 5.0)),
+  ignore(
+    spawn_scene3d_entity(
+      (
+        @transform.Transform::{
+          translation: vec3(0.0, -0.01, 0.0),
+          rotation: @math.Quat::identity(),
+          scale: @math.Vec3::one(),
+        },
+        @render3d.Mesh3DRenderer::{
+          mesh: floor_mesh,
+          material: floor_material,
+          visible: true,
+          cast_shadows: false,
+          receive_shadows: true,
+        },
+        @physics3d.Collider::cuboid(vec3(5.0, 0.02, 5.0)),
+      ),
+    ),
   )
 
   let cube_mesh = @render3d.register_mesh_asset(lit_cube_mesh(1.0))
@@ -304,19 +315,22 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
     roughness: 0.25,
   })
 
-  let cube = spawn_scene3d_entity()
-  @transform.transforms().set(cube, {
-    translation: vec3(0.0, 0.5, 0.0),
-    rotation: @math.Quat::identity(),
-    scale: @math.Vec3::one(),
-  })
-  @render3d.mesh3d_renderers().set(cube, {
-    mesh: cube_mesh,
-    material: cube_material,
-    visible: true,
-    cast_shadows: true,
-    receive_shadows: true,
-  })
+  let cube = spawn_scene3d_entity(
+    (
+      @transform.Transform::{
+        translation: vec3(0.0, 0.5, 0.0),
+        rotation: @math.Quat::identity(),
+        scale: @math.Vec3::one(),
+      },
+      @render3d.Mesh3DRenderer::{
+        mesh: cube_mesh,
+        material: cube_material,
+        visible: true,
+        cast_shadows: true,
+        receive_shadows: true,
+      },
+    ),
+  )
   state.rotating_cube = Some(cube)
 
   let target_mesh = @render3d.register_mesh_asset(@render3d.sphere_mesh(0.45))
@@ -325,19 +339,24 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
     base_color: color(244U, 199U, 124U, 1.0),
     roughness: 0.25,
   })
-  let target = spawn_scene3d_entity()
-  @transform.transforms().set(target, {
-    translation: vec3(1.35, 1.55, -0.75),
-    rotation: @math.Quat::identity(),
-    scale: @math.Vec3::one(),
-  })
-  @render3d.mesh3d_renderers().set(target, {
-    mesh: target_mesh,
-    material: target_material,
-    visible: true,
-    cast_shadows: true,
-    receive_shadows: true,
-  })
+  ignore(
+    spawn_scene3d_entity(
+      (
+        @transform.Transform::{
+          translation: vec3(1.35, 1.55, -0.75),
+          rotation: @math.Quat::identity(),
+          scale: @math.Vec3::one(),
+        },
+        @render3d.Mesh3DRenderer::{
+          mesh: target_mesh,
+          material: target_material,
+          visible: true,
+          cast_shadows: true,
+          receive_shadows: true,
+        },
+      ),
+    ),
+  )
 
   let shadow_wall_mesh = @render3d.register_mesh_asset(
     @render3d.cube_mesh(vec3(8.0, 3.2, 0.16)),
@@ -347,57 +366,63 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
     base_color: color(86U, 96U, 112U, 1.0),
     roughness: 0.82,
   })
-  let shadow_wall = spawn_scene3d_entity()
-  @transform.transforms().set(shadow_wall, {
-    translation: vec3(0.0, 1.6, -2.9),
-    rotation: @math.Quat::identity(),
-    scale: @math.Vec3::one(),
-  })
-  @render3d.mesh3d_renderers().set(shadow_wall, {
-    mesh: shadow_wall_mesh,
-    material: shadow_wall_material,
-    visible: true,
-    cast_shadows: false,
-    receive_shadows: true,
-  })
+  ignore(
+    spawn_scene3d_entity(
+      (
+        @transform.Transform::{
+          translation: vec3(0.0, 1.6, -2.9),
+          rotation: @math.Quat::identity(),
+          scale: @math.Vec3::one(),
+        },
+        @render3d.Mesh3DRenderer::{
+          mesh: shadow_wall_mesh,
+          material: shadow_wall_material,
+          visible: true,
+          cast_shadows: false,
+          receive_shadows: true,
+        },
+      ),
+    ),
+  )
 
-  let off_axis_cube = spawn_scene3d_entity()
-  @transform.transforms().set(off_axis_cube, {
-    translation: vec3(-2.2, 0.5, 1.8),
-    rotation: @math.Quat::from_axis_angle(vec3(0.0, 1.0, 0.0), 0.45),
-    scale: vec3(0.7, 0.7, 0.7),
-  })
-  @render3d.mesh3d_renderers().set(off_axis_cube, {
-    mesh: cube_mesh,
-    material: @render3d.register_material_asset({
-      ..@render3d.StandardMaterial3D(),
-      base_color: color(118U, 168U, 240U, 1.0),
-      roughness: 0.6,
-    }),
-    visible: true,
-    cast_shadows: true,
-    receive_shadows: true,
-  })
+  ignore(
+    spawn_scene3d_entity(
+      (
+        @transform.Transform::{
+          translation: vec3(-2.2, 0.5, 1.8),
+          rotation: @math.Quat::from_axis_angle(vec3(0.0, 1.0, 0.0), 0.45),
+          scale: vec3(0.7, 0.7, 0.7),
+        },
+        @render3d.Mesh3DRenderer::{
+          mesh: cube_mesh,
+          material: @render3d.register_material_asset({
+            ..@render3d.StandardMaterial3D(),
+            base_color: color(118U, 168U, 240U, 1.0),
+            roughness: 0.6,
+          }),
+          visible: true,
+          cast_shadows: true,
+          receive_shadows: true,
+        },
+      ),
+    ),
+  )
 
   let dynamic_ball = spawn_sphere(
     0.35,
     vec3(-0.8, 2.7, 1.2),
     color(224U, 123U, 94U, 1.0),
-  )
-  @physics3d.rigid_bodies().set(dynamic_ball, Dynamic)
-  @physics3d.colliders().set(dynamic_ball, @physics3d.Collider::ball(0.35))
-  @physics3d.velocities().set(dynamic_ball, {
-    linvel: vec3(0.2, 0.0, -0.1),
-    angvel: vec3(0.0, 0.0, 0.0),
-  })
-  @physics3d.dampings().set(dynamic_ball, {
-    linear_damping: 1.8,
-    angular_damping: 1.2,
-  })
-  @physics3d.ccds().set(dynamic_ball, ccd_marker())
-  @physics3d.contact_force_event_thresholds().set(
-    dynamic_ball,
-    ContactForceEventThreshold(0.0),
+    (
+      (Dynamic : @physics3d.RigidBody),
+      @physics3d.Collider::ball(0.35),
+      @physics3d.Velocity::{
+        linvel: vec3(0.2, 0.0, -0.1),
+        angvel: vec3(0.0, 0.0, 0.0),
+      },
+      @physics3d.Damping::{ linear_damping: 1.8, angular_damping: 1.2, },
+      (ccd_marker() : @physics3d.Ccd),
+      @physics3d.ContactForceEventThreshold(0.0),
+    ),
   )
   @physics3d.active_events().set(
     dynamic_ball,
@@ -407,110 +432,114 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
   )
   state.dynamic_ball_entity = Some(dynamic_ball)
 
-  let compound_body = spawn_scene3d_entity()
-  update_transform(compound_body, {
-    translation: vec3(-3.0, 0.45, -0.8),
-    rotation: @math.Quat::identity(),
-    scale: @math.Vec3::one(),
-  })
-  @render3d.mesh3d_renderers().set(compound_body, {
-    mesh: cube_mesh,
-    material: @render3d.register_material_asset({
-      ..@render3d.StandardMaterial3D(),
-      base_color: color(122U, 199U, 156U, 1.0),
-      roughness: 0.5,
-    }),
-    visible: true,
-    cast_shadows: true,
-    receive_shadows: true,
-  })
-  @physics3d.rigid_bodies().set(compound_body, Fixed)
-  @physics3d.colliders().set(
-    compound_body,
-    @physics3d.Collider::cuboid(vec3(0.35, 0.35, 0.35)),
+  let compound_body = spawn_scene3d_entity(
+    (
+      @transform.Transform::{
+        translation: vec3(-3.0, 0.45, -0.8),
+        rotation: @math.Quat::identity(),
+        scale: @math.Vec3::one(),
+      },
+      @render3d.Mesh3DRenderer::{
+        mesh: cube_mesh,
+        material: @render3d.register_material_asset({
+          ..@render3d.StandardMaterial3D(),
+          base_color: color(122U, 199U, 156U, 1.0),
+          roughness: 0.5,
+        }),
+        visible: true,
+        cast_shadows: true,
+        receive_shadows: true,
+      },
+      (Fixed : @physics3d.RigidBody),
+      @physics3d.Collider::cuboid(vec3(0.35, 0.35, 0.35)),
+    ),
   )
 
-  let child_collider = compound_body.spawn_child()
-  update_transform(child_collider, {
-    translation: vec3(0.0, 0.75, 0.0),
-    rotation: @math.Quat::identity(),
-    scale: @math.Vec3::one(),
-  })
-  @render3d.mesh3d_renderers().set(child_collider, {
-    mesh: @render3d.register_mesh_asset(@render3d.sphere_mesh(0.22)),
-    material: @render3d.register_material_asset({
-      ..@render3d.StandardMaterial3D(),
-      base_color: color(178U, 240U, 212U, 1.0),
-      roughness: 0.3,
-    }),
-    visible: true,
-    cast_shadows: true,
-    receive_shadows: true,
-  })
-  @physics3d.colliders().set(child_collider, @physics3d.Collider::ball(0.22))
+  let child_collider = world.spawn(
+    (
+      @transform.Transform::{
+        translation: vec3(0.0, 0.75, 0.0),
+        rotation: @math.Quat::identity(),
+        scale: @math.Vec3::one(),
+      },
+      @render3d.Mesh3DRenderer::{
+        mesh: @render3d.register_mesh_asset(@render3d.sphere_mesh(0.22)),
+        material: @render3d.register_material_asset({
+          ..@render3d.StandardMaterial3D(),
+          base_color: color(178U, 240U, 212U, 1.0),
+          roughness: 0.3,
+        }),
+        visible: true,
+        cast_shadows: true,
+        receive_shadows: true,
+      },
+      @physics3d.Collider::ball(0.22),
+    ),
+  )
+  child_collider.set_parent(compound_body)
 
   let joint_anchor = spawn_sphere(
     0.14,
     vec3(3.25, 2.7, 1.2),
     color(245U, 245U, 245U, 1.0),
+    ((Fixed : @physics3d.RigidBody), @physics3d.Collider::ball(0.14)),
   )
-  @physics3d.rigid_bodies().set(joint_anchor, Fixed)
-  @physics3d.colliders().set(joint_anchor, @physics3d.Collider::ball(0.14))
 
   let joint_ball = spawn_sphere(
     0.28,
     vec3(3.8, 1.5, 1.2),
     color(234U, 196U, 102U, 1.0),
+    (
+      (Dynamic : @physics3d.RigidBody),
+      @physics3d.Collider::ball(0.28),
+      @physics3d.Damping::{ linear_damping: 2.2, angular_damping: 1.6, },
+      (ccd_marker() : @physics3d.Ccd),
+      @physics3d.ImpulseJoint::{
+        parent: joint_anchor,
+        data: Spherical({
+          ..SphericalJoint(),
+          local_anchor1: vec3(-0.55, 1.2, 0.0),
+          local_anchor2: vec3(0.0, 0.0, 0.0),
+        }),
+        contacts_enabled: false,
+      },
+    ),
   )
-  @physics3d.rigid_bodies().set(joint_ball, Dynamic)
-  @physics3d.colliders().set(joint_ball, @physics3d.Collider::ball(0.28))
-  @physics3d.dampings().set(joint_ball, {
-    linear_damping: 2.2,
-    angular_damping: 1.6,
-  })
-  @physics3d.ccds().set(joint_ball, ccd_marker())
-  @physics3d.impulse_joints().set(joint_ball, {
-    parent: joint_anchor,
-    data: Spherical({
-      ..SphericalJoint(),
-      local_anchor1: vec3(-0.55, 1.2, 0.0),
-      local_anchor2: vec3(0.0, 0.0, 0.0),
-    }),
-    contacts_enabled: false,
-  })
   state.joint_ball_entity = Some(joint_ball)
 
   let controller = spawn_sphere(
     0.3,
     vec3(0.0, 0.35, -2.1),
     color(110U, 182U, 255U, 1.0),
-  )
-  @physics3d.rigid_bodies().set(controller, KinematicPositionBased)
-  @physics3d.colliders().set(controller, @physics3d.Collider::ball(0.3))
-  @physics3d.kinematic_character_controllers().set(
-    controller,
-    @physics3d.KinematicCharacterController(),
+    (
+      (KinematicPositionBased : @physics3d.RigidBody),
+      @physics3d.Collider::ball(0.3),
+      @physics3d.KinematicCharacterController(),
+    ),
   )
   state.controller_entity = Some(controller)
 
-  let spotlight = spawn_scene3d_entity()
-  @transform.transforms().set(spotlight, {
-    translation: vec3(3.2, 3.0, 0.0),
-    rotation: @math.Quat::identity(),
-    scale: @math.Vec3::one(),
-  })
-  @render3d.spot_lights3d().set(spotlight, {
-    ..@render3d.SpotLight3D(),
-    direction: vec3(-1.0, -1.2, 0.0).normalize(),
-    color: color(255U, 236U, 186U, 1.0),
-    intensity: 8.0,
-    range: 11.0,
-    shadows: true,
-    shadow_depth_bias: 0.001,
-    shadow_normal_bias: 0.15,
-    inner_angle: 0.28,
-    outer_angle: 0.72,
-  })
+  let spotlight = spawn_scene3d_entity(
+    (
+      @transform.Transform::{
+        translation: vec3(3.2, 3.0, 0.0),
+        rotation: @math.Quat::identity(),
+        scale: @math.Vec3::one(),
+      },
+      @render3d.SpotLight3D::{
+        ..@render3d.SpotLight3D(),
+        direction: vec3(-1.0, -1.2, 0.0).normalize(),
+        color: color(255U, 236U, 186U, 1.0),
+        intensity: 8.0,
+        range: 11.0,
+        shadows: true,
+        shadow_depth_bias: 0.001,
+        shadow_normal_bias: 0.15,
+        inner_angle: 0.28,
+        outer_angle: 0.72,
+      },
+    ),
+  )
   state.spotlight_entity = Some(spotlight)
 
   let spotlight_marker_mesh = @render3d.register_mesh_asset(
@@ -521,57 +550,60 @@ fn setup_scene3d(world : @ecs.World) -> Unit {
     base_color: color(255U, 236U, 186U, 1.0),
     roughness: 0.05,
   })
-  let spotlight_marker = spotlight.spawn_child()
-  @transform.transforms().set(
-    spotlight_marker,
-    @transform.Transform::identity(),
+  let spotlight_marker = world.spawn(
+    (
+      @transform.Transform::identity(),
+      @render3d.Mesh3DRenderer::{
+        mesh: spotlight_marker_mesh,
+        material: spotlight_marker_material,
+        visible: true,
+        cast_shadows: false,
+        receive_shadows: false,
+      },
+    ),
   )
-  @render3d.mesh3d_renderers().set(spotlight_marker, {
-    mesh: spotlight_marker_mesh,
-    material: spotlight_marker_material,
-    visible: true,
-    cast_shadows: false,
-    receive_shadows: false,
-  })
+  spotlight_marker.set_parent(spotlight)
 
-  let dir_light = spawn_scene3d_entity()
-  @render3d.directional_lights3d().set(dir_light, {
-    ..@render3d.DirectionalLight3D(),
-    direction: vec3(-0.72, -1.0, -0.42).normalize(),
-    color: color(255U, 255U, 255U, 1.0),
-    intensity: 1.15,
-    shadows: true,
-    shadow_depth_bias: 0.001,
-    shadow_normal_bias: 0.15,
-  })
+  ignore(
+    spawn_scene3d_entity(
+      @ecs.Single(@render3d.DirectionalLight3D::{
+        ..@render3d.DirectionalLight3D(),
+        direction: vec3(-0.72, -1.0, -0.42).normalize(),
+        color: color(255U, 255U, 255U, 1.0),
+        intensity: 1.15,
+        shadows: true,
+        shadow_depth_bias: 0.001,
+        shadow_normal_bias: 0.15,
+      }),
+    ),
+  )
   @render3d.set_ambient_light3d(
     Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.03, }),
   )
 
-  let label = spawn_scene3d_entity()
-  @ui.nodes().set(
-    label,
-    @ui.Node::absolute(Vec2(16.0, 16.0), size=Vec2(420.0, 28.0)),
-  )
-  @ui.texts().set(label, Text("3d_scene: WebGPU directional + spot shadows"))
-  @ui.text_fonts().set(label, TextFont(family="sans-serif", size=20.0))
-  @ui.text_colors().set(label, TextColor(color(245U, 245U, 245U, 1.0)))
-  @ui.z_indexes().set(label, ZIndex(100))
-
-  let physics_text = spawn_scene3d_entity()
-  @ui.nodes().set(
-    physics_text,
-    @ui.Node::absolute(Vec2(16.0, 46.0), size=Vec2(620.0, 28.0)),
-  )
-  @ui.texts().set(
-    physics_text,
-    Text(
-      "physics: ball, child collider, joint, controller, raycast, contact force",
+  ignore(
+    spawn_scene3d_entity(
+      (
+        @ui.Node::absolute(Vec2(16.0, 16.0), size=Vec2(420.0, 28.0)),
+        @ui.Text("3d_scene: WebGPU directional + spot shadows"),
+        @ui.TextFont(family="sans-serif", size=20.0),
+        @ui.TextColor(color(245U, 245U, 245U, 1.0)),
+        @ui.ZIndex(100),
+      ),
     ),
   )
-  @ui.text_fonts().set(physics_text, TextFont(family="sans-serif", size=18.0))
-  @ui.text_colors().set(physics_text, TextColor(color(214U, 224U, 235U, 1.0)))
-  @ui.z_indexes().set(physics_text, ZIndex(100))
+
+  let physics_text = spawn_scene3d_entity(
+    (
+      @ui.Node::absolute(Vec2(16.0, 46.0), size=Vec2(620.0, 28.0)),
+      @ui.Text(
+        "physics: ball, child collider, joint, controller, raycast, contact force",
+      ),
+      @ui.TextFont(family="sans-serif", size=18.0),
+      @ui.TextColor(color(214U, 224U, 235U, 1.0)),
+      @ui.ZIndex(100),
+    ),
+  )
   state.physics_label = Some(physics_text)
 }
 

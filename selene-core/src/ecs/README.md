@@ -64,6 +64,36 @@ When two columns use the same value type, declare separate
 `@ecs.ComponentKey[T]` values with `ComponentKey()`. The key provides
 `get(entity)`, `set(entity, value)`, `store()`, and `store_in(world)`.
 
+## Spawning entities
+
+Pass `@ecs.Single(value)` for one component, a flat tuple of two to eight
+components, or `()` for an empty entity. The World places the initial
+components in the final archetype together.
+
+```moonbit
+let position : Position = { x: 3.0, y: 4.0 }
+let velocity : Velocity = { x: 0.0, y: 0.0 }
+let marker = world.spawn(@ecs.Single(position))
+let player = world.spawn((position, velocity))
+let empty = world.spawn(())
+```
+
+Use `commands.spawn(values)` during a query. The returned entity is pending
+until the scheduler applies the queued spawn and activates it. Subsequent
+commands can target the pending handle.
+
+For repeated spawns, prepare the layout once in its owning World.
+
+```moonbit
+let players : @ecs.SpawnPlan[(Position, Velocity)] = world.prepare_spawn()
+let player = players.spawn((position, velocity))
+let pending = commands.spawn_prepared(players, (position, velocity))
+```
+
+Use `SpawnPlan::combine` to join plans for larger groups. For explicitly
+selected columns, start with `store.spawn_plan(world)`. A plan belongs to
+a single World and each component column may occur only once.
+
 ## Multi-component queries
 
 Use `Query2`, `Query3`, `Query4`, or `Query5` with stores from the same World.

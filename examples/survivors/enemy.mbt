@@ -265,23 +265,10 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
     // Try to select an enemy type for the current wave
     match select_enemy_type_for_wave(rand) {
       Some(enemy_type) => {
-        let enemy = spawn_survivors_entity()
         let pos = spawners[rand.int(limit=spawners.length())]
-        @transform.transforms().set(
-          enemy,
-          @transform.Transform::from_xyz(
-            pos[X],
-            pos[Y],
-            ENEMY_ZINDEX.to_double(),
-          ),
-        )
-        @physics2d.linear_velocities().set(enemy, @math.Vec2::zero())
         let data = get_enemy_data(enemy_type)
-        let (left_node, right_node) = create_enemy_animation_nodes(enemy, data)
-
-        // Create sprite and enemy state using data structure
-        let sprite = sprite_animation_sprite(data.right_animation)
-        let enemy_state = {
+        let (left_node, right_node, graph) = create_enemy_animation_nodes(data)
+        let enemy_state : Enemy = {
           enemy_type,
           speed: data.speed,
           health: data.health,
@@ -290,20 +277,39 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
           right_node,
           current_node: None,
         }
-        @sprite.sprites().set(enemy, sprite)
-        @physics2d.shapes().set(
-          enemy,
-          Rect(size=Vec2(8.0, 8.0), offset=Vec2(-4.0, -4.0)),
+        let shape : @physics2d.ColliderShape = Rect(
+          size=Vec2(8.0, 8.0),
+          offset=Vec2(-4.0, -4.0),
         )
-        @physics2d.colliders().set(
-          enemy,
-          @physics2d.Collider(
-            @physics2d.CollisionFilter(enemy_collision_group, [
-              enemy_collision_group, wall_collision_group,
-            ]),
+        let runtime = survivors_runtime()
+        let enemy = runtime.enemy_plan.spawn(
+          (
+            (
+              @transform.Transform::from_xyz(
+                pos[X],
+                pos[Y],
+                ENEMY_ZINDEX.to_double(),
+              ),
+              @physics2d.Velocity(@math.Vec2::zero()),
+              sprite_animation_sprite(data.right_animation),
+              shape,
+              @physics2d.Collider(
+                @physics2d.CollisionFilter(enemy_collision_group, [
+                  enemy_collision_group, wall_collision_group,
+                ]),
+              ),
+              enemy_state,
+            ),
+            (
+              graph,
+              @animation.AnimationPlayer(),
+              @animation.AnimationTransitions(),
+              @animation.AnimationTargetId("self"),
+            ),
           ),
         )
-        enemies().set(enemy, enemy_state)
+        runtime.entities.push(enemy)
+        @animation.animated_bys().set(enemy, @animation.AnimatedBy(enemy))
         play_enemy_animation_state(
           enemy,
           enemy_state,
@@ -350,18 +356,16 @@ fn enemies() -> @ecs.ComponentStore[Enemy] {
 
 ///|
 fn create_enemy_animation_nodes(
-  entity : @ecs.Entity,
   data : EnemyData,
-) -> (@animation.AnimationNodeIndex, @animation.AnimationNodeIndex) {
+) -> (
+  @animation.AnimationNodeIndex,
+  @animation.AnimationNodeIndex,
+  @animation.AnimationGraphHandle,
+) {
   let graph = @animation.AnimationGraph()
   let right_node = register_sprite_animation_node(graph, data.right_animation)
   let left_node = register_sprite_animation_node(graph, data.left_animation)
-  ensure_sprite_animation_binding(entity)
-  @animation.animation_graph_handles().set(
-    entity,
-    @animation.register_animation_graph_asset(graph),
-  )
-  (left_node, right_node)
+  (left_node, right_node, @animation.register_animation_graph_asset(graph))
 }
 
 ///|
@@ -530,36 +534,68 @@ fn devil_shooting_system(_world : @ecs.World) -> Unit {
 }
 
 ///|
+type EnemySpawnPlan = @ecs.SpawnPlan[
+  (
+    (
+      @transform.Transform,
+      @physics2d.Velocity,
+      @sprite.Sprite,
+      @physics2d.ColliderShape,
+      @physics2d.Collider,
+      Enemy,
+    ),
+    (
+      @animation.AnimationGraphHandle,
+      @animation.AnimationPlayer,
+      @animation.AnimationTransitions,
+      @animation.AnimationTargetId,
+    ),
+  ),
+]
+
+///|
+type EnemyBulletSpawnPlan = @ecs.SpawnPlan[
+  (
+    @sprite.Sprite,
+    @transform.Transform,
+    @physics2d.Velocity,
+    @physics2d.ColliderShape,
+    @physics2d.Area,
+  ),
+]
+
+///|
 fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
   let runtime = survivors_runtime()
-  let bullet_entity = spawn_survivors_entity()
-  @sprite.sprites().set(
-    bullet_entity,
-    Sprite(
-      color=@sprite.color_from_css("red"),
-      custom_size=Some(Vec2(4.0, 4.0)),
-    ),
+  let velocity = @physics2d.Velocity(
+    (player_pos - enemy_pos).normalize().scalar_mul(120.0),
   )
-  @transform.transforms().set(
-    bullet_entity,
-    @transform.Transform::from_xyz(
-      enemy_pos[X],
-      enemy_pos[Y],
-      BULLET_ZINDEX.to_double(),
-    ),
-  )
-  let vel = (player_pos - enemy_pos).normalize().scalar_mul(120.0)
-  @physics2d.linear_velocities().set(bullet_entity, vel)
-  @physics2d.shapes().set(
-    bullet_entity,
-    Rect(size=Vec2(4.0, 4.0), offset=Vec2(-2.0, -2.0)),
+  let shape : @physics2d.ColliderShape = Rect(
+    size=Vec2(4.0, 4.0),
+    offset=Vec2(-2.0, -2.0),
   )
   let area = @physics2d.Area(
     @physics2d.CollisionFilter(enemybullet_collision_group, [
       player_collision_group, wall_collision_group,
     ]),
   )
-  @physics2d.areas().set(bullet_entity, area)
+  let bullet_entity = runtime.enemy_bullet_plan.spawn(
+    (
+      @sprite.Sprite(
+        color=@sprite.color_from_css("red"),
+        custom_size=Some(Vec2(4.0, 4.0)),
+      ),
+      @transform.Transform::from_xyz(
+        enemy_pos[X],
+        enemy_pos[Y],
+        BULLET_ZINDEX.to_double(),
+      ),
+      velocity,
+      shape,
+      area,
+    ),
+  )
+  runtime.entities.push(bullet_entity)
   runtime.enemy_bullets.add(bullet_entity)
   survivors_timeout(5.0, fn() {
     bullet_entity.destroy()

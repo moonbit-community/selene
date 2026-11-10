@@ -16,7 +16,7 @@ fn transform_test_global_translation(entity : @ecs.Entity) -> String {
 
 ///|
 test "compute_global_transform follows parent hierarchy" {
-  let parent = @ecs.Entity()
+  let parent = @ecs.require_current_world().spawn(())
   let child = parent.spawn_child()
   defer parent.destroy()
   defer child.destroy()
@@ -33,8 +33,8 @@ test "compute_global_transform follows parent hierarchy" {
 
 ///|
 test "set_parent_in_place preserves global transform" {
-  let parent_a = @ecs.Entity()
-  let parent_b = @ecs.Entity()
+  let parent_a = @ecs.require_current_world().spawn(())
+  let parent_b = @ecs.require_current_world().spawn(())
   defer parent_a.destroy()
   defer parent_b.destroy()
 
@@ -56,7 +56,7 @@ test "set_parent_in_place preserves global transform" {
 
 ///|
 test "remove_parent_in_place preserves global transform" {
-  let parent = @ecs.Entity()
+  let parent = @ecs.require_current_world().spawn(())
   defer parent.destroy()
   transforms().set(parent, Transform::from_xyz(10.0, 0.0, 0.0))
 
@@ -75,7 +75,7 @@ test "remove_parent_in_place preserves global transform" {
 
 ///|
 test "transform propagation updates existing rows and prunes despawned globals" {
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   transforms().set(entity, Transform::from_xyz(1.0, 0.0, 0.0))
   transform_propagate_system(0.0)
   assert_eq(transform_test_global_translation(entity), "1,0,0")

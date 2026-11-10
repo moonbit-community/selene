@@ -10,7 +10,7 @@ test "audio cleanup stops deleted loops only in the active World" {
   let first = @ecs.World()
   @ecs.set_current_world(first)
   let direct = spawn_audio(clip, settings~)
-  let parent = @ecs.Entity()
+  let parent = @ecs.require_current_world().spawn(())
   let child = parent.spawn_child()
   attach_audio(child, AudioPlayer(clip), settings~)
   audio_playback_system(0.0)

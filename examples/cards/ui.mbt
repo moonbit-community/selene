@@ -74,8 +74,7 @@ fn set_display(entity : @ecs.Entity, display : @ui.Display) -> Unit {
 }
 
 ///|
-fn configure_text(
-  entity : @ecs.Entity,
+fn spawn_text(
   offset : @math.Vec2,
   content : String,
   color : String,
@@ -84,163 +83,52 @@ fn configure_text(
   align~ : @math.HAlign = Left,
   baseline~ : @math.VAlign = Top,
   zindex~ : Int32 = HUD_ZINDEX,
-) -> Unit {
-  @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
-  @ui.z_indexes().set(entity, ZIndex(zindex))
-  set_text(entity, content)
-  @ui.text_fonts().set(entity, @ui.TextFont::from_css(font))
-  @ui.text_colors().set(entity, @ui.TextColor::from_css(color))
-  @ui.text_layouts().set(entity, TextLayout(align~, baseline~))
+) -> @ecs.Entity {
+  spawn_cards_entity(
+    (
+      @ui.Node::absolute(offset, size~),
+      @ui.ZIndex(zindex),
+      @ui.Text(content),
+      @ui.TextFont::from_css(font),
+      @ui.TextColor::from_css(color),
+      @ui.TextLayout(align~, baseline~),
+    ),
+  )
 }
 
 ///|
-fn configure_button(
-  entity : @ecs.Entity,
+fn spawn_button(
   offset : @math.Vec2,
   size : @math.Vec2,
   background : String,
   tab_index : Int32,
-) -> Unit {
-  @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
-  @ui.z_indexes().set(entity, ZIndex(BUTTON_ZINDEX))
-  @ui.background_colors().set(entity, @ui.BackgroundColor::from_css(background))
-  @ui.border_radii().set(entity, @ui.BorderRadius::all(@ui.Val::px(6.0)))
-  @ui.buttons().set(entity, Button())
-  @ui.tab_indexes().set(entity, TabIndex(tab_index))
+) -> @ecs.Entity {
+  spawn_cards_entity(
+    (
+      @ui.Node::absolute(offset, size~),
+      @ui.ZIndex(BUTTON_ZINDEX),
+      @ui.BackgroundColor::from_css(background),
+      @ui.BorderRadius::all(@ui.Val::px(6.0)),
+      @ui.Button(),
+      @ui.TabIndex(tab_index),
+    ),
+  )
 }
 
 ///|
 /// Setup UI elements
 fn setup_ui() -> Unit {
-  let game = game_state()
-  let table_entity = spawn_cards_entity()
-  @transform.transforms().set(
-    table_entity,
-    @transform.Transform::from_xyz(0.0, 0.0, 0.0),
-  )
-  @sprite.sprites().set(
-    table_entity,
-    Sprite(
-      color=@sprite.color_from_css("#2d5016"),
-      custom_size=Some(Vec2(VIEWPORT_WIDTH, VIEWPORT_HEIGHT)),
-      anchor=Anchor(Vec2(-0.5, 0.5)),
+  ignore(
+    spawn_cards_entity(
+      (
+        @transform.Transform::from_xyz(0.0, 0.0, 0.0),
+        @sprite.Sprite(
+          color=@sprite.color_from_css("#2d5016"),
+          custom_size=Some(Vec2(VIEWPORT_WIDTH, VIEWPORT_HEIGHT)),
+          anchor=Anchor(Vec2(-0.5, 0.5)),
+        ),
+      ),
     ),
-  )
-
-  configure_text(
-    game.blind_label,
-    Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, 20.0),
-    "Blind: $20",
-    "gold",
-    "20px ThaleahFat",
-    size=Vec2(160.0, 24.0),
-    align=Center,
-  )
-  configure_text(
-    game.chips_label,
-    Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, 42.0),
-    "Chips: $1000",
-    "lightgreen",
-    "18px ThaleahFat",
-    size=Vec2(160.0, 22.0),
-    align=Center,
-  )
-  configure_text(
-    game.phase_label,
-    Vec2(20.0, 20.0),
-    "Pre-Flop",
-    "white",
-    "18px ThaleahFat",
-  )
-  configure_text(
-    game.turns_label,
-    Vec2(VIEWPORT_WIDTH - 110.0, 20.0),
-    "Turns: 10/10",
-    "white",
-    "18px ThaleahFat",
-    size=Vec2(90.0, 22.0),
-    align=Right,
-  )
-  configure_text(
-    game.hand_strength_label,
-    Vec2(VIEWPORT_WIDTH / 2.0 - 100.0, VIEWPORT_HEIGHT / 2.0 - 82.0),
-    "",
-    "cyan",
-    "16px ThaleahFat",
-    size=Vec2(200.0, 20.0),
-    align=Center,
-  )
-  configure_text(
-    game.action_label,
-    Vec2(VIEWPORT_WIDTH / 2.0 - 110.0, VIEWPORT_HEIGHT - 64.0),
-    "",
-    "yellow",
-    "16px ThaleahFat",
-    size=Vec2(220.0, 20.0),
-    align=Center,
-  )
-
-  create_action_buttons()
-}
-
-///|
-/// Create action buttons for player
-fn create_action_buttons() -> Unit {
-  let game = game_state()
-  let button_y = VIEWPORT_HEIGHT - 35.0
-  let button_width = 70.0
-  let button_height = 25.0
-  let button_size = @math.Vec2(button_width, button_height)
-  let fold_offset = @math.Vec2(
-    VIEWPORT_WIDTH / 2.0 - 85.0 - button_width / 2.0,
-    button_y,
-  )
-  let call_offset = @math.Vec2(
-    VIEWPORT_WIDTH / 2.0 - button_width / 2.0,
-    button_y,
-  )
-  let raise_offset = @math.Vec2(
-    VIEWPORT_WIDTH / 2.0 + 85.0 - button_width / 2.0,
-    button_y,
-  )
-
-  configure_button(game.fold_button, fold_offset, button_size, "#cc0000", 0)
-  configure_text(
-    game.fold_button_label,
-    fold_offset,
-    "Fold",
-    "white",
-    "16px ThaleahFat",
-    size=button_size,
-    align=Center,
-    baseline=Center,
-    zindex=BUTTON_LABEL_ZINDEX,
-  )
-
-  configure_button(game.call_button, call_offset, button_size, "#00aa00", 1)
-  configure_text(
-    game.call_button_label,
-    call_offset,
-    "Call",
-    "white",
-    "16px ThaleahFat",
-    size=button_size,
-    align=Center,
-    baseline=Center,
-    zindex=BUTTON_LABEL_ZINDEX,
-  )
-
-  configure_button(game.raise_button, raise_offset, button_size, "#0066cc", 2)
-  configure_text(
-    game.raise_button_label,
-    raise_offset,
-    "Raise",
-    "white",
-    "16px ThaleahFat",
-    size=button_size,
-    align=Center,
-    baseline=Center,
-    zindex=BUTTON_LABEL_ZINDEX,
   )
 
   hide_action_buttons()
@@ -440,14 +328,16 @@ fn display_all_cards() -> Unit {
   let x_base = pos.0
   let y_base = pos.1 - 40.0
 
+  let plan : @ecs.SpawnPlan[(@transform.Transform, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
   for j, card in player.hole_cards {
     let card_x = x_base + (j.to_double() - 0.5) * 30.0 - 30
-    let card_entity = spawn_cards_entity()
-    @transform.transforms().set(
-      card_entity,
-      @transform.Transform::from_xyz(card_x, y_base, j.to_double()),
+    let card_entity = plan.spawn(
+      (
+        @transform.Transform::from_xyz(card_x, y_base, j.to_double()),
+        card.to_sprite(),
+      ),
     )
-    @sprite.sprites().set(card_entity, card.to_sprite())
+    cards_runtime().entities.push(card_entity)
     game.hole_card_entities.push(card_entity)
   }
 
@@ -464,14 +354,16 @@ fn display_community_cards() -> Unit {
   game.community_card_entities.clear()
   let center_x = VIEWPORT_WIDTH / 2.0
   let center_y = VIEWPORT_HEIGHT / 2.0 - 60.0
+  let plan : @ecs.SpawnPlan[(@transform.Transform, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
   for i, card in game.community_cards {
     let card_x = center_x + (i.to_double() - 2.5) * 30.0 - 15
-    let card_entity = spawn_cards_entity()
-    @transform.transforms().set(
-      card_entity,
-      @transform.Transform::from_xyz(card_x, center_y, (10 + i).to_double()),
+    let card_entity = plan.spawn(
+      (
+        @transform.Transform::from_xyz(card_x, center_y, (10 + i).to_double()),
+        card.to_sprite(),
+      ),
     )
-    @sprite.sprites().set(card_entity, card.to_sprite())
+    cards_runtime().entities.push(card_entity)
     game.community_card_entities.push(card_entity)
   }
 }

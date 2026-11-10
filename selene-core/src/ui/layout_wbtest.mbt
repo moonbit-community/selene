@@ -103,7 +103,7 @@ test "ui nodes map block display and aspect ratio into block layout" {
 
 ///|
 test "ui wrapped text contributes lines to auto height" {
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   texts().set(entity, Text("hello world"))
   text_fonts().set(entity, TextFont(size=16.0))
   text_layouts().set(entity, TextLayout(wrap=WordWrap))
@@ -145,7 +145,7 @@ test "ui wrapped text contributes lines to auto height" {
 
 ///|
 test "ui layout uses wrapped text height in the computed node" {
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   nodes().set(
     entity,
     Node(
@@ -284,7 +284,7 @@ test "ui nodes map style-only grid and flex fields into chicle style" {
 
 ///|
 test "ui layout uses overflow clip margins from the requested visual box" {
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   nodes().set(
     entity,
     Node::absolute(
@@ -311,7 +311,7 @@ test "ui layout uses overflow clip margins from the requested visual box" {
 
 ///|
 test "ui layout projects nested border and padding offsets exactly once" {
-  let parent = @ecs.Entity()
+  let parent = @ecs.require_current_world().spawn(())
   let child = parent.spawn_child()
   let grandchild = child.spawn_child()
   nodes().set(
@@ -396,7 +396,7 @@ test "ui layout config controls screen-space rounding for viewport-scaled rects"
 ///|
 test "ui target camera layouts use the camera viewport as screen-space origin" {
   @system.configure_display(200.0, 120.0, 1.0)
-  let camera = @ecs.Entity()
+  let camera = @ecs.require_current_world().spawn(())
   @camera.cameras().set(
     camera,
     Camera(viewport=Some(CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0)))),
@@ -407,7 +407,7 @@ test "ui target camera layouts use the camera viewport as screen-space origin" {
     @transform.GlobalTransform::from_transform(@transform.Transform::default()),
   )
 
-  let entity = @ecs.Entity()
+  let entity = @ecs.require_current_world().spawn(())
   nodes().set(entity, Node::absolute(Vec2(4.0, 6.0), size=Vec2(20.0, 10.0)))
   ui_target_cameras().set(entity, UiTargetCamera(camera))
 
@@ -427,7 +427,7 @@ test "ui target camera layouts use the camera viewport as screen-space origin" {
 
 ///|
 test "ui layout clamps scroll positions to overflowing content" {
-  let parent = @ecs.Entity()
+  let parent = @ecs.require_current_world().spawn(())
   let child = parent.spawn_child()
   nodes().set(
     parent,
@@ -493,7 +493,7 @@ test "ui layout clamps scroll positions to overflowing content" {
 
 ///|
 test "ui scrolling preserves nested border and padding offsets" {
-  let parent = @ecs.Entity()
+  let parent = @ecs.require_current_world().spawn(())
   let child = parent.spawn_child()
   nodes().set(
     parent,
@@ -523,7 +523,7 @@ test "ui scrolling preserves nested border and padding offsets" {
 
 ///|
 test "ui override clip ignores inherited clipping rectangles" {
-  let parent = @ecs.Entity()
+  let parent = @ecs.require_current_world().spawn(())
   let child = parent.spawn_child()
 
   nodes().set(

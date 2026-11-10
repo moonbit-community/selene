@@ -575,6 +575,7 @@ fn tile_position(
 
 ///|
 fn apply_tile_visual(
+  plan : @ecs.SpawnPlan[(@transform.Transform, @sprite.Sprite)],
   layer_entity : @ecs.Entity,
   source : AutoTileLayerSource,
   solved : AutoTileSolvedTile,
@@ -585,22 +586,19 @@ fn apply_tile_visual(
     None => None
   }
   guard visual is Some(visual) else { return None }
-  let tile_entity = @ecs.Entity()
-  tile_entity.set_parent(layer_entity)
   let position = tile_position(source, solved.x, solved.y)
-  @transform.transforms().set(
-    tile_entity,
-    @transform.Transform::from_xyz(position[X], position[Y], context.z),
-  )
-  @sprite.sprites().set(
-    tile_entity,
-    Sprite(
-      image=visual.image_path.map(fn(path) { @asset.load_image(path) }),
-      rect=visual.rect,
-      custom_size=visual.custom_size,
-      anchor=visual.anchor,
+  let tile_entity = plan.spawn(
+    (
+      @transform.Transform::from_xyz(position[X], position[Y], context.z),
+      @sprite.Sprite(
+        image=visual.image_path.map(fn(path) { @asset.load_image(path) }),
+        rect=visual.rect,
+        custom_size=visual.custom_size,
+        anchor=visual.anchor,
+      ),
     ),
   )
+  tile_entity.set_parent(layer_entity)
   Some(tile_entity)
 }
 
@@ -623,9 +621,10 @@ pub fn register_runtime_layer(
     ignore(layers.remove(layer_entity))
   }
   let state : RuntimeLayerState = { source, tile_entities: Map([]), context, }
+  let plan : @ecs.SpawnPlan[(@transform.Transform, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
   for solved in solve_autotile_layer(source) {
     let key = cell_key(solved.x, solved.y)
-    if apply_tile_visual(layer_entity, source, solved, context)
+    if apply_tile_visual(plan, layer_entity, source, solved, context)
       is Some(tile_entity) {
       state.tile_entities.set(key, tile_entity)
     }
@@ -650,13 +649,20 @@ fn apply_diff_to_runtime(
       ignore(tile_entities.remove(key))
     }
   }
+  let plan : @ecs.SpawnPlan[(@transform.Transform, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
   for changed in diff.changed_tiles {
     let key = cell_key(changed.x, changed.y)
     if tile_entities.get(key) is Some(entity_) {
       entity_.destroy()
       ignore(tile_entities.remove(key))
     }
-    if apply_tile_visual(layer_entity, diff.source, changed, state.context)
+    if apply_tile_visual(
+        plan,
+        layer_entity,
+        diff.source,
+        changed,
+        state.context,
+      )
       is Some(entity_) {
       tile_entities.set(key, entity_)
     }

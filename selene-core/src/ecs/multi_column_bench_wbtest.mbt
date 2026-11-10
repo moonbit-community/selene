@@ -7,27 +7,26 @@ test "BENCH-ECS three to five component joins" (bench : @bench.T) {
     let c : ComponentStore[Int32] = ComponentStore(world)
     let d : ComponentStore[Int32] = ComponentStore(world)
     let e : ComponentStore[Int32] = ComponentStore(world)
-    let pair = a.spawn_bundle().combine(b.spawn_bundle())
+    let pair = a.spawn_plan(world).combine(b.spawn_plan(world))
     let full = pair
-      .combine(c.spawn_bundle())
-      .combine(d.spawn_bundle())
-      .combine(e.spawn_bundle())
+      .combine(c.spawn_plan(world))
+      .combine(d.spawn_plan(world))
+      .combine(e.spawn_plan(world))
     // Split both matching and nonmatching rows among different archetypes.
     for group in 0..<8 {
       let tag : ComponentStore[Unit] = ComponentStore(world)
-      let matching = full.combine(tag.spawn_bundle())
-      let partial = pair.combine(tag.spawn_bundle())
+      let matching = full.combine(tag.spawn_plan(world))
+      let partial = pair.combine(tag.spawn_plan(world))
       for index in 0..<1024 {
         let value = group * 1024 + index
         if index % stride == 0 {
           ignore(
             matching.spawn(
-              world,
               (((((value, value + 1), value + 2), value + 3), value + 4), ()),
             ),
           )
         } else {
-          ignore(partial.spawn(world, ((value, value + 1), ())))
+          ignore(partial.spawn(((value, value + 1), ())))
         }
       }
     }

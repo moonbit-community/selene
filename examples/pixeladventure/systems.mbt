@@ -146,25 +146,6 @@ fn build_sprite_animation_clip_asset(
 }
 
 ///|
-fn install_sprite_animation_player(
-  entity : @ecs.Entity,
-  animation : SpriteAnimationDef,
-  repeat~ : @animation.RepeatAnimation = Forever,
-) -> (@animation.AnimationGraphHandle, @animation.AnimationNodeIndex) {
-  ensure_sprite_animation_binding(entity)
-  let (graph, nodes) = @animation.AnimationGraph::from_clips([
-    build_sprite_animation_clip_asset(animation),
-  ])
-  let node = nodes[0]
-  let graph_handle = @animation.register_animation_graph_asset(graph)
-  @animation.animation_graph_handles().set(entity, graph_handle)
-  ignore(
-    @animation.animation_players().get(entity).unwrap().play(node, repeat~),
-  )
-  (graph_handle, node)
-}
-
-///|
 fn play_player_animation(
   entity : @ecs.Entity,
   controller : PlayerController,

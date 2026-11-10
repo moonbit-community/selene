@@ -219,23 +219,18 @@ for the module rule and the standalone generator.
 
 ### Entities and Components
 
-Game objects are represented by Entity + Component data. Example:
+Pass the initial components to the World when spawning a player.
 
 ```moonbit
-let player = @ecs.Entity()
-@transform.transforms().set(player, @transform.Transform::from_xyz(100.0, 100.0, 0.0))
-@physics2d.linear_velocities().set(player, @math.Vec2::zero())
+let world = @ecs.require_current_world()
+let player = world.spawn((
+  @transform.Transform::from_xyz(100.0, 100.0, 0.0),
+  @physics2d.Velocity(@math.Vec2::zero()),
+))
 ```
 
-This does three things:
-
-1. Create an entity
-2. Attach position
-3. Attach velocity
-
-Access typed component columns through stores such as `@transform.transforms()` and `@sprite.sprites()`. The stores use the current World.
-
-Initialization behavior should run once in `Startup` systems.
+The World writes both components into the final archetype together. Use
+`commands.spawn(...)` when spawning from inside a query.
 
 ### Player Character Implementation
 

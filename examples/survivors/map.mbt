@@ -14,32 +14,36 @@
 
 ///|
 fn add_background(size : @math.Vec2) -> Unit {
-  let background = spawn_survivors_entity()
   let background_sprite = @sprite.Sprite(
     image=Some(@asset.load_image(background_picture)),
     custom_size=Some(size),
     anchor=Anchor(Vec2(-0.5, 0.5)),
     image_mode=Tiled(Repeat),
   )
-  @sprite.sprites().set(background, background_sprite)
-  @transform.transforms().set(
-    background,
-    @transform.Transform::from_xyz(0.0, 0.0, GROUND_ZINDEX.to_double()),
+  ignore(
+    spawn_survivors_entity(
+      (
+        background_sprite,
+        @transform.Transform::from_xyz(0.0, 0.0, GROUND_ZINDEX.to_double()),
+      ),
+    ),
   )
 }
 
 ///|
 fn add_border(size : @math.Vec2) -> Unit {
   fn add_one_border(pos : @math.Vec2, size : @math.Vec2) -> Unit {
-    let entity = spawn_survivors_entity()
-    let collider = @physics2d.Collider(
-      @physics2d.CollisionFilter::empty(wall_collision_group),
-    )
-    @physics2d.colliders().set(entity, collider)
-    @physics2d.shapes().set(entity, Rect(size~, offset=Vec2(0.0, 0.0)))
-    @transform.transforms().set(
-      entity,
-      @transform.Transform::from_xyz(pos[X], pos[Y], 0.0),
+    let shape : @physics2d.ColliderShape = Rect(size~, offset=Vec2(0.0, 0.0))
+    ignore(
+      spawn_survivors_entity(
+        (
+          @physics2d.Collider(
+            @physics2d.CollisionFilter::empty(wall_collision_group),
+          ),
+          shape,
+          @transform.Transform::from_xyz(pos[X], pos[Y], 0.0),
+        ),
+      ),
     )
   }
 
@@ -53,18 +57,21 @@ fn add_border(size : @math.Vec2) -> Unit {
 fn add_grass() -> Unit {
   let density = 0.05
   let rand = @random.Rand()
+  let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Transform)] = @ecs.require_current_world().prepare_spawn()
+  let entities = survivors_runtime().entities
   for x in 0..<(MAP_WIDTH / 16.0).to_int() {
     for y in 0..<(MAP_HEIGHT / 16.0).to_int() {
       if rand.double() < density {
-        let grass = spawn_survivors_entity()
-        let sprite = grass_sprite()
-        @sprite.sprites().set(grass, sprite)
-        @transform.transforms().set(
-          grass,
-          @transform.Transform::from_xyz(
-            x.to_double() * 16.0,
-            y.to_double() * 16.0,
-            GRASS_ZINDEX.to_double(),
+        entities.push(
+          plan.spawn(
+            (
+              grass_sprite(),
+              @transform.Transform::from_xyz(
+                x.to_double() * 16.0,
+                y.to_double() * 16.0,
+                GRASS_ZINDEX.to_double(),
+              ),
+            ),
           ),
         )
       }

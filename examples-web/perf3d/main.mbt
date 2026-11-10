@@ -72,8 +72,8 @@ fn perf_runtime() -> PerfRuntime {
 }
 
 ///|
-fn spawn_perf_entity() -> @ecs.Entity {
-  let entity = @ecs.Entity()
+fn[T : @ecs.Bundle] spawn_perf_entity(values : T) -> @ecs.Entity {
+  let entity = @ecs.require_current_world().spawn(values)
   perf_runtime().entities.push(entity)
   entity
 }
@@ -178,21 +178,26 @@ fn setup_perf3d(world : @ecs.World) -> Unit {
 
 ///|
 fn setup_camera(config : PerfConfig) -> Unit {
-  let camera = spawn_perf_entity()
   let side = ceil_sqrt(config.count).to_double()
   let distance = (side * 1.65).max(34.0)
   let position = vec3(0.0, distance * 0.55, distance)
-  @transform.transforms().set(camera, {
-    translation: position,
-    rotation: look_at_rotation(position, @math.Vec3::zero()),
-    scale: @math.Vec3::one(),
-  })
-  @camera3d.cameras3d().set(camera, {
-    ..@camera3d.Camera3DComponent(),
-    clear_color: color(18U, 20U, 26U, 1.0),
-    fov_y: 75.0,
-    far: 500.0,
-  })
+  ignore(
+    spawn_perf_entity(
+      (
+        @transform.Transform::{
+          translation: position,
+          rotation: look_at_rotation(position, @math.Vec3::zero()),
+          scale: @math.Vec3::one(),
+        },
+        @camera3d.Camera3DComponent::{
+          ..@camera3d.Camera3DComponent(),
+          clear_color: color(18U, 20U, 26U, 1.0),
+          fov_y: 75.0,
+          far: 500.0,
+        },
+      ),
+    ),
+  )
 }
 
 ///|
@@ -200,32 +205,32 @@ fn setup_lights(config : PerfConfig) -> Unit {
   @render3d.set_ambient_light3d(
     Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.08, }),
   )
-  let dir_light = spawn_perf_entity()
-  @render3d.directional_lights3d().set(dir_light, {
-    ..@render3d.DirectionalLight3D(),
-    direction: vec3(-0.35, -0.8, -0.45).normalize(),
-    color: color(255U, 245U, 220U, 1.0),
-    intensity: 1.8,
-    shadows: config.case_name == "shadow-casters",
-  })
+  ignore(
+    spawn_perf_entity(
+      @ecs.Single(@render3d.DirectionalLight3D::{
+        ..@render3d.DirectionalLight3D(),
+        direction: vec3(-0.35, -0.8, -0.45).normalize(),
+        color: color(255U, 245U, 220U, 1.0),
+        intensity: 1.8,
+        shadows: config.case_name == "shadow-casters",
+      }),
+    ),
+  )
 }
 
 ///|
 fn setup_hud(config : PerfConfig) -> @ecs.Entity {
-  let hud = spawn_perf_entity()
-  @ui.nodes().set(
-    hud,
-    @ui.Node::absolute(Vec2(16.0, 16.0), size=Vec2(900.0, 92.0)),
-  )
-  @ui.texts().set(
-    hud,
-    Text(
-      "perf3d: case=\{config.case_name} count=\{config.count} mode=\{config.mode}",
+  let hud = spawn_perf_entity(
+    (
+      @ui.Node::absolute(Vec2(16.0, 16.0), size=Vec2(900.0, 92.0)),
+      @ui.Text(
+        "perf3d: case=\{config.case_name} count=\{config.count} mode=\{config.mode}",
+      ),
+      @ui.TextFont(family="monospace", size=18.0),
+      @ui.TextColor(color(236U, 244U, 255U, 1.0)),
+      @ui.ZIndex(100),
     ),
   )
-  @ui.text_fonts().set(hud, TextFont(family="monospace", size=18.0))
-  @ui.text_colors().set(hud, TextColor(color(236U, 244U, 255U, 1.0)))
-  @ui.z_indexes().set(hud, ZIndex(100))
   hud
 }
 
@@ -269,26 +274,32 @@ fn spawn_grid(
   let side = ceil_sqrt(config.count)
   let spacing = if config.case_name == "shadow-casters" { 1.35 } else { 1.15 }
   let half = (side - 1).to_double() * spacing * 0.5
+  let plan : @ecs.SpawnPlan[(@transform.Transform, @render3d.Mesh3DRenderer)] = @ecs.require_current_world().prepare_spawn()
+  let tracked = perf_runtime().entities
   for index in 0..<config.count {
     let row = index / side
     let col = index % side
-    let entity = spawn_perf_entity()
-    @transform.transforms().set(entity, {
-      translation: vec3(
-        col.to_double() * spacing - half,
-        0.0,
-        row.to_double() * spacing - half,
+    let entity = plan.spawn(
+      (
+        @transform.Transform::{
+          translation: vec3(
+            col.to_double() * spacing - half,
+            0.0,
+            row.to_double() * spacing - half,
+          ),
+          rotation: @math.Quat::identity(),
+          scale: @math.Vec3::one(),
+        },
+        @render3d.Mesh3DRenderer::{
+          mesh: meshes[index % meshes.length()],
+          material,
+          visible: true,
+          cast_shadows: config.case_name == "shadow-casters",
+          receive_shadows: false,
+        },
       ),
-      rotation: @math.Quat::identity(),
-      scale: @math.Vec3::one(),
-    })
-    @render3d.mesh3d_renderers().set(entity, {
-      mesh: meshes[index % meshes.length()],
-      material,
-      visible: true,
-      cast_shadows: config.case_name == "shadow-casters",
-      receive_shadows: false,
-    })
+    )
+    tracked.push(entity)
     entities.push(entity)
   }
   entities

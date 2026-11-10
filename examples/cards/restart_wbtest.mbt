@@ -15,7 +15,7 @@ test "restarting Cards replaces only its entities in the current World" {
   let starting_chips = Ref(0)
   let alive_count = Ref(0)
   @ecs.run_schedule(first, fn(world) {
-    other_entity.val = Some(@ecs.Entity())
+    other_entity.val = Some(@ecs.require_current_world().spawn(()))
     game_start(world)
     old_entities.append(cards_runtime().entities)
     starting_chips.val = game_state().player.chips

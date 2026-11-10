@@ -132,16 +132,13 @@ fn EntityWorldStore::allocate(
 }
 
 ///|
-pub fn Entity::Entity() -> Entity {
-  spawn_in(require_current_world())
-}
-
-///|
-fn spawn_in(world : World) -> Entity {
-  let store = entity_store(world~)
-  let entity = store.allocate(world.id(), Alive)
-  store.all_entities.add(entity)
-  store.alive_count += 1
+fn EntityWorldStore::spawn(
+  self : EntityWorldStore,
+  world_id : UInt32,
+) -> Entity {
+  let entity = self.allocate(world_id, Alive)
+  self.all_entities.add(entity)
+  self.alive_count += 1
   entity
 }
 

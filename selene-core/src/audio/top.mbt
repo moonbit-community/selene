@@ -307,13 +307,20 @@ pub fn attach_audio(
 }
 
 ///|
+let audio_spawn_plan : @ecs.ResourceKey[
+  @ecs.SpawnPlan[(AudioPlayer, PlaybackSettings)],
+] = ResourceKey()
+
+///|
 pub fn spawn_audio(
   source : AudioHandle,
   settings~ : PlaybackSettings = PlaybackSettings::once(),
 ) -> @ecs.Entity {
-  let entity = @ecs.Entity()
-  attach_audio(entity, AudioPlayer(source), settings~)
-  entity
+  let world = @ecs.require_current_world()
+  let plan = audio_spawn_plan.get_or_insert_with(world, world => {
+    world.prepare_spawn()
+  })
+  plan.spawn((AudioPlayer(source), normalize_settings(settings)))
 }
 
 ///|

@@ -207,8 +207,8 @@ fn pixeladventure_world_state() -> PixelAdventureWorldState {
 }
 
 ///|
-fn spawn_game_entity() -> @ecs.Entity {
-  let entity = @ecs.Entity()
+fn[T : @ecs.Bundle] spawn_game_entity(values : T) -> @ecs.Entity {
+  let entity = @ecs.require_current_world().spawn(values)
   pixeladventure_world_state().entities.push(entity)
   entity
 }

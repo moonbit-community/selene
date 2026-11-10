@@ -1,12 +1,11 @@
 ///|
 fn spawn_recycled_population(
-  world : World,
-  bundle : SpawnBundle[Int32],
+  bundle : SpawnPlan[Int32],
   population : Array[Entity],
   size : Int32,
 ) -> Unit {
   for i in 0..<size {
-    population.push(bundle.spawn(world, i))
+    population.push(bundle.spawn(i))
   }
 }
 
@@ -23,10 +22,10 @@ fn cycle_entity_slots(waves : Int32, size : Int32) -> World {
   let world = World()
   set_current_world(world)
   let values : ComponentStore[Int32] = ComponentStore(world)
-  let bundle = values.spawn_bundle()
+  let bundle = values.spawn_plan(world)
   let population = []
   for _ in 0..<waves {
-    spawn_recycled_population(world, bundle, population, size)
+    spawn_recycled_population(bundle, population, size)
     delete_population(population)
   }
   world
@@ -55,14 +54,14 @@ fn bench_steady_population(b : @bench.T, replacements : Int32) -> Unit raise {
   let world = World()
   set_current_world(world)
   let values : ComponentStore[Int32] = ComponentStore(world)
-  let bundle = values.spawn_bundle()
+  let bundle = values.spawn_plan(world)
   let population = []
-  spawn_recycled_population(world, bundle, population, 4096)
+  spawn_recycled_population(bundle, population, 4096)
   // Keep 1024 long-lived entities and rotate the remaining 3072 in place.
   for step in 0..<replacements {
     let index = 1024 + step * 1103 % 3072
     ignore(population[index].delete())
-    population[index] = bundle.spawn(world, index)
+    population[index] = bundle.spawn(index)
   }
   assert_eq(alive_entity_count(), population.length())
   let is_alive = alive_in_world(world)

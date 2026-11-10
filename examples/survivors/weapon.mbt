@@ -140,6 +140,18 @@ priv struct PlayerBulletState {
 }
 
 ///|
+type PlayerBulletSpawnPlan = @ecs.SpawnPlan[
+  (
+    @sprite.Sprite,
+    @transform.Transform,
+    @physics2d.Velocity,
+    @physics2d.ColliderShape,
+    @physics2d.Area,
+    PlayerBulletState,
+  ),
+]
+
+///|
 fn player_bullets() -> @ecs.ComponentStore[PlayerBulletState] {
   @ecs.components()
 }
@@ -218,37 +230,37 @@ fn shoot_weapon_bullet(
     direction.normalize()
   }
   let bullet_spawn_pos = player_pos + dir.scalar_mul(14.0)
-  let bullet_entity = spawn_survivors_entity()
-  @sprite.sprites().set(bullet_entity, player_bullet_visual())
-  @transform.transforms().set(
-    bullet_entity,
-    @transform.Transform::from_xyz(
-      bullet_spawn_pos[X],
-      bullet_spawn_pos[Y],
-      BULLET_ZINDEX.to_double(),
-    ),
+  let shape : @physics2d.ColliderShape = Rect(
+    size=Vec2(bullet_hitbox_size, bullet_hitbox_size),
+    offset=Vec2(-bullet_hitbox_size / 2.0, -bullet_hitbox_size / 2.0),
   )
-  let vel = dir.scalar_mul(weapon_data.bullet_speed)
-  @physics2d.linear_velocities().set(bullet_entity, vel)
-  @physics2d.shapes().set(
-    bullet_entity,
-    Rect(
-      size=Vec2(bullet_hitbox_size, bullet_hitbox_size),
-      offset=Vec2(-bullet_hitbox_size / 2.0, -bullet_hitbox_size / 2.0),
-    ),
-  )
-  let area = @physics2d.Area(
-    @physics2d.CollisionFilter(bullet_collision_group, [
-      enemy_collision_group, wall_collision_group,
-    ]),
-  )
-  @physics2d.areas().set(bullet_entity, area)
-  player_bullets().set(bullet_entity, {
+  let state : PlayerBulletState = {
     alive: true,
     penetration_count: 0,
     damage,
     penetration_limit: total_penetration,
-  })
+  }
+  let runtime = survivors_runtime()
+  let bullet_entity = runtime.player_bullet_plan.spawn(
+    (
+      player_bullet_visual(),
+      @transform.Transform::from_xyz(
+        bullet_spawn_pos[X],
+        bullet_spawn_pos[Y],
+        BULLET_ZINDEX.to_double(),
+      ),
+      @physics2d.Velocity(dir.scalar_mul(weapon_data.bullet_speed)),
+      shape,
+      @physics2d.Area(
+        @physics2d.CollisionFilter(bullet_collision_group, [
+          enemy_collision_group, wall_collision_group,
+        ]),
+      ),
+      state,
+    ),
+  )
+
+  runtime.entities.push(bullet_entity)
 
   // Calculate bullet duration based on weapon range
   let weapon_range = calculate_weapon_range(weapon_data, 0.0)

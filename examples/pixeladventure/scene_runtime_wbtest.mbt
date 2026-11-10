@@ -76,7 +76,7 @@ test "restarting Pixel Adventure replaces its session and game entities" {
   with_pixeladventure_test_asset_io(fn() raise {
     with_pixeladventure_test_world(fn() raise {
       let world = @ecs.require_current_world()
-      let other = @ecs.Entity()
+      let other = @ecs.require_current_world().spawn(())
       game_start(world)
       let previous_session : GameSession = world.resource()
       previous_session.score = 100

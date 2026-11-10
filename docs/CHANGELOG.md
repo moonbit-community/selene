@@ -26,6 +26,14 @@
 
 ### Changed
 
+- Spawn entities with `World::spawn` or `Commands::spawn`. Pass `Single(value)`
+  for one component, a flat tuple for multiple components, or `()` for an
+  empty entity. Components enter the final archetype together. Replace
+  `Entity()` and `commands.spawn()` with `world.spawn(())` and
+  `commands.spawn(())`. Use `World::prepare_spawn` to reuse a layout and
+  `Commands::spawn_prepared` to queue it.
+- Spawn demo cameras, terrain, actors, and UI with their initial components.
+  Reuse plans for repeated tile, card, enemy, projectile, and grid spawns.
 - Use `Type::Type` constructors for engine and example state, map settings,
   autotile rules, render frames, lights, materials, cameras, and physics
   descriptors. For example, use `@ldtk.LdtkSettings()`,

@@ -9,7 +9,7 @@ test "BENCH-UI prepare borders in paint order" (b : @bench.T) {
     let world = @ecs.World()
     @ecs.set_current_world(world)
     @system.configure_display(960.0, 540.0, 1.0)
-    let root = @ecs.Entity()
+    let root = world.spawn(())
     @ui.nodes().set(
       root,
       Node(width=@ui.Val::px(960.0), height=@ui.Val::px(540.0)),

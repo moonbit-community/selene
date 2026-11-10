@@ -18,11 +18,11 @@ test "archetype batch reads and writes" (bench : @bench.T) {
     let a : ComponentStore[Int32] = ComponentStore(world)
     let b : ComponentStore[Int32] = ComponentStore(world)
     let tag : ComponentStore[Unit] = ComponentStore(world)
-    let first = spawn_in(world)
+    let first = world.spawn(())
     a.set(first, 0)
     b.set(first, 1)
     for i in 1..<size {
-      let entity = spawn_in(world)
+      let entity = world.spawn(())
       a.set(entity, i)
       if i % 4 != 0 {
         b.set(entity, i + 1)

@@ -129,7 +129,7 @@ test "render submission keeps entity ids and exposes offscreen capture API" {
 ///|
 test "sprite inspector returns unified sprite debug entries" {
   with_runtime_debug_world(fn() raise {
-    let entity = @ecs.Entity()
+    let entity = @ecs.require_current_world().spawn(())
     @name.names().set(entity, Name("Sprite Debug"))
     let image = @asset.load_image("assets/debug/sprite.png")
     let source_rect : @math.Rect = {

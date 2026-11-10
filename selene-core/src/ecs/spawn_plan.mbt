@@ -1,9 +1,9 @@
 ///|
 /// A reusable, World-bound layout for spawning directly into an archetype.
 /// The type parameter describes the values supplied for each spawn.
-struct SpawnBundle[T] {
+struct SpawnPlan[T] {
   world_id : UInt32
-  storage : ArchetypeWorld
+  entities : EntityWorldStore
   signature : Array[Int32]
   mut table : Int32?
   append : (Int32, Entity, T) -> Unit
@@ -11,13 +11,17 @@ struct SpawnBundle[T] {
 }
 
 ///|
-/// Starts a spawn bundle with this component. Compose stores before spawning.
-pub fn[T] ComponentStore::spawn_bundle(
+/// Prepares an explicitly selected component column for spawning in its World.
+pub fn[T] ComponentStore::spawn_plan(
   self : ComponentStore[T],
-) -> SpawnBundle[T] {
+  world : World,
+) -> SpawnPlan[T] {
+  guard self.belongs_to(world) else {
+    abort("spawn plan component belongs to another world")
+  }
   {
     world_id: self.world_id,
-    storage: self.storage,
+    entities: entity_store(world~),
     signature: [self.component],
     table: None,
     append: (id, entity, value) => self.append_new(id, entity, value),
@@ -27,67 +31,75 @@ pub fn[T] ComponentStore::spawn_bundle(
 
 ///|
 /// Combines two layouts. Aborts for foreign-World or duplicate components.
-pub fn[A, B] SpawnBundle::combine(
-  self : SpawnBundle[A],
-  other : SpawnBundle[B],
-) -> SpawnBundle[(A, B)] {
+pub fn[A, B] SpawnPlan::combine(
+  self : SpawnPlan[A],
+  other : SpawnPlan[B],
+) -> SpawnPlan[(A, B)] {
+  self.combine_with(other, pair => pair)
+}
+
+///|
+fn[A, B, T] SpawnPlan::combine_with(
+  self : SpawnPlan[A],
+  other : SpawnPlan[B],
+  split : (T) -> (A, B),
+) -> SpawnPlan[T] {
   guard self.world_id == other.world_id else {
-    abort("spawn bundle components belong to different worlds")
+    abort("spawn plan components belong to different worlds")
   }
   let signature = self.signature.copy()
   signature.append(other.signature[:])
   signature.sort()
   for i in 1..<signature.length() {
     guard signature[i - 1] != signature[i] else {
-      abort("duplicate component in spawn bundle")
+      abort("duplicate component in spawn plan")
     }
   }
   {
     world_id: self.world_id,
-    storage: self.storage,
+    entities: self.entities,
     signature,
     table: None,
     append: (id, entity, values) => {
-      (self.append)(id, entity, values.0)
-      (other.append)(id, entity, values.1)
+      let (left, right) = split(values)
+      (self.append)(id, entity, left)
+      (other.append)(id, entity, right)
     },
     insert: (entity, values) => {
-      (self.insert)(entity, values.0)
-      (other.insert)(entity, values.1)
+      let (left, right) = split(values)
+      (self.insert)(entity, left)
+      (other.insert)(entity, right)
     },
   }
 }
 
 ///|
-fn[T] SpawnBundle::append_row(
-  self : SpawnBundle[T],
+fn[T] SpawnPlan::append_row(
+  self : SpawnPlan[T],
   entity : Entity,
   values : T,
 ) -> Unit {
+  guard !self.signature.is_empty() else { return }
+  let storage = self.entities.archetypes
   let id = match self.table {
     Some(id) => id
     None => {
-      let id = self.storage.table_for(self.signature)
+      let id = storage.table_for(self.signature)
       self.table = Some(id)
       id
     }
   }
-  self.storage.append_entity(id, entity)
+  storage.append_entity(id, entity)
   (self.append)(id, entity, values)
 }
 
 ///|
 /// Creates a live entity and appends all bundle values to one archetype row.
-pub fn[T] SpawnBundle::spawn(
-  self : SpawnBundle[T],
-  world : World,
-  values : T,
-) -> Entity {
-  guard self.world_id == world.id() else {
-    abort("spawn bundle belongs to another world")
+pub fn[T] SpawnPlan::spawn(self : SpawnPlan[T], values : T) -> Entity {
+  if !self.signature.is_empty() {
+    self.entities.archetypes.require_no_query()
   }
-  self.storage.require_no_query()
-  let entity = spawn_in(world)
+  let entity = self.entities.spawn(self.world_id)
   self.append_row(entity, values)
   entity
 }
@@ -95,17 +107,18 @@ pub fn[T] SpawnBundle::spawn(
 ///|
 /// Reserves a pending entity and queues initialization of its bundle.
 /// Queue later component changes to avoid migrating the row during initialization.
-fn[T] SpawnBundle::queue_spawn(
-  self : SpawnBundle[T],
+fn[T] SpawnPlan::queue_spawn(
+  self : SpawnPlan[T],
   world : World,
   values : T,
 ) -> Entity {
   guard self.world_id == world.id() else {
-    abort("spawn bundle belongs to another world")
+    abort("spawn plan belongs to another world")
   }
   queue_entity_spawn(world, entity => {
-    self.storage.require_no_query()
-    if self.storage.location(entity) is Some(_) {
+    let storage = self.entities.archetypes
+    storage.require_no_query()
+    if storage.location(entity) is Some(_) {
       // Immediate edits to a pending entity may already have created a row.
       (self.insert)(entity, values)
     } else {
