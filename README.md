@@ -15,6 +15,7 @@ Use the MoonBit `latest` toolchain. The sources also support `pre-release`,
 which may report syntax deprecation warnings until `latest` supports the replacements.
 
 ```bash
+moon update
 moon build --target js --release
 python3 -m http.server 8000
 ```

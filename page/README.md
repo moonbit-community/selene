@@ -8,6 +8,7 @@ in `examples/`.
 Run these commands from the repository root:
 
 ```bash
+moon update
 moon build --target js --release
 python3 -m http.server 8000
 ```

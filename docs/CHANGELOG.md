@@ -26,8 +26,8 @@
 
 ### Changed
 
-- Build example pages directly with `moon build`. The Pages workflow copies
-  the public files and JavaScript bundles for deployment.
+- Build example pages directly with `moon build`. The Pages workflow updates
+  the registry before building and copies the public files for deployment.
 - Replace the Python release script with `publish.mbtx`, run through
   `moon run --target wasm publish.mbtx -- <version>`. Release tests execute the
   compiled script against simulated commands without publishing packages.

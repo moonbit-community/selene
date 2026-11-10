@@ -30,7 +30,9 @@ jobs:
           bash scripts/check_no_legacy_ui.sh
 
       - name: Build project
-        run: moon build --target js --release --deny-warn
+        run: |
+          moon update
+          moon build --target js --release --deny-warn
 
       - name: Collect Pages files
         run: |
