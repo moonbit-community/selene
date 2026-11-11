@@ -132,7 +132,7 @@ pub fn transform_rotation_field() -> AnimatedFieldHandle {
         },
         apply: fn(entity, value) {
           guard! value is Quat(quat)
-          guard @math.Rotation3::from_quat(quat) is Some(rotation) else {
+          guard @math.Rotation3::try_from_quat(quat) is Some(rotation) else {
             return
           }
           guard @transform.local_transform(entity) is Some(transform) else {
@@ -465,12 +465,9 @@ fn sample_quat(
         rhs_in.w * dt * h11,
       ).normalize_or_identity()
     }
-    return @math.Quat(
-      lhs.value.x * (1.0 - alpha) + rhs.value.x * alpha,
-      lhs.value.y * (1.0 - alpha) + rhs.value.y * alpha,
-      lhs.value.z * (1.0 - alpha) + rhs.value.z * alpha,
-      lhs.value.w * (1.0 - alpha) + rhs.value.w * alpha,
-    ).normalize_or_identity()
+    let start = @math.Rotation3::try_from_quat(lhs.value).unwrap_or_default()
+    let end = @math.Rotation3::try_from_quat(rhs.value).unwrap_or_default()
+    return start.slerp(end, alpha).to_quat()
   }
   keys[last_index].value
 }

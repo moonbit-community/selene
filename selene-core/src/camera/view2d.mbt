@@ -169,8 +169,9 @@ pub fn camera_screen_transform(
 ) -> @math.Affine2 {
   let world = world_transform_2d(global_transform)
   let view = match camera_view {
-    Some(view) => view.world_to_viewport.with_translation(0.0, 0.0)
-    None => @math.Affine2::from_scale(@system.get_zoom(), @system.get_zoom())
+    Some(view) => view.world_to_viewport.with_translation(Vec2(0.0, 0.0))
+    None =>
+      @math.Affine2::from_scale(Vec2(@system.get_zoom(), @system.get_zoom()))
   }
   view * world
 }
@@ -180,7 +181,7 @@ pub fn camera_screen_transform(
 pub fn world_transform_2d(
   global_transform : @transform.GlobalTransform,
 ) -> @math.Affine2 {
-  global_transform.affine.project_xy().with_translation(0.0, 0.0)
+  global_transform.affine.project_xy().with_translation(Vec2(0.0, 0.0))
 }
 
 ///|

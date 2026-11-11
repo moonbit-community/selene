@@ -132,10 +132,10 @@ fn directional_shadow_cascades3d(
       bound.far_bound,
     )
     if corners.length() >= 8 {
-      let mut min_corner = light_affine.transform_point3(corners[0])
+      let mut min_corner = light_affine.transform_point(corners[0])
       let mut max_corner = min_corner
       for index in 1..<corners.length() {
-        let point = light_affine.transform_point3(corners[index])
+        let point = light_affine.transform_point(corners[index])
         min_corner = vec3_min3d(min_corner, point)
         max_corner = vec3_max3d(max_corner, point)
       }
@@ -156,12 +156,11 @@ fn directional_shadow_cascades3d(
       let far_plane = (max_corner.z - min_corner.z + near_plane).max(
         near_plane + 1.0,
       )
-      let cascade_view = light_view.mul(
+      let cascade_view = light_view *
         @smath.Mat4::from_affine({
           ..@smath.Affine3::identity(),
           translation: Vec3(-center_x, -center_y, -(max_corner.z + near_plane)),
-        }),
-      )
+        })
       let cascade_projection = @smath.Mat4::orthographic_rh_zo(
         half_extent * 2.0,
         half_extent * 2.0,
@@ -174,9 +173,7 @@ fn directional_shadow_cascades3d(
       cascades.push({
         light_index,
         cascade_index,
-        light_view_projection: cascade_projection
-        .mul(cascade_view)
-        .to_column_major(),
+        light_view_projection: (cascade_projection * cascade_view).to_column_major(),
         atlas_offset_x: offset_x,
         atlas_offset_y: offset_y,
         atlas_scale_x: scale_x,
@@ -199,15 +196,12 @@ fn spot_shadow_view_projection3d(
     light.range,
   )
   let outer_angle = light.outer_angle.max(0.008726646259971648)
-  @smath.Mat4::perspective_rh_zo(outer_angle * 2.0, 1.0, near_plane, far_plane)
-  .mul(
-    @smath.Mat4::look_at_rh(
-      light.position,
-      light.position + direction,
-      choose_shadow_up3d(direction),
-    ),
-  )
-  .to_column_major()
+  (@smath.Mat4::perspective_rh_zo(outer_angle * 2.0, 1.0, near_plane, far_plane) *
+  @smath.Mat4::look_at_rh(
+    light.position,
+    light.position + direction,
+    choose_shadow_up3d(direction),
+  )).to_column_major()
 }
 
 ///|
@@ -220,9 +214,8 @@ fn point_shadow_face_view_projection3d(
     light.shadow_map_near_z,
     light.range,
   )
-  @smath.Mat4::perspective_rh_zo(@math.PI * 0.5, 1.0, near_plane, far_plane)
-  .mul(@smath.Mat4::look_at_rh(light.position, light.position + direction, up))
-  .to_column_major()
+  (@smath.Mat4::perspective_rh_zo(@math.PI * 0.5, 1.0, near_plane, far_plane) *
+  @smath.Mat4::look_at_rh(light.position, light.position + direction, up)).to_column_major()
 }
 
 ///|

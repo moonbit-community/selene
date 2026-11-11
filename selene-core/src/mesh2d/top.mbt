@@ -93,7 +93,7 @@ pub fn circle(radius : Double) -> Mesh2dHandle {
 
 ///|
 fn centered_quad_transform(size : @math.Vec2) -> @math.Affine2 {
-  @math.Affine2::from_translation(-size.x / 2.0, -size.y / 2.0)
+  @math.Affine2::from_translation(Vec2(-size.x / 2.0, -size.y / 2.0))
 }
 
 ///|

@@ -251,42 +251,65 @@ fn skin_tangent(
   handedness : Double,
 ) -> @render3d.Tangent3D {
   let direction = skin_matrix
-    .transform_vector3(Vec3(tangent.x, tangent.y, tangent.z))
+    .transform_vector(Vec3(tangent.x, tangent.y, tangent.z))
     .try_normalize()
     .unwrap_or(@math.Vec3::x_axis())
   { x: direction.x, y: direction.y, z: direction.z, w: tangent.w * handedness, }
 }
 
 ///|
-fn weighted_skin_matrix(
+fn weighted_skin_affine(
   influence : SkinVertexInfluence3D,
-  joint_matrices : Array[@math.Mat4],
-) -> @math.Mat4 {
-  let joint_ids = [
-    influence.joint0,
-    influence.joint1,
-    influence.joint2,
-    influence.joint3,
-  ]
-  let weights = [
-    influence.weight0,
-    influence.weight1,
-    influence.weight2,
-    influence.weight3,
-  ]
-  let mut output = @math.Mat4::zero()
+  joint_affines : Array[@math.Affine3],
+) -> @math.Affine3 {
+  let mut m00 = 0.0
+  let mut m01 = 0.0
+  let mut m02 = 0.0
+  let mut m03 = 0.0
+  let mut m10 = 0.0
+  let mut m11 = 0.0
+  let mut m12 = 0.0
+  let mut m13 = 0.0
+  let mut m20 = 0.0
+  let mut m21 = 0.0
+  let mut m22 = 0.0
+  let mut m23 = 0.0
   for index in 0..<4 {
-    let joint_id = joint_ids[index]
-    if joint_id < 0 || joint_id >= joint_matrices.length() {
+    let joint_id = match index {
+      0 => influence.joint0
+      1 => influence.joint1
+      2 => influence.joint2
+      _ => influence.joint3
+    }
+    let weight = match index {
+      0 => influence.weight0
+      1 => influence.weight1
+      2 => influence.weight2
+      _ => influence.weight3
+    }
+    if joint_id < 0 || joint_id >= joint_affines.length() || weight <= 0.0 {
       continue
     }
-    let weight = weights[index]
-    if weight <= 0.0 {
-      continue
-    }
-    output = output + joint_matrices[joint_id].scalar_mul(weight)
+    let affine = joint_affines[joint_id]
+    m00 += affine.x_axis.x * weight
+    m01 += affine.y_axis.x * weight
+    m02 += affine.z_axis.x * weight
+    m03 += affine.translation.x * weight
+    m10 += affine.x_axis.y * weight
+    m11 += affine.y_axis.y * weight
+    m12 += affine.z_axis.y * weight
+    m13 += affine.translation.y * weight
+    m20 += affine.x_axis.z * weight
+    m21 += affine.y_axis.z * weight
+    m22 += affine.z_axis.z * weight
+    m23 += affine.translation.z * weight
   }
-  output
+  {
+    x_axis: Vec3(m00, m10, m20),
+    y_axis: Vec3(m01, m11, m21),
+    z_axis: Vec3(m02, m12, m22),
+    translation: Vec3(m03, m13, m23),
+  }
 }
 
 ///|
@@ -353,7 +376,7 @@ pub fn animation_skinning_system(_delta : Double) -> Unit {
     if binding.base_positions.length() != binding.influences.length() {
       continue
     }
-    let joint_matrices : Array[@math.Mat4] = []
+    let joint_affines : Array[@math.Affine3] = []
     let mut missing_joint_transform = false
     for joint_index, joint_entity in binding.joint_entities {
       guard @transform.global_transform(joint_entity) is Some(global_transform) else {
@@ -364,9 +387,9 @@ pub fn animation_skinning_system(_delta : Double) -> Unit {
       let inverse_bind = binding.inverse_bind_matrices
         .get(joint_index)
         .unwrap_or(@math.Mat4::identity())
-      joint_matrices.push(world.mul(inverse_bind))
+      joint_affines.push((world * inverse_bind).affine_part())
     }
-    if missing_joint_transform || joint_matrices.length() == 0 {
+    if missing_joint_transform || joint_affines.length() == 0 {
       continue
     }
     let (morphed_positions, morphed_normals) = apply_morph_targets(
@@ -380,20 +403,21 @@ pub fn animation_skinning_system(_delta : Double) -> Unit {
     let deformed_tangents : Array[@render3d.Tangent3D] = []
     for index, base_position in morphed_positions {
       let influence = binding.influences[index]
-      let skin_matrix = weighted_skin_matrix(influence, joint_matrices).affine_part()
-      deformed_positions.push(skin_matrix.transform_point3(base_position))
+      let skin_matrix = weighted_skin_affine(influence, joint_affines)
+      deformed_positions.push(skin_matrix.transform_point(base_position))
       let base_normal = morphed_normals
         .get(index)
         .unwrap_or(Vec3(0.0, 1.0, 0.0))
-      let (normal_map, handedness) = skin_matrix.normal_matrix()
-      let normal = normal_map
-        .transform_vector3(base_normal)
-        .try_normalize()
+      let normal_transform = skin_matrix.normal_transform()
+      let normal = normal_transform
+        .transform_normal(base_normal)
         .unwrap_or(@math.Vec3::y_axis())
       deformed_normals.push(normal)
       if binding.tangents is Some(tangents) &&
         tangents.get(index) is Some(tangent) {
-        deformed_tangents.push(skin_tangent(tangent, skin_matrix, handedness))
+        deformed_tangents.push(
+          skin_tangent(tangent, skin_matrix, normal_transform.handedness()),
+        )
       }
     }
     update_bound_mesh(

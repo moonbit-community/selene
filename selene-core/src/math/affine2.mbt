@@ -41,49 +41,50 @@ pub fn Affine2::Affine2(
 }
 
 ///|
-pub fn Affine2::from_translation(tx : Double, ty : Double) -> Affine2 {
-  { a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx, ty, }
+pub fn Affine2::from_translation(translation : Vec2) -> Affine2 {
+  { a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: translation.x, ty: translation.y, }
 }
 
 ///|
-pub fn Affine2::from_scale(sx : Double, sy : Double) -> Affine2 {
-  { a: sx, b: 0.0, c: 0.0, d: sy, tx: 0.0, ty: 0.0, }
+pub fn Affine2::from_scale(scale : Vec2) -> Affine2 {
+  { a: scale.x, b: 0.0, c: 0.0, d: scale.y, tx: 0.0, ty: 0.0, }
 }
 
 ///|
 pub fn Affine2::from_rotation_deg(deg : Double) -> Affine2 {
-  Affine2::from_rotation_rad(deg / 180.0 * @cmath.PI)
+  Affine2::from_rotation(deg / 180.0 * @cmath.PI)
 }
 
 ///|
-pub fn Affine2::from_rotation_rad(rad : Double) -> Affine2 {
+/// Constructs a rotation in radians. The angle must be finite.
+pub fn Affine2::from_rotation(rad : Double) -> Affine2 {
+  guard rad.is_finite() else { abort("rotation requires a finite angle") }
   let cos_r = @cmath.cos(rad)
   let sin_r = @cmath.sin(rad)
   { a: cos_r, b: sin_r, c: -sin_r, d: cos_r, tx: 0.0, ty: 0.0, }
 }
 
 ///|
+/// Constructs a shear with dimensionless X and Y factors.
 pub fn Affine2::from_skew(kx : Double, ky : Double) -> Affine2 {
   { a: 1.0, b: ky, c: kx, d: 1.0, tx: 0.0, ty: 0.0, }
 }
 
 ///|
-pub fn Affine2::with_translation(
-  self : Affine2,
-  tx : Double,
-  ty : Double,
-) -> Affine2 {
-  { ..self, tx, ty, }
+pub fn Affine2::with_translation(self : Affine2, translation : Vec2) -> Affine2 {
+  { ..self, tx: translation.x, ty: translation.y, }
 }
 
 ///|
 pub fn Affine2::flip_x(width : Double) -> Affine2 {
-  Affine2::from_translation(width, 0.0) * Affine2::from_scale(-1.0, 1.0)
+  Affine2::from_translation(Vec2(width, 0.0)) *
+  Affine2::from_scale(Vec2(-1.0, 1.0))
 }
 
 ///|
 pub fn Affine2::flip_y(height : Double) -> Affine2 {
-  Affine2::from_translation(0.0, height) * Affine2::from_scale(1.0, -1.0)
+  Affine2::from_translation(Vec2(0.0, height)) *
+  Affine2::from_scale(Vec2(1.0, -1.0))
 }
 
 ///|
@@ -119,7 +120,10 @@ pub fn Affine2::transform_vector(self : Affine2, value : Vec2) -> Vec2 {
 
 ///|
 pub fn Affine2::transform_point(self : Affine2, point : Vec2) -> Vec2 {
-  self.transform_vector(point) + Vec2(self.tx, self.ty)
+  Vec2(
+    self.a * point.x + self.c * point.y + self.tx,
+    self.b * point.x + self.d * point.y + self.ty,
+  )
 }
 
 ///|
@@ -154,15 +158,15 @@ pub fn Affine2::inverse(self : Affine2) -> Affine2? {
 
 ///|
 test "affine composition distinguishes points from vectors" {
-  let transform = Affine2::from_translation(10.0, 20.0) *
-    Affine2::from_scale(2.0, 3.0)
+  let transform = Affine2::from_translation(Vec2(10.0, 20.0)) *
+    Affine2::from_scale(Vec2(2.0, 3.0))
   assert_eq(transform.transform_point(Vec2(1.0, 2.0)), Vec2(12.0, 26.0))
   assert_eq(transform.transform_vector(Vec2(1.0, 2.0)), Vec2(2.0, 6.0))
 }
 
 ///|
 test "affine inverse handles small reflected transforms" {
-  let transform = Affine2::from_scale(-1.0e-20, 1.0e-20) *
+  let transform = Affine2::from_scale(Vec2(-1.0e-20, 1.0e-20)) *
     Affine2::from_skew(0.5, 0.0)
   let point = Vec2(3.0, 5.0)
   let actual = transform
@@ -170,14 +174,14 @@ test "affine inverse handles small reflected transforms" {
     .unwrap()
     .transform_point(transform.transform_point(point))
   assert_true(actual.distance(point) < 1.0e-10)
-  assert_true(Affine2::from_scale(0.0, 1.0).inverse() is None)
+  assert_true(Affine2::from_scale(Vec2(0.0, 1.0)).inverse() is None)
 }
 
 ///|
 test "affine rotation composes with scale and translation" {
-  let transform = Affine2::from_translation(10.0, 20.0) *
+  let transform = Affine2::from_translation(Vec2(10.0, 20.0)) *
     Affine2::from_rotation_deg(90.0) *
-    Affine2::from_scale(2.0, 3.0)
+    Affine2::from_scale(Vec2(2.0, 3.0))
   let point = Vec2(2.0, 3.0)
   assert_true(
     transform.transform_point(point).distance(Vec2(1.0, 24.0)) < 1.0e-12,
@@ -191,7 +195,7 @@ test "affine rotation composes with scale and translation" {
     1.0e-12,
   )
   assert_eq(
-    transform.with_translation(0.0, 0.0).transform_point(point),
+    transform.with_translation(Vec2(0.0, 0.0)).transform_point(point),
     transform.transform_vector(point),
   )
 }

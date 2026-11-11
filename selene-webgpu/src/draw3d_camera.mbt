@@ -43,9 +43,8 @@ fn pack_camera_view_projection3d(
       far,
     )
   }
-  projection
-  .mul(@smath.Mat4::look_at_rh(camera.position, camera.target, camera.up))
-  .to_column_major()
+  (projection *
+  @smath.Mat4::look_at_rh(camera.position, camera.target, camera.up)).to_column_major()
 }
 
 ///|

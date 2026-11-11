@@ -4,6 +4,9 @@
 
 ### Added
 
+- Add `distance_squared` for both vectors and complete the `Vec2` interpolation,
+  finite-value, unit-axis, and unit-scale helpers.
+
 - Added typed component and resource declarations, a code generator for
   `#selene.component` and `#selene.resource`, and World-local typed query systems.
   The generator ships as a separate `Milky2018/selene_codegen` module.
@@ -26,6 +29,17 @@
   updates in long-running Worlds with a fixed live population.
 
 ### Changed
+
+- Unify affine point/vector transforms and vector-valued 2D constructors.
+  Use `Affine2::from_rotation` for radians and `*` for `Mat4` composition.
+- Add checked `Rotation3::try_from_*` constructors and unit-rotation
+  `nlerp`/`slerp`. Invalid axis-angle and projection inputs abort with
+  explicit preconditions instead of producing fallback rotations or NaNs.
+- Replace `normal_matrix()` with a reusable `NormalTransform3` that explicitly
+  transforms normal directions and exposes reflection handedness.
+- Fuse vector and affine arithmetic, specialize unit-rotation composition,
+  and accumulate skinning weights directly into affine coefficients.
+  Add persistent math and CPU-skinning benchmarks.
 
 - Keep math trait method extensions next to their implementations and deprecate
   direct calls to promoted trait methods. Use operators and trait APIs instead.
@@ -126,6 +140,11 @@
   entities. Stopping playback preserves authored audio components.
 
 ### Fixed
+
+- Preserve shortest-path, constant-speed rotation interpolation, including
+  antipodal quaternion representations and small angles.
+- Accept Float32-rounded glTF node transforms using an explicit source-precision
+  tolerance, verify reconstruction error, and continue rejecting shear.
 
 - Preserve shear through sprite, mesh, text, picking, and skeletal transforms.
   Singular 2D hit shapes no longer fall back to world coordinates.

@@ -964,7 +964,10 @@ test "custom mesh transforms are applied in MoonBit before WebGPU FFI" {
   }
   let transformed = transform_positions3d(positions, transform)
   assert_eq(transformed[0], Vec3(14.0, 26.0, 42.0))
-  let normal = transform_normals3d([Vec3(1.0, 0.0, 0.0)], transform)[0]
+  let normal = transform_normals3d(
+      [Vec3(1.0, 0.0, 0.0)],
+      transform.normal_transform(),
+    )[0]
   assert_true(normal.dot(transform.y_axis).abs() < 1.0e-10)
   let packed = []
   push_lit_primitive_instance_values(packed, transform, true)

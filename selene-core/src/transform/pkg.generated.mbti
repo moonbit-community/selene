@@ -36,7 +36,7 @@ pub fn GlobalTransform::relative_trs(Self, Self) -> Transform?
 pub fn GlobalTransform::to_repr(Self) -> @debug.Repr
 pub fn GlobalTransform::transform_point(Self, @math.Vec3) -> @math.Vec3
 pub fn GlobalTransform::translation(Self) -> @math.Vec3
-pub fn GlobalTransform::try_decompose_trs(Self) -> Transform?
+pub fn GlobalTransform::try_decompose_trs(Self, tolerance? : Double) -> Transform?
 pub impl Default for GlobalTransform
 
 pub struct Spatial {

@@ -116,6 +116,41 @@ pub fn Vec2::length(self : Vec2) -> Double {
 }
 
 ///|
+pub fn Vec2::one() -> Vec2 {
+  Vec2(1.0, 1.0)
+}
+
+///|
+pub fn Vec2::x_axis() -> Vec2 {
+  Vec2(1.0, 0.0)
+}
+
+///|
+pub fn Vec2::y_axis() -> Vec2 {
+  Vec2(0.0, 1.0)
+}
+
+///|
+pub fn Vec2::is_finite(self : Vec2) -> Bool {
+  self.x.is_finite() && self.y.is_finite()
+}
+
+///|
+pub fn Vec2::distance_squared(self : Vec2, other : Vec2) -> Double {
+  let dx = self.x - other.x
+  let dy = self.y - other.y
+  dx * dx + dy * dy
+}
+
+///|
+pub fn Vec2::lerp(self : Vec2, other : Vec2, alpha : Double) -> Vec2 {
+  Vec2(
+    self.x * (1.0 - alpha) + other.x * alpha,
+    self.y * (1.0 - alpha) + other.y * alpha,
+  )
+}
+
+///|
 pub fn Vec2::distance(self : Vec2, other : Vec2) -> Double {
   (self - other).length()
 }

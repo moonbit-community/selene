@@ -682,7 +682,7 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
       }
       dir_lights.push({
         direction: transform
-        .transform_vector3(local_direction)
+        .transform_vector(local_direction)
         .try_normalize()
         .unwrap_or(local_direction),
         color: light.color,
@@ -726,7 +726,7 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
         light.direction.normalize_or_zero()
       }
       let world_direction = transform
-        .transform_vector3(local_direction)
+        .transform_vector(local_direction)
         .try_normalize()
         .unwrap_or(local_direction)
       spot_lights.push({

@@ -247,7 +247,10 @@ fn apply_additive_value(
       let mut output = value
       for pair in values {
         if pair.0 is Quat(add) {
-          let weighted = @math.Quat::identity().nlerp(add, pair.1)
+          let rotation = @math.Rotation3::try_from_quat(add).unwrap_or_default()
+          let weighted = @math.Rotation3::identity()
+            .nlerp(rotation, pair.1)
+            .to_quat()
           output = (output * weighted).normalize_or_identity()
         }
       }

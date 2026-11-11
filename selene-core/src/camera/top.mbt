@@ -206,8 +206,8 @@ fn viewport_to_world_affine(
     @system.get_zoom()
   let center = viewport.position + viewport.size.scalar_mul(0.5)
   camera_transform.affine.project_xy() *
-  @math.Affine2::from_scale(world_units_per_pixel, world_units_per_pixel) *
-  @math.Affine2::from_translation(-center.x, -center.y)
+  @math.Affine2::from_scale(Vec2(world_units_per_pixel, world_units_per_pixel)) *
+  @math.Affine2::from_translation(Vec2(-center.x, -center.y))
 }
 
 ///|

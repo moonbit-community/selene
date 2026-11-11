@@ -274,8 +274,139 @@ test "skinning uses the joint world affine for positions and normals" {
     }
     let affine = @transform.global_transform(joint).unwrap().affine
     assert_true(
-      deformed.positions[0].distance(affine.transform_point3(point)) < 1.0e-10,
+      deformed.positions[0].distance(affine.transform_point(point)) < 1.0e-10,
     )
     assert_true(deformed.normals.unwrap()[0].dot(affine.y_axis).abs() < 1.0e-10)
+  })
+}
+
+///|
+test "linear rotation sampling follows the shortest arc at constant speed" {
+  let axis = @math.Vec3::z_axis()
+  let start = @math.Rotation3::identity().to_quat()
+  let end = @math.Rotation3::from_axis_angle(axis, 2.0).to_quat()
+  let keys : Array[QuatKeyframe] = [
+    { time: 0.0, value: start, in_tangent: None, out_tangent: None, },
+    { time: 1.0, value: end, in_tangent: None, out_tangent: None, },
+  ]
+  let actual = @math.Rotation3::try_from_quat(sample_quat(keys, 0.25, Linear)).unwrap()
+  let expected = @math.Rotation3::from_axis_angle(axis, 0.5)
+  assert_true(
+    actual
+    .rotate_vec3(@math.Vec3::x_axis())
+    .distance(expected.rotate_vec3(@math.Vec3::x_axis())) <
+    1.0e-12,
+  )
+  let negative = @math.Quat(-end.x, -end.y, -end.z, -end.w)
+  keys[0] = { ..keys[0], value: end, }
+  keys[1] = { ..keys[1], value: negative, }
+  let midpoint = @math.Rotation3::try_from_quat(sample_quat(keys, 0.5, Linear)).unwrap()
+  assert_true(
+    midpoint
+    .rotate_vec3(@math.Vec3::x_axis())
+    .distance(
+      @math.Rotation3::try_from_quat(end)
+      .unwrap()
+      .rotate_vec3(@math.Vec3::x_axis()),
+    ) <
+    1.0e-12,
+  )
+}
+
+///|
+test "skinning blends four affine joints and ignores inactive influences" {
+  with_animation_test_world(fn() raise {
+    let world = @ecs.require_current_world()
+    let point = @math.Vec3(3.0, 5.0, 7.0)
+    let target = world.spawn(())
+    let mesh = @render3d.register_mesh_asset(@render3d.triangle_mesh([point]))
+    defer @render3d.release_mesh_asset(mesh)
+    let joints = Array::makei(4, i => {
+      world.spawn1(
+        @transform.Spatial({
+          translation: Vec3(i.to_double(), 2.0, -1.0),
+          rotation: @math.Rotation3::from_axis_angle(
+            @math.Vec3::z_axis(),
+            i.to_double() * 0.3,
+          ),
+          scale: Vec3(1.0 + i.to_double(), 2.0, 1.0),
+        }),
+      )
+    })
+    let binding : SkinnedMeshBinding3D = {
+      target_entity: target,
+      mesh,
+      base_positions: [point],
+      indices: None,
+      topology: TriangleList,
+      base_normals: [@math.Vec3::x_axis()],
+      uv_sets: [],
+      colors: None,
+      tangents: Some([{ x: 0.0, y: 1.0, z: 0.0, w: 1.0, }]),
+      morph_targets: [],
+      morph_weights: [],
+      influences: [
+        {
+          joint0: 0,
+          joint1: 1,
+          joint2: 2,
+          joint3: 3,
+          weight0: 0.1,
+          weight1: 0.2,
+          weight2: 0.3,
+          weight3: 0.4,
+        },
+      ],
+      joint_entities: joints,
+      inverse_bind_matrices: [],
+    }
+    bind_skinned_mesh(target, binding)
+    @transform.transform_propagate_system(0.0)
+    animation_skinning_system(0.0)
+    guard @render3d.mesh_asset(mesh).unwrap().primitive is Triangles(deformed) else {
+      fail("expected a skinned mesh")
+    }
+    let weights = [0.1, 0.2, 0.3, 0.4]
+    let mut position = @math.Vec3::zero()
+    let mut tangent = @math.Vec3::zero()
+    for i, joint in joints {
+      let affine = @transform.global_transform(joint).unwrap().affine
+      position += affine.transform_point(point).scalar_mul(weights[i])
+      tangent += affine.y_axis.scalar_mul(weights[i])
+    }
+    assert_true(deformed.positions[0].distance(position) < 1.0e-12)
+    assert_true(deformed.normals.unwrap()[0].dot(tangent).abs() < 1.0e-12)
+    let actual_tangent = deformed.tangents.unwrap()[0]
+    assert_true(
+      @math.Vec3(actual_tangent.x, actual_tangent.y, actual_tangent.z).distance(
+        tangent.normalize_or_zero(),
+      ) <
+      1.0e-12,
+    )
+
+    bind_skinned_mesh(target, {
+      ..binding,
+      influences: [
+        {
+          joint0: 0,
+          joint1: -1,
+          joint2: 99,
+          joint3: 3,
+          weight0: 0.75,
+          weight1: 1.0,
+          weight2: 1.0,
+          weight3: 0.0,
+        },
+      ],
+    })
+    animation_skinning_system(0.0)
+    guard @render3d.mesh_asset(mesh).unwrap().primitive is Triangles(deformed) else {
+      fail("expected a skinned mesh")
+    }
+    let expected = @transform.global_transform(joints[0])
+      .unwrap()
+      .transform_point(point)
+      .scalar_mul(0.75)
+    assert_true(deformed.positions[0].distance(expected) < 1.0e-12)
   })
 }

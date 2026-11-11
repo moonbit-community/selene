@@ -91,7 +91,11 @@ pub fn Mat4::to_column_major(self : Mat4) -> Array[Double] {
 ///|
 /// Converts a matrix with affine last row `[0, 0, 0, 1]`.
 pub fn Mat4::try_to_affine(self : Mat4) -> Affine3? {
-  guard self.m30 == 0.0 && self.m31 == 0.0 && self.m32 == 0.0 && self.m33 == 1.0 else {
+  guard self.is_finite() &&
+    self.m30 == 0.0 &&
+    self.m31 == 0.0 &&
+    self.m32 == 0.0 &&
+    self.m33 == 1.0 else {
     None
   }
   Some(self.affine_part())
@@ -153,15 +157,30 @@ pub fn Mat4::look_at_rh(eye : Vec3, target : Vec3, up : Vec3) -> Mat4 {
 
 ///|
 /// Right-handed perspective with depth in [0, 1] and vertical FOV in radians.
+/// Inputs must be finite with 0 < FOV < pi, aspect > 0, and 0 < near < far.
+/// The resulting coefficients must be representable. Invalid input aborts.
 pub fn Mat4::perspective_rh_zo(
   fov_y_radians : Double,
   aspect : Double,
   near : Double,
   far : Double,
 ) -> Mat4 {
+  guard fov_y_radians.is_finite() &&
+    fov_y_radians > 0.0 &&
+    fov_y_radians < @cmath.PI &&
+    aspect.is_finite() &&
+    aspect > 0.0 &&
+    near.is_finite() &&
+    near > 0.0 &&
+    far.is_finite() &&
+    far > near else {
+    abort(
+      "perspective requires finite 0 < fov < pi, aspect > 0 and 0 < near < far",
+    )
+  }
   let f = 1.0 / @cmath.tan(fov_y_radians * 0.5)
   let depth = near - far
-  {
+  let matrix : Mat4 = {
     m00: f / aspect,
     m01: 0.0,
     m02: 0.0,
@@ -179,18 +198,34 @@ pub fn Mat4::perspective_rh_zo(
     m32: -1.0,
     m33: 0.0,
   }
+  guard matrix.is_finite() else {
+    abort("projection coefficients are not representable")
+  }
+  matrix
 }
 
 ///|
 /// Centered right-handed orthographic projection with depth in [0, 1].
+/// Extents must be finite and positive. Near and far must be finite, with
+/// near < far and a representable difference and coefficients. Invalid input aborts.
 pub fn Mat4::orthographic_rh_zo(
   width : Double,
   height : Double,
   near : Double,
   far : Double,
 ) -> Mat4 {
+  guard width.is_finite() &&
+    width > 0.0 &&
+    height.is_finite() &&
+    height > 0.0 &&
+    near.is_finite() &&
+    far.is_finite() &&
+    far > near &&
+    (near - far).is_finite() else {
+    abort("orthographic requires finite positive extents and near < far")
+  }
   let depth = near - far
-  {
+  let matrix : Mat4 = {
     m00: 2.0 / width,
     m01: 0.0,
     m02: 0.0,
@@ -208,6 +243,10 @@ pub fn Mat4::orthographic_rh_zo(
     m32: 0.0,
     m33: 1.0,
   }
+  guard matrix.is_finite() else {
+    abort("projection coefficients are not representable")
+  }
+  matrix
 }
 
 ///|
@@ -264,7 +303,8 @@ pub fn Mat4::from_affine(affine : Affine3) -> Mat4 {
 }
 
 ///|
-pub fn Mat4::mul(self : Mat4, other : Mat4) -> Mat4 {
+/// `a * b` applies `b` first and then `a`.
+pub impl Mul for Mat4 with fn mul(self, other) {
   {
     m00: self.m00 * other.m00 +
     self.m01 * other.m10 +
@@ -332,6 +372,10 @@ pub fn Mat4::mul(self : Mat4, other : Mat4) -> Mat4 {
     self.m33 * other.m33,
   }
 }
+
+///|
+#deprecated
+pub extend Mat4 with Mul::{mul}
 
 ///|
 fn Mat4::transform_xyz(self : Mat4, point : Vec3) -> Vec3 {
@@ -424,3 +468,23 @@ pub impl Add for Mat4 with fn add(lhs, rhs) {
 ///|
 #deprecated
 pub extend Mat4 with Add::{add}
+
+///|
+pub fn Mat4::is_finite(self : Mat4) -> Bool {
+  self.m00.is_finite() &&
+  self.m01.is_finite() &&
+  self.m02.is_finite() &&
+  self.m03.is_finite() &&
+  self.m10.is_finite() &&
+  self.m11.is_finite() &&
+  self.m12.is_finite() &&
+  self.m13.is_finite() &&
+  self.m20.is_finite() &&
+  self.m21.is_finite() &&
+  self.m22.is_finite() &&
+  self.m23.is_finite() &&
+  self.m30.is_finite() &&
+  self.m31.is_finite() &&
+  self.m32.is_finite() &&
+  self.m33.is_finite()
+}

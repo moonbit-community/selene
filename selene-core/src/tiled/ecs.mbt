@@ -1011,9 +1011,9 @@ fn tiled_object_rotation_transform(
   if object.rotation == 0.0 {
     return @math.Affine2::identity()
   }
-  @math.Affine2::from_translation(0.0, size.y) *
+  @math.Affine2::from_translation(Vec2(0.0, size.y)) *
   @math.Affine2::from_rotation_deg(object.rotation) *
-  @math.Affine2::from_translation(0.0, -size.y)
+  @math.Affine2::from_translation(Vec2(0.0, -size.y))
 }
 
 ///|

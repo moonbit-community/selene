@@ -3,3 +3,7 @@ import {
   "moonbitlang/core/cmp",
   "moonbitlang/core/math" @cmath,
 }
+
+import {
+  "moonbitlang/core/bench",
+} for "test"

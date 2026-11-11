@@ -115,7 +115,13 @@ pub fn GlobalTransform::translation(self : GlobalTransform) -> @math.Vec3 {
 ///|
 /// Decomposes finite TRS, returning None for shear. A collapsed axis has no
 /// unique orientation, so its basis is completed from the surviving axes.
-pub fn GlobalTransform::try_decompose_trs(self : GlobalTransform) -> Transform? {
+/// Tolerance bounds normalized basis and reconstruction error. Match it to
+/// source precision when importing transforms.
+pub fn GlobalTransform::try_decompose_trs(
+  self : GlobalTransform,
+  tolerance~ : Double = 1.0e-8,
+) -> Transform? {
+  guard tolerance.is_finite() && tolerance >= 0.0 else { None }
   let { x_axis, y_axis, z_axis, translation, } = self.affine
   let scale_x = x_axis.length()
   let scale_y = y_axis.length()
@@ -150,7 +156,19 @@ pub fn GlobalTransform::try_decompose_trs(self : GlobalTransform) -> Transform? 
       (@math.Vec3::x_axis(), @math.Vec3::y_axis(), @math.Vec3::z_axis())
   }
   let sign = if x.cross(y).dot(z) < 0.0 { -1.0 } else { 1.0 }
-  guard @math.Rotation3::from_basis(x, y.scalar_mul(sign), z) is Some(rotation) else {
+  guard @math.Rotation3::try_from_basis(x, y.scalar_mul(sign), z, tolerance~)
+    is Some(rotation) else {
+    None
+  }
+  let basis = @math.Affine3::from_scale_rotation_translation(
+    @math.Vec3::one(),
+    rotation,
+    @math.Vec3::zero(),
+  )
+  let allowed_error = tolerance * tolerance
+  guard basis.x_axis.distance_squared(x) <= allowed_error &&
+    basis.y_axis.distance_squared(y.scalar_mul(sign)) <= allowed_error &&
+    basis.z_axis.distance_squared(z) <= allowed_error else {
     None
   }
   Some({ translation, rotation, scale: Vec3(scale_x, scale_y * sign, scale_z), })
@@ -161,7 +179,7 @@ pub fn GlobalTransform::transform_point(
   self : GlobalTransform,
   point : @math.Vec3,
 ) -> @math.Vec3 {
-  self.affine.transform_point3(point)
+  self.affine.transform_point(point)
 }
 
 ///|

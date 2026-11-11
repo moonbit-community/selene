@@ -1741,7 +1741,8 @@ fn draw_triangle_mesh_instance(
     let normals = resolve_mesh_normals(mesh)
     let tangents = resolve_mesh_tangents(mesh)
     let transformed_positions = transform_positions3d(mesh.positions, transform)
-    let transformed_normals = transform_normals3d(normals, transform)
+    let normal_transform = transform.normal_transform()
+    let transformed_normals = transform_normals3d(normals, normal_transform)
     let draw_colored = fn() {
       webgpu_draw_colored_triangles_3d(
         flatten_colored_vertices3d(
@@ -1818,7 +1819,11 @@ fn draw_triangle_mesh_instance(
                   occlusion_input.uvs,
                   normal_input.uvs,
                   transformed_normals,
-                  transform_tangents3d(tangents, transform),
+                  transform_tangents3d(
+                    tangents,
+                    transform,
+                    normal_transform.handedness(),
+                  ),
                   mesh.colors,
                   @smath.Vec3::one(),
                   material,
@@ -2220,20 +2225,16 @@ fn transform_positions3d(
   positions : Array[@smath.Vec3],
   transform : @smath.Affine3,
 ) -> Array[@smath.Vec3] {
-  positions.map(position => transform.transform_point3(position))
+  positions.map(position => transform.transform_point(position))
 }
 
 ///|
 fn transform_normals3d(
   normals : Array[@smath.Vec3],
-  transform : @smath.Affine3,
+  normal_transform : @smath.NormalTransform3,
 ) -> Array[@smath.Vec3] {
-  let (normal_map, _) = transform.normal_matrix()
   normals.map(normal => {
-    normal_map
-    .transform_vector3(normal)
-    .try_normalize()
-    .unwrap_or(@smath.Vec3::y_axis())
+    normal_transform.transform_normal(normal).unwrap_or(@smath.Vec3::y_axis())
   })
 }
 
@@ -2241,11 +2242,11 @@ fn transform_normals3d(
 fn transform_tangents3d(
   tangents : Array[@render3d_types.Tangent3D],
   transform : @smath.Affine3,
+  handedness : Double,
 ) -> Array[@render3d_types.Tangent3D] {
-  let (_, handedness) = transform.normal_matrix()
   tangents.map(tangent => {
     let direction = transform
-      .transform_vector3(Vec3(tangent.x, tangent.y, tangent.z))
+      .transform_vector(Vec3(tangent.x, tangent.y, tangent.z))
       .try_normalize()
       .unwrap_or(@smath.Vec3::x_axis())
     {

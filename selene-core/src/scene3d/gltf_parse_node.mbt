@@ -29,7 +29,8 @@ fn parse_matrix_transform(values : Array[Json]) -> @transform.Transform? {
     matrix.try_to_affine() is Some(affine) else {
     None
   }
-  @transform.GlobalTransform::{ affine, }.try_decompose_trs()
+  // Exporters commonly serialize node matrices from Float32 transforms.
+  @transform.GlobalTransform::{ affine, }.try_decompose_trs(tolerance=1.0e-6)
 }
 
 ///|
@@ -125,7 +126,7 @@ fn parse_rotation(value : Json?, fallback : @math.Rotation3) -> @math.Rotation3 
   let y = json_number(values[1]).unwrap_or(q.y)
   let z = json_number(values[2]).unwrap_or(q.z)
   let w = json_number(values[3]).unwrap_or(q.w)
-  @math.Rotation3::from_quat(Quat(x, y, z, w)).unwrap_or(fallback)
+  @math.Rotation3::try_from_quat(Quat(x, y, z, w)).unwrap_or(fallback)
 }
 
 ///|

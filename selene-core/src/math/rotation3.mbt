@@ -13,6 +13,7 @@
 // limitations under the License.
 
 ///|
+/// Raw XYZW quaternion components, including non-unit animation derivatives.
 #derive(Eq, Debug)
 pub(all) struct Quat {
   x : Double
@@ -59,8 +60,9 @@ pub fn Quat::length_squared(self : Quat) -> Double {
 }
 
 ///|
+/// Normalizes finite nonzero values, returning identity for invalid input.
 pub fn Quat::normalize_or_identity(self : Quat) -> Quat {
-  Rotation3::from_quat(self).unwrap_or_default().to_quat()
+  Rotation3::try_from_quat(self).unwrap_or_default().to_quat()
 }
 
 ///|
@@ -80,21 +82,6 @@ pub extend Quat with Mul::{mul}
 ///|
 pub fn Quat::dot(self : Quat, other : Quat) -> Double {
   self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
-}
-
-///|
-pub fn Quat::nlerp(self : Quat, other : Quat, alpha : Double) -> Quat {
-  let rhs = if self.dot(other) < 0.0 {
-    Quat(-other.x, -other.y, -other.z, -other.w)
-  } else {
-    other
-  }
-  Quat(
-    self.x * (1.0 - alpha) + rhs.x * alpha,
-    self.y * (1.0 - alpha) + rhs.y * alpha,
-    self.z * (1.0 - alpha) + rhs.z * alpha,
-    self.w * (1.0 - alpha) + rhs.w * alpha,
-  ).normalize_or_identity()
 }
 
 ///|
@@ -128,7 +115,11 @@ pub extend Rotation3 with Default::{default}
 
 ///|
 /// Rejects zero and non-finite quaternions.
-pub fn Rotation3::from_quat(value : Quat) -> Rotation3? {
+pub fn Rotation3::try_from_quat(value : Quat) -> Rotation3? {
+  let squared = value.length_squared()
+  if squared >= 1.0e-300 && squared.is_finite() {
+    return Some(Rotation3::normalized(value.x, value.y, value.z, value.w))
+  }
   guard value.x.is_finite() &&
     value.y.is_finite() &&
     value.z.is_finite() &&
@@ -156,20 +147,31 @@ pub fn Rotation3::to_quat(self : Rotation3) -> Quat {
 }
 
 ///|
-/// Returns the identity for a zero or non-finite axis or non-finite angle.
-pub fn Rotation3::from_axis_angle(axis : Vec3, radians : Double) -> Rotation3 {
-  guard radians.is_finite() && axis.try_normalize() is Some(axis) else {
-    return Rotation3::identity()
-  }
+/// Returns None for a zero/non-finite axis or a non-finite angle. Angles are radians.
+pub fn Rotation3::try_from_axis_angle(
+  axis : Vec3,
+  radians : Double,
+) -> Rotation3? {
+  guard radians.is_finite() && axis.try_normalize() is Some(axis) else { None }
   let half = radians * 0.5
   let sin_half = @cmath.sin(half)
-  {
+  Some({
     value: Quat(
       axis.x * sin_half,
       axis.y * sin_half,
       axis.z * sin_half,
       @cmath.cos(half),
     ),
+  })
+}
+
+///|
+/// Constructs a rotation in radians. The axis must be finite and nonzero,
+/// and the angle must be finite. Invalid input aborts.
+pub fn Rotation3::from_axis_angle(axis : Vec3, radians : Double) -> Rotation3 {
+  match Rotation3::try_from_axis_angle(axis, radians) {
+    Some(rotation) => rotation
+    None => abort("rotation requires a finite nonzero axis and finite angle")
   }
 }
 
@@ -182,7 +184,15 @@ pub fn Rotation3::inverse(self : Rotation3) -> Rotation3 {
 /// `a * b` applies `b` first and then `a`.
 pub impl Mul for Rotation3 with fn mul(self, other) {
   // Products of unit quaternions are nonzero and finite.
-  Rotation3::from_quat(self.value * other.value).unwrap()
+  let left = self.value
+  let right = other.value
+  // Keep the product in scalars until constructing the normalized rotation.
+  Rotation3::normalized(
+    left.w * right.x + left.x * right.w + left.y * right.z - left.z * right.y,
+    left.w * right.y - left.x * right.z + left.y * right.w + left.z * right.x,
+    left.w * right.z + left.x * right.y - left.y * right.x + left.z * right.w,
+    left.w * right.w - left.x * right.x - left.y * right.y - left.z * right.z,
+  )
 }
 
 ///|
@@ -192,18 +202,27 @@ pub extend Rotation3 with Mul::{mul}
 ///|
 pub fn Rotation3::rotate_vec3(self : Rotation3, vector : Vec3) -> Vec3 {
   let q = self.value
-  let axis = Vec3(q.x, q.y, q.z)
-  let twice_cross = axis.cross(vector).scalar_mul(2.0)
-  vector + twice_cross.scalar_mul(q.w) + axis.cross(twice_cross)
+  let tx = 2.0 * (q.y * vector.z - q.z * vector.y)
+  let ty = 2.0 * (q.z * vector.x - q.x * vector.z)
+  let tz = 2.0 * (q.x * vector.y - q.y * vector.x)
+  Vec3(
+    vector.x + q.w * tx + q.y * tz - q.z * ty,
+    vector.y + q.w * ty + q.z * tx - q.x * tz,
+    vector.z + q.w * tz + q.x * ty - q.y * tx,
+  )
 }
 
 ///|
-pub fn Rotation3::from_basis(
+/// Checks unit lengths, orthogonality and positive handedness. The tolerance
+/// is dimensionless. Use a tolerance matching the precision of imported data.
+pub fn Rotation3::try_from_basis(
   x_axis : Vec3,
   y_axis : Vec3,
   z_axis : Vec3,
+  tolerance~ : Double = 1.0e-8,
 ) -> Rotation3? {
-  let epsilon = 1.0e-8
+  guard tolerance.is_finite() && tolerance >= 0.0 else { None }
+  let epsilon = tolerance
   guard (x_axis.length_squared() - 1.0).abs() <= epsilon &&
     (y_axis.length_squared() - 1.0).abs() <= epsilon &&
     (z_axis.length_squared() - 1.0).abs() <= epsilon &&
@@ -213,7 +232,103 @@ pub fn Rotation3::from_basis(
     x_axis.cross(y_axis).dot(z_axis) > 0.0 else {
     None
   }
-  Rotation3::from_quat(quat_from_basis(x_axis, y_axis, z_axis))
+  Rotation3::try_from_quat(quat_from_basis(x_axis, y_axis, z_axis))
+}
+
+///|
+/// Shortest-path normalized linear interpolation. Alpha must be finite.
+pub fn Rotation3::nlerp(
+  self : Rotation3,
+  other : Rotation3,
+  alpha : Double,
+) -> Rotation3 {
+  guard alpha.is_finite() else {
+    abort("rotation interpolation requires finite alpha")
+  }
+  let start = self.value
+  let end = if start.dot(other.value) < 0.0 {
+    other.value.negated()
+  } else {
+    other.value
+  }
+  if start == end {
+    return self
+  }
+  let left = 1.0 - alpha
+  let mixed = Quat(
+    start.x * left + end.x * alpha,
+    start.y * left + end.y * alpha,
+    start.z * left + end.z * alpha,
+    start.w * left + end.w * alpha,
+  )
+  match Rotation3::try_from_quat(mixed) {
+    Some(rotation) => rotation
+    None => {
+      // Scale extrapolation weights before mixing to avoid overflow.
+      let scale = @cmp.maximum(left.abs(), alpha.abs())
+      let left = left / scale
+      let right = alpha / scale
+      Rotation3::try_from_quat(
+        Quat(
+          start.x * left + end.x * right,
+          start.y * left + end.y * right,
+          start.z * left + end.z * right,
+          start.w * left + end.w * right,
+        ),
+      ).unwrap()
+    }
+  }
+}
+
+///|
+/// Shortest-path spherical interpolation at constant angular speed.
+/// Alpha must be finite. Values outside [0, 1] extrapolate.
+pub fn Rotation3::slerp(
+  self : Rotation3,
+  other : Rotation3,
+  alpha : Double,
+) -> Rotation3 {
+  guard alpha.is_finite() else {
+    abort("rotation interpolation requires finite alpha")
+  }
+  let dot = self.value.dot(other.value)
+  let end = if dot < 0.0 { other.value.negated() } else { other.value }
+  let cosine = @cmp.minimum(dot.abs(), 1.0)
+  if cosine > 1.0 - 1.0e-12 {
+    return self.nlerp(other, alpha)
+  }
+  let angle = @cmath.acos(cosine)
+  // Reducing alpha first also keeps extreme extrapolation weights finite.
+  let phase = alpha % (2.0 * @cmath.PI / angle) * angle
+  let right = @cmath.sin(phase)
+  let left = @cmath.sin(angle - phase)
+  let start = self.value
+  // The common 1/sin(angle) factor disappears during normalization.
+  Rotation3::normalized(
+    start.x * left + end.x * right,
+    start.y * left + end.y * right,
+    start.z * left + end.z * right,
+    start.w * left + end.w * right,
+  )
+}
+
+///|
+fn Quat::negated(self : Quat) -> Quat {
+  Quat(-self.x, -self.y, -self.z, -self.w)
+}
+
+///|
+/// For bounded, finite, nonzero quaternion components trusted by Rotation3.
+fn Rotation3::normalized(
+  x : Double,
+  y : Double,
+  z : Double,
+  w : Double,
+) -> Rotation3 {
+  let reciprocal = 1.0 / (x * x + y * y + z * z + w * w).sqrt()
+  {
+    value: Quat(x * reciprocal, y * reciprocal, z * reciprocal, w * reciprocal),
+  }
 }
 
 ///|

@@ -156,6 +156,14 @@ pub fn Vec3::length(self : Vec3) -> Double {
 }
 
 ///|
+pub fn Vec3::distance_squared(self : Vec3, other : Vec3) -> Double {
+  let dx = self.x - other.x
+  let dy = self.y - other.y
+  let dz = self.z - other.z
+  dx * dx + dy * dy + dz * dz
+}
+
+///|
 pub fn Vec3::distance(self : Vec3, other : Vec3) -> Double {
   (self - other).length()
 }
@@ -180,5 +188,9 @@ pub fn Vec3::normalize_or_zero(self : Vec3) -> Vec3 {
 
 ///|
 pub fn Vec3::lerp(self : Vec3, other : Vec3, alpha : Double) -> Vec3 {
-  self.scalar_mul(1.0 - alpha) + other.scalar_mul(alpha)
+  Vec3(
+    self.x * (1.0 - alpha) + other.x * alpha,
+    self.y * (1.0 - alpha) + other.y * alpha,
+    self.z * (1.0 - alpha) + other.z * alpha,
+  )
 }

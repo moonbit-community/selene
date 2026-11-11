@@ -69,32 +69,66 @@ pub fn Affine3::from_scale_rotation_translation(
   let wy = q.w * y2
   let wz = q.w * z2
   {
-    x_axis: Vec3(1.0 - (yy + zz), xy + wz, xz - wy).scalar_mul(scale.x),
-    y_axis: Vec3(xy - wz, 1.0 - (xx + zz), yz + wx).scalar_mul(scale.y),
-    z_axis: Vec3(xz + wy, yz - wx, 1.0 - (xx + yy)).scalar_mul(scale.z),
+    x_axis: Vec3(
+      (1.0 - (yy + zz)) * scale.x,
+      (xy + wz) * scale.x,
+      (xz - wy) * scale.x,
+    ),
+    y_axis: Vec3(
+      (xy - wz) * scale.y,
+      (1.0 - (xx + zz)) * scale.y,
+      (yz + wx) * scale.y,
+    ),
+    z_axis: Vec3(
+      (xz + wy) * scale.z,
+      (yz - wx) * scale.z,
+      (1.0 - (xx + yy)) * scale.z,
+    ),
     translation,
   }
 }
 
 ///|
-pub fn Affine3::transform_vector3(self : Affine3, value : Vec3) -> Vec3 {
-  self.x_axis.scalar_mul(value.x) +
-  self.y_axis.scalar_mul(value.y) +
-  self.z_axis.scalar_mul(value.z)
+pub fn Affine3::transform_vector(self : Affine3, value : Vec3) -> Vec3 {
+  Vec3(
+    self.x_axis.x * value.x + self.y_axis.x * value.y + self.z_axis.x * value.z,
+    self.x_axis.y * value.x + self.y_axis.y * value.y + self.z_axis.y * value.z,
+    self.x_axis.z * value.x + self.y_axis.z * value.y + self.z_axis.z * value.z,
+  )
 }
 
 ///|
-pub fn Affine3::transform_point3(self : Affine3, value : Vec3) -> Vec3 {
-  self.translation + self.transform_vector3(value)
+pub fn Affine3::transform_point(self : Affine3, value : Vec3) -> Vec3 {
+  Vec3(
+    self.translation.x +
+    (
+      self.x_axis.x * value.x +
+      self.y_axis.x * value.y +
+      self.z_axis.x * value.z
+    ),
+    self.translation.y +
+    (
+      self.x_axis.y * value.x +
+      self.y_axis.y * value.y +
+      self.z_axis.y * value.z
+    ),
+    self.translation.z +
+    (
+      self.x_axis.z * value.x +
+      self.y_axis.z * value.y +
+      self.z_axis.z * value.z
+    ),
+  )
 }
 
 ///|
+/// `a * b` applies `b` first and then `a`.
 pub impl Mul for Affine3 with fn mul(self, other) {
   {
-    x_axis: self.transform_vector3(other.x_axis),
-    y_axis: self.transform_vector3(other.y_axis),
-    z_axis: self.transform_vector3(other.z_axis),
-    translation: self.transform_point3(other.translation),
+    x_axis: self.transform_vector(other.x_axis),
+    y_axis: self.transform_vector(other.y_axis),
+    z_axis: self.transform_vector(other.z_axis),
+    translation: self.transform_point(other.translation),
   }
 }
 
@@ -103,10 +137,45 @@ pub impl Mul for Affine3 with fn mul(self, other) {
 pub extend Affine3 with Mul::{mul}
 
 ///|
-/// Returns a linear map for normals and the handedness of the original basis.
-/// Normalize the transformed normal. For a singular basis this uses its
-/// cofactors, which can still give the normal of a surviving tangent plane.
-pub fn Affine3::normal_matrix(self : Affine3) -> (Affine3, Double) {
+/// A cached direction map for normals, including reflection handedness.
+/// The cofactor basis also supports surviving tangent planes of singular transforms.
+pub struct NormalTransform3 {
+  priv x_axis : Vec3
+  priv y_axis : Vec3
+  priv z_axis : Vec3
+  priv sign : Double
+}
+
+///|
+/// Returns -1 for reflections and +1 otherwise, including collapsed bases.
+pub fn NormalTransform3::handedness(self : NormalTransform3) -> Double {
+  self.sign
+}
+
+///|
+/// Applies the direction map and normalizes the result. Returns None if no
+/// finite nonzero normal survives. Magnitudes are intentionally discarded.
+pub fn NormalTransform3::transform_normal(
+  self : NormalTransform3,
+  normal : Vec3,
+) -> Vec3? {
+  Vec3(
+    self.x_axis.x * normal.x +
+    self.y_axis.x * normal.y +
+    self.z_axis.x * normal.z,
+    self.x_axis.y * normal.x +
+    self.y_axis.y * normal.y +
+    self.z_axis.y * normal.z,
+    self.x_axis.z * normal.x +
+    self.y_axis.z * normal.y +
+    self.z_axis.z * normal.z,
+  ).try_normalize()
+}
+
+///|
+/// Precomputes a direction transform for normals. Reuse it across mesh vertices.
+/// This operation scales cofactors to avoid overflow and preserves reflections.
+pub fn Affine3::normal_transform(self : Affine3) -> NormalTransform3 {
   let scale = self.linear_scale()
   let scaled = if scale > 0.0 { scale } else { 1.0 }
   let x = self.x_axis.scalar_div(scaled)
@@ -116,15 +185,12 @@ pub fn Affine3::normal_matrix(self : Affine3) -> (Affine3, Double) {
   let ny = z.cross(x)
   let nz = x.cross(y)
   let sign = if x.dot(nx) < 0.0 { -1.0 } else { 1.0 }
-  (
-    {
-      x_axis: nx.scalar_mul(sign),
-      y_axis: ny.scalar_mul(sign),
-      z_axis: nz.scalar_mul(sign),
-      translation: Vec3::zero(),
-    },
+  {
+    x_axis: nx.scalar_mul(sign),
+    y_axis: ny.scalar_mul(sign),
+    z_axis: nz.scalar_mul(sign),
     sign,
-  )
+  }
 }
 
 ///|
@@ -179,7 +245,7 @@ pub fn Affine3::inverse(self : Affine3) -> Affine3? {
     z_axis: Vec3(row_x.z, row_y.z, row_z.z).scalar_div(det).scalar_div(scale),
     translation: Vec3::zero(),
   }
-  let translation = inverse.transform_vector3(-self.translation)
+  let translation = inverse.transform_vector(-self.translation)
   guard translation.is_finite() else { None }
   Some({ ..inverse, translation, })
 }

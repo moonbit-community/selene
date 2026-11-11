@@ -348,8 +348,7 @@ fn ldtk_spawn_level_background(
         image_size = Vec2(bg_pos.crop_width, bg_pos.crop_height)
       }
       image_transform = @math.Affine2::from_scale(
-        bg_pos.scale.x,
-        bg_pos.scale.y,
+        Vec2(bg_pos.scale.x, bg_pos.scale.y),
       )
     }
     let scaled_size = @math.Vec2(

@@ -290,32 +290,35 @@ fn sprite_size(sprite : Sprite) -> @math.Vec2? {
 fn sprite_local_transform(sprite : Sprite, size : @math.Vec2) -> @math.Affine2 {
   let anchor_offset = anchor_translation(sprite.anchor, size)
   let anchor_transform = @math.Affine2::from_translation(
-    anchor_offset.x,
-    anchor_offset.y,
+    Vec2(anchor_offset.x, anchor_offset.y),
   )
   let flip_transform = @math.Affine2::from_translation(
-      if sprite.flip_x {
-        size.x
-      } else {
-        0.0
-      },
-      if sprite.flip_y {
-        size.y
-      } else {
-        0.0
-      },
+      Vec2(
+        if sprite.flip_x {
+          size.x
+        } else {
+          0.0
+        },
+        if sprite.flip_y {
+          size.y
+        } else {
+          0.0
+        },
+      ),
     ) *
     @math.Affine2::from_scale(
-      if sprite.flip_x {
-        -1.0
-      } else {
-        1.0
-      },
-      if sprite.flip_y {
-        -1.0
-      } else {
-        1.0
-      },
+      Vec2(
+        if sprite.flip_x {
+          -1.0
+        } else {
+          1.0
+        },
+        if sprite.flip_y {
+          -1.0
+        } else {
+          1.0
+        },
+      ),
     )
   anchor_transform * flip_transform
 }

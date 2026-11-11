@@ -41,11 +41,6 @@ fn resolved_placement(
 }
 
 ///|
-fn point_distance(lhs : @math.Vec2, rhs : @math.Vec2) -> Double {
-  (lhs - rhs).length()
-}
-
-///|
 fn hit_radius(radius : Double) -> Double {
   @cmp.maximum(radius, radius * 1.35)
 }
@@ -56,5 +51,5 @@ fn point_in_circle(
   center : @math.Vec2,
   radius : Double,
 ) -> Bool {
-  point_distance(point, center) <= radius
+  radius >= 0.0 && point.distance_squared(center) <= radius * radius
 }

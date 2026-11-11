@@ -199,8 +199,10 @@ fn spawn_tiled_tile_layer_physics(
     guard tile_definition.object_layer is Some(object_layer) else { continue }
     let tile_size = tiled_tileset_tile_size(map, tileset)
     let base_transform = @math.Affine2::from_translation(
-        tiled_cell_position(map, tileset, cell).x,
-        tiled_cell_position(map, tileset, cell).y,
+        Vec2(
+          tiled_cell_position(map, tileset, cell).x,
+          tiled_cell_position(map, tileset, cell).y,
+        ),
       ) *
       tiled_gid_transform(cell.gid, tile_size)
     let inherited_properties = tile_definition.properties
@@ -508,7 +510,7 @@ fn spawn_tiled_physics_spec(
 
 ///|
 fn tiled_collision_object_transform(object : TiledObject) -> @math.Affine2 {
-  @math.Affine2::from_translation(object.x, object.y) *
+  @math.Affine2::from_translation(Vec2(object.x, object.y)) *
   @math.Affine2::from_rotation_deg(object.rotation)
 }
 

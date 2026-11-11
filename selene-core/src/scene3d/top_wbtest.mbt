@@ -513,11 +513,39 @@ test "glTF node matrices preserve zero scale and reject shear" {
   let pose = parse_matrix_transform(values).unwrap().compute_affine()
   assert_true(pose.x_axis.length() == 0.0 && pose.y_axis.length() == 0.0)
   assert_true(
-    pose.transform_point3(Vec3(1.0, 1.0, 1.0)).distance(Vec3(4.0, 3.0, 6.0)) <
+    pose.transform_point(Vec3(1.0, 1.0, 1.0)).distance(Vec3(4.0, 3.0, 6.0)) <
     1.0e-12,
   )
 
   let sheared = @json.parse("[1,0,0,0, 1,1,0,0, 0,0,1,0, 0,0,0,1]")
+  guard json_array(sheared) is Some(values) else {
+    fail("matrix fixture must be an array")
+  }
+  assert_true(parse_matrix_transform(values) is None)
+}
+
+///|
+test "glTF accepts Float32 rounded rotations while rejecting actual shear" {
+  let rotation = @math.Rotation3::from_axis_angle(Vec3(1.0, 2.0, 3.0), 0.7)
+  let affine = @math.Affine3::from_scale_rotation_translation(
+    Vec3(2.0, 3.0, -4.0),
+    rotation,
+    Vec3(5.0, 6.0, 7.0),
+  )
+  let values = @math.Mat4::from_affine(affine)
+    .to_column_major()
+    .map(value => Float::from_double(value).to_double())
+  let matrix = @json.parse(
+    "[" + values.map(value => value.to_string()).join(",") + "]",
+  )
+  guard json_array(matrix) is Some(values) else {
+    fail("matrix fixture must be an array")
+  }
+  let actual = parse_matrix_transform(values).unwrap().compute_affine()
+  assert_true(actual.x_axis.distance(affine.x_axis) < 1.0e-6)
+  assert_true(actual.y_axis.distance(affine.y_axis) < 1.0e-6)
+  assert_true(actual.z_axis.distance(affine.z_axis) < 1.0e-6)
+  let sheared = @json.parse("[1,0,0,0, 0.001,1,0,0, 0,0,1,0, 0,0,0,1]")
   guard json_array(sheared) is Some(values) else {
     fail("matrix fixture must be an array")
   }

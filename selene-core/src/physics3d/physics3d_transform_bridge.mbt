@@ -25,7 +25,7 @@ fn rotation_to_rapier(rotation : @math.Rotation3) -> @core.Quat {
 
 ///|
 fn rotation_from_rapier(value : @core.Quat) -> @math.Rotation3 {
-  @math.Rotation3::from_quat(
+  @math.Rotation3::try_from_quat(
     Quat(
       value.x.to_double(),
       value.y.to_double(),

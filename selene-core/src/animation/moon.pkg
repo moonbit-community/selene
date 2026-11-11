@@ -13,3 +13,7 @@ import {
 }
 
 formatter(ignore: [ "animation_assets.g.mbt", "animation_types.g.mbt" ])
+
+import {
+  "moonbitlang/core/bench",
+} for "wbtest"
