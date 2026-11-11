@@ -10,7 +10,7 @@ from pathlib import Path
 ENGINE_MODULES = ("selene-core", "selene-webgpu")
 EXAMPLE_MODULES = ("examples", "examples-web")
 CODEGEN_PIN_FILES = (
-    ".github/workflows/build.yaml", "examples/moon.mod", "examples-web/moon.mod",
+    ".github/workflows/build.yaml", "examples/moon.mod",
     "selene-codegen/README.md", "selene-core/src/ecs/README.md",
 )
 
