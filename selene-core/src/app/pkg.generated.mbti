@@ -5,11 +5,17 @@ import {
   "Milky2018/selene/ecs",
   "Milky2018/selene/event",
   "Milky2018/selene/runtime_debug",
-  "Milky2018/selene/system",
-  "Milky2018/selene/system_set",
+  "moonbitlang/core/debug",
 }
 
 // Values
+pub fn after(SystemSet) -> SystemOrdering
+
+pub fn before(SystemSet) -> SystemOrdering
+
+pub fn in_set(SystemSet) -> SystemOrdering
+
+pub fn merge(SystemOrdering, SystemOrdering) -> SystemOrdering
 
 // Errors
 
@@ -30,8 +36,8 @@ pub fn App::App() -> Self
 pub fn[T] App::add_message(Self, @event.Events[T]) -> Self
 pub fn App::add_plugin(Self, (Self) -> Self) -> Self
 pub fn App::add_plugins(Self, Array[(Self) -> Self]) -> Self
-pub fn App::add_system(Self, @system.Schedule, (@ecs.World) -> Unit, system_name? : String, in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
-pub fn App::add_systems(Self, @system.Schedule, Array[(@ecs.World) -> Unit], in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
+pub fn App::add_system(Self, Schedule, (@ecs.World) -> Unit, system_name? : String, in_set? : SystemSet, before? : Array[SystemSet], after? : Array[SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
+pub fn App::add_systems(Self, Schedule, Array[(@ecs.World) -> Unit], in_set? : SystemSet, before? : Array[SystemSet], after? : Array[SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
 pub fn[T : @ecs.Resource] App::insert_resource(Self, T) -> Self
 pub fn App::run(Self) -> Unit
 pub fn App::run_frames(Self, Int32, raw_delta? : Double, fixed_delta_override? : Double?) -> Unit
@@ -49,11 +55,11 @@ pub fn App::world(Self) -> @ecs.World
 
 pub(all) struct RegisteredSystem {
   system : (@ecs.World) -> Unit
-  schedule : @system.Schedule
+  schedule : Schedule
   name : String
-  in_set : @system_set.SystemSet?
-  before : Array[@system_set.SystemSet]
-  after : Array[@system_set.SystemSet]
+  in_set : SystemSet?
+  before : Array[SystemSet]
+  after : Array[SystemSet]
   run_if : ((@ecs.World) -> Bool)?
 }
 
@@ -79,6 +85,46 @@ pub(all) struct RuntimePlan {
   render_stage : Array[RegisteredSystem]
   render_cleanup : Array[RegisteredSystem]
 }
+
+pub(all) enum Schedule {
+  Startup
+  First
+  PreUpdate
+  OnExit(() -> Bool)
+  OnEnter(() -> Bool)
+  FixedUpdate
+  FixedFirst
+  FixedPreUpdate
+  FixedPostUpdate
+  FixedLast
+  Update
+  PostUpdate
+  Last
+  RenderExtract
+  RenderPrepare
+  Render
+  RenderCleanup
+}
+
+pub(all) struct SystemOrdering {
+  set : SystemSet?
+  before : Array[SystemSet]
+  after : Array[SystemSet]
+}
+pub fn SystemOrdering::with_after(Self, SystemSet) -> Self
+pub fn SystemOrdering::with_before(Self, SystemSet) -> Self
+pub fn SystemOrdering::with_set(Self, SystemSet) -> Self
+
+#derive(Eq, Hash, @debug.Debug)
+pub(all) struct SystemSet {
+  name : String
+}
+pub fn SystemSet::SystemSet(String) -> Self
+pub fn SystemSet::equal(Self, Self) -> Bool
+pub fn SystemSet::hash(Self) -> Int32
+pub fn SystemSet::hash_combine(Self, Hasher) -> Unit
+pub fn SystemSet::not_equal(Self, Self) -> Bool
+pub fn SystemSet::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 pub type Plugin = (App) -> App

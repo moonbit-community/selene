@@ -8,7 +8,7 @@ test "BENCH-UI prepare borders in paint order" (b : @bench.T) {
   for stride in [1, 8] {
     let world = @ecs.World()
     @ecs.set_current_world(world)
-    @system.configure_display(960.0, 540.0, 1.0)
+    @window.configure_display(960.0, 540.0, 1.0)
     let root = @ui.nodes()
       .spawn_plan(world)
       .spawn(Node(width=@ui.Val::px(960.0), height=@ui.Val::px(540.0)))

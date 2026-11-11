@@ -14,7 +14,7 @@
 
 ///|
 pub fn debug_plugin(app : @app.App) -> @app.App {
-  let render_prepare = @system_set.SystemSet("render_prepare")
+  let render_prepare = @app.SystemSet("render_prepare")
   let app = add_system(
     app,
     @physics2d.debug_colliders_system,

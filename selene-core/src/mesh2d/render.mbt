@@ -38,7 +38,7 @@ pub fn render_mesh2d_system(delta : Double) -> Unit {
         mesh_asset,
         material,
         depth,
-        @camera.pixel_snapped_position(@system.scale_vec2(screen_pos)),
+        @camera.pixel_snapped_position(@window.scale_vec2(screen_pos)),
         @camera.camera_screen_transform(global_transform, None),
         None,
         sorting,

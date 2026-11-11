@@ -161,7 +161,7 @@ fn screen_point(
   let world_point_2d = @math.Vec2(world_point.x, world_point.y)
   match camera_view {
     Some(camera_view) => camera_view.world_to_viewport(world_point_2d)
-    None => @system.scale_vec2(world_point_2d)
+    None => @window.scale_vec2(world_point_2d)
   }
 }
 

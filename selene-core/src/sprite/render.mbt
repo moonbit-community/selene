@@ -46,7 +46,7 @@ pub fn render_sprite_system(delta : Double) -> Unit {
         sprite,
         size,
         depth,
-        @camera.pixel_snapped_position(@system.scale_vec2(screen_pos)),
+        @camera.pixel_snapped_position(@window.scale_vec2(screen_pos)),
         @camera.camera_screen_transform(global_transform, None) *
         local_transform,
         None,

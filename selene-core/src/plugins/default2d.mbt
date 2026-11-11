@@ -15,21 +15,21 @@
 ///|
 pub fn default_plugin(app : @app.App) -> @app.App {
   let app = register_builtin_messages(app)
-  let input = @system_set.SystemSet("input")
-  let pointer_input = @system_set.SystemSet("pointer_input")
-  let ui_input = @system_set.SystemSet("ui_input")
-  let touch_controls = @system_set.SystemSet("touch_controls")
-  let physics = @system_set.SystemSet("physics")
-  let gameplay = @system_set.SystemSet("gameplay")
-  let audio = @system_set.SystemSet("audio")
-  let time = @system_set.SystemSet("time")
-  let animation = @system_set.SystemSet("animation")
-  let transform = @system_set.SystemSet("transform")
-  let ui = @system_set.SystemSet("ui")
-  let render_extract = @system_set.SystemSet("render_extract")
-  let render_prepare = @system_set.SystemSet("render_prepare")
-  let touch_controls_render = @system_set.SystemSet("touch_controls_render")
-  let render_submit = @system_set.SystemSet("render_submit")
+  let input = @app.SystemSet("input")
+  let pointer_input = @app.SystemSet("pointer_input")
+  let ui_input = @app.SystemSet("ui_input")
+  let touch_controls = @app.SystemSet("touch_controls")
+  let physics = @app.SystemSet("physics")
+  let gameplay = @app.SystemSet("gameplay")
+  let audio = @app.SystemSet("audio")
+  let time = @app.SystemSet("time")
+  let animation = @app.SystemSet("animation")
+  let transform = @app.SystemSet("transform")
+  let ui = @app.SystemSet("ui")
+  let render_extract = @app.SystemSet("render_extract")
+  let render_prepare = @app.SystemSet("render_prepare")
+  let touch_controls_render = @app.SystemSet("touch_controls_render")
+  let render_submit = @app.SystemSet("render_submit")
 
   let app = add_system(
     app,
@@ -92,7 +92,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @system.sync_mouse_lock_system,
+    @window.sync_mouse_lock_system,
     PreUpdate,
     "Sync Mouse Lock",
     after=[input],
@@ -143,7 +143,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @system.timers_system,
+    @time.timers_system,
     PostUpdate,
     "Timer System",
     in_set=time,

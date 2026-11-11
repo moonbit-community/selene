@@ -95,7 +95,7 @@ fn camera_culling_context(
     camera.target - camera.position,
     camera.up,
   )
-  let viewport = @system.get_viewport_size()
+  let viewport = @window.get_viewport_size()
   let aspect = if viewport.y <= 0.0000001 {
     1.0
   } else {

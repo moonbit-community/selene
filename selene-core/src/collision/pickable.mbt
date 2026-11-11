@@ -187,9 +187,9 @@ fn pickable_line_tolerance(camera_view : @camera.Camera2dView?) -> Double {
       } else {
         camera_view.projection.scale
       }
-      4.0 * projection_scale / @cmp.maximum(@system.get_zoom(), 0.000001)
+      4.0 * projection_scale / @cmp.maximum(@window.get_zoom(), 0.000001)
     }
-    None => 4.0 / @cmp.maximum(@system.get_zoom(), 0.000001)
+    None => 4.0 / @cmp.maximum(@window.get_zoom(), 0.000001)
   }
 }
 
@@ -289,9 +289,9 @@ pub fn pickable_click_system(_delta : Double) -> Unit {
   let camera_view = @camera.camera2d_view_for_screen_point(mouse_screen)
   let mouse_world = match camera_view {
     Some(camera_view) => camera_view.viewport_to_world_2d(mouse_screen)
-    None => @system.unscale_vec2(mouse_screen)
+    None => @window.unscale_vec2(mouse_screen)
   }
-  let mouse_virtual = @system.screen_to_ui_virtual(mouse_screen)
+  let mouse_virtual = @window.screen_to_ui_virtual(mouse_screen)
   for entity, pickable in pickables() {
     guard entity.is_alive() else { continue }
     guard pickable.active else { continue }

@@ -64,7 +64,7 @@ test "floating stick writes virtual axes and consumes its touch" {
   with_touch_controls_test_world(fn() raise {
     clear_controls()
     @inputs.clear_virtual_controls()
-    @system.configure_display(400.0, 300.0, 1.0)
+    @window.configure_display(400.0, 300.0, 1.0)
     let axis_x = @inputs.VirtualAxis("move-x")
     let axis_y = @inputs.VirtualAxis("move-y")
     add_virtual_stick_control(
@@ -106,7 +106,7 @@ test "button control writes virtual button only for unconsumed touches" {
   with_touch_controls_test_world(fn() raise {
     clear_controls()
     @inputs.clear_virtual_controls()
-    @system.configure_display(400.0, 300.0, 1.0)
+    @window.configure_display(400.0, 300.0, 1.0)
     let button = @inputs.VirtualButton("jump")
     add_virtual_button_control(
       VirtualButtonControl(

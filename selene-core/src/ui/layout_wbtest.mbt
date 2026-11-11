@@ -323,10 +323,10 @@ test "ui layout projects nested border and padding offsets exactly once" {
 ///|
 test "ui layout config controls screen-space rounding for viewport-scaled rects" {
   let old_scale_mode = get_ui_scale_mode()
-  let old_viewport = @system.get_viewport_size()
-  let old_zoom = @system.get_zoom()
+  let old_viewport = @window.get_viewport_size()
+  let old_zoom = @window.get_zoom()
   set_ui_scale_mode(Viewport)
-  @system.configure_display(101.0, 101.0, 1.5)
+  @window.configure_display(101.0, 101.0, 1.5)
 
   let logical_rect : @math.Rect = {
     position: Vec2(33.835, 33.835),
@@ -356,12 +356,12 @@ test "ui layout config controls screen-space rounding for viewport-scaled rects"
   )
 
   set_ui_scale_mode(old_scale_mode)
-  @system.configure_display(old_viewport.x, old_viewport.y, old_zoom)
+  @window.configure_display(old_viewport.x, old_viewport.y, old_zoom)
 }
 
 ///|
 test "ui target camera layouts use the camera viewport as screen-space origin" {
-  @system.configure_display(200.0, 120.0, 1.0)
+  @window.configure_display(200.0, 120.0, 1.0)
   let camera_draft = @ecs.require_current_world().spawn_draft()
   camera_draft.add_to(
     @camera.cameras(),

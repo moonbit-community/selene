@@ -192,6 +192,16 @@ value is missing. `create` receives the requested World.
 
 ## Schedules and commands
 
+`@ecs.System` is a function from `World` to `Unit`. Application stages such as
+`Startup`, `Update`, and `FixedUpdate` belong to `@app.Schedule`. System groups
+and their ordering are also owned by `app`:
+
+```moonbit
+let movement = @app.SystemSet("movement")
+let animation = @app.SystemSet("animation")
+app.add_system(Update, move_system, in_set=movement, before=[animation])
+```
+
 Use `@ecs.commands(world)` to queue structural changes. The ECS schedule applies
 one command batch and completes entity lifecycle changes when the systems finish.
 Commands added while applying a batch run at the next synchronization point.
@@ -203,6 +213,19 @@ The scheduler rejects nested schedules and schedules started during a query.
 Messages and observers live in `@event`. Queue an event operation with
 `commands.add(_ => events.trigger(message, target))` when it should run with
 deferred work.
+
+Timeouts belong to `time` and are stored in the active World. The default plugins
+advance them once per frame. Cancellation remains valid when another World is
+active. Timers scheduled by a callback become eligible on the next timer tick.
+
+```moonbit
+let handle = @time.timeout(0.5, () => finish_action())
+ignore(handle.cancel())
+```
+
+Timeouts use scaled frame time by default. Pass `pausible=false` for unscaled
+frame time. Custom loops can call `@time.timers_system(@time.delta())` after
+advancing the World's clock.
 
 ## Code generation
 

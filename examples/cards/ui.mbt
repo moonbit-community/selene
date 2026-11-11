@@ -269,7 +269,7 @@ fn handle_cards_touch_shortcuts() -> Bool {
   if !game_state().waiting_for_player {
     return false
   }
-  let screen = @system.get_screen_size()
+  let screen = @window.get_screen_size()
   for event in @ui.unconsumed_touch_changes_this_frame() {
     if event.primary && event.phase == Ended {
       match touch_action_at(event.position, screen) {

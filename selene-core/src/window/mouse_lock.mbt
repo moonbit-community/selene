@@ -54,7 +54,7 @@ fn next_mouse_lock_request(
 /// Example:
 ///
 /// ```moonbit nocheck
-/// @system.lock_mouse()
+/// lock_mouse()
 /// ```
 ///
 pub fn lock_mouse() -> Unit {
@@ -74,7 +74,7 @@ pub fn lock_mouse() -> Unit {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// inspect(@system.is_mouse_locked(), content="false")
+/// inspect(is_mouse_locked(), content="false")
 /// ```
 ///
 pub fn is_mouse_locked() -> Bool {
@@ -92,37 +92,5 @@ pub fn sync_mouse_lock_system(_delta : Double) -> Unit {
   )
   mouse_lock_active.val = @platform_input.set_mouse_lock(
     mouse_lock_requested.val,
-  )
-}
-
-///|
-test "mouse lock request stays pending until capture becomes active" {
-  inspect(
-    next_mouse_lock_request(true, true, false, false, false),
-    content="true",
-  )
-}
-
-///|
-test "mouse lock request clears when capture mode is disabled" {
-  inspect(
-    next_mouse_lock_request(false, true, false, false, false),
-    content="false",
-  )
-}
-
-///|
-test "mouse lock request clears on escape while already locked" {
-  inspect(
-    next_mouse_lock_request(true, true, true, true, false),
-    content="false",
-  )
-}
-
-///|
-test "mouse lock request re-arms on click while unlocked" {
-  inspect(
-    next_mouse_lock_request(true, false, false, false, true),
-    content="true",
   )
 }

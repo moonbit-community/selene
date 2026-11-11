@@ -46,7 +46,7 @@ pub fn add_virtual_stick_control(stick : VirtualStick) -> Unit {
         touch_id: None,
         center: resolved_placement(
           stick.placement,
-          @system.get_screen_size(),
+          @window.get_screen_size(),
           stick.radius,
         ),
         value: @math.Vec2::zero(),

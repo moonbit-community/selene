@@ -4,8 +4,4 @@ import {
   "Milky2018/selene/platform_input",
   "Milky2018/selene/platform_window",
   "Milky2018/selene/math",
-  "Milky2018/selene/time",
-  "moonbitlang/core/cmp",
 }
-
-formatter(ignore: [ "timer.g.mbt" ])

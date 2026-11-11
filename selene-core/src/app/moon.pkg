@@ -1,4 +1,6 @@
 import {
+  "moonbitlang/core/debug",
+  "Milky2018/selene/window",
   "Milky2018/selene/ecs",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
@@ -7,8 +9,6 @@ import {
   "Milky2018/selene/platform_window",
   "Milky2018/selene/runtime_debug",
   "Milky2018/selene/state",
-  "Milky2018/selene/system",
-  "Milky2018/selene/system_set",
   "Milky2018/selene/time",
   "moonbitlang/core/cmp",
   "moonbitlang/core/set",

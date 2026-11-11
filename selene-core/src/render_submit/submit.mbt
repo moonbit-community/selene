@@ -1,6 +1,6 @@
 ///|
 fn full_screen_viewport() -> @math.Rect {
-  { position: @math.Vec2::zero(), size: @system.get_screen_size(), }
+  { position: @math.Vec2::zero(), size: @window.get_screen_size(), }
 }
 
 ///|

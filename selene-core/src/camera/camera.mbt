@@ -82,7 +82,7 @@ pub fn camera2ds() -> @ecs.ComponentStore[Camera2d] {
 
 ///|
 fn full_screen_viewport_rect() -> @math.Rect {
-  { position: @math.Vec2::zero(), size: @system.get_screen_size(), }
+  { position: @math.Vec2::zero(), size: @window.get_screen_size(), }
 }
 
 ///|
@@ -121,7 +121,7 @@ fn viewport_to_world_affine(
   viewport : @math.Rect,
 ) -> @math.Affine2 {
   let world_units_per_pixel = projection_scale(projection.scale) /
-    @system.get_zoom()
+    @window.get_zoom()
   let center = viewport.position + viewport.size.scalar_mul(0.5)
   camera_transform.affine.project_xy() *
   @math.Affine2::from_scale(Vec2(world_units_per_pixel, world_units_per_pixel)) *

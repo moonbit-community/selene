@@ -41,7 +41,7 @@ fn spawn_color_sprite(position : @math.Vec2) -> @ecs.Entity {
 ///|
 test "sprite rendering skips cameras whose viewport does not intersect the sprite" {
   with_sprite_test_world(fn() raise {
-    @system.configure_display(100.0, 100.0, 1.0)
+    @window.configure_display(100.0, 100.0, 1.0)
     @render2d.begin_frame2d_system(0.0)
     let camera_entity = spawn_test_camera({
       position: @math.Vec2::zero(),
@@ -63,7 +63,7 @@ test "sprite rendering skips cameras whose viewport does not intersect the sprit
 ///|
 test "sprite rendering keeps visible sprites inside the camera viewport" {
   with_sprite_test_world(fn() raise {
-    @system.configure_display(100.0, 100.0, 1.0)
+    @window.configure_display(100.0, 100.0, 1.0)
     @render2d.begin_frame2d_system(0.0)
     let camera_entity = spawn_test_camera({
       position: @math.Vec2::zero(),
@@ -85,7 +85,7 @@ test "sprite rendering keeps visible sprites inside the camera viewport" {
 ///|
 test "sprite draw ties keep spawn order after swap-removal" {
   with_sprite_test_world(fn() raise {
-    @system.configure_display(100.0, 100.0, 1.0)
+    @window.configure_display(100.0, 100.0, 1.0)
     let retired = spawn_color_sprite(Vec2(0.0, 0.0))
     let first = spawn_color_sprite(Vec2(0.0, 0.0))
     let second = spawn_color_sprite(Vec2(0.0, 0.0))
@@ -103,7 +103,7 @@ test "sprite draw ties keep spawn order after swap-removal" {
 ///|
 test "sprite world transform preserves shear from its parent" {
   with_sprite_test_world(fn() raise {
-    @system.configure_display(100.0, 100.0, 1.0)
+    @window.configure_display(100.0, 100.0, 1.0)
     @render2d.begin_frame2d_system(0.0)
     let world = @ecs.require_current_world()
     let parent = world.spawn1(
