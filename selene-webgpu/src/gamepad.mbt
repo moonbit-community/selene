@@ -71,9 +71,9 @@ fn sync_buttons(
     (15, DPadRight),
     (16, Mode),
   ]
-  for mapping in mappings {
-    if webgpu_gamepad_button_pressed(id, mapping.0) {
-      buttons.add(GamepadButtonInput(gamepad, mapping.1))
+  for (index, button) in mappings {
+    if webgpu_gamepad_button_pressed(id, index) {
+      buttons.add(GamepadButtonInput(gamepad, button))
     }
   }
 }

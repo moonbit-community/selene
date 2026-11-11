@@ -230,10 +230,8 @@ fn tiled_world_update_chunking(world_entity : @ecs.Entity) -> Unit {
     }
   }
 
-  for pair in instance.spawned_maps.to_array() {
-    let idx = pair.0
+  for (idx, map_entity) in instance.spawned_maps.to_array() {
     if !visible.contains(idx) {
-      let map_entity = pair.1
       despawn_tiled_tree(map_entity)
       instance.spawned_maps.remove(idx)
     }
@@ -980,8 +978,8 @@ fn tiled_world_match_pattern_atom_once(
 
 ///|
 fn tiled_world_char_in_ranges(ch : Char, ranges : Array[(Char, Char)]) -> Bool {
-  for range in ranges {
-    if ch >= range.0 && ch <= range.1 {
+  for (range_start, range_end) in ranges {
+    if ch >= range_start && ch <= range_end {
       return true
     }
   }

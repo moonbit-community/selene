@@ -38,6 +38,9 @@
 
 ### Changed
 
+- Destructure tuple elements directly in `for` patterns across the engine,
+  backend, examples, and tests, removing temporary tuple bindings and projections.
+
 - Apply frozen state-transition batches after `First`/`PreUpdate` and before
   fixed updates. Flush exit commands before committing all changed states,
   then run entry systems and flush their commands. Initial entries run once

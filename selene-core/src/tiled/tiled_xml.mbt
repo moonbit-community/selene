@@ -476,9 +476,9 @@ fn infer_tiled_xml_property_value(value : String) -> TiledPropertyValue {
 
 ///|
 fn xml_attr(node : TiledXmlNode, key : String) -> String? {
-  for attribute in node.attributes {
-    if attribute.0 == key {
-      return Some(attribute.1)
+  for (name, value) in node.attributes {
+    if name == key {
+      return Some(value)
     }
   }
   None

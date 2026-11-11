@@ -47,34 +47,34 @@ fn reset_ldtk_runtime() -> Unit {
     despawn_ldtk_tree(entity)
   }
   ldtk_respawns().clear()
-  for pair in ldtk_pending_transformed_level_iids().to_array() {
-    ldtk_pending_transformed_level_iids().remove(pair.0)
+  for (iid, _) in ldtk_pending_transformed_level_iids().to_array() {
+    ldtk_pending_transformed_level_iids().remove(iid)
   }
-  for pair in ldtk_entity_spawn_hooks().to_array() {
-    ldtk_entity_spawn_hooks().remove(pair.0)
+  for (key, _) in ldtk_entity_spawn_hooks().to_array() {
+    ldtk_entity_spawn_hooks().remove(key)
   }
-  for pair in ldtk_entity_layer_spawn_hooks().to_array() {
-    ldtk_entity_layer_spawn_hooks().remove(pair.0)
+  for (key, _) in ldtk_entity_layer_spawn_hooks().to_array() {
+    ldtk_entity_layer_spawn_hooks().remove(key)
   }
-  for pair in ldtk_entity_layer_identifier_spawn_hooks().to_array() {
-    ldtk_entity_layer_identifier_spawn_hooks().remove(pair.0)
+  for (key, _) in ldtk_entity_layer_identifier_spawn_hooks().to_array() {
+    ldtk_entity_layer_identifier_spawn_hooks().remove(key)
   }
   ldtk_entity_default_spawn_hook().val = None
-  for pair in ldtk_int_grid_layer_spawn_hooks().to_array() {
-    ldtk_int_grid_layer_spawn_hooks().remove(pair.0)
+  for (key, _) in ldtk_int_grid_layer_spawn_hooks().to_array() {
+    ldtk_int_grid_layer_spawn_hooks().remove(key)
   }
-  for pair in ldtk_int_grid_cell_spawn_hooks().to_array() {
-    ldtk_int_grid_cell_spawn_hooks().remove(pair.0)
+  for (key, _) in ldtk_int_grid_cell_spawn_hooks().to_array() {
+    ldtk_int_grid_cell_spawn_hooks().remove(key)
   }
-  for pair in ldtk_int_grid_value_spawn_hooks().to_array() {
-    ldtk_int_grid_value_spawn_hooks().remove(pair.0)
+  for (key, _) in ldtk_int_grid_value_spawn_hooks().to_array() {
+    ldtk_int_grid_value_spawn_hooks().remove(key)
   }
   ldtk_int_grid_default_spawn_hook().val = None
-  for pair in ldtk_entity_typed_registrations().to_array() {
-    ldtk_entity_typed_registrations().remove(pair.0)
+  for (key, _) in ldtk_entity_typed_registrations().to_array() {
+    ldtk_entity_typed_registrations().remove(key)
   }
-  for pair in ldtk_int_cell_typed_registrations().to_array() {
-    ldtk_int_cell_typed_registrations().remove(pair.0)
+  for (key, _) in ldtk_int_cell_typed_registrations().to_array() {
+    ldtk_int_cell_typed_registrations().remove(key)
   }
   ldtk_world_spawned_event_bus.clear()
   ldtk_level_spawned_event_bus.clear()
@@ -224,10 +224,9 @@ fn spawned_entity_by_iid_in_level(
   iid : String,
   level_entity : @ecs.Entity,
 ) -> @ecs.Entity? {
-  for pair in ldtk_spawned_entity_instances().to_array() {
-    let runtime = pair.1
+  for (entity, runtime) in ldtk_spawned_entity_instances().to_array() {
     if runtime.instance.iid == iid && runtime.level_entity == level_entity {
-      return Some(pair.0)
+      return Some(entity)
     }
   }
   None
@@ -236,8 +235,8 @@ fn spawned_entity_by_iid_in_level(
 ///|
 fn worldly_count(world_entity : @ecs.Entity) -> Int32 {
   let mut count = 0
-  for pair in ldtk_worldly_entities().to_array() {
-    if pair.1.world_entity == world_entity {
+  for (_, worldly) in ldtk_worldly_entities().to_array() {
+    if worldly.world_entity == world_entity {
       count += 1
     }
   }
@@ -247,8 +246,8 @@ fn worldly_count(world_entity : @ecs.Entity) -> Int32 {
 ///|
 fn level_background_count(level_iid : String) -> Int32 {
   let mut count = 0
-  for pair in ldtk_level_backgrounds().to_array() {
-    if pair.1.level_iid == level_iid {
+  for (_, background) in ldtk_level_backgrounds().to_array() {
+    if background.level_iid == level_iid {
       count += 1
     }
   }
@@ -258,8 +257,8 @@ fn level_background_count(level_iid : String) -> Int32 {
 ///|
 fn level_background_image_count(level_iid : String) -> Int32 {
   let mut count = 0
-  for pair in ldtk_level_backgrounds().to_array() {
-    if pair.1.level_iid == level_iid && pair.1.rel_path is Some(_) {
+  for (_, background) in ldtk_level_backgrounds().to_array() {
+    if background.level_iid == level_iid && background.rel_path is Some(_) {
       count += 1
     }
   }
@@ -582,13 +581,13 @@ test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
     inspect(level_background_count("level-main"), content="2")
     inspect(level_background_image_count("level-main"), content="1")
     inspect(ldtk_level_backgrounds().to_array().length(), content="2")
-    for pair in ldtk_level_backgrounds().to_array() {
-      inspect(@sprite.sprites().contains(pair.0), content="true")
+    for (entity, _) in ldtk_level_backgrounds().to_array() {
+      inspect(@sprite.sprites().contains(entity), content="true")
     }
     let mut image_background_entity : @ecs.Entity? = None
-    for pair in ldtk_level_backgrounds().to_array() {
-      if pair.1.level_iid == "level-main" && pair.1.rel_path is Some(_) {
-        image_background_entity = Some(pair.0)
+    for (entity, background) in ldtk_level_backgrounds().to_array() {
+      if background.level_iid == "level-main" && background.rel_path is Some(_) {
+        image_background_entity = Some(entity)
       }
     }
     let background_entity = image_background_entity.unwrap()
@@ -1661,9 +1660,7 @@ test "ldtk intgrid spawn hooks apply by layer and cell value" {
 
   let mut cell_value_1 : @ecs.Entity? = None
   let mut cell_value_2 : @ecs.Entity? = None
-  for pair in ldtk_spawned_int_grid_cells().to_array() {
-    let cell_entity = pair.0
-    let runtime = pair.1
+  for (cell_entity, runtime) in ldtk_spawned_int_grid_cells().to_array() {
     if runtime.value == 1 {
       cell_value_1 = Some(cell_entity)
     } else if runtime.value == 2 {
@@ -1739,11 +1736,11 @@ test "ldtk add int cell component helpers can compose per scope" {
 
   let mut value_1_entity : @ecs.Entity? = None
   let mut value_2_entity : @ecs.Entity? = None
-  for pair in ldtk_spawned_int_grid_cells().to_array() {
-    if pair.1.value == 1 {
-      value_1_entity = Some(pair.0)
-    } else if pair.1.value == 2 {
-      value_2_entity = Some(pair.0)
+  for (cell_entity, runtime) in ldtk_spawned_int_grid_cells().to_array() {
+    if runtime.value == 1 {
+      value_1_entity = Some(cell_entity)
+    } else if runtime.value == 2 {
+      value_2_entity = Some(cell_entity)
     }
   }
   let cell_1 = value_1_entity.unwrap()
@@ -1915,8 +1912,7 @@ test "ldtk layer display order uses LDtk top-most first ordering" {
   let world = spawn_ldtk_world(project)
   let mut top_zindex = 0
   let mut bottom_zindex = 0
-  for pair in ldtk_spawned_layer_instances().to_array() {
-    let runtime = pair.1
+  for (_, runtime) in ldtk_spawned_layer_instances().to_array() {
     if runtime.layer.identifier == "Top" {
       top_zindex = runtime.zindex
     } else if runtime.layer.identifier == "Bottom" {
@@ -2037,10 +2033,9 @@ test "ldtk intgrid with tileset skips colorful fallback sprites" {
     inspect(ldtk_spawned_tile_instances().to_array().length(), content="2")
     let mut min_zindex = 999999
     let mut max_zindex = -999999
-    for pair in ldtk_spawned_tile_instances().to_array() {
-      let visual_tile = pair.0
+    for (visual_tile, tile_instance) in ldtk_spawned_tile_instances().to_array() {
       inspect(@sprite.sprites().contains(visual_tile), content="true")
-      let zindex = pair.1.zindex
+      let zindex = tile_instance.zindex
       if zindex < min_zindex {
         min_zindex = zindex
       }

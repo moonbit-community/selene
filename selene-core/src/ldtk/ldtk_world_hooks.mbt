@@ -11,15 +11,15 @@ fn ldtk_force_world_respawn(world_entity : @ecs.Entity) -> Unit {
   guard ldtk_world_instances().get(world_entity) is Some(instance) else {
     return
   }
-  for pair in instance.spawned_levels.to_array() {
-    ldtk_despawn_level(pair.0, pair.1)
-    instance.spawned_levels.remove(pair.0)
+  for (level_iid, level_entity) in instance.spawned_levels.to_array() {
+    ldtk_despawn_level(level_iid, level_entity)
+    instance.spawned_levels.remove(level_iid)
   }
-  for pair in ldtk_worldly_entities().to_array() {
-    if pair.1.world_entity != world_entity {
+  for (entity, worldly) in ldtk_worldly_entities().to_array() {
+    if worldly.world_entity != world_entity {
       continue
     }
-    despawn_ldtk_tree(pair.0)
+    despawn_ldtk_tree(entity)
   }
 }
 
@@ -28,9 +28,7 @@ fn ldtk_force_level_respawns(world_entity : @ecs.Entity) -> Unit {
   guard ldtk_world_instances().get(world_entity) is Some(instance) else {
     return
   }
-  for pair in instance.spawned_levels.to_array() {
-    let level_iid = pair.0
-    let level_entity = pair.1
+  for (level_iid, level_entity) in instance.spawned_levels.to_array() {
     if !ldtk_respawns().contains(level_entity) {
       continue
     }

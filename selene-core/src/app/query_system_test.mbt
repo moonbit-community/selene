@@ -8,8 +8,7 @@ test "a three-component query is constructed once per World" {
   let first = @ecs.World()
   let second = @ecs.World()
   @ecs.set_current_world(second)
-  for pair in [(first, 1.0), (second, 2.0)] {
-    let (world, x) = pair
+  for (world, x) in [(first, 1.0), (second, 2.0)] {
     ignore(
       world.spawn(
         (

@@ -1,8 +1,7 @@
 ///|
 pub fn animation_player_system(delta : Double) -> Unit {
   let targets_by_player = collect_targets_by_player()
-  for _, pair in animation_players().to_array() {
-    let (entity, player) = pair
+  for (entity, player) in animation_players().to_array() {
     if !entity.is_alive() {
       continue
     }
@@ -111,8 +110,7 @@ pub fn animation_player_system(delta : Double) -> Unit {
 
 ///|
 pub fn animation_transition_system(delta : Double) -> Unit {
-  for _, pair in animation_transitions().to_array() {
-    let (entity, transitions) = pair
+  for (entity, transitions) in animation_transitions().to_array() {
     if !entity.is_alive() {
       continue
     }
@@ -155,8 +153,7 @@ pub fn animation_transition_system(delta : Double) -> Unit {
 ///|
 pub fn animation_apply_system(_delta : Double) -> Unit {
   let targets_by_player = collect_targets_by_player()
-  for _, pair in animation_players().to_array() {
-    let (player_entity, player) = pair
+  for (player_entity, player) in animation_players().to_array() {
     guard player_entity.is_alive() else { continue }
     guard animation_graph_handles().get(player_entity) is Some(graph_handle) else {
       continue
@@ -339,8 +336,7 @@ fn update_bound_mesh(
 
 ///|
 pub fn animation_skinning_system(_delta : Double) -> Unit {
-  for _, pair in morphed_meshes().to_array() {
-    let (entity, binding) = pair
+  for (entity, binding) in morphed_meshes().to_array() {
     if !entity.is_alive() {
       if !entity.is_valid_in(@ecs.require_current_world()) {
         morphed_meshes().remove(entity)
@@ -365,8 +361,7 @@ pub fn animation_skinning_system(_delta : Double) -> Unit {
     )
   }
 
-  for _, pair in skinned_meshes().to_array() {
-    let (entity, binding) = pair
+  for (entity, binding) in skinned_meshes().to_array() {
     if !entity.is_alive() {
       if !entity.is_valid_in(@ecs.require_current_world()) {
         skinned_meshes().remove(entity)

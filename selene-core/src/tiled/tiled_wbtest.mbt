@@ -488,8 +488,8 @@ test "spawn_tiled_map creates tile object and image layer entities" {
       animation_image_path(tile_entities[0].0),
       content="Some(\"maps/terrain.png\")",
     )
-    for pair in tile_entities {
-      match tiled_properties().get(pair.0).unwrap().get("solid") {
+    for (tile_entity, _) in tile_entities {
+      match tiled_properties().get(tile_entity).unwrap().get("solid") {
         Some(Bool(true)) => ()
         _ => inspect("missing", content="missing")
       }

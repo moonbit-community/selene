@@ -172,13 +172,13 @@ pub fn validate_registered_texture_atlases() -> Array[
     }
   }
   let reports : Array[(@sprite.TextureAtlasLayoutHandle, AtlasValidationReport)] = []
-  for pair in @sprite.texture_atlas_layout_entries() {
+  for (handle, layout) in @sprite.texture_atlas_layout_entries() {
     reports.push(
       (
-        pair.0,
+        handle,
         validate_texture_atlas_layout_for_image(
-          pair.1,
-          atlas_image_paths.get(pair.0),
+          layout,
+          atlas_image_paths.get(handle),
         ),
       ),
     )

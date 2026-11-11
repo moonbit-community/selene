@@ -51,9 +51,7 @@ fn cleanup_world_components() -> Unit {
   let impulse_joint_handles = impulse_joint_handles()
   let multibody_joint_handles = multibody_joint_handles()
   let collider_entities_by_key = collider_entities_by_key()
-  for pair in collider_handles.to_array() {
-    let entity = pair.0
-    let handle = pair.1
+  for (entity, handle) in collider_handles.to_array() {
     let missing_component = !colliders().contains(entity)
     if !entity.is_alive() ||
       missing_component ||
@@ -64,9 +62,7 @@ fn cleanup_world_components() -> Unit {
     }
   }
 
-  for pair in body_handles.to_array() {
-    let entity = pair.0
-    let handle = pair.1
+  for (entity, handle) in body_handles.to_array() {
     if !entity.is_alive() ||
       !rigid_bodies().contains(entity) ||
       current_world_transform(entity) is None {
@@ -75,15 +71,13 @@ fn cleanup_world_components() -> Unit {
     }
   }
 
-  for pair in impulse_joint_handles.to_array() {
-    let entity = pair.0
+  for (entity, _) in impulse_joint_handles.to_array() {
     if !entity.is_alive() || !impulse_joints().contains(entity) {
       impulse_joint_handles.remove(entity)
     }
   }
 
-  for pair in multibody_joint_handles.to_array() {
-    let entity = pair.0
+  for (entity, _) in multibody_joint_handles.to_array() {
     if !entity.is_alive() || !multibody_joints().contains(entity) {
       multibody_joint_handles.remove(entity)
     }

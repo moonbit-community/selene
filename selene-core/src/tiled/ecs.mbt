@@ -721,13 +721,13 @@ fn tiled_animation_frames_from_definition(
   }
   let first_image = visuals[0].0
   let rects : Array[@math.Rect] = []
-  for visual in visuals {
-    if visual.0 != first_image {
+  for (image, rect) in visuals {
+    if image != first_image {
       rects.clear()
       rects.push(visuals[0].1)
       return (Some(first_image), rects, 0.0)
     }
-    rects.push(visual.1)
+    rects.push(rect)
   }
   (Some(first_image), rects, 1000.0 / step_ms.to_double())
 }

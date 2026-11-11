@@ -1490,11 +1490,11 @@ fn ensure_lit_primitive_mesh_resource(
 fn prune_stale_primitive_mesh_resources() -> Unit {
   let min_live_frame = webgpu_resource_frame.val -
     WEBGPU_PRIMITIVE_MESH_RESOURCE_TTL_FRAMES
-  for pair in primitive_mesh_resource_last_seen.to_array() {
-    if pair.1 < min_live_frame {
-      ignore(primitive_mesh_resource_last_seen.remove(pair.0))
-      ignore(uploaded_primitive_mesh_resources.remove(pair.0))
-      webgpu_release_primitive_mesh_resource(pair.0)
+  for (key, last_seen) in primitive_mesh_resource_last_seen.to_array() {
+    if last_seen < min_live_frame {
+      ignore(primitive_mesh_resource_last_seen.remove(key))
+      ignore(uploaded_primitive_mesh_resources.remove(key))
+      webgpu_release_primitive_mesh_resource(key)
     }
   }
 }
@@ -1509,10 +1509,10 @@ fn mark_retained_instance_buffer_key(key : String) -> String {
 fn prune_stale_retained_instance_buffers3d() -> Unit {
   let min_live_frame = webgpu_resource_frame.val -
     WEBGPU_PRIMITIVE_MESH_RESOURCE_TTL_FRAMES
-  for pair in retained_render3d_instance_last_seen.to_array() {
-    if pair.1 < min_live_frame {
-      ignore(retained_render3d_instance_last_seen.remove(pair.0))
-      webgpu_release_retained_instance_buffer_3d(pair.0)
+  for (key, last_seen) in retained_render3d_instance_last_seen.to_array() {
+    if last_seen < min_live_frame {
+      ignore(retained_render3d_instance_last_seen.remove(key))
+      webgpu_release_retained_instance_buffer_3d(key)
     }
   }
 }
