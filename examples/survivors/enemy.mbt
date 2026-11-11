@@ -249,7 +249,7 @@ let spawners : Array[@math.Vec2] = [
 fn spawn_enemy_system(_world : @ecs.World) -> Unit {
   fn spawn_enemy() -> Unit {
     let game = game_state()
-    if game.game_over {
+    if !is_playing(@ecs.require_current_world()) {
       return
     }
     let rand = game.rand
@@ -459,9 +459,6 @@ fn select_enemy_type_for_wave(rand : @random.Rand) -> EnemyType? {
 ///|
 fn enemy_ai_system(_world : @ecs.World) -> Unit {
   let game = game_state()
-  if game.game_over {
-    return
-  }
   for e, state in enemies() {
     guard e.is_alive() else { continue }
     guard @transform.local_transform(game.player_entity)
@@ -502,9 +499,6 @@ fn enemy_ai_system(_world : @ecs.World) -> Unit {
 fn devil_shooting_system(_world : @ecs.World) -> Unit {
   let game = game_state()
   let delta = @time.delta()
-  if game.game_over {
-    return
-  }
   for e, state in enemies() {
     guard e.is_alive() else { continue }
     // Only Devil enemies shoot
@@ -657,10 +651,6 @@ fn enemy_collision_system(_world : @ecs.World) -> Unit {
 ///|
 fn check_victory_system(_world : @ecs.World) -> Unit {
   let game = game_state()
-  // Don't check if already game over
-  if game.game_over {
-    return
-  }
 
   // Only check after timer has reached 0 (all 10 waves completed)
   if game.game_timer > 0.0 {
@@ -677,6 +667,6 @@ fn check_victory_system(_world : @ecs.World) -> Unit {
 
   // If no enemies left, trigger victory
   if alive_count == 0 {
-    game.game_over = true
+    GamePhase::set(GameOver)
   }
 }

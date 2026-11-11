@@ -6,8 +6,9 @@ pub(all) struct RuntimePlan {
   startup_systems : Array[RegisteredSystem]
   frame_first : Array[RegisteredSystem]
   frame_pre : Array[RegisteredSystem]
-  frame_on_exit : Array[RegisteredSystem]
-  frame_on_enter : Array[RegisteredSystem]
+  state_validations : Array[@ecs.System]
+  state_on_exit : Array[@ecs.System]
+  state_on_enter : Array[@ecs.System]
   frame_update : Array[RegisteredSystem]
   frame_post : Array[RegisteredSystem]
   frame_last : Array[RegisteredSystem]
@@ -86,16 +87,9 @@ fn build_runtime_plan(
     ) {
       schedule is PreUpdate
     }),
-    frame_on_exit: collect_systems(app.systems, deterministic_ordering, fn(
-      schedule,
-    ) {
-      schedule is OnExit(_)
-    }),
-    frame_on_enter: collect_systems(app.systems, deterministic_ordering, fn(
-      schedule,
-    ) {
-      schedule is OnEnter(_)
-    }),
+    state_validations: app.state_validations,
+    state_on_exit: app.state_on_exit,
+    state_on_enter: app.state_on_enter,
     frame_update: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
@@ -166,6 +160,10 @@ fn startup_runtime(plan : RuntimePlan) -> Unit {
   try! @ecs.run_schedule(plan.world, world => {
     run_stage(plan.startup_systems, world)
   })
+  for validate in plan.state_validations {
+    validate(plan.world)
+  }
+  run_state_transitions(plan, initial_only=true)
 }
 
 ///|
@@ -216,6 +214,13 @@ fn run_game_frame(
   @inputs.apply_input_snapshot(injected_or_polled)
   accumulator.val += @time.delta()
 
+  try! @ecs.run_schedule(plan.world, world => {
+    @event.event_frame_update_system(@time.delta())
+    run_stage(plan.frame_first, world)
+    run_stage(plan.frame_pre, world)
+  })
+  run_state_transitions(plan)
+
   let mut fixed_steps = 0
   while accumulator.val >= plan.fixed_dt && fixed_steps < plan.max_fixed_steps {
     run_fixed_step_once(plan)
@@ -229,12 +234,6 @@ fn run_game_frame(
   @time.use_frame_delta()
   let delta = @time.delta()
   try! @ecs.run_schedule(plan.world, world => {
-    @state.state_transition_system(delta)
-    @event.event_frame_update_system(delta)
-    run_stage(plan.frame_first, world)
-    run_stage(plan.frame_pre, world)
-    run_stage(plan.frame_on_exit, world)
-    run_stage(plan.frame_on_enter, world)
     run_stage(plan.frame_update, world)
     run_stage(plan.frame_post, world)
     @event.event_observer_dispatch_system(delta)

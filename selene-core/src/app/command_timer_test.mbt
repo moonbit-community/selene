@@ -13,11 +13,12 @@ test "scheduler flushes commands in FIFO batches after startup and frames" {
       })
       commands.add(_ => calls.push(2))
     })
+    .add_system(PreUpdate, _ => observed.push(calls.copy()))
     .add_system(Update, _ => observed.push(calls.copy()))
     .add_system(RenderExtract, _ => observed.push(calls.copy()))
 
   app.run_frames(1, raw_delta=0.125, fixed_delta_override=Some(1.0))
-  assert_eq(observed, [[1, 2], [1, 2, 3]])
+  assert_eq(observed, [[1, 2], [1, 2, 3], [1, 2, 3]])
   assert_false(@ecs.has_pending_commands(world))
 }
 
@@ -186,6 +187,10 @@ test "entities reserved during a command batch go live with the next batch" {
 
   @app.App()
   .with_world(world)
+  .add_system(PreUpdate, _ => {
+    let (empty, bundled) = spawned.val.unwrap()
+    observed.push((empty.is_alive(), bundled.is_alive(), storage.get(bundled)))
+  })
   .add_system(Update, _ => {
     let (empty, bundled) = spawned.val.unwrap()
     observed.push((empty.is_alive(), bundled.is_alive(), storage.get(bundled)))
@@ -195,5 +200,9 @@ test "entities reserved during a command batch go live with the next batch" {
     observed.push((empty.is_alive(), bundled.is_alive(), storage.get(bundled)))
   })
   .run_frames(1, raw_delta=0.125, fixed_delta_override=Some(1.0))
-  assert_eq(observed, [(false, false, None), (true, true, Some(42))])
+  assert_eq(observed, [
+    (false, false, None),
+    (true, true, Some(42)),
+    (true, true, Some(42)),
+  ])
 }

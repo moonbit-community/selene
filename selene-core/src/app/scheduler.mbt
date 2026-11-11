@@ -221,14 +221,6 @@ fn collect_systems(
 
 ///|
 fn should_run(system : RegisteredSystem, world : @ecs.World) -> Bool {
-  let schedule_allows = match system.schedule {
-    OnEnter(condition) => condition()
-    OnExit(condition) => condition()
-    _ => true
-  }
-  if !schedule_allows {
-    return false
-  }
   match system.run_if {
     Some(condition) => condition(world)
     None => true

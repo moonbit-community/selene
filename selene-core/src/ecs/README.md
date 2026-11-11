@@ -205,8 +205,11 @@ app.add_system(Update, move_system, in_set=movement, before=[animation])
 Use `@ecs.commands(world)` to queue structural changes. The ECS schedule applies
 one command batch and completes entity lifecycle changes when the systems finish.
 Commands added while applying a batch run at the next synchronization point.
-The app runs these schedules at startup, for each fixed step, and for each
-game frame. Render stages consume the resulting state.
+The app runs these schedules at startup, after `First`/`PreUpdate`, for each
+fixed step, and after the ordinary updates. State transitions run between
+`PreUpdate` and fixed updates, with command synchronization after exit and
+entry systems. Render stages consume the resulting state. See the
+[state guide](../state/README.md) for initialization and lifecycle semantics.
 
 Standalone ECS code can run a schedule with `@ecs.run_schedule(world, system)`.
 The scheduler rejects nested schedules and schedules started during a query.
@@ -230,7 +233,8 @@ advancing the World's clock.
 ## Code generation
 
 The generator reads one `.mbt` file and writes a companion `.g.mbt` in the same
-package. Import `Milky2018/selene/ecs` as `@ecs` in packages with generated files.
+package. Import `Milky2018/selene/ecs` as `@ecs` for component and resource
+declarations, or `Milky2018/selene/state` as `@state` for state declarations.
 
 The generator lives in the separate `selene-codegen` module. The core module
 ships its generated sources and can build independently. CI regenerates those
@@ -241,7 +245,7 @@ shown below.
 To regenerate a file, run:
 
 ```sh
-moonx Milky2018/selene_codegen@0.39.2 input.mbt input.g.mbt
+moonx Milky2018/selene_codegen@0.40.0-beta3 input.mbt input.g.mbt
 ```
 
 Projects can define the same rule in their `moon.mod`. During development,
@@ -253,7 +257,7 @@ Stable Selene releases use the matching stable generator. See the
 ```moonbit
 rule(
   name: "selene_codegen",
-  command: "moonx Milky2018/selene_codegen@0.39.2 \"$input\" \"$output\"",
+  command: "moonx Milky2018/selene_codegen@0.40.0-beta3 \"$input\" \"$output\"",
 )
 ```
 

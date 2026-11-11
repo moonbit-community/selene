@@ -188,6 +188,7 @@ pub fn App::step_fixed(
   setup_runtime_world(self)
   let plan = build_runtime_plan(self, fixed_delta_override~)
   startup_runtime(plan)
+  run_state_transitions(plan)
   for _ in 0..<steps {
     run_fixed_step_once(plan)
   }

@@ -28,6 +28,17 @@ const MAP_HEIGHT : Double = 640.0
 const MAP_WIDTH : Double = 640.0
 
 ///|
+#derive(Eq)
+#selene.state
+priv enum GamePhase {
+  Playing
+  GameOver
+}
+
+///|
+let is_playing : (@ecs.World) -> Bool = @state.in_state(GamePhase::Playing)
+
+///|
 pub fn run() -> Unit {
   @app.App()
   .with_viewport_width(VIEWPORT_WIDTH)
@@ -35,13 +46,19 @@ pub fn run() -> Unit {
   .with_image_smooth(false)
   .with_zoom(ZOOM)
   .add_plugin(@plugins.default_plugin)
-  // .add_plugin(@plugins.debug_plugin)
-  .add_systems(Startup, [game_start, spawn_enemy_system])
-  .add_systems(Update, [
-    player_update_system, player_shooting_system, enemy_ai_system, enemy_collision_system,
-    devil_shooting_system, player_bullet_trigger_system, check_victory_system, game_timer_system,
-    score_blink_system,
-  ])
+  .init_state(GamePhase::Playing)
+  .add_on_enter(GamePhase::Playing, game_start)
+  .add_on_enter(GamePhase::GameOver, show_game_over)
+  .add_systems(
+    Update,
+    [
+      player_update_system, player_shooting_system, enemy_ai_system, enemy_collision_system,
+      devil_shooting_system, player_bullet_trigger_system, check_victory_system,
+      game_timer_system,
+    ],
+    run_if=is_playing,
+  )
+  .add_system(Update, score_blink_system)
   .add_system(Update, survivors_camera_follow_system)
   .add_system(PostUpdate, survivors_ui_pointer_system)
   .run()
@@ -57,10 +74,8 @@ priv struct GameState {
   score_box : @ecs.Entity
   mut invincible : Bool
   mut game_timer : Double
-  mut game_over : Bool
   timer_box : @ecs.Entity
   game_over_box : @ecs.Entity
-  mut game_over_displayed : Bool
   mut current_wave : Int32
   wave_box : @ecs.Entity
   mut exp : Int32
@@ -189,6 +204,7 @@ fn survivors_timeout(delay : Double, callback : () -> Unit) -> Unit {
 ///|
 fn reset_survivors_runtime() -> Unit {
   let world = @ecs.require_current_world()
+  @state.initialize(world, GamePhase::Playing)
   let previous : SurvivorsRuntime? = world.get_resource()
   if previous is Some(runtime) {
     for _, timer in runtime.timers {
@@ -238,7 +254,6 @@ fn GameState::GameState() -> GameState {
     ),
     invincible: false,
     game_timer: 600.0,
-    game_over: false,
     timer_box: spawn_text_entity(
       Vec2(VIEWPORT_WIDTH - 140.0, 16.0),
       "Time: 10:00",
@@ -256,7 +271,6 @@ fn GameState::GameState() -> GameState {
       align=Center,
       zindex=PANEL_TEXT_ZINDEX,
     ),
-    game_over_displayed: false,
     current_wave: 1,
     wave_box: spawn_text_entity(
       Vec2(16.0, 84.0),
@@ -560,6 +574,7 @@ fn game_start(_world : @ecs.World) -> Unit {
   add_grass()
   setup_level_up_ui()
   setup_game_over_ui()
+  spawn_enemy_system(_world)
 }
 
 ///|
@@ -601,15 +616,6 @@ fn survivors_camera_follow_system(_world : @ecs.World) -> Unit {
 fn game_timer_system(_world : @ecs.World) -> Unit {
   let game = game_state()
   let delta = @time.delta()
-  if game.game_over {
-    if !game.game_over_displayed {
-      game.game_over_displayed = true
-      set_ui_text(game.game_over_box, "Final Score: " + game.score.to_string())
-      add_game_over_box()
-    }
-    return
-  }
-
   // Continue counting down timer, but don't end game when it reaches 0
   if game.game_timer > 0.0 {
     game.game_timer -= delta
@@ -688,8 +694,13 @@ fn trigger_damage_effect() -> Unit {
 }
 
 ///|
+fn show_game_over(_world : @ecs.World) -> Unit {
+  let game = game_state()
+  set_ui_text(game.game_over_box, "Final Score: " + game.score.to_string())
+  add_game_over_box()
+}
+
+///|
 fn restart_game() -> Unit {
-  let world = @ecs.require_current_world()
-  game_start(world)
-  spawn_enemy_system(world)
+  GamePhase::set(Playing)
 }

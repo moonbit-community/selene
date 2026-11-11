@@ -53,7 +53,8 @@ These tests compile the script and simulate its `moon`, `moonx`, and `git` comma
 ## Generated ECS declarations
 
 Use `#selene.component` and `#selene.resource` as described in the
-[ECS guide](selene-core/src/ecs/README.md). Update the source declarations,
+[ECS guide](selene-core/src/ecs/README.md), and `#selene.state` as described in the
+[state guide](selene-core/src/state/README.md). Update the source declarations,
 regenerate their `.g.mbt` companions, and commit both. CI checks for missing
 or stale companions. The examples use the published, pinned generator through
 `moonx` in `dev_build`.

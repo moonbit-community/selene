@@ -28,6 +28,9 @@ pub(all) struct App {
   world : @ecs.World
   event_registrations : Array[(@ecs.World) -> Unit]
   systems : Array[RegisteredSystem]
+  state_validations : Array[@ecs.System]
+  state_on_enter : Array[@ecs.System]
+  state_on_exit : Array[@ecs.System]
 }
 
 ///|
@@ -44,6 +47,9 @@ pub fn App::App() -> App {
     world,
     event_registrations: [],
     systems: [],
+    state_validations: [],
+    state_on_enter: [],
+    state_on_exit: [],
   }
 }
 

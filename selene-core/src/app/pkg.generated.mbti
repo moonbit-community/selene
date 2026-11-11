@@ -5,6 +5,7 @@ import {
   "Milky2018/selene/ecs",
   "Milky2018/selene/event",
   "Milky2018/selene/runtime_debug",
+  "Milky2018/selene/state",
   "moonbitlang/core/debug",
 }
 
@@ -31,13 +32,19 @@ pub(all) struct App {
   world : @ecs.World
   event_registrations : Array[(@ecs.World) -> Unit]
   systems : Array[RegisteredSystem]
+  state_validations : Array[(@ecs.World) -> Unit]
+  state_on_enter : Array[(@ecs.World) -> Unit]
+  state_on_exit : Array[(@ecs.World) -> Unit]
 }
 pub fn App::App() -> Self
 pub fn[T] App::add_message(Self, @event.Events[T]) -> Self
+pub fn[T : @state.StateType] App::add_on_enter(Self, T, (@ecs.World) -> Unit) -> Self
+pub fn[T : @state.StateType] App::add_on_exit(Self, T, (@ecs.World) -> Unit) -> Self
 pub fn App::add_plugin(Self, (Self) -> Self) -> Self
 pub fn App::add_plugins(Self, Array[(Self) -> Self]) -> Self
 pub fn App::add_system(Self, Schedule, (@ecs.World) -> Unit, system_name? : String, in_set? : SystemSet, before? : Array[SystemSet], after? : Array[SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
 pub fn App::add_systems(Self, Schedule, Array[(@ecs.World) -> Unit], in_set? : SystemSet, before? : Array[SystemSet], after? : Array[SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
+pub fn[T : @state.StateType] App::init_state(Self, T) -> Self
 pub fn[T : @ecs.Resource] App::insert_resource(Self, T) -> Self
 pub fn App::run(Self) -> Unit
 pub fn App::run_frames(Self, Int32, raw_delta? : Double, fixed_delta_override? : Double?) -> Unit
@@ -70,8 +77,9 @@ pub(all) struct RuntimePlan {
   startup_systems : Array[RegisteredSystem]
   frame_first : Array[RegisteredSystem]
   frame_pre : Array[RegisteredSystem]
-  frame_on_exit : Array[RegisteredSystem]
-  frame_on_enter : Array[RegisteredSystem]
+  state_validations : Array[(@ecs.World) -> Unit]
+  state_on_exit : Array[(@ecs.World) -> Unit]
+  state_on_enter : Array[(@ecs.World) -> Unit]
   frame_update : Array[RegisteredSystem]
   frame_post : Array[RegisteredSystem]
   frame_last : Array[RegisteredSystem]
@@ -90,8 +98,6 @@ pub(all) enum Schedule {
   Startup
   First
   PreUpdate
-  OnExit(() -> Bool)
-  OnEnter(() -> Bool)
   FixedUpdate
   FixedFirst
   FixedPreUpdate

@@ -1,33 +1,41 @@
 ///|
-test "restarting Survivors replaces its entities and cancels its old timers" {
+test "state-driven Survivors restart replaces entities and cancels old timers" {
   use_survivors_test_assets()
   defer @asset.set_io(fn(_path) { None })
   let world = @ecs.World()
-  let previous_entities = []
+  let other_entity = world.spawn(())
   let old_callback_ran = Ref(false)
-  let other_entity = Ref(None)
-  @ecs.run_schedule(world, fn(world) {
-    other_entity.val = Some(@ecs.require_current_world().spawn(()))
-    game_start(world)
-    spawn_enemy_system(world)
-    previous_entities.append(survivors_runtime().entities)
+  let app = @app.App()
+    .with_world(world)
+    .init_state(GamePhase::Playing)
+    .add_on_enter(GamePhase::Playing, game_start)
+    .add_on_enter(GamePhase::GameOver, show_game_over)
+    .add_system(PostUpdate, _ => @time.timers_system(0.0))
+  app.run_frames(1)
+  @state.set_next(world, GamePhase::GameOver)
+  app.run_frames(1)
+
+  let previous_entities = []
+  @ecs.run_schedule(world, _ => {
     game_state().score = 200
+    previous_entities.append(survivors_runtime().entities)
     @time.set_scale(0.0)
     survivors_timeout(0.0, () => old_callback_ran.val = true)
-  })
-
-  @ecs.run_schedule(world, fn(_world) {
     restart_game()
-    @time.timers_system(0.0)
   })
+  let before : GamePhase = @state.current(world)
+  assert_true(before == GameOver)
+  app.run_frames(1)
 
   assert_false(previous_entities.is_empty())
   for entity in previous_entities {
     assert_false(entity.is_valid_in(world))
   }
-  assert_true(other_entity.val.unwrap().is_valid_in(world))
+  assert_true(other_entity.is_valid_in(world))
   assert_false(old_callback_ran.val)
   let runtime : SurvivorsRuntime = world.resource()
   assert_eq(runtime.timers.length(), 1)
   assert_eq(runtime.game.unwrap().score, 0)
+  let after : GamePhase = @state.current(world)
+  assert_true(after == Playing)
 }
