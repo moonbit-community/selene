@@ -20,6 +20,15 @@ pub(all) struct Gamepad {
 }
 
 ///|
+pub extend Gamepad with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Gamepad with Eq::{not_equal, equal}
+
+///|
+pub extend Gamepad with Hash::{hash, hash_combine}
+
+///|
 pub fn Gamepad::Gamepad(id : Int32) -> Gamepad {
   { id, }
 }
@@ -55,6 +64,15 @@ pub(all) enum GamepadButton {
 }
 
 ///|
+pub extend GamepadButton with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GamepadButton with Eq::{not_equal, equal}
+
+///|
+pub extend GamepadButton with Hash::{hash, hash_combine}
+
+///|
 /// Logical gamepad axis layout aligned with Bevy conventions.
 #derive(Eq, Debug, Hash)
 pub(all) enum GamepadAxis {
@@ -67,11 +85,26 @@ pub(all) enum GamepadAxis {
 }
 
 ///|
+pub extend GamepadAxis with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GamepadAxis with Eq::{not_equal, equal}
+
+///|
+pub extend GamepadAxis with Hash::{hash, hash_combine}
+
+///|
 #derive(Eq, Debug)
 pub(all) enum GamepadButtonInputState {
   Pressed
   Released
 }
+
+///|
+pub extend GamepadButtonInputState with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GamepadButtonInputState with Eq::{not_equal, equal}
 
 ///|
 pub struct GamepadConnectionEvent {
@@ -100,6 +133,15 @@ pub(all) struct GamepadButtonInput {
 }
 
 ///|
+pub extend GamepadButtonInput with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GamepadButtonInput with Eq::{not_equal, equal}
+
+///|
+pub extend GamepadButtonInput with Hash::{hash, hash_combine}
+
+///|
 pub fn GamepadButtonInput::GamepadButtonInput(
   gamepad : Gamepad,
   button : GamepadButton,
@@ -113,6 +155,15 @@ pub(all) struct GamepadAxisInput {
   gamepad : Gamepad
   axis : GamepadAxis
 }
+
+///|
+pub extend GamepadAxisInput with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GamepadAxisInput with Eq::{not_equal, equal}
+
+///|
+pub extend GamepadAxisInput with Hash::{hash, hash_combine}
 
 ///|
 pub fn GamepadAxisInput::GamepadAxisInput(

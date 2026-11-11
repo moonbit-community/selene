@@ -27,6 +27,9 @@ enum HandRank {
 }
 
 ///|
+pub extend HandRank with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// Convert hand rank to display string
 fn HandRank::hand_rank_to_string(rank : HandRank) -> String {
   match rank {

@@ -38,6 +38,9 @@ enum GamePhase {
 }
 
 ///|
+pub extend GamePhase with Eq::{not_equal, equal}
+
+///|
 /// Player information
 priv struct Player {
   mut chips : Int32

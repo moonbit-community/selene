@@ -6,4 +6,4 @@ import {
   "Milky2018/selene/platform_audio",
 }
 
-formatter(ignore: [ "top.g.mbt" ])
+formatter(ignore: [ "player.g.mbt", "playback_settings.g.mbt" ])

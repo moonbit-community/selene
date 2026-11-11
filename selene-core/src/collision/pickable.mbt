@@ -41,6 +41,9 @@ pub(all) enum PointerPhase {
 }
 
 ///|
+pub extend PointerPhase with Eq::{not_equal, equal}
+
+///|
 /// Pointer event emitted during the latest update frame.
 pub struct PointerEvent {
   entity : @ecs.Entity

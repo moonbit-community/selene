@@ -22,6 +22,9 @@ enum WeaponType {
 }
 
 ///|
+pub extend WeaponType with Eq::{not_equal, equal}
+
+///|
 priv struct WeaponData {
   cooldown_rate : Double // Base cooldown in seconds
   damage_formula : (Double, Double) -> Double // (base_damage, attack) -> damage

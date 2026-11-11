@@ -1,4 +1,39 @@
 ///|
+pub(all) struct DeterministicModeConfig {
+  rng_seed : UInt32
+  fixed_delta_override : Double?
+  frame_delta_override : Double?
+  deterministic_ordering : Bool
+}
+
+///|
+pub(all) enum InputInjectionEvent {
+  KeyDown(@inputs.Code)
+  KeyUp(@inputs.Code)
+  MouseMove(@math.Vec2)
+  MouseDelta(@math.Vec2)
+  MouseWheel(@math.Vec2)
+  MouseLeft(Bool)
+  MouseRight(Bool)
+  MouseMiddle(Bool)
+  GamepadConnected(@inputs.Gamepad, Bool)
+  GamepadButton(@inputs.GamepadButtonInput, Bool)
+  GamepadAxis(@inputs.GamepadAxisInput, Double)
+}
+
+///|
+let deterministic_mode_by_world : Map[UInt32, DeterministicModeConfig] = Map([])
+
+///|
+let rng_state_by_world : Map[UInt32, UInt32] = Map([])
+
+///|
+let queued_inputs_by_world : Map[UInt32, Array[@inputs.InputSnapshot]] = Map([])
+
+///|
+let staged_input_by_world : Map[UInt32, @inputs.InputSnapshot] = Map([])
+
+///|
 fn DeterministicModeConfig::DeterministicModeConfig() -> DeterministicModeConfig {
   {
     rng_seed: 0U,

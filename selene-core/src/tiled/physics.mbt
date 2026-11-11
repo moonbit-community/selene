@@ -32,6 +32,9 @@ pub enum TiledColliderSourceKind {
 }
 
 ///|
+pub extend TiledColliderSourceKind with Eq::{not_equal, equal}
+
+///|
 pub(all) struct TiledPhysicsSettings {
   objects_filter : TiledNameFilter
   tiles_layer_filter : TiledNameFilter

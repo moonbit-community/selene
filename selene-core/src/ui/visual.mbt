@@ -43,6 +43,12 @@ pub(all) struct BorderRadius {
 }
 
 ///|
+pub extend BorderRadius with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BorderRadius with Eq::{not_equal, equal}
+
+///|
 pub fn BorderRadius::all(value : Val) -> BorderRadius {
   {
     top_left: value,
@@ -90,6 +96,12 @@ pub(all) struct ShadowStyle {
 }
 
 ///|
+pub extend ShadowStyle with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ShadowStyle with Eq::{not_equal, equal}
+
+///|
 pub fn ShadowStyle::ShadowStyle(
   color : @render.Color,
   x_offset~ : Val = Val::px(0.0),
@@ -106,6 +118,12 @@ pub fn ShadowStyle::ShadowStyle(
 pub(all) struct BoxShadow {
   layers : Array[ShadowStyle]
 }
+
+///|
+pub extend BoxShadow with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BoxShadow with Eq::{not_equal, equal}
 
 ///|
 pub fn BoxShadow::BoxShadow(layers : Array[ShadowStyle]) -> BoxShadow {
@@ -135,6 +153,12 @@ pub(all) enum ImageFit {
 }
 
 ///|
+pub extend ImageFit with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ImageFit with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 #selene.component
 pub(all) struct UiImage {
@@ -143,6 +167,12 @@ pub(all) struct UiImage {
   tint : @render.Color
   fit : ImageFit
 }
+
+///|
+pub extend UiImage with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend UiImage with Eq::{not_equal, equal}
 
 ///|
 pub fn UiImage::from_image(
@@ -169,11 +199,26 @@ pub fn UiImage::UiImage(
 pub(all) struct UiMaterialHandle(UInt32)
 
 ///|
+pub extend UiMaterialHandle with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend UiMaterialHandle with Eq::{not_equal, equal}
+
+///|
+pub extend UiMaterialHandle with Hash::{hash, hash_combine}
+
+///|
 #derive(Eq, Debug)
 #selene.component
 pub(all) struct MaterialNode {
   material : UiMaterialHandle
 }
+
+///|
+pub extend MaterialNode with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend MaterialNode with Eq::{not_equal, equal}
 
 ///|
 pub fn MaterialNode::MaterialNode(material : UiMaterialHandle) -> MaterialNode {
@@ -186,6 +231,12 @@ pub(all) struct UiGradient {
   color_start : @render.Color
   color_end : @render.Color
 }
+
+///|
+pub extend UiGradient with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend UiGradient with Eq::{not_equal, equal}
 
 ///|
 pub fn UiGradient::UiGradient(
@@ -368,11 +419,23 @@ pub(all) enum TextWrap {
 }
 
 ///|
+pub extend TextWrap with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TextWrap with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) enum TextOverflow {
   Clip
   Ellipsis
 }
+
+///|
+pub extend TextOverflow with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TextOverflow with Eq::{not_equal, equal}
 
 ///|
 #selene.component
@@ -403,6 +466,12 @@ pub(all) struct Button {
 }
 
 ///|
+pub extend Button with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Button with Eq::{not_equal, equal}
+
+///|
 pub fn Button::Button(enabled~ : Bool = true) -> Button {
   { enabled, }
 }
@@ -414,6 +483,12 @@ pub(all) enum Interaction {
   Hovered
   Pressed
 }
+
+///|
+pub extend Interaction with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Interaction with Eq::{not_equal, equal}
 
 ///|
 pub fn background_colors() -> @ecs.ComponentStore[BackgroundColor] {

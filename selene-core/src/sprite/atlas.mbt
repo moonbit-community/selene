@@ -9,11 +9,28 @@ pub(all) struct TextureAtlasLayout {
 pub(all) struct TextureAtlasLayoutHandle(UInt32)
 
 ///|
+pub extend TextureAtlasLayoutHandle with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend TextureAtlasLayoutHandle with Eq::{not_equal, equal}
+
+///|
+pub extend TextureAtlasLayoutHandle with Hash::{hash, hash_combine}
+
+///|
 #derive(Eq, Debug)
 pub(all) struct TextureAtlas {
   layout : TextureAtlasLayoutHandle
   mut index : Int32
 }
+
+///|
+pub extend TextureAtlas with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TextureAtlas with Eq::{not_equal, equal}
 
 ///|
 let texture_atlas_layouts_by_handle : Map[

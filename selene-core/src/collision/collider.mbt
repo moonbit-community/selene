@@ -24,6 +24,9 @@ pub(all) struct Collider {
 }
 
 ///|
+pub extend Collider with Eq::{not_equal, equal}
+
+///|
 pub fn Collider::Collider(filter : CollisionFilter) -> Collider {
   { active: true, filter, friction: 0.5, restitution: 0.0, }
 }

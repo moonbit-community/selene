@@ -8,6 +8,12 @@ pub(all) struct FixedJoint {
 }
 
 ///|
+pub extend FixedJoint with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FixedJoint with Eq::{not_equal, equal}
+
+///|
 pub(all) struct RevoluteJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
@@ -33,12 +39,24 @@ pub(all) struct PrismaticJoint {
 }
 
 ///|
+pub extend PrismaticJoint with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PrismaticJoint with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) struct RopeJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
   max_distance : Double
 }
+
+///|
+pub extend RopeJoint with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RopeJoint with Eq::{not_equal, equal}
 
 ///|
 #derive(Eq, Debug)
@@ -51,12 +69,24 @@ pub(all) struct SpringJoint {
 }
 
 ///|
+pub extend SpringJoint with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SpringJoint with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) struct SphericalJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
   motor_target : (@math.Rotation3, Double, Double)?
 }
+
+///|
+pub extend SphericalJoint with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SphericalJoint with Eq::{not_equal, equal}
 
 ///|
 pub(all) enum Joint {
@@ -109,6 +139,14 @@ pub(all) struct KinematicCharacterControllerOutput {
 }
 
 ///|
+pub extend KinematicCharacterControllerOutput with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend KinematicCharacterControllerOutput with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) struct KinematicCharacterControllerCollision {
   entity : @ecs.Entity?
@@ -119,10 +157,26 @@ pub(all) struct KinematicCharacterControllerCollision {
 }
 
 ///|
+pub extend KinematicCharacterControllerCollision with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend KinematicCharacterControllerCollision with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) struct KinematicCharacterControllerCollisions {
   collisions : Array[KinematicCharacterControllerCollision]
 }
+
+///|
+pub extend KinematicCharacterControllerCollisions with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend KinematicCharacterControllerCollisions with Eq::{not_equal, equal}
 
 ///|
 #derive(Eq, Debug)
@@ -136,12 +190,24 @@ pub(all) struct CollisionEvent {
 }
 
 ///|
+pub extend CollisionEvent with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CollisionEvent with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) struct SensorEvent {
   sensor : @ecs.Entity
   other : @ecs.Entity
   entered : Bool
 }
+
+///|
+pub extend SensorEvent with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SensorEvent with Eq::{not_equal, equal}
 
 ///|
 #derive(Eq, Debug)
@@ -155,12 +221,24 @@ pub(all) struct ContactForceEvent {
 }
 
 ///|
+pub extend ContactForceEvent with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ContactForceEvent with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) struct RaycastHit {
   entity : @ecs.Entity
   toi : Double
   normal : @math.Vec3
 }
+
+///|
+pub extend RaycastHit with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RaycastHit with Eq::{not_equal, equal}
 
 ///|
 #derive(Eq, Debug)
@@ -171,12 +249,24 @@ pub(all) struct ShapeCastHit {
 }
 
 ///|
+pub extend ShapeCastHit with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ShapeCastHit with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) struct PointProjection {
   entity : @ecs.Entity
   point : @math.Vec3
   is_inside : Bool
 }
+
+///|
+pub extend PointProjection with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PointProjection with Eq::{not_equal, equal}
 
 ///|
 pub(all) struct RapierContext {}

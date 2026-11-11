@@ -1,4 +1,141 @@
 ///|
+pub(all) struct EntitySnapshot {
+  entity_id : UInt32
+  name : String?
+  transform : @transform.Transform?
+  global_transform : @transform.GlobalTransform?
+  visibility : @visibility.Visibility?
+  sprite : @sprite.Sprite?
+  rigid_body2d : @physics2d.RigidBody?
+  collider2d : @physics2d.Collider?
+  linear_velocity2d : @physics2d.LinearVelocity?
+}
+
+///|
+pub(all) struct WorldSnapshot {
+  frame_index : UInt32
+  fixed_step_index : UInt32
+  entities : Array[EntitySnapshot]
+  custom_fields : Array[(String, String)]
+}
+
+///|
+#derive(Eq, Debug, ToJson)
+pub(all) struct DebugVec2 {
+  x : Double
+  y : Double
+}
+
+///|
+pub extend DebugVec2 with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DebugVec2 with Eq::{not_equal, equal}
+
+///|
+pub extend DebugVec2 with ToJson::{to_json}
+
+///|
+#derive(Eq, Debug, ToJson)
+pub(all) struct DebugVec3 {
+  x : Double
+  y : Double
+  z : Double
+}
+
+///|
+pub extend DebugVec3 with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DebugVec3 with Eq::{not_equal, equal}
+
+///|
+pub extend DebugVec3 with ToJson::{to_json}
+
+///|
+#derive(Eq, Debug, ToJson)
+pub(all) struct DebugRect {
+  x : Double
+  y : Double
+  width : Double
+  height : Double
+}
+
+///|
+pub extend DebugRect with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DebugRect with Eq::{not_equal, equal}
+
+///|
+pub extend DebugRect with ToJson::{to_json}
+
+///|
+#derive(Eq, Debug, ToJson)
+pub(all) struct DebugColor {
+  r : UInt32
+  g : UInt32
+  b : UInt32
+  a : Double
+}
+
+///|
+pub extend DebugColor with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DebugColor with Eq::{not_equal, equal}
+
+///|
+pub extend DebugColor with ToJson::{to_json}
+
+///|
+#derive(Debug, ToJson)
+pub(all) struct SpriteInspectorEntry {
+  entity_id : UInt32
+  entity_name : String?
+  visible : Bool
+  image_path : String?
+  source_rect : DebugRect?
+  destination_size : DebugVec2?
+  anchor : DebugVec2
+  flip_x : Bool
+  flip_y : Bool
+  local_translation : DebugVec3?
+  world_translation : DebugVec3?
+}
+
+///|
+pub extend SpriteInspectorEntry with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SpriteInspectorEntry with ToJson::{to_json}
+
+///|
+#derive(Debug, ToJson)
+pub(all) struct AtlasOverlayEntry {
+  entity_id : UInt32?
+  layer : String
+  texture_path : String
+  source_rect : DebugRect
+  destination_rect : DebugRect?
+}
+
+///|
+pub extend AtlasOverlayEntry with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AtlasOverlayEntry with ToJson::{to_json}
+
+///|
+pub type SnapshotProvider = (@ecs.World) -> String
+
+///|
+let snapshot_providers : Map[String, SnapshotProvider] = Map([])
+
+///|
+let atlas_overlay_enabled_by_world : Map[UInt32, Bool] = Map([])
+
+///|
 pub fn register_snapshot_provider(
   name : String,
   provider : SnapshotProvider,

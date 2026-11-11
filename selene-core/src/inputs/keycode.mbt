@@ -72,11 +72,26 @@ pub(all) enum Code {
 }
 
 ///|
+pub extend Code with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Code with Eq::{not_equal, equal}
+
+///|
+pub extend Code with Hash::{hash, hash_combine}
+
+///|
 #derive(Eq, Debug)
 pub(all) enum KeyInputState {
   Pressed
   Released
 }
+
+///|
+pub extend KeyInputState with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend KeyInputState with Eq::{not_equal, equal}
 
 ///|
 pub struct KeyInputEvent {

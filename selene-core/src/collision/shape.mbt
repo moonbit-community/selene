@@ -24,6 +24,12 @@ pub(all) enum CollisionShape {
 }
 
 ///|
+pub extend CollisionShape with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CollisionShape with Eq::{not_equal, equal}
+
+///|
 /// Stores collision shapes for entities in the current world.
 ///
 /// Example:

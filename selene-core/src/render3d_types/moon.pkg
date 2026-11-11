@@ -6,4 +6,4 @@ import {
   "moonbitlang/core/math" @cmath,
 }
 
-formatter(ignore: [ "top.g.mbt" ])
+formatter(ignore: [ "handles.g.mbt", "skybox.g.mbt", "light.g.mbt" ])

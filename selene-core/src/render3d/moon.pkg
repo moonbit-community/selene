@@ -11,4 +11,4 @@ import {
   "moonbitlang/core/math" @cmath,
 }
 
-formatter(ignore: [ "top.g.mbt" ])
+formatter(ignore: [ "mesh_renderer.g.mbt" ])

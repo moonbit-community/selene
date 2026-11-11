@@ -23,6 +23,12 @@ pub(all) enum RigidBodyType {
 }
 
 ///|
+pub extend RigidBodyType with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RigidBodyType with Eq::{not_equal, equal}
+
+///|
 /// 2D rigid-body configuration synchronized into Rapier.
 #derive(Eq, Debug)
 #selene.component
@@ -34,6 +40,12 @@ pub(all) struct RigidBody {
   ccd_enabled : Bool
   lock_rotation : Bool
 }
+
+///|
+pub extend RigidBody with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RigidBody with Eq::{not_equal, equal}
 
 ///|
 /// Native Rapier rigid-body handle.

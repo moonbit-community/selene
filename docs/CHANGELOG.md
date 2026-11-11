@@ -30,6 +30,10 @@
 
 ### Changed
 
+- Organize source files by responsibility, colocate trait extensions with their
+  types and implementations, and replace legacy index loops with range loops.
+  Remove empty facade files and keep tests in dedicated files.
+
 - Unify affine point/vector transforms and vector-valued 2D constructors.
   Use `Affine2::from_rotation` for radians and `*` for `Mat4` composition.
 - Add checked `Rotation3::try_from_*` constructors and unit-rotation
