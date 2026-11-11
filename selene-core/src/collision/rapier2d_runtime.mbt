@@ -59,43 +59,40 @@ priv struct PhysicsWorld {
   multibody_joints : @rapier_dynamics.MultibodyJointSet
   ccd_solver : @rapier_dynamics_ccd.CCDSolver
   event_handler : @rapier_pipeline.EventHandler
-  entity_bodies : Map[@ecs.Entity, @rapier_dynamics.RigidBodyHandle]
-  entity_colliders : Map[@ecs.Entity, @rapier_collision.ColliderHandle]
-  collider_entities : Map[Int32, @ecs.Entity]
-  entity_joints : Map[@ecs.Entity, JointHandle]
-  entity_multibody_joints : Map[@ecs.Entity, MultibodyJointHandle]
+  entity_bodies : @ecs.EntityTable[@rapier_dynamics.RigidBodyHandle]
+  entity_colliders : @ecs.EntityTable[@rapier_collision.ColliderHandle]
+  collider_entities : Map[(Int32, Int32), @ecs.Entity]
+  entity_joints : @ecs.EntityTable[JointHandle]
+  entity_multibody_joints : @ecs.EntityTable[MultibodyJointHandle]
 }
 
 ///|
 priv struct PhysicsWorldRuntime {
   world : PhysicsWorld
-  entity_physics_config_keys : Map[@ecs.Entity, EntityPhysicsConfigKey]
-  pending_body_rotations : Map[@ecs.Entity, Double]
-  pending_body_linear_velocities : Map[@ecs.Entity, @math.Vec2]
-  pending_body_angular_velocities : Map[@ecs.Entity, Double]
-  pending_body_forces : Map[@ecs.Entity, @math.Vec2]
-  pending_body_force_points : Map[@ecs.Entity, Array[(@math.Vec2, @math.Vec2)]]
-  pending_body_torques : Map[@ecs.Entity, Double]
-  pending_body_impulses : Map[@ecs.Entity, @math.Vec2]
-  pending_body_impulse_points : Map[
-    @ecs.Entity,
+  entity_physics_config_keys : @ecs.EntityTable[EntityPhysicsConfigKey]
+  pending_body_rotations : @ecs.EntityTable[Double]
+  pending_body_linear_velocities : @ecs.EntityTable[@math.Vec2]
+  pending_body_angular_velocities : @ecs.EntityTable[Double]
+  pending_body_forces : @ecs.EntityTable[@math.Vec2]
+  pending_body_force_points : @ecs.EntityTable[Array[(@math.Vec2, @math.Vec2)]]
+  pending_body_torques : @ecs.EntityTable[Double]
+  pending_body_impulses : @ecs.EntityTable[@math.Vec2]
+  pending_body_impulse_points : @ecs.EntityTable[
     Array[(@math.Vec2, @math.Vec2)],
   ]
-  pending_body_torque_impulses : Map[@ecs.Entity, Double]
-  entity_joint_config_keys : Map[@ecs.Entity, EntityJointConfigKey]
-  entity_multibody_joint_config_keys : Map[
-    @ecs.Entity,
+  pending_body_torque_impulses : @ecs.EntityTable[Double]
+  entity_joint_config_keys : @ecs.EntityTable[EntityJointConfigKey]
+  entity_multibody_joint_config_keys : @ecs.EntityTable[
     EntityMultibodyJointConfigKey,
   ]
 }
 
 ///|
-let physics_world_runtimes : Map[UInt32, PhysicsWorldRuntime] = Map([])
+let physics_runtime_key : @ecs.ResourceKey[PhysicsWorldRuntime] = ResourceKey()
 
 ///|
 fn physics_world_runtime() -> PhysicsWorldRuntime {
-  let world_id = @ecs.require_current_world().id()
-  physics_world_runtimes.get_or_init(world_id, () => {
+  physics_runtime_key.get_or_insert_with(@ecs.require_current_world(), world => {
     world: {
       pipeline: PhysicsPipeline(),
       integration: @rapier_dynamics.IntegrationParameters::default(),
@@ -108,24 +105,24 @@ fn physics_world_runtime() -> PhysicsWorldRuntime {
       multibody_joints: MultibodyJointSet(),
       ccd_solver: CCDSolver(),
       event_handler: EventHandler(),
-      entity_bodies: Map([]),
-      entity_colliders: Map([]),
+      entity_bodies: EntityTable(world),
+      entity_colliders: EntityTable(world),
       collider_entities: Map([]),
-      entity_joints: Map([]),
-      entity_multibody_joints: Map([]),
+      entity_joints: EntityTable(world),
+      entity_multibody_joints: EntityTable(world),
     },
-    entity_physics_config_keys: Map([]),
-    pending_body_rotations: Map([]),
-    pending_body_linear_velocities: Map([]),
-    pending_body_angular_velocities: Map([]),
-    pending_body_forces: Map([]),
-    pending_body_force_points: Map([]),
-    pending_body_torques: Map([]),
-    pending_body_impulses: Map([]),
-    pending_body_impulse_points: Map([]),
-    pending_body_torque_impulses: Map([]),
-    entity_joint_config_keys: Map([]),
-    entity_multibody_joint_config_keys: Map([]),
+    entity_physics_config_keys: EntityTable(world),
+    pending_body_rotations: EntityTable(world),
+    pending_body_linear_velocities: EntityTable(world),
+    pending_body_angular_velocities: EntityTable(world),
+    pending_body_forces: EntityTable(world),
+    pending_body_force_points: EntityTable(world),
+    pending_body_torques: EntityTable(world),
+    pending_body_impulses: EntityTable(world),
+    pending_body_impulse_points: EntityTable(world),
+    pending_body_torque_impulses: EntityTable(world),
+    entity_joint_config_keys: EntityTable(world),
+    entity_multibody_joint_config_keys: EntityTable(world),
   })
 }
 
@@ -168,33 +165,32 @@ priv struct EntityPhysicsConfigKey {
 }
 
 ///|
-fn entity_physics_config_keys() -> Map[@ecs.Entity, EntityPhysicsConfigKey] {
+fn entity_physics_config_keys() -> @ecs.EntityTable[EntityPhysicsConfigKey] {
   physics_world_runtime().entity_physics_config_keys
 }
 
 ///|
-fn pending_body_rotations() -> Map[@ecs.Entity, Double] {
+fn pending_body_rotations() -> @ecs.EntityTable[Double] {
   physics_world_runtime().pending_body_rotations
 }
 
 ///|
-fn pending_body_linear_velocities() -> Map[@ecs.Entity, @math.Vec2] {
+fn pending_body_linear_velocities() -> @ecs.EntityTable[@math.Vec2] {
   physics_world_runtime().pending_body_linear_velocities
 }
 
 ///|
-fn pending_body_angular_velocities() -> Map[@ecs.Entity, Double] {
+fn pending_body_angular_velocities() -> @ecs.EntityTable[Double] {
   physics_world_runtime().pending_body_angular_velocities
 }
 
 ///|
-fn pending_body_forces() -> Map[@ecs.Entity, @math.Vec2] {
+fn pending_body_forces() -> @ecs.EntityTable[@math.Vec2] {
   physics_world_runtime().pending_body_forces
 }
 
 ///|
-fn pending_body_force_points() -> Map[
-  @ecs.Entity,
+fn pending_body_force_points() -> @ecs.EntityTable[
   Array[(@math.Vec2, @math.Vec2)],
 ] {
   physics_world_runtime().pending_body_force_points

@@ -24,26 +24,26 @@ priv struct CachedTextLayout2d {
 
 ///|
 priv struct Text2dWorldStore {
-  text_layout_caches : Map[@ecs.Entity, CachedTextLayout2d]
+  text_layout_caches : @ecs.EntityTable[CachedTextLayout2d]
 }
 
 ///|
 let text2d_world_store_key : @ecs.ResourceKey[Text2dWorldStore] = ResourceKey()
 
 ///|
-fn Text2dWorldStore::Text2dWorldStore() -> Text2dWorldStore {
-  { text_layout_caches: Map([]), }
+fn Text2dWorldStore::Text2dWorldStore(world : @ecs.World) -> Text2dWorldStore {
+  { text_layout_caches: EntityTable(world), }
 }
 
 ///|
 fn text2d_world_store() -> Text2dWorldStore {
-  text2d_world_store_key.get_or_insert_with(@ecs.require_current_world(), _ => {
-    Text2dWorldStore()
+  text2d_world_store_key.get_or_insert_with(@ecs.require_current_world(), world => {
+    Text2dWorldStore(world)
   })
 }
 
 ///|
-fn text_layout_caches() -> Map[@ecs.Entity, CachedTextLayout2d] {
+fn text_layout_caches() -> @ecs.EntityTable[CachedTextLayout2d] {
   text2d_world_store().text_layout_caches
 }
 

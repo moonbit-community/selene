@@ -12,9 +12,7 @@ pub fn clear_ldtk_int_grid_default_spawn_hook() -> Unit {
 
 ///|
 pub fn clear_ldtk_int_grid_layer_spawn_hooks() -> Unit {
-  for (key, _) in ldtk_int_grid_layer_spawn_hooks().to_array() {
-    ldtk_int_grid_layer_spawn_hooks().remove(key)
-  }
+  ldtk_int_grid_layer_spawn_hooks().clear()
 }
 
 ///|
@@ -41,16 +39,12 @@ pub fn unregister_ldtk_int_grid_cell_spawn_hook(
 
 ///|
 pub fn clear_ldtk_int_grid_cell_spawn_hooks() -> Unit {
-  for (key, _) in ldtk_int_grid_cell_spawn_hooks().to_array() {
-    ldtk_int_grid_cell_spawn_hooks().remove(key)
-  }
+  ldtk_int_grid_cell_spawn_hooks().clear()
 }
 
 ///|
 pub fn clear_ldtk_int_grid_value_spawn_hooks() -> Unit {
-  for (key, _) in ldtk_int_grid_value_spawn_hooks().to_array() {
-    ldtk_int_grid_value_spawn_hooks().remove(key)
-  }
+  ldtk_int_grid_value_spawn_hooks().clear()
 }
 
 ///|
@@ -293,7 +287,7 @@ fn ldtk_spawn_level_entity(
     instance,
   )
   ldtk_level_event_bus.trigger(Spawned(indexed.level.iid), Some(level_entity))
-  ldtk_pending_transformed_level_iids().set(indexed.level.iid, true)
+  ldtk_pending_transformed_level_iids().add(indexed.level.iid)
   level_entity
 }
 

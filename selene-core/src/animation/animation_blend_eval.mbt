@@ -343,11 +343,11 @@ fn resolve_sample_value(
 }
 
 ///|
-fn collect_targets_by_player() -> Map[
-  @ecs.Entity,
+fn collect_targets_by_player() -> @ecs.EntityTable[
   Map[AnimationTargetId, @ecs.Entity],
 ] {
-  let targets_by_player : Map[@ecs.Entity, Map[AnimationTargetId, @ecs.Entity]] = Map([],
+  let targets_by_player : @ecs.EntityTable[Map[AnimationTargetId, @ecs.Entity]] = EntityTable(
+    @ecs.require_current_world(),
   )
   for entity in @ecs.iter_entities() {
     guard entity.is_alive() else { continue }
@@ -367,7 +367,9 @@ fn graph_node_duration(
   graph : AnimationGraph,
   node_index : AnimationNodeIndex,
 ) -> Double {
-  guard graph.nodes.get(node_index) is Some(node) else { return 0.0 }
+  guard graph.nodes.get(node_index.0.reinterpret_as_int()) is Some(node) else {
+    return 0.0
+  }
   match node.node_type {
     Clip(handle) =>
       animation_clip_asset(handle).map_or(0.0, fn(clip) { clip.duration })
@@ -398,7 +400,9 @@ fn evaluate_graph_node(
   if weight <= 0.0 {
     return
   }
-  guard graph.nodes.get(node_index) is Some(node) else { return }
+  guard graph.nodes.get(node_index.0.reinterpret_as_int()) is Some(node) else {
+    return
+  }
   let combined_mask = inherited_mask | node.mask
   match node.node_type {
     Blend =>
@@ -450,7 +454,9 @@ fn collect_clip_nodes(
   node_index : AnimationNodeIndex,
   output : Array[AnimationNodeIndex],
 ) -> Unit {
-  guard graph.nodes.get(node_index) is Some(node) else { return }
+  guard graph.nodes.get(node_index.0.reinterpret_as_int()) is Some(node) else {
+    return
+  }
   match node.node_type {
     Clip(_) => output.push(node_index)
     _ =>

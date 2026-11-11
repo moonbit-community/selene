@@ -201,9 +201,8 @@ pub fn AnimationEventDescriptorHandle::to_repr(Self) -> @debug.Repr
 
 pub(all) struct AnimationGraph {
   root : AnimationNodeIndex
-  nodes : Map[AnimationNodeIndex, AnimationGraphNode]
+  nodes : Array[AnimationGraphNode]
   mask_groups : Map[AnimationTargetId, UInt32]
-  mut next_node : UInt32
 }
 pub fn AnimationGraph::AnimationGraph() -> Self
 pub fn AnimationGraph::add_additive_blend(Self, parent? : AnimationNodeIndex, weight? : Double) -> AnimationNodeIndex

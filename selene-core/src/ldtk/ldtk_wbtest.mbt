@@ -47,7 +47,7 @@ fn reset_ldtk_runtime() -> Unit {
     despawn_ldtk_tree(entity)
   }
   ldtk_respawns().clear()
-  for (iid, _) in ldtk_pending_transformed_level_iids().to_array() {
+  for iid in ldtk_pending_transformed_level_iids().to_array() {
     ldtk_pending_transformed_level_iids().remove(iid)
   }
   for (key, _) in ldtk_entity_spawn_hooks().to_array() {

@@ -557,7 +557,7 @@ pub fn buttons() -> @ecs.ComponentStore[Button] {
 }
 
 ///|
-pub fn interactions() -> Map[@ecs.Entity, Interaction] {
+pub fn interactions() -> @ecs.EntityTable[Interaction] {
   ui_model_world_store().interactions
 }
 

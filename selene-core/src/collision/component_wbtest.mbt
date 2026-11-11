@@ -1,5 +1,5 @@
 ///|
-test "input velocity and resolved velocity use distinct component stores" {
+test "input velocity and resolved velocity use distinct runtime storage" {
   let world = @ecs.World()
   let input : @ecs.ComponentStore[@velocity.Velocity] = @ecs.components_in(
     world,
@@ -8,8 +8,8 @@ test "input velocity and resolved velocity use distinct component stores" {
   let resolved = Ref(None)
 
   @ecs.run_schedule(world, _ => {
-    @collision.resolved_velocities().set(entity, Vec2(1.0, 0.0))
-    resolved.val = @collision.resolved_velocities().get(entity)
+    resolved_velocities().set(entity, Vec2(1.0, 0.0))
+    resolved.val = resolved_velocity(entity)
   })
 
   assert_eq(input.get(entity), Some(Vec2(2.0, 0.0)))

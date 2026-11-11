@@ -10,7 +10,7 @@ pub fn animation_player_system(delta : Double) -> Unit {
     }
     guard animation_graph_asset(graph_handle) is Some(graph) else { continue }
     let targets = targets_by_player.get_or_init(entity, fn() { Map([]) })
-    for node_index, active in player.active_animations {
+    for (node_index, active) in player.active_animations.to_array() {
       if active.paused || active.finished {
         continue
       }
@@ -89,7 +89,9 @@ pub fn animation_player_system(delta : Double) -> Unit {
       let clip_nodes : Array[AnimationNodeIndex] = []
       collect_clip_nodes(graph, node_index, clip_nodes)
       for clip_node in clip_nodes {
-        guard graph.nodes.get(clip_node) is Some(node) else { continue }
+        guard graph.nodes.get(clip_node.0.reinterpret_as_int()) is Some(node) else {
+          continue
+        }
         guard node.node_type is Clip(clip_handle) else { continue }
         guard animation_clip_asset(clip_handle) is Some(clip) else { continue }
         emit_clip_events_between(
@@ -110,35 +112,35 @@ pub fn animation_player_system(delta : Double) -> Unit {
 
 ///|
 pub fn animation_transition_system(delta : Double) -> Unit {
-  for (entity, transitions) in animation_transitions().to_array() {
+  for entity, transitions in animation_transitions() {
     if !entity.is_alive() {
       continue
     }
     guard animation_players().get(entity) is Some(player) else { continue }
     let mut main_weight = 1.0
-    for node_index, fade in transitions.fading {
-      if player.active_animations.get(node_index) is Some(active) {
-        if fade.total <= 0.000001 {
-          active.weight = 0.0
-          active.finished = true
-          player.active_animations.remove(node_index)
-          transitions.fading.remove(node_index)
-          continue
-        }
-        fade.remaining -= delta
-        let ratio = @cmp.maximum(0.0, fade.remaining / fade.total)
-        active.weight = fade.start_weight * ratio
-        if ratio <= 0.0 {
-          active.finished = true
-          player.active_animations.remove(node_index)
-          transitions.fading.remove(node_index)
-        } else if 1.0 - ratio < main_weight {
-          main_weight = 1.0 - ratio
-        }
-      } else {
-        transitions.fading.remove(node_index)
+    transitions.fading.retain((node_index, fade) => {
+      guard player.active_animations.get(node_index) is Some(active) else {
+        return false
       }
-    }
+      if fade.total <= 0.000001 {
+        active.weight = 0.0
+        active.finished = true
+        player.active_animations.remove(node_index)
+        return false
+      }
+      fade.remaining -= delta
+      let ratio = @cmp.maximum(0.0, fade.remaining / fade.total)
+      active.weight = fade.start_weight * ratio
+      if ratio <= 0.0 {
+        active.finished = true
+        player.active_animations.remove(node_index)
+        return false
+      }
+      if 1.0 - ratio < main_weight {
+        main_weight = 1.0 - ratio
+      }
+      true
+    })
     if transitions.main is Some(main) &&
       player.active_animations.get(main) is Some(active) {
       active.weight = if transitions.fading.is_empty() {
@@ -336,11 +338,11 @@ fn update_bound_mesh(
 
 ///|
 pub fn animation_skinning_system(_delta : Double) -> Unit {
-  for (entity, binding) in morphed_meshes().to_array() {
+  let world = @ecs.require_current_world()
+  morphed_meshes().retain((entity, _) => entity.is_valid_in(world))
+  skinned_meshes().retain((entity, _) => entity.is_valid_in(world))
+  for entity, binding in morphed_meshes() {
     if !entity.is_alive() {
-      if !entity.is_valid_in(@ecs.require_current_world()) {
-        morphed_meshes().remove(entity)
-      }
       continue
     }
     let (positions, normals) = apply_morph_targets(
@@ -361,11 +363,8 @@ pub fn animation_skinning_system(_delta : Double) -> Unit {
     )
   }
 
-  for (entity, binding) in skinned_meshes().to_array() {
+  for entity, binding in skinned_meshes() {
     if !entity.is_alive() {
-      if !entity.is_valid_in(@ecs.require_current_world()) {
-        skinned_meshes().remove(entity)
-      }
       continue
     }
     if binding.base_positions.length() != binding.influences.length() {

@@ -43,7 +43,7 @@ pub fn Collider::with_material(
 
 ///|
 priv struct ColliderWorldStore {
-  resolved_velocities : Map[@ecs.Entity, @velocity.Velocity]
+  resolved_velocities : @ecs.EntityTable[@velocity.Velocity]
   grounded_entities : Set[@ecs.Entity]
 }
 
@@ -51,14 +51,16 @@ priv struct ColliderWorldStore {
 let collider_world_store_key : @ecs.ResourceKey[ColliderWorldStore] = ResourceKey()
 
 ///|
-fn ColliderWorldStore::ColliderWorldStore() -> ColliderWorldStore {
-  { resolved_velocities: {}, grounded_entities: Set([]), }
+fn ColliderWorldStore::ColliderWorldStore(
+  world : @ecs.World,
+) -> ColliderWorldStore {
+  { resolved_velocities: EntityTable(world), grounded_entities: Set([]), }
 }
 
 ///|
 fn collider_world_store() -> ColliderWorldStore {
-  collider_world_store_key.get_or_insert_with(@ecs.require_current_world(), _ => {
-    ColliderWorldStore()
+  collider_world_store_key.get_or_insert_with(@ecs.require_current_world(), world => {
+    ColliderWorldStore(world)
   })
 }
 
@@ -83,7 +85,7 @@ pub let contact_event_bus : @event.Events[ContactEvent] = Events()
 
 ///|
 /// Effective post-solve velocities from the latest fixed step.
-pub fn resolved_velocities() -> Map[@ecs.Entity, @velocity.Velocity] {
+fn resolved_velocities() -> @ecs.EntityTable[@velocity.Velocity] {
   collider_world_store().resolved_velocities
 }
 
@@ -111,4 +113,10 @@ fn set_grounded(entity : @ecs.Entity, grounded : Bool) -> Unit {
   } else {
     grounded_entities.remove(entity)
   }
+}
+
+///|
+/// Effective velocity produced by the latest fixed step.
+pub fn resolved_velocity(entity : @ecs.Entity) -> @velocity.Velocity? {
+  resolved_velocities().get(entity)
 }

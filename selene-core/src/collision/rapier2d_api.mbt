@@ -1,23 +1,22 @@
 ///|
-fn pending_body_torques() -> Map[@ecs.Entity, Double] {
+fn pending_body_torques() -> @ecs.EntityTable[Double] {
   physics_world_runtime().pending_body_torques
 }
 
 ///|
-fn pending_body_impulses() -> Map[@ecs.Entity, @math.Vec2] {
+fn pending_body_impulses() -> @ecs.EntityTable[@math.Vec2] {
   physics_world_runtime().pending_body_impulses
 }
 
 ///|
-fn pending_body_impulse_points() -> Map[
-  @ecs.Entity,
+fn pending_body_impulse_points() -> @ecs.EntityTable[
   Array[(@math.Vec2, @math.Vec2)],
 ] {
   physics_world_runtime().pending_body_impulse_points
 }
 
 ///|
-fn pending_body_torque_impulses() -> Map[@ecs.Entity, Double] {
+fn pending_body_torque_impulses() -> @ecs.EntityTable[Double] {
   physics_world_runtime().pending_body_torque_impulses
 }
 
@@ -30,7 +29,7 @@ priv struct EntityJointConfigKey {
 }
 
 ///|
-fn entity_joint_config_keys() -> Map[@ecs.Entity, EntityJointConfigKey] {
+fn entity_joint_config_keys() -> @ecs.EntityTable[EntityJointConfigKey] {
   physics_world_runtime().entity_joint_config_keys
 }
 
@@ -43,8 +42,7 @@ priv struct EntityMultibodyJointConfigKey {
 }
 
 ///|
-fn entity_multibody_joint_config_keys() -> Map[
-  @ecs.Entity,
+fn entity_multibody_joint_config_keys() -> @ecs.EntityTable[
   EntityMultibodyJointConfigKey,
 ] {
   physics_world_runtime().entity_multibody_joint_config_keys

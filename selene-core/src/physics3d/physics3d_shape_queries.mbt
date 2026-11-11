@@ -348,7 +348,6 @@ fn resolve_collider_entity(
 }
 
 ///|
-fn collider_key(handle : @collision.ColliderHandle3D) -> String {
-  let (id, generation) = handle.into_raw_parts()
-  "\{id}:\{generation}"
+fn collider_key(handle : @collision.ColliderHandle3D) -> (Int32, Int32) {
+  handle.into_raw_parts()
 }

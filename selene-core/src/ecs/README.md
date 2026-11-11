@@ -273,3 +273,21 @@ The generator formats its own output. Commit the generated file alongside its
 input and include it when publishing.
 MoonBit runs `dev_build` during local development. Consumers compile the
 generated sources included in the published package.
+
+## Runtime data outside components
+
+Use a World resource for subsystem state, including caches and event readers.
+Do not keep a global `Map[WorldId, State]`: the World should own its data.
+
+`EntityTable[T](world)` stores World-local runtime data indexed by entity slots.
+It is not a component store and does not change entity layouts. Lookups compare
+full entity handles, and traversal preserves insertion order. Deleted entities'
+entries remain available for explicit cleanup, including when their slots have
+been reused. This lets an owner release old audio or physics resources without
+confusing them with a new entity. Use `retain` to prune entries; its callback
+must not structurally modify the table. Use `clear` for frame-local results.
+
+Prefer direct iteration for reads. Use `Map::retain` for simple filtering, and
+queue entity deletions through `Commands` while traversing components. Collect a
+snapshot only when callbacks or structural changes require a stable set of
+entries. A snapshot preserves entries, not a deep copy of mutable values.

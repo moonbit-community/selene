@@ -49,7 +49,7 @@ pub fn ldtk_worldly_entities() -> @ecs.ComponentStore[LdtkWorldly] {
 }
 
 ///|
-pub fn ldtk_respawns() -> Map[@ecs.Entity, LdtkRespawn] {
+pub fn ldtk_respawns() -> @ecs.EntityTable[LdtkRespawn] {
   ldtk_world_store().respawns
 }
 

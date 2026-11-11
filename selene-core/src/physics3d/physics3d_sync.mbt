@@ -38,16 +38,14 @@ pub fn kinematic_character_controllers() -> @ecs.ComponentStore[
 }
 
 ///|
-pub fn kinematic_character_controller_outputs() -> Map[
-  @ecs.Entity,
+pub fn kinematic_character_controller_outputs() -> @ecs.EntityTable[
   KinematicCharacterControllerOutput,
 ] {
   physics3d_world_store().controller_outputs
 }
 
 ///|
-pub fn kinematic_character_controller_collisions() -> Map[
-  @ecs.Entity,
+pub fn kinematic_character_controller_collisions() -> @ecs.EntityTable[
   KinematicCharacterControllerCollisions,
 ] {
   physics3d_world_store().controller_collisions
@@ -71,25 +69,23 @@ priv struct Physics3DWorld {
 ///|
 priv struct Physics3DWorldStore {
   world : Physics3DWorld
-  body_handles : Map[@ecs.Entity, RapierRigidBodyHandle]
-  collider_handles : Map[@ecs.Entity, RapierColliderHandle]
-  impulse_joint_handles : Map[@ecs.Entity, RapierImpulseJointHandle]
-  multibody_joint_handles : Map[@ecs.Entity, RapierMultibodyJointHandle]
-  controller_outputs : Map[@ecs.Entity, KinematicCharacterControllerOutput]
-  controller_collisions : Map[
-    @ecs.Entity,
+  body_handles : @ecs.EntityTable[RapierRigidBodyHandle]
+  collider_handles : @ecs.EntityTable[RapierColliderHandle]
+  impulse_joint_handles : @ecs.EntityTable[RapierImpulseJointHandle]
+  multibody_joint_handles : @ecs.EntityTable[RapierMultibodyJointHandle]
+  controller_outputs : @ecs.EntityTable[KinematicCharacterControllerOutput]
+  controller_collisions : @ecs.EntityTable[
     KinematicCharacterControllerCollisions,
   ]
-  collider_entities_by_key : Map[String, @ecs.Entity]
+  collider_entities_by_key : Map[(Int32, Int32), @ecs.Entity]
 }
 
 ///|
-let physics3d_world_stores : Map[UInt32, Physics3DWorldStore] = Map([])
+let physics3d_world_store_key : @ecs.ResourceKey[Physics3DWorldStore] = ResourceKey()
 
 ///|
 fn physics3d_world_store() -> Physics3DWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  physics3d_world_stores.get_or_init(world_id, () => {
+  physics3d_world_store_key.get_or_insert_with(@ecs.require_current_world(), world => {
     world: {
       pipeline: PhysicsPipeline3D(),
       integration: @dynamics.IntegrationParameters::default(),
@@ -103,12 +99,12 @@ fn physics3d_world_store() -> Physics3DWorldStore {
       multibody_joints: MultibodyJointSet3DReal(),
       event_handler: EventHandler3D(),
     },
-    body_handles: Map([]),
-    collider_handles: Map([]),
-    impulse_joint_handles: Map([]),
-    multibody_joint_handles: Map([]),
-    controller_outputs: {},
-    controller_collisions: {},
+    body_handles: EntityTable(world),
+    collider_handles: EntityTable(world),
+    impulse_joint_handles: EntityTable(world),
+    multibody_joint_handles: EntityTable(world),
+    controller_outputs: EntityTable(world),
+    controller_collisions: EntityTable(world),
     collider_entities_by_key: Map([]),
   })
 }
@@ -119,27 +115,27 @@ fn physics3d_world() -> Physics3DWorld {
 }
 
 ///|
-fn body_handles() -> Map[@ecs.Entity, RapierRigidBodyHandle] {
+fn body_handles() -> @ecs.EntityTable[RapierRigidBodyHandle] {
   physics3d_world_store().body_handles
 }
 
 ///|
-fn collider_handles() -> Map[@ecs.Entity, RapierColliderHandle] {
+fn collider_handles() -> @ecs.EntityTable[RapierColliderHandle] {
   physics3d_world_store().collider_handles
 }
 
 ///|
-fn collider_entities_by_key() -> Map[String, @ecs.Entity] {
+fn collider_entities_by_key() -> Map[(Int32, Int32), @ecs.Entity] {
   physics3d_world_store().collider_entities_by_key
 }
 
 ///|
-fn impulse_joint_handles() -> Map[@ecs.Entity, RapierImpulseJointHandle] {
+fn impulse_joint_handles() -> @ecs.EntityTable[RapierImpulseJointHandle] {
   physics3d_world_store().impulse_joint_handles
 }
 
 ///|
-fn multibody_joint_handles() -> Map[@ecs.Entity, RapierMultibodyJointHandle] {
+fn multibody_joint_handles() -> @ecs.EntityTable[RapierMultibodyJointHandle] {
   physics3d_world_store().multibody_joint_handles
 }
 

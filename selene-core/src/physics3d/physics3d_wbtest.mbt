@@ -128,8 +128,8 @@ test "query filter groups and contact force events work in 3d" {
         2.0,
       ),
     )
-    collider_entities_by_key().set("1:0", filtered)
-    collider_entities_by_key().set("2:0", excluded)
+    collider_entities_by_key().set((1, 0), filtered)
+    collider_entities_by_key().set((2, 0), excluded)
     collect_events()
     let reader : @event.EventReader[ContactForceEvent] = EventReader()
     let events = reader.read(contact_force_event_bus)

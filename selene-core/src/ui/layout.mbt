@@ -445,14 +445,15 @@ fn cleanup_dead_ui_state() -> Unit {
 fn apply_layout_recursive(
   entity : @ecs.Entity,
   chicle : @tree.ChicleTree[@ecs.Entity],
-  entity_to_node_id : Map[@ecs.Entity, Int32],
+  layout_nodes : @ecs.EntityTable[UiLayoutNodeRuntime],
   parent_layout_origin : @math.Vec2,
   parent_clip : @math.Rect?,
   inherited_use_rounding : Bool,
   layout_space : UiLayoutSpace,
   projected : Set[@ecs.Entity],
 ) -> Unit {
-  guard entity_to_node_id.get(entity) is Some(node_id) else { return }
+  guard layout_nodes.get(entity) is Some(runtime_node) else { return }
+  let node_id = runtime_node.node_id
   guard nodes().get(entity) is Some(node) else { return }
   let effective_layout_space = match ui_target_cameras().get(entity) {
     Some(target) => ui_layout_space(Some(target.camera))
@@ -562,8 +563,8 @@ fn apply_layout_recursive(
   )
   for child in ui_children(entity) {
     apply_layout_recursive(
-      child, chicle, entity_to_node_id, next_origin, current_clip, use_rounding,
-      effective_layout_space, projected,
+      child, chicle, layout_nodes, next_origin, current_clip, use_rounding, effective_layout_space,
+      projected,
     )
   }
 }

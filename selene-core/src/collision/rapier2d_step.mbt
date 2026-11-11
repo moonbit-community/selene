@@ -9,7 +9,7 @@ fn remove_entity_physics(entity : @ecs.Entity) -> Unit {
       world().bodies,
       true,
     )
-    world().collider_entities.remove(collider_handle_id(collider_handle))
+    world().collider_entities.remove(collider_handle_key(collider_handle))
     world().entity_colliders.remove(entity)
   }
   if world().entity_bodies.get(entity) is Some(body_handle) {
@@ -42,10 +42,12 @@ fn consume_pending_body_controls(entity : @ecs.Entity) -> Unit {
 ///|
 fn sync_world_entities() -> Unit {
   prune_pending_body_state()
-  for (entity, _) in world().entity_bodies.to_array() {
-    if !should_have_physics(entity) {
-      remove_entity_physics(entity)
-    }
+  let stale = world().entity_bodies
+    .keys()
+    .filter(entity => !should_have_physics(entity))
+    .collect()
+  for entity in stale {
+    remove_entity_physics(entity)
   }
 
   for entity in @ecs.iter_entities() {
@@ -150,7 +152,7 @@ fn insert_entity_physics(
   )
   world().entity_bodies.set(entity, body_handle)
   world().entity_colliders.set(entity, collider_handle)
-  world().collider_entities.set(collider_handle_id(collider_handle), entity)
+  world().collider_entities.set(collider_handle_key(collider_handle), entity)
 }
 
 ///|
@@ -232,7 +234,7 @@ fn sync_entity_physics(
 fn entity_from_collider_handle(
   handle : @rapier_collision.ColliderHandle,
 ) -> @ecs.Entity? {
-  world().collider_entities.get(collider_handle_id(handle))
+  world().collider_entities.get(collider_handle_key(handle))
 }
 
 ///|

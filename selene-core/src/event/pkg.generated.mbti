@@ -41,7 +41,7 @@ pub fn EventDomain::not_equal(Self, Self) -> Bool
 pub fn EventDomain::to_repr(Self) -> @debug.Repr
 
 pub(all) struct EventReader[T] {
-  last_seen_by_world : Map[UInt32, Int32]
+  last_seen_key : @ecs.ResourceKey[Int32]
   marker : T?
 }
 pub fn[T] EventReader::EventReader() -> Self[T]
@@ -59,7 +59,7 @@ pub fn[T] EventWriter::trigger(Self[T], T, target? : @ecs.Entity?) -> Unit
 pub struct Events[T] {
   id : UInt32
   domain : EventDomain
-  stores : Map[UInt32, EventWorldStore[T]]
+  store_key : @ecs.ResourceKey[EventWorldStore[T]]
   marker : T?
 }
 pub fn[T] Events::Events(domain? : EventDomain) -> Self[T]

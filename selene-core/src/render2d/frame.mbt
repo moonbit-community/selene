@@ -29,25 +29,22 @@ priv struct RenderFrameState2D {
 }
 
 ///|
-let frame2d_by_world : Map[UInt32, RenderFrameState2D] = Map([])
+let frame2d_key : @ecs.ResourceKey[RenderFrameState2D] = ResourceKey()
 
 ///|
 fn frame2d() -> RenderFrameState2D {
-  let world_id = @ecs.require_current_world().id()
-  frame2d_by_world.get_or_init(world_id, fn() {
-    {
-      screen_world_commands: [],
-      screen_ui_commands: [],
-      camera_world_commands: Map([]),
-      camera_ui_commands: Map([]),
-      next_order: 0,
-    }
+  frame2d_key.get_or_insert_with(@ecs.require_current_world(), _ => {
+    screen_world_commands: [],
+    screen_ui_commands: [],
+    camera_world_commands: Map([]),
+    camera_ui_commands: Map([]),
+    next_order: 0,
   })
 }
 
 ///|
 pub fn begin_frame2d_system(_delta : Double) -> Unit {
-  frame2d_by_world.set(@ecs.require_current_world().id(), {
+  frame2d_key.insert_in(@ecs.require_current_world(), {
     screen_world_commands: [],
     screen_ui_commands: [],
     camera_world_commands: Map([]),
@@ -163,14 +160,14 @@ fn sorted_world_commands(
 
 ///|
 fn sorted_camera_entity_ids() -> Array[UInt32] {
-  let unique : Map[UInt32, Unit] = Map([])
+  let unique : @set.Set[UInt32] = Set([])
   for id in frame2d().camera_world_commands.keys() {
-    unique.set(id, ())
+    unique.add(id)
   }
   for id in frame2d().camera_ui_commands.keys() {
-    unique.set(id, ())
+    unique.add(id)
   }
-  let sorted = unique.keys().to_array()
+  let sorted = unique.to_array()
   sorted.sort_by(fn(lhs, rhs) { lhs.compare(rhs) })
   sorted
 }

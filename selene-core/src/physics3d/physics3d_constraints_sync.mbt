@@ -3,9 +3,7 @@ fn sync_impulse_joints_to_rapier() -> Unit {
   let world = physics3d_world()
   world.impulse_joints = JointSet3DReal()
   world.rope_joints = RopeJointSet3DReal()
-  for (entity, _) in impulse_joint_handles().to_array() {
-    impulse_joint_handles().remove(entity)
-  }
+  impulse_joint_handles().clear()
   for entity, impulse_joint in impulse_joints() {
     if !entity.is_alive() || !impulse_joint.parent.is_alive() {
       continue
@@ -104,9 +102,7 @@ fn sync_impulse_joints_to_rapier() -> Unit {
 fn sync_multibody_joints_to_rapier() -> Unit {
   let world = physics3d_world()
   world.multibody_joints = MultibodyJointSet3DReal()
-  for (entity, _) in multibody_joint_handles().to_array() {
-    multibody_joint_handles().remove(entity)
-  }
+  multibody_joint_handles().clear()
   for entity, multibody_joint in multibody_joints() {
     if !entity.is_alive() || !multibody_joint.parent.is_alive() {
       continue
@@ -141,7 +137,7 @@ fn sync_character_controllers(delta : Double) -> Unit {
   }
   let world = physics3d_world()
   let dt = Float::from_double(delta)
-  for (entity, controller) in kinematic_character_controllers().to_array() {
+  for entity, controller in kinematic_character_controllers() {
     if !entity.is_alive() {
       continue
     }

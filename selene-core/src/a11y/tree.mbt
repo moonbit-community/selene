@@ -16,13 +16,23 @@
 let a11y_tree_id : @moon_accesskit.TreeId = @moon_accesskit.TreeId::root()
 
 ///|
-let latest_tree_update_ref : Ref[@moon_accesskit.TreeUpdate?] = { val: None, }
+priv struct A11yRuntime {
+  mut latest_update : @moon_accesskit.TreeUpdate?
+  entity_node_ids : @ecs.EntityTable[UInt64]
+  current_node_entities : Map[@moon_accesskit.NodeId, @ecs.Entity]
+}
 
 ///|
-let entity_node_ids : Map[@ecs.Entity, UInt64] = Map([])
+let a11y_runtime_key : @ecs.ResourceKey[A11yRuntime] = ResourceKey()
 
 ///|
-let current_node_entities : Map[@moon_accesskit.NodeId, @ecs.Entity] = Map([])
+fn a11y_runtime() -> A11yRuntime {
+  a11y_runtime_key.get_or_insert_with(@ecs.require_current_world(), world => {
+    latest_update: None,
+    entity_node_ids: EntityTable(world),
+    current_node_entities: {},
+  })
+}
 
 ///|
 let next_node_id : Ref[UInt64] = { val: 1UL, }
@@ -49,12 +59,12 @@ pub fn blur() -> Unit {
 
 ///|
 pub fn latest_tree_update() -> @moon_accesskit.TreeUpdate? {
-  latest_tree_update_ref.val
+  a11y_runtime().latest_update
 }
 
 ///|
 pub fn latest_tree_update_json() -> Json? {
-  if latest_tree_update_ref.val is Some(update) {
+  if a11y_runtime().latest_update is Some(update) {
     Some(update.to_json())
   } else {
     None
@@ -63,10 +73,12 @@ pub fn latest_tree_update_json() -> Json? {
 
 ///|
 pub fn a11y_sync_system(_delta : Double) -> Unit {
+  let world = @ecs.require_current_world()
+  a11y_runtime().entity_node_ids.retain((entity, _) => entity.is_valid_in(world))
   let ordered = collect_ordered_semantic_entities()
   let (roots, child_map) = build_hierarchy(ordered)
   let update = build_tree_update(ordered, roots, child_map)
-  latest_tree_update_ref.val = Some(update)
+  a11y_runtime().latest_update = Some(update)
   process_action_requests()
 }
 
@@ -151,10 +163,10 @@ fn ui_children(entity : @ecs.Entity) -> Array[@ecs.Entity] {
 fn collect_semantic_descendants(
   root : @ecs.Entity,
   ordered : Array[@ecs.Entity],
-  seen : Map[@ecs.Entity, Bool],
+  seen : @set.Set[@ecs.Entity],
 ) -> Unit {
   if get_a11y(root) is Some(_) && !seen.contains(root) {
-    seen.set(root, true)
+    seen.add(root)
     ordered.push(root)
   }
   for child in ui_children(root) {
@@ -165,7 +177,7 @@ fn collect_semantic_descendants(
 ///|
 fn collect_ordered_semantic_entities() -> Array[@ecs.Entity] {
   let ordered : Array[@ecs.Entity] = []
-  let seen : Map[@ecs.Entity, Bool] = Map([])
+  let seen : @set.Set[@ecs.Entity] = Set([])
   for entity, _node in @ui.nodes() {
     guard entity.is_alive() else { continue }
     match entity.get_parent() {
@@ -178,7 +190,7 @@ fn collect_ordered_semantic_entities() -> Array[@ecs.Entity] {
     guard entity.is_alive() else { continue }
     guard get_a11y(entity) is Some(_) else { continue }
     if !seen.contains(entity) {
-      seen.set(entity, true)
+      seen.add(entity)
       ordered.push(entity)
     }
   }
@@ -200,9 +212,11 @@ fn find_semantic_parent(entity : @ecs.Entity) -> @ecs.Entity? {
 ///|
 fn build_hierarchy(
   ordered : Array[@ecs.Entity],
-) -> (Array[@ecs.Entity], Map[@ecs.Entity, Array[@ecs.Entity]]) {
+) -> (Array[@ecs.Entity], @ecs.EntityTable[Array[@ecs.Entity]]) {
   let roots : Array[@ecs.Entity] = []
-  let children : Map[@ecs.Entity, Array[@ecs.Entity]] = Map([])
+  let children : @ecs.EntityTable[Array[@ecs.Entity]] = EntityTable(
+    @ecs.require_current_world(),
+  )
   for entity in ordered {
     if find_semantic_parent(entity) is Some(parent) {
       children.get_or_init(parent, () => []).push(entity)
@@ -245,12 +259,12 @@ fn is_clickable(entity : @ecs.Entity, a11y : A11y) -> Bool {
 
 ///|
 fn get_or_create_node_id(entity : @ecs.Entity) -> @moon_accesskit.NodeId {
-  if entity_node_ids.get(entity) is Some(raw) {
+  if a11y_runtime().entity_node_ids.get(entity) is Some(raw) {
     NodeId(raw)
   } else {
     let raw = next_node_id.val
     next_node_id.val = next_node_id.val + 1UL
-    entity_node_ids.set(entity, raw)
+    a11y_runtime().entity_node_ids.set(entity, raw)
     NodeId(raw)
   }
 }
@@ -268,9 +282,9 @@ fn focused_node_id() -> @moon_accesskit.NodeId {
 fn build_tree_update(
   ordered : Array[@ecs.Entity],
   roots : Array[@ecs.Entity],
-  child_map : Map[@ecs.Entity, Array[@ecs.Entity]],
+  child_map : @ecs.EntityTable[Array[@ecs.Entity]],
 ) -> @moon_accesskit.TreeUpdate {
-  current_node_entities.clear()
+  a11y_runtime().current_node_entities.clear()
   let update = @moon_accesskit.TreeUpdate(a11y_tree_id, focused_node_id())
   let root = @moon_accesskit.Node(Window)
   root.set_label("Selene")
@@ -278,7 +292,7 @@ fn build_tree_update(
   for entity in roots {
     let id = get_or_create_node_id(entity)
     root_children.push(id)
-    current_node_entities.set(id, entity)
+    a11y_runtime().current_node_entities.set(id, entity)
   }
   root.set_children(root_children)
   update.push_node(@moon_accesskit.NodeId::root(), root)
@@ -286,7 +300,7 @@ fn build_tree_update(
   for entity in ordered {
     guard get_a11y(entity) is Some(a11y) else { continue }
     let id = get_or_create_node_id(entity)
-    current_node_entities.set(id, entity)
+    a11y_runtime().current_node_entities.set(id, entity)
     let node = @moon_accesskit.Node(to_accesskit_role(a11y.role))
     if effective_label(entity, a11y) is Some(label) {
       node.set_label(label)

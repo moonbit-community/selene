@@ -12,11 +12,7 @@ fn anchor_origin(anchor : @sprite.Anchor, size : @math.Vec2) -> @math.Vec2 {
 ///|
 pub fn render_text2d_system(delta : Double) -> Unit {
   ignore(delta)
-  for (entity, _) in text_layout_caches().to_array() {
-    if !entity.is_alive() {
-      text_layout_caches().remove(entity)
-    }
-  }
+  text_layout_caches().retain((entity, _) => entity.is_alive())
   let camera_views = @camera.active_camera2d_views()
   let camera_extract = @culling2d.CameraExtract2dContext(camera_views)
   for entity, text2d in text2ds() {

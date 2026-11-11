@@ -108,11 +108,10 @@ pub(all) struct FrameCaptureArtifact {
 pub extend FrameCaptureArtifact with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
-let render_submission_by_world : Map[UInt32, RenderSubmissionDebug] = Map([])
+let render_submission_key : @ecs.ResourceKey[RenderSubmissionDebug] = ResourceKey()
 
 ///|
-let latest_render_frame_by_world : Map[UInt32, @render_pipeline.RenderFrame] = Map([],
-)
+let latest_render_frame_key : @ecs.ResourceKey[@render_pipeline.RenderFrame] = ResourceKey()
 
 ///|
 fn draw2d_info(
@@ -256,8 +255,8 @@ pub fn record_render_submission(
   }
   let draw3d = frame.frame3d.items.map(draw3d_info)
   let world = current_world()
-  latest_render_frame_by_world.set(world.id(), frame)
-  render_submission_by_world.set(world.id(), {
+  latest_render_frame_key.insert_in(world, frame)
+  render_submission_key.insert_in(world, {
     frame_index: world.frame_index(),
     fixed_step_index: world.fixed_step_index(),
     draw2d,
@@ -267,7 +266,7 @@ pub fn record_render_submission(
 
 ///|
 pub fn latest_render_submission() -> RenderSubmissionDebug? {
-  render_submission_by_world.get(current_world_id())
+  render_submission_key.get_in(current_world())
 }
 
 ///|
@@ -310,9 +309,7 @@ fn metrics_export(
 pub fn capture_last_frame_metadata() -> FrameCaptureMetadata? {
   guard latest_render_submission() is Some(submission) else { return None }
   let draw2d = submission.draw2d.map(draw2d_metadata_entry)
-  let metrics = frame_metrics_by_world
-    .get(current_world_id())
-    .map(metrics_export)
+  let metrics = frame_metrics_key.get_in(current_world()).map(metrics_export)
   Some({
     frame_index: submission.frame_index,
     fixed_step_index: submission.fixed_step_index,
@@ -366,7 +363,7 @@ pub fn capture_last_frame_with_metadata(
 
 ///|
 pub fn render_last_frame_offscreen_png(width : Int32, height : Int32) -> Bytes? {
-  guard latest_render_frame_by_world.get(current_world_id()) is Some(frame) else {
+  guard latest_render_frame_key.get_in(current_world()) is Some(frame) else {
     return None
   }
   @platform_render.render_offscreen_png(frame, width, height)

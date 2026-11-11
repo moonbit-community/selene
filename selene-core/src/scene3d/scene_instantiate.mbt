@@ -1,7 +1,7 @@
 ///|
 fn resolve_scene_skin_bindings(
   template : SceneTemplate,
-  node_entities : Map[Int32, @ecs.Entity],
+  node_entities : Array[@ecs.Entity?],
   pending_skin_bindings : Array[PendingSkinBinding],
 ) -> Unit {
   for pending in pending_skin_bindings {
@@ -13,7 +13,8 @@ fn resolve_scene_skin_bindings(
     let joint_entities : Array[@ecs.Entity] = []
     let mut complete = true
     for joint_node_index in skin.joints {
-      guard node_entities.get(joint_node_index) is Some(joint_entity) else {
+      guard node_entities.get(joint_node_index).unwrap_or(None)
+        is Some(joint_entity) else {
         complete = false
         break
       }
@@ -98,7 +99,7 @@ fn instantiate_scene_node(
   node_index : Int32,
   parent : @ecs.Entity,
   root_entity : @ecs.Entity,
-  node_entities : Map[Int32, @ecs.Entity],
+  node_entities : Array[@ecs.Entity?],
   pending_skin_bindings : Array[PendingSkinBinding],
   parts : Map[String, @ecs.Entity],
   parent_path : String,
@@ -156,7 +157,7 @@ fn instantiate_scene_node(
   }
   let entity = draft.spawn(parent~)
   parts.set(entity_path, entity)
-  node_entities.set(node_index, entity)
+  node_entities[node_index] = Some(entity)
   if single_renderer is Some((renderer, skinned)) {
     if node.skin_index is Some(skin_index) &&
       skinned is Some(skinned) &&

@@ -1,12 +1,12 @@
 ///|
 pub(all) struct EventReader[T] {
-  last_seen_by_world : Map[UInt32, Int32]
+  last_seen_key : @ecs.ResourceKey[Int32]
   marker : T?
 }
 
 ///|
 pub fn[T] EventReader::EventReader() -> EventReader[T] {
-  { last_seen_by_world: Map([]), marker: None, }
+  { last_seen_key: ResourceKey(), marker: None, }
 }
 
 ///|
@@ -14,8 +14,8 @@ pub fn[T] EventReader::read(
   self : EventReader[T],
   events : Events[T],
 ) -> Array[T] {
-  let world_id = current_world_id()
-  let last_seen = self.last_seen_by_world.get(world_id).unwrap_or(-1)
+  let world = @ecs.require_current_world()
+  let last_seen = self.last_seen_key.get_in(world).unwrap_or(-1)
   let store = world_store(events)
   let values : Array[T] = []
   let mut latest_id = last_seen
@@ -31,7 +31,7 @@ pub fn[T] EventReader::read(
       latest_id = record.id
     }
   }
-  self.last_seen_by_world.set(world_id, latest_id)
+  self.last_seen_key.insert_in(world, latest_id)
   values
 }
 

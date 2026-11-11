@@ -27,9 +27,8 @@ fn allocate_node(
   node_type : AnimationGraphNodeType,
   mask : UInt32,
 ) -> AnimationNodeIndex {
-  let node = AnimationNodeIndex(graph.next_node)
-  graph.next_node += 1U
-  graph.nodes.set(node, { node_type, mask, children: [], })
+  let node = AnimationNodeIndex(graph.nodes.length().reinterpret_as_uint())
+  graph.nodes.push({ node_type, mask, children: [], })
   node
 }
 
@@ -40,7 +39,9 @@ pub fn AnimationGraph::add_edge(
   child : AnimationNodeIndex,
   weight~ : Double = 1.0,
 ) -> Unit {
-  guard self.nodes.get(parent) is Some(node) else { return }
+  guard self.nodes.get(parent.0.reinterpret_as_int()) is Some(node) else {
+    return
+  }
   node.children.push({ child, weight, })
 }
 
@@ -156,7 +157,9 @@ pub fn AnimationGraph::set_edge_weight(
   child : AnimationNodeIndex,
   weight : Double,
 ) -> Unit {
-  guard self.nodes.get(parent) is Some(node) else { return }
+  guard self.nodes.get(parent.0.reinterpret_as_int()) is Some(node) else {
+    return
+  }
   for edge in node.children {
     if edge.child == child {
       edge.weight = weight

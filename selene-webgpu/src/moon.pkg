@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/set",
   "moonbitlang/core/cmp",
   "moonbitlang/core/debug",
   "moonbit-community/js-ffi/js",

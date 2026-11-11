@@ -13,18 +13,19 @@
 // limitations under the License.
 
 ///|
-let prepared_frame3d_by_world : Map[UInt32, @render3d.RenderFrame3D] = Map([])
+let prepared_frame3d_key : @ecs.ResourceKey[@render3d.RenderFrame3D] = ResourceKey()
 
 ///|
 fn prepared_frame3d() -> @render3d.RenderFrame3D {
-  let world_id = @ecs.require_current_world().id()
-  prepared_frame3d_by_world.get_or_init(world_id, () => RenderFrame3D())
+  prepared_frame3d_key.get_or_insert_with(@ecs.require_current_world(), _ => {
+    RenderFrame3D()
+  })
 }
 
 ///|
 pub fn render3d_prepare_system(_delta : Double) -> Unit {
-  prepared_frame3d_by_world.set(
-    @ecs.require_current_world().id(),
+  prepared_frame3d_key.insert_in(
+    @ecs.require_current_world(),
     @render3d.get_extracted_frame3d(),
   )
 }

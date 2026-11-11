@@ -111,7 +111,7 @@ fn refresh_query_world() -> Unit {
 
 ///|
 fn accumulate_pending_vec2(
-  pending : Map[@ecs.Entity, @math.Vec2],
+  pending : @ecs.EntityTable[@math.Vec2],
   entity : @ecs.Entity,
   value : @math.Vec2,
 ) -> Unit {
@@ -120,7 +120,7 @@ fn accumulate_pending_vec2(
 
 ///|
 fn accumulate_pending_scalar(
-  pending : Map[@ecs.Entity, Double],
+  pending : @ecs.EntityTable[Double],
   entity : @ecs.Entity,
   value : Double,
 ) -> Unit {
@@ -129,7 +129,7 @@ fn accumulate_pending_scalar(
 
 ///|
 fn push_pending_force_point(
-  pending : Map[@ecs.Entity, Array[(@math.Vec2, @math.Vec2)]],
+  pending : @ecs.EntityTable[Array[(@math.Vec2, @math.Vec2)]],
   entity : @ecs.Entity,
   value : (@math.Vec2, @math.Vec2),
 ) -> Unit {

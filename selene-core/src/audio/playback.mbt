@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-pub fn audio_sinks() -> Map[@ecs.Entity, AudioSink] {
+pub fn audio_sinks() -> @ecs.EntityTable[AudioSink] {
   audio_runtime().sinks
 }
 
@@ -34,8 +34,8 @@ priv enum AudioOverride {
 
 ///|
 priv struct AudioRuntime {
-  sinks : Map[@ecs.Entity, AudioSink]
-  overrides : Map[@ecs.Entity, AudioOverride]
+  sinks : @ecs.EntityTable[AudioSink]
+  overrides : @ecs.EntityTable[AudioOverride]
 }
 
 ///|
@@ -43,9 +43,9 @@ let audio_runtime_key : @ecs.ResourceKey[AudioRuntime] = ResourceKey()
 
 ///|
 fn audio_runtime() -> AudioRuntime {
-  audio_runtime_key.get_or_insert_with(@ecs.require_current_world(), _ => {
-    sinks: {},
-    overrides: {},
+  audio_runtime_key.get_or_insert_with(@ecs.require_current_world(), world => {
+    sinks: EntityTable(world),
+    overrides: EntityTable(world),
   })
 }
 
@@ -199,7 +199,7 @@ pub fn audio_playback_system(_delta : Double) -> Unit {
       audio_playback_settings().get(entity).unwrap_or(PlaybackSettings::once()),
     )
   }
-  for (entity, playback) in runtime.overrides.to_array() {
+  for entity, playback in runtime.overrides {
     if entity.is_alive() && playback is Attached(player, settings) {
       update_audio_playback(entity, player, settings)
     }

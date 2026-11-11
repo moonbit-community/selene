@@ -1,5 +1,5 @@
 ///|
-pub fn ldtk_pending_transformed_level_iids() -> Map[String, Bool] {
+pub fn ldtk_pending_transformed_level_iids() -> @set.Set[String] {
   ldtk_world_store().ldtk_pending_transformed_level_iids
 }
 
@@ -120,9 +120,7 @@ pub fn unregister_default_ldtk_entity() -> Unit {
 
 ///|
 pub fn clear_ldtk_entity_registrations() -> Unit {
-  for (key, _) in ldtk_entity_typed_registrations().to_array() {
-    ldtk_entity_typed_registrations().remove(key)
-  }
+  ldtk_entity_typed_registrations().clear()
 }
 
 ///|

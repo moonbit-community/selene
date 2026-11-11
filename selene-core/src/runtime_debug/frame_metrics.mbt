@@ -12,11 +12,10 @@ pub(all) struct FramePerformanceMetrics {
 }
 
 ///|
-let frame_metrics_by_world : Map[UInt32, FramePerformanceMetrics] = Map([])
+let frame_metrics_key : @ecs.ResourceKey[FramePerformanceMetrics] = ResourceKey()
 
 ///|
-let frame_metrics_history_by_world : Map[UInt32, Array[FramePerformanceMetrics]] = Map([],
-)
+let frame_metrics_history_key : @ecs.ResourceKey[Array[FramePerformanceMetrics]] = ResourceKey()
 
 ///|
 fn FramePerformanceMetrics::FramePerformanceMetrics(
@@ -38,7 +37,7 @@ fn FramePerformanceMetrics::FramePerformanceMetrics(
 ///|
 fn ensure_metrics() -> FramePerformanceMetrics {
   let world = current_world()
-  frame_metrics_by_world.get_or_init(world.id(), () => {
+  frame_metrics_key.get_or_insert_with(world, _ => {
     FramePerformanceMetrics(world)
   })
 }
@@ -46,7 +45,7 @@ fn ensure_metrics() -> FramePerformanceMetrics {
 ///|
 pub fn begin_frame_metrics() -> Unit {
   let world = current_world()
-  frame_metrics_by_world.set(world.id(), {
+  frame_metrics_key.insert_in(world, {
     frame_index: world.frame_index(),
     fixed_step_index: world.fixed_step_index(),
     fixed_steps_this_frame: 0,
@@ -61,9 +60,8 @@ pub fn begin_frame_metrics() -> Unit {
 
 ///|
 pub fn note_fixed_step(delta : Double) -> Unit {
-  let world_id = current_world_id()
   let metrics = ensure_metrics()
-  frame_metrics_by_world.set(world_id, {
+  frame_metrics_key.insert_in(current_world(), {
     ..metrics,
     fixed_steps_this_frame: metrics.fixed_steps_this_frame + 1,
     fixed_delta_total: metrics.fixed_delta_total + @cmp.maximum(0.0, delta),
@@ -72,9 +70,8 @@ pub fn note_fixed_step(delta : Double) -> Unit {
 
 ///|
 pub fn note_update(update_delta : Double, entity_count : Int32) -> Unit {
-  let world_id = current_world_id()
   let metrics = ensure_metrics()
-  frame_metrics_by_world.set(world_id, {
+  frame_metrics_key.insert_in(current_world(), {
     ..metrics,
     update_delta: @cmp.maximum(0.0, update_delta),
     entity_count: @cmp.maximum(0, entity_count),
@@ -87,7 +84,6 @@ pub fn note_render(
   draw2d_count : Int32,
   draw3d_count : Int32,
 ) -> Unit {
-  let world_id = current_world_id()
   let metrics = ensure_metrics()
   let next_metrics = {
     ..metrics,
@@ -95,8 +91,10 @@ pub fn note_render(
     draw2d_count: @cmp.maximum(0, draw2d_count),
     draw3d_count: @cmp.maximum(0, draw3d_count),
   }
-  frame_metrics_by_world.set(world_id, next_metrics)
-  let history = frame_metrics_history_by_world.get_or_init(world_id, () => [])
+  frame_metrics_key.insert_in(current_world(), next_metrics)
+  let history = frame_metrics_history_key.get_or_insert_with(current_world(), _ => {
+    []
+  })
   history.push({ ..next_metrics, })
   let max_samples = 120
   if history.length() > max_samples {
@@ -116,7 +114,5 @@ pub fn latest_metrics() -> FramePerformanceMetrics {
 
 ///|
 pub fn rolling_metrics() -> Array[FramePerformanceMetrics] {
-  frame_metrics_history_by_world
-  .get_or_init(current_world_id(), () => [])
-  .copy()
+  frame_metrics_history_key.get_or_insert_with(current_world(), _ => []).copy()
 }

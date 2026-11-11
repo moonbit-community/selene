@@ -38,6 +38,17 @@
 
 ### Changed
 
+- Store engine runtime state, event buses, and event reader cursors in their
+  owning World resources instead of global World-ID maps.
+- Index entity runtime data by reusable slots with full-handle validation,
+  insertion-ordered traversal, and explicit cleanup of orphan generations.
+  Read physics results with `resolved_velocity(entity)`.
+- Use arrays for animation graph and glTF node indices, typed integer keys for
+  spatial/autotile grids and physics handles, and sets for membership tracking.
+  Remove unnecessary iteration snapshots and defer example entity deletions.
+- Filter animation fades in place and snapshot observer subscriptions when
+  callbacks can modify them during dispatch.
+
 - Destructure tuple elements directly in `for` patterns across the engine,
   backend, examples, and tests, removing temporary tuple bindings and projections.
 

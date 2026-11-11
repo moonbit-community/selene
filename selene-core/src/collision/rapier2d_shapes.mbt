@@ -76,9 +76,10 @@ fn vec2_length_squared(value : @math.Vec2) -> Double {
 }
 
 ///|
-fn collider_handle_id(handle : @rapier_collision.ColliderHandle) -> Int32 {
-  let (id, _generation) = handle.into_raw_parts()
-  id
+fn collider_handle_key(
+  handle : @rapier_collision.ColliderHandle,
+) -> (Int32, Int32) {
+  handle.into_raw_parts()
 }
 
 ///|

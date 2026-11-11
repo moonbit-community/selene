@@ -96,12 +96,11 @@ priv struct UiInteractionRuntime {
 }
 
 ///|
-let ui_interaction_runtimes : Map[UInt32, UiInteractionRuntime] = Map([])
+let ui_interaction_runtime_key : @ecs.ResourceKey[UiInteractionRuntime] = ResourceKey()
 
 ///|
 fn ui_interaction_runtime() -> UiInteractionRuntime {
-  let world_id = @ecs.require_current_world().id()
-  ui_interaction_runtimes.get_or_init(world_id, () => {
+  ui_interaction_runtime_key.get_or_insert_with(@ecs.require_current_world(), _ => {
     hovered_entity: None,
     pressed_entity: None,
     pressed_pointer: None,

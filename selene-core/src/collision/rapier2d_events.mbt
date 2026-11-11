@@ -37,51 +37,33 @@ fn apply_pending_body_actions(entity : @ecs.Entity) -> Unit {
 
 ///|
 fn prune_pending_body_state() -> Unit {
-  for (entity, _) in pending_body_rotations().to_array() {
-    if !entity.is_alive() || !world_entity(entity) {
-      pending_body_rotations().remove(entity)
-    }
-  }
-  for (entity, _) in pending_body_linear_velocities().to_array() {
-    if !entity.is_alive() || !world_entity(entity) {
-      pending_body_linear_velocities().remove(entity)
-    }
-  }
-  for (entity, _) in pending_body_angular_velocities().to_array() {
-    if !entity.is_alive() || !world_entity(entity) {
-      pending_body_angular_velocities().remove(entity)
-    }
-  }
-  for (entity, _) in pending_body_forces().to_array() {
-    if !entity.is_alive() || !world_entity(entity) {
-      pending_body_forces().remove(entity)
-    }
-  }
-  for (entity, _) in pending_body_force_points().to_array() {
-    if !entity.is_alive() || !world_entity(entity) {
-      pending_body_force_points().remove(entity)
-    }
-  }
-  for (entity, _) in pending_body_torques().to_array() {
-    if !entity.is_alive() || !world_entity(entity) {
-      pending_body_torques().remove(entity)
-    }
-  }
-  for (entity, _) in pending_body_impulses().to_array() {
-    if !entity.is_alive() || !world_entity(entity) {
-      pending_body_impulses().remove(entity)
-    }
-  }
-  for (entity, _) in pending_body_impulse_points().to_array() {
-    if !entity.is_alive() || !world_entity(entity) {
-      pending_body_impulse_points().remove(entity)
-    }
-  }
-  for (entity, _) in pending_body_torque_impulses().to_array() {
-    if !entity.is_alive() || !world_entity(entity) {
-      pending_body_torque_impulses().remove(entity)
-    }
-  }
+  pending_body_rotations().retain((entity, _) => {
+    entity.is_alive() && world_entity(entity)
+  })
+  pending_body_linear_velocities().retain((entity, _) => {
+    entity.is_alive() && world_entity(entity)
+  })
+  pending_body_angular_velocities().retain((entity, _) => {
+    entity.is_alive() && world_entity(entity)
+  })
+  pending_body_forces().retain((entity, _) => {
+    entity.is_alive() && world_entity(entity)
+  })
+  pending_body_force_points().retain((entity, _) => {
+    entity.is_alive() && world_entity(entity)
+  })
+  pending_body_torques().retain((entity, _) => {
+    entity.is_alive() && world_entity(entity)
+  })
+  pending_body_impulses().retain((entity, _) => {
+    entity.is_alive() && world_entity(entity)
+  })
+  pending_body_impulse_points().retain((entity, _) => {
+    entity.is_alive() && world_entity(entity)
+  })
+  pending_body_torque_impulses().retain((entity, _) => {
+    entity.is_alive() && world_entity(entity)
+  })
 }
 
 ///|
@@ -369,10 +351,16 @@ fn remove_multibody_joint_physics(entity : @ecs.Entity) -> Unit {
 
 ///|
 fn sync_world_joints() -> Unit {
-  for (entity, handle) in world().entity_joints.to_array() {
-    if !should_have_joint(entity) || !world().impulse_joints.contains(handle) {
-      remove_joint_physics(entity)
-    }
+  let stale = world().entity_joints
+    .iter()
+    .filter(pair => {
+      let (entity, handle) = pair
+      !should_have_joint(entity) || !world().impulse_joints.contains(handle)
+    })
+    .map(pair => pair.0)
+    .collect()
+  for entity in stale {
+    remove_joint_physics(entity)
   }
 
   for entity in @ecs.iter_entities() {
@@ -404,11 +392,17 @@ fn sync_world_joints() -> Unit {
 
 ///|
 fn sync_world_multibody_joints() -> Unit {
-  for (entity, handle) in world().entity_multibody_joints.to_array() {
-    if !should_have_multibody_joint(entity) ||
-      world().multibody_joints.get(handle) is None {
-      remove_multibody_joint_physics(entity)
-    }
+  let stale = world().entity_multibody_joints
+    .iter()
+    .filter(pair => {
+      let (entity, handle) = pair
+      !should_have_multibody_joint(entity) ||
+      world().multibody_joints.get(handle) is None
+    })
+    .map(pair => pair.0)
+    .collect()
+  for entity in stale {
+    remove_multibody_joint_physics(entity)
   }
 
   for entity in @ecs.iter_entities() {

@@ -216,15 +216,15 @@ priv struct LdtkWorldStore {
     String,
     (LdtkIntGridCellSpawn) -> Unit,
   ]
-  respawns : Map[@ecs.Entity, LdtkRespawn]
-  ldtk_pending_transformed_level_iids : Map[String, Bool]
+  respawns : @ecs.EntityTable[LdtkRespawn]
+  ldtk_pending_transformed_level_iids : @set.Set[String]
 }
 
 ///|
 let ldtk_world_store_key : @ecs.ResourceKey[LdtkWorldStore] = ResourceKey()
 
 ///|
-fn LdtkWorldStore::LdtkWorldStore() -> LdtkWorldStore {
+fn LdtkWorldStore::LdtkWorldStore(world : @ecs.World) -> LdtkWorldStore {
   {
     ldtk_entity_spawn_hooks: Map([]),
     ldtk_entity_layer_spawn_hooks: Map([]),
@@ -236,15 +236,15 @@ fn LdtkWorldStore::LdtkWorldStore() -> LdtkWorldStore {
     ldtk_int_grid_default_spawn_hook: { val: None, },
     ldtk_entity_typed_registrations: Map([]),
     ldtk_int_cell_typed_registrations: Map([]),
-    respawns: {},
-    ldtk_pending_transformed_level_iids: Map([]),
+    respawns: EntityTable(world),
+    ldtk_pending_transformed_level_iids: Set([]),
   }
 }
 
 ///|
 fn ldtk_world_store() -> LdtkWorldStore {
-  ldtk_world_store_key.get_or_insert_with(@ecs.require_current_world(), _ => {
-    LdtkWorldStore()
+  ldtk_world_store_key.get_or_insert_with(@ecs.require_current_world(), world => {
+    LdtkWorldStore(world)
   })
 }
 

@@ -59,7 +59,7 @@ pub fn AutoTileDiff::not_equal(Self, Self) -> Bool
 pub fn AutoTileDiff::to_json(Self) -> @json.Json
 pub fn AutoTileDiff::to_repr(Self) -> @debug.Repr
 
-#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
+#derive(Eq, Hash, @debug.Debug, @json.FromJson, @json.ToJson)
 pub struct AutoTileGridPos {
   x : Int32
   y : Int32
@@ -67,6 +67,8 @@ pub struct AutoTileGridPos {
 pub fn AutoTileGridPos::AutoTileGridPos(Int32, Int32) -> Self
 pub fn AutoTileGridPos::equal(Self, Self) -> Bool
 pub fn AutoTileGridPos::from_json(@json.Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AutoTileGridPos::hash(Self) -> Int32
+pub fn AutoTileGridPos::hash_combine(Self, Hasher) -> Unit
 pub fn AutoTileGridPos::not_equal(Self, Self) -> Bool
 pub fn AutoTileGridPos::to_json(Self) -> @json.Json
 pub fn AutoTileGridPos::to_repr(Self) -> @debug.Repr

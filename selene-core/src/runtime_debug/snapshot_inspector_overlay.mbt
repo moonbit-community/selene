@@ -133,7 +133,7 @@ pub type SnapshotProvider = (@ecs.World) -> String
 let snapshot_providers : Map[String, SnapshotProvider] = Map([])
 
 ///|
-let atlas_overlay_enabled_by_world : Map[UInt32, Bool] = Map([])
+let atlas_overlay_enabled_key : @ecs.ResourceKey[Bool] = ResourceKey()
 
 ///|
 pub fn register_snapshot_provider(

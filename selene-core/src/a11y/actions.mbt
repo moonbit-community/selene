@@ -57,7 +57,8 @@ fn dispatch_action(
 fn process_action_requests() -> Unit {
   for request in pending_action_requests {
     guard request.target_tree() == a11y_tree_id else { continue }
-    guard current_node_entities.get(request.target_node()) is Some(entity) else {
+    guard a11y_runtime().current_node_entities.get(request.target_node())
+      is Some(entity) else {
       continue
     }
     dispatch_action(entity, request.action(), request.data())

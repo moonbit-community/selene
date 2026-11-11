@@ -183,58 +183,66 @@ fn reset_wave_state() -> Unit {
 }
 
 ///|
-let enemy_data : Map[EnemyType, EnemyData] = {
-  let data = Map([])
-  data.set(Creeper, {
-    health: 1.0,
-    speed: 60.0,
-    points: 10,
-    right_animation: creeper_right_animation,
-    left_animation: creeper_left_animation,
-  })
-  data.set(Icecream, {
-    health: 2.0,
-    speed: 90.0,
-    points: 20,
-    right_animation: icecream_right_animation,
-    left_animation: icecream_left_animation,
-  })
-  data.set(Orc, {
-    health: 3.0,
-    speed: 75,
-    points: 30,
-    right_animation: orc_right_animation,
-    left_animation: orc_left_animation,
-  })
-  data.set(Skull, {
-    health: 5.0,
-    speed: 60.0,
-    points: 40,
-    right_animation: skull_right_animation,
-    left_animation: skull_left_animation,
-  })
-  data.set(Teleman, {
-    health: 20.0,
-    speed: 60.0,
-    points: 80,
-    right_animation: teleman_right_animation,
-    left_animation: teleman_left_animation,
-  })
-  data.set(Devil, {
-    health: 8.0,
-    speed: 90.0,
-    points: 50,
-    right_animation: devil_right_animation,
-    left_animation: devil_left_animation,
-  })
-  data.set(Pirate, {
-    health: 500.0,
-    speed: 60.0,
-    points: 200,
-    right_animation: pirate_right_animation,
-    left_animation: pirate_left_animation,
-  })
-  data
+let creeper_data : EnemyData = {
+  health: 1.0,
+  speed: 60.0,
+  points: 10,
+  right_animation: creeper_right_animation,
+  left_animation: creeper_left_animation,
+}
+
+///|
+let icecream_data : EnemyData = {
+  health: 2.0,
+  speed: 90.0,
+  points: 20,
+  right_animation: icecream_right_animation,
+  left_animation: icecream_left_animation,
+}
+
+///|
+let orc_data : EnemyData = {
+  health: 3.0,
+  speed: 75,
+  points: 30,
+  right_animation: orc_right_animation,
+  left_animation: orc_left_animation,
+}
+
+///|
+let skull_data : EnemyData = {
+  health: 5.0,
+  speed: 60.0,
+  points: 40,
+  right_animation: skull_right_animation,
+  left_animation: skull_left_animation,
+}
+
+///|
+let teleman_data : EnemyData = {
+  health: 20.0,
+  speed: 60.0,
+  points: 80,
+  right_animation: teleman_right_animation,
+  left_animation: teleman_left_animation,
+}
+
+///|
+let devil_data : EnemyData = {
+  health: 8.0,
+  speed: 90.0,
+  points: 50,
+  right_animation: devil_right_animation,
+  left_animation: devil_left_animation,
+}
+
+///|
+let pirate_data : EnemyData = {
+  health: 500.0,
+  speed: 60.0,
+  points: 200,
+  right_animation: pirate_right_animation,
+  left_animation: pirate_left_animation,
 }
 
 ///|
@@ -339,7 +347,7 @@ priv struct Enemy {
 }
 
 ///|
-#derive(Eq, Hash)
+#derive(Eq)
 enum EnemyType {
   Creeper
   Icecream
@@ -352,9 +360,6 @@ enum EnemyType {
 
 ///|
 pub extend EnemyType with Eq::{not_equal, equal}
-
-///|
-pub extend EnemyType with Hash::{hash, hash_combine}
 
 ///|
 fn enemies() -> @ecs.ComponentStore[Enemy] {
@@ -395,9 +400,14 @@ fn play_enemy_animation_state(
 
 ///|
 fn get_enemy_data(enemy_type : EnemyType) -> EnemyData {
-  match enemy_data.get(enemy_type) {
-    Some(data) => data
-    None => abort("Enemy data not found")
+  match enemy_type {
+    Creeper => creeper_data
+    Icecream => icecream_data
+    Orc => orc_data
+    Skull => skull_data
+    Teleman => teleman_data
+    Devil => devil_data
+    Pirate => pirate_data
   }
 }
 

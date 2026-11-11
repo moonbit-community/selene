@@ -126,3 +126,61 @@ test "events: frame update systems are world-scoped and require explicit registr
   inspect(int_array_matches(events.read(reader_b), [2]), content="true")
   @ecs.set_current_world(@ecs.bootstrap_world())
 }
+
+///|
+test "one reader and event bus keep independent World-owned cursors and observers" {
+  let previous = @ecs.current_world()
+  defer (match previous {
+    Some(world) => @ecs.set_current_world(world)
+    None => @ecs.clear_current_world()
+  })
+  let first = @ecs.World()
+  let second = @ecs.World()
+  let bus : Events[Int32] = Events()
+  let reader : EventReader[Int32] = EventReader()
+  let received = []
+  bus.register_to_world(first)
+  bus.register_to_world(second)
+  @ecs.set_current_world(first)
+  ignore(bus.observe_global(item => received.push(item.event)))
+  bus.trigger(10, None)
+  debug_inspect(reader.read(bus), content="[10]")
+  @ecs.set_current_world(second)
+  bus.trigger(20, None)
+  debug_inspect(reader.read(bus), content="[20]")
+  event_observer_dispatch_system(0.0)
+  assert_true(received.is_empty())
+  @ecs.set_current_world(first)
+  bus.trigger(11, None)
+  debug_inspect(reader.read(bus), content="[11]")
+  event_observer_dispatch_system(0.0)
+  debug_inspect(received, content="[10, 11]")
+  @ecs.set_current_world(second)
+  debug_inspect(reader.read(bus), content="[]")
+}
+
+///|
+test "observer subscriptions can change safely during a trigger" {
+  let previous = @ecs.current_world()
+  defer (match previous {
+    Some(world) => @ecs.set_current_world(world)
+    None => @ecs.clear_current_world()
+  })
+  @ecs.set_current_world(World())
+  let events : Events[Int32] = Events()
+  let received = []
+  let first = Ref(None)
+  first.val = Some(
+    events.observe_global(item => {
+      received.push(item.event)
+      events.unobserve(first.val.unwrap())
+      ignore(events.observe_global(next => received.push(next.event * 10)))
+    }),
+  )
+  events.trigger(1, None)
+  events.dispatch_observers()
+  debug_inspect(received, content="[1]")
+  events.trigger(2, None)
+  events.dispatch_observers()
+  debug_inspect(received, content="[1, 20]")
+}

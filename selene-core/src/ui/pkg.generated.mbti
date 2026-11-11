@@ -45,7 +45,7 @@ pub fn box_shadows() -> @ecs.ComponentStore[BoxShadow]
 
 pub fn buttons() -> @ecs.ComponentStore[Button]
 
-pub fn calculated_clips() -> Map[@ecs.Entity, CalculatedClip]
+pub fn calculated_clips() -> @ecs.EntityTable[CalculatedClip]
 
 pub let click_event_bus : @event.Events[UiClickEvent]
 
@@ -79,7 +79,7 @@ pub fn focusables() -> @ecs.ComponentStore[Focusable]
 
 pub fn focused_entity() -> @ecs.Entity?
 
-pub fn focuseds() -> Map[@ecs.Entity, Focused]
+pub fn focuseds() -> @ecs.EntityTable[Focused]
 
 pub fn get_ui_scale_mode() -> UiScaleMode
 
@@ -127,7 +127,7 @@ pub fn grid_span(Int32) -> GridPlacement
 
 pub fn hovered_entity() -> @ecs.Entity?
 
-pub fn interactions() -> Map[@ecs.Entity, Interaction]
+pub fn interactions() -> @ecs.EntityTable[Interaction]
 
 pub fn is_pointer_consumed(@inputs.PointerId) -> Bool
 
@@ -169,7 +169,7 @@ pub fn release_ui_material_asset(UiMaterialHandle) -> Unit
 
 pub fn rgba(Int32, Int32, Int32, Double) -> @render.Color
 
-pub fn scroll_positions() -> Map[@ecs.Entity, ScrollPosition]
+pub fn scroll_positions() -> @ecs.EntityTable[ScrollPosition]
 
 pub fn set_ui_scale_mode(UiScaleMode) -> Unit
 
