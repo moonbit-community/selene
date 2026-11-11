@@ -18,6 +18,40 @@ test "generates typed keys only for marked declarations" {
 }
 
 ///|
+test "state markers generate identity and visibility without resource access" {
+  let source =
+    #|#derive(Eq)
+    #|#selene.state
+    #|pub enum GamePhase { Menu; Playing }
+    #|
+    #|#derive(Eq)
+    #|#selene.state
+    #|priv enum Connection { Offline; Online }
+  let generated = generate(source, "phase.mbt")
+  assert_true(generated.contains("@state.StateKey[GamePhase] = StateKey()"))
+  assert_true(generated.contains("pub impl @state.StateType for GamePhase"))
+  assert_true(generated.contains("impl @state.StateType for Connection"))
+  assert_false(generated.contains("pub impl @state.StateType for Connection"))
+  assert_false(generated.contains("@ecs.Resource"))
+  assert_false(generated.contains("initialize"))
+}
+
+///|
+test "rejects generic duplicate and parameterized state markers" {
+  for
+    source in [
+      "#selene.state\nenum Phase[T] { Playing(T) }", "#selene.state\n#selene.resource\nenum Phase { Playing }",
+      "#selene.state(factory)\nenum Phase { Playing }", "#selene.state\nfn phase() -> Unit { () }",
+    ] {
+    try ignore(generate(source, "phase.mbt")) catch {
+      InvalidInput(_) => ()
+    } noraise {
+      _ => fail("expected an invalid state declaration")
+    }
+  }
+}
+
+///|
 test "rejects a resource marker with an initializer" {
   let result = try {
     ignore(

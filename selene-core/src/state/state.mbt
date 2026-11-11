@@ -1,139 +1,100 @@
 ///|
-priv struct StateWorldRuntime {
-  mut frame_serial : UInt32
-  transition_callbacks : Array[() -> Unit]
+/// Supplies one state identity, shared by this type across Worlds.
+pub(open) trait StateType: Eq {
+  fn state_key() -> StateKey[Self]
 }
 
 ///|
-let state_world_runtimes : Map[UInt32, StateWorldRuntime] = Map([])
-
-///|
-fn state_runtime(world_id : UInt32) -> StateWorldRuntime {
-  state_world_runtimes.get_or_init(world_id, () => {
-    frame_serial: 0U,
-    transition_callbacks: [],
-  })
+/// A declaration key. State values are stored in each World, not in this key.
+struct StateKey[T] {
+  storage : @ecs.ResourceKey[StateData[T]]
 }
 
 ///|
-fn current_state_runtime() -> StateWorldRuntime {
-  let world = @ecs.require_current_world()
-  state_runtime(world.id())
+pub fn[T] StateKey::StateKey() -> StateKey[T] {
+  { storage: ResourceKey(), }
 }
 
 ///|
-pub(all) struct State[T] {
-  world_id : UInt32
-  current : Ref[T]
-  next : Ref[T?]
-  previous : Ref[T?]
-  changed_serial : Ref[UInt32]
+priv struct StateData[T] {
+  mut current : T
+  mut pending : T?
+  mut entered : Bool
+  mut transition : (T?, T)?
 }
 
 ///|
-pub(all) struct NextState[T] {
-  state : State[T]
-}
-
-///|
-pub fn[T] State::State(initial : T) -> State[T] {
-  let world = @ecs.require_current_world()
-  let runtime = state_runtime(world.id())
-  let state : State[T] = {
-    world_id: world.id(),
-    current: Ref(initial),
-    next: Ref(None),
-    previous: Ref(None),
-    changed_serial: Ref(0),
+fn[T : StateType] state_data(world : @ecs.World) -> StateData[T] {
+  let key : StateKey[T] = StateType::state_key()
+  match key.storage.get_in(world) {
+    Some(data) => data
+    None => abort("State is not initialized for this World.")
   }
-  runtime.transition_callbacks.push(fn() {
-    match state.next.val {
-      Some(next) => {
-        state.previous.val = Some(state.current.val)
-        state.current.val = next
-        state.next.val = None
-        state.changed_serial.val = runtime.frame_serial
+}
+
+///|
+/// Returns the current state value in this World. Requires initialization.
+pub fn[T : StateType] current(world : @ecs.World) -> T {
+  let data : StateData[T] = state_data(world)
+  data.current
+}
+
+///|
+/// Requests a transition. The last request before the transition point wins.
+pub fn[T : StateType] set_next(world : @ecs.World, value : T) -> Unit {
+  let data : StateData[T] = state_data(world)
+  data.pending = Some(value)
+}
+
+///|
+/// Tests the executing World's state, without capturing a World's data.
+pub fn[T : StateType] in_state(value : T) -> (@ecs.World) -> Bool {
+  world => current(world) == value
+}
+
+///|
+/// Initializes this state type once per World. Repeated calls preserve its value.
+pub fn[T : StateType] initialize(world : @ecs.World, initial : T) -> Unit {
+  let key : StateKey[T] = StateType::state_key()
+  guard key.storage.get_in(world) is None else { return }
+  key.storage.insert_in(world, {
+    current: initial,
+    pending: None,
+    entered: false,
+    transition: None,
+  })
+  let registry = registry_key.get_or_insert_with(world, _ => {
+    entries: [],
+    transitioning: false,
+  })
+  registry.entries.push({
+    prepare: (world, initial_only) => {
+      let data : StateData[T] = state_data(world)
+      if !data.entered {
+        data.transition = Some((None, data.current))
+        return Initial
       }
-      None => ()
-    }
+      guard !initial_only else { return Unchanged }
+      let pending = data.pending
+      data.pending = None
+      match pending {
+        Some(next) if next != data.current => {
+          data.transition = Some((Some(data.current), next))
+          Changed
+        }
+        _ => Unchanged
+      }
+    },
+    commit: world => {
+      let data : StateData[T] = state_data(world)
+      if data.transition is Some((_, next)) {
+        data.current = next
+        data.entered = true
+      }
+    },
+    finish: world => {
+      let data : StateData[T] = state_data(world)
+      data.transition = None
+    },
   })
-  state
-}
-
-///|
-pub fn[T] State::get(self : State[T]) -> T {
-  self.current.val
-}
-
-///|
-pub fn[T] State::next(self : State[T]) -> NextState[T] {
-  { state: self, }
-}
-
-///|
-pub fn[T] set_next_state(next_state : NextState[T], next : T) -> Unit {
-  next_state.state.next.val = Some(next)
-}
-
-///|
-pub fn[T] NextState::set(self : NextState[T], next : T) -> Unit {
-  self.state.next.val = Some(next)
-}
-
-///|
-pub fn[T] in_state(state : State[T], predicate : (T) -> Bool) -> () -> Bool {
-  fn() { predicate(state.current.val) }
-}
-
-///|
-pub fn[T : Eq] in_state_eq(state : State[T], value : T) -> () -> Bool {
-  in_state(state, fn(current) { current == value })
-}
-
-///|
-pub fn[T] on_enter(state : State[T], predicate : (T) -> Bool) -> () -> Bool {
-  fn() {
-    let runtime = state_runtime(state.world_id)
-    state.changed_serial.val == runtime.frame_serial &&
-    predicate(state.current.val)
-  }
-}
-
-///|
-pub fn[T : Eq] on_enter_eq(state : State[T], value : T) -> () -> Bool {
-  on_enter(state, fn(current) { current == value })
-}
-
-///|
-pub fn[T] on_exit(state : State[T], predicate : (T) -> Bool) -> () -> Bool {
-  fn() {
-    let runtime = state_runtime(state.world_id)
-    if state.changed_serial.val != runtime.frame_serial {
-      return false
-    }
-    match state.previous.val {
-      Some(previous) => predicate(previous)
-      None => false
-    }
-  }
-}
-
-///|
-pub fn[T : Eq] on_exit_eq(state : State[T], value : T) -> () -> Bool {
-  on_exit(state, fn(previous) { previous == value })
-}
-
-///|
-pub fn[T] transitioned_this_frame(state : State[T]) -> Bool {
-  let runtime = state_runtime(state.world_id)
-  state.changed_serial.val == runtime.frame_serial
-}
-
-///|
-pub fn state_transition_system(_delta : Double) -> Unit {
-  let runtime = current_state_runtime()
-  runtime.frame_serial += 1U
-  for callback in runtime.transition_callbacks {
-    callback()
-  }
 }

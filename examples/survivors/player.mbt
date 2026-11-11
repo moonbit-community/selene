@@ -198,7 +198,7 @@ fn spawn_player() -> @ecs.Entity {
 fn player_update_system(_world : @ecs.World) -> Unit {
   let game = game_state()
   let delta = @time.delta()
-  if game.game_over || delta == 0 {
+  if delta == 0 {
     return
   }
   let entity = game.player_entity
@@ -277,9 +277,6 @@ fn player_update_system(_world : @ecs.World) -> Unit {
 fn player_shooting_system(_world : @ecs.World) -> Unit {
   let game = game_state()
   let delta = @time.delta()
-  if game.game_over {
-    return
-  }
   guard @transform.local_transform(game.player_entity) is Some(player_transform) else {
     return
   }

@@ -70,9 +70,18 @@ fn generate(source : String, input : String) -> String raise CodegenError {
             hide_method(out, name, "@ecs.Resource", "resource_key")
           }
         }
+        ("state", Some(Ident(_))) => {
+          let key = "selene_state_key_\{name}"
+          out.write_string(
+            "\n///|\nlet \{key} : @state.StateKey[\{name}] = StateKey()\n",
+          )
+          out.write_string(
+            "\n///|\n\{visibility}impl @state.StateType for \{name} with state_key() {\n  \{key}\n}\n",
+          )
+        }
         _ =>
           raise InvalidInput(
-            "\{input}: invalid \{attr.raw} on \{name}; expected #selene.component or #selene.resource",
+            "\{input}: invalid \{attr.raw} on \{name}; expected #selene.component, #selene.resource, or #selene.state",
           )
       }
     }

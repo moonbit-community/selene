@@ -4,6 +4,11 @@
 
 ### Added
 
+- Add `#selene.state` declarations and generated state identities. Worlds own
+  state values and pending requests through resource storage. Applications can
+  initialize states, use World-aware `in_state` conditions, and register typed
+  entry and exit systems with `add_on_enter` and `add_on_exit`.
+
 - Add `distance_squared` for both vectors and complete the `Vec2` interpolation,
   finite-value, unit-axis, and unit-scale helpers.
 
@@ -29,6 +34,13 @@
   updates in long-running Worlds with a fixed live population.
 
 ### Changed
+
+- Apply frozen state-transition batches after `First`/`PreUpdate` and before
+  fixed updates. Flush exit commands before committing all changed states,
+  then run entry systems and flush their commands. Initial entries run once
+  after Startup; lifecycle requests wait for the next transition point.
+- Finish the `First`/`PreUpdate` command batch before state transitions and fixed
+  updates, so later systems see its deferred entity changes.
 
 - Move application stages and system ordering to `app`, and move cancellable
   timeouts and timer systems to `time`. Move display configuration, coordinate
@@ -177,6 +189,10 @@
 - Initialized the registry index before the pre-release CI compatibility check.
 
 ### Removed
+
+- Remove manually held `State[T]` and `NextState[T]` objects, global state
+  callback storage, frame-serial transition predicates, and condition-bearing
+  `Schedule::OnEnter` / `Schedule::OnExit` variants.
 
 - Remove the `system` and `system_set` packages. Import scheduling types from
   `app`, timer APIs from `time`, and display and window APIs from `window`.

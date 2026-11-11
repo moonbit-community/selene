@@ -2,47 +2,33 @@
 package "Milky2018/selene/state"
 
 import {
-  "moonbitlang/core/ref",
+  "Milky2018/selene/ecs",
 }
 
 // Values
-pub fn[T] in_state(State[T], (T) -> Bool) -> () -> Bool
+pub fn advance(@ecs.World, on_exit~ : (@ecs.World) -> Unit, on_enter~ : (@ecs.World) -> Unit, initial_only? : Bool) -> Unit raise @ecs.ScheduleError
 
-pub fn[T : Eq] in_state_eq(State[T], T) -> () -> Bool
+pub fn[T : StateType] current(@ecs.World) -> T
 
-pub fn[T] on_enter(State[T], (T) -> Bool) -> () -> Bool
+pub fn[T : StateType] in_state(T) -> (@ecs.World) -> Bool
 
-pub fn[T : Eq] on_enter_eq(State[T], T) -> () -> Bool
+pub fn[T : StateType] initialize(@ecs.World, T) -> Unit
 
-pub fn[T] on_exit(State[T], (T) -> Bool) -> () -> Bool
+pub fn[T : StateType] is_entering(@ecs.World, T) -> Bool
 
-pub fn[T : Eq] on_exit_eq(State[T], T) -> () -> Bool
+pub fn[T : StateType] is_exiting(@ecs.World, T) -> Bool
 
-pub fn[T] set_next_state(NextState[T], T) -> Unit
-
-pub fn state_transition_system(Double) -> Unit
-
-pub fn[T] transitioned_this_frame(State[T]) -> Bool
+pub fn[T : StateType] set_next(@ecs.World, T) -> Unit
 
 // Errors
 
 // Types and methods
-pub(all) struct NextState[T] {
-  state : State[T]
-}
-pub fn[T] NextState::set(Self[T], T) -> Unit
-
-pub(all) struct State[T] {
-  world_id : UInt32
-  current : @ref.Ref[T]
-  next : @ref.Ref[T?]
-  previous : @ref.Ref[T?]
-  changed_serial : @ref.Ref[UInt32]
-}
-pub fn[T] State::State(T) -> Self[T]
-pub fn[T] State::get(Self[T]) -> T
-pub fn[T] State::next(Self[T]) -> NextState[T]
+type StateKey[T]
+pub fn[T] StateKey::StateKey() -> Self[T]
 
 // Type aliases
 
 // Traits
+pub(open) trait StateType : Eq {
+  fn state_key() -> StateKey[Self]
+}
