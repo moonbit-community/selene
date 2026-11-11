@@ -16470,51 +16470,51 @@ const _M0MP39Milky20186selene15render3d__types21PointLightShadowMap3D21PointLigh
 const _M0MP39Milky20186selene15render3d__types18StandardMaterial3D18StandardMaterial3DN6recordS79737 = new _M0TP39Milky20186selene6render5Color(255, 255, 255, 1);
 const _M0MP39Milky20186selene15render3d__types18StandardMaterial3D18StandardMaterial3DN6recordS79738 = new _M0TP39Milky20186selene6render5Color(0, 0, 0, 1);
 const _M0FP29Milky201814selene__webgpu29retired__blob__audio__sources = new _M0TPB5ArrayGsE([], 0);
-const _M0FP29Milky201814selene__webgpu24contact__pointer__sourceN6constrS79913 = 1;
-const _M0FP29Milky201814selene__webgpu24contact__pointer__sourceN6constrS79914 = 2;
-const _M0FP29Milky201814selene__webgpu36directional__shadow__atlas__layout3dN5tupleS80265 = { _0: 1, _1: 1 };
-const _M0FP29Milky201814selene__webgpu36directional__shadow__atlas__layout3dN5tupleS80266 = { _0: 2, _1: 1 };
-const _M0FP29Milky201814selene__webgpu36directional__shadow__atlas__layout3dN5tupleS80267 = { _0: 2, _1: 2 };
-const _M0MP39Milky201812moon__rapier4core4Rot28identityN6recordS81852 = new _M0TP39Milky201812moon__rapier4core4Rot2(Math.fround(0), Math.fround(1));
-const _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82036 = new _M0TP39Milky201812moon__rapier8dynamics13JointAxesMask(0);
-const _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82037 = Math.fround(0);
-const _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82038 = Math.fround(0);
-const _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82039 = Math.fround(0);
-const _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82040 = Math.fround(0);
-const _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82041 = Math.fround(1e+30);
-const _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82042 = Math.fround(0);
-const _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients15joint__defaultsN6recordS82043 = new _M0TP39Milky201812moon__rapier8dynamics18SpringCoefficients(Math.fround(1000000), Math.fround(1));
-const _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056 = new _M0TP39Milky201812moon__rapier8dynamics13JointAxesMask(8);
-const _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057 = new _M0TP39Milky201812moon__rapier8dynamics13JointAxesMask(16);
-const _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058 = new _M0TP39Milky201812moon__rapier8dynamics13JointAxesMask(32);
-const _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059 = new _M0TP39Milky201812moon__rapier8dynamics13JointAxesMask(1);
-const _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060 = new _M0TP39Milky201812moon__rapier8dynamics13JointAxesMask(2);
-const _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__zN6recordS82061 = new _M0TP39Milky201812moon__rapier8dynamics13JointAxesMask(4);
-const _M0MP39Milky201812moon__rapier8dynamics16RigidBodyChanges3allN6recordS82615 = new _M0TP39Milky201812moon__rapier8dynamics16RigidBodyChanges(255);
-const _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients17contact__defaultsN6recordS84252 = new _M0TP39Milky201812moon__rapier8dynamics18SpringCoefficients(Math.fround(30), Math.fround(5));
-const _M0MP39Milky201812moon__rapier9collision20ActiveCollisionTypes7defaultN6recordS84285 = new _M0TP39Milky201812moon__rapier9collision20ActiveCollisionTypes(15);
-const _M0MP39Milky201812moon__rapier9collision11SolverFlags17compute__impulsesN6recordS84289 = new _M0TP39Milky201812moon__rapier9collision11SolverFlags(1);
-const _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85280 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(0);
-const _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85281 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(1);
-const _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85282 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
-const _M0FP39Milky201812moon__rapier9collision46cuboid__edge__feature__from__poly__edge__indexN6constrS85764 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(2);
-const _M0FP39Milky201812moon__rapier9collision46cuboid__edge__feature__from__poly__edge__indexN6constrS85765 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(1);
-const _M0FP39Milky201812moon__rapier9collision46cuboid__edge__feature__from__poly__edge__indexN6constrS85766 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(3);
-const _M0FP39Milky201812moon__rapier9collision46cuboid__edge__feature__from__poly__edge__indexN6constrS85767 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
-const _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tupleS86049 = { _0: 3, _1: 0 };
-const _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tupleS86050 = { _0: 1, _1: 2 };
-const _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tupleS86051 = { _0: 0, _1: 1 };
-const _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tupleS86052 = { _0: 2, _1: 3 };
-const _M0MP39Milky201812moon__rapier9collision15ColliderChanges3allN6recordS86710 = new _M0TP39Milky201812moon__rapier9collision15ColliderChanges(511);
-const _M0MP39Milky201812moon__rapier9collision20ActiveCollisionTypes3allN6recordS87762 = new _M0TP39Milky201812moon__rapier9collision20ActiveCollisionTypes(60975);
-const _M0FP39Milky20186selene6camera29default__camera__clear__colorN6recordS91487 = new _M0TP39Milky20186selene6render5Color(0, 0, 0, 1);
-const _M0MP39Milky20186selene10visibility12RenderLayers12RenderLayersN6recordS96353 = new _M0TP39Milky20186selene10visibility12RenderLayers(1);
-const _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS96975 = new _M0TP39Milky20186selene2ui18OverflowClipMargin(0, 0);
+const _M0FP29Milky201814selene__webgpu24contact__pointer__sourceN6constrS79914 = 1;
+const _M0FP29Milky201814selene__webgpu24contact__pointer__sourceN6constrS79915 = 2;
+const _M0FP29Milky201814selene__webgpu36directional__shadow__atlas__layout3dN5tupleS80268 = { _0: 1, _1: 1 };
+const _M0FP29Milky201814selene__webgpu36directional__shadow__atlas__layout3dN5tupleS80269 = { _0: 2, _1: 1 };
+const _M0FP29Milky201814selene__webgpu36directional__shadow__atlas__layout3dN5tupleS80270 = { _0: 2, _1: 2 };
+const _M0MP39Milky201812moon__rapier4core4Rot28identityN6recordS81868 = new _M0TP39Milky201812moon__rapier4core4Rot2(Math.fround(0), Math.fround(1));
+const _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82052 = new _M0TP39Milky201812moon__rapier8dynamics13JointAxesMask(0);
+const _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82053 = Math.fround(0);
+const _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82054 = Math.fround(0);
+const _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82055 = Math.fround(0);
+const _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82056 = Math.fround(0);
+const _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82057 = Math.fround(1e+30);
+const _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82058 = Math.fround(0);
+const _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients15joint__defaultsN6recordS82059 = new _M0TP39Milky201812moon__rapier8dynamics18SpringCoefficients(Math.fround(1000000), Math.fround(1));
+const _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072 = new _M0TP39Milky201812moon__rapier8dynamics13JointAxesMask(8);
+const _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073 = new _M0TP39Milky201812moon__rapier8dynamics13JointAxesMask(16);
+const _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074 = new _M0TP39Milky201812moon__rapier8dynamics13JointAxesMask(32);
+const _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075 = new _M0TP39Milky201812moon__rapier8dynamics13JointAxesMask(1);
+const _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076 = new _M0TP39Milky201812moon__rapier8dynamics13JointAxesMask(2);
+const _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__zN6recordS82077 = new _M0TP39Milky201812moon__rapier8dynamics13JointAxesMask(4);
+const _M0MP39Milky201812moon__rapier8dynamics16RigidBodyChanges3allN6recordS82631 = new _M0TP39Milky201812moon__rapier8dynamics16RigidBodyChanges(255);
+const _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients17contact__defaultsN6recordS84268 = new _M0TP39Milky201812moon__rapier8dynamics18SpringCoefficients(Math.fround(30), Math.fround(5));
+const _M0MP39Milky201812moon__rapier9collision20ActiveCollisionTypes7defaultN6recordS84301 = new _M0TP39Milky201812moon__rapier9collision20ActiveCollisionTypes(15);
+const _M0MP39Milky201812moon__rapier9collision11SolverFlags17compute__impulsesN6recordS84305 = new _M0TP39Milky201812moon__rapier9collision11SolverFlags(1);
+const _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85296 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(0);
+const _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85297 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(1);
+const _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85298 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
+const _M0FP39Milky201812moon__rapier9collision46cuboid__edge__feature__from__poly__edge__indexN6constrS85780 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(2);
+const _M0FP39Milky201812moon__rapier9collision46cuboid__edge__feature__from__poly__edge__indexN6constrS85781 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(1);
+const _M0FP39Milky201812moon__rapier9collision46cuboid__edge__feature__from__poly__edge__indexN6constrS85782 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(3);
+const _M0FP39Milky201812moon__rapier9collision46cuboid__edge__feature__from__poly__edge__indexN6constrS85783 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
+const _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tupleS86065 = { _0: 3, _1: 0 };
+const _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tupleS86066 = { _0: 1, _1: 2 };
+const _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tupleS86067 = { _0: 0, _1: 1 };
+const _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tupleS86068 = { _0: 2, _1: 3 };
+const _M0MP39Milky201812moon__rapier9collision15ColliderChanges3allN6recordS86726 = new _M0TP39Milky201812moon__rapier9collision15ColliderChanges(511);
+const _M0MP39Milky201812moon__rapier9collision20ActiveCollisionTypes3allN6recordS87778 = new _M0TP39Milky201812moon__rapier9collision20ActiveCollisionTypes(60975);
+const _M0FP39Milky20186selene6camera29default__camera__clear__colorN6recordS91503 = new _M0TP39Milky20186selene6render5Color(0, 0, 0, 1);
+const _M0MP39Milky20186selene10visibility12RenderLayers12RenderLayersN6recordS96369 = new _M0TP39Milky20186selene10visibility12RenderLayers(1);
+const _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS96991 = new _M0TP39Milky20186selene2ui18OverflowClipMargin(0, 0);
 const _M0FP39Milky20186selene9collision27collision__group__generator = new _M0TPC13ref3RefGjE(0);
-const _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98395 = new _M0TP39Milky20186selene9collision9RigidBody(0, 1, 0, 0, false, true);
-const _M0FP39Milky20186selene14runtime__debug27atlas__overlay__fill__colorN6recordS99572 = new _M0TP39Milky20186selene6render5Color(255, 64, 160, 0.08);
-const _M0FP39Milky20186selene14runtime__debug29atlas__overlay__stroke__colorN6recordS99573 = new _M0TP39Milky20186selene6render5Color(255, 64, 160, 0.95);
-const _M0MP29Milky201815moon__accesskit4Uuid3nilN6recordS100292 = new _M0TP29Milky201815moon__accesskit4Uuid(0n, 0n);
+const _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98415 = new _M0TP39Milky20186selene9collision9RigidBody(0, 1, 0, 0, false, true);
+const _M0FP39Milky20186selene14runtime__debug27atlas__overlay__fill__colorN6recordS99601 = new _M0TP39Milky20186selene6render5Color(255, 64, 160, 0.08);
+const _M0FP39Milky20186selene14runtime__debug29atlas__overlay__stroke__colorN6recordS99602 = new _M0TP39Milky20186selene6render5Color(255, 64, 160, 0.95);
+const _M0MP29Milky201815moon__accesskit4Uuid3nilN6recordS100321 = new _M0TP29Milky201815moon__accesskit4Uuid(0n, 0n);
 const _M0FP39Milky20186selene4a11y25latest__tree__update__ref = new _M0TPC13ref3RefGORP29Milky201815moon__accesskit10TreeUpdateE(undefined);
 const _M0FP39Milky20186selene4a11y14next__node__id = new _M0TPC13ref3RefGmE(1n);
 const _M0FP39Milky20186selene4a11y25pending__action__requests = new _M0TPB5ArrayGRP29Milky201815moon__accesskit13ActionRequestE([], 0);
@@ -16522,10 +16522,10 @@ const _M0FP39Milky20186selene8render3d22released__mesh__assets = new _M0TPB5Arra
 const _M0FP39Milky20186selene8render3d26released__material__assets = new _M0TPB5ArrayGRP39Milky20186selene15render3d__types14MaterialHandleE([], 0);
 const _M0FP39Milky20186selene8render3d23released__image__assets = new _M0TPB5ArrayGRP39Milky20186selene15render3d__types11ImageHandleE([], 0);
 const _M0FP39Milky20186selene8render3d25released__cubemap__assets = new _M0TPB5ArrayGRP39Milky20186selene15render3d__types13CubemapHandleE([], 0);
-const _M0MP39Milky20186selene5audio16PlaybackSettings4onceN6recordS101225 = new _M0TP39Milky20186selene5audio16PlaybackSettings(0, 1, 1, false, false);
-const _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103952 = 0;
-const _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103953 = 1;
-const _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103954 = 2;
+const _M0MP39Milky20186selene5audio16PlaybackSettings4onceN6recordS101264 = new _M0TP39Milky20186selene5audio16PlaybackSettings(0, 1, 1, false, false);
+const _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS104007 = 0;
+const _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS104008 = 1;
+const _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS104009 = 2;
 const _M0FPB4seed = _M0FPB12random__seed();
 const _M0FP39Milky20186selene3ecs23bootstrap__world__value = _M0MP39Milky20186selene3ecs5World8with__id(0);
 const _M0FP39Milky20186selene3ecs19current__world__ref = _M0MPC13ref3Ref3RefGORP39Milky20186selene3ecs14ComponentStoreGRP39Milky20186selene6sprite6SpriteEE(_M0FP39Milky20186selene3ecs23bootstrap__world__value);
@@ -16537,18 +16537,18 @@ const _M0FPC28internal7strconv20parse__int64_2einnerN6recordS45739 = new _M0TPC1
 const _M0MPC16string10StringView4trimN6recordS20059 = new _M0TPC16string10StringView("\t\n\r ", 0, 4);
 const _M0FPC28internal7strconv17parse__scientificN8exp__numS45605 = 0n;
 const _M0MPC16string10StringView4findN6constrS14229 = 0;
-const _M0FP39Milky20186selene2ui16parse__rgb__bodyN6recordS96539 = new _M0TPC16string10StringView(",", 0, 1);
-const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96560 = new _M0TPC16string10StringView("rgba(", 0, 5);
-const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96561 = new _M0TPC16string10StringView(")", 0, 1);
-const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96562 = new _M0TPC16string10StringView("rgb(", 0, 4);
-const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96563 = new _M0TPC16string10StringView(")", 0, 1);
-const _M0FP39Milky20186selene2ui12parse__colorN6recordS96567 = new _M0TPC16string10StringView("#", 0, 1);
-const _M0FP39Milky20186selene2ui12parse__colorN6recordS96568 = new _M0TPC16string10StringView("rgb(", 0, 4);
-const _M0FP39Milky20186selene2ui12parse__colorN6recordS96569 = new _M0TPC16string10StringView("rgba(", 0, 5);
-const _M0MP39Milky20186selene2ui4Node16absolute_2einnerN6constrS97140 = 1;
+const _M0FP39Milky20186selene2ui16parse__rgb__bodyN6recordS96555 = new _M0TPC16string10StringView(",", 0, 1);
+const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96576 = new _M0TPC16string10StringView("rgba(", 0, 5);
+const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96577 = new _M0TPC16string10StringView(")", 0, 1);
+const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96578 = new _M0TPC16string10StringView("rgb(", 0, 4);
+const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96579 = new _M0TPC16string10StringView(")", 0, 1);
+const _M0FP39Milky20186selene2ui12parse__colorN6recordS96583 = new _M0TPC16string10StringView("#", 0, 1);
+const _M0FP39Milky20186selene2ui12parse__colorN6recordS96584 = new _M0TPC16string10StringView("rgb(", 0, 4);
+const _M0FP39Milky20186selene2ui12parse__colorN6recordS96585 = new _M0TPC16string10StringView("rgba(", 0, 5);
+const _M0MP39Milky20186selene2ui4Node16absolute_2einnerN6constrS97156 = 1;
 const _bind = [];
 const _M0FP39Milky20186selene5asset24font__handle__by__family = _M0MPB3Map3MapGsRP39Milky20186selene12asset__types10FontHandleE(new _M0TPB9ArrayViewGUsRP39Milky20186selene12asset__types10FontHandleEE(_bind, 0, 0), undefined);
-const _M0MP39Milky20186selene2ui8TextFont9from__cssN6recordS96648 = new _M0TPC16string10StringView("px", 0, 2);
+const _M0MP39Milky20186selene2ui8TextFont9from__cssN6recordS96664 = new _M0TPC16string10StringView("px", 0, 2);
 const _M0FP39Milky20186selene3ecs18entity__store__key = _M0MP39Milky20186selene3ecs11ResourceKey11ResourceKeyGRP39Milky20186selene5state13StateRegistryE();
 const _M0FP39Milky20186selene2ui30selene__component__key__ZIndex = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene2ui28selene__component__key__Node = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
@@ -16561,19 +16561,19 @@ const _M0FP39Milky20186selene2ui39selene__component__key__BackgroundColor = _M0M
 const _M0FP39Milky20186selene2ui36selene__component__key__BorderRadius = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene2ui30selene__component__key__Button = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene2ui32selene__component__key__TabIndex = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103735 = 1;
-const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103736 = 1;
-const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103737 = 2;
-const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103738 = 1;
-const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103739 = 1;
-const _M0FP39Milky20186selene6sprite16parse__rgb__bodyN6recordS99391 = new _M0TPC16string10StringView(",", 0, 1);
-const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99412 = new _M0TPC16string10StringView("rgba(", 0, 5);
-const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99413 = new _M0TPC16string10StringView(")", 0, 1);
-const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99414 = new _M0TPC16string10StringView("rgb(", 0, 4);
-const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99415 = new _M0TPC16string10StringView(")", 0, 1);
-const _M0FP39Milky20186selene6sprite12parse__colorN6recordS99419 = new _M0TPC16string10StringView("#", 0, 1);
-const _M0FP39Milky20186selene6sprite12parse__colorN6recordS99420 = new _M0TPC16string10StringView("rgb(", 0, 4);
-const _M0FP39Milky20186selene6sprite12parse__colorN6recordS99421 = new _M0TPC16string10StringView("rgba(", 0, 5);
+const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103784 = 1;
+const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103785 = 1;
+const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103786 = 2;
+const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103787 = 1;
+const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103788 = 1;
+const _M0FP39Milky20186selene6sprite16parse__rgb__bodyN6recordS99420 = new _M0TPC16string10StringView(",", 0, 1);
+const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99441 = new _M0TPC16string10StringView("rgba(", 0, 5);
+const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99442 = new _M0TPC16string10StringView(")", 0, 1);
+const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99443 = new _M0TPC16string10StringView("rgb(", 0, 4);
+const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99444 = new _M0TPC16string10StringView(")", 0, 1);
+const _M0FP39Milky20186selene6sprite12parse__colorN6recordS99448 = new _M0TPC16string10StringView("#", 0, 1);
+const _M0FP39Milky20186selene6sprite12parse__colorN6recordS99449 = new _M0TPC16string10StringView("rgb(", 0, 4);
+const _M0FP39Milky20186selene6sprite12parse__colorN6recordS99450 = new _M0TPC16string10StringView("rgba(", 0, 5);
 const _bind$2 = [];
 const _M0FP39Milky20186selene5asset13image__states = _M0MPB3Map3MapGRP39Milky20186selene12asset__types11ImageHandleRP39Milky20186selene5asset9LoadStateE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types11ImageHandleRP39Milky20186selene5asset9LoadStateEE(_bind$2, 0, 0), undefined);
 const _M0FP39Milky20186selene5asset20image__asset__events = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
@@ -16582,7 +16582,7 @@ const _bind$3 = [];
 const _M0FP29Milky201814selene__webgpu22embedded__asset__cache = _M0MPB3Map3MapGszE(new _M0TPB9ArrayViewGUszEE(_bind$3, 0, 0), undefined);
 const _bind$4 = [];
 const _M0FP29Milky201814selene__webgpu29reported__asset__io__failures = _M0MPC13set3Set3SetGsE(new _M0TPB9ArrayViewGsE(_bind$4, 0, 0), undefined);
-const _M0FP29Milky201814selene__webgpu17get__asset__bytesN6recordS80083 = new _M0TPC16string10StringView("/", 0, 1);
+const _M0FP29Milky201814selene__webgpu17get__asset__bytesN6recordS80084 = new _M0TPC16string10StringView("/", 0, 1);
 const _bind$5 = [];
 const _M0FP39Milky20186selene5asset16images__by__path = _M0MPB3Map3MapGsRP39Milky20186selene12asset__types11ImageHandleE(new _M0TPB9ArrayViewGUsRP39Milky20186selene12asset__types11ImageHandleEE(_bind$5, 0, 0), undefined);
 const _bind$6 = [];
@@ -16591,8 +16591,8 @@ const _M0FP39Milky20186selene5asset15next__image__id = _M0MPC13ref3Ref3RefGjE(0)
 const _M0FP39Milky20186selene9transform31selene__component__key__Spatial = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene6sprite30selene__component__key__Sprite = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0MP39Milky20186selene3ecs6Entity7destroyN6constrS50809 = 2;
-const _M0FP39Milky201817selene_2dexamples5cards12is__straightN6constrS103817 = 14;
-const _M0FP39Milky201817selene_2dexamples5cards16find__best__handN6constrS103883 = new _M0DTP39Milky201817selene_2dexamples5cards8HandRank8HighCard(0);
+const _M0FP39Milky201817selene_2dexamples5cards12is__straightN6constrS103868 = 14;
+const _M0FP39Milky201817selene_2dexamples5cards16find__best__handN6constrS103938 = new _M0DTP39Milky201817selene_2dexamples5cards8HandRank8HighCard(0);
 const _bind$7 = [];
 const _M0FP39Milky20186selene2ui25ui__interaction__runtimes = _M0MPB3Map3MapGjRP39Milky20186selene2ui20UiInteractionRuntimeE(new _M0TPB9ArrayViewGUjRP39Milky20186selene2ui20UiInteractionRuntimeEE(_bind$7, 0, 0), undefined);
 const _bind$8 = [];
@@ -16610,8 +16610,8 @@ const _M0FP39Milky20186selene5asset24font__family__by__handle = _M0MPB3Map3MapGR
 const _M0FP39Milky20186selene5asset14next__font__id = _M0MPC13ref3Ref3RefGjE(0);
 const _bind$13 = [];
 const _M0FP39Milky20186selene5asset22font__path__by__handle = _M0MPB3Map3MapGRP39Milky20186selene12asset__types10FontHandlesE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types10FontHandlesEE(_bind$13, 0, 0), undefined);
-const _M0FP39Milky20186selene5asset23normalize__font__familyN6recordS81745 = new _M0TPC16string10StringView("/", 0, 1);
-const _M0FP39Milky20186selene5asset23normalize__font__familyN6recordS81746 = new _M0TPC16string10StringView(".", 0, 1);
+const _M0FP39Milky20186selene5asset23normalize__font__familyN6recordS81761 = new _M0TPC16string10StringView("/", 0, 1);
+const _M0FP39Milky20186selene5asset23normalize__font__familyN6recordS81762 = new _M0TPC16string10StringView(".", 0, 1);
 const _bind$14 = [];
 const _M0FP39Milky20186selene5asset12font__states = _M0MPB3Map3MapGRP39Milky20186selene12asset__types10FontHandleRP39Milky20186selene5asset9LoadStateE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types10FontHandleRP39Milky20186selene5asset9LoadStateEE(_bind$14, 0, 0), undefined);
 const _bind$15 = [];
@@ -16619,7 +16619,7 @@ const _M0FP39Milky20186selene2ui16ui__scale__modes = _M0MPB3Map3MapGjRP39Milky20
 const _M0FP39Milky20186selene6camera32selene__component__key__Camera2d = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene6camera8Camera2dE();
 const _M0FP39Milky20186selene6camera30selene__component__key__Camera = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene6camera46selene__component__key__OrthographicProjection = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky201817selene_2dexamples5cards11game__startN6constrS104048 = "ThaleahFat";
+const _M0FP39Milky201817selene_2dexamples5cards11game__startN6constrS104103 = "ThaleahFat";
 const _M0MP39Milky20186selene15render3d__types13RenderFrame3D13RenderFrame3DN6recordS79739 = new _M0TP39Milky20186selene6render5Color(0, 0, 0, 1);
 const _bind$16 = [];
 const _M0FP39Milky20186selene18render3d__pipeline28prepared__frame3d__by__world = _M0MPB3Map3MapGjRP39Milky20186selene15render3d__types13RenderFrame3DE(new _M0TPB9ArrayViewGUjRP39Milky20186selene15render3d__types13RenderFrame3DEE(_bind$16, 0, 0), undefined);
@@ -16860,7 +16860,7 @@ const _M0FP29Milky201814selene__webgpu22last__render3d__timingN6recordS79757 = n
 const _M0FP29Milky201814selene__webgpu22last__render3d__timing = _M0MPC13ref3Ref3RefGRP29Milky201812moon__cosmic10FontSystemE(_M0FP29Milky201814selene__webgpu22last__render3d__timingN6recordS79757);
 const _bind$26 = [];
 const _M0FP29Milky201814selene__webgpu40retained__render3d__instance__last__seen = _M0MPB3Map3MapGsiE(new _M0TPB9ArrayViewGUsiEE(_bind$26, 0, 0), undefined);
-const _M0FP29Milky201814selene__webgpu23resolve__mesh__tangentsN6recordS81204 = new _M0TP39Milky20186selene15render3d__types9Tangent3D(1, 0, 0, 1);
+const _M0FP29Milky201814selene__webgpu23resolve__mesh__tangentsN6recordS81207 = new _M0TP39Milky20186selene15render3d__types9Tangent3D(1, 0, 0, 1);
 const _M0FP29Milky201814selene__webgpu33last__render3d__submission__stats = _M0MPC13ref3Ref3RefGRP29Milky201812moon__cosmic10FontSystemE(_M0MP29Milky201814selene__webgpu23Render3DSubmissionStats23Render3DSubmissionStats());
 const _M0FP29Milky201814selene__webgpu43last__render3d__submission__stats__checksum = _M0MPC13ref3Ref3RefGiE(0);
 const _bind$27 = [];
@@ -16869,7 +16869,7 @@ const _bind$28 = [];
 const _M0FP39Milky20186selene14runtime__debug34atlas__overlay__enabled__by__world = _M0MPB3Map3MapGjbE(new _M0TPB9ArrayViewGUjbEE(_bind$28, 0, 0), undefined);
 const _bind$29 = [];
 const _M0FP39Milky20186selene8render2d18frame2d__by__world = _M0MPB3Map3MapGjRP39Milky20186selene8render2d18RenderFrameState2DE(new _M0TPB9ArrayViewGUjRP39Milky20186selene8render2d18RenderFrameState2DEE(_bind$29, 0, 0), undefined);
-const _M0FP39Milky20186selene14render__submit14build__frame2dN6recordS102283 = new _M0TP39Milky20186selene6render5Color(0, 0, 0, 1);
+const _M0FP39Milky20186selene14render__submit14build__frame2dN6recordS102329 = new _M0TP39Milky20186selene6render5Color(0, 0, 0, 1);
 const _bind$30 = [];
 const _M0FP39Milky20186selene14runtime__debug29render__submission__by__world = _M0MPB3Map3MapGjRP39Milky20186selene14runtime__debug21RenderSubmissionDebugE(new _M0TPB9ArrayViewGUjRP39Milky20186selene14runtime__debug21RenderSubmissionDebugEE(_bind$30, 0, 0), undefined);
 const _bind$31 = [];
@@ -16910,11 +16910,11 @@ const _M0FP39Milky20186selene2ui20ui__material__assets = _M0MPB3Map3MapGRP39Milk
 const _M0FP39Milky20186selene2ui31selene__component__key__Outline = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene10visibility22visibility__state__key = _M0MP39Milky20186selene3ecs11ResourceKey11ResourceKeyGRP39Milky20186selene5state13StateRegistryE();
 const _M0FP39Milky20186selene2ui31selene__component__key__UiImage = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky20186selene2ui14truncate__lineN8ellipsisS96698 = "...";
-const _M0FP39Milky20186selene2ui10wrap__lineN6recordS96704 = new _M0TPC16string10StringView(" ", 0, 1);
-const _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96722 = new _M0TPC16string10StringView("\n", 0, 1);
-const _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96723 = new _M0TPC16string10StringView(" ", 0, 1);
-const _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96724 = new _M0TPC16string10StringView("\n", 0, 1);
+const _M0FP39Milky20186selene2ui14truncate__lineN8ellipsisS96714 = "...";
+const _M0FP39Milky20186selene2ui10wrap__lineN6recordS96720 = new _M0TPC16string10StringView(" ", 0, 1);
+const _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96738 = new _M0TPC16string10StringView("\n", 0, 1);
+const _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96739 = new _M0TPC16string10StringView(" ", 0, 1);
+const _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96740 = new _M0TPC16string10StringView("\n", 0, 1);
 const _M0FP39Milky20186selene2ui36selene__component__key__OverrideClip = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene9physics3d18sensor__event__bus = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
 const _M0FP39Milky20186selene6inputs27virtual__button__event__bus = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
@@ -16970,100 +16970,100 @@ const _M0FP39Milky20186selene6inputs7touches = _M0MPB3Map3MapGRP39Milky20186sele
 const _bind$43 = [];
 const _M0FP39Milky20186selene6inputs22gamepad__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene6inputs17GamepadWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene6inputs17GamepadWorldStoreEE(_bind$43, 0, 0), undefined);
 const _M0FP39Milky20186selene9animation44selene__component__key__AnimationTransitions = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0MP39Milky20186chicle5style5Style7defaultN6recordS91743 = new _M0TP39Milky20186chicle8geometry5PointGRP39Milky20186chicle5style8OverflowE(0, 0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91744 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91745 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91746 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91747 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91748 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91749 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91750 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91751 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91752 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91753 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91754 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91755 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91756 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91757 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6recordS91759 = new _M0TP39Milky20186chicle8geometry5PointGRP39Milky20186chicle5style8OverflowE(0, 0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91760 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91761 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91762 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91763 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91764 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91765 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91766 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91767 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91768 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91769 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91770 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91771 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91772 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91773 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
 const _M0FP39Milky20186selene2ui38selene__component__key__UiTargetCamera = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene2ui36selene__component__key__GlobalZIndex = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene2ui36selene__component__key__LayoutConfig = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS93698 = { _0: 0, _1: 0 };
-const _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS93699 = { _0: 0, _1: 0 };
-const _M0FP39Milky20186chicle4tree29margin__collapse__state__fromN5tupleS92371 = { _0: 0, _1: 0 };
-const _M0FP39Milky20186chicle4tree22spanned__definite__lenN6constrS92689 = new _M0DTPC16option6OptionGdE4Some(0);
-const _M0FP39Milky20186chicle4tree43grid__definite__axis__border__content__sizeN5tupleS93524 = { _0: 0, _1: 0 };
-const _M0FP39Milky20186chicle4tree21collapse__state__fromN5tupleS92216 = { _0: 0, _1: 0 };
-const _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS93968GRP39Milky20186selene3ecs6EntityE = { _0: 0, _1: 0 };
-const _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS93969GRP39Milky20186selene3ecs6EntityE = { _0: 0, _1: 0 };
+const _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS93714 = { _0: 0, _1: 0 };
+const _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS93715 = { _0: 0, _1: 0 };
+const _M0FP39Milky20186chicle4tree29margin__collapse__state__fromN5tupleS92387 = { _0: 0, _1: 0 };
+const _M0FP39Milky20186chicle4tree22spanned__definite__lenN6constrS92705 = new _M0DTPC16option6OptionGdE4Some(0);
+const _M0FP39Milky20186chicle4tree43grid__definite__axis__border__content__sizeN5tupleS93540 = { _0: 0, _1: 0 };
+const _M0FP39Milky20186chicle4tree21collapse__state__fromN5tupleS92232 = { _0: 0, _1: 0 };
+const _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS93984GRP39Milky20186selene3ecs6EntityE = { _0: 0, _1: 0 };
+const _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS93985GRP39Milky20186selene3ecs6EntityE = { _0: 0, _1: 0 };
 const _bind$44 = [];
 const _M0FP39Milky20186selene2ui20ui__layout__runtimes = _M0MPB3Map3MapGjRP39Milky20186selene2ui15UiLayoutRuntimeE(new _M0TPB9ArrayViewGUjRP39Milky20186selene2ui15UiLayoutRuntimeEE(_bind$44, 0, 0), undefined);
 const _M0FP39Milky20186selene5scene21scene__instances__key = _M0MP39Milky20186selene3ecs11ResourceKey11ResourceKeyGRP39Milky20186selene5state13StateRegistryE();
 const _bind$45 = [];
 const _M0FP39Milky20186selene9animation29animation__event__descriptors = _M0MPB3Map3MapGRP39Milky20186selene9animation30AnimationEventDescriptorHandleRP39Milky20186selene9animation24AnimationEventDescriptorE(new _M0TPB9ArrayViewGURP39Milky20186selene9animation30AnimationEventDescriptorHandleRP39Milky20186selene9animation24AnimationEventDescriptorEE(_bind$45, 0, 0), undefined);
 const _M0FP39Milky20186selene10visibility34selene__component__key__Visibility = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene10visibility10VisibilityE();
-const _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients10cfm__coeffN3oneS83853 = Math.fround(1);
-const _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN6marginS88987 = Math.fround(1e-06);
-const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN12ang__impulseS89410 = Math.fround(0);
-const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89411 = Math.fround(0);
-const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89412 = Math.fround(0);
-const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89413 = Math.fround(0);
-const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89414 = Math.fround(0);
-const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89415 = Math.fround(0);
-const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89416 = Math.fround(0);
-const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89417 = Math.fround(0);
-const _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS89897 = { _0: Math.fround(0), _1: Math.fround(0) };
-const _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS89898 = { _0: Math.fround(0), _1: Math.fround(0) };
-const _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS89899 = { _0: Math.fround(0), _1: Math.fround(0) };
-const _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3epsS89956 = Math.fround(1e-12);
-const _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3tolS89957 = Math.fround(-1e-06);
-const _M0FP39Milky201812moon__rapier8pipeline28emit__contact__force__eventsN14max__thresholdS90882 = Math.fround(1e+30);
-const _M0MP39Milky201812moon__rapier8dynamics8Jacobian12ensure__colsN7_2abindS83831 = Math.fround(0);
-const _M0FP39Milky201812moon__rapier8dynamics30dmatrix__inverse__or__identityN3epsS83901 = Math.fround(1e-09);
-const _M0FP39Milky201812moon__rapier9collision46project__point__on__segment__and__get__featureN6constrS85416 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(0);
-const _M0FP39Milky201812moon__rapier9collision46project__point__on__segment__and__get__featureN6constrS85417 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(1);
-const _M0FP39Milky201812moon__rapier9collision46project__point__on__segment__and__get__featureN6constrS85418 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
-const _M0FP39Milky201812moon__rapier9collision32contact__manifold__segment__ballN6constrS85432 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
-const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85615 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(0);
-const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85616 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(1);
-const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85617 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
-const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85618 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
-const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85619 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(1);
-const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85620 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(2);
-const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85621 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(3);
-const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85622 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(0);
-const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85623 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(1);
-const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85624 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
-const _M0FP39Milky201812moon__rapier9collision32contact__manifold__ball__segmentN6constrS85514 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
-const _M0FP39Milky201812moon__rapier9collision33point__in__convex__polygon__localN3epsS84664 = Math.fround(1e-06);
-const _M0FP39Milky201812moon__rapier9collision64project__point__on__convex__polygon__oriented__and__get__featureN3epsS85333 = Math.fround(1e-06);
-const _M0FP39Milky201812moon__rapier9collision40contact__manifold__ball__convex__polygonN6constrS85359 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
-const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__capsuleN6constrS85688 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(0);
-const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__capsuleN6constrS85689 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(1);
-const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__capsuleN6constrS85690 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
-const _M0FP39Milky201812moon__rapier9collision32contact__manifold__ball__capsuleN6constrS85313 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
-const _M0FP39Milky201812moon__rapier9collision29contact__manifold__ball__ballN6constrS85291 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
-const _M0FP39Milky201812moon__rapier9collision29contact__manifold__ball__ballN6constrS85292 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
-const _M0FP39Milky201812moon__rapier9collision40contact__manifold__convex__polygon__ballN6constrS85729 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
-const _M0FP39Milky201812moon__rapier9collision31contact__manifold__cuboid__ballN6constrS86008 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
-const _M0FP39Milky201812moon__rapier9collision32contact__manifold__capsule__ballN6constrS85530 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
-const _M0FP39Milky201812moon__rapier9collision31contact__manifold__ball__cuboidN6constrS85397 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
-const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86229 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(0);
-const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86230 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(1);
-const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86231 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
-const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86232 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(0);
-const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86233 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(1);
-const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86234 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
-const _M0FP39Milky201812moon__rapier9collision20build__contact__pairN6constrS86265 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
-const _M0FP39Milky201812moon__rapier9collision20build__contact__pairN6constrS86266 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
-const _M0FP39Milky201812moon__rapier9collision20build__contact__pairN6constrS86267 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
-const _M0FP39Milky201812moon__rapier9collision20build__contact__pairN3epsS86268 = Math.fround(1e-05);
-const _M0FP39Milky201812moon__rapier9collision17shapes__intersectN3epsS86739 = Math.fround(1e-06);
-const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84253 = Math.fround(1);
-const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84254 = Math.fround(0.001);
-const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84255 = Math.fround(10);
-const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84256 = Math.fround(0.002);
-const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84257 = Math.fround(1);
+const _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients10cfm__coeffN3oneS83869 = Math.fround(1);
+const _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN6marginS89003 = Math.fround(1e-06);
+const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN12ang__impulseS89426 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89427 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89428 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89429 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89430 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89431 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89432 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89433 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS89913 = { _0: Math.fround(0), _1: Math.fround(0) };
+const _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS89914 = { _0: Math.fround(0), _1: Math.fround(0) };
+const _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS89915 = { _0: Math.fround(0), _1: Math.fround(0) };
+const _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3epsS89972 = Math.fround(1e-12);
+const _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3tolS89973 = Math.fround(-1e-06);
+const _M0FP39Milky201812moon__rapier8pipeline28emit__contact__force__eventsN14max__thresholdS90898 = Math.fround(1e+30);
+const _M0MP39Milky201812moon__rapier8dynamics8Jacobian12ensure__colsN7_2abindS83847 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier8dynamics30dmatrix__inverse__or__identityN3epsS83917 = Math.fround(1e-09);
+const _M0FP39Milky201812moon__rapier9collision46project__point__on__segment__and__get__featureN6constrS85432 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(0);
+const _M0FP39Milky201812moon__rapier9collision46project__point__on__segment__and__get__featureN6constrS85433 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(1);
+const _M0FP39Milky201812moon__rapier9collision46project__point__on__segment__and__get__featureN6constrS85434 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
+const _M0FP39Milky201812moon__rapier9collision32contact__manifold__segment__ballN6constrS85448 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
+const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85631 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(0);
+const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85632 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(1);
+const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85633 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
+const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85634 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
+const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85635 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(1);
+const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85636 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(2);
+const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85637 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(3);
+const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85638 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(0);
+const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85639 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(1);
+const _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85640 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
+const _M0FP39Milky201812moon__rapier9collision32contact__manifold__ball__segmentN6constrS85530 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
+const _M0FP39Milky201812moon__rapier9collision33point__in__convex__polygon__localN3epsS84680 = Math.fround(1e-06);
+const _M0FP39Milky201812moon__rapier9collision64project__point__on__convex__polygon__oriented__and__get__featureN3epsS85349 = Math.fround(1e-06);
+const _M0FP39Milky201812moon__rapier9collision40contact__manifold__ball__convex__polygonN6constrS85375 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
+const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__capsuleN6constrS85704 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(0);
+const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__capsuleN6constrS85705 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(1);
+const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__capsuleN6constrS85706 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
+const _M0FP39Milky201812moon__rapier9collision32contact__manifold__ball__capsuleN6constrS85329 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
+const _M0FP39Milky201812moon__rapier9collision29contact__manifold__ball__ballN6constrS85307 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
+const _M0FP39Milky201812moon__rapier9collision29contact__manifold__ball__ballN6constrS85308 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
+const _M0FP39Milky201812moon__rapier9collision40contact__manifold__convex__polygon__ballN6constrS85745 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
+const _M0FP39Milky201812moon__rapier9collision31contact__manifold__cuboid__ballN6constrS86024 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
+const _M0FP39Milky201812moon__rapier9collision32contact__manifold__capsule__ballN6constrS85546 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
+const _M0FP39Milky201812moon__rapier9collision31contact__manifold__ball__cuboidN6constrS85413 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
+const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86245 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(0);
+const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86246 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(1);
+const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86247 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
+const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86248 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(0);
+const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86249 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(1);
+const _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86250 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(0);
+const _M0FP39Milky201812moon__rapier9collision20build__contact__pairN6constrS86281 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
+const _M0FP39Milky201812moon__rapier9collision20build__contact__pairN6constrS86282 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
+const _M0FP39Milky201812moon__rapier9collision20build__contact__pairN6constrS86283 = new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Face(0);
+const _M0FP39Milky201812moon__rapier9collision20build__contact__pairN3epsS86284 = Math.fround(1e-05);
+const _M0FP39Milky201812moon__rapier9collision17shapes__intersectN3epsS86755 = Math.fround(1e-06);
+const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84269 = Math.fround(1);
+const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84270 = Math.fround(0.001);
+const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84271 = Math.fround(10);
+const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84272 = Math.fround(0.002);
+const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84273 = Math.fround(1);
 const _bind$46 = [];
 const _M0FP39Milky20186selene9collision24physics__world__runtimes = _M0MPB3Map3MapGjRP39Milky20186selene9collision19PhysicsWorldRuntimeE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9collision19PhysicsWorldRuntimeEE(_bind$46, 0, 0), undefined);
 const _M0FP39Milky20186selene9collision15physics__config = new _M0TP39Milky20186selene9collision13PhysicsConfig(_M0MP39Milky20186selene4math4Vec24zero(), 100, 1);
@@ -17071,28 +17071,28 @@ const _M0FP39Milky20186selene8velocity32selene__component__key__Velocity = _M0MP
 const _M0FP39Milky20186selene9collision33selene__component__key__RigidBody = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene9collision27collider__world__store__key = _M0MP39Milky20186selene3ecs11ResourceKey11ResourceKeyGRP39Milky20186selene5state13StateRegistryE();
 const _M0FP39Milky20186selene9collision32selene__component__key__Collider = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky201812moon__rapier7control16compute__extentsN5tupleS88374 = { _0: Math.fround(0), _1: Math.fround(0) };
-const _M0FP39Milky201812moon__rapier9collision20ray__intersect__ballN6constrS84578 = new _M0DTPC16option6OptionGfE4Some(Math.fround(0));
-const _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN11seg__radiusS85101 = Math.fround(0);
+const _M0FP39Milky201812moon__rapier7control16compute__extentsN5tupleS88390 = { _0: Math.fround(0), _1: Math.fround(0) };
+const _M0FP39Milky201812moon__rapier9collision20ray__intersect__ballN6constrS84594 = new _M0DTPC16option6OptionGfE4Some(Math.fround(0));
+const _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN11seg__radiusS85117 = Math.fround(0);
 const _M0FP39Milky20186selene9collision38selene__component__key__CollisionShape = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene9collision28selene__component__key__Area = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene9collision38selene__component__key__MultibodyJoint = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene9collision29selene__component__key__Joint = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene5audio19global__volume__ref = _M0MPC13ref3Ref3RefGdE(1);
 const _M0FP29Milky201814selene__webgpu30audio__user__activation__epoch = _M0MPC13ref3Ref3RefGiE(0);
-const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81458 = new _M0TPC16string10StringView(".ogg", 0, 4);
-const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81459 = new _M0TPC16string10StringView(".oga", 0, 4);
-const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81460 = new _M0TPC16string10StringView(".mp3", 0, 4);
-const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81461 = new _M0TPC16string10StringView(".wav", 0, 4);
-const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81462 = new _M0TPC16string10StringView(".flac", 0, 5);
-const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81463 = new _M0TPC16string10StringView(".aac", 0, 4);
+const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81465 = new _M0TPC16string10StringView(".ogg", 0, 4);
+const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81466 = new _M0TPC16string10StringView(".oga", 0, 4);
+const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81467 = new _M0TPC16string10StringView(".mp3", 0, 4);
+const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81468 = new _M0TPC16string10StringView(".wav", 0, 4);
+const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81469 = new _M0TPC16string10StringView(".flac", 0, 5);
+const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81470 = new _M0TPC16string10StringView(".aac", 0, 4);
 const _bind$47 = [];
 const _M0FP29Milky201814selene__webgpu22cached__audio__sources = _M0MPB3Map3MapGsRP29Milky201814selene__webgpu17CachedAudioSourceE(new _M0TPB9ArrayViewGUsRP29Milky201814selene__webgpu17CachedAudioSourceEE(_bind$47, 0, 0), undefined);
-const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81452 = new _M0TPC16string10StringView("http://", 0, 7);
-const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81453 = new _M0TPC16string10StringView("https://", 0, 8);
-const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81454 = new _M0TPC16string10StringView("data:", 0, 5);
-const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81455 = new _M0TPC16string10StringView("blob:", 0, 5);
-const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81456 = new _M0TPC16string10StringView("assets/", 0, 7);
+const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81459 = new _M0TPC16string10StringView("http://", 0, 7);
+const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81460 = new _M0TPC16string10StringView("https://", 0, 8);
+const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81461 = new _M0TPC16string10StringView("data:", 0, 5);
+const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81462 = new _M0TPC16string10StringView("blob:", 0, 5);
+const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81463 = new _M0TPC16string10StringView("assets/", 0, 7);
 const _bind$48 = [];
 const _M0FP29Milky201814selene__webgpu27preloaded__audio__templates = _M0MPB3Map3MapGsRP29Milky201814selene__webgpu5AudioE(new _M0TPB9ArrayViewGUsRP29Milky201814selene__webgpu5AudioEE(_bind$48, 0, 0), undefined);
 const _M0FP29Milky201814selene__webgpu21next__audio__instance = _M0MPC13ref3Ref3RefGiE(1);
@@ -17114,9 +17114,9 @@ const _M0FP39Milky20186selene8render2d33selene__component__key__Sorting2d = _M0M
 const _M0FP39Milky20186selene6sprite30selene__component__key__Anchor = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene10parallax2d34selene__component__key__Parallax2d = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene10visibility36selene__component__key__RenderLayers = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky20186selene6text2d14truncate__lineN8ellipsisS102340 = "...";
-const _M0FP39Milky20186selene6text2d10wrap__lineN6recordS102346 = new _M0TPC16string10StringView(" ", 0, 1);
-const _M0FP39Milky20186selene6text2d20bounded__text__linesN6recordS102364 = new _M0TPC16string10StringView("\n", 0, 1);
+const _M0FP39Milky20186selene6text2d14truncate__lineN8ellipsisS102386 = "...";
+const _M0FP39Milky20186selene6text2d10wrap__lineN6recordS102392 = new _M0TPC16string10StringView(" ", 0, 1);
+const _M0FP39Milky20186selene6text2d20bounded__text__linesN6recordS102410 = new _M0TPC16string10StringView("\n", 0, 1);
 const _M0FP39Milky20186selene6text2d25text2d__world__store__key = _M0MP39Milky20186selene3ecs11ResourceKey11ResourceKeyGRP39Milky20186selene5state13StateRegistryE();
 const _M0FP39Milky20186selene6text2d30selene__component__key__Text2d = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene6text2d34selene__component__key__TextBounds = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
@@ -17148,26 +17148,26 @@ const _M0FP39Milky20186selene2ui46selene__component__key__RelativeCursorPosition
 const _M0FP39Milky20186selene5tiled42selene__component__key__TiledWorldInstance = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene5tiled39selene__component__key__TiledMapStorage = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene5tiled43selene__component__key__TiledColliderOrigin = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102955 = 0;
-const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102956 = 1;
-const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102957 = 2;
-const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102958 = 2;
-const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102959 = 2;
-const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102960 = 3;
-const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102961 = 3;
-const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102962 = 3;
+const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS103004 = 0;
+const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS103005 = 1;
+const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS103006 = 2;
+const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS103007 = 2;
+const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS103008 = 2;
+const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS103009 = 3;
+const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS103010 = 3;
+const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS103011 = 3;
 const _M0FP39Milky20186selene5tiled39selene__component__key__TiledProperties = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene5tiled47selene__component__key__TiledImageLayerInstance = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102527 = new _M0TPC16string10StringView(":\\", 0, 2);
-const _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102528 = new _M0TPC16string10StringView("/", 0, 1);
-const _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102529 = new _M0TPC16string10StringView("\\\\", 0, 2);
-const _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS102531 = new _M0TPC16string10StringView("/", 0, 1);
-const _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS102532 = new _M0TPC16string10StringView("\\", 0, 1);
+const _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102574 = new _M0TPC16string10StringView(":\\", 0, 2);
+const _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102575 = new _M0TPC16string10StringView("/", 0, 1);
+const _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102576 = new _M0TPC16string10StringView("\\\\", 0, 2);
+const _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS102578 = new _M0TPC16string10StringView("/", 0, 1);
+const _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS102579 = new _M0TPC16string10StringView("\\", 0, 1);
 const _M0FP39Milky20186selene6sprite32next__texture__atlas__layout__id = _M0MPC13ref3Ref3RefGjE(0);
 const _bind$61 = [];
 const _M0FP39Milky20186selene6sprite30dirty__texture__atlas__layouts = _M0MPB3Map3MapGRP39Milky20186selene6sprite24TextureAtlasLayoutHandleRP39Milky20186selene6sprite18TextureAtlasLayoutE(new _M0TPB9ArrayViewGURP39Milky20186selene6sprite24TextureAtlasLayoutHandleRP39Milky20186selene6sprite18TextureAtlasLayoutEE(_bind$61, 0, 0), undefined);
-const _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS102653 = new _M0TP39Milky20186selene6render5Color(255, 255, 255, 1);
-const _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS102654 = new _M0TP39Milky20186selene6render5Color(255, 255, 255, 1);
+const _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS102702 = new _M0TP39Milky20186selene6render5Color(255, 255, 255, 1);
+const _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS102703 = new _M0TP39Milky20186selene6render5Color(255, 255, 255, 1);
 const _M0FP39Milky20186selene5tiled43selene__component__key__TiledObjectInstance = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene9animation15next__graph__id = _M0MPC13ref3Ref3RefGjE(0);
 const _bind$62 = [];
@@ -17188,15 +17188,15 @@ const _M0FP39Milky20186selene6inputs12pinch__state = _M0MPC13ref3Ref3RefGORP39Mi
 const _M0FP39Milky20186selene4ldtk41selene__component__key__LdtkWorldInstance = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk23ldtk__world__store__key = _M0MP39Milky20186selene3ecs11ResourceKey11ResourceKeyGRP39Milky20186selene5state13StateRegistryE();
 const _M0FP39Milky20186selene4ldtk36selene__component__key__LdtkLevelIid = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101530 = new _M0TPC16string10StringView(":\\", 0, 2);
-const _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101531 = new _M0TPC16string10StringView("/", 0, 1);
-const _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101532 = new _M0TPC16string10StringView("\\\\", 0, 2);
-const _M0FP39Milky20186selene4ldtk30resolve__relative__asset__pathN6recordS101534 = new _M0TPC16string10StringView("/", 0, 1);
-const _M0FP39Milky20186selene4ldtk30resolve__relative__asset__pathN6recordS101535 = new _M0TPC16string10StringView("\\", 0, 1);
+const _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101571 = new _M0TPC16string10StringView(":\\", 0, 2);
+const _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101572 = new _M0TPC16string10StringView("/", 0, 1);
+const _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101573 = new _M0TPC16string10StringView("\\\\", 0, 2);
+const _M0FP39Milky20186selene4ldtk30resolve__relative__asset__pathN6recordS101575 = new _M0TPC16string10StringView("/", 0, 1);
+const _M0FP39Milky20186selene4ldtk30resolve__relative__asset__pathN6recordS101576 = new _M0TPC16string10StringView("\\", 0, 1);
 const _M0FP39Milky20186selene4ldtk43selene__component__key__LdtkLevelBackground = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk41selene__component__key__LdtkLevelInstance = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__backgroundN6recordS101595 = new _M0TP39Milky20186selene6render5Color(255, 255, 255, 1);
-const _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__backgroundN6constrS101596 = _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__backgroundN6recordS101595;
+const _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__backgroundN6recordS101636 = new _M0TP39Milky20186selene6render5Color(255, 255, 255, 1);
+const _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__backgroundN6constrS101637 = _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__backgroundN6recordS101636;
 const _M0FP39Milky20186selene4ldtk14ldtk__settings = new _M0TPC13ref3RefGRP39Milky20186selene4ldtk12LdtkSettingsE(_M0MP39Milky20186selene4ldtk12LdtkSettings12LdtkSettings());
 const _M0FP39Milky20186selene4ldtk48selene__component__key__LdtkSpawnedLayerInstance = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk41selene__component__key__LdtkLayerMetadata = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
@@ -17204,22 +17204,22 @@ const _M0FP39Milky20186selene4ldtk49selene__component__key__LdtkSpawnedEntityIns
 const _M0FP39Milky20186selene4ldtk35selene__component__key__LdtkWorldly = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk37selene__component__key__LdtkEntityIid = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk38selene__component__key__LdtkGridCoords = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__valueN6constrS101763 = true;
-const _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__valueN6constrS101764 = false;
-const _M0FP39Milky20186selene4ldtk30ldtk__rgba__color__with__alphaN6recordS101489 = new _M0TPC16string10StringView(",", 0, 1);
-const _M0FP39Milky20186selene4ldtk29ldtk__rgb__color__with__alphaN6recordS101469 = new _M0TPC16string10StringView(",", 0, 1);
-const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101507 = new _M0TPC16string10StringView("#", 0, 1);
-const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101508 = new _M0TPC16string10StringView("rgba(", 0, 5);
-const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101509 = new _M0TPC16string10StringView(")", 0, 1);
-const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101510 = new _M0TPC16string10StringView("rgb(", 0, 4);
-const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101511 = new _M0TPC16string10StringView(")", 0, 1);
+const _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__valueN6constrS101804 = true;
+const _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__valueN6constrS101805 = false;
+const _M0FP39Milky20186selene4ldtk30ldtk__rgba__color__with__alphaN6recordS101530 = new _M0TPC16string10StringView(",", 0, 1);
+const _M0FP39Milky20186selene4ldtk29ldtk__rgb__color__with__alphaN6recordS101510 = new _M0TPC16string10StringView(",", 0, 1);
+const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101548 = new _M0TPC16string10StringView("#", 0, 1);
+const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101549 = new _M0TPC16string10StringView("rgba(", 0, 5);
+const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101550 = new _M0TPC16string10StringView(")", 0, 1);
+const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101551 = new _M0TPC16string10StringView("rgb(", 0, 4);
+const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101552 = new _M0TPC16string10StringView(")", 0, 1);
 const _M0FP39Milky20186selene4ldtk39selene__component__key__LdtkIntGridCell = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk46selene__component__key__LdtkSpawnedIntGridCell = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk43selene__component__key__LdtkIntGridCollider = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk34ldtk__int__grid__physics__settings = new _M0TPC13ref3RefGRP39Milky20186selene4ldtk26LdtkIntGridPhysicsSettingsE(_M0MP39Milky20186selene4ldtk26LdtkIntGridPhysicsSettings26LdtkIntGridPhysicsSettings());
 const _M0FP39Milky20186selene4ldtk47selene__component__key__LdtkSpawnedTileInstance = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk40selene__component__key__LdtkTileMetadata = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky20186selene4ldtk28ldtk__grid__coords__from__pxN6recordS101838 = new _M0TP39Milky20186selene4ldtk14LdtkGridCoords(0, 0);
+const _M0FP39Milky20186selene4ldtk28ldtk__grid__coords__from__pxN6recordS101880 = new _M0TP39Milky20186selene4ldtk14LdtkGridCoords(0, 0);
 const _M0FP39Milky20186selene4ldtk22ldtk__level__selection = new _M0TPC13ref3RefGRP39Milky20186selene4ldtk18LdtkLevelSelectionE(_M0FP39Milky20186selene4ldtk31default__ldtk__level__selection());
 const _M0FP39Milky20186selene15platform__input27mouse__lock__requested__ref = _M0MPC13ref3Ref3RefGbE(false);
 const _M0FP29Milky201814selene__webgpu15canvas__backend = _M0MP29Milky201814selene__webgpu13WebGpuBackend13WebGpuBackend();
@@ -17227,10 +17227,10 @@ const _M0FP39Milky20186selene15platform__input33mouse__lock__handlers__registere
 const _M0FP39Milky20186selene6window20mouse__lock__enabled = _M0MPC13ref3Ref3RefGbE(false);
 const _M0FP39Milky20186selene6window22mouse__lock__requested = _M0MPC13ref3Ref3RefGbE(false);
 const _M0FP39Milky20186selene6window19mouse__lock__active = _M0MPC13ref3Ref3RefGbE(false);
-const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100361 = 2;
-const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100362 = true;
-const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100363 = 1;
-const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100364 = 6;
+const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100390 = 2;
+const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100391 = true;
+const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100392 = 1;
+const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100393 = 6;
 const _M0FP39Milky20186selene4a11y28selene__component__key__A11y = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4a11y14a11y__tree__id = _M0MP29Milky201815moon__accesskit6TreeId4root();
 const _bind$65 = [];
@@ -17241,25 +17241,25 @@ const _M0FP39Milky20186selene6inputs31pending__mouse__relative__delta = _M0MPC13
 const _M0FP39Milky20186selene6inputs11last__mouse = new _M0TP39Milky20186selene6inputs5Mouse(_M0MP39Milky20186selene4math4Vec24Vec2(0, 0), false, false, false);
 const _M0FP29Milky201814selene__webgpu19last__frame__timingN6recordS79750 = new _M0TP29Milky201814selene__webgpu25WebGpuFrameTimingSnapshot(0, 0, 0, 0, 0);
 const _M0FP29Milky201814selene__webgpu19last__frame__timing = _M0MPC13ref3Ref3RefGRP29Milky201812moon__cosmic10FontSystemE(_M0FP29Milky201814selene__webgpu19last__frame__timingN6recordS79750);
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80129 = { _0: 0, _1: 0 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80130 = { _0: 1, _1: 1 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80131 = { _0: 2, _1: 3 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80132 = { _0: 3, _1: 2 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80133 = { _0: 4, _1: 6 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80134 = { _0: 5, _1: 8 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80135 = { _0: 6, _1: 7 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80136 = { _0: 7, _1: 9 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80137 = { _0: 8, _1: 10 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80138 = { _0: 9, _1: 11 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80139 = { _0: 10, _1: 13 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80140 = { _0: 11, _1: 14 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80141 = { _0: 12, _1: 15 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80142 = { _0: 13, _1: 16 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80143 = { _0: 14, _1: 17 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80144 = { _0: 15, _1: 18 };
-const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80145 = { _0: 16, _1: 12 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80130 = { _0: 0, _1: 0 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80131 = { _0: 1, _1: 1 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80132 = { _0: 2, _1: 3 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80133 = { _0: 3, _1: 2 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80134 = { _0: 4, _1: 6 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80135 = { _0: 5, _1: 8 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80136 = { _0: 6, _1: 7 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80137 = { _0: 7, _1: 9 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80138 = { _0: 8, _1: 10 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80139 = { _0: 9, _1: 11 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80140 = { _0: 10, _1: 13 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80141 = { _0: 11, _1: 14 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80142 = { _0: 12, _1: 15 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80143 = { _0: 13, _1: 16 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80144 = { _0: 14, _1: 17 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80145 = { _0: 15, _1: 18 };
+const _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80146 = { _0: 16, _1: 12 };
 const _M0FP29Milky201814selene__webgpu15realtime__delta = _M0MPC13ref3Ref3RefGdE(0);
-const _M0FP29Milky201814selene__webgpu10initializeN6constrS80175 = 0;
+const _M0FP29Milky201814selene__webgpu10initializeN6constrS80178 = 0;
 const _bind$67 = [];
 const _M0FP39Milky20186selene14runtime__debug25frame__metrics__by__world = _M0MPB3Map3MapGjRP39Milky20186selene14runtime__debug23FramePerformanceMetricsE(new _M0TPB9ArrayViewGUjRP39Milky20186selene14runtime__debug23FramePerformanceMetricsEE(_bind$67, 0, 0), undefined);
 const _bind$68 = [];
@@ -17277,7 +17277,7 @@ const _M0FP39Milky20186selene15platform__input8snapshot = _M0MP39Milky20186selen
 const _M0FP29Milky201814selene__webgpu27touch__handlers__registered = _M0MPC13ref3Ref3RefGbE(false);
 const _bind$70 = [];
 const _M0FP39Milky20186selene14runtime__debug25queued__inputs__by__world = _M0MPB3Map3MapGjRPB5ArrayGRP39Milky20186selene6inputs13InputSnapshotEE(new _M0TPB9ArrayViewGUjRPB5ArrayGRP39Milky20186selene6inputs13InputSnapshotEEE(_bind$70, 0, 0), undefined);
-const _M0FP39Milky20186selene3app28build__runtime__plan_2einnerN6constrS99981 = 0;
+const _M0FP39Milky20186selene3app28build__runtime__plan_2einnerN6constrS100010 = 0;
 function _M0MPC16string10StringView12unsafe__view(self, start, end) {
   return new _M0TPC16string10StringView(self.str, self.start + start | 0, self.start + end | 0);
 }
@@ -54158,14 +54158,14 @@ function _M0MPC13ref3Ref3RefGbE(x) {
 function _M0MPC13ref3Ref3RefGiE(x) {
   return new _M0TPC13ref3RefGiE(x);
 }
-function _M0IP39Milky20186selene3ecs6EntityPB2Eq5equal(_x_589, _x_590) {
-  return _x_589.world_id === _x_590.world_id && _x_589.value === _x_590.value && _x_589.slot === _x_590.slot && _x_589.generation === _x_590.generation;
+function _M0IP39Milky20186selene3ecs6EntityPB2Eq5equal(_x_588, _x_589) {
+  return _x_588.world_id === _x_589.world_id && _x_588.value === _x_589.value && _x_588.slot === _x_589.slot && _x_588.generation === _x_589.generation;
 }
-function _M0IP39Milky20186selene3ecs6EntityPB4Hash13hash__combine(_x_583, _x_584) {
-  _M0IPC14uint4UIntPB4Hash13hash__combine(_x_583.world_id, _x_584);
-  _M0IPC14uint4UIntPB4Hash13hash__combine(_x_583.value, _x_584);
-  _M0IPC13int3IntPB4Hash13hash__combine(_x_583.slot, _x_584);
-  _M0IPC14uint4UIntPB4Hash13hash__combine(_x_583.generation, _x_584);
+function _M0IP39Milky20186selene3ecs6EntityPB4Hash13hash__combine(_x_582, _x_583) {
+  _M0IPC14uint4UIntPB4Hash13hash__combine(_x_582.world_id, _x_583);
+  _M0IPC14uint4UIntPB4Hash13hash__combine(_x_582.value, _x_583);
+  _M0IPC13int3IntPB4Hash13hash__combine(_x_582.slot, _x_583);
+  _M0IPC14uint4UIntPB4Hash13hash__combine(_x_582.generation, _x_583);
 }
 function _M0MP39Milky20186selene3ecs8WorldKey11with__worldGRP39Milky20186selene3ecs14ComponentStoreGRP39Milky20186selene4ldtk17LdtkLayerMetadataEE(create) {
   const id = _M0FP39Milky20186selene3ecs17next__storage__id.val;
@@ -56949,9 +56949,9 @@ function _M0MP39Milky20186selene3ecs14ArchetypeQuery16for__each__tableGURPB5Arra
   while (true) {
     const _ = _tmp$2;
     if (_ < _bind$74) {
-      const match_entry = _bind$75[_];
-      const _id = match_entry._0;
-      const _columns = match_entry._1;
+      const _foreach_element = _bind$75[_];
+      const _id = _foreach_element._0;
+      const _columns = _foreach_element._1;
       const _bind$76 = storage.tables;
       if (_id < 0 || _id >= _bind$76.len) {
         $panic();
@@ -130025,16 +130025,17 @@ function _M0FP29Milky201814selene__webgpu23rasterize__with__cosmic(command) {
   while (true) {
     const _ = _tmp;
     if (_ < _bind$72) {
-      const point = _bind$73[_];
-      const x = point._0;
-      const y = point._1;
-      const _bind$74 = _M0FP29Milky201814selene__webgpu25styled__text__pixel__rgba(command.style.color, point._2);
+      const _foreach_element = _bind$73[_];
+      const _x = _foreach_element._0;
+      const _y = _foreach_element._1;
+      const _alpha = _foreach_element._2;
+      const _bind$74 = _M0FP29Milky201814selene__webgpu25styled__text__pixel__rgba(command.style.color, _alpha);
       const _r = _bind$74._0;
       const _g = _bind$74._1;
       const _b = _bind$74._2;
       const _a = _bind$74._3;
-      const local_x = x - min_x.val | 0;
-      const local_y = y - min_y.val | 0;
+      const local_x = _x - min_x.val | 0;
+      const local_y = _y - min_y.val | 0;
       const idx = Math.imul((Math.imul(local_y, width) | 0) + local_x | 0, 4) | 0;
       if (idx < 0 || idx >= pixels.len) {
         $panic();
@@ -130271,10 +130272,10 @@ function _M0FP29Milky201814selene__webgpu23register__mouse__events(mouse, mouse_
 function _M0FP29Milky201814selene__webgpu24contact__pointer__source(kind) {
   switch (kind) {
     case "touch": {
-      return _M0FP29Milky201814selene__webgpu24contact__pointer__sourceN6constrS79913;
+      return _M0FP29Milky201814selene__webgpu24contact__pointer__sourceN6constrS79914;
     }
     case "pen": {
-      return _M0FP29Milky201814selene__webgpu24contact__pointer__sourceN6constrS79914;
+      return _M0FP29Milky201814selene__webgpu24contact__pointer__sourceN6constrS79915;
     }
     default: {
       return undefined;
@@ -130589,7 +130590,7 @@ function _M0FP29Milky201814selene__webgpu17get__asset__bytes(path) {
       return _bytes;
     }
   }
-  if (_M0MPC16string6String11has__prefix(resolved_path, _M0FP29Milky201814selene__webgpu17get__asset__bytesN6recordS80083)) {
+  if (_M0MPC16string6String11has__prefix(resolved_path, _M0FP29Milky201814selene__webgpu17get__asset__bytesN6recordS80084)) {
     const trimmed = resolved_path.substring(1, resolved_path.length);
     const _bind$72 = _M0FP29Milky201814selene__webgpu20get__embedded__asset(trimmed);
     if (_bind$72 === undefined) {
@@ -130685,7 +130686,7 @@ function _M0FP29Milky201814selene__webgpu10sync__axes(id, gamepad, axes) {
   _M0MPB3Map3setGRP39Milky20186selene6inputs16GamepadAxisInputdE(axes, _M0MP39Milky20186selene6inputs16GamepadAxisInput16GamepadAxisInput(gamepad, 5), right_trigger);
 }
 function _M0FP29Milky201814selene__webgpu13sync__buttons(id, gamepad, buttons) {
-  let mappings_buf = [_M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80129, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80130, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80131, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80132, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80133, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80134, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80135, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80136, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80137, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80138, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80139, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80140, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80141, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80142, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80143, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80144, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80145];
+  let mappings_buf = [_M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80130, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80131, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80132, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80133, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80134, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80135, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80136, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80137, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80138, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80139, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80140, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80141, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80142, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80143, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80144, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80145, _M0FP29Milky201814selene__webgpu13sync__buttonsN5tupleS80146];
   let mappings_len = 17;
   const _bind$71 = mappings_len;
   const _bind$72 = mappings_buf;
@@ -130693,9 +130694,11 @@ function _M0FP29Milky201814selene__webgpu13sync__buttons(id, gamepad, buttons) {
   while (true) {
     const _ = _tmp;
     if (_ < _bind$71) {
-      const mapping = _bind$72[_];
-      if (_M0FP29Milky201814selene__webgpu32webgpu__gamepad__button__pressed(id, mapping._0)) {
-        _M0MPC13set3Set3addGRP39Milky20186selene6inputs18GamepadButtonInputE(buttons, _M0MP39Milky20186selene6inputs18GamepadButtonInput18GamepadButtonInput(gamepad, mapping._1));
+      const _foreach_element = _bind$72[_];
+      const _index = _foreach_element._0;
+      const _button = _foreach_element._1;
+      if (_M0FP29Milky201814selene__webgpu32webgpu__gamepad__button__pressed(id, _index)) {
+        _M0MPC13set3Set3addGRP39Milky20186selene6inputs18GamepadButtonInputE(buttons, _M0MP39Milky20186selene6inputs18GamepadButtonInput18GamepadButtonInput(gamepad, _button));
       }
       _tmp = _ + 1 | 0;
       continue;
@@ -130763,7 +130766,7 @@ function _M0FP29Milky201814selene__webgpu10initialize(config, callbacks) {
   const screen_height = config.screen_height;
   const max_fps = config.max_fps;
   const image_smooth = config.image_smooth;
-  if (_M0IPC16option6OptionPB2Eq5equalGjE(max_fps, _M0FP29Milky201814selene__webgpu10initializeN6constrS80175)) {
+  if (_M0IPC16option6OptionPB2Eq5equalGjE(max_fps, _M0FP29Milky201814selene__webgpu10initializeN6constrS80178)) {
     $panic("max_fps must be greater than 0");
   }
   const _bind$71 = _M0FP29Milky201814selene__webgpu15canvas__backend.stop_loop;
@@ -131027,7 +131030,7 @@ function _M0FP29Milky201814selene__webgpu31directional__shadow__cascades3d(light
   const light_view = _M0MP39Milky20186selene4math4Mat412look__at__rh(_M0MP39Milky20186selene4math4Vec34Vec3(0, 0, 0), direction, _M0FP29Milky201814selene__webgpu20choose__shadow__up3d(direction));
   const light_affine = _M0MP39Milky20186selene4math4Mat412affine__part(light_view);
   const _p = bounds.len;
-  const _bind$71 = _p <= 1 ? _M0FP29Milky201814selene__webgpu36directional__shadow__atlas__layout3dN5tupleS80265 : _p === 2 ? _M0FP29Milky201814selene__webgpu36directional__shadow__atlas__layout3dN5tupleS80266 : _M0FP29Milky201814selene__webgpu36directional__shadow__atlas__layout3dN5tupleS80267;
+  const _bind$71 = _p <= 1 ? _M0FP29Milky201814selene__webgpu36directional__shadow__atlas__layout3dN5tupleS80268 : _p === 2 ? _M0FP29Milky201814selene__webgpu36directional__shadow__atlas__layout3dN5tupleS80269 : _M0FP29Milky201814selene__webgpu36directional__shadow__atlas__layout3dN5tupleS80270;
   const _atlas_columns = _bind$71._0;
   const _atlas_rows = _bind$71._1;
   const atlas_width = tile_size * (_atlas_columns + 0);
@@ -133065,7 +133068,7 @@ function _M0FP29Milky201814selene__webgpu22default__mesh__indices(vertex_count) 
   }
   return indices;
 }
-function _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81169(triangle_indices, index) {
+function _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81172(triangle_indices, index) {
   _M0MPC15array5Array4pushGiE(triangle_indices, index);
 }
 function _M0FP29Milky201814selene__webgpu30triangulate__triangle__indices(indices, topology) {
@@ -133081,17 +133084,17 @@ function _M0FP29Milky201814selene__webgpu30triangulate__triangle__indices(indice
           if (base < 0 || base >= indices.len) {
             $panic();
           }
-          _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81169(triangle_indices, indices.buf[base]);
+          _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81172(triangle_indices, indices.buf[base]);
           const _bind$71 = base + 1 | 0;
           if (_bind$71 < 0 || _bind$71 >= indices.len) {
             $panic();
           }
-          _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81169(triangle_indices, indices.buf[_bind$71]);
+          _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81172(triangle_indices, indices.buf[_bind$71]);
           const _bind$72 = base + 2 | 0;
           if (_bind$72 < 0 || _bind$72 >= indices.len) {
             $panic();
           }
-          _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81169(triangle_indices, indices.buf[_bind$72]);
+          _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81172(triangle_indices, indices.buf[_bind$72]);
           _tmp = tri + 1 | 0;
           continue;
         } else {
@@ -133111,32 +133114,32 @@ function _M0FP29Milky201814selene__webgpu30triangulate__triangle__indices(indice
               if (i < 0 || i >= indices.len) {
                 $panic();
               }
-              _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81169(triangle_indices, indices.buf[i]);
+              _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81172(triangle_indices, indices.buf[i]);
               const _bind$72 = i + 1 | 0;
               if (_bind$72 < 0 || _bind$72 >= indices.len) {
                 $panic();
               }
-              _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81169(triangle_indices, indices.buf[_bind$72]);
+              _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81172(triangle_indices, indices.buf[_bind$72]);
               const _bind$73 = i + 2 | 0;
               if (_bind$73 < 0 || _bind$73 >= indices.len) {
                 $panic();
               }
-              _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81169(triangle_indices, indices.buf[_bind$73]);
+              _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81172(triangle_indices, indices.buf[_bind$73]);
             } else {
               const _bind$72 = i + 1 | 0;
               if (_bind$72 < 0 || _bind$72 >= indices.len) {
                 $panic();
               }
-              _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81169(triangle_indices, indices.buf[_bind$72]);
+              _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81172(triangle_indices, indices.buf[_bind$72]);
               if (i < 0 || i >= indices.len) {
                 $panic();
               }
-              _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81169(triangle_indices, indices.buf[i]);
+              _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81172(triangle_indices, indices.buf[i]);
               const _bind$73 = i + 2 | 0;
               if (_bind$73 < 0 || _bind$73 >= indices.len) {
                 $panic();
               }
-              _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81169(triangle_indices, indices.buf[_bind$73]);
+              _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81172(triangle_indices, indices.buf[_bind$73]);
             }
             _tmp$2 = i + 1 | 0;
             continue;
@@ -133158,16 +133161,16 @@ function _M0FP29Milky201814selene__webgpu30triangulate__triangle__indices(indice
         while (true) {
           const i = _tmp$2;
           if (i < _bind$71) {
-            _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81169(triangle_indices, head);
+            _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81172(triangle_indices, head);
             if (i < 0 || i >= indices.len) {
               $panic();
             }
-            _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81169(triangle_indices, indices.buf[i]);
+            _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81172(triangle_indices, indices.buf[i]);
             const _bind$72 = i + 1 | 0;
             if (_bind$72 < 0 || _bind$72 >= indices.len) {
               $panic();
             }
-            _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81169(triangle_indices, indices.buf[_bind$72]);
+            _M0FP29Milky201814selene__webgpu30triangulate__triangle__indicesN11push__indexS81172(triangle_indices, indices.buf[_bind$72]);
             _tmp$2 = i + 1 | 0;
             continue;
           } else {
@@ -133231,7 +133234,7 @@ function _M0FP29Milky201814selene__webgpu23resolve__mesh__tangents(mesh) {
   while (true) {
     const _ = _tmp;
     if (_ < _bind$71) {
-      _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(tangents, _M0FP29Milky201814selene__webgpu23resolve__mesh__tangentsN6recordS81204);
+      _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(tangents, _M0FP29Milky201814selene__webgpu23resolve__mesh__tangentsN6recordS81207);
       _tmp = _ + 1 | 0;
       continue;
     } else {
@@ -133500,11 +133503,13 @@ function _M0FP29Milky201814selene__webgpu40prune__stale__primitive__mesh__resour
   while (true) {
     const _ = _tmp;
     if (_ < _bind$72) {
-      const pair = _bind$73[_];
-      if (pair._1 < min_live_frame) {
-        _M0MPB3Map6removeGsiE(_M0FP29Milky201814selene__webgpu37primitive__mesh__resource__last__seen, pair._0);
-        _M0MPB3Map6removeGsbE(_M0FP29Milky201814selene__webgpu36uploaded__primitive__mesh__resources, pair._0);
-        _M0FP29Milky201814selene__webgpu42webgpu__release__primitive__mesh__resource(pair._0);
+      const _foreach_element = _bind$73[_];
+      const _key = _foreach_element._0;
+      const _last_seen = _foreach_element._1;
+      if (_last_seen < min_live_frame) {
+        _M0MPB3Map6removeGsiE(_M0FP29Milky201814selene__webgpu37primitive__mesh__resource__last__seen, _key);
+        _M0MPB3Map6removeGsbE(_M0FP29Milky201814selene__webgpu36uploaded__primitive__mesh__resources, _key);
+        _M0FP29Milky201814selene__webgpu42webgpu__release__primitive__mesh__resource(_key);
       }
       _tmp = _ + 1 | 0;
       continue;
@@ -133522,10 +133527,12 @@ function _M0FP29Milky201814selene__webgpu43prune__stale__retained__instance__buf
   while (true) {
     const _ = _tmp;
     if (_ < _bind$72) {
-      const pair = _bind$73[_];
-      if (pair._1 < min_live_frame) {
-        _M0MPB3Map6removeGsiE(_M0FP29Milky201814selene__webgpu40retained__render3d__instance__last__seen, pair._0);
-        _M0FP29Milky201814selene__webgpu47webgpu__release__retained__instance__buffer__3d(pair._0);
+      const _foreach_element = _bind$73[_];
+      const _key = _foreach_element._0;
+      const _last_seen = _foreach_element._1;
+      if (_last_seen < min_live_frame) {
+        _M0MPB3Map6removeGsiE(_M0FP29Milky201814selene__webgpu40retained__render3d__instance__last__seen, _key);
+        _M0FP29Milky201814selene__webgpu47webgpu__release__retained__instance__buffer__3d(_key);
       }
       _tmp = _ + 1 | 0;
       continue;
@@ -133617,7 +133624,7 @@ function _M0FP29Milky201814selene__webgpu29render3d__item__vertex__count(primiti
 function _M0FP29Milky201814selene__webgpu37render3d__submission__stats__checksum(stats) {
   return (((((((stats.sections + stats.submitted_items | 0) + stats.skipped_items | 0) + stats.command_groups | 0) + stats.draw_commands | 0) + stats.lit_triangle_commands | 0) + stats.textured_triangle_commands | 0) + stats.uploaded_vertex_bytes | 0) + stats.render_bind_group_creations | 0;
 }
-function _M0FP29Milky201814selene__webgpu35required__primitive__uv__set__countN5trackS81376(max_set, source) {
+function _M0FP29Milky201814selene__webgpu35required__primitive__uv__set__countN5trackS81383(max_set, source) {
   if (source === undefined) {
     return;
   } else {
@@ -133633,11 +133640,11 @@ function _M0FP29Milky201814selene__webgpu35required__primitive__uv__set__countN5
 }
 function _M0FP29Milky201814selene__webgpu35required__primitive__uv__set__count(bundle) {
   const max_set = new _M0TPB8MutLocalGiE(bundle.primary_texcoord_set);
-  _M0FP29Milky201814selene__webgpu35required__primitive__uv__set__countN5trackS81376(max_set, bundle.base_source);
-  _M0FP29Milky201814selene__webgpu35required__primitive__uv__set__countN5trackS81376(max_set, bundle.emissive_source);
-  _M0FP29Milky201814selene__webgpu35required__primitive__uv__set__countN5trackS81376(max_set, bundle.metallic_roughness_source);
-  _M0FP29Milky201814selene__webgpu35required__primitive__uv__set__countN5trackS81376(max_set, bundle.occlusion_source);
-  _M0FP29Milky201814selene__webgpu35required__primitive__uv__set__countN5trackS81376(max_set, bundle.normal_source);
+  _M0FP29Milky201814selene__webgpu35required__primitive__uv__set__countN5trackS81383(max_set, bundle.base_source);
+  _M0FP29Milky201814selene__webgpu35required__primitive__uv__set__countN5trackS81383(max_set, bundle.emissive_source);
+  _M0FP29Milky201814selene__webgpu35required__primitive__uv__set__countN5trackS81383(max_set, bundle.metallic_roughness_source);
+  _M0FP29Milky201814selene__webgpu35required__primitive__uv__set__countN5trackS81383(max_set, bundle.occlusion_source);
+  _M0FP29Milky201814selene__webgpu35required__primitive__uv__set__countN5trackS81383(max_set, bundle.normal_source);
   return max_set.val < 0 ? 1 : max_set.val + 1 | 0;
 }
 function _M0MP29Milky201814selene__webgpu32LitPrimitiveMeshBatchAccumulator32LitPrimitiveMeshBatchAccumulator() {
@@ -133829,28 +133836,28 @@ function _M0FP29Milky201814selene__webgpu16render3d__submit(frame) {
   }
 }
 function _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__source(path) {
-  if (_M0MPC16string6String11has__prefix(path, _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81452) || _M0MPC16string6String11has__prefix(path, _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81453)) {
+  if (_M0MPC16string6String11has__prefix(path, _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81459) || _M0MPC16string6String11has__prefix(path, _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81460)) {
     return false;
   }
-  if (_M0MPC16string6String11has__prefix(path, _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81454) || _M0MPC16string6String11has__prefix(path, _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81455)) {
+  if (_M0MPC16string6String11has__prefix(path, _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81461) || _M0MPC16string6String11has__prefix(path, _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81462)) {
     return false;
   }
-  return _M0MPC16string6String11has__prefix(path, _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81456);
+  return _M0MPC16string6String11has__prefix(path, _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81463);
 }
 function _M0FP29Milky201814selene__webgpu26browser__audio__mime__type(path) {
-  if (_M0MPC16string6String11has__suffix(path, _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81458) || _M0MPC16string6String11has__suffix(path, _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81459)) {
+  if (_M0MPC16string6String11has__suffix(path, _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81465) || _M0MPC16string6String11has__suffix(path, _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81466)) {
     return "audio/ogg";
   }
-  if (_M0MPC16string6String11has__suffix(path, _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81460)) {
+  if (_M0MPC16string6String11has__suffix(path, _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81467)) {
     return "audio/mpeg";
   }
-  if (_M0MPC16string6String11has__suffix(path, _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81461)) {
+  if (_M0MPC16string6String11has__suffix(path, _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81468)) {
     return "audio/wav";
   }
-  if (_M0MPC16string6String11has__suffix(path, _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81462)) {
+  if (_M0MPC16string6String11has__suffix(path, _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81469)) {
     return "audio/flac";
   }
-  if (_M0MPC16string6String11has__suffix(path, _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81463)) {
+  if (_M0MPC16string6String11has__suffix(path, _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81470)) {
     return "audio/aac";
   }
   return "application/octet-stream";
@@ -134045,16 +134052,17 @@ function _M0FP29Milky201814selene__webgpu11tick__audio() {
   while (true) {
     const _ = _tmp;
     if (_ < _bind$72) {
-      const pair = _bind$73[_];
-      const playback = pair._1;
-      const play_state = _M0FP29Milky201814selene__webgpu18audio__play__state(playback.audio);
-      if (_M0MP29Milky201814selene__webgpu5Audio9is__ended(playback.audio) || play_state === 3) {
-        _M0MPB3Map6removeGiRP29Milky201814selene__webgpu13AudioPlaybackE(_M0FP29Milky201814selene__webgpu16audio__instances, pair._0);
+      const _foreach_element = _bind$73[_];
+      const _instance = _foreach_element._0;
+      const _playback = _foreach_element._1;
+      const play_state = _M0FP29Milky201814selene__webgpu18audio__play__state(_playback.audio);
+      if (_M0MP29Milky201814selene__webgpu5Audio9is__ended(_playback.audio) || play_state === 3) {
+        _M0MPB3Map6removeGiRP29Milky201814selene__webgpu13AudioPlaybackE(_M0FP29Milky201814selene__webgpu16audio__instances, _instance);
       } else {
-        const _p = playback.requested_paused;
-        const _p$2 = playback.last_play_attempt_activation_epoch;
+        const _p = _playback.requested_paused;
+        const _p$2 = _playback.last_play_attempt_activation_epoch;
         if (play_state === 2 && (!_p && activation_epoch > _p$2)) {
-          _M0FP29Milky201814selene__webgpu24request__audio__playback(playback);
+          _M0FP29Milky201814selene__webgpu24request__audio__playback(_playback);
         }
       }
       _tmp = _ + 1 | 0;
@@ -134342,8 +134350,10 @@ function _M0FP39Milky20186selene16platform__render13submit__frame(frame) {
   while (true) {
     const _ = _tmp;
     if (_ < _bind$72) {
-      const pair = _bind$73[_];
-      _M0FP29Milky201814selene__webgpu17sync__mesh__asset(pair._0, pair._1);
+      const _foreach_element = _bind$73[_];
+      const _handle = _foreach_element._0;
+      const _asset = _foreach_element._1;
+      _M0FP29Milky201814selene__webgpu17sync__mesh__asset(_handle, _asset);
       _tmp = _ + 1 | 0;
       continue;
     } else {
@@ -134357,8 +134367,10 @@ function _M0FP39Milky20186selene16platform__render13submit__frame(frame) {
   while (true) {
     const _ = _tmp$2;
     if (_ < _bind$75) {
-      const pair = _bind$76[_];
-      _M0FP29Milky201814selene__webgpu21sync__material__asset(pair._0, pair._1);
+      const _foreach_element = _bind$76[_];
+      const _handle = _foreach_element._0;
+      const _asset = _foreach_element._1;
+      _M0FP29Milky201814selene__webgpu21sync__material__asset(_handle, _asset);
       _tmp$2 = _ + 1 | 0;
       continue;
     } else {
@@ -134372,8 +134384,10 @@ function _M0FP39Milky20186selene16platform__render13submit__frame(frame) {
   while (true) {
     const _ = _tmp$3;
     if (_ < _bind$78) {
-      const pair = _bind$79[_];
-      _M0FP29Milky201814selene__webgpu18sync__image__asset(pair._0, pair._1);
+      const _foreach_element = _bind$79[_];
+      const _handle = _foreach_element._0;
+      const _asset = _foreach_element._1;
+      _M0FP29Milky201814selene__webgpu18sync__image__asset(_handle, _asset);
       _tmp$3 = _ + 1 | 0;
       continue;
     } else {
@@ -134387,8 +134401,10 @@ function _M0FP39Milky20186selene16platform__render13submit__frame(frame) {
   while (true) {
     const _ = _tmp$4;
     if (_ < _bind$81) {
-      const pair = _bind$82[_];
-      _M0FP29Milky201814selene__webgpu20sync__cubemap__asset(pair._0, pair._1);
+      const _foreach_element = _bind$82[_];
+      const _handle = _foreach_element._0;
+      const _asset = _foreach_element._1;
+      _M0FP29Milky201814selene__webgpu20sync__cubemap__asset(_handle, _asset);
       _tmp$4 = _ + 1 | 0;
       continue;
     } else {
@@ -134594,9 +134610,9 @@ function _M0FP39Milky20186selene5asset11image__path(handle) {
   return _M0MPB3Map3getGRP39Milky20186selene12asset__types11ImageHandlesE(_M0FP39Milky20186selene5asset23image__path__by__handle, handle);
 }
 function _M0FP39Milky20186selene5asset23normalize__font__family(path) {
-  const slash_idx = _M0MPC16option6Option10unwrap__orGiE(_M0MPC16string6String9rev__find(path, _M0FP39Milky20186selene5asset23normalize__font__familyN6recordS81745), -1);
+  const slash_idx = _M0MPC16option6Option10unwrap__orGiE(_M0MPC16string6String9rev__find(path, _M0FP39Milky20186selene5asset23normalize__font__familyN6recordS81761), -1);
   const name = path.substring(slash_idx + 1 | 0, path.length);
-  const _bind$71 = _M0MPC16string6String9rev__find(name, _M0FP39Milky20186selene5asset23normalize__font__familyN6recordS81746);
+  const _bind$71 = _M0MPC16string6String9rev__find(name, _M0FP39Milky20186selene5asset23normalize__font__familyN6recordS81762);
   if (_bind$71 === undefined) {
     return name;
   } else {
@@ -134838,13 +134854,13 @@ function _M0MP39Milky201812moon__rapier4core4Rot27inverse(self) {
   return new _M0TP39Milky201812moon__rapier4core4Rot2(-self.sin, self.cos);
 }
 function _M0MP39Milky201812moon__rapier4core9Isometry28identity() {
-  return new _M0TP39Milky201812moon__rapier4core9Isometry2(_M0MP39Milky201812moon__rapier4core4Vec24zero(), _M0MP39Milky201812moon__rapier4core4Rot28identityN6recordS81852);
+  return new _M0TP39Milky201812moon__rapier4core9Isometry2(_M0MP39Milky201812moon__rapier4core4Vec24zero(), _M0MP39Milky201812moon__rapier4core4Rot28identityN6recordS81868);
 }
 function _M0MP39Milky201812moon__rapier4core9Isometry29Isometry2(translation, rotation) {
   return new _M0TP39Milky201812moon__rapier4core9Isometry2(translation, rotation);
 }
 function _M0MP39Milky201812moon__rapier4core9Isometry217from__translation(translation) {
-  return _M0MP39Milky201812moon__rapier4core9Isometry29Isometry2(translation, _M0MP39Milky201812moon__rapier4core4Rot28identityN6recordS81852);
+  return _M0MP39Milky201812moon__rapier4core9Isometry29Isometry2(translation, _M0MP39Milky201812moon__rapier4core4Rot28identityN6recordS81868);
 }
 function _M0MP39Milky201812moon__rapier4core9Isometry23mul(self, other) {
   const rotated = _M0MP39Milky201812moon__rapier4core4Rot212rotate__vec2(self.rotation, other.translation);
@@ -135260,13 +135276,13 @@ function _M0MP39Milky201812moon__rapier8dynamics12JointLimits37default() {
   return new _M0TP39Milky201812moon__rapier8dynamics12JointLimits3(_M0MP39Milky201812moon__rapier8dynamics11JointLimits7default(), _M0MP39Milky201812moon__rapier8dynamics11JointLimits7default(), _M0MP39Milky201812moon__rapier8dynamics11JointLimits7default(), _M0MP39Milky201812moon__rapier8dynamics11JointLimits7default(), _M0MP39Milky201812moon__rapier8dynamics11JointLimits7default(), _M0MP39Milky201812moon__rapier8dynamics11JointLimits7default());
 }
 function _M0MP39Milky201812moon__rapier8dynamics10JointMotor7default() {
-  return new _M0TP39Milky201812moon__rapier8dynamics10JointMotor(_M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82038, _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82037, _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82039, _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82040, _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82041, _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82042, 0);
+  return new _M0TP39Milky201812moon__rapier8dynamics10JointMotor(_M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82054, _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82053, _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82055, _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82056, _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82057, _M0MP39Milky201812moon__rapier8dynamics10JointMotor7defaultN7_2abindS82058, 0);
 }
 function _M0MP39Milky201812moon__rapier8dynamics12JointMotors37default() {
   return new _M0TP39Milky201812moon__rapier8dynamics12JointMotors3(_M0MP39Milky201812moon__rapier8dynamics10JointMotor7default(), _M0MP39Milky201812moon__rapier8dynamics10JointMotor7default(), _M0MP39Milky201812moon__rapier8dynamics10JointMotor7default(), _M0MP39Milky201812moon__rapier8dynamics10JointMotor7default(), _M0MP39Milky201812moon__rapier8dynamics10JointMotor7default(), _M0MP39Milky201812moon__rapier8dynamics10JointMotor7default());
 }
 function _M0MP39Milky201812moon__rapier8dynamics12GenericJoint7default() {
-  return new _M0TP39Milky201812moon__rapier8dynamics12GenericJoint(_M0MP39Milky201812moon__rapier4core9Isometry28identity(), _M0MP39Milky201812moon__rapier4core9Isometry28identity(), _M0MP39Milky201812moon__rapier4core4Vec34Vec3(Math.fround(0), Math.fround(0), Math.fround(1)), _M0MP39Milky201812moon__rapier4core4Vec34zero(), _M0MP39Milky201812moon__rapier4core4Vec34zero(), _M0MP39Milky201812moon__rapier4core4Quat8identity(), _M0MP39Milky201812moon__rapier4core4Quat8identity(), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82036, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82036, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82036, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82036, _M0MP39Milky201812moon__rapier8dynamics12JointLimits37default(), _M0MP39Milky201812moon__rapier8dynamics12JointMotors37default(), _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients15joint__defaultsN6recordS82043, true, 0, 0);
+  return new _M0TP39Milky201812moon__rapier8dynamics12GenericJoint(_M0MP39Milky201812moon__rapier4core9Isometry28identity(), _M0MP39Milky201812moon__rapier4core9Isometry28identity(), _M0MP39Milky201812moon__rapier4core4Vec34Vec3(Math.fround(0), Math.fround(0), Math.fround(1)), _M0MP39Milky201812moon__rapier4core4Vec34zero(), _M0MP39Milky201812moon__rapier4core4Vec34zero(), _M0MP39Milky201812moon__rapier4core4Quat8identity(), _M0MP39Milky201812moon__rapier4core4Quat8identity(), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82052, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82052, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82052, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82052, _M0MP39Milky201812moon__rapier8dynamics12JointLimits37default(), _M0MP39Milky201812moon__rapier8dynamics12JointMotors37default(), _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients15joint__defaultsN6recordS82059, true, 0, 0);
 }
 function _M0MP39Milky201812moon__rapier8dynamics12GenericJoint18set__coupled__axes(self, axes) {
   self.coupled_axes = axes;
@@ -135326,22 +135342,22 @@ function _M0MP39Milky201812moon__rapier8dynamics12GenericJoint17set__motor__mode
 function _M0FP39Milky201812moon__rapier8dynamics17joint__axis__mask(axis) {
   switch (axis) {
     case 0: {
-      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059;
+      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075;
     }
     case 1: {
-      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060;
+      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076;
     }
     case 2: {
-      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__zN6recordS82061;
+      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__zN6recordS82077;
     }
     case 3: {
-      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056;
+      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072;
     }
     case 4: {
-      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057;
+      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073;
     }
     default: {
-      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058;
+      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074;
     }
   }
 }
@@ -135370,7 +135386,7 @@ function _M0MP39Milky201812moon__rapier8dynamics12GenericJoint20set__motor__posi
   return _M0MP39Milky201812moon__rapier8dynamics12GenericJoint10set__motor(self, axis, target_pos, Math.fround(0), stiffness, damping);
 }
 function _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask9lin__axes() {
-  return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060);
+  return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076);
 }
 function _M0MP39Milky201812moon__rapier8dynamics11SpringJoint11SpringJoint(rest_length, stiffness, damping) {
   const joint = _M0MP39Milky201812moon__rapier8dynamics12GenericJoint17set__motor__model(_M0MP39Milky201812moon__rapier8dynamics12GenericJoint20set__motor__position(_M0MP39Milky201812moon__rapier8dynamics12GenericJoint18set__coupled__axes(_M0MP39Milky201812moon__rapier8dynamics12GenericJoint7default(), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask9lin__axes()), 0, rest_length, stiffness, damping), 0, 1);
@@ -136987,7 +137003,7 @@ function _M0MP39Milky201812moon__rapier8dynamics15RigidBodyHandle15RigidBodyHand
 }
 function _M0MP39Milky201812moon__rapier8dynamics12RigidBodySet6insert(self, body) {
   const body$2 = _M0MP39Milky201812moon__rapier8dynamics9RigidBody27reset__internal__references(body);
-  body$2.changes = _M0MP39Milky201812moon__rapier8dynamics16RigidBodyChanges3allN6recordS82615;
+  body$2.changes = _M0MP39Milky201812moon__rapier8dynamics16RigidBodyChanges3allN6recordS82631;
   const _bind$71 = _M0MPC15array5Array3popGiE(self.free_list);
   if (_bind$71 === undefined) {
     const index = self.bodies.len;
@@ -137191,7 +137207,7 @@ function _M0MP39Milky201812moon__rapier8dynamics7DVector10set__value(self, index
   }
   _bind$71.buf[_bind$72] = value;
 }
-function _M0MP39Milky201812moon__rapier8dynamics9Multibody15ensure__buffersN12copy__prefixS82688(src, dst, n) {
+function _M0MP39Milky201812moon__rapier8dynamics9Multibody15ensure__buffersN12copy__prefixS82704(src, dst, n) {
   const limit = src.len < n ? src.len : n;
   let _tmp = 0;
   while (true) {
@@ -137219,7 +137235,7 @@ function _M0MP39Milky201812moon__rapier8dynamics9Multibody15ensure__buffers(self
   }
   if (_tmp) {
     const new_vels = _M0MP39Milky201812moon__rapier8dynamics7DVector8from__fn(n, (_discard_) => Math.fround(0));
-    _M0MP39Milky201812moon__rapier8dynamics9Multibody15ensure__buffersN12copy__prefixS82688(self.velocities, new_vels, n);
+    _M0MP39Milky201812moon__rapier8dynamics9Multibody15ensure__buffersN12copy__prefixS82704(self.velocities, new_vels, n);
     self.velocities = new_vels;
   }
   let _tmp$2;
@@ -137231,7 +137247,7 @@ function _M0MP39Milky201812moon__rapier8dynamics9Multibody15ensure__buffers(self
   }
   if (_tmp$2) {
     const new_damping = _M0MP39Milky201812moon__rapier8dynamics7DVector8from__fn(n, (_discard_) => Math.fround(0));
-    _M0MP39Milky201812moon__rapier8dynamics9Multibody15ensure__buffersN12copy__prefixS82688(self.damping, new_damping, n);
+    _M0MP39Milky201812moon__rapier8dynamics9Multibody15ensure__buffersN12copy__prefixS82704(self.damping, new_damping, n);
     self.damping = new_damping;
   }
   let _tmp$3;
@@ -137243,13 +137259,13 @@ function _M0MP39Milky201812moon__rapier8dynamics9Multibody15ensure__buffers(self
   }
   if (_tmp$3) {
     const new_acc = _M0MP39Milky201812moon__rapier8dynamics7DVector8from__fn(n, (_discard_) => Math.fround(0));
-    _M0MP39Milky201812moon__rapier8dynamics9Multibody15ensure__buffersN12copy__prefixS82688(self.accelerations, new_acc, n);
+    _M0MP39Milky201812moon__rapier8dynamics9Multibody15ensure__buffersN12copy__prefixS82704(self.accelerations, new_acc, n);
     self.accelerations = new_acc;
   }
   self.inv_augmented_mass = _M0MP39Milky201812moon__rapier4core7DMatrix8identity(n);
 }
 function _M0FP39Milky201812moon__rapier8dynamics29multibody__joint__is__spatial(joint) {
-  const _p = _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__zN6recordS82061, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057);
+  const _p = _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__zN6recordS82077, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073);
   const extra_bits = _p.bits;
   const _p$2 = joint.data;
   const _p$3 = _p$2.locked_axes;
@@ -138560,7 +138576,7 @@ function _M0MP39Milky201812moon__rapier8dynamics12RigidBodySet14take__modified(s
   return result;
 }
 function _M0MP39Milky201812moon__rapier8dynamics16RopeJointBuilder16RopeJointBuilder(max_length) {
-  return new _M0TP39Milky201812moon__rapier8dynamics16RopeJointBuilder(max_length, _M0MP39Milky201812moon__rapier4core4Vec24zero(), _M0MP39Milky201812moon__rapier4core4Vec24zero(), _M0MP39Milky201812moon__rapier4core4Vec34zero(), _M0MP39Milky201812moon__rapier4core4Vec34zero(), false, _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients15joint__defaultsN6recordS82043, _M0MP39Milky201812moon__rapier8dynamics10JointMotor7default(), false);
+  return new _M0TP39Milky201812moon__rapier8dynamics16RopeJointBuilder(max_length, _M0MP39Milky201812moon__rapier4core4Vec24zero(), _M0MP39Milky201812moon__rapier4core4Vec24zero(), _M0MP39Milky201812moon__rapier4core4Vec34zero(), _M0MP39Milky201812moon__rapier4core4Vec34zero(), false, _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients15joint__defaultsN6recordS82059, _M0MP39Milky201812moon__rapier8dynamics10JointMotor7default(), false);
 }
 function _M0MP39Milky201812moon__rapier8dynamics16RopeJointBuilder14local__anchor1(self, anchor) {
   self.local_anchor1 = anchor;
@@ -139099,7 +139115,7 @@ function _M0MP39Milky201812moon__rapier8dynamics9RigidBody12set__enabled(self, e
   const _p = self.enabled;
   if (!(enabled === _p)) {
     if (enabled) {
-      self.changes = _M0MP39Milky201812moon__rapier8dynamics16RigidBodyChanges3allN6recordS82615;
+      self.changes = _M0MP39Milky201812moon__rapier8dynamics16RigidBodyChanges3allN6recordS82631;
     } else {
       self.changes = _M0MP39Milky201812moon__rapier8dynamics16RigidBodyChanges6insert(self.changes, 128);
     }
@@ -139203,7 +139219,7 @@ function _M0MP39Milky201812moon__rapier8dynamics16RigidBodyBuilder5build(self) {
   const activation = self.can_sleep ? _M0MP39Milky201812moon__rapier8dynamics19RigidBodyActivation6active() : _M0MP39Milky201812moon__rapier8dynamics19RigidBodyActivation13cannot__sleep();
   const forces = _M0MP39Milky201812moon__rapier8dynamics15RigidBodyForces7default();
   forces.gravity_scale = self.gravity_scale;
-  let rb = new _M0TP39Milky201812moon__rapier8dynamics9RigidBody(_M0MP39Milky201812moon__rapier8dynamics12RigidBodyIds7default(), self.user_data, pos, self.body_type, self.lock_translations, self.lock_rotations, _M0MP39Milky201812moon__rapier8dynamics18RigidBodyDominance18RigidBodyDominance(self.dominance_group), self.enabled, activation, new _M0TP39Milky201812moon__rapier8dynamics16RigidBodyDamping(self.linear_damping, self.angular_damping), new _M0TP39Milky201812moon__rapier8dynamics17RigidBodyVelocity(self.linvel, self.angvel), forces, _M0MP39Milky201812moon__rapier8dynamics12RigidBodyCcd7default(), _M0MP39Milky201812moon__rapier8dynamics18RigidBodyMassProps7default(), _M0MP39Milky201812moon__rapier8dynamics18RigidBodyColliders18RigidBodyColliders(), self.additional_mass, self.additional_solver_iterations, _M0MP39Milky201812moon__rapier8dynamics16RigidBodyChanges3allN6recordS82615);
+  let rb = new _M0TP39Milky201812moon__rapier8dynamics9RigidBody(_M0MP39Milky201812moon__rapier8dynamics12RigidBodyIds7default(), self.user_data, pos, self.body_type, self.lock_translations, self.lock_rotations, _M0MP39Milky201812moon__rapier8dynamics18RigidBodyDominance18RigidBodyDominance(self.dominance_group), self.enabled, activation, new _M0TP39Milky201812moon__rapier8dynamics16RigidBodyDamping(self.linear_damping, self.angular_damping), new _M0TP39Milky201812moon__rapier8dynamics17RigidBodyVelocity(self.linvel, self.angvel), forces, _M0MP39Milky201812moon__rapier8dynamics12RigidBodyCcd7default(), _M0MP39Milky201812moon__rapier8dynamics18RigidBodyMassProps7default(), _M0MP39Milky201812moon__rapier8dynamics18RigidBodyColliders18RigidBodyColliders(), self.additional_mass, self.additional_solver_iterations, _M0MP39Milky201812moon__rapier8dynamics16RigidBodyChanges3allN6recordS82631);
   rb.mass_props.additional_local_mprops = self.additional_local_mprops;
   _M0MP39Milky201812moon__rapier8dynamics9RigidBody44recompute__mass__properties__from__colliders(rb);
   rb = _M0MP39Milky201812moon__rapier8dynamics9RigidBody11enable__ccd(rb, self.ccd_enabled);
@@ -139220,7 +139236,7 @@ function _M0FP39Milky201812moon__rapier8dynamics35revolute__joint__axis3__or__de
   return _M0MP39Milky201812moon__rapier4core4Vec315length__squared(axis) > Math.fround(1e-12) ? _M0MP39Milky201812moon__rapier4core4Vec39normalize(axis) : _M0MP39Milky201812moon__rapier4core4Vec34Vec3(Math.fround(0), Math.fround(0), Math.fround(1));
 }
 function _M0MP39Milky201812moon__rapier8dynamics20RevoluteJointBuilder20RevoluteJointBuilder() {
-  return new _M0TP39Milky201812moon__rapier8dynamics20RevoluteJointBuilder(_M0MP39Milky201812moon__rapier4core4Vec24zero(), _M0MP39Milky201812moon__rapier4core4Vec24zero(), _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients15joint__defaultsN6recordS82043, _M0MP39Milky201812moon__rapier8dynamics10JointMotor7default(), false, _M0MP39Milky201812moon__rapier8dynamics11JointLimits7default(), false);
+  return new _M0TP39Milky201812moon__rapier8dynamics20RevoluteJointBuilder(_M0MP39Milky201812moon__rapier4core4Vec24zero(), _M0MP39Milky201812moon__rapier4core4Vec24zero(), _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients15joint__defaultsN6recordS82059, _M0MP39Milky201812moon__rapier8dynamics10JointMotor7default(), false, _M0MP39Milky201812moon__rapier8dynamics11JointLimits7default(), false);
 }
 function _M0MP39Milky201812moon__rapier8dynamics20RevoluteJointBuilder14local__anchor1(self, anchor) {
   self.local_anchor1 = anchor;
@@ -139270,7 +139286,7 @@ function _M0MP39Milky201812moon__rapier8dynamics20RevoluteJointBuilder5build(sel
 }
 function _M0MP39Milky201812moon__rapier8dynamics21PrismaticJointBuilder21PrismaticJointBuilder(axis) {
   const norm_axis = _M0MP39Milky201812moon__rapier4core4Vec215length__squared(axis) <= Math.fround(1e-12) ? _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)) : _M0MP39Milky201812moon__rapier4core4Vec29normalize(axis);
-  return new _M0TP39Milky201812moon__rapier8dynamics21PrismaticJointBuilder(norm_axis, _M0MP39Milky201812moon__rapier4core4Vec34Vec3(norm_axis.x, norm_axis.y, Math.fround(0)), _M0MP39Milky201812moon__rapier4core4Vec24zero(), _M0MP39Milky201812moon__rapier4core4Vec24zero(), _M0MP39Milky201812moon__rapier4core4Vec34zero(), _M0MP39Milky201812moon__rapier4core4Vec34zero(), _M0FP39Milky201812moon__rapier4core28rotation__from__scaled__axis(_M0MP39Milky201812moon__rapier4core4Vec34Vec3(Math.fround(0), Math.fround(0), _M0FP39Milky201812moon__rapier4core5atan2(norm_axis.y, norm_axis.x))), _M0FP39Milky201812moon__rapier4core28rotation__from__scaled__axis(_M0MP39Milky201812moon__rapier4core4Vec34Vec3(Math.fround(0), Math.fround(0), _M0FP39Milky201812moon__rapier4core5atan2(norm_axis.y, norm_axis.x))), false, _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients15joint__defaultsN6recordS82043, _M0MP39Milky201812moon__rapier8dynamics10JointMotor7default(), false, _M0MP39Milky201812moon__rapier8dynamics11JointLimits7default(), false);
+  return new _M0TP39Milky201812moon__rapier8dynamics21PrismaticJointBuilder(norm_axis, _M0MP39Milky201812moon__rapier4core4Vec34Vec3(norm_axis.x, norm_axis.y, Math.fround(0)), _M0MP39Milky201812moon__rapier4core4Vec24zero(), _M0MP39Milky201812moon__rapier4core4Vec24zero(), _M0MP39Milky201812moon__rapier4core4Vec34zero(), _M0MP39Milky201812moon__rapier4core4Vec34zero(), _M0FP39Milky201812moon__rapier4core28rotation__from__scaled__axis(_M0MP39Milky201812moon__rapier4core4Vec34Vec3(Math.fround(0), Math.fround(0), _M0FP39Milky201812moon__rapier4core5atan2(norm_axis.y, norm_axis.x))), _M0FP39Milky201812moon__rapier4core28rotation__from__scaled__axis(_M0MP39Milky201812moon__rapier4core4Vec34Vec3(Math.fround(0), Math.fround(0), _M0FP39Milky201812moon__rapier4core5atan2(norm_axis.y, norm_axis.x))), false, _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients15joint__defaultsN6recordS82059, _M0MP39Milky201812moon__rapier8dynamics10JointMotor7default(), false, _M0MP39Milky201812moon__rapier8dynamics11JointLimits7default(), false);
 }
 function _M0MP39Milky201812moon__rapier8dynamics21PrismaticJointBuilder14local__anchor1(self, anchor) {
   self.local_anchor1 = anchor;
@@ -139862,10 +139878,10 @@ function _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask22locked__revolut
   return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask9lin__axes();
 }
 function _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask10lin__axes3() {
-  return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask9lin__axes(), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__zN6recordS82061);
+  return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask9lin__axes(), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__zN6recordS82077);
 }
 function _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask23locked__revolute__axes3() {
-  return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask10lin__axes3(), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058);
+  return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask10lin__axes3(), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074);
 }
 function _M0MP39Milky201812moon__rapier8dynamics12GenericJoint12as__revolute(self) {
   const _p = self.locked_axes;
@@ -139885,10 +139901,10 @@ function _M0MP39Milky201812moon__rapier8dynamics12GenericJoint12as__revolute(sel
   }
 }
 function _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask23locked__prismatic__axes() {
-  return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058);
+  return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074);
 }
 function _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask24locked__prismatic__axes3() {
-  return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__zN6recordS82061), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058);
+  return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__zN6recordS82077), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074);
 }
 function _M0FP39Milky201812moon__rapier8dynamics24joint__limits__set__axis(limits, axis, value) {
   switch (axis) {
@@ -139918,7 +139934,7 @@ function _M0MP39Milky201812moon__rapier8dynamics12GenericJoint14from__revolute(j
   const frame1 = _M0MP39Milky201812moon__rapier4core9Isometry217from__translation(anchor1);
   const frame2 = _M0MP39Milky201812moon__rapier4core9Isometry217from__translation(anchor2);
   const motor_axis = joint.is_spatial ? 3 : 5;
-  const result = new _M0TP39Milky201812moon__rapier8dynamics12GenericJoint(frame1, frame2, joint.axis3, joint.local_anchor1_3, joint.local_anchor2_3, joint.local_frame1_rotation, joint.local_frame2_rotation, joint.is_spatial ? _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask23locked__revolute__axes3() : _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask22locked__revolute__axes(), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82036, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82036, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82036, _M0MP39Milky201812moon__rapier8dynamics12JointLimits37default(), _M0MP39Milky201812moon__rapier8dynamics12JointMotors37default(), joint.softness, true, 0, 0);
+  const result = new _M0TP39Milky201812moon__rapier8dynamics12GenericJoint(frame1, frame2, joint.axis3, joint.local_anchor1_3, joint.local_anchor2_3, joint.local_frame1_rotation, joint.local_frame2_rotation, joint.is_spatial ? _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask23locked__revolute__axes3() : _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask22locked__revolute__axes(), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82052, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82052, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82052, _M0MP39Milky201812moon__rapier8dynamics12JointLimits37default(), _M0MP39Milky201812moon__rapier8dynamics12JointMotors37default(), joint.softness, true, 0, 0);
   const _bind$71 = joint.motor_enabled ? joint.motor : undefined;
   if (_bind$71 === undefined) {
   } else {
@@ -140197,35 +140213,35 @@ function _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask12intersection(se
   return new _M0TP39Milky201812moon__rapier8dynamics13JointAxesMask(self.bits & other.bits);
 }
 function _M0FP39Milky201812moon__rapier8dynamics37impulse__joint__solver__angular__axis(data) {
-  const spatial_axes = _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask12intersection(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(data.locked_axes, data.limit_axes), data.motor_axes), data.coupled_axes), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__zN6recordS82061, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057)));
+  const spatial_axes = _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask12intersection(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(data.locked_axes, data.limit_axes), data.motor_axes), data.coupled_axes), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__zN6recordS82077, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073)));
   if (spatial_axes.bits === 0) {
     return 5;
   }
   const locked_axes = data.locked_axes;
-  if (!((locked_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056.bits)) {
+  if (!((locked_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072.bits)) {
     return 3;
   }
-  if (!((locked_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057.bits)) {
+  if (!((locked_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073.bits)) {
     return 4;
   }
-  if (!((locked_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058.bits)) {
+  if (!((locked_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074.bits)) {
     return 5;
   }
   const motor_axes = data.motor_axes;
-  if ((motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056.bits) {
+  if ((motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072.bits) {
     return 3;
   }
-  if ((motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057.bits) {
+  if ((motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073.bits) {
     return 4;
   }
-  if ((motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058.bits) {
+  if ((motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074.bits) {
     return 5;
   }
   const limit_axes = data.limit_axes;
-  if ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056.bits) {
+  if ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072.bits) {
     return 3;
   }
-  if ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057.bits) {
+  if ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073.bits) {
     return 4;
   }
   return 5;
@@ -140381,7 +140397,7 @@ function _M0MP39Milky201812moon__rapier8dynamics15ImpulseJointSet15joints__betwe
   return new _M0TPB5ArrayGURP39Milky201812moon__rapier8dynamics18ImpulseJointHandleRP39Milky201812moon__rapier8dynamics12ImpulseJointEE([], 0);
 }
 function _M0MP39Milky201812moon__rapier8dynamics14MultibodyJoint14MultibodyJoint(data, kinematic) {
-  return new _M0TP39Milky201812moon__rapier8dynamics14MultibodyJoint(data, kinematic, _M0MP39Milky201812moon__rapier4core4Vec24zero(), Math.fround(0), _M0MP39Milky201812moon__rapier4core4Rot28identityN6recordS81852, _M0MP39Milky201812moon__rapier4core4Vec34zero(), _M0MP39Milky201812moon__rapier4core4Vec34zero(), _M0MP39Milky201812moon__rapier4core4Quat8identity(), data.axis3, data.local_anchor1_3, data.local_anchor2_3, data.local_frame1_rotation, data.local_frame2_rotation, _M0MP39Milky201812moon__rapier4core4Vec24zero());
+  return new _M0TP39Milky201812moon__rapier8dynamics14MultibodyJoint(data, kinematic, _M0MP39Milky201812moon__rapier4core4Vec24zero(), Math.fround(0), _M0MP39Milky201812moon__rapier4core4Rot28identityN6recordS81868, _M0MP39Milky201812moon__rapier4core4Vec34zero(), _M0MP39Milky201812moon__rapier4core4Vec34zero(), _M0MP39Milky201812moon__rapier4core4Quat8identity(), data.axis3, data.local_anchor1_3, data.local_anchor2_3, data.local_frame1_rotation, data.local_frame2_rotation, _M0MP39Milky201812moon__rapier4core4Vec24zero());
 }
 function _M0MP39Milky201812moon__rapier8dynamics14MultibodyJoint19as__revolute__joint(self) {
   const _p = self.data;
@@ -140390,10 +140406,10 @@ function _M0MP39Milky201812moon__rapier8dynamics14MultibodyJoint19as__revolute__
   const _p$3 = _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask23locked__revolute__axes3();
   const spatial = _tmp === _p$3.bits;
   const _p$4 = self.data.motor_axes;
-  const _p$5 = spatial ? _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056 : _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058;
+  const _p$5 = spatial ? _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072 : _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074;
   const motor_enabled = (_p$4.bits & _p$5.bits) === _p$5.bits;
   const _p$6 = self.data.limit_axes;
-  const _p$7 = spatial ? _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056 : _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058;
+  const _p$7 = spatial ? _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072 : _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074;
   const limits_enabled = (_p$6.bits & _p$7.bits) === _p$7.bits;
   const limits = spatial ? self.data.limits.ang_x : self.data.limits.ang_z;
   const motor = spatial ? self.data.motors.ang_x : self.data.motors.ang_z;
@@ -140523,7 +140539,7 @@ function _M0MP39Milky201812moon__rapier8dynamics14MultibodyJoint19apply__displac
     self.joint_rot3 = _M0FP39Milky201812moon__rapier4core28rotation__from__scaled__axis(self.ang_coords3);
     return;
   } else {
-    if ((locked & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058.bits) === 0 && curr < disp.len) {
+    if ((locked & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074.bits) === 0 && curr < disp.len) {
       const _tmp = self.angle;
       const _bind$71 = curr;
       if (_bind$71 < 0 || _bind$71 >= disp.len) {
@@ -140557,7 +140573,7 @@ function _M0MP39Milky201812moon__rapier8dynamics8Jacobian12ensure__cols(self, co
         if (i < 0 || i >= _bind$72.len) {
           $panic();
         }
-        _bind$72.buf[i] = _M0MP39Milky201812moon__rapier8dynamics8Jacobian12ensure__colsN7_2abindS83831;
+        _bind$72.buf[i] = _M0MP39Milky201812moon__rapier8dynamics8Jacobian12ensure__colsN7_2abindS83847;
         _tmp = i + 1 | 0;
         continue;
       } else {
@@ -140604,8 +140620,8 @@ function _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients10cfm__coeff
   if (erp === Math.fround(0)) {
     return Math.fround(0);
   } else {
-    const inv_erp_minus_one = Math.fround(Math.fround(_M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients10cfm__coeffN3oneS83853 / erp) - _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients10cfm__coeffN3oneS83853);
-    const denom = Math.fround(Math.fround(Math.fround(Math.fround(_M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients10cfm__coeffN3oneS83853 + inv_erp_minus_one) * Math.fround(4)) * self.damping_ratio) * self.damping_ratio);
+    const inv_erp_minus_one = Math.fround(Math.fround(_M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients10cfm__coeffN3oneS83869 / erp) - _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients10cfm__coeffN3oneS83869);
+    const denom = Math.fround(Math.fround(Math.fround(Math.fround(_M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients10cfm__coeffN3oneS83869 + inv_erp_minus_one) * Math.fround(4)) * self.damping_ratio) * self.damping_ratio);
     return denom === Math.fround(0) ? Math.fround(0) : Math.fround(Math.fround(inv_erp_minus_one * inv_erp_minus_one) / denom);
   }
 }
@@ -140784,7 +140800,7 @@ function _M0FP39Milky201812moon__rapier8dynamics30dmatrix__inverse__or__identity
           break;
         }
       }
-      if (best_abs <= _M0FP39Milky201812moon__rapier8dynamics30dmatrix__inverse__or__identityN3epsS83901) {
+      if (best_abs <= _M0FP39Milky201812moon__rapier8dynamics30dmatrix__inverse__or__identityN3epsS83917) {
         let out = _M0MP39Milky201812moon__rapier4core7DMatrix5zeros(n, n);
         let _tmp$4 = 0;
         while (true) {
@@ -140792,7 +140808,7 @@ function _M0FP39Milky201812moon__rapier8dynamics30dmatrix__inverse__or__identity
           if (i < n) {
             const _p$2 = _M0FP39Milky201812moon__rapier8dynamics22dmatrix__get__or__zero(matrix, i, i);
             const diag = _p$2 < Math.fround(0) ? -_p$2 : _p$2;
-            const inv = diag <= _M0FP39Milky201812moon__rapier8dynamics30dmatrix__inverse__or__identityN3epsS83901 ? Math.fround(1) : Math.fround(Math.fround(1) / diag);
+            const inv = diag <= _M0FP39Milky201812moon__rapier8dynamics30dmatrix__inverse__or__identityN3epsS83917 ? Math.fround(1) : Math.fround(Math.fround(1) / diag);
             out = _M0MP39Milky201812moon__rapier4core7DMatrix3set(out, i, i, inv);
             _tmp$4 = i + 1 | 0;
             continue;
@@ -141675,7 +141691,7 @@ function _M0MP39Milky201812moon__rapier8dynamics17MultibodyJointSet3get(self, ha
   }
 }
 function _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask9ang__axes() {
-  return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058;
+  return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074;
 }
 function _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask3all() {
   return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask9lin__axes(), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask9ang__axes());
@@ -141702,7 +141718,7 @@ function _M0MP39Milky201812moon__rapier8dynamics12GenericJoint11from__fixed(join
 function _M0MP39Milky201812moon__rapier8dynamics12GenericJoint10from__rope(joint) {
   const frame1 = _M0MP39Milky201812moon__rapier4core9Isometry217from__translation(joint.local_anchor1);
   const frame2 = _M0MP39Milky201812moon__rapier4core9Isometry217from__translation(joint.local_anchor2);
-  let result = new _M0TP39Milky201812moon__rapier8dynamics12GenericJoint(frame1, frame2, _M0MP39Milky201812moon__rapier4core4Vec34Vec3(Math.fround(1), Math.fround(0), Math.fround(0)), joint.local_anchor1_3, joint.local_anchor2_3, _M0MP39Milky201812moon__rapier4core4Quat8identity(), _M0MP39Milky201812moon__rapier4core4Quat8identity(), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82036, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82036, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82036, joint.is_spatial ? _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask10lin__axes3() : _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask9lin__axes(), _M0MP39Milky201812moon__rapier8dynamics12JointLimits37default(), _M0MP39Milky201812moon__rapier8dynamics12JointMotors37default(), joint.softness, true, 0, 0);
+  let result = new _M0TP39Milky201812moon__rapier8dynamics12GenericJoint(frame1, frame2, _M0MP39Milky201812moon__rapier4core4Vec34Vec3(Math.fround(1), Math.fround(0), Math.fround(0)), joint.local_anchor1_3, joint.local_anchor2_3, _M0MP39Milky201812moon__rapier4core4Quat8identity(), _M0MP39Milky201812moon__rapier4core4Quat8identity(), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82052, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82052, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82052, joint.is_spatial ? _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask10lin__axes3() : _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask9lin__axes(), _M0MP39Milky201812moon__rapier8dynamics12JointLimits37default(), _M0MP39Milky201812moon__rapier8dynamics12JointMotors37default(), joint.softness, true, 0, 0);
   result = _M0MP39Milky201812moon__rapier8dynamics12GenericJoint17set__limits__axis(result, 0, Math.fround(0), joint.max_length);
   if (joint.motor_enabled) {
     result = _M0MP39Milky201812moon__rapier8dynamics12GenericJoint22set__motor__max__force(_M0MP39Milky201812moon__rapier8dynamics12GenericJoint17set__motor__model(_M0MP39Milky201812moon__rapier8dynamics12GenericJoint10set__motor(result, 0, joint.motor.target_pos, joint.motor.target_vel, joint.motor.stiffness, joint.motor.damping), 0, joint.motor.model), 0, joint.motor.max_force);
@@ -141713,14 +141729,14 @@ function _M0MP39Milky201812moon__rapier8dynamics12GenericJoint15from__prismatic(
   const angle = _M0FP39Milky201812moon__rapier4core5atan2(joint.axis.y, joint.axis.x);
   const frame1 = _M0MP39Milky201812moon__rapier4core9Isometry29Isometry2(joint.local_anchor1, _M0MP39Milky201812moon__rapier4core4Rot211from__angle(angle));
   const frame2 = _M0MP39Milky201812moon__rapier4core9Isometry217from__translation(joint.local_anchor2);
-  let result = new _M0TP39Milky201812moon__rapier8dynamics12GenericJoint(frame1, frame2, joint.axis3, joint.local_anchor1_3, joint.local_anchor2_3, joint.local_frame1_rotation, joint.local_frame2_rotation, joint.is_spatial ? _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask24locked__prismatic__axes3() : _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask23locked__prismatic__axes(), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82036, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82036, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82036, _M0MP39Milky201812moon__rapier8dynamics12JointLimits37default(), _M0MP39Milky201812moon__rapier8dynamics12JointMotors37default(), joint.softness, true, 0, 0);
+  let result = new _M0TP39Milky201812moon__rapier8dynamics12GenericJoint(frame1, frame2, joint.axis3, joint.local_anchor1_3, joint.local_anchor2_3, joint.local_frame1_rotation, joint.local_frame2_rotation, joint.is_spatial ? _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask24locked__prismatic__axes3() : _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask23locked__prismatic__axes(), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82052, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82052, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask5emptyN6recordS82052, _M0MP39Milky201812moon__rapier8dynamics12JointLimits37default(), _M0MP39Milky201812moon__rapier8dynamics12JointMotors37default(), joint.softness, true, 0, 0);
   if (joint.motor_enabled) {
     result = _M0MP39Milky201812moon__rapier8dynamics12GenericJoint22set__motor__max__force(_M0MP39Milky201812moon__rapier8dynamics12GenericJoint17set__motor__model(_M0MP39Milky201812moon__rapier8dynamics12GenericJoint10set__motor(result, 0, joint.motor.target_pos, joint.motor.target_vel, joint.motor.stiffness, joint.motor.damping), 0, joint.motor.model), 0, joint.motor.max_force);
   }
   if (joint.limits_enabled) {
     const _p = result;
     const limits = _p.limits;
-    result = _M0MP39Milky201812moon__rapier8dynamics12GenericJoint11set__limits(_M0MP39Milky201812moon__rapier8dynamics12GenericJoint16set__limit__axes(result, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059), new _M0TP39Milky201812moon__rapier8dynamics12JointLimits3(joint.limits, limits.lin_y, limits.lin_z, limits.ang_x, limits.ang_y, limits.ang_z));
+    result = _M0MP39Milky201812moon__rapier8dynamics12GenericJoint11set__limits(_M0MP39Milky201812moon__rapier8dynamics12GenericJoint16set__limit__axes(result, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075), new _M0TP39Milky201812moon__rapier8dynamics12JointLimits3(joint.limits, limits.lin_y, limits.lin_z, limits.ang_x, limits.ang_y, limits.ang_z));
   }
   return result;
 }
@@ -141880,9 +141896,9 @@ function _M0MP39Milky201812moon__rapier8dynamics17InteractionGroups12test__group
 function _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7default() {
   const _bind$71 = Math.fround(Math.fround(1) / Math.fround(60));
   const _bind$72 = Math.fround(Math.fround(Math.fround(1) / Math.fround(60)) / Math.fround(100));
-  const _bind$73 = _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients17contact__defaultsN6recordS84252;
+  const _bind$73 = _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients17contact__defaultsN6recordS84268;
   const _bind$74 = 0;
-  return new _M0TP39Milky201812moon__rapier8dynamics21IntegrationParameters(_bind$71, _bind$72, _bind$73, _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84253, _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84257, _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84254, _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84255, _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84256, 4, 1, 1, 128, 1, _bind$74);
+  return new _M0TP39Milky201812moon__rapier8dynamics21IntegrationParameters(_bind$71, _bind$72, _bind$73, _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84269, _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84273, _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84270, _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84271, _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84272, 4, 1, 1, 128, 1, _bind$74);
 }
 function _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7set__dt(self, dt) {
   self.dt = dt;
@@ -141957,13 +141973,13 @@ function _M0MP39Milky201812moon__rapier9collision11ActiveHooks5empty() {
   return new _M0TP39Milky201812moon__rapier9collision11ActiveHooks(0);
 }
 function _M0FP39Milky201812moon__rapier9collision30collider__builder__with__shape(shape) {
-  return new _M0TP39Milky201812moon__rapier9collision15ColliderBuilder(shape, _M0MP39Milky201812moon__rapier4core4Vec24zero(), Math.fround(0), _M0MP39Milky201812moon__rapier9collision20ActiveCollisionTypes7defaultN6recordS84285, false, _M0MP39Milky201812moon__rapier9collision12ActiveEvents5empty(), _M0MP39Milky201812moon__rapier9collision11ActiveHooks5empty(), _M0MP39Milky201812moon__rapier8dynamics17InteractionGroups3all(), _M0MP39Milky201812moon__rapier8dynamics17InteractionGroups3all(), Math.fround(1), Math.fround(0.5), 0, Math.fround(0), 0, Math.fround(0), Math.fround(0), _M0MP39Milky201812moon__rapier4core11UserData1284zero(), true);
+  return new _M0TP39Milky201812moon__rapier9collision15ColliderBuilder(shape, _M0MP39Milky201812moon__rapier4core4Vec24zero(), Math.fround(0), _M0MP39Milky201812moon__rapier9collision20ActiveCollisionTypes7defaultN6recordS84301, false, _M0MP39Milky201812moon__rapier9collision12ActiveEvents5empty(), _M0MP39Milky201812moon__rapier9collision11ActiveHooks5empty(), _M0MP39Milky201812moon__rapier8dynamics17InteractionGroups3all(), _M0MP39Milky201812moon__rapier8dynamics17InteractionGroups3all(), Math.fround(1), Math.fround(0.5), 0, Math.fround(0), 0, Math.fround(0), Math.fround(0), _M0MP39Milky201812moon__rapier4core11UserData1284zero(), true);
 }
 function _M0MP39Milky201812moon__rapier9collision15ColliderBuilder15ColliderBuilder(shape) {
   return _M0FP39Milky201812moon__rapier9collision30collider__builder__with__shape(shape);
 }
 function _M0MP39Milky201812moon__rapier9collision11SolverFlags7default() {
-  return _M0MP39Milky201812moon__rapier9collision11SolverFlags17compute__impulsesN6recordS84289;
+  return _M0MP39Milky201812moon__rapier9collision11SolverFlags17compute__impulsesN6recordS84305;
 }
 function _M0MP39Milky201812moon__rapier9collision13SolverContact13SolverContact(point, dist) {
   return new _M0TP39Milky201812moon__rapier9collision13SolverContact(point, dist, Math.fround(0), Math.fround(0), _M0MP39Milky201812moon__rapier4core4Vec24zero());
@@ -142608,7 +142624,7 @@ function _M0FP39Milky201812moon__rapier9collision20ray__intersect__ball(ray, cen
   const c = Math.fround(Math.fround(Math.fround(m.x * m.x) + Math.fround(m.y * m.y)) - Math.fround(radius * radius));
   if (c <= Math.fround(0)) {
     if (solid) {
-      return _M0FP39Milky201812moon__rapier9collision20ray__intersect__ballN6constrS84578;
+      return _M0FP39Milky201812moon__rapier9collision20ray__intersect__ballN6constrS84594;
     }
     const disc = Math.fround(Math.fround(b * b) - Math.fround(a * c));
     if (disc < Math.fround(0)) {
@@ -142788,7 +142804,7 @@ function _M0FP39Milky201812moon__rapier9collision33point__in__convex__polygon__l
       const b = vertices.buf[_bind$72];
       const e = _M0MP39Milky201812moon__rapier4core4Vec23sub(b, a);
       const _p = _M0MP39Milky201812moon__rapier4core4Vec23sub(point, a);
-      if (Math.fround(Math.fround(e.x * _p.y) - Math.fround(e.y * _p.x)) < -_M0FP39Milky201812moon__rapier9collision33point__in__convex__polygon__localN3epsS84664) {
+      if (Math.fround(Math.fround(e.x * _p.y) - Math.fround(e.y * _p.x)) < -_M0FP39Milky201812moon__rapier9collision33point__in__convex__polygon__localN3epsS84680) {
         return false;
       }
       _tmp = i + 1 | 0;
@@ -143615,7 +143631,7 @@ function _M0FP39Milky201812moon__rapier9collision29shape__cast__against__capsule
   }
   return best;
 }
-function _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN9best__hitS85099(current, candidate) {
+function _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN9best__hitS85115(current, candidate) {
   if (candidate === undefined) {
     return current;
   }
@@ -143638,7 +143654,7 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN9b
   }
   return n.toi < c.toi ? candidate : current;
 }
-function _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN21cast__against__targetS85100(_env, target_center, target_rotation, target_shape) {
+function _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN21cast__against__targetS85116(_env, target_center, target_rotation, target_shape) {
   const moving_shape = _env._4;
   const max_toi = _env._3;
   const shape_pos = _env._2;
@@ -143670,7 +143686,7 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN21
             const w = _M0MP39Milky201812moon__rapier4core9Isometry23mul(parent_iso, _pose);
             const p = _M0FP39Milky201812moon__rapier9collision22isometry2__translation(w);
             const r = _M0FP39Milky201812moon__rapier9collision26isometry2__rotation__angle(w);
-            best = _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN9best__hitS85099(best, _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN21cast__against__targetS85100(_env, p, r, _part_shape));
+            best = _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN9best__hitS85115(best, _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN21cast__against__targetS85116(_env, p, r, _part_shape));
             _tmp$2 = i + 1 | 0;
             continue;
           } else {
@@ -143741,11 +143757,11 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN21
         const seg_len = _M0MP39Milky201812moon__rapier4core4Vec26length(seg_dir);
         let segment_components = new _M0TPB5ArrayGURP39Milky201812moon__rapier9collision5ShapeRP39Milky201812moon__rapier4core4Vec2fEE([], 0);
         if (seg_len <= Math.fround(1e-06)) {
-          segment_components = new _M0TPB5ArrayGURP39Milky201812moon__rapier9collision5ShapeRP39Milky201812moon__rapier4core4Vec2fEE([{ _0: new _M0DTP39Milky201812moon__rapier9collision5Shape4Ball(_M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN11seg__radiusS85101), _1: _sa, _2: Math.fround(0) }], 1);
+          segment_components = new _M0TPB5ArrayGURP39Milky201812moon__rapier9collision5ShapeRP39Milky201812moon__rapier4core4Vec2fEE([{ _0: new _M0DTP39Milky201812moon__rapier9collision5Shape4Ball(_M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN11seg__radiusS85117), _1: _sa, _2: Math.fround(0) }], 1);
         } else {
           const angle = _M0FP39Milky201812moon__rapier9collision11atan2__real(seg_dir.y, seg_dir.x);
           const mid = _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(Math.fround(0.5) * Math.fround(_sa.x + _sb.x)), Math.fround(Math.fround(0.5) * Math.fround(_sa.y + _sb.y)));
-          segment_components = new _M0TPB5ArrayGURP39Milky201812moon__rapier9collision5ShapeRP39Milky201812moon__rapier4core4Vec2fEE([{ _0: new _M0DTP39Milky201812moon__rapier9collision5Shape4Ball(_M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN11seg__radiusS85101), _1: _sa, _2: Math.fround(0) }, { _0: new _M0DTP39Milky201812moon__rapier9collision5Shape4Ball(_M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN11seg__radiusS85101), _1: _sb, _2: Math.fround(0) }, { _0: new _M0DTP39Milky201812moon__rapier9collision5Shape6Cuboid(Math.fround(Math.fround(0.5) * seg_len), _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN11seg__radiusS85101), _1: mid, _2: angle }], 3);
+          segment_components = new _M0TPB5ArrayGURP39Milky201812moon__rapier9collision5ShapeRP39Milky201812moon__rapier4core4Vec2fEE([{ _0: new _M0DTP39Milky201812moon__rapier9collision5Shape4Ball(_M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN11seg__radiusS85117), _1: _sa, _2: Math.fround(0) }, { _0: new _M0DTP39Milky201812moon__rapier9collision5Shape4Ball(_M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN11seg__radiusS85117), _1: _sb, _2: Math.fround(0) }, { _0: new _M0DTP39Milky201812moon__rapier9collision5Shape6Cuboid(Math.fround(Math.fround(0.5) * seg_len), _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN11seg__radiusS85117), _1: mid, _2: angle }], 3);
         }
         let moving_components = new _M0TPB5ArrayGURP39Milky201812moon__rapier9collision5ShapeRP39Milky201812moon__rapier4core9Isometry2EE([{ _0: moving_shape, _1: shape_pos }], 1);
         switch (moving_shape.$tag) {
@@ -143779,7 +143795,7 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN21
             if (_bind$75.$tag === 0) {
               const _Ball = _bind$75;
               const _r$3 = _Ball._0;
-              best$2 = _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN9best__hitS85099(best$2, _M0FP39Milky201812moon__rapier9collision26shape__cast__ball__segment(comp._1.translation, shape_vel, _r$3, _sa, _sb, _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN11seg__radiusS85101, max_toi, options.stop_at_penetration));
+              best$2 = _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN9best__hitS85115(best$2, _M0FP39Milky201812moon__rapier9collision26shape__cast__ball__segment(comp._1.translation, shape_vel, _r$3, _sa, _sb, _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN11seg__radiusS85117, max_toi, options.stop_at_penetration));
             } else {
               const _bind$76 = segment_components.len;
               let _tmp$4 = 0;
@@ -143791,7 +143807,7 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN21
                     $panic();
                   }
                   const seg_comp = _bind$77.buf[sj];
-                  best$2 = _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN9best__hitS85099(best$2, _M0FP39Milky201812moon__rapier9collision18shape__cast__basic(comp._1, shape_vel, comp._0, seg_comp._1, seg_comp._2, seg_comp._0, max_toi, options.stop_at_penetration));
+                  best$2 = _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN9best__hitS85115(best$2, _M0FP39Milky201812moon__rapier9collision18shape__cast__basic(comp._1, shape_vel, comp._0, seg_comp._1, seg_comp._2, seg_comp._0, max_toi, options.stop_at_penetration));
                   _tmp$4 = sj + 1 | 0;
                   continue;
                 } else {
@@ -143898,7 +143914,7 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN21
                         h2 = _M0FP39Milky201812moon__rapier9collision18shape__cast__basic(comp_pos, shape_vel, comp_shape, target_center, target_rotation, target_shape$2, max_toi, options.stop_at_penetration);
                       }
                     }
-                    best_hit2 = _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN9best__hitS85099(best_hit2, h2);
+                    best_hit2 = _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN9best__hitS85115(best_hit2, h2);
                     _tmp$4 = ci + 1 | 0;
                     continue;
                   } else {
@@ -143944,7 +143960,7 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN21
                         h2 = _M0FP39Milky201812moon__rapier9collision18shape__cast__basic(comp_pos, shape_vel, comp_shape, target_center, target_rotation, target_shape$2, max_toi, options.stop_at_penetration);
                       }
                     }
-                    best_hit2$2 = _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN9best__hitS85099(best_hit2$2, h2);
+                    best_hit2$2 = _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN9best__hitS85115(best_hit2$2, h2);
                     _tmp$5 = ci + 1 | 0;
                     continue;
                   } else {
@@ -144058,7 +144074,7 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shape(se
               break _L;
             }
             const _env = { _0: shape_vel, _1: options, _2: shape_pos, _3: max_toi, _4: moving_shape };
-            const hit = _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN21cast__against__targetS85100(_env, _collider.world_translation, _collider.world_rotation, _collider.shape);
+            const hit = _M0MP39Milky201812moon__rapier9collision13QueryPipeline11cast__shapeN21cast__against__targetS85116(_env, _collider.world_translation, _collider.world_rotation, _collider.shape);
             if (hit === undefined) {
             } else {
               const _Some$2 = hit;
@@ -144112,7 +144128,7 @@ function _M0FP39Milky201812moon__rapier9collision29contact__manifold__ball__ball
   const world_p2 = _M0MP39Milky201812moon__rapier4core4Vec23sub(p2, _M0FP39Milky201812moon__rapier9collision11vec2__scale(normal, radius2));
   const local_p1 = _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(collider1)), world_p1);
   const local_p2 = _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(collider2)), world_p2);
-  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(local_p1, local_p2, signed_dist, _M0FP39Milky201812moon__rapier9collision29contact__manifold__ball__ballN6constrS85291, _M0FP39Milky201812moon__rapier9collision29contact__manifold__ball__ballN6constrS85292, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
+  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(local_p1, local_p2, signed_dist, _M0FP39Milky201812moon__rapier9collision29contact__manifold__ball__ballN6constrS85307, _M0FP39Milky201812moon__rapier9collision29contact__manifold__ball__ballN6constrS85308, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
 }
 function _M0FP39Milky201812moon__rapier9collision40closest__point__on__segment__with__param(a, b, p) {
   const ab = _M0MP39Milky201812moon__rapier4core4Vec23sub(b, a);
@@ -144139,7 +144155,7 @@ function _M0FP39Milky201812moon__rapier9collision32contact__manifold__ball__caps
   const signed_dist = Math.fround(dist - Math.fround(radius_ball + radius_capsule));
   const world_p1 = _M0MP39Milky201812moon__rapier4core4Vec23add(ball_center, _M0FP39Milky201812moon__rapier9collision11vec2__scale(normal, radius_ball));
   const world_p2 = _M0MP39Milky201812moon__rapier4core4Vec23sub(_q, _M0FP39Milky201812moon__rapier9collision11vec2__scale(normal, radius_capsule));
-  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(ball)), world_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(capsule)), world_p2), signed_dist, _M0FP39Milky201812moon__rapier9collision32contact__manifold__ball__capsuleN6constrS85313, _t <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85280 : _t >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85281 : _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85282, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
+  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(ball)), world_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(capsule)), world_p2), signed_dist, _M0FP39Milky201812moon__rapier9collision32contact__manifold__ball__capsuleN6constrS85329, _t <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85296 : _t >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85297 : _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85298, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
 }
 function _M0FP39Milky201812moon__rapier9collision64project__point__on__convex__polygon__oriented__and__get__feature(center, rotation, vertices, point, solid) {
   const rot = _M0MP39Milky201812moon__rapier4core4Rot211from__angle(rotation);
@@ -144181,7 +144197,7 @@ function _M0FP39Milky201812moon__rapier9collision64project__point__on__convex__p
       if (dist2 < best_dist2) {
         best_dist2 = dist2;
         best_local = proj;
-        best_feature = t <= _M0FP39Milky201812moon__rapier9collision64project__point__on__convex__polygon__oriented__and__get__featureN3epsS85333 ? new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(i) : t >= Math.fround(Math.fround(1) - _M0FP39Milky201812moon__rapier9collision64project__point__on__convex__polygon__oriented__and__get__featureN3epsS85333) ? new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex((i + 1 | 0) % vertices.len | 0) : new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(i);
+        best_feature = t <= _M0FP39Milky201812moon__rapier9collision64project__point__on__convex__polygon__oriented__and__get__featureN3epsS85349 ? new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex(i) : t >= Math.fround(Math.fround(1) - _M0FP39Milky201812moon__rapier9collision64project__point__on__convex__polygon__oriented__and__get__featureN3epsS85349) ? new _M0DTP39Milky201812moon__rapier9collision9FeatureId6Vertex((i + 1 | 0) % vertices.len | 0) : new _M0DTP39Milky201812moon__rapier9collision9FeatureId4Edge(i);
       }
       _tmp = i + 1 | 0;
       continue;
@@ -144203,7 +144219,7 @@ function _M0FP39Milky201812moon__rapier9collision40contact__manifold__ball__conv
   const normal = _M0FP39Milky201812moon__rapier9collision23normalize__or__fallback(d, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)));
   const signed_dist = Math.fround(dist - radius);
   const world_p1 = _M0MP39Milky201812moon__rapier4core4Vec23add(ball_center, _M0FP39Milky201812moon__rapier9collision11vec2__scale(normal, radius));
-  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(ball)), world_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(poly)), closest), signed_dist, _M0FP39Milky201812moon__rapier9collision40contact__manifold__ball__convex__polygonN6constrS85359, _feature2, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
+  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(ball)), world_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(poly)), closest), signed_dist, _M0FP39Milky201812moon__rapier9collision40contact__manifold__ball__convex__polygonN6constrS85375, _feature2, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
 }
 function _M0FP39Milky201812moon__rapier9collision55project__point__on__cuboid__oriented__and__get__feature(center, rotation, half_width, half_height, point, solid) {
   const rot = _M0MP39Milky201812moon__rapier4core4Rot211from__angle(rotation);
@@ -144306,7 +144322,7 @@ function _M0FP39Milky201812moon__rapier9collision31contact__manifold__ball__cubo
   const world_p1 = _M0MP39Milky201812moon__rapier4core4Vec23add(ball_center, _M0FP39Milky201812moon__rapier9collision11vec2__scale(normal, radius));
   const local_p1 = _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(ball)), world_p1);
   const local_p2 = _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(cuboid)), closest);
-  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(local_p1, local_p2, signed_dist, _M0FP39Milky201812moon__rapier9collision31contact__manifold__ball__cuboidN6constrS85397, _feature2, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
+  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(local_p1, local_p2, signed_dist, _M0FP39Milky201812moon__rapier9collision31contact__manifold__ball__cuboidN6constrS85413, _feature2, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
 }
 function _M0FP39Milky201812moon__rapier9collision46project__point__on__segment__and__get__feature(center, rotation, a, b, point) {
   const _bind$71 = _M0FP39Milky201812moon__rapier9collision25segment__world__endpoints(center, rotation, a, b);
@@ -144320,7 +144336,7 @@ function _M0FP39Milky201812moon__rapier9collision46project__point__on__segment__
     t = _M0FP39Milky201812moon__rapier9collision12clamp__value(Math.fround(Math.fround(Math.fround(_p.x * ab.x) + Math.fround(_p.y * ab.y)) / denom), Math.fround(0), Math.fround(1));
   }
   const q = _M0MP39Milky201812moon__rapier4core4Vec23add(_wa, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(ab.x * t), Math.fround(ab.y * t)));
-  const feature = t <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision46project__point__on__segment__and__get__featureN6constrS85416 : t >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision46project__point__on__segment__and__get__featureN6constrS85417 : _M0FP39Milky201812moon__rapier9collision46project__point__on__segment__and__get__featureN6constrS85418;
+  const feature = t <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision46project__point__on__segment__and__get__featureN6constrS85432 : t >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision46project__point__on__segment__and__get__featureN6constrS85433 : _M0FP39Milky201812moon__rapier9collision46project__point__on__segment__and__get__featureN6constrS85434;
   return { _0: new _M0TP39Milky201812moon__rapier9collision15PointProjection(q, false), _1: feature };
 }
 function _M0FP39Milky201812moon__rapier9collision32contact__manifold__segment__ball(segment, a, b, ball, radius) {
@@ -144334,9 +144350,9 @@ function _M0FP39Milky201812moon__rapier9collision32contact__manifold__segment__b
   const normal = _M0FP39Milky201812moon__rapier9collision23normalize__or__fallback(d, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)));
   const signed_dist = Math.fround(dist - radius);
   const world_p2 = _M0MP39Milky201812moon__rapier4core4Vec23sub(ball_center, _M0FP39Milky201812moon__rapier9collision11vec2__scale(normal, radius));
-  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(segment)), closest), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(ball)), world_p2), signed_dist, _seg_feature, _M0FP39Milky201812moon__rapier9collision32contact__manifold__segment__ballN6constrS85432, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
+  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(segment)), closest), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(ball)), world_p2), signed_dist, _seg_feature, _M0FP39Milky201812moon__rapier9collision32contact__manifold__segment__ballN6constrS85448, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
 }
-function _M0FP39Milky201812moon__rapier9collision33contact__manifold__polyline__ballN8considerS85448(polyline, ball, radius, seg_index, a, b, best, best_dist) {
+function _M0FP39Milky201812moon__rapier9collision33contact__manifold__polyline__ballN8considerS85464(polyline, ball, radius, seg_index, a, b, best, best_dist) {
   const m = _M0FP39Milky201812moon__rapier9collision32contact__manifold__segment__ball(polyline, a, b, ball, radius);
   if (m.points.len === 0) {
     return { _0: best, _1: best_dist };
@@ -144367,7 +144383,7 @@ function _M0FP39Milky201812moon__rapier9collision33contact__manifold__polyline__
           if (_bind$72 < 0 || _bind$72 >= vertices.len) {
             $panic();
           }
-          const _bind$73 = _M0FP39Milky201812moon__rapier9collision33contact__manifold__polyline__ballN8considerS85448(polyline, ball, radius, i, _tmp$2, vertices.buf[_bind$72], best, best_dist);
+          const _bind$73 = _M0FP39Milky201812moon__rapier9collision33contact__manifold__polyline__ballN8considerS85464(polyline, ball, radius, i, _tmp$2, vertices.buf[_bind$72], best, best_dist);
           const _b0 = _bind$73._0;
           const _bd0 = _bind$73._1;
           best = _b0;
@@ -144407,7 +144423,7 @@ function _M0FP39Milky201812moon__rapier9collision33contact__manifold__polyline__
           if (_i1 < 0 || _i1 >= vertices.len) {
             $panic();
           }
-          const _bind$73 = _M0FP39Milky201812moon__rapier9collision33contact__manifold__polyline__ballN8considerS85448(polyline, ball, radius, i, _tmp$2, vertices.buf[_i1], best, best_dist);
+          const _bind$73 = _M0FP39Milky201812moon__rapier9collision33contact__manifold__polyline__ballN8considerS85464(polyline, ball, radius, i, _tmp$2, vertices.buf[_i1], best, best_dist);
           const _b0 = _bind$73._0;
           const _bd0 = _bind$73._1;
           best = _b0;
@@ -144482,7 +144498,7 @@ function _M0FP39Milky201812moon__rapier9collision32contact__manifold__ball__segm
   const normal = _M0FP39Milky201812moon__rapier9collision23normalize__or__fallback(d, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)));
   const signed_dist = Math.fround(dist - radius);
   const world_p1 = _M0MP39Milky201812moon__rapier4core4Vec23add(ball_center, _M0FP39Milky201812moon__rapier9collision11vec2__scale(normal, radius));
-  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(ball)), world_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(segment)), closest), signed_dist, _M0FP39Milky201812moon__rapier9collision32contact__manifold__ball__segmentN6constrS85514, _seg_feature, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
+  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(ball)), world_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(segment)), closest), signed_dist, _M0FP39Milky201812moon__rapier9collision32contact__manifold__ball__segmentN6constrS85530, _seg_feature, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
 }
 function _M0FP39Milky201812moon__rapier9collision32contact__manifold__capsule__ball(capsule, half_height, radius_capsule, axis, ball, radius_ball) {
   const ball_center = ball.world_translation;
@@ -144498,7 +144514,7 @@ function _M0FP39Milky201812moon__rapier9collision32contact__manifold__capsule__b
   const signed_dist = Math.fround(dist - Math.fround(radius_ball + radius_capsule));
   const world_p1 = _M0MP39Milky201812moon__rapier4core4Vec23add(_q, _M0FP39Milky201812moon__rapier9collision11vec2__scale(normal, radius_capsule));
   const world_p2 = _M0MP39Milky201812moon__rapier4core4Vec23sub(ball_center, _M0FP39Milky201812moon__rapier9collision11vec2__scale(normal, radius_ball));
-  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(capsule)), world_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(ball)), world_p2), signed_dist, _t <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85280 : _t >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85281 : _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85282, _M0FP39Milky201812moon__rapier9collision32contact__manifold__capsule__ballN6constrS85530, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
+  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(capsule)), world_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(ball)), world_p2), signed_dist, _t <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85296 : _t >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85297 : _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85298, _M0FP39Milky201812moon__rapier9collision32contact__manifold__capsule__ballN6constrS85546, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
 }
 function _M0FP39Milky201812moon__rapier9collision33closest__points__segment__segment(p1, q1, p2, q2) {
   const d1 = _M0MP39Milky201812moon__rapier4core4Vec23sub(q1, p1);
@@ -144564,7 +144580,7 @@ function _M0FP39Milky201812moon__rapier9collision35contact__manifold__capsule__c
   const signed_dist = Math.fround(dist - Math.fround(radius1 + radius2));
   const world_p1 = _M0MP39Milky201812moon__rapier4core4Vec23add(_p1, _M0FP39Milky201812moon__rapier9collision11vec2__scale(normal, radius1));
   const world_p2 = _M0MP39Milky201812moon__rapier4core4Vec23sub(_p2, _M0FP39Milky201812moon__rapier9collision11vec2__scale(normal, radius2));
-  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(capsule1)), world_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(capsule2)), world_p2), signed_dist, _s <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85280 : _s >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85281 : _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85282, _t <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85280 : _t >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85281 : _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85282, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
+  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(capsule1)), world_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(capsule2)), world_p2), signed_dist, _s <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85296 : _s >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85297 : _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85298, _t <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85296 : _t >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85297 : _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85298, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
 }
 function _M0FP39Milky201812moon__rapier9collision35cuboid__feature__from__local__point(local_point, half_width, half_height) {
   const _p = local_point.x;
@@ -144678,11 +144694,11 @@ function _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aab
     const _t0 = _x._0;
     const d = _M0MP39Milky201812moon__rapier4core4Vec23sub(b, a);
     const seg_p = _M0MP39Milky201812moon__rapier4core4Vec23add(a, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(d.x * _t0), Math.fround(d.y * _t0)));
-    const seg_feature = _t0 <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85615 : _t0 >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85616 : _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85617;
+    const seg_feature = _t0 <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85631 : _t0 >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85632 : _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85633;
     const box_feature = _M0FP39Milky201812moon__rapier9collision35cuboid__feature__from__local__point(seg_p, half_width, half_height);
     return { _0: seg_p, _1: seg_p, _2: Math.fround(0), _3: seg_feature, _4: box_feature };
   }
-  let edges_buf = [{ _0: _M0MP39Milky201812moon__rapier4core4Vec24Vec2(half_width, -half_height), _1: _M0MP39Milky201812moon__rapier4core4Vec24Vec2(half_width, half_height), _2: _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85618 }, { _0: _M0MP39Milky201812moon__rapier4core4Vec24Vec2(-half_width, half_height), _1: _M0MP39Milky201812moon__rapier4core4Vec24Vec2(-half_width, -half_height), _2: _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85619 }, { _0: _M0MP39Milky201812moon__rapier4core4Vec24Vec2(half_width, half_height), _1: _M0MP39Milky201812moon__rapier4core4Vec24Vec2(-half_width, half_height), _2: _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85620 }, { _0: _M0MP39Milky201812moon__rapier4core4Vec24Vec2(-half_width, -half_height), _1: _M0MP39Milky201812moon__rapier4core4Vec24Vec2(half_width, -half_height), _2: _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85621 }];
+  let edges_buf = [{ _0: _M0MP39Milky201812moon__rapier4core4Vec24Vec2(half_width, -half_height), _1: _M0MP39Milky201812moon__rapier4core4Vec24Vec2(half_width, half_height), _2: _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85634 }, { _0: _M0MP39Milky201812moon__rapier4core4Vec24Vec2(-half_width, half_height), _1: _M0MP39Milky201812moon__rapier4core4Vec24Vec2(-half_width, -half_height), _2: _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85635 }, { _0: _M0MP39Milky201812moon__rapier4core4Vec24Vec2(half_width, half_height), _1: _M0MP39Milky201812moon__rapier4core4Vec24Vec2(-half_width, half_height), _2: _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85636 }, { _0: _M0MP39Milky201812moon__rapier4core4Vec24Vec2(-half_width, -half_height), _1: _M0MP39Milky201812moon__rapier4core4Vec24Vec2(half_width, -half_height), _2: _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85637 }];
   let edges_len = 4;
   let best_dist2 = Math.fround(1e+30);
   let best_seg = a;
@@ -144715,7 +144731,7 @@ function _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aab
       break;
     }
   }
-  const seg_feature = best_s <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85622 : best_s >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85623 : _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85624;
+  const seg_feature = best_s <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85638 : best_s >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85639 : _M0FP39Milky201812moon__rapier9collision37closest__points__segment__aabb__localN6constrS85640;
   const box_feature = _M0FP39Milky201812moon__rapier9collision35cuboid__feature__from__local__point(best_box, half_width, half_height);
   return { _0: best_seg, _1: best_box, _2: Math.fround(Math.sqrt(best_dist2)), _3: seg_feature, _4: box_feature };
 }
@@ -144761,7 +144777,7 @@ function _M0FP39Milky201812moon__rapier9collision34contact__manifold__capsule__c
   const _tb = _bind$73._1;
   const _bind$74 = _M0FP39Milky201812moon__rapier9collision40closest__point__on__segment__with__param(_ta, _tb, seg_world);
   const _t = _bind$74._1;
-  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(capsule)), world_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(cuboid)), box_world), signed_dist, _t <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85280 : _t >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85281 : _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85282, _box_f, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
+  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(capsule)), world_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(cuboid)), box_world), signed_dist, _t <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85296 : _t >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85297 : _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85298, _box_f, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
 }
 function _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__capsule(segment, a, b, capsule, half_height, radius, axis) {
   const _bind$71 = _M0FP39Milky201812moon__rapier9collision25segment__world__endpoints(segment.world_translation, segment.world_rotation, a, b);
@@ -144780,8 +144796,8 @@ function _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__c
   const normal = _M0FP39Milky201812moon__rapier9collision23normalize__or__fallback(d, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)));
   const signed_dist = Math.fround(dist - radius);
   const world_p2 = _M0MP39Milky201812moon__rapier4core4Vec23sub(_pcap, _M0FP39Milky201812moon__rapier9collision11vec2__scale(normal, radius));
-  const fid1 = _s <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__capsuleN6constrS85688 : _s >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__capsuleN6constrS85689 : _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__capsuleN6constrS85690;
-  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(segment)), _pseg), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(capsule)), world_p2), signed_dist, fid1, _t <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85280 : _t >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85281 : _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85282, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
+  const fid1 = _s <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__capsuleN6constrS85704 : _s >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__capsuleN6constrS85705 : _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__capsuleN6constrS85706;
+  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(segment)), _pseg), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(capsule)), world_p2), signed_dist, fid1, _t <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85296 : _t >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85297 : _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85298, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
 }
 function _M0FP39Milky201812moon__rapier9collision35contact__manifold__capsule__segment(capsule, half_height, radius, axis, segment, a, b) {
   const m = _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__capsule(segment, a, b, capsule, half_height, radius, axis);
@@ -144816,7 +144832,7 @@ function _M0FP39Milky201812moon__rapier9collision40contact__manifold__convex__po
   const normal = _M0FP39Milky201812moon__rapier9collision23normalize__or__fallback(d, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)));
   const signed_dist = Math.fround(dist - radius);
   const world_p2 = _M0MP39Milky201812moon__rapier4core4Vec23sub(ball_center, _M0FP39Milky201812moon__rapier9collision11vec2__scale(normal, radius));
-  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(poly)), closest), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(ball)), world_p2), signed_dist, _feature1, _M0FP39Milky201812moon__rapier9collision40contact__manifold__convex__polygon__ballN6constrS85729, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
+  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(poly)), closest), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(ball)), world_p2), signed_dist, _feature1, _M0FP39Milky201812moon__rapier9collision40contact__manifold__convex__polygon__ballN6constrS85745, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
 }
 function _M0FP39Milky201812moon__rapier9collision32convex__polygon__world__vertices(center, rotation, vertices) {
   const rot = _M0MP39Milky201812moon__rapier4core4Rot211from__angle(rotation);
@@ -144873,16 +144889,16 @@ function _M0FP39Milky201812moon__rapier9collision23clip__segment__to__line(input
 function _M0FP39Milky201812moon__rapier9collision46cuboid__edge__feature__from__poly__edge__index(edge) {
   switch (edge) {
     case 0: {
-      return _M0FP39Milky201812moon__rapier9collision46cuboid__edge__feature__from__poly__edge__indexN6constrS85764;
+      return _M0FP39Milky201812moon__rapier9collision46cuboid__edge__feature__from__poly__edge__indexN6constrS85780;
     }
     case 1: {
-      return _M0FP39Milky201812moon__rapier9collision46cuboid__edge__feature__from__poly__edge__indexN6constrS85765;
+      return _M0FP39Milky201812moon__rapier9collision46cuboid__edge__feature__from__poly__edge__indexN6constrS85781;
     }
     case 2: {
-      return _M0FP39Milky201812moon__rapier9collision46cuboid__edge__feature__from__poly__edge__indexN6constrS85766;
+      return _M0FP39Milky201812moon__rapier9collision46cuboid__edge__feature__from__poly__edge__indexN6constrS85782;
     }
     default: {
-      return _M0FP39Milky201812moon__rapier9collision46cuboid__edge__feature__from__poly__edge__indexN6constrS85767;
+      return _M0FP39Milky201812moon__rapier9collision46cuboid__edge__feature__from__poly__edge__indexN6constrS85783;
     }
   }
 }
@@ -145433,7 +145449,7 @@ function _M0FP39Milky201812moon__rapier9collision31contact__manifold__cuboid__ba
   const world_p2 = _M0MP39Milky201812moon__rapier4core4Vec23sub(ball_center, _M0FP39Milky201812moon__rapier9collision11vec2__scale(normal, radius));
   const local_p1 = _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(cuboid)), closest);
   const local_p2 = _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(ball)), world_p2);
-  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(local_p1, local_p2, signed_dist, _feature1, _M0FP39Milky201812moon__rapier9collision31contact__manifold__cuboid__ballN6constrS86008, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
+  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(local_p1, local_p2, signed_dist, _feature1, _M0FP39Milky201812moon__rapier9collision31contact__manifold__cuboid__ballN6constrS86024, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
 }
 function _M0FP39Milky201812moon__rapier9collision34contact__manifold__cuboid__capsule(cuboid, half_width, half_height, capsule, half_height2, radius, axis) {
   const m = _M0FP39Milky201812moon__rapier9collision34contact__manifold__capsule__cuboid(capsule, half_height2, radius, axis, cuboid, half_width, half_height);
@@ -145463,7 +145479,7 @@ function _M0FP39Milky201812moon__rapier9collision42contact__manifold__cuboid__co
   return _M0FP39Milky201812moon__rapier9collision26polygon__contact__manifold(cuboid, p1, true, poly, p2, false, prediction_distance);
 }
 function _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccw(edge) {
-  return edge === 0 ? _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tupleS86049 : edge === 1 ? _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tupleS86050 : edge === 2 ? _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tupleS86051 : _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tupleS86052;
+  return edge === 0 ? _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tupleS86065 : edge === 1 ? _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tupleS86066 : edge === 2 ? _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tupleS86067 : _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tupleS86068;
 }
 function _M0FP39Milky201812moon__rapier9collision18projection__radius(axis, cuboid_axis_x, cuboid_axis_y, half_width, half_height) {
   const _p = Math.fround(Math.fround(axis.x * cuboid_axis_x.x) + Math.fround(axis.y * cuboid_axis_x.y));
@@ -145715,7 +145731,7 @@ function _M0FP39Milky201812moon__rapier9collision34contact__manifold__segment__c
   }
   return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(segment)), seg_world), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(cuboid)), box_world), _dist_center, _seg_f, _box_f, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
 }
-function _M0FP39Milky201812moon__rapier9collision35contact__manifold__polyline__cuboidN8considerS86160(polyline, cuboid, half_width, half_height, seg_index, a, b, best, best_dist) {
+function _M0FP39Milky201812moon__rapier9collision35contact__manifold__polyline__cuboidN8considerS86176(polyline, cuboid, half_width, half_height, seg_index, a, b, best, best_dist) {
   const m = _M0FP39Milky201812moon__rapier9collision34contact__manifold__segment__cuboid(polyline, a, b, cuboid, half_width, half_height);
   if (m.points.len === 0) {
     return { _0: best, _1: best_dist };
@@ -145746,7 +145762,7 @@ function _M0FP39Milky201812moon__rapier9collision35contact__manifold__polyline__
           if (_bind$72 < 0 || _bind$72 >= vertices.len) {
             $panic();
           }
-          const _bind$73 = _M0FP39Milky201812moon__rapier9collision35contact__manifold__polyline__cuboidN8considerS86160(polyline, cuboid, half_width, half_height, i, _tmp$2, vertices.buf[_bind$72], best, best_dist);
+          const _bind$73 = _M0FP39Milky201812moon__rapier9collision35contact__manifold__polyline__cuboidN8considerS86176(polyline, cuboid, half_width, half_height, i, _tmp$2, vertices.buf[_bind$72], best, best_dist);
           const _b0 = _bind$73._0;
           const _bd0 = _bind$73._1;
           best = _b0;
@@ -145786,7 +145802,7 @@ function _M0FP39Milky201812moon__rapier9collision35contact__manifold__polyline__
           if (_i1 < 0 || _i1 >= vertices.len) {
             $panic();
           }
-          const _bind$73 = _M0FP39Milky201812moon__rapier9collision35contact__manifold__polyline__cuboidN8considerS86160(polyline, cuboid, half_width, half_height, i, _tmp$2, vertices.buf[_i1], best, best_dist);
+          const _bind$73 = _M0FP39Milky201812moon__rapier9collision35contact__manifold__polyline__cuboidN8considerS86176(polyline, cuboid, half_width, half_height, i, _tmp$2, vertices.buf[_i1], best, best_dist);
           const _b0 = _bind$73._0;
           const _bd0 = _bind$73._1;
           best = _b0;
@@ -145867,11 +145883,11 @@ function _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__s
   const d = _M0MP39Milky201812moon__rapier4core4Vec23sub(_c2, _c1);
   const dist = _M0MP39Milky201812moon__rapier4core4Vec26length(d);
   const normal = _M0FP39Milky201812moon__rapier9collision23normalize__or__fallback(d, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)));
-  const fid1 = _s <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86229 : _s >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86230 : _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86231;
-  const fid2 = _t <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86232 : _t >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86233 : _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86234;
+  const fid1 = _s <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86245 : _s >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86246 : _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86247;
+  const fid2 = _t <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86248 : _t >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86249 : _M0FP39Milky201812moon__rapier9collision35contact__manifold__segment__segmentN6constrS86250;
   return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(normal, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(seg1)), _c1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(_M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(seg2)), _c2), dist, fid1, fid2, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
 }
-function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN13pack__featureS86257(prefix, fid) {
+function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN13pack__featureS86273(prefix, fid) {
   if (prefix === 0) {
     return fid;
   }
@@ -145897,12 +145913,12 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN13pack__
     }
   }
 }
-function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN20unwrap__round__shapeS86258(shape) {
+function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN20unwrap__round__shapeS86274(shape) {
   if (shape.$tag === 11) {
     const _Round = shape;
     const _inner = _Round._0;
     const _radius = _Round._1;
-    const _bind$71 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN20unwrap__round__shapeS86258(_inner.val);
+    const _bind$71 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN20unwrap__round__shapeS86274(_inner.val);
     const _base = _bind$71._0;
     const _r = _bind$71._1;
     return { _0: _base, _1: Math.fround(_r + (_radius < Math.fround(0) ? Math.fround(0) : _radius)) };
@@ -145910,7 +145926,7 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN20unwrap
     return { _0: shape, _1: Math.fround(0) };
   }
 }
-function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN14flip__manifoldS86259(m) {
+function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN14flip__manifoldS86275(m) {
   const pts = new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([], 0);
   const _bind$71 = m.points.len;
   let _tmp = 0;
@@ -145931,11 +145947,11 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN14flip__
   }
   return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(_M0MP39Milky201812moon__rapier4core4Vec24Vec2(-m.normal.x, -m.normal.y), pts);
 }
-function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN24halfspace__world__normalS86260(halfspace, outward_normal_local) {
+function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN24halfspace__world__normalS86276(halfspace, outward_normal_local) {
   return _M0MP39Milky201812moon__rapier4core4Rot212rotate__vec2(_M0MP39Milky201812moon__rapier4core4Rot211from__angle(halfspace.world_rotation), outward_normal_local);
 }
-function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN25halfspace__ball__manifoldS86261(prediction_distance, halfspace, outward_normal_local, ball, radius) {
-  const n = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN24halfspace__world__normalS86260(halfspace, outward_normal_local);
+function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN25halfspace__ball__manifoldS86277(prediction_distance, halfspace, outward_normal_local, ball, radius) {
+  const n = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN24halfspace__world__normalS86276(halfspace, outward_normal_local);
   const origin = halfspace.world_translation;
   const center = ball.world_translation;
   const _p = _M0MP39Milky201812moon__rapier4core4Vec23sub(center, origin);
@@ -145947,10 +145963,10 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN25halfsp
   const world_p1 = _M0MP39Milky201812moon__rapier4core4Vec23sub(world_p2, _M0FP39Milky201812moon__rapier9collision11vec2__scale(n, dist));
   const p1_inv = _M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(halfspace));
   const p2_inv = _M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(ball));
-  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(n, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(p1_inv, world_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(p2_inv, world_p2), dist, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN6constrS86265, _M0DTP39Milky201812moon__rapier9collision9FeatureId7Unknown__, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
+  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(n, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(p1_inv, world_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(p2_inv, world_p2), dist, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN6constrS86281, _M0DTP39Milky201812moon__rapier9collision9FeatureId7Unknown__, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
 }
-function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN28halfspace__capsule__manifoldS86262(prediction_distance, halfspace, outward_normal_local, capsule, half_height, radius, axis) {
-  const n = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN24halfspace__world__normalS86260(halfspace, outward_normal_local);
+function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN28halfspace__capsule__manifoldS86278(prediction_distance, halfspace, outward_normal_local, capsule, half_height, radius, axis) {
+  const n = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN24halfspace__world__normalS86276(halfspace, outward_normal_local);
   const origin = halfspace.world_translation;
   const _bind$71 = _M0FP39Milky201812moon__rapier9collision23capsule__world__segment(capsule.world_translation, capsule.world_rotation, half_height, axis);
   const _a = _bind$71._0;
@@ -145969,13 +145985,13 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN28halfsp
   const p1_inv = _M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(halfspace));
   const p2_inv = _M0MP39Milky201812moon__rapier4core9Isometry27inverse(_M0MP39Milky201812moon__rapier9collision8Collider8position(capsule));
   const t = da <= db ? Math.fround(0) : Math.fround(1);
-  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(n, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(p1_inv, world_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(p2_inv, world_p2), dist, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN6constrS86266, t <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85280 : t >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85281 : _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85282, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
+  return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(n, new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision20ContactManifoldPointE([new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(p1_inv, world_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(p2_inv, world_p2), dist, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN6constrS86282, t <= Math.fround(1e-06) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85296 : t >= Math.fround(Math.fround(1) - Math.fround(1e-06)) ? _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85297 : _M0FP39Milky201812moon__rapier9collision25capsule__segment__featureN6constrS85298, _M0MP39Milky201812moon__rapier9collision11ContactData7default())], 1));
 }
-function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN29halfspace__vertices__manifoldS86263(prediction_distance, halfspace, outward_normal_local, other, vertices) {
+function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN29halfspace__vertices__manifoldS86279(prediction_distance, halfspace, outward_normal_local, other, vertices) {
   if (vertices.len === 0) {
     return undefined;
   }
-  const n = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN24halfspace__world__normalS86260(halfspace, outward_normal_local);
+  const n = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN24halfspace__world__normalS86276(halfspace, outward_normal_local);
   const origin = halfspace.world_translation;
   let min_d = Math.fround(1e+30);
   const _bind$71 = vertices.len;
@@ -146018,9 +146034,9 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN29halfsp
       const _fid = _bind$73._1;
       const _p$2 = _M0MP39Milky201812moon__rapier4core4Vec23sub(_p, origin);
       const d = Math.fround(Math.fround(n.x * _p$2.x) + Math.fround(n.y * _p$2.y));
-      if (d <= Math.fround(min_d + _M0FP39Milky201812moon__rapier9collision20build__contact__pairN3epsS86268)) {
+      if (d <= Math.fround(min_d + _M0FP39Milky201812moon__rapier9collision20build__contact__pairN3epsS86284)) {
         const plane_p = _M0MP39Milky201812moon__rapier4core4Vec23sub(_p, _M0FP39Milky201812moon__rapier9collision11vec2__scale(n, d));
-        _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(pts, new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(p1_inv, plane_p), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(p2_inv, _p), d, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN6constrS86267, _fid, _M0MP39Milky201812moon__rapier9collision11ContactData7default()));
+        _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(pts, new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(p1_inv, plane_p), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(p2_inv, _p), d, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN6constrS86283, _fid, _M0MP39Milky201812moon__rapier9collision11ContactData7default()));
       }
       _tmp$2 = i + 1 | 0;
       continue;
@@ -146030,7 +146046,7 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN29halfsp
   }
   return new _M0TP39Milky201812moon__rapier9collision15ContactManifold(n, pts);
 }
-function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS86264(prediction_distance, collider1, base1, shape1, pose1, prefix1, collider2, base2, shape2, pose2, prefix2, out) {
+function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS86280(prediction_distance, collider1, base1, shape1, pose1, prefix1, collider2, base2, shape2, pose2, prefix2, out) {
   if (shape1.$tag === 10) {
     const _Compound = shape1;
     const _parts1 = _Compound._0;
@@ -146063,7 +146079,7 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS8
               const _s2 = _bind$74._1;
               const child_pose2 = _M0MP39Milky201812moon__rapier4core9Isometry23mul(pose2, _p2);
               const child_prefix2 = (Math.imul(prefix2, 1000) | 0) + (j + 1 | 0) | 0;
-              _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS86264(prediction_distance, collider1, base1, _s1, child_pose1, child_prefix1, collider2, base2, _s2, child_pose2, child_prefix2, out);
+              _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS86280(prediction_distance, collider1, base1, _s1, child_pose1, child_prefix1, collider2, base2, _s2, child_pose2, child_prefix2, out);
               _tmp$2 = j + 1 | 0;
               continue;
             } else {
@@ -146090,7 +146106,7 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS8
           const _s = _bind$72._1;
           const child_pose = _M0MP39Milky201812moon__rapier4core9Isometry23mul(pose1, _p);
           const child_prefix = (Math.imul(prefix1, 1000) | 0) + (i + 1 | 0) | 0;
-          _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS86264(prediction_distance, collider1, base1, _s, child_pose, child_prefix, collider2, base2, shape2, pose2, prefix2, out);
+          _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS86280(prediction_distance, collider1, base1, _s, child_pose, child_prefix, collider2, base2, shape2, pose2, prefix2, out);
           _tmp = i + 1 | 0;
           continue;
         } else {
@@ -146115,7 +146131,7 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS8
           const _s = _bind$72._1;
           const child_pose = _M0MP39Milky201812moon__rapier4core9Isometry23mul(pose2, _p);
           const child_prefix = (Math.imul(prefix2, 1000) | 0) + (i + 1 | 0) | 0;
-          _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS86264(prediction_distance, collider1, base1, shape1, pose1, prefix1, collider2, base2, _s, child_pose, child_prefix, out);
+          _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS86280(prediction_distance, collider1, base1, shape1, pose1, prefix1, collider2, base2, _s, child_pose, child_prefix, out);
           _tmp = i + 1 | 0;
           continue;
         } else {
@@ -146165,7 +146181,7 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS8
               const c = area2 >= Math.fround(0) ? c0 : b0;
               const tri = new _M0DTP39Milky201812moon__rapier9collision5Shape13ConvexPolygon(new _M0TPB5ArrayGRP39Milky201812moon__rapier4core4Vec2E([a, b, c], 3));
               const child_prefix = (Math.imul(prefix1, 1000) | 0) + (i + 1 | 0) | 0;
-              _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS86264(prediction_distance, collider1, base1, tri, pose1, child_prefix, collider2, base2, shape2, pose2, prefix2, out);
+              _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS86280(prediction_distance, collider1, base1, tri, pose1, child_prefix, collider2, base2, shape2, pose2, prefix2, out);
               break _L;
             }
             _tmp = i + 1 | 0;
@@ -146217,7 +146233,7 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS8
                 const c = area2 >= Math.fround(0) ? c0 : b0;
                 const tri = new _M0DTP39Milky201812moon__rapier9collision5Shape13ConvexPolygon(new _M0TPB5ArrayGRP39Milky201812moon__rapier4core4Vec2E([a, b, c], 3));
                 const child_prefix = (Math.imul(prefix2, 1000) | 0) + (i + 1 | 0) | 0;
-                _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS86264(prediction_distance, collider1, base1, shape1, pose1, prefix1, collider2, base2, tri, pose2, child_prefix, out);
+                _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS86280(prediction_distance, collider1, base1, shape1, pose1, prefix1, collider2, base2, tri, pose2, child_prefix, out);
                 break _L;
               }
               _tmp = i + 1 | 0;
@@ -146235,10 +146251,10 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS8
           collider2.shape = shape2;
           collider2.world_translation = _M0FP39Milky201812moon__rapier9collision22isometry2__translation(world2);
           collider2.world_rotation = _M0FP39Milky201812moon__rapier9collision26isometry2__rotation__angle(world2);
-          const _bind$71 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN20unwrap__round__shapeS86258(collider1.shape);
+          const _bind$71 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN20unwrap__round__shapeS86274(collider1.shape);
           const _shape1 = _bind$71._0;
           const _radius1 = _bind$71._1;
-          const _bind$72 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN20unwrap__round__shapeS86258(collider2.shape);
+          const _bind$72 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN20unwrap__round__shapeS86274(collider2.shape);
           const _shape2 = _bind$72._0;
           const _radius2 = _bind$72._1;
           let shape1_norm;
@@ -146270,7 +146286,7 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS8
                 case 0: {
                   const _Ball = shape2_norm;
                   const _r = _Ball._0;
-                  const _bind$73 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN25halfspace__ball__manifoldS86261(prediction_distance, collider1, _n, collider2, _r);
+                  const _bind$73 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN25halfspace__ball__manifoldS86277(prediction_distance, collider1, _n, collider2, _r);
                   if (_bind$73 === undefined) {
                   } else {
                     const _Some = _bind$73;
@@ -146300,7 +146316,7 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS8
                       break;
                     }
                   }
-                  const _bind$75 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN29halfspace__vertices__manifoldS86263(prediction_distance, collider1, _n, collider2, candidates);
+                  const _bind$75 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN29halfspace__vertices__manifoldS86279(prediction_distance, collider1, _n, collider2, candidates);
                   if (_bind$75 === undefined) {
                   } else {
                     const _Some = _bind$75;
@@ -146329,7 +146345,7 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS8
                       break;
                     }
                   }
-                  const _bind$77 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN29halfspace__vertices__manifoldS86263(prediction_distance, collider1, _n, collider2, candidates$2);
+                  const _bind$77 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN29halfspace__vertices__manifoldS86279(prediction_distance, collider1, _n, collider2, candidates$2);
                   if (_bind$77 === undefined) {
                   } else {
                     const _Some = _bind$77;
@@ -146342,7 +146358,7 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS8
                   const _CapsuleX = shape2_norm;
                   const _hh$2 = _CapsuleX._0;
                   const _cr = _CapsuleX._1;
-                  const _bind$78 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN28halfspace__capsule__manifoldS86262(prediction_distance, collider1, _n, collider2, _hh$2, _cr, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)));
+                  const _bind$78 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN28halfspace__capsule__manifoldS86278(prediction_distance, collider1, _n, collider2, _hh$2, _cr, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)));
                   if (_bind$78 === undefined) {
                   } else {
                     const _Some = _bind$78;
@@ -146355,7 +146371,7 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS8
                   const _CapsuleY = shape2_norm;
                   const _hh$3 = _CapsuleY._0;
                   const _cr$2 = _CapsuleY._1;
-                  const _bind$79 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN28halfspace__capsule__manifoldS86262(prediction_distance, collider1, _n, collider2, _hh$3, _cr$2, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(0), Math.fround(1)));
+                  const _bind$79 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN28halfspace__capsule__manifoldS86278(prediction_distance, collider1, _n, collider2, _hh$3, _cr$2, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(0), Math.fround(1)));
                   if (_bind$79 === undefined) {
                   } else {
                     const _Some = _bind$79;
@@ -146374,12 +146390,12 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS8
                 case 2: {
                   const _HalfSpace$2 = shape2_norm;
                   const _n$2 = _HalfSpace$2._0;
-                  const _bind$80 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN25halfspace__ball__manifoldS86261(prediction_distance, collider2, _n$2, collider1, _r$2);
+                  const _bind$80 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN25halfspace__ball__manifoldS86277(prediction_distance, collider2, _n$2, collider1, _r$2);
                   if (_bind$80 === undefined) {
                   } else {
                     const _Some = _bind$80;
                     const _m = _Some;
-                    _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(out$2, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN14flip__manifoldS86259(_m));
+                    _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(out$2, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN14flip__manifoldS86275(_m));
                   }
                   break;
                 }
@@ -146458,12 +146474,12 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS8
                       break;
                     }
                   }
-                  const _bind$82 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN29halfspace__vertices__manifoldS86263(prediction_distance, collider2, _n$3, collider1, candidates$3);
+                  const _bind$82 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN29halfspace__vertices__manifoldS86279(prediction_distance, collider2, _n$3, collider1, candidates$3);
                   if (_bind$82 === undefined) {
                   } else {
                     const _Some = _bind$82;
                     const _m = _Some;
-                    _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(out$2, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN14flip__manifoldS86259(_m));
+                    _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(out$2, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN14flip__manifoldS86275(_m));
                   }
                   break;
                 }
@@ -146541,12 +146557,12 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS8
                       break;
                     }
                   }
-                  const _bind$84 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN29halfspace__vertices__manifoldS86263(prediction_distance, collider2, _n$4, collider1, candidates$4);
+                  const _bind$84 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN29halfspace__vertices__manifoldS86279(prediction_distance, collider2, _n$4, collider1, candidates$4);
                   if (_bind$84 === undefined) {
                   } else {
                     const _Some = _bind$84;
                     const _m = _Some;
-                    _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(out$2, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN14flip__manifoldS86259(_m));
+                    _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(out$2, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN14flip__manifoldS86275(_m));
                   }
                   break;
                 }
@@ -146643,12 +146659,12 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS8
                 case 2: {
                   const _HalfSpace$5 = shape2_norm;
                   const _n$5 = _HalfSpace$5._0;
-                  const _bind$85 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN28halfspace__capsule__manifoldS86262(prediction_distance, collider2, _n$5, collider1, _hh$15, _cr$9, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)));
+                  const _bind$85 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN28halfspace__capsule__manifoldS86278(prediction_distance, collider2, _n$5, collider1, _hh$15, _cr$9, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)));
                   if (_bind$85 === undefined) {
                   } else {
                     const _Some = _bind$85;
                     const _m = _Some;
-                    _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(out$2, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN14flip__manifoldS86259(_m));
+                    _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(out$2, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN14flip__manifoldS86275(_m));
                   }
                   break;
                 }
@@ -146697,12 +146713,12 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS8
                 case 2: {
                   const _HalfSpace$6 = shape2_norm;
                   const _n$6 = _HalfSpace$6._0;
-                  const _bind$86 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN28halfspace__capsule__manifoldS86262(prediction_distance, collider2, _n$6, collider1, _hh$16, _cr$10, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(0), Math.fround(1)));
+                  const _bind$86 = _M0FP39Milky201812moon__rapier9collision20build__contact__pairN28halfspace__capsule__manifoldS86278(prediction_distance, collider2, _n$6, collider1, _hh$16, _cr$10, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(0), Math.fround(1)));
                   if (_bind$86 === undefined) {
                   } else {
                     const _Some = _bind$86;
                     const _m = _Some;
-                    _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(out$2, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN14flip__manifoldS86259(_m));
+                    _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(out$2, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN14flip__manifoldS86275(_m));
                   }
                   break;
                 }
@@ -146826,7 +146842,7 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS8
                       $panic();
                     }
                     const p = _bind$89.buf[i];
-                    _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(out_pts, new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(pose1, p.local_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(pose2, p.local_p2), p.dist, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN13pack__featureS86257(prefix1, p.fid1), _M0FP39Milky201812moon__rapier9collision20build__contact__pairN13pack__featureS86257(prefix2, p.fid2), p.data));
+                    _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(out_pts, new _M0TP39Milky201812moon__rapier9collision20ContactManifoldPoint(_M0MP39Milky201812moon__rapier4core9Isometry216transform__point(pose1, p.local_p1), _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(pose2, p.local_p2), p.dist, _M0FP39Milky201812moon__rapier9collision20build__contact__pairN13pack__featureS86273(prefix1, p.fid1), _M0FP39Milky201812moon__rapier9collision20build__contact__pairN13pack__featureS86273(prefix2, p.fid2), p.data));
                     _tmp$6 = i + 1 | 0;
                     continue;
                   } else {
@@ -146850,7 +146866,7 @@ function _M0FP39Milky201812moon__rapier9collision20build__contact__pair(predicti
   const manifolds = new _M0TPB5ArrayGRP39Milky201812moon__rapier9collision15ContactManifoldE([], 0);
   const base1 = _M0MP39Milky201812moon__rapier4core9Isometry29Isometry2(collider1.world_translation, _M0MP39Milky201812moon__rapier4core4Rot211from__angle(collider1.world_rotation));
   const base2 = _M0MP39Milky201812moon__rapier4core9Isometry29Isometry2(collider2.world_translation, _M0MP39Milky201812moon__rapier4core4Rot211from__angle(collider2.world_rotation));
-  _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS86264(prediction_distance, collider1, base1, collider1.shape, _M0MP39Milky201812moon__rapier4core9Isometry28identity(), 0, collider2, base2, collider2.shape, _M0MP39Milky201812moon__rapier4core9Isometry28identity(), 0, manifolds);
+  _M0FP39Milky201812moon__rapier9collision20build__contact__pairN5visitS86280(prediction_distance, collider1, base1, collider1.shape, _M0MP39Milky201812moon__rapier4core9Isometry28identity(), 0, collider2, base2, collider2.shape, _M0MP39Milky201812moon__rapier4core9Isometry28identity(), 0, manifolds);
   return new _M0TP39Milky201812moon__rapier9collision11ContactPair(manifolds);
 }
 function _M0FP39Milky201812moon__rapier9collision25cuboid__cuboid__intersect(pos1, rot1, hw1, hh1, pos2, rot2, hw2, hh2) {
@@ -146886,7 +146902,7 @@ function _M0FP39Milky201812moon__rapier9collision25cuboid__cuboid__intersect(pos
   return true;
 }
 function _M0MP39Milky201812moon__rapier9collision15ColliderBuilder5build(self) {
-  return new _M0TP39Milky201812moon__rapier9collision8Collider(self.shape, self.translation, self.rotation, self.translation, self.rotation, self.active_collision_types, self.sensor, self.active_events, self.active_hooks, self.collision_groups, self.solver_groups, self.density, undefined, self.friction, self.friction_combine_rule, self.restitution, self.restitution_combine_rule, self.contact_skin, self.contact_force_event_threshold, self.user_data, undefined, self.enabled ? 0 : 2, _M0MP39Milky201812moon__rapier9collision15ColliderChanges3allN6recordS86710);
+  return new _M0TP39Milky201812moon__rapier9collision8Collider(self.shape, self.translation, self.rotation, self.translation, self.rotation, self.active_collision_types, self.sensor, self.active_events, self.active_hooks, self.collision_groups, self.solver_groups, self.density, undefined, self.friction, self.friction_combine_rule, self.restitution, self.restitution_combine_rule, self.contact_skin, self.contact_force_event_threshold, self.user_data, undefined, self.enabled ? 0 : 2, _M0MP39Milky201812moon__rapier9collision15ColliderChanges3allN6recordS86726);
 }
 function _M0MP39Milky201812moon__rapier9collision15ColliderBuilder8rotation(self, rotation) {
   self.rotation = rotation;
@@ -146896,11 +146912,11 @@ function _M0MP39Milky201812moon__rapier9collision15ColliderBuilder11translation(
   self.translation = translation;
   return self;
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86717(center, rotation, a, b) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86733(center, rotation, a, b) {
   const rot = _M0MP39Milky201812moon__rapier4core4Rot211from__angle(rotation);
   return { _0: _M0MP39Milky201812moon__rapier4core4Vec23add(center, _M0MP39Milky201812moon__rapier4core4Rot212rotate__vec2(rot, a)), _1: _M0MP39Milky201812moon__rapier4core4Vec23add(center, _M0MP39Milky201812moon__rapier4core4Rot212rotate__vec2(rot, b)) };
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN27closest__point__on__segmentS86718(a, b, p) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN27closest__point__on__segmentS86734(a, b, p) {
   const ab = _M0MP39Milky201812moon__rapier4core4Vec23sub(b, a);
   const denom = Math.fround(Math.fround(ab.x * ab.x) + Math.fround(ab.y * ab.y));
   if (denom <= Math.fround(1e-12)) {
@@ -146911,15 +146927,15 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN27closest__
     return _M0MP39Milky201812moon__rapier4core4Vec23add(a, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(ab.x * t), Math.fround(ab.y * t)));
   }
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24segment__ball__intersectS86719(seg_center, seg_rot, a, b, ball_center, radius) {
-  const _bind$71 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86717(seg_center, seg_rot, a, b);
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24segment__ball__intersectS86735(seg_center, seg_rot, a, b, ball_center, radius) {
+  const _bind$71 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86733(seg_center, seg_rot, a, b);
   const _wa = _bind$71._0;
   const _wb = _bind$71._1;
-  const q = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN27closest__point__on__segmentS86718(_wa, _wb, ball_center);
+  const q = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN27closest__point__on__segmentS86734(_wa, _wb, ball_center);
   return _M0MP39Milky201812moon__rapier4core4Vec215length__squared(_M0MP39Milky201812moon__rapier4core4Vec23sub(ball_center, q)) <= Math.fround(radius * radius);
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN26segment__cuboid__intersectS86720(seg_center, seg_rot, a, b, cuboid_center, cuboid_rot, hw, hh) {
-  const _bind$71 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86717(seg_center, seg_rot, a, b);
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN26segment__cuboid__intersectS86736(seg_center, seg_rot, a, b, cuboid_center, cuboid_rot, hw, hh) {
+  const _bind$71 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86733(seg_center, seg_rot, a, b);
   const _wa = _bind$71._0;
   const _wb = _bind$71._1;
   const rot = _M0MP39Milky201812moon__rapier4core4Rot211from__angle(cuboid_rot);
@@ -146975,7 +146991,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN26segment__
   }
   return true;
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN11on__segmentS86721(a, b, p) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN11on__segmentS86737(a, b, p) {
   const _p = a.x;
   const _p$2 = b.x;
   if (Math.fround((_p < _p$2 ? _p : _p$2) - Math.fround(1e-06)) <= p.x) {
@@ -147004,7 +147020,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN11on__segme
     return false;
   }
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34segment__segment__intersect__worldS86722(a1, b1, a2, b2) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34segment__segment__intersect__worldS86738(a1, b1, a2, b2) {
   const r = _M0MP39Milky201812moon__rapier4core4Vec23sub(b1, a1);
   const s = _M0MP39Milky201812moon__rapier4core4Vec23sub(b2, a2);
   const denom = Math.fround(Math.fround(r.x * s.y) - Math.fround(r.y * s.x));
@@ -147016,14 +147032,14 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34segment__
     if ((_p < Math.fround(0) ? -_p : _p) > Math.fround(1e-06)) {
       return false;
     }
-    return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN11on__segmentS86721(a1, b1, a2) || (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN11on__segmentS86721(a1, b1, b2) || (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN11on__segmentS86721(a2, b2, a1) || _M0FP39Milky201812moon__rapier9collision17shapes__intersectN11on__segmentS86721(a2, b2, b1)));
+    return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN11on__segmentS86737(a1, b1, a2) || (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN11on__segmentS86737(a1, b1, b2) || (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN11on__segmentS86737(a2, b2, a1) || _M0FP39Milky201812moon__rapier9collision17shapes__intersectN11on__segmentS86737(a2, b2, b1)));
   } else {
     const t = Math.fround(num_t / denom);
     const u = Math.fround(num_u / denom);
     return t >= Math.fround(0) && (t <= Math.fround(1) && (u >= Math.fround(0) && u <= Math.fround(1)));
   }
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86723(center, rotation, vertices) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86739(center, rotation, vertices) {
   const rot = _M0MP39Milky201812moon__rapier4core4Rot211from__angle(rotation);
   const out = new _M0TPB5ArrayGRP39Milky201812moon__rapier4core4Vec2E([], 0);
   const _bind$71 = vertices.len;
@@ -147043,7 +147059,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__p
   }
   return out;
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN33point__in__convex__polygon__worldS86724(vertices, point) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN33point__in__convex__polygon__worldS86740(vertices, point) {
   if (vertices.len < 3) {
     return false;
   }
@@ -147063,7 +147079,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN33point__in
       const b = vertices.buf[_bind$72];
       const _p = _M0MP39Milky201812moon__rapier4core4Vec23sub(b, a);
       const _p$2 = _M0MP39Milky201812moon__rapier4core4Vec23sub(point, a);
-      if (Math.fround(Math.fround(_p.x * _p$2.y) - Math.fround(_p.y * _p$2.x)) < -_M0FP39Milky201812moon__rapier9collision17shapes__intersectN3epsS86739) {
+      if (Math.fround(Math.fround(_p.x * _p$2.y) - Math.fround(_p.y * _p$2.x)) < -_M0FP39Milky201812moon__rapier9collision17shapes__intersectN3epsS86755) {
         return false;
       }
       _tmp = i + 1 | 0;
@@ -147074,11 +147090,11 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN33point__in
   }
   return true;
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN23cuboid__world__verticesS86725(center, rotation, half_width, half_height) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN23cuboid__world__verticesS86741(center, rotation, half_width, half_height) {
   const rot = _M0MP39Milky201812moon__rapier4core4Rot211from__angle(rotation);
   return new _M0TPB5ArrayGRP39Milky201812moon__rapier4core4Vec2E([_M0MP39Milky201812moon__rapier4core4Vec23add(center, _M0MP39Milky201812moon__rapier4core4Rot212rotate__vec2(rot, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(half_width, half_height))), _M0MP39Milky201812moon__rapier4core4Vec23add(center, _M0MP39Milky201812moon__rapier4core4Rot212rotate__vec2(rot, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(-half_width, half_height))), _M0MP39Milky201812moon__rapier4core4Vec23add(center, _M0MP39Milky201812moon__rapier4core4Rot212rotate__vec2(rot, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(-half_width, -half_height))), _M0MP39Milky201812moon__rapier4core4Vec23add(center, _M0MP39Milky201812moon__rapier4core4Rot212rotate__vec2(rot, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(half_width, -half_height)))], 4);
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN4axesS86726(poly) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN4axesS86742(poly) {
   const out = new _M0TPB5ArrayGRP39Milky201812moon__rapier4core4Vec2E([], 0);
   const _bind$71 = poly.len;
   let _tmp = 0;
@@ -147107,7 +147123,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN4axesS86726
   }
   return out;
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN7projectS86727(poly, axis) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN7projectS86743(poly, axis) {
   let minp = Math.fround(1e+30);
   let maxp = Math.fround(-1e+30);
   const _bind$71 = poly.len;
@@ -147134,12 +147150,12 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN7projectS86
   }
   return { _0: minp, _1: maxp };
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34convex__polygons__intersect__worldS86728(poly1, poly2) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34convex__polygons__intersect__worldS86744(poly1, poly2) {
   if (poly1.len < 3 || poly2.len < 3) {
     return false;
   }
-  const axes1 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN4axesS86726(poly1);
-  const axes2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN4axesS86726(poly2);
+  const axes1 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN4axesS86742(poly1);
+  const axes2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN4axesS86742(poly2);
   const _bind$71 = axes1.len;
   let _tmp = 0;
   while (true) {
@@ -147149,10 +147165,10 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34convex__p
         $panic();
       }
       const axis = axes1.buf[i];
-      const _bind$72 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN7projectS86727(poly1, axis);
+      const _bind$72 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN7projectS86743(poly1, axis);
       const _min1 = _bind$72._0;
       const _max1 = _bind$72._1;
-      const _bind$73 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN7projectS86727(poly2, axis);
+      const _bind$73 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN7projectS86743(poly2, axis);
       const _min2 = _bind$73._0;
       const _max2 = _bind$73._1;
       if (_max1 < _min2 || _max2 < _min1) {
@@ -147173,10 +147189,10 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34convex__p
         $panic();
       }
       const axis = axes2.buf[i];
-      const _bind$73 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN7projectS86727(poly1, axis);
+      const _bind$73 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN7projectS86743(poly1, axis);
       const _min1 = _bind$73._0;
       const _max1 = _bind$73._1;
-      const _bind$74 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN7projectS86727(poly2, axis);
+      const _bind$74 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN7projectS86743(poly2, axis);
       const _min2 = _bind$74._0;
       const _max2 = _bind$74._1;
       if (_max1 < _min2 || _max2 < _min1) {
@@ -147190,11 +147206,11 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34convex__p
   }
   return true;
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN39ball__convex__polygon__intersect__worldS86729(center, radius, poly) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN39ball__convex__polygon__intersect__worldS86745(center, radius, poly) {
   if (poly.len < 3) {
     return false;
   }
-  if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN33point__in__convex__polygon__worldS86724(poly, center)) {
+  if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN33point__in__convex__polygon__worldS86740(poly, center)) {
     return true;
   }
   let best_dist2 = Math.fround(1e+30);
@@ -147212,7 +147228,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN39ball__con
         $panic();
       }
       const b = poly.buf[_bind$72];
-      const q = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN27closest__point__on__segmentS86718(a, b, center);
+      const q = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN27closest__point__on__segmentS86734(a, b, center);
       const d = _M0MP39Milky201812moon__rapier4core4Vec23sub(center, q);
       const dist2 = Math.fround(Math.fround(d.x * d.x) + Math.fround(d.y * d.y));
       if (dist2 < best_dist2) {
@@ -147226,11 +147242,11 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN39ball__con
   }
   return best_dist2 <= Math.fround(radius * radius);
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN42segment__convex__polygon__intersect__worldS86730(a, b, poly) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN42segment__convex__polygon__intersect__worldS86746(a, b, poly) {
   if (poly.len < 3) {
     return false;
   }
-  if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN33point__in__convex__polygon__worldS86724(poly, a) || _M0FP39Milky201812moon__rapier9collision17shapes__intersectN33point__in__convex__polygon__worldS86724(poly, b)) {
+  if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN33point__in__convex__polygon__worldS86740(poly, a) || _M0FP39Milky201812moon__rapier9collision17shapes__intersectN33point__in__convex__polygon__worldS86740(poly, b)) {
     return true;
   }
   const _bind$71 = poly.len;
@@ -147247,7 +147263,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN42segment__
         $panic();
       }
       const d = poly.buf[_bind$72];
-      if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN34segment__segment__intersect__worldS86722(a, b, c, d)) {
+      if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN34segment__segment__intersect__worldS86738(a, b, c, d)) {
         return true;
       }
       _tmp = i + 1 | 0;
@@ -147258,7 +147274,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN42segment__
   }
   return false;
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86731(s1, p1, r1, s2, p2, r2) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86747(s1, p1, r1, s2, p2, r2) {
   switch (s1.$tag) {
     case 0: {
       const _Ball = s1;
@@ -147282,13 +147298,13 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__i
           const _Segment = s2;
           const _a = _Segment._0;
           const _b = _Segment._1;
-          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24segment__ball__intersectS86719(p2, r2, _a, _b, p1, _br1);
+          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24segment__ball__intersectS86735(p2, r2, _a, _b, p1, _br1);
         }
         case 8: {
           const _ConvexPolygon = s2;
           const _v = _ConvexPolygon._0;
-          const pw = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86723(p2, r2, _v);
-          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN39ball__convex__polygon__intersect__worldS86729(p1, _br1, pw);
+          const pw = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86739(p2, r2, _v);
+          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN39ball__convex__polygon__intersect__worldS86745(p1, _br1, pw);
         }
         default: {
           return false;
@@ -147315,14 +147331,14 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__i
           const _Segment$2 = s2;
           const _a$2 = _Segment$2._0;
           const _b$2 = _Segment$2._1;
-          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN26segment__cuboid__intersectS86720(p2, r2, _a$2, _b$2, p1, r1, _hw1, _hh1);
+          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN26segment__cuboid__intersectS86736(p2, r2, _a$2, _b$2, p1, r1, _hw1, _hh1);
         }
         case 8: {
           const _ConvexPolygon$2 = s2;
           const _v2 = _ConvexPolygon$2._0;
-          const p1w = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN23cuboid__world__verticesS86725(p1, r1, _hw1, _hh1);
-          const p2w = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86723(p2, r2, _v2);
-          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34convex__polygons__intersect__worldS86728(p1w, p2w);
+          const p1w = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN23cuboid__world__verticesS86741(p1, r1, _hw1, _hh1);
+          const p2w = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86739(p2, r2, _v2);
+          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34convex__polygons__intersect__worldS86744(p1w, p2w);
         }
         default: {
           return false;
@@ -147337,34 +147353,34 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__i
         case 0: {
           const _Ball$4 = s2;
           const _r$2 = _Ball$4._0;
-          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24segment__ball__intersectS86719(p1, r1, _a$3, _b$3, p2, _r$2);
+          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24segment__ball__intersectS86735(p1, r1, _a$3, _b$3, p2, _r$2);
         }
         case 1: {
           const _Cuboid$4 = s2;
           const _hw$2 = _Cuboid$4._0;
           const _hh$2 = _Cuboid$4._1;
-          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN26segment__cuboid__intersectS86720(p1, r1, _a$3, _b$3, p2, r2, _hw$2, _hh$2);
+          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN26segment__cuboid__intersectS86736(p1, r1, _a$3, _b$3, p2, r2, _hw$2, _hh$2);
         }
         case 5: {
           const _Segment$4 = s2;
           const _a2 = _Segment$4._0;
           const _b2 = _Segment$4._1;
-          const _bind$71 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86717(p1, r1, _a$3, _b$3);
+          const _bind$71 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86733(p1, r1, _a$3, _b$3);
           const _wa1 = _bind$71._0;
           const _wb1 = _bind$71._1;
-          const _bind$72 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86717(p2, r2, _a2, _b2);
+          const _bind$72 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86733(p2, r2, _a2, _b2);
           const _wa2 = _bind$72._0;
           const _wb2 = _bind$72._1;
-          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34segment__segment__intersect__worldS86722(_wa1, _wb1, _wa2, _wb2);
+          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34segment__segment__intersect__worldS86738(_wa1, _wb1, _wa2, _wb2);
         }
         case 8: {
           const _ConvexPolygon$3 = s2;
           const _v$2 = _ConvexPolygon$3._0;
-          const pw$2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86723(p2, r2, _v$2);
-          const _bind$73 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86717(p1, r1, _a$3, _b$3);
+          const pw$2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86739(p2, r2, _v$2);
+          const _bind$73 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86733(p1, r1, _a$3, _b$3);
           const _wa = _bind$73._0;
           const _wb = _bind$73._1;
-          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN42segment__convex__polygon__intersect__worldS86730(_wa, _wb, pw$2);
+          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN42segment__convex__polygon__intersect__worldS86746(_wa, _wb, pw$2);
         }
         default: {
           return false;
@@ -147378,33 +147394,33 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__i
         case 8: {
           const _ConvexPolygon$5 = s2;
           const _v2$2 = _ConvexPolygon$5._0;
-          const p1w$2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86723(p1, r1, _v1);
-          const p2w$2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86723(p2, r2, _v2$2);
-          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34convex__polygons__intersect__worldS86728(p1w$2, p2w$2);
+          const p1w$2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86739(p1, r1, _v1);
+          const p2w$2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86739(p2, r2, _v2$2);
+          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34convex__polygons__intersect__worldS86744(p1w$2, p2w$2);
         }
         case 1: {
           const _Cuboid$5 = s2;
           const _hw$3 = _Cuboid$5._0;
           const _hh$3 = _Cuboid$5._1;
-          const p1w$3 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86723(p1, r1, _v1);
-          const p2w$3 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN23cuboid__world__verticesS86725(p2, r2, _hw$3, _hh$3);
-          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34convex__polygons__intersect__worldS86728(p1w$3, p2w$3);
+          const p1w$3 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86739(p1, r1, _v1);
+          const p2w$3 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN23cuboid__world__verticesS86741(p2, r2, _hw$3, _hh$3);
+          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34convex__polygons__intersect__worldS86744(p1w$3, p2w$3);
         }
         case 0: {
           const _Ball$5 = s2;
           const _r$3 = _Ball$5._0;
-          const pw$3 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86723(p1, r1, _v1);
-          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN39ball__convex__polygon__intersect__worldS86729(p2, _r$3, pw$3);
+          const pw$3 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86739(p1, r1, _v1);
+          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN39ball__convex__polygon__intersect__worldS86745(p2, _r$3, pw$3);
         }
         case 5: {
           const _Segment$5 = s2;
           const _a$4 = _Segment$5._0;
           const _b$4 = _Segment$5._1;
-          const pw$4 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86723(p1, r1, _v1);
-          const _bind$74 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86717(p2, r2, _a$4, _b$4);
+          const pw$4 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86739(p1, r1, _v1);
+          const _bind$74 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86733(p2, r2, _a$4, _b$4);
           const _wa$2 = _bind$74._0;
           const _wb$2 = _bind$74._1;
-          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN42segment__convex__polygon__intersect__worldS86730(_wa$2, _wb$2, pw$4);
+          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN42segment__convex__polygon__intersect__worldS86746(_wa$2, _wb$2, pw$4);
         }
         default: {
           return false;
@@ -147416,17 +147432,17 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__i
     }
   }
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86732(center, rotation, axis, half_height, radius, core_hw, core_hh) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86748(center, rotation, axis, half_height, radius, core_hw, core_hh) {
   const rot = _M0MP39Milky201812moon__rapier4core4Rot211from__angle(rotation);
   const offset = _M0MP39Milky201812moon__rapier4core4Rot212rotate__vec2(rot, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(axis.x * half_height), Math.fround(axis.y * half_height)));
   const a = _M0MP39Milky201812moon__rapier4core4Vec23add(center, offset);
   const b = _M0MP39Milky201812moon__rapier4core4Vec23sub(center, offset);
   return new _M0TPB5ArrayGURP39Milky201812moon__rapier9collision5ShapeRP39Milky201812moon__rapier4core4Vec2fEE([{ _0: new _M0DTP39Milky201812moon__rapier9collision5Shape4Ball(radius), _1: a, _2: Math.fround(0) }, { _0: new _M0DTP39Milky201812moon__rapier9collision5Shape4Ball(radius), _1: b, _2: Math.fround(0) }, { _0: new _M0DTP39Milky201812moon__rapier9collision5Shape6Cuboid(core_hw, core_hh), _1: center, _2: rotation }], 3);
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN13test__segmentS86733(a, b, poly_pos, poly_rot, other, other_pos, other_rot) {
-  return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86731(new _M0DTP39Milky201812moon__rapier9collision5Shape7Segment(a, b), poly_pos, poly_rot, other, other_pos, other_rot);
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN13test__segmentS86749(a, b, poly_pos, poly_rot, other, other_pos, other_rot) {
+  return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86747(new _M0DTP39Milky201812moon__rapier9collision5Shape7Segment(a, b), poly_pos, poly_rot, other, other_pos, other_rot);
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34polyline__intersects__shape__basicS86734(vertices, indices, poly_pos, poly_rot, other, other_pos, other_rot) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34polyline__intersects__shape__basicS86750(vertices, indices, poly_pos, poly_rot, other, other_pos, other_rot) {
   if (indices === undefined) {
     if (vertices.len < 2) {
       return false;
@@ -147444,7 +147460,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34polyline_
         if (_bind$72 < 0 || _bind$72 >= vertices.len) {
           $panic();
         }
-        if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN13test__segmentS86733(_tmp$2, vertices.buf[_bind$72], poly_pos, poly_rot, other, other_pos, other_rot)) {
+        if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN13test__segmentS86749(_tmp$2, vertices.buf[_bind$72], poly_pos, poly_rot, other, other_pos, other_rot)) {
           return true;
         }
         _tmp = i + 1 | 0;
@@ -147482,7 +147498,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34polyline_
           if (_i1 < 0 || _i1 >= vertices.len) {
             $panic();
           }
-          if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN13test__segmentS86733(_tmp$2, vertices.buf[_i1], poly_pos, poly_rot, other, other_pos, other_rot)) {
+          if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN13test__segmentS86749(_tmp$2, vertices.buf[_i1], poly_pos, poly_rot, other, other_pos, other_rot)) {
             return true;
           }
           break _L;
@@ -147496,17 +147512,17 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34polyline_
     return false;
   }
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN18vertex__is__insideS86735(n, origin, p) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN18vertex__is__insideS86751(n, origin, p) {
   const _p = _M0MP39Milky201812moon__rapier4core4Vec23sub(p, origin);
   return Math.fround(Math.fround(n.x * _p.x) + Math.fround(n.y * _p.y)) <= Math.fround(0);
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN13test__segmentS86736(a, b, poly_pos, poly_rot, n, origin) {
-  const _bind$71 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86717(poly_pos, poly_rot, a, b);
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN13test__segmentS86752(a, b, poly_pos, poly_rot, n, origin) {
+  const _bind$71 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86733(poly_pos, poly_rot, a, b);
   const _wa = _bind$71._0;
   const _wb = _bind$71._1;
-  return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN18vertex__is__insideS86735(n, origin, _wa) || _M0FP39Milky201812moon__rapier9collision17shapes__intersectN18vertex__is__insideS86735(n, origin, _wb);
+  return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN18vertex__is__insideS86751(n, origin, _wa) || _M0FP39Milky201812moon__rapier9collision17shapes__intersectN18vertex__is__insideS86751(n, origin, _wb);
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace__intersects__shape__basicS86737(hs_pos, hs_rot, outward_normal_local, other, other_pos, other_rot) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace__intersects__shape__basicS86753(hs_pos, hs_rot, outward_normal_local, other, other_pos, other_rot) {
   let _tmp = other;
   _L: while (true) {
     const other$2 = _tmp;
@@ -147526,7 +147542,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace
         const _Cuboid = other$2;
         const _hw = _Cuboid._0;
         const _hh = _Cuboid._1;
-        const vs = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN23cuboid__world__verticesS86725(other_pos, other_rot, _hw, _hh);
+        const vs = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN23cuboid__world__verticesS86741(other_pos, other_rot, _hw, _hh);
         const _bind$71 = vs.len;
         let _tmp$2 = 0;
         while (true) {
@@ -147535,7 +147551,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace
             if (i < 0 || i >= vs.len) {
               $panic();
             }
-            if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN18vertex__is__insideS86735(n, hs_pos, vs.buf[i])) {
+            if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN18vertex__is__insideS86751(n, hs_pos, vs.buf[i])) {
               return true;
             }
             _tmp$2 = i + 1 | 0;
@@ -147578,10 +147594,10 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace
         const _Segment = other$2;
         const _a = _Segment._0;
         const _b = _Segment._1;
-        const _bind$72 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86717(other_pos, other_rot, _a, _b);
+        const _bind$72 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN25segment__world__endpointsS86733(other_pos, other_rot, _a, _b);
         const _wa = _bind$72._0;
         const _wb = _bind$72._1;
-        return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN18vertex__is__insideS86735(n, hs_pos, _wa) || _M0FP39Milky201812moon__rapier9collision17shapes__intersectN18vertex__is__insideS86735(n, hs_pos, _wb);
+        return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN18vertex__is__insideS86751(n, hs_pos, _wa) || _M0FP39Milky201812moon__rapier9collision17shapes__intersectN18vertex__is__insideS86751(n, hs_pos, _wb);
       }
       case 6: {
         const _Polyline = other$2;
@@ -147604,7 +147620,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace
               if (_bind$74 < 0 || _bind$74 >= _vertices.len) {
                 $panic();
               }
-              if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN13test__segmentS86736(_tmp$4, _vertices.buf[_bind$74], other_pos, other_rot, n, hs_pos)) {
+              if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN13test__segmentS86752(_tmp$4, _vertices.buf[_bind$74], other_pos, other_rot, n, hs_pos)) {
                 return true;
               }
               _tmp$3 = i + 1 | 0;
@@ -147642,7 +147658,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace
                 if (_i1 < 0 || _i1 >= _vertices.len) {
                   $panic();
                 }
-                if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN13test__segmentS86736(_tmp$4, _vertices.buf[_i1], other_pos, other_rot, n, hs_pos)) {
+                if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN13test__segmentS86752(_tmp$4, _vertices.buf[_i1], other_pos, other_rot, n, hs_pos)) {
                   return true;
                 }
                 break _L$2;
@@ -147666,7 +147682,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace
       case 8: {
         const _ConvexPolygon = other$2;
         const _vertices$2 = _ConvexPolygon._0;
-        const vs$2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86723(other_pos, other_rot, _vertices$2);
+        const vs$2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN32convex__polygon__world__verticesS86739(other_pos, other_rot, _vertices$2);
         const _bind$73 = vs$2.len;
         let _tmp$3 = 0;
         while (true) {
@@ -147675,7 +147691,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace
             if (i < 0 || i >= vs$2.len) {
               $panic();
             }
-            if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN18vertex__is__insideS86735(n, hs_pos, vs$2.buf[i])) {
+            if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN18vertex__is__insideS86751(n, hs_pos, vs$2.buf[i])) {
               return true;
             }
             _tmp$3 = i + 1 | 0;
@@ -147699,7 +147715,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace
               $panic();
             }
             const p = _M0MP39Milky201812moon__rapier4core4Vec23add(other_pos, _M0MP39Milky201812moon__rapier4core4Rot212rotate__vec2(r$3, _vertices$3.buf[i]));
-            if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN18vertex__is__insideS86735(n, hs_pos, p)) {
+            if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN18vertex__is__insideS86751(n, hs_pos, p)) {
               return true;
             }
             _tmp$4 = i + 1 | 0;
@@ -147731,7 +147747,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace
             const w = _M0MP39Milky201812moon__rapier4core9Isometry23mul(iso, _pose);
             const p = _M0FP39Milky201812moon__rapier9collision22isometry2__translation(w);
             const r$4 = _M0FP39Milky201812moon__rapier9collision26isometry2__rotation__angle(w);
-            if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace__intersects__shape__basicS86737(hs_pos, hs_rot, outward_normal_local, _s, p, r$4)) {
+            if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace__intersects__shape__basicS86753(hs_pos, hs_rot, outward_normal_local, _s, p, r$4)) {
               return true;
             }
             _tmp$5 = i + 1 | 0;
@@ -147748,7 +147764,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace
     }
   }
 }
-function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN8segmentsS86738(vertices, indices) {
+function _M0FP39Milky201812moon__rapier9collision17shapes__intersectN8segmentsS86754(vertices, indices) {
   const result = new _M0TPB5ArrayGURP39Milky201812moon__rapier4core4Vec2RP39Milky201812moon__rapier4core4Vec2EE([], 0);
   if (indices === undefined) {
     if (vertices.len >= 2) {
@@ -147896,12 +147912,12 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
             if (shape1$2.$tag === 2) {
               const _HalfSpace = shape1$2;
               const _n = _HalfSpace._0;
-              return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace__intersects__shape__basicS86737(pos1, rot1, _n, shape2$2, pos2, rot2);
+              return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace__intersects__shape__basicS86753(pos1, rot1, _n, shape2$2, pos2, rot2);
             } else {
               if (shape2$2.$tag === 2) {
                 const _HalfSpace = shape2$2;
                 const _n = _HalfSpace._0;
-                return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace__intersects__shape__basicS86737(pos2, rot2, _n, shape1$2, pos1, rot1);
+                return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN35halfspace__intersects__shape__basicS86753(pos2, rot2, _n, shape1$2, pos1, rot1);
               } else {
                 if (shape1$2.$tag === 10) {
                   const _Compound = shape1$2;
@@ -148237,8 +148253,8 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
                             const _Polyline$2 = shape2$2;
                             const _vertices2 = _Polyline$2._0;
                             const _indices2 = _Polyline$2._1;
-                            const s1 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN8segmentsS86738(_vertices, _indices);
-                            const s2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN8segmentsS86738(_vertices2, _indices2);
+                            const s1 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN8segmentsS86754(_vertices, _indices);
+                            const s2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN8segmentsS86754(_vertices2, _indices2);
                             const _bind$71 = s1.len;
                             let _tmp = 0;
                             while (true) {
@@ -148262,7 +148278,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
                                     if (j < 0 || j >= s2.len) {
                                       $panic();
                                     }
-                                    if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86731(_tmp$3, pos1, rot1, new _M0DTP39Milky201812moon__rapier9collision5Shape7Segment(s2.buf[j]._0, s2.buf[j]._1), pos2, rot2)) {
+                                    if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86747(_tmp$3, pos1, rot1, new _M0DTP39Milky201812moon__rapier9collision5Shape7Segment(s2.buf[j]._0, s2.buf[j]._1), pos2, rot2)) {
                                       return true;
                                     }
                                     _tmp$2 = j + 1 | 0;
@@ -148284,7 +148300,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
                                 const _CapsuleX = shape2$2;
                                 const _h = _CapsuleX._0;
                                 const _r = _CapsuleX._1;
-                                const comps = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86732(pos2, rot2, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)), _h, _r, _h, _r);
+                                const comps = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86748(pos2, rot2, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)), _h, _r, _h, _r);
                                 const _bind$71 = comps.len;
                                 let _tmp = 0;
                                 while (true) {
@@ -148294,7 +148310,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
                                       $panic();
                                     }
                                     const c = comps.buf[i];
-                                    if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN34polyline__intersects__shape__basicS86734(_vertices, _indices, pos1, rot1, c._0, c._1, c._2)) {
+                                    if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN34polyline__intersects__shape__basicS86750(_vertices, _indices, pos1, rot1, c._0, c._1, c._2)) {
                                       return true;
                                     }
                                     _tmp = i + 1 | 0;
@@ -148309,7 +148325,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
                                 const _CapsuleY = shape2$2;
                                 const _h$2 = _CapsuleY._0;
                                 const _r$2 = _CapsuleY._1;
-                                const comps$2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86732(pos2, rot2, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(0), Math.fround(1)), _h$2, _r$2, _r$2, _h$2);
+                                const comps$2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86748(pos2, rot2, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(0), Math.fround(1)), _h$2, _r$2, _r$2, _h$2);
                                 const _bind$72 = comps$2.len;
                                 let _tmp$2 = 0;
                                 while (true) {
@@ -148319,7 +148335,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
                                       $panic();
                                     }
                                     const c = comps$2.buf[i];
-                                    if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN34polyline__intersects__shape__basicS86734(_vertices, _indices, pos1, rot1, c._0, c._1, c._2)) {
+                                    if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN34polyline__intersects__shape__basicS86750(_vertices, _indices, pos1, rot1, c._0, c._1, c._2)) {
                                       return true;
                                     }
                                     _tmp$2 = i + 1 | 0;
@@ -148331,7 +148347,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
                                 return false;
                               }
                               default: {
-                                return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34polyline__intersects__shape__basicS86734(_vertices, _indices, pos1, rot1, shape2$2, pos2, rot2);
+                                return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34polyline__intersects__shape__basicS86750(_vertices, _indices, pos1, rot1, shape2$2, pos2, rot2);
                               }
                             }
                           }
@@ -148345,7 +148361,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
                                 const _CapsuleX = shape1$2;
                                 const _h = _CapsuleX._0;
                                 const _r = _CapsuleX._1;
-                                const comps = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86732(pos1, rot1, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)), _h, _r, _h, _r);
+                                const comps = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86748(pos1, rot1, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)), _h, _r, _h, _r);
                                 const _bind$71 = comps.len;
                                 let _tmp = 0;
                                 while (true) {
@@ -148355,7 +148371,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
                                       $panic();
                                     }
                                     const c = comps.buf[i];
-                                    if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN34polyline__intersects__shape__basicS86734(_vertices, _indices, pos2, rot2, c._0, c._1, c._2)) {
+                                    if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN34polyline__intersects__shape__basicS86750(_vertices, _indices, pos2, rot2, c._0, c._1, c._2)) {
                                       return true;
                                     }
                                     _tmp = i + 1 | 0;
@@ -148370,7 +148386,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
                                 const _CapsuleY = shape1$2;
                                 const _h$2 = _CapsuleY._0;
                                 const _r$2 = _CapsuleY._1;
-                                const comps$2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86732(pos1, rot1, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(0), Math.fround(1)), _h$2, _r$2, _r$2, _h$2);
+                                const comps$2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86748(pos1, rot1, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(0), Math.fround(1)), _h$2, _r$2, _r$2, _h$2);
                                 const _bind$72 = comps$2.len;
                                 let _tmp$2 = 0;
                                 while (true) {
@@ -148380,7 +148396,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
                                       $panic();
                                     }
                                     const c = comps$2.buf[i];
-                                    if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN34polyline__intersects__shape__basicS86734(_vertices, _indices, pos2, rot2, c._0, c._1, c._2)) {
+                                    if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN34polyline__intersects__shape__basicS86750(_vertices, _indices, pos2, rot2, c._0, c._1, c._2)) {
                                       return true;
                                     }
                                     _tmp$2 = i + 1 | 0;
@@ -148392,7 +148408,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
                                 return false;
                               }
                               default: {
-                                return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34polyline__intersects__shape__basicS86734(_vertices, _indices, pos2, rot2, shape1$2, pos1, rot1);
+                                return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN34polyline__intersects__shape__basicS86750(_vertices, _indices, pos2, rot2, shape1$2, pos1, rot1);
                               }
                             }
                           } else {
@@ -148503,7 +148519,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
                                 const _CapsuleX$4 = shape1$2;
                                 const _h$7 = _CapsuleX$4._0;
                                 const _r$7 = _CapsuleX$4._1;
-                                const comps = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86732(pos1, rot1, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)), _h$7, _r$7, _h$7, _r$7);
+                                const comps = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86748(pos1, rot1, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)), _h$7, _r$7, _h$7, _r$7);
                                 const _bind$71 = comps.len;
                                 let _tmp = 0;
                                 while (true) {
@@ -148513,7 +148529,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
                                       $panic();
                                     }
                                     const c = comps.buf[i];
-                                    if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86731(c._0, c._1, c._2, shape2$2, pos2, rot2)) {
+                                    if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86747(c._0, c._1, c._2, shape2$2, pos2, rot2)) {
                                       return true;
                                     }
                                     _tmp = i + 1 | 0;
@@ -148528,7 +148544,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
                                 const _CapsuleY$4 = shape1$2;
                                 const _h$8 = _CapsuleY$4._0;
                                 const _r$8 = _CapsuleY$4._1;
-                                const comps$2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86732(pos1, rot1, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(0), Math.fround(1)), _h$8, _r$8, _r$8, _h$8);
+                                const comps$2 = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86748(pos1, rot1, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(0), Math.fround(1)), _h$8, _r$8, _r$8, _h$8);
                                 const _bind$72 = comps$2.len;
                                 let _tmp$2 = 0;
                                 while (true) {
@@ -148538,7 +148554,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
                                       $panic();
                                     }
                                     const c = comps$2.buf[i];
-                                    if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86731(c._0, c._1, c._2, shape2$2, pos2, rot2)) {
+                                    if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86747(c._0, c._1, c._2, shape2$2, pos2, rot2)) {
                                       return true;
                                     }
                                     _tmp$2 = i + 1 | 0;
@@ -148584,11 +148600,11 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
               }
             }
           }
-          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86731(shape1$2, pos1, rot1, shape2$2, pos2, rot2);
+          return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86747(shape1$2, pos1, rot1, shape2$2, pos2, rot2);
         }
-        return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86731(shape1$2, pos1, rot1, shape2$2, pos2, rot2);
+        return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86747(shape1$2, pos1, rot1, shape2$2, pos2, rot2);
       }
-      const comps = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86732(pos2, rot2, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)), h$2, r$2, h$2, r$2);
+      const comps = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86748(pos2, rot2, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0)), h$2, r$2, h$2, r$2);
       const _bind$71 = comps.len;
       let _tmp = 0;
       while (true) {
@@ -148598,7 +148614,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
             $panic();
           }
           const c = comps.buf[i];
-          if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86731(other$2, pos1, rot1, c._0, c._1, c._2)) {
+          if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86747(other$2, pos1, rot1, c._0, c._1, c._2)) {
             return true;
           }
           _tmp = i + 1 | 0;
@@ -148609,7 +148625,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
       }
       return false;
     }
-    const comps = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86732(pos2, rot2, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(0), Math.fround(1)), h, r, r, h);
+    const comps = _M0FP39Milky201812moon__rapier9collision17shapes__intersectN19capsule__componentsS86748(pos2, rot2, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(0), Math.fround(1)), h, r, r, h);
     const _bind$71 = comps.len;
     let _tmp = 0;
     while (true) {
@@ -148619,7 +148635,7 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
           $panic();
         }
         const c = comps.buf[i];
-        if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86731(other, pos1, rot1, c._0, c._1, c._2)) {
+        if (_M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86747(other, pos1, rot1, c._0, c._1, c._2)) {
           return true;
         }
         _tmp = i + 1 | 0;
@@ -148630,9 +148646,9 @@ function _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape1, pos
     }
     return false;
   }
-  return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86731(shape1$2, pos1, rot1, shape2$2, pos2, rot2);
+  return _M0FP39Milky201812moon__rapier9collision17shapes__intersectN24shapes__intersect__basicS86747(shape1$2, pos1, rot1, shape2$2, pos2, rot2);
 }
-function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN23shape__bounding__radiusS87386(shape) {
+function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN23shape__bounding__radiusS87402(shape) {
   let _tmp = shape;
   _L: while (true) {
     const shape$2 = _tmp;
@@ -148641,7 +148657,7 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__n
         const _Round = shape$2;
         const _inner = _Round._0;
         const _r = _Round._1;
-        return Math.fround(_M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN23shape__bounding__radiusS87386(_inner.val) + (_r < Math.fround(0) ? Math.fround(0) : _r));
+        return Math.fround(_M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN23shape__bounding__radiusS87402(_inner.val) + (_r < Math.fround(0) ? Math.fround(0) : _r));
       }
       case 0: {
         const _Ball = shape$2;
@@ -148771,7 +148787,7 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__n
             const _pose = _bind$75._0;
             const _part_shape = _bind$75._1;
             const t = _M0FP39Milky201812moon__rapier9collision22isometry2__translation(_pose);
-            const d = Math.fround(_M0MP39Milky201812moon__rapier4core4Vec26length(t) + _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN23shape__bounding__radiusS87386(_part_shape));
+            const d = Math.fround(_M0MP39Milky201812moon__rapier4core4Vec26length(t) + _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN23shape__bounding__radiusS87402(_part_shape));
             if (d > best$4) {
               best$4 = d;
             }
@@ -148786,7 +148802,7 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__n
     }
   }
 }
-function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN35project__point__on__shape__boundaryS87387(shape, center, rotation, point) {
+function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN35project__point__on__shape__boundaryS87403(shape, center, rotation, point) {
   switch (shape.$tag) {
     case 11: {
       const _Round = shape;
@@ -148858,26 +148874,26 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__n
     }
   }
 }
-function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN17contact__at__timeS87388(_env, time, target_shape, target_center, target_rot) {
+function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN17contact__at__timeS87404(_env, time, target_shape, target_center, target_rot) {
   const shape_motion = _env._1;
   const shape = _env._0;
   const pose = _M0MP39Milky201812moon__rapier9collision20NonlinearRigidMotion14pose__at__time(shape_motion, time);
   const moving_center = pose.translation;
   const moving_rot = _M0MP39Milky201812moon__rapier4core4Rot25angle(pose.rotation);
-  const point_on_target = _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN35project__point__on__shape__boundaryS87387(target_shape, target_center, target_rot, moving_center);
-  const point_on_moving = _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN35project__point__on__shape__boundaryS87387(shape, moving_center, moving_rot, point_on_target);
+  const point_on_target = _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN35project__point__on__shape__boundaryS87403(target_shape, target_center, target_rot, moving_center);
+  const point_on_moving = _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN35project__point__on__shape__boundaryS87403(shape, moving_center, moving_rot, point_on_target);
   const vel = _M0MP39Milky201812moon__rapier9collision20NonlinearRigidMotion25point__velocity__at__time(shape_motion, time, point_on_moving);
   const fallback = _M0MP39Milky201812moon__rapier4core4Vec24Vec2(-vel.x, -vel.y);
   const normal = _M0FP39Milky201812moon__rapier9collision23normalize__or__fallback(_M0MP39Milky201812moon__rapier4core4Vec23sub(point_on_moving, point_on_target), _M0FP39Milky201812moon__rapier9collision23normalize__or__fallback(fallback, _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0))));
   return { _0: point_on_target, _1: point_on_moving, _2: normal };
 }
-function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN20intersects__at__timeS87389(_env, time, target_shape, target_center, target_rot) {
+function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN20intersects__at__timeS87405(_env, time, target_shape, target_center, target_rot) {
   const shape_motion = _env._1;
   const shape = _env._0;
   const pose = _M0MP39Milky201812moon__rapier9collision20NonlinearRigidMotion14pose__at__time(shape_motion, time);
   return _M0FP39Milky201812moon__rapier9collision17shapes__intersect(shape, pose.translation, _M0MP39Milky201812moon__rapier4core4Rot25angle(pose.rotation), target_shape, target_center, target_rot);
 }
-function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN14compute__stepsS87390(duration, c0, c1, radius, angvel) {
+function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN14compute__stepsS87406(duration, c0, c1, radius, angvel) {
   const dist = _M0MP39Milky201812moon__rapier4core4Vec26length(_M0MP39Milky201812moon__rapier4core4Vec23sub(c1, c0));
   const trans_scale = Math.fround(Math.fround(radius * Math.fround(0.25)) + Math.fround(0.05));
   const trans_steps = trans_scale <= Math.fround(1e-06) ? 64 : _M0MPC15float5Float7to__int(Math.fround(dist / trans_scale)) + 1 | 0;
@@ -148891,7 +148907,7 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__n
   }
   return steps;
 }
-function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN18bisect__transitionS87391(_env, lo, hi, target_shape, target_center, target_rot, want_intersection_at_hi) {
+function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN18bisect__transitionS87407(_env, lo, hi, target_shape, target_center, target_rot, want_intersection_at_hi) {
   let left = lo;
   let right = hi;
   let _tmp = 0;
@@ -148899,7 +148915,7 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__n
     const _ = _tmp;
     if (_ < 25) {
       const mid = Math.fround(Math.fround(0.5) * Math.fround(left + right));
-      const mid_state = _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN20intersects__at__timeS87389(_env, mid, target_shape, target_center, target_rot);
+      const mid_state = _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN20intersects__at__timeS87405(_env, mid, target_shape, target_center, target_rot);
       if (mid_state === want_intersection_at_hi) {
         right = mid;
       } else {
@@ -148919,7 +148935,7 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__n
   }
   const _env = { _0: shape, _1: shape_motion };
   const _env$2 = { _0: shape, _1: shape_motion };
-  const radius = _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN23shape__bounding__radiusS87386(shape);
+  const radius = _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN23shape__bounding__radiusS87402(shape);
   const c0 = _M0MP39Milky201812moon__rapier9collision20NonlinearRigidMotion14pose__at__time(shape_motion, start_time).translation;
   const c1 = _M0MP39Milky201812moon__rapier9collision20NonlinearRigidMotion14pose__at__time(shape_motion, end_time).translation;
   const _p = c0.x;
@@ -148978,8 +148994,8 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__n
             const target_center = _collider.world_translation;
             const target_rot = _collider.world_rotation;
             let scan_start = start_time;
-            if (_M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN20intersects__at__timeS87389(_env$2, scan_start, target_shape, target_center, target_rot)) {
-              const _bind$75 = _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN17contact__at__timeS87388(_env, scan_start, target_shape, target_center, target_rot);
+            if (_M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN20intersects__at__timeS87405(_env$2, scan_start, target_shape, target_center, target_rot)) {
+              const _bind$75 = _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN17contact__at__timeS87404(_env, scan_start, target_shape, target_center, target_rot);
               const _point_on_target = _bind$75._0;
               const _point_on_moving = _bind$75._1;
               const _normal = _bind$75._2;
@@ -149012,7 +149028,7 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__n
                   }
                   const c0$2 = _M0MP39Milky201812moon__rapier9collision20NonlinearRigidMotion14pose__at__time(shape_motion, scan_start$2).translation;
                   const c1$2 = _M0MP39Milky201812moon__rapier9collision20NonlinearRigidMotion14pose__at__time(shape_motion, end_time).translation;
-                  const steps = _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN14compute__stepsS87390(duration, c0$2, c1$2, radius, shape_motion.angvel);
+                  const steps = _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN14compute__stepsS87406(duration, c0$2, c1$2, radius, shape_motion.angvel);
                   const dt = Math.fround(duration / Math.fround(steps + 0));
                   let prev_t = scan_start$2;
                   const _bind$77 = steps + 1 | 0;
@@ -149024,8 +149040,8 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__n
                       if (t > end_time) {
                         t = end_time;
                       }
-                      if (!_M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN20intersects__at__timeS87389(_env$2, t, target_shape, target_center, target_rot)) {
-                        _return_value = new _M0DTPC16option6OptionGfE4Some(_M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN18bisect__transitionS87391(_env$2, prev_t, t, target_shape, target_center, target_rot, false));
+                      if (!_M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN20intersects__at__timeS87405(_env$2, t, target_shape, target_center, target_rot)) {
+                        _return_value = new _M0DTPC16option6OptionGfE4Some(_M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN18bisect__transitionS87407(_env$2, prev_t, t, target_shape, target_center, target_rot, false));
                         break _L$3;
                       }
                       prev_t = t;
@@ -149060,7 +149076,7 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__n
                 }
                 const c0$2 = _M0MP39Milky201812moon__rapier9collision20NonlinearRigidMotion14pose__at__time(shape_motion, scan_start$2).translation;
                 const c1$2 = _M0MP39Milky201812moon__rapier9collision20NonlinearRigidMotion14pose__at__time(shape_motion, end_time).translation;
-                const steps = _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN14compute__stepsS87390(duration, c0$2, c1$2, radius, shape_motion.angvel);
+                const steps = _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN14compute__stepsS87406(duration, c0$2, c1$2, radius, shape_motion.angvel);
                 const dt = Math.fround(duration / Math.fround(steps + 0));
                 let prev_t = scan_start$2;
                 const _bind$76 = steps + 1 | 0;
@@ -149072,8 +149088,8 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__n
                     if (t > end_time) {
                       t = end_time;
                     }
-                    if (_M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN20intersects__at__timeS87389(_env$2, t, target_shape, target_center, target_rot)) {
-                      _return_value = new _M0DTPC16option6OptionGfE4Some(_M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN18bisect__transitionS87391(_env$2, prev_t, t, target_shape, target_center, target_rot, true));
+                    if (_M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN20intersects__at__timeS87405(_env$2, t, target_shape, target_center, target_rot)) {
+                      _return_value = new _M0DTPC16option6OptionGfE4Some(_M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN18bisect__transitionS87407(_env$2, prev_t, t, target_shape, target_center, target_rot, true));
                       break _L$3;
                     }
                     prev_t = t;
@@ -149091,7 +149107,7 @@ function _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__n
             if (_bind$75.$tag === 1) {
               const _Some$2 = _bind$75;
               const _toi = _Some$2._0;
-              const _bind$76 = _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN17contact__at__timeS87388(_env, _toi, target_shape, target_center, target_rot);
+              const _bind$76 = _M0MP39Milky201812moon__rapier9collision13QueryPipeline22cast__shape__nonlinearN17contact__at__timeS87404(_env, _toi, target_shape, target_center, target_rot);
               const _point_on_target = _bind$76._0;
               const _normal = _bind$76._2;
               const hit = new _M0TP39Milky201812moon__rapier9collision12ShapeCastHit(_toi, _point_on_target, _normal);
@@ -150119,7 +150135,7 @@ function _M0FP39Milky201812moon__rapier9collision60recompute__body__mass__proper
 }
 function _M0MP39Milky201812moon__rapier9collision11ColliderSet20insert__with__parent(self, collider, parent, bodies) {
   const handle = _M0MP39Milky201812moon__rapier9collision11ColliderSet16allocate__handle(self);
-  collider.changes = _M0MP39Milky201812moon__rapier9collision15ColliderChanges3allN6recordS86710;
+  collider.changes = _M0MP39Milky201812moon__rapier9collision15ColliderChanges3allN6recordS86726;
   collider.parent = parent;
   const _bind$71 = _M0MP39Milky201812moon__rapier8dynamics12RigidBodySet3get(bodies, parent);
   if (_bind$71 === undefined) {
@@ -151175,7 +151191,7 @@ function _M0FP39Milky201812moon__rapier7control16compute__extents(shape) {
       return { _0: _hw$2, _1: _hh$2 };
     }
     case 2: {
-      return _M0FP39Milky201812moon__rapier7control16compute__extentsN5tupleS88374;
+      return _M0FP39Milky201812moon__rapier7control16compute__extentsN5tupleS88390;
     }
     case 3: {
       const _CapsuleX = shape;
@@ -152128,7 +152144,7 @@ function _M0MP39Milky201812moon__rapier8pipeline12SolverBodies10copy__from(self,
   _bind$74.buf[i] = p;
 }
 function _M0MP39Milky201812moon__rapier8pipeline10SolverPose4zero() {
-  return new _M0TP39Milky201812moon__rapier8pipeline10SolverPose(_M0MP39Milky201812moon__rapier4core4Vec24zero(), _M0MP39Milky201812moon__rapier4core4Rot28identityN6recordS81852, _M0MP39Milky201812moon__rapier4core4Vec24zero(), Math.fround(0), Math.fround(0));
+  return new _M0TP39Milky201812moon__rapier8pipeline10SolverPose(_M0MP39Milky201812moon__rapier4core4Vec24zero(), _M0MP39Milky201812moon__rapier4core4Rot28identityN6recordS81868, _M0MP39Milky201812moon__rapier4core4Vec24zero(), Math.fround(0), Math.fround(0));
 }
 function _M0MP39Milky201812moon__rapier8pipeline9SolverVel4zero() {
   return new _M0TP39Milky201812moon__rapier8pipeline9SolverVel(_M0MP39Milky201812moon__rapier4core4Vec24zero(), Math.fround(0));
@@ -152403,12 +152419,12 @@ function _M0FP39Milky201812moon__rapier8pipeline26separation__cuboid__cuboid(pos
   }
   return _M0FP39Milky201812moon__rapier8pipeline11vec2__scale(best_axis, Math.fround(best_overlap * best_sign));
 }
-function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN25segment__world__endpointsS88980(center, rotation, a, b) {
+function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN25segment__world__endpointsS88996(center, rotation, a, b) {
   const rot = _M0MP39Milky201812moon__rapier4core4Rot211from__angle(rotation);
   return { _0: _M0MP39Milky201812moon__rapier4core4Vec23add(center, _M0MP39Milky201812moon__rapier4core4Rot212rotate__vec2(rot, a)), _1: _M0MP39Milky201812moon__rapier4core4Vec23add(center, _M0MP39Milky201812moon__rapier4core4Rot212rotate__vec2(rot, b)) };
 }
-function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN25separation__ball__segmentS88981(ball_center, radius, seg_center, seg_rot, a, b) {
-  const _bind$71 = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN25segment__world__endpointsS88980(seg_center, seg_rot, a, b);
+function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN25separation__ball__segmentS88997(ball_center, radius, seg_center, seg_rot, a, b) {
+  const _bind$71 = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN25segment__world__endpointsS88996(seg_center, seg_rot, a, b);
   const _sa = _bind$71._0;
   const _sb = _bind$71._1;
   const ab = _M0MP39Milky201812moon__rapier4core4Vec23sub(_sb, _sa);
@@ -152438,8 +152454,8 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN25separatio
     return _M0FP39Milky201812moon__rapier8pipeline11vec2__scale(dir, depth);
   }
 }
-function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN27separation__cuboid__segmentS88982(cuboid_center, cuboid_rot, half_width, half_height, seg_center, seg_rot, a, b) {
-  const _bind$71 = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN25segment__world__endpointsS88980(seg_center, seg_rot, a, b);
+function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN27separation__cuboid__segmentS88998(cuboid_center, cuboid_rot, half_width, half_height, seg_center, seg_rot, a, b) {
+  const _bind$71 = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN25segment__world__endpointsS88996(seg_center, seg_rot, a, b);
   const _sa = _bind$71._0;
   const _sb = _bind$71._1;
   const rot = _M0MP39Milky201812moon__rapier4core4Rot211from__angle(cuboid_rot);
@@ -152551,8 +152567,8 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN27separatio
       if (overlap <= Math.fround(0)) {
         return undefined;
       }
-      const shift_pos = Math.fround(Math.fround(_max2 + _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN6marginS88987) - _bind$75);
-      const shift_neg = Math.fround(Math.fround(_min2 - _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN6marginS88987) - _bind$76);
+      const shift_pos = Math.fround(Math.fround(_max2 + _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN6marginS89003) - _bind$75);
+      const shift_neg = Math.fround(Math.fround(_min2 - _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN6marginS89003) - _bind$76);
       const shift = shift_pos < -shift_neg ? shift_pos : shift_neg;
       const cand = _M0FP39Milky201812moon__rapier8pipeline11vec2__scale(axis, shift);
       const l2 = _M0MP39Milky201812moon__rapier4core4Vec215length__squared(cand);
@@ -152589,7 +152605,7 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN27separatio
     if (separation > Math.fround(0)) {
       return undefined;
     }
-    const cand = _M0FP39Milky201812moon__rapier8pipeline11vec2__scale(axis, Math.fround(-separation + _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN6marginS88987));
+    const cand = _M0FP39Milky201812moon__rapier8pipeline11vec2__scale(axis, Math.fround(-separation + _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN6marginS89003));
     const l2 = _M0MP39Milky201812moon__rapier4core4Vec215length__squared(cand);
     if (l2 < best_len2) {
       best_len2 = l2;
@@ -152598,7 +152614,7 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN27separatio
   }
   return best;
 }
-function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN17separation__basicS88983(s1, p1, r1, s2, p2, r2) {
+function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN17separation__basicS88999(s1, p1, r1, s2, p2, r2) {
   _L: {
     switch (s1.$tag) {
       case 0: {
@@ -152620,7 +152636,7 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN17separatio
             const _Segment = s2;
             const _a = _Segment._0;
             const _b = _Segment._1;
-            return _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN25separation__ball__segmentS88981(p1, _br1, p2, r2, _a, _b);
+            return _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN25separation__ball__segmentS88997(p1, _br1, p2, r2, _a, _b);
           }
           default: {
             break _L;
@@ -152654,7 +152670,7 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN17separatio
             const _Segment$2 = s2;
             const _a$2 = _Segment$2._0;
             const _b$2 = _Segment$2._1;
-            return _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN27separation__cuboid__segmentS88982(p1, r1, _hw1, _hh1, p2, r2, _a$2, _b$2);
+            return _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN27separation__cuboid__segmentS88998(p1, r1, _hw1, _hh1, p2, r2, _a$2, _b$2);
           }
           default: {
             break _L;
@@ -152669,7 +152685,7 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN17separatio
           case 0: {
             const _Ball$4 = s2;
             const _r$2 = _Ball$4._0;
-            const _bind$72 = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN25separation__ball__segmentS88981(p2, _r$2, p1, r1, _a$3, _b$3);
+            const _bind$72 = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN25separation__ball__segmentS88997(p2, _r$2, p1, r1, _a$3, _b$3);
             if (_bind$72 === undefined) {
               return undefined;
             } else {
@@ -152682,7 +152698,7 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN17separatio
             const _Cuboid$4 = s2;
             const _hw$2 = _Cuboid$4._0;
             const _hh$2 = _Cuboid$4._1;
-            const _bind$73 = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN27separation__cuboid__segmentS88982(p2, r2, _hw$2, _hh$2, p1, r1, _a$3, _b$3);
+            const _bind$73 = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN27separation__cuboid__segmentS88998(p2, r2, _hw$2, _hh$2, p1, r1, _a$3, _b$3);
             if (_bind$73 === undefined) {
               return undefined;
             } else {
@@ -152703,7 +152719,7 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN17separatio
   }
   return undefined;
 }
-function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN19capsule__componentsS88984(s, center, rotation) {
+function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN19capsule__componentsS89000(s, center, rotation) {
   switch (s.$tag) {
     case 3: {
       const _CapsuleX = s;
@@ -152730,7 +152746,7 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN19capsule__
     }
   }
 }
-function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN9best__sepS88985(a, b) {
+function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN9best__sepS89001(a, b) {
   if (b === undefined) {
     return a;
   }
@@ -152753,7 +152769,7 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN9best__sepS
   }
   return _M0MP39Milky201812moon__rapier4core4Vec215length__squared(bv) > _M0MP39Milky201812moon__rapier4core4Vec215length__squared(av) ? b : a;
 }
-function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN28polyline__for__each__segmentS88986(vertices, indices, callback) {
+function _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN28polyline__for__each__segmentS89002(vertices, indices, callback) {
   if (indices === undefined) {
     if (vertices.len < 2) {
       return undefined;
@@ -152827,8 +152843,8 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vector(shape1, pos
             const _vertices = _Polyline._0;
             const _indices = _Polyline._1;
             const best = new _M0TPB8MutLocalGORP39Milky201812moon__rapier4core4Vec2E(undefined);
-            _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN28polyline__for__each__segmentS88986(_vertices, _indices, (a, b) => {
-              best.val = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN9best__sepS88985(best.val, _M0FP39Milky201812moon__rapier8pipeline18separation__vector(new _M0DTP39Milky201812moon__rapier9collision5Shape7Segment(a, b), pos1, rot1, shape2, pos2, rot2));
+            _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN28polyline__for__each__segmentS89002(_vertices, _indices, (a, b) => {
+              best.val = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN9best__sepS89001(best.val, _M0FP39Milky201812moon__rapier8pipeline18separation__vector(new _M0DTP39Milky201812moon__rapier9collision5Shape7Segment(a, b), pos1, rot1, shape2, pos2, rot2));
             });
             return best.val;
           } else {
@@ -152837,8 +152853,8 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vector(shape1, pos
               const _vertices = _Polyline._0;
               const _indices = _Polyline._1;
               const best = new _M0TPB8MutLocalGORP39Milky201812moon__rapier4core4Vec2E(undefined);
-              _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN28polyline__for__each__segmentS88986(_vertices, _indices, (a, b) => {
-                best.val = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN9best__sepS88985(best.val, _M0FP39Milky201812moon__rapier8pipeline18separation__vector(shape1, pos1, rot1, new _M0DTP39Milky201812moon__rapier9collision5Shape7Segment(a, b), pos2, rot2));
+              _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN28polyline__for__each__segmentS89002(_vertices, _indices, (a, b) => {
+                best.val = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN9best__sepS89001(best.val, _M0FP39Milky201812moon__rapier8pipeline18separation__vector(shape1, pos1, rot1, new _M0DTP39Milky201812moon__rapier9collision5Shape7Segment(a, b), pos2, rot2));
               });
               return best.val;
             } else {
@@ -152922,9 +152938,9 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vector(shape1, pos
             }
           }
         }
-        return _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN17separation__basicS88983(shape1, pos1, rot1, shape2, pos2, rot2);
+        return _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN17separation__basicS88999(shape1, pos1, rot1, shape2, pos2, rot2);
       }
-      const comps2 = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN19capsule__componentsS88984(shape2, pos2, rot2);
+      const comps2 = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN19capsule__componentsS89000(shape2, pos2, rot2);
       let best = undefined;
       const _bind$71 = comps2.len;
       let _tmp = 0;
@@ -152935,7 +152951,7 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vector(shape1, pos
             $panic();
           }
           const c2 = comps2.buf[i];
-          best = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN9best__sepS88985(best, _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN17separation__basicS88983(shape1, pos1, rot1, c2._0, c2._1, c2._2));
+          best = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN9best__sepS89001(best, _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN17separation__basicS88999(shape1, pos1, rot1, c2._0, c2._1, c2._2));
           _tmp = i + 1 | 0;
           continue;
         } else {
@@ -152944,7 +152960,7 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vector(shape1, pos
       }
       return best;
     }
-    const comps1 = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN19capsule__componentsS88984(shape1, pos1, rot1);
+    const comps1 = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN19capsule__componentsS89000(shape1, pos1, rot1);
     let best = undefined;
     const _bind$71 = comps1.len;
     let _tmp = 0;
@@ -152966,12 +152982,12 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vector(shape1, pos
                 break _L$4;
               }
               default: {
-                cand = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN17separation__basicS88983(c1._0, c1._1, c1._2, shape2, pos2, rot2);
+                cand = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN17separation__basicS88999(c1._0, c1._1, c1._2, shape2, pos2, rot2);
               }
             }
             break _L$3;
           }
-          const comps2 = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN19capsule__componentsS88984(shape2, pos2, rot2);
+          const comps2 = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN19capsule__componentsS89000(shape2, pos2, rot2);
           let best2 = undefined;
           const _bind$72 = comps2.len;
           let _tmp$2 = 0;
@@ -152982,7 +152998,7 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vector(shape1, pos
                 $panic();
               }
               const c2 = comps2.buf[j];
-              best2 = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN9best__sepS88985(best2, _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN17separation__basicS88983(c1._0, c1._1, c1._2, c2._0, c2._1, c2._2));
+              best2 = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN9best__sepS89001(best2, _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN17separation__basicS88999(c1._0, c1._1, c1._2, c2._0, c2._1, c2._2));
               _tmp$2 = j + 1 | 0;
               continue;
             } else {
@@ -152991,7 +153007,7 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vector(shape1, pos
           }
           cand = best2;
         }
-        best = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN9best__sepS88985(best, cand);
+        best = _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN9best__sepS89001(best, cand);
         _tmp = i + 1 | 0;
         continue;
       } else {
@@ -153000,7 +153016,7 @@ function _M0FP39Milky201812moon__rapier8pipeline18separation__vector(shape1, pos
     }
     return best;
   }
-  return _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN17separation__basicS88983(shape1, pos1, rot1, shape2, pos2, rot2);
+  return _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN17separation__basicS88999(shape1, pos1, rot1, shape2, pos2, rot2);
 }
 function _M0MP39Milky201812moon__rapier8pipeline12PhysicsHooks34modify__solver__contacts__internal(self, bodies, colliders, collider1, collider2, manifold) {
   const _bind$71 = self.modify_solver_contacts;
@@ -153257,7 +153273,7 @@ function _M0FP39Milky201812moon__rapier8pipeline18build__constraints(parameters,
                     let flags = _M0MP39Milky201812moon__rapier9collision11SolverFlags7default();
                     flags = _M0MP39Milky201812moon__rapier8pipeline12PhysicsHooks58modify__solver__contacts__with__solver__contacts__internal(hooks, bodies, colliders, h1, h2, manifold, solver_contacts, flags);
                     const _p$3 = flags;
-                    if (!((_p$3.value & _M0MP39Milky201812moon__rapier9collision11SolverFlags17compute__impulsesN6recordS84289.value) === _M0MP39Milky201812moon__rapier9collision11SolverFlags17compute__impulsesN6recordS84289.value)) {
+                    if (!((_p$3.value & _M0MP39Milky201812moon__rapier9collision11SolverFlags17compute__impulsesN6recordS84305.value) === _M0MP39Milky201812moon__rapier9collision11SolverFlags17compute__impulsesN6recordS84305.value)) {
                       break _L$2;
                     }
                   }
@@ -153438,35 +153454,35 @@ function _M0FP39Milky201812moon__rapier8pipeline10joint__inv(val) {
   return (val < Math.fround(0) ? -val : val) <= Math.fround(1e-06) ? Math.fround(0) : Math.fround(Math.fround(1) / val);
 }
 function _M0FP39Milky201812moon__rapier8pipeline28joint__solver__angular__axis(data) {
-  const spatial_axes = _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask12intersection(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(data.locked_axes, data.limit_axes), data.motor_axes), data.coupled_axes), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__zN6recordS82061, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057)));
+  const spatial_axes = _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask12intersection(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(data.locked_axes, data.limit_axes), data.motor_axes), data.coupled_axes), _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__zN6recordS82077, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask2or(_M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072, _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073)));
   if (spatial_axes.bits === 0) {
     return 5;
   }
   const locked_axes = data.locked_axes;
-  if (!((locked_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056.bits)) {
+  if (!((locked_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072.bits)) {
     return 3;
   }
-  if (!((locked_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057.bits)) {
+  if (!((locked_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073.bits)) {
     return 4;
   }
-  if (!((locked_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058.bits)) {
+  if (!((locked_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074.bits)) {
     return 5;
   }
   const motor_axes = data.motor_axes;
-  if ((motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056.bits) {
+  if ((motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072.bits) {
     return 3;
   }
-  if ((motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057.bits) {
+  if ((motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073.bits) {
     return 4;
   }
-  if ((motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058.bits) {
+  if ((motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074.bits) {
     return 5;
   }
   const limit_axes = data.limit_axes;
-  if ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056.bits) {
+  if ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072.bits) {
     return 3;
   }
-  if ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057.bits) {
+  if ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073.bits) {
     return 4;
   }
   return 5;
@@ -153474,22 +153490,22 @@ function _M0FP39Milky201812moon__rapier8pipeline28joint__solver__angular__axis(d
 function _M0FP39Milky201812moon__rapier8pipeline25joint__solver__axis__mask(axis) {
   switch (axis) {
     case 0: {
-      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059;
+      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075;
     }
     case 1: {
-      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060;
+      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076;
     }
     case 2: {
-      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__zN6recordS82061;
+      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__zN6recordS82077;
     }
     case 3: {
-      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82056;
+      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__xN6recordS82072;
     }
     case 4: {
-      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82057;
+      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__yN6recordS82073;
     }
     default: {
-      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82058;
+      return _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6ang__zN6recordS82074;
     }
   }
 }
@@ -153600,8 +153616,8 @@ function _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraints(para
         const error = _M0MP39Milky201812moon__rapier4core4Vec23sub(world1, world2);
         const _p$7 = _joint.data;
         const lock_axes = _p$7.locked_axes;
-        const lock_x = (lock_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits;
-        const lock_y = (lock_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060.bits;
+        const lock_x = (lock_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits;
+        const lock_y = (lock_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076.bits;
         const lock_ang = (lock_axes.bits & angular_axis_mask.bits) === angular_axis_mask.bits;
         const joint_rot1 = _M0MP39Milky201812moon__rapier4core4Rot23mul(rb1.position.position.rotation, local_rot1);
         let basis_x;
@@ -153657,8 +153673,8 @@ function _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraints(para
         const _p$10 = _joint.data;
         const motor_axes = _p$10.motor_axes;
         const motor_enabled = (motor_axes.bits & angular_axis_mask.bits) === angular_axis_mask.bits;
-        let motor_lin_x_enabled = (motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits;
-        let motor_lin_y_enabled = (motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060.bits;
+        let motor_lin_x_enabled = (motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits;
+        let motor_lin_y_enabled = (motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076.bits;
         const _p$11 = _joint.data;
         const motors = _p$11.motors;
         const motor = _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0MP39Milky201812moon__rapier8dynamics12GenericJoint5motor(_joint.data, angular_axis), _M0MP39Milky201812moon__rapier8dynamics10JointMotor7default());
@@ -153671,7 +153687,7 @@ function _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraints(para
         let coupled_motor_enabled = false;
         let coupled_motor = motors.lin_x;
         let coupled_motor_impulse = Math.fround(0);
-        if (coupled_lin && (motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits) {
+        if (coupled_lin && (motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits) {
           coupled_motor_enabled = true;
           coupled_motor = motors.lin_x;
           const _p$14 = motors.lin_x;
@@ -153682,7 +153698,7 @@ function _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraints(para
         let coupled_dir = _M0MP39Milky201812moon__rapier4core4Vec24zero();
         let coupled_dist = Math.fround(0);
         let coupled_inv_mass = Math.fround(0);
-        if (coupled_lin && ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits || (motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits)) {
+        if (coupled_lin && ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits || (motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits)) {
           const delta = _M0MP39Milky201812moon__rapier4core4Vec23sub(world2, world1);
           const dist = _M0MP39Milky201812moon__rapier4core4Vec26length(delta);
           coupled_dist = dist;
@@ -153700,7 +153716,7 @@ function _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraints(para
         let coupled_limit_active = 0;
         let coupled_limit_bias = Math.fround(0);
         let coupled_limit_impulse = Math.fround(0);
-        if (coupled_lin && ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits && dt > Math.fround(0))) {
+        if (coupled_lin && ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits && dt > Math.fround(0))) {
           coupled_limit_enabled = true;
           const _p$14 = limits_all.lin_x;
           coupled_limit_min = _p$14.min;
@@ -153725,7 +153741,7 @@ function _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraints(para
         let lin_limit_x_active = 0;
         let lin_limit_x_bias = Math.fround(0);
         let lin_limit_x_impulse = Math.fround(0);
-        if (!coupled_lin && ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits && dt > Math.fround(0))) {
+        if (!coupled_lin && ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits && dt > Math.fround(0))) {
           const _p$14 = limits_all.lin_x;
           const bounds_min = -_p$14.max;
           const _p$15 = limits_all.lin_x;
@@ -153752,7 +153768,7 @@ function _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraints(para
         let lin_limit_y_active = 0;
         let lin_limit_y_bias = Math.fround(0);
         let lin_limit_y_impulse = Math.fround(0);
-        if (!coupled_lin && ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060.bits && dt > Math.fround(0))) {
+        if (!coupled_lin && ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076.bits && dt > Math.fround(0))) {
           const _p$14 = limits_all.lin_y;
           const bounds_min = -_p$14.max;
           const _p$15 = limits_all.lin_y;
@@ -153903,8 +153919,8 @@ function _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraints(para
         const world2 = _M0MP39Milky201812moon__rapier4core9Isometry216transform__point(rb2.position.position, local_anchor2);
         const error = _M0MP39Milky201812moon__rapier4core4Vec23sub(world1, world2);
         const lock_axes = data.locked_axes;
-        const lock_x = (lock_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits;
-        const lock_y = (lock_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060.bits;
+        const lock_x = (lock_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits;
+        const lock_y = (lock_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076.bits;
         const lock_ang = (lock_axes.bits & angular_axis_mask.bits) === angular_axis_mask.bits;
         const joint_rot1 = _M0MP39Milky201812moon__rapier4core4Rot23mul(rb1.position.position.rotation, local_rot1);
         let basis_x;
@@ -153947,8 +153963,8 @@ function _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraints(para
         const inv_mass_ang = denom_ang <= Math.fround(1e-12) ? Math.fround(0) : Math.fround(Math.fround(1) / denom_ang);
         const motor_axes = data.motor_axes;
         const motor_enabled = (motor_axes.bits & angular_axis_mask.bits) === angular_axis_mask.bits;
-        const motor_lin_x_enabled = (motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits;
-        const motor_lin_y_enabled = (motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060.bits;
+        const motor_lin_x_enabled = (motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits;
+        const motor_lin_y_enabled = (motor_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076.bits;
         const motors = data.motors;
         const motor = _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0MP39Milky201812moon__rapier8dynamics12GenericJoint5motor(data, angular_axis), _M0MP39Milky201812moon__rapier8dynamics10JointMotor7default());
         const motor_lin_x = motors.lin_x;
@@ -153960,7 +153976,7 @@ function _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraints(para
         let lin_limit_x_active = 0;
         let lin_limit_x_bias = Math.fround(0);
         let lin_limit_x_impulse = Math.fround(0);
-        if ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82059.bits && dt > Math.fround(0)) {
+        if ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__xN6recordS82075.bits && dt > Math.fround(0)) {
           const _p$3 = limits_all.lin_x;
           const bounds_min = -_p$3.max;
           const _p$4 = limits_all.lin_x;
@@ -153987,7 +154003,7 @@ function _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraints(para
         let lin_limit_y_active = 0;
         let lin_limit_y_bias = Math.fround(0);
         let lin_limit_y_impulse = Math.fround(0);
-        if ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82060.bits && dt > Math.fround(0)) {
+        if ((limit_axes.bits & _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076.bits) === _M0MP39Milky201812moon__rapier8dynamics13JointAxesMask6lin__yN6recordS82076.bits && dt > Math.fround(0)) {
           const _p$3 = limits_all.lin_y;
           const bounds_min = -_p$3.max;
           const _p$4 = limits_all.lin_y;
@@ -154061,7 +154077,7 @@ function _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraints(para
         const _bind$91 = impulses;
         const _bind$92 = _M0MP39Milky201812moon__rapier4core4Vec24zero();
         const _bind$93 = motors.lin_x;
-        _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(constraints, new _M0TP39Milky201812moon__rapier8pipeline15JointConstraint(_bind$74, _bind$75, _bind$76, _bind$77, local_anchor1, local_anchor2, local_rot1, local_rot2, world1, world2, basis_x, basis_y, lock_x, lock_y, lock_ang, bias, inv_mass00, inv_mass01, inv_mass11, inv_mass_x, inv_mass_y, inv_mass_ang, motor_enabled, motor, motor_impulse, motor_lin_x_enabled, motor_lin_x, motor_lin_x_impulse, motor_lin_y_enabled, motor_lin_y, motor_lin_y_impulse, limits_enabled, _bind$78, _bind$79, _bind$80, _bind$84, _bind$85, _bind$81, _bind$82, _bind$83, _bind$89, _bind$90, _bind$86, _bind$87, _bind$88, _bind$91, _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN12ang__impulseS89410, _bind$92, _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89411, _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89412, false, _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89413, _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89414, 0, _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89415, _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89416, false, _bind$93, _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89417));
+        _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(constraints, new _M0TP39Milky201812moon__rapier8pipeline15JointConstraint(_bind$74, _bind$75, _bind$76, _bind$77, local_anchor1, local_anchor2, local_rot1, local_rot2, world1, world2, basis_x, basis_y, lock_x, lock_y, lock_ang, bias, inv_mass00, inv_mass01, inv_mass11, inv_mass_x, inv_mass_y, inv_mass_ang, motor_enabled, motor, motor_impulse, motor_lin_x_enabled, motor_lin_x, motor_lin_x_impulse, motor_lin_y_enabled, motor_lin_y, motor_lin_y_impulse, limits_enabled, _bind$78, _bind$79, _bind$80, _bind$84, _bind$85, _bind$81, _bind$82, _bind$83, _bind$89, _bind$90, _bind$86, _bind$87, _bind$88, _bind$91, _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN12ang__impulseS89426, _bind$92, _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89427, _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89428, false, _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89429, _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89430, 0, _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89431, _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89432, false, _bind$93, _M0FP39Milky201812moon__rapier8pipeline25build__joint__constraintsN7_2abindS89433));
         break _L;
       }
       _tmp$2 = i + 1 | 0;
@@ -154573,13 +154589,13 @@ function _M0MP39Milky201812moon__rapier8pipeline21ContactConstraintsSet25positio
 }
 function _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertia(bodies, solver_bodies, handle) {
   if (handle === undefined) {
-    return _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS89899;
+    return _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS89915;
   } else {
     const _Some = handle;
     const _h = _Some;
     const _bind$71 = _M0MP39Milky201812moon__rapier8dynamics12RigidBodySet3get(bodies, _h);
     if (_bind$71 === undefined) {
-      return _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS89898;
+      return _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS89914;
     } else {
       const _Some$2 = _bind$71;
       const _rb = _Some$2;
@@ -154607,7 +154623,7 @@ function _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertia(
         const inv_i = _rb.locked_rotations ? Math.fround(0) : ii;
         return { _0: inv_m, _1: inv_i };
       } else {
-        return _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS89897;
+        return _M0FP39Milky201812moon__rapier8pipeline29get__body__inv__mass__inertiaN5tupleS89913;
       }
     }
   }
@@ -154711,7 +154727,7 @@ function _M0FP39Milky201812moon__rapier8pipeline27get__body__kinematic__state(bo
     }
   }
 }
-function _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN9cfm__diagS89955(c) {
+function _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN9cfm__diagS89971(c) {
   if (c.inv_mass_n <= Math.fround(1e-12) || c.inv_mass_n_nocfm <= Math.fround(1e-12)) {
     return Math.fround(0);
   } else {
@@ -154783,8 +154799,8 @@ function _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraints(b
             const rn1b = Math.fround(Math.fround(r1b.x * n.y) - Math.fround(r1b.y * n.x));
             const rn2b = Math.fround(Math.fround(r2b.x * n.y) - Math.fround(r2b.y * n.x));
             const k_base = Math.fround(_inv_m1 + _inv_m2);
-            const k11 = Math.fround(Math.fround(Math.fround(k_base + Math.fround(Math.fround(_inv_i1 * rn1a) * rn1a)) + Math.fround(Math.fround(_inv_i2 * rn2a) * rn2a)) + _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN9cfm__diagS89955(c1));
-            const k22 = Math.fround(Math.fround(Math.fround(k_base + Math.fround(Math.fround(_inv_i1 * rn1b) * rn1b)) + Math.fround(Math.fround(_inv_i2 * rn2b) * rn2b)) + _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN9cfm__diagS89955(c2));
+            const k11 = Math.fround(Math.fround(Math.fround(k_base + Math.fround(Math.fround(_inv_i1 * rn1a) * rn1a)) + Math.fround(Math.fround(_inv_i2 * rn2a) * rn2a)) + _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN9cfm__diagS89971(c1));
+            const k22 = Math.fround(Math.fround(Math.fround(k_base + Math.fround(Math.fround(_inv_i1 * rn1b) * rn1b)) + Math.fround(Math.fround(_inv_i2 * rn2b) * rn2b)) + _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN9cfm__diagS89971(c2));
             const k12 = Math.fround(Math.fround(k_base + Math.fround(Math.fround(_inv_i1 * rn1a) * rn1b)) + Math.fround(Math.fround(_inv_i2 * rn2a) * rn2b));
             if (i1 < 0 || i1 >= constraints.len) {
               $panic();
@@ -154800,7 +154816,7 @@ function _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraints(b
             let delta2 = Math.fround(0);
             let solved = false;
             const det = Math.fround(Math.fround(k11 * k22) - Math.fround(k12 * k12));
-            if (det > _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3epsS89956) {
+            if (det > _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3epsS89972) {
               const inv_det = Math.fround(Math.fround(1) / det);
               const inv11 = Math.fround(k22 * inv_det);
               const inv12 = Math.fround(-k12 * inv_det);
@@ -154815,10 +154831,10 @@ function _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraints(b
             }
             if (!solved) {
               const d1 = -old1;
-              const d2 = k22 > _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3epsS89956 ? Math.fround(-Math.fround(b2 + Math.fround(k12 * d1)) / k22) : Math.fround(0);
+              const d2 = k22 > _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3epsS89972 ? Math.fround(-Math.fround(b2 + Math.fround(k12 * d1)) / k22) : Math.fround(0);
               const n2 = Math.fround(old2 + d2);
               const vn1p = Math.fround(Math.fround(b1 + Math.fround(k11 * d1)) + Math.fround(k12 * d2));
-              if (n2 >= Math.fround(0) && vn1p >= _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3tolS89957) {
+              if (n2 >= Math.fround(0) && vn1p >= _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3tolS89973) {
                 new1 = Math.fround(0);
                 new2 = n2;
                 delta1 = d1;
@@ -154828,10 +154844,10 @@ function _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraints(b
             }
             if (!solved) {
               const d2 = -old2;
-              const d1 = k11 > _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3epsS89956 ? Math.fround(-Math.fround(b1 + Math.fround(k12 * d2)) / k11) : Math.fround(0);
+              const d1 = k11 > _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3epsS89972 ? Math.fround(-Math.fround(b1 + Math.fround(k12 * d2)) / k11) : Math.fround(0);
               const n1 = Math.fround(old1 + d1);
               const vn2p = Math.fround(Math.fround(b2 + Math.fround(k12 * d1)) + Math.fround(k22 * d2));
-              if (n1 >= Math.fround(0) && vn2p >= _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3tolS89957) {
+              if (n1 >= Math.fround(0) && vn2p >= _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3tolS89973) {
                 new1 = n1;
                 new2 = Math.fround(0);
                 delta1 = d1;
@@ -154844,7 +154860,7 @@ function _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraints(b
               const d2 = -old2;
               const vn1p = Math.fround(Math.fround(b1 + Math.fround(k11 * d1)) + Math.fround(k12 * d2));
               const vn2p = Math.fround(Math.fround(b2 + Math.fround(k12 * d1)) + Math.fround(k22 * d2));
-              if (vn1p >= _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3tolS89957 && vn2p >= _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3tolS89957) {
+              if (vn1p >= _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3tolS89973 && vn2p >= _M0FP39Milky201812moon__rapier8pipeline28solve__velocity__constraintsN3tolS89973) {
                 new1 = Math.fround(0);
                 new2 = Math.fround(0);
                 delta1 = d1;
@@ -155293,7 +155309,7 @@ function _M0FP39Milky201812moon__rapier8pipeline22joint__wrap__angle__pi(angle) 
   }
   return a;
 }
-function _M0FP39Milky201812moon__rapier8pipeline28position__correction__jointsN25apply__linear__correctionS90225(bodies, b1h, b2h, axis, err, r1, r2, inv_m1, inv_m2, inv_i1, inv_i2) {
+function _M0FP39Milky201812moon__rapier8pipeline28position__correction__jointsN25apply__linear__correctionS90241(bodies, b1h, b2h, axis, err, r1, r2, inv_m1, inv_m2, inv_i1, inv_i2) {
   if ((err < Math.fround(0) ? -err : err) <= Math.fround(1e-08)) {
     return undefined;
   }
@@ -155450,10 +155466,10 @@ function _M0FP39Milky201812moon__rapier8pipeline28position__correction__joints(b
           }
         } else {
           if (c.lock_x) {
-            _M0FP39Milky201812moon__rapier8pipeline28position__correction__jointsN25apply__linear__correctionS90225(bodies, c.body1, c.body2, basis_x, Math.fround(Math.fround(error.x * basis_x.x) + Math.fround(error.y * basis_x.y)), r1, r2, inv_m1, inv_m2, inv_i1, inv_i2);
+            _M0FP39Milky201812moon__rapier8pipeline28position__correction__jointsN25apply__linear__correctionS90241(bodies, c.body1, c.body2, basis_x, Math.fround(Math.fround(error.x * basis_x.x) + Math.fround(error.y * basis_x.y)), r1, r2, inv_m1, inv_m2, inv_i1, inv_i2);
           }
           if (c.lock_y) {
-            _M0FP39Milky201812moon__rapier8pipeline28position__correction__jointsN25apply__linear__correctionS90225(bodies, c.body1, c.body2, basis_y, Math.fround(Math.fround(error.x * basis_y.x) + Math.fround(error.y * basis_y.y)), r1, r2, inv_m1, inv_m2, inv_i1, inv_i2);
+            _M0FP39Milky201812moon__rapier8pipeline28position__correction__jointsN25apply__linear__correctionS90241(bodies, c.body1, c.body2, basis_y, Math.fround(Math.fround(error.x * basis_y.x) + Math.fround(error.y * basis_y.y)), r1, r2, inv_m1, inv_m2, inv_i1, inv_i2);
           }
         }
         if (c.lin_limit_x_min !== Math.fround(0) || c.lin_limit_x_max !== Math.fround(0)) {
@@ -155467,7 +155483,7 @@ function _M0FP39Milky201812moon__rapier8pipeline28position__correction__joints(b
             }
           }
           if (err !== Math.fround(0)) {
-            _M0FP39Milky201812moon__rapier8pipeline28position__correction__jointsN25apply__linear__correctionS90225(bodies, c.body1, c.body2, basis_x, err, r1, r2, inv_m1, inv_m2, inv_i1, inv_i2);
+            _M0FP39Milky201812moon__rapier8pipeline28position__correction__jointsN25apply__linear__correctionS90241(bodies, c.body1, c.body2, basis_x, err, r1, r2, inv_m1, inv_m2, inv_i1, inv_i2);
           }
         }
         if (c.lin_limit_y_min !== Math.fround(0) || c.lin_limit_y_max !== Math.fround(0)) {
@@ -155481,7 +155497,7 @@ function _M0FP39Milky201812moon__rapier8pipeline28position__correction__joints(b
             }
           }
           if (err !== Math.fround(0)) {
-            _M0FP39Milky201812moon__rapier8pipeline28position__correction__jointsN25apply__linear__correctionS90225(bodies, c.body1, c.body2, basis_y, err, r1, r2, inv_m1, inv_m2, inv_i1, inv_i2);
+            _M0FP39Milky201812moon__rapier8pipeline28position__correction__jointsN25apply__linear__correctionS90241(bodies, c.body1, c.body2, basis_y, err, r1, r2, inv_m1, inv_m2, inv_i1, inv_i2);
           }
         }
         if (c.coupled_limit_enabled) {
@@ -155497,7 +155513,7 @@ function _M0FP39Milky201812moon__rapier8pipeline28position__correction__joints(b
           }
           if (err !== Math.fround(0)) {
             const dir = dist > Math.fround(1e-12) ? _M0FP39Milky201812moon__rapier8pipeline18joint__vec2__scale(delta, Math.fround(Math.fround(1) / dist)) : _M0MP39Milky201812moon__rapier4core4Vec24Vec2(Math.fround(1), Math.fround(0));
-            _M0FP39Milky201812moon__rapier8pipeline28position__correction__jointsN25apply__linear__correctionS90225(bodies, c.body1, c.body2, dir, err, r1, r2, inv_m1, inv_m2, inv_i1, inv_i2);
+            _M0FP39Milky201812moon__rapier8pipeline28position__correction__jointsN25apply__linear__correctionS90241(bodies, c.body1, c.body2, dir, err, r1, r2, inv_m1, inv_m2, inv_i1, inv_i2);
           }
         }
         if (c.lock_ang && Math.fround(inv_i1 + inv_i2) > Math.fround(1e-12)) {
@@ -155746,7 +155762,7 @@ function _M0FP39Milky201812moon__rapier8pipeline26joint__get__body__rotation(bod
   } else {
     const _bind$71 = _M0MP39Milky201812moon__rapier8dynamics12RigidBodySet3get(bodies, handle);
     if (_bind$71 === undefined) {
-      return _M0MP39Milky201812moon__rapier4core4Rot28identityN6recordS81852;
+      return _M0MP39Milky201812moon__rapier4core4Rot28identityN6recordS81868;
     } else {
       const _Some = _bind$71;
       const _rb = _Some;
@@ -156876,7 +156892,7 @@ function _M0FP39Milky201812moon__rapier8pipeline21shape__ccd__thickness(shape) {
 function _M0FP39Milky201812moon__rapier8pipeline24collider__handle__equals(a, b) {
   return a.id === b.id && a.generation === b.generation;
 }
-function _M0FP39Milky201812moon__rapier8pipeline40populate__contact__impulses__from__cacheN19feature__id__equalsS90789(a, b) {
+function _M0FP39Milky201812moon__rapier8pipeline40populate__contact__impulses__from__cacheN19feature__id__equalsS90805(a, b) {
   switch (a.$tag) {
     case 0: {
       if (b.$tag === 0) {
@@ -157023,7 +157039,7 @@ function _M0FP39Milky201812moon__rapier8pipeline40populate__contact__impulses__f
                       $panic();
                     }
                     const p = _bind$78.buf[pi];
-                    if (_M0FP39Milky201812moon__rapier8pipeline40populate__contact__impulses__from__cacheN19feature__id__equalsS90789(p.fid1, fid1) && _M0FP39Milky201812moon__rapier8pipeline40populate__contact__impulses__from__cacheN19feature__id__equalsS90789(p.fid2, fid2)) {
+                    if (_M0FP39Milky201812moon__rapier8pipeline40populate__contact__impulses__from__cacheN19feature__id__equalsS90805(p.fid1, fid1) && _M0FP39Milky201812moon__rapier8pipeline40populate__contact__impulses__from__cacheN19feature__id__equalsS90805(p.fid2, fid2)) {
                       _M0MP39Milky201812moon__rapier9collision20ContactManifoldPoint9set__data(p, _M0MP39Milky201812moon__rapier9collision11ContactData11ContactData(e.impulse_n, tangent_imp, e.impulse_n, tangent_imp, Math.fround(0)));
                       break;
                     }
@@ -157195,17 +157211,17 @@ function _M0FP39Milky201812moon__rapier8pipeline28emit__contact__force__events(b
           if ((_p.bits & flag.bits) === flag.bits) {
             t1 = _co1.contact_force_event_threshold;
           } else {
-            t1 = _M0FP39Milky201812moon__rapier8pipeline28emit__contact__force__eventsN14max__thresholdS90882;
+            t1 = _M0FP39Milky201812moon__rapier8pipeline28emit__contact__force__eventsN14max__thresholdS90898;
           }
           let t2;
           const _p$2 = _co2.active_events;
           if ((_p$2.bits & flag.bits) === flag.bits) {
             t2 = _co2.contact_force_event_threshold;
           } else {
-            t2 = _M0FP39Milky201812moon__rapier8pipeline28emit__contact__force__eventsN14max__thresholdS90882;
+            t2 = _M0FP39Milky201812moon__rapier8pipeline28emit__contact__force__eventsN14max__thresholdS90898;
           }
           const threshold = t1 < t2 ? t1 : t2;
-          if (threshold < _M0FP39Milky201812moon__rapier8pipeline28emit__contact__force__eventsN14max__thresholdS90882) {
+          if (threshold < _M0FP39Milky201812moon__rapier8pipeline28emit__contact__force__eventsN14max__thresholdS90898) {
             const inv_dt = Math.fround(Math.fround(1) / dt);
             const total_force_magnitude = Math.fround(p._3 * inv_dt);
             if (total_force_magnitude > threshold) {
@@ -157249,7 +157265,7 @@ function _M0FP39Milky201812moon__rapier8pipeline32compute__collision__event__fla
   }
   return flags;
 }
-function _M0FP39Milky201812moon__rapier8pipeline31should__emit__collision__eventsN22has__collision__eventsS90939(collider) {
+function _M0FP39Milky201812moon__rapier8pipeline31should__emit__collision__eventsN22has__collision__eventsS90955(collider) {
   const _p = collider.active_events;
   const _p$2 = _M0MP39Milky201812moon__rapier9collision12ActiveEvents17collision__events();
   return (_p.bits & _p$2.bits) === _p$2.bits;
@@ -157261,14 +157277,14 @@ function _M0FP39Milky201812moon__rapier8pipeline31should__emit__collision__event
   } else {
     const _Some = _bind$71;
     const _c1 = _Some;
-    enabled = enabled || _M0FP39Milky201812moon__rapier8pipeline31should__emit__collision__eventsN22has__collision__eventsS90939(_c1);
+    enabled = enabled || _M0FP39Milky201812moon__rapier8pipeline31should__emit__collision__eventsN22has__collision__eventsS90955(_c1);
   }
   const _bind$72 = _M0MP39Milky201812moon__rapier9collision11ColliderSet3get(colliders, h2);
   if (_bind$72 === undefined) {
   } else {
     const _Some = _bind$72;
     const _c2 = _Some;
-    enabled = enabled || _M0FP39Milky201812moon__rapier8pipeline31should__emit__collision__eventsN22has__collision__eventsS90939(_c2);
+    enabled = enabled || _M0FP39Milky201812moon__rapier8pipeline31should__emit__collision__eventsN22has__collision__eventsS90955(_c2);
   }
   return enabled;
 }
@@ -157457,7 +157473,7 @@ function _M0MP39Milky201812moon__rapier8pipeline15PhysicsPipeline23emit__collisi
     }
   }
 }
-function _M0FP39Milky201812moon__rapier8pipeline34should__emit__intersection__eventsN25has__intersection__eventsS91015(collider) {
+function _M0FP39Milky201812moon__rapier8pipeline34should__emit__intersection__eventsN25has__intersection__eventsS91031(collider) {
   const _p = collider.active_events;
   const _p$2 = _M0MP39Milky201812moon__rapier9collision12ActiveEvents20intersection__events();
   return (_p.bits & _p$2.bits) === _p$2.bits;
@@ -157469,14 +157485,14 @@ function _M0FP39Milky201812moon__rapier8pipeline34should__emit__intersection__ev
   } else {
     const _Some = _bind$71;
     const _c1 = _Some;
-    enabled = enabled || _M0FP39Milky201812moon__rapier8pipeline34should__emit__intersection__eventsN25has__intersection__eventsS91015(_c1);
+    enabled = enabled || _M0FP39Milky201812moon__rapier8pipeline34should__emit__intersection__eventsN25has__intersection__eventsS91031(_c1);
   }
   const _bind$72 = _M0MP39Milky201812moon__rapier9collision11ColliderSet3get(colliders, h2);
   if (_bind$72 === undefined) {
   } else {
     const _Some = _bind$72;
     const _c2 = _Some;
-    enabled = enabled || _M0FP39Milky201812moon__rapier8pipeline34should__emit__intersection__eventsN25has__intersection__eventsS91015(_c2);
+    enabled = enabled || _M0FP39Milky201812moon__rapier8pipeline34should__emit__intersection__eventsN25has__intersection__eventsS91031(_c2);
   }
   return enabled;
 }
@@ -157739,7 +157755,7 @@ function _M0FP39Milky201812moon__rapier8pipeline23clear__modified__bodies(bodies
 function _M0FP39Milky201812moon__rapier8pipeline26clear__modified__colliders(colliders, modified_colliders) {
   _M0MP39Milky201812moon__rapier9collision11ColliderSet19clear__changes__for(colliders, modified_colliders);
 }
-function _M0MP39Milky201812moon__rapier8pipeline17CollisionPipeline4stepN21is__dynamic__colliderS91128(bodies, collider) {
+function _M0MP39Milky201812moon__rapier8pipeline17CollisionPipeline4stepN21is__dynamic__colliderS91144(bodies, collider) {
   const _bind$71 = collider.parent;
   if (_bind$71 === undefined) {
     return false;
@@ -157872,7 +157888,7 @@ function _M0MP39Milky201812moon__rapier8pipeline17CollisionPipeline4step(self, p
               _tmp$5 = false;
             }
             if (_tmp$5) {
-              if (!_M0MP39Milky201812moon__rapier8pipeline17CollisionPipeline4stepN21is__dynamic__colliderS91128(bodies, _c1) && !_M0MP39Milky201812moon__rapier8pipeline17CollisionPipeline4stepN21is__dynamic__colliderS91128(bodies, _c2)) {
+              if (!_M0MP39Milky201812moon__rapier8pipeline17CollisionPipeline4stepN21is__dynamic__colliderS91144(bodies, _c1) && !_M0MP39Milky201812moon__rapier8pipeline17CollisionPipeline4stepN21is__dynamic__colliderS91144(bodies, _c2)) {
                 keep = false;
               }
             }
@@ -158666,7 +158682,7 @@ function _M0MP39Milky20186selene6camera12CameraPass2D12CameraPass2D(load_op$46$o
   }
   let clear_color;
   if (clear_color$46$opt === undefined) {
-    clear_color = _M0FP39Milky20186selene6camera29default__camera__clear__colorN6recordS91487;
+    clear_color = _M0FP39Milky20186selene6camera29default__camera__clear__colorN6recordS91503;
   } else {
     const _Some = clear_color$46$opt;
     clear_color = _Some;
@@ -159191,7 +159207,7 @@ function _M0MP39Milky20186chicle8geometry4Line4LineGbE(start, end) {
   return new _M0TP39Milky20186chicle8geometry4LineGbE(start, end);
 }
 function _M0MP39Milky20186chicle5style5Style7default() {
-  return new _M0TP39Milky20186chicle5style5Style(1, 0, _M0MP39Milky20186chicle5style5Style7defaultN6recordS91743, 0, 0, _M0MP39Milky20186chicle8geometry4Rect4RectGRP39Milky20186chicle5style9DimensionE(_M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__), _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__), _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__), _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__), _M0DTPC16option6OptionGdE4None__, _M0MP39Milky20186chicle8geometry4Rect4RectGRP39Milky20186chicle5style9DimensionE(_M0MP39Milky20186chicle5style5Style7defaultN6constrS91744, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91745, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91746, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91747), _M0MP39Milky20186chicle8geometry4Rect4RectGRP39Milky20186chicle5style9DimensionE(_M0MP39Milky20186chicle5style5Style7defaultN6constrS91748, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91749, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91750, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91751), _M0MP39Milky20186chicle8geometry4Rect4RectGRP39Milky20186chicle5style9DimensionE(_M0MP39Milky20186chicle5style5Style7defaultN6constrS91752, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91753, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91754, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91755), undefined, undefined, undefined, undefined, undefined, undefined, _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0MP39Milky20186chicle5style5Style7defaultN6constrS91756, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91757), 0, 0, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__, 0, 1, new _M0TPB5ArrayGRP39Milky20186chicle5style9DimensionE([], 0), new _M0TPB5ArrayGRP39Milky20186chicle5style9DimensionE([], 0), new _M0TPB5ArrayGRP39Milky20186chicle5style9DimensionE([], 0), new _M0TPB5ArrayGRP39Milky20186chicle5style9DimensionE([], 0), 0, _M0MP39Milky20186chicle8geometry4Line4LineGRP39Milky20186chicle5style13GridPlacementE(_M0DTP39Milky20186chicle5style13GridPlacement9PlaceAuto__, _M0DTP39Milky20186chicle5style13GridPlacement9PlaceAuto__), _M0MP39Milky20186chicle8geometry4Line4LineGRP39Milky20186chicle5style13GridPlacementE(_M0DTP39Milky20186chicle5style13GridPlacement9PlaceAuto__, _M0DTP39Milky20186chicle5style13GridPlacement9PlaceAuto__), undefined, undefined);
+  return new _M0TP39Milky20186chicle5style5Style(1, 0, _M0MP39Milky20186chicle5style5Style7defaultN6recordS91759, 0, 0, _M0MP39Milky20186chicle8geometry4Rect4RectGRP39Milky20186chicle5style9DimensionE(_M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__), _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__), _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__), _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__), _M0DTPC16option6OptionGdE4None__, _M0MP39Milky20186chicle8geometry4Rect4RectGRP39Milky20186chicle5style9DimensionE(_M0MP39Milky20186chicle5style5Style7defaultN6constrS91760, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91761, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91762, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91763), _M0MP39Milky20186chicle8geometry4Rect4RectGRP39Milky20186chicle5style9DimensionE(_M0MP39Milky20186chicle5style5Style7defaultN6constrS91764, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91765, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91766, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91767), _M0MP39Milky20186chicle8geometry4Rect4RectGRP39Milky20186chicle5style9DimensionE(_M0MP39Milky20186chicle5style5Style7defaultN6constrS91768, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91769, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91770, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91771), undefined, undefined, undefined, undefined, undefined, undefined, _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0MP39Milky20186chicle5style5Style7defaultN6constrS91772, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91773), 0, 0, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__, 0, 1, new _M0TPB5ArrayGRP39Milky20186chicle5style9DimensionE([], 0), new _M0TPB5ArrayGRP39Milky20186chicle5style9DimensionE([], 0), new _M0TPB5ArrayGRP39Milky20186chicle5style9DimensionE([], 0), new _M0TPB5ArrayGRP39Milky20186chicle5style9DimensionE([], 0), 0, _M0MP39Milky20186chicle8geometry4Line4LineGRP39Milky20186chicle5style13GridPlacementE(_M0DTP39Milky20186chicle5style13GridPlacement9PlaceAuto__, _M0DTP39Milky20186chicle5style13GridPlacement9PlaceAuto__), _M0MP39Milky20186chicle8geometry4Line4LineGRP39Milky20186chicle5style13GridPlacementE(_M0DTP39Milky20186chicle5style13GridPlacement9PlaceAuto__, _M0DTP39Milky20186chicle5style13GridPlacement9PlaceAuto__), undefined, undefined);
 }
 function _M0MP39Milky20186chicle5style5Style12with__border(self, border) {
   return new _M0TP39Milky20186chicle5style5Style(self.display, self.box_sizing, self.overflow, self.scrollbar_width, self.position, self.inset, self.size, self.min_size, self.max_size, self.aspect_ratio, self.margin, self.padding, border, self.align_items, self.align_self, self.justify_items, self.justify_self, self.align_content, self.justify_content, self.gap, self.flex_direction, self.flex_wrap, self.flex_basis, self.flex_grow, self.flex_shrink, self.grid_template_rows, self.grid_template_columns, self.grid_auto_rows, self.grid_auto_columns, self.grid_auto_flow, self.grid_row, self.grid_column, self.grid_row_start, self.grid_column_start);
@@ -160725,7 +160741,7 @@ function _M0FP39Milky20186chicle4tree20collapse__state__add(state, margin) {
   return { _0: max_pos, _1: min_neg };
 }
 function _M0FP39Milky20186chicle4tree21collapse__state__from(margin) {
-  return _M0FP39Milky20186chicle4tree20collapse__state__add(_M0FP39Milky20186chicle4tree21collapse__state__fromN5tupleS92216, margin);
+  return _M0FP39Milky20186chicle4tree20collapse__state__add(_M0FP39Milky20186chicle4tree21collapse__state__fromN5tupleS92232, margin);
 }
 function _M0FP39Milky20186chicle4tree22collapse__state__merge(a, b) {
   return { _0: a._0 > b._0 ? a._0 : b._0, _1: a._1 < b._1 ? a._1 : b._1 };
@@ -161237,7 +161253,7 @@ function _M0FP39Milky20186chicle4tree36margin__collapse__state__add__margin(stat
   return { _0: max_pos, _1: min_neg };
 }
 function _M0FP39Milky20186chicle4tree29margin__collapse__state__from(margin) {
-  return _M0FP39Milky20186chicle4tree36margin__collapse__state__add__margin(_M0FP39Milky20186chicle4tree29margin__collapse__state__fromN5tupleS92371, margin);
+  return _M0FP39Milky20186chicle4tree36margin__collapse__state__add__margin(_M0FP39Milky20186chicle4tree29margin__collapse__state__fromN5tupleS92387, margin);
 }
 function _M0FP39Milky20186chicle4tree33layout__input__for__compute__size(known_dimensions, parent_size, available_space, sizing_mode, axis, vertical_margins_are_collapsible) {
   return new _M0TP39Milky20186chicle4tree11LayoutInput(1, sizing_mode, axis, known_dimensions, parent_size, available_space, vertical_margins_are_collapsible);
@@ -162243,7 +162259,7 @@ function _M0FP39Milky20186chicle4tree20track__definite__len(track) {
 }
 function _M0FP39Milky20186chicle4tree22spanned__definite__len(tracks, start, span, gap) {
   if (span <= 0) {
-    return _M0FP39Milky20186chicle4tree22spanned__definite__lenN6constrS92689;
+    return _M0FP39Milky20186chicle4tree22spanned__definite__lenN6constrS92705;
   }
   let total = 0;
   const _bind$71 = start + span | 0;
@@ -165061,7 +165077,7 @@ function _M0FP39Milky20186chicle4tree12ensure__rows(occ, row_tracks, auto_rows, 
     }
   }
 }
-function _M0FP39Milky20186chicle4tree28expand__grid__template__axisN11push__trackS93450(expanded, track, content_size, gap, used, first) {
+function _M0FP39Milky20186chicle4tree28expand__grid__template__axisN11push__trackS93466(expanded, track, content_size, gap, used, first) {
   let u = used;
   if (!first) {
     u = u + gap;
@@ -165109,7 +165125,7 @@ function _M0FP39Milky20186chicle4tree28expand__grid__template__axis(template, co
                         const _$2 = _tmp$3;
                         if (_$2 < _bind$73) {
                           const t = _bind$74[_$2];
-                          const r = _M0FP39Milky20186chicle4tree28expand__grid__template__axisN11push__trackS93450(expanded, t, content_size, gap, used, first);
+                          const r = _M0FP39Milky20186chicle4tree28expand__grid__template__axisN11push__trackS93466(expanded, t, content_size, gap, used, first);
                           used = r._0;
                           first = r._1;
                           non_auto_fit_count = non_auto_fit_count + 1 | 0;
@@ -165178,7 +165194,7 @@ function _M0FP39Milky20186chicle4tree28expand__grid__template__axis(template, co
                 const _$2 = _tmp$3;
                 if (_$2 < _bind$75) {
                   const t = _bind$76[_$2];
-                  const r = _M0FP39Milky20186chicle4tree28expand__grid__template__axisN11push__trackS93450(expanded, t, content_size, gap, used, first);
+                  const r = _M0FP39Milky20186chicle4tree28expand__grid__template__axisN11push__trackS93466(expanded, t, content_size, gap, used, first);
                   used = r._0;
                   first = r._1;
                   if (!is_auto_fit) {
@@ -165198,7 +165214,7 @@ function _M0FP39Milky20186chicle4tree28expand__grid__template__axis(template, co
             }
           }
         } else {
-          const r = _M0FP39Milky20186chicle4tree28expand__grid__template__axisN11push__trackS93450(expanded, item, content_size, gap, used, first);
+          const r = _M0FP39Milky20186chicle4tree28expand__grid__template__axisN11push__trackS93466(expanded, item, content_size, gap, used, first);
           used = r._0;
           first = r._1;
           non_auto_fit_count = non_auto_fit_count + 1 | 0;
@@ -165262,7 +165278,7 @@ function _M0FP39Milky20186chicle4tree43grid__definite__axis__border__content__si
     const _p$2 = border_box - inset;
     return { _0: border_box, _1: _p$2 > 0 ? _p$2 : 0 };
   } else {
-    return _M0FP39Milky20186chicle4tree43grid__definite__axis__border__content__sizeN5tupleS93524;
+    return _M0FP39Milky20186chicle4tree43grid__definite__axis__border__content__sizeN5tupleS93540;
   }
 }
 function _M0MP39Milky20186chicle4tree8GridItem21set__track__crossings(self, col_tracks, row_tracks) {
@@ -165673,7 +165689,7 @@ function _M0FP39Milky20186chicle4tree21cache__entry__matches(entry_known_dimensi
   }
 }
 function _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__size(size) {
-  return new _M0TP39Milky20186chicle4tree12LayoutOutput(size, _M0MP39Milky20186chicle8geometry4Size4zero(), _M0MP39Milky20186chicle8geometry5Point5PointGOdE(_M0DTPC16option6OptionGdE4None__, _M0DTPC16option6OptionGdE4None__), _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS93698, _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS93699, false);
+  return new _M0TP39Milky20186chicle4tree12LayoutOutput(size, _M0MP39Milky20186chicle8geometry4Size4zero(), _M0MP39Milky20186chicle8geometry5Point5PointGOdE(_M0DTPC16option6OptionGdE4None__, _M0DTPC16option6OptionGdE4None__), _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS93714, _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS93715, false);
 }
 function _M0FP39Milky20186chicle4tree26find__leaf__measure__cache(cache, known_dimensions, available_space, run_mode) {
   let _tmp;
@@ -165784,7 +165800,7 @@ function _M0FP39Milky20186chicle4tree27store__leaf__measure__cache(cache, known_
   }
   _bind$71.buf[slot] = _bind$72;
 }
-function _M0FP39Milky20186chicle4tree21compute__leaf__layoutN19clamp__opt__to__maxS93731GRP39Milky20186selene3ecs6EntityE(v, max_v) {
+function _M0FP39Milky20186chicle4tree21compute__leaf__layoutN19clamp__opt__to__maxS93747GRP39Milky20186selene3ecs6EntityE(v, max_v) {
   _L: {
     if (v.$tag === 1) {
       const _Some = v;
@@ -165879,7 +165895,7 @@ function _M0FP39Milky20186chicle4tree21compute__leaf__layoutGRP39Milky20186selen
   let measure_known_dimensions = _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_tmp$2, _tmp$3);
   const resolved_max_width = _M0FP39Milky20186chicle4util28resolve__optional__dimension(node.style.max_size.width, available_space.width);
   const resolved_max_height = _M0FP39Milky20186chicle4util28resolve__optional__dimension(node.style.max_size.height, available_space.height);
-  measure_known_dimensions = _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0FP39Milky20186chicle4tree21compute__leaf__layoutN19clamp__opt__to__maxS93731GRP39Milky20186selene3ecs6EntityE(measure_known_dimensions.width, resolved_max_width), _M0FP39Milky20186chicle4tree21compute__leaf__layoutN19clamp__opt__to__maxS93731GRP39Milky20186selene3ecs6EntityE(measure_known_dimensions.height, resolved_max_height));
+  measure_known_dimensions = _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0FP39Milky20186chicle4tree21compute__leaf__layoutN19clamp__opt__to__maxS93747GRP39Milky20186selene3ecs6EntityE(measure_known_dimensions.width, resolved_max_width), _M0FP39Milky20186chicle4tree21compute__leaf__layoutN19clamp__opt__to__maxS93747GRP39Milky20186selene3ecs6EntityE(measure_known_dimensions.height, resolved_max_height));
   let _tmp$4;
   _L: {
     _L$2: {
@@ -166797,7 +166813,7 @@ function _M0FP39Milky20186chicle4tree22compute__block__layoutGRP39Milky20186sele
   const abs_child_ids = new _M0TPB5ArrayGiE([], 0);
   const abs_child_static_y = new _M0TPB5ArrayGdE([], 0);
   let flow_anchor_border_bottom = 0;
-  let flow_margin_collapse = _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS93968GRP39Milky20186selene3ecs6EntityE;
+  let flow_margin_collapse = _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS93984GRP39Milky20186selene3ecs6EntityE;
   let max_flow_child_width = 0;
   const _bind$85 = flow_available.width;
   let content_width_definite;
@@ -167124,7 +167140,7 @@ function _M0FP39Milky20186chicle4tree22compute__block__layoutGRP39Milky20186sele
     _M0MPC15array5Array5clearGiE(abs_child_ids);
     _M0MPC15array5Array5clearGdE(abs_child_static_y);
     flow_anchor_border_bottom = 0;
-    flow_margin_collapse = _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS93969GRP39Milky20186selene3ecs6EntityE;
+    flow_margin_collapse = _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS93985GRP39Milky20186selene3ecs6EntityE;
     max_flow_child_width = 0;
     let is_first_in_flow2 = true;
     const _bind$91 = tree.children;
@@ -175391,7 +175407,7 @@ function _M0FP39Milky20186selene10visibility14render__layers() {
   return _M0FP39Milky20186selene3ecs10componentsGRP39Milky20186selene10visibility12RenderLayersE();
 }
 function _M0FP39Milky20186selene10visibility22entity__render__layers(entity) {
-  return _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene10visibility14render__layers(), entity), _M0MP39Milky20186selene10visibility12RenderLayers12RenderLayersN6recordS96353);
+  return _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene10visibility14render__layers(), entity), _M0MP39Milky20186selene10visibility12RenderLayers12RenderLayersN6recordS96369);
 }
 function _M0IP39Milky20186selene2ui12TextOverflowPB2Eq5equal(_x_1252, _x_1253) {
   if (_x_1252 === 0) {
@@ -176319,7 +176335,7 @@ function _M0FP39Milky20186selene2ui10parse__int(text) {
 }
 function _M0FP39Milky20186selene2ui16parse__rgb__body(body, with_alpha) {
   const values = new _M0TPB5ArrayGsE([], 0);
-  const _it = _M0MPC16string6String5split(body, _M0FP39Milky20186selene2ui16parse__rgb__bodyN6recordS96539);
+  const _it = _M0MPC16string6String5split(body, _M0FP39Milky20186selene2ui16parse__rgb__bodyN6recordS96555);
   while (true) {
     const _bind$71 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it);
     if (_bind$71 === undefined) {
@@ -176383,11 +176399,11 @@ function _M0FP39Milky20186selene2ui16parse__rgb__body(body, with_alpha) {
   }
 }
 function _M0FP39Milky20186selene2ui17parse__rgb__color(color) {
-  if (_M0MPC16string6String11has__prefix(color, _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96560) && _M0MPC16string6String11has__suffix(color, _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96561)) {
+  if (_M0MPC16string6String11has__prefix(color, _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96576) && _M0MPC16string6String11has__suffix(color, _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96577)) {
     const body = color.substring(5, color.length - 1 | 0);
     return _M0FP39Milky20186selene2ui16parse__rgb__body(body, true);
   }
-  if (_M0MPC16string6String11has__prefix(color, _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96562) && _M0MPC16string6String11has__suffix(color, _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96563)) {
+  if (_M0MPC16string6String11has__prefix(color, _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96578) && _M0MPC16string6String11has__suffix(color, _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96579)) {
     const body = color.substring(4, color.length - 1 | 0);
     return _M0FP39Milky20186selene2ui16parse__rgb__body(body, false);
   }
@@ -176395,7 +176411,7 @@ function _M0FP39Milky20186selene2ui17parse__rgb__color(color) {
 }
 function _M0FP39Milky20186selene2ui12parse__color(color) {
   const normalized = _M0MPC16string6String9to__lower(_M0MPC16string10StringView9to__owned(_M0MPC16string6String4trim(color, undefined)));
-  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene2ui12parse__colorN6recordS96567)) {
+  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene2ui12parse__colorN6recordS96583)) {
     const _bind$71 = _M0FP39Milky20186selene2ui17parse__hex__color(normalized);
     if (_bind$71 === undefined) {
     } else {
@@ -176404,7 +176420,7 @@ function _M0FP39Milky20186selene2ui12parse__color(color) {
       return _parsed;
     }
   }
-  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene2ui12parse__colorN6recordS96568) || _M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene2ui12parse__colorN6recordS96569)) {
+  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene2ui12parse__colorN6recordS96584) || _M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene2ui12parse__colorN6recordS96585)) {
     const _bind$71 = _M0FP39Milky20186selene2ui17parse__rgb__color(normalized);
     if (_bind$71 === undefined) {
     } else {
@@ -176598,7 +176614,7 @@ function _M0MP39Milky20186selene2ui8TextFont9from__css(font) {
     return _M0MP39Milky20186selene2ui8TextFont16TextFont_2einner("Arial", 16);
   }
   const parts = new _M0TPB5ArrayGRPC16string10StringViewE([], 0);
-  const _it = _M0MPC16string6String5split(font$2, _M0MP39Milky20186selene2ui8TextFont9from__cssN6recordS96648);
+  const _it = _M0MPC16string6String5split(font$2, _M0MP39Milky20186selene2ui8TextFont9from__cssN6recordS96664);
   while (true) {
     const _bind$71 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it);
     if (_bind$71 === undefined) {
@@ -176764,21 +176780,21 @@ function _M0FP39Milky20186selene2ui14truncate__line(style, text, max_width) {
   }
   let current = text;
   while (true) {
-    if (current.length > 0 && _M0FP39Milky20186selene2ui23measure__text__fragment(style, `${current}${_M0FP39Milky20186selene2ui14truncate__lineN8ellipsisS96698}`).x > max_width) {
+    if (current.length > 0 && _M0FP39Milky20186selene2ui23measure__text__fragment(style, `${current}${_M0FP39Milky20186selene2ui14truncate__lineN8ellipsisS96714}`).x > max_width) {
       current = current.substring(0, current.length - 1 | 0);
       continue;
     } else {
       break;
     }
   }
-  return `${current}${_M0FP39Milky20186selene2ui14truncate__lineN8ellipsisS96698}`;
+  return `${current}${_M0FP39Milky20186selene2ui14truncate__lineN8ellipsisS96714}`;
 }
 function _M0FP39Milky20186selene2ui10wrap__line(style, text, max_width) {
   if (max_width <= 0) {
     return new _M0TPB5ArrayGsE([""], 1);
   }
   const words = new _M0TPB5ArrayGsE([], 0);
-  const _it = _M0MPC16string6String5split(text, _M0FP39Milky20186selene2ui10wrap__lineN6recordS96704);
+  const _it = _M0MPC16string6String5split(text, _M0FP39Milky20186selene2ui10wrap__lineN6recordS96720);
   while (true) {
     const _bind$71 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it);
     if (_bind$71 === undefined) {
@@ -176841,7 +176857,7 @@ function _M0FP39Milky20186selene2ui21prepare__text__layout(content, style, layou
     }
     default: {
       let longest = 0;
-      const _it = _M0MPC16string6String5split(content, _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96722);
+      const _it = _M0MPC16string6String5split(content, _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96738);
       while (true) {
         const _bind$71 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it);
         if (_bind$71 === undefined) {
@@ -176849,7 +176865,7 @@ function _M0FP39Milky20186selene2ui21prepare__text__layout(content, style, layou
         } else {
           const _Some = _bind$71;
           const _raw_line = _Some;
-          const _it$2 = _M0MPC16string10StringView5split(_raw_line, _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96723);
+          const _it$2 = _M0MPC16string10StringView5split(_raw_line, _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96739);
           while (true) {
             const _bind$72 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it$2);
             if (_bind$72 === undefined) {
@@ -176870,7 +176886,7 @@ function _M0FP39Milky20186selene2ui21prepare__text__layout(content, style, layou
     }
   }
   const lines = new _M0TPB5ArrayGsE([], 0);
-  const _it$2 = _M0MPC16string6String5split(content, _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96724);
+  const _it$2 = _M0MPC16string6String5split(content, _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96740);
   while (true) {
     const _bind$71 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it$2);
     if (_bind$71 === undefined) {
@@ -177712,7 +177728,7 @@ function _M0MP39Milky20186selene2ui4Node4Node(width$46$opt, height$46$opt, min_w
   }
   let overflow_clip_margin;
   if (overflow_clip_margin$46$opt === undefined) {
-    overflow_clip_margin = _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS96975;
+    overflow_clip_margin = _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS96991;
   } else {
     const _Some = overflow_clip_margin$46$opt;
     overflow_clip_margin = _Some;
@@ -177853,7 +177869,7 @@ function _M0MP39Milky20186selene2ui4Node16absolute_2einner(offset, size, padding
       break _L;
     }
   }
-  return _M0MP39Milky20186selene2ui4Node4Node(width, height, undefined, undefined, undefined, undefined, new _M0DTP39Milky20186selene2ui3Val2Px(offset.x), undefined, new _M0DTP39Milky20186selene2ui3Val2Px(offset.y), undefined, undefined, padding, border, display, _M0MP39Milky20186selene2ui4Node16absolute_2einnerN6constrS97140, flex_direction, justify_content, align_items, new _M0DTPC16option6OptionGdE4Some(row_gap), new _M0DTPC16option6OptionGdE4Some(column_gap), overflow_x, overflow_y, overflow_clip_margin, _M0DTPC16option6OptionGdE4None__, _M0DTPC16option6OptionGdE4None__, active, _M0DTPC16option6OptionGORP39Milky20186selene2ui12AlignContentE4None__, _M0DTPC16option6OptionGORP39Milky20186selene2ui10AlignItemsE4None__, _M0DTPC16option6OptionGORP39Milky20186selene2ui10AlignItemsE4None__, _M0DTPC16option6OptionGORP39Milky20186selene2ui10AlignItemsE4None__, undefined, undefined, undefined, _M0DTPC16option6OptionGdE4None__, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+  return _M0MP39Milky20186selene2ui4Node4Node(width, height, undefined, undefined, undefined, undefined, new _M0DTP39Milky20186selene2ui3Val2Px(offset.x), undefined, new _M0DTP39Milky20186selene2ui3Val2Px(offset.y), undefined, undefined, padding, border, display, _M0MP39Milky20186selene2ui4Node16absolute_2einnerN6constrS97156, flex_direction, justify_content, align_items, new _M0DTPC16option6OptionGdE4Some(row_gap), new _M0DTPC16option6OptionGdE4Some(column_gap), overflow_x, overflow_y, overflow_clip_margin, _M0DTPC16option6OptionGdE4None__, _M0DTPC16option6OptionGdE4None__, active, _M0DTPC16option6OptionGORP39Milky20186selene2ui12AlignContentE4None__, _M0DTPC16option6OptionGORP39Milky20186selene2ui10AlignItemsE4None__, _M0DTPC16option6OptionGORP39Milky20186selene2ui10AlignItemsE4None__, _M0DTPC16option6OptionGORP39Milky20186selene2ui10AlignItemsE4None__, undefined, undefined, undefined, _M0DTPC16option6OptionGdE4None__, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
 }
 function _M0MP39Milky20186selene2ui4Node8absolute(offset, size$46$opt, padding$46$opt, border$46$opt, display$46$opt, flex_direction$46$opt, justify_content$46$opt, align_items$46$opt, row_gap$46$opt, column_gap$46$opt, overflow_x$46$opt, overflow_y$46$opt, overflow_clip_margin$46$opt, active$46$opt) {
   let size;
@@ -177935,7 +177951,7 @@ function _M0MP39Milky20186selene2ui4Node8absolute(offset, size$46$opt, padding$4
   }
   let overflow_clip_margin;
   if (overflow_clip_margin$46$opt === undefined) {
-    overflow_clip_margin = _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS96975;
+    overflow_clip_margin = _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS96991;
   } else {
     const _Some = overflow_clip_margin$46$opt;
     overflow_clip_margin = _Some;
@@ -178606,7 +178622,7 @@ function _M0FP39Milky20186selene2ui23chicle__style__snapshot(node) {
       break;
     }
   }
-  return new _M0TP39Milky20186selene2ui21UiChicleStyleSnapshot(new _M0TP39Milky20186selene2ui4Node(_tmp, _tmp$2, _tmp$3, _tmp$4, _tmp$5, _tmp$6, _tmp$7, _tmp$8, _tmp$9, _tmp$10, _tmp$11, _tmp$12, _tmp$13, node.display, node.position_type, node.flex_direction, node.justify_content, node.align_items, node.align_content, node.align_self, node.justify_items, node.justify_self, _tmp$14, _tmp$15, node.overflow_x, node.overflow_y, _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS96975, node.flex_wrap, _tmp$16, node.flex_grow, node.flex_shrink, _tmp$18, _tmp$19, _p$5, _p$9, _p$13, _p$17, node.grid_auto_flow, node.grid_row, node.grid_column, true));
+  return new _M0TP39Milky20186selene2ui21UiChicleStyleSnapshot(new _M0TP39Milky20186selene2ui4Node(_tmp, _tmp$2, _tmp$3, _tmp$4, _tmp$5, _tmp$6, _tmp$7, _tmp$8, _tmp$9, _tmp$10, _tmp$11, _tmp$12, _tmp$13, node.display, node.position_type, node.flex_direction, node.justify_content, node.align_items, node.align_content, node.align_self, node.justify_items, node.justify_self, _tmp$14, _tmp$15, node.overflow_x, node.overflow_y, _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS96991, node.flex_wrap, _tmp$16, node.flex_grow, node.flex_shrink, _tmp$18, _tmp$19, _p$5, _p$9, _p$13, _p$17, node.grid_auto_flow, node.grid_row, node.grid_column, true));
 }
 function _M0FP39Milky20186selene2ui21ui__measure__snapshot(entity) {
   const text = _M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene2ui5texts(), entity);
@@ -178623,7 +178639,7 @@ function _M0FP39Milky20186selene2ui21ui__measure__snapshot(entity) {
   return new _M0TP39Milky20186selene2ui17UiMeasureSnapshot(_M0MPC16option6Option3mapGRP39Milky20186selene2ui4TextsE(text, (value) => value.content), font_handle, _M0MPC16option6Option3mapGRP39Milky20186selene12asset__types10FontHandleRP39Milky20186selene5asset9LoadStateE(font_handle, _M0FP39Milky20186selene5asset17font__load__state), _M0MPC16option6Option10unwrap__orGjE(_M0MPC16option6Option3mapGRP39Milky20186selene15render2d__types11TextStyle2DjE(style, (value) => _M0FP39Milky20186selene16platform__render23font__metrics__revision(value.family)), 0), _M0MPC16option6Option3mapGRP39Milky20186selene15render2d__types11TextStyle2DsE(style, (value) => value.family), _M0MPC16option6Option3mapGRP39Milky20186selene15render2d__types11TextStyle2DdE(style, (value) => value.size), layout.line_height, layout.wrap, layout.overflow, _M0MPC16option6Option3mapGRP39Milky20186selene2ui7UiImageRP39Milky20186selene4math4Vec2E(_M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene2ui10ui__images(), entity), (value) => value.size));
 }
 function _M0FP39Milky20186selene2ui24ui__projection__snapshot(entity) {
-  const overflow_clip_margin = _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0MPC16option6Option3mapGRP39Milky20186selene2ui4NodeRP39Milky20186selene2ui18OverflowClipMarginE(_M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene2ui5nodes(), entity), (node) => node.overflow_clip_margin), _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS96975);
+  const overflow_clip_margin = _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0MPC16option6Option3mapGRP39Milky20186selene2ui4NodeRP39Milky20186selene2ui18OverflowClipMarginE(_M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene2ui5nodes(), entity), (node) => node.overflow_clip_margin), _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS96991);
   let target_camera;
   let target_viewport_position;
   let target_viewport_size;
@@ -181078,31 +181094,31 @@ function _M0FP39Milky20186selene2ui23ui__interaction__system(_delta) {
 function _M0FP39Milky20186selene8velocity10velocities() {
   return _M0FP39Milky20186selene3ecs10componentsGRP39Milky20186selene8velocity8VelocityE();
 }
-function _M0IP39Milky20186selene9collision13RigidBodyTypePB2Eq5equal(_x_1201, _x_1202) {
-  switch (_x_1201) {
+function _M0IP39Milky20186selene9collision13RigidBodyTypePB2Eq5equal(_x_1188, _x_1189) {
+  switch (_x_1188) {
     case 0: {
-      if (_x_1202 === 0) {
+      if (_x_1189 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_1202 === 1) {
+      if (_x_1189 === 1) {
         return true;
       } else {
         return false;
       }
     }
     case 2: {
-      if (_x_1202 === 2) {
+      if (_x_1189 === 2) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_1202 === 3) {
+      if (_x_1189 === 3) {
         return true;
       } else {
         return false;
@@ -181110,299 +181126,299 @@ function _M0IP39Milky20186selene9collision13RigidBodyTypePB2Eq5equal(_x_1201, _x
     }
   }
 }
-function _M0IP39Milky20186selene9collision5JointPB2Eq5equal(_x_1195, _x_1196) {
-  return _M0IP39Milky20186selene3ecs6EntityPB2Eq5equal(_x_1195.entity1, _x_1196.entity1) && _M0IP39Milky20186selene3ecs6EntityPB2Eq5equal(_x_1195.entity2, _x_1196.entity2) && _M0IP39Milky20186selene9collision9JointKindPB2Eq5equal(_x_1195.kind, _x_1196.kind) && _x_1195.active === _x_1196.active && _x_1195.contacts_enabled === _x_1196.contacts_enabled;
+function _M0IP39Milky20186selene9collision5JointPB2Eq5equal(_x_1182, _x_1183) {
+  return _M0IP39Milky20186selene3ecs6EntityPB2Eq5equal(_x_1182.entity1, _x_1183.entity1) && _M0IP39Milky20186selene3ecs6EntityPB2Eq5equal(_x_1182.entity2, _x_1183.entity2) && _M0IP39Milky20186selene9collision9JointKindPB2Eq5equal(_x_1182.kind, _x_1183.kind) && _x_1182.active === _x_1183.active && _x_1182.contacts_enabled === _x_1183.contacts_enabled;
 }
-function _M0IP39Milky20186selene9collision14CollisionShapePB2Eq5equal(_x_1153, _x_1154) {
-  switch (_x_1153.$tag) {
+function _M0IP39Milky20186selene9collision14CollisionShapePB2Eq5equal(_x_1140, _x_1141) {
+  switch (_x_1140.$tag) {
     case 0: {
-      const _Rect = _x_1153;
-      const _$42$x0_1155 = _Rect._0;
-      const _$42$x1_1156 = _Rect._1;
-      if (_x_1154.$tag === 0) {
-        const _Rect$2 = _x_1154;
-        const _$42$y0_1157 = _Rect$2._0;
-        const _$42$y1_1158 = _Rect$2._1;
-        return _$42$x0_1155.x === _$42$y0_1157.x && _$42$x0_1155.y === _$42$y0_1157.y && (_$42$x1_1156.x === _$42$y1_1158.x && _$42$x1_1156.y === _$42$y1_1158.y);
+      const _Rect = _x_1140;
+      const _$42$x0_1142 = _Rect._0;
+      const _$42$x1_1143 = _Rect._1;
+      if (_x_1141.$tag === 0) {
+        const _Rect$2 = _x_1141;
+        const _$42$y0_1144 = _Rect$2._0;
+        const _$42$y1_1145 = _Rect$2._1;
+        return _$42$x0_1142.x === _$42$y0_1144.x && _$42$x0_1142.y === _$42$y0_1144.y && (_$42$x1_1143.x === _$42$y1_1145.x && _$42$x1_1143.y === _$42$y1_1145.y);
       } else {
         return false;
       }
     }
     case 1: {
-      const _Ball = _x_1153;
-      const _$42$x0_1159 = _Ball._0;
-      const _$42$x1_1160 = _Ball._1;
-      if (_x_1154.$tag === 1) {
-        const _Ball$2 = _x_1154;
-        const _$42$y0_1161 = _Ball$2._0;
-        const _$42$y1_1162 = _Ball$2._1;
-        return _$42$x0_1159 === _$42$y0_1161 && (_$42$x1_1160.x === _$42$y1_1162.x && _$42$x1_1160.y === _$42$y1_1162.y);
+      const _Ball = _x_1140;
+      const _$42$x0_1146 = _Ball._0;
+      const _$42$x1_1147 = _Ball._1;
+      if (_x_1141.$tag === 1) {
+        const _Ball$2 = _x_1141;
+        const _$42$y0_1148 = _Ball$2._0;
+        const _$42$y1_1149 = _Ball$2._1;
+        return _$42$x0_1146 === _$42$y0_1148 && (_$42$x1_1147.x === _$42$y1_1149.x && _$42$x1_1147.y === _$42$y1_1149.y);
       } else {
         return false;
       }
     }
     case 2: {
-      const _Polygon = _x_1153;
-      const _$42$x0_1163 = _Polygon._0;
-      const _$42$x1_1164 = _Polygon._1;
-      if (_x_1154.$tag === 2) {
-        const _Polygon$2 = _x_1154;
-        const _$42$y0_1165 = _Polygon$2._0;
-        const _$42$y1_1166 = _Polygon$2._1;
-        return _M0IPC15array5ArrayPB2Eq5equalGRP39Milky20186selene4math4Vec2E(_$42$x0_1163, _$42$y0_1165) && (_$42$x1_1164.x === _$42$y1_1166.x && _$42$x1_1164.y === _$42$y1_1166.y);
+      const _Polygon = _x_1140;
+      const _$42$x0_1150 = _Polygon._0;
+      const _$42$x1_1151 = _Polygon._1;
+      if (_x_1141.$tag === 2) {
+        const _Polygon$2 = _x_1141;
+        const _$42$y0_1152 = _Polygon$2._0;
+        const _$42$y1_1153 = _Polygon$2._1;
+        return _M0IPC15array5ArrayPB2Eq5equalGRP39Milky20186selene4math4Vec2E(_$42$x0_1150, _$42$y0_1152) && (_$42$x1_1151.x === _$42$y1_1153.x && _$42$x1_1151.y === _$42$y1_1153.y);
       } else {
         return false;
       }
     }
     default: {
-      const _Polyline = _x_1153;
-      const _$42$x0_1167 = _Polyline._0;
-      const _$42$x1_1168 = _Polyline._1;
-      const _$42$x2_1169 = _Polyline._2;
-      if (_x_1154.$tag === 3) {
-        const _Polyline$2 = _x_1154;
-        const _$42$y0_1170 = _Polyline$2._0;
-        const _$42$y1_1171 = _Polyline$2._1;
-        const _$42$y2_1172 = _Polyline$2._2;
-        return _M0IPC15array5ArrayPB2Eq5equalGRP39Milky20186selene4math4Vec2E(_$42$x0_1167, _$42$y0_1170) && (_$42$x1_1168.x === _$42$y1_1171.x && _$42$x1_1168.y === _$42$y1_1171.y && _$42$x2_1169 === _$42$y2_1172);
+      const _Polyline = _x_1140;
+      const _$42$x0_1154 = _Polyline._0;
+      const _$42$x1_1155 = _Polyline._1;
+      const _$42$x2_1156 = _Polyline._2;
+      if (_x_1141.$tag === 3) {
+        const _Polyline$2 = _x_1141;
+        const _$42$y0_1157 = _Polyline$2._0;
+        const _$42$y1_1158 = _Polyline$2._1;
+        const _$42$y2_1159 = _Polyline$2._2;
+        return _M0IPC15array5ArrayPB2Eq5equalGRP39Milky20186selene4math4Vec2E(_$42$x0_1154, _$42$y0_1157) && (_$42$x1_1155.x === _$42$y1_1158.x && _$42$x1_1155.y === _$42$y1_1158.y && _$42$x2_1156 === _$42$y2_1159);
       } else {
         return false;
       }
     }
   }
 }
-function _M0IP39Milky20186selene9collision9JointKindPB2Eq5equal(_x_1049, _x_1050) {
-  switch (_x_1049.$tag) {
+function _M0IP39Milky20186selene9collision9JointKindPB2Eq5equal(_x_1036, _x_1037) {
+  switch (_x_1036.$tag) {
     case 0: {
-      const _Fixed = _x_1049;
-      const _$42$x0_1051 = _Fixed._0;
-      const _$42$x1_1052 = _Fixed._1;
-      if (_x_1050.$tag === 0) {
-        const _Fixed$2 = _x_1050;
-        const _$42$y0_1053 = _Fixed$2._0;
-        const _$42$y1_1054 = _Fixed$2._1;
-        return _$42$x0_1051.x === _$42$y0_1053.x && _$42$x0_1051.y === _$42$y0_1053.y && (_$42$x1_1052.x === _$42$y1_1054.x && _$42$x1_1052.y === _$42$y1_1054.y);
+      const _Fixed = _x_1036;
+      const _$42$x0_1038 = _Fixed._0;
+      const _$42$x1_1039 = _Fixed._1;
+      if (_x_1037.$tag === 0) {
+        const _Fixed$2 = _x_1037;
+        const _$42$y0_1040 = _Fixed$2._0;
+        const _$42$y1_1041 = _Fixed$2._1;
+        return _$42$x0_1038.x === _$42$y0_1040.x && _$42$x0_1038.y === _$42$y0_1040.y && (_$42$x1_1039.x === _$42$y1_1041.x && _$42$x1_1039.y === _$42$y1_1041.y);
       } else {
         return false;
       }
     }
     case 1: {
-      const _Revolute = _x_1049;
-      const _$42$x0_1055 = _Revolute._0;
-      const _$42$x1_1056 = _Revolute._1;
-      const _$42$x2_1057 = _Revolute._2;
-      const _$42$x3_1058 = _Revolute._3;
-      const _$42$x4_1059 = _Revolute._4;
-      if (_x_1050.$tag === 1) {
-        const _Revolute$2 = _x_1050;
-        const _$42$y0_1060 = _Revolute$2._0;
-        const _$42$y1_1061 = _Revolute$2._1;
-        const _$42$y2_1062 = _Revolute$2._2;
-        const _$42$y3_1063 = _Revolute$2._3;
-        const _$42$y4_1064 = _Revolute$2._4;
-        return _$42$x0_1055.x === _$42$y0_1060.x && _$42$x0_1055.y === _$42$y0_1060.y && (_$42$x1_1056.x === _$42$y1_1061.x && _$42$x1_1056.y === _$42$y1_1061.y && (_M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene9collision11JointLimitsE(_$42$x2_1057, _$42$y2_1062) && (_M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene9collision10JointMotorE(_$42$x3_1058, _$42$y3_1063) && _M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene9collision13JointSoftnessE(_$42$x4_1059, _$42$y4_1064))));
+      const _Revolute = _x_1036;
+      const _$42$x0_1042 = _Revolute._0;
+      const _$42$x1_1043 = _Revolute._1;
+      const _$42$x2_1044 = _Revolute._2;
+      const _$42$x3_1045 = _Revolute._3;
+      const _$42$x4_1046 = _Revolute._4;
+      if (_x_1037.$tag === 1) {
+        const _Revolute$2 = _x_1037;
+        const _$42$y0_1047 = _Revolute$2._0;
+        const _$42$y1_1048 = _Revolute$2._1;
+        const _$42$y2_1049 = _Revolute$2._2;
+        const _$42$y3_1050 = _Revolute$2._3;
+        const _$42$y4_1051 = _Revolute$2._4;
+        return _$42$x0_1042.x === _$42$y0_1047.x && _$42$x0_1042.y === _$42$y0_1047.y && (_$42$x1_1043.x === _$42$y1_1048.x && _$42$x1_1043.y === _$42$y1_1048.y && (_M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene9collision11JointLimitsE(_$42$x2_1044, _$42$y2_1049) && (_M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene9collision10JointMotorE(_$42$x3_1045, _$42$y3_1050) && _M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene9collision13JointSoftnessE(_$42$x4_1046, _$42$y4_1051))));
       } else {
         return false;
       }
     }
     case 2: {
-      const _Prismatic = _x_1049;
-      const _$42$x0_1065 = _Prismatic._0;
-      const _$42$x1_1066 = _Prismatic._1;
-      const _$42$x2_1067 = _Prismatic._2;
-      const _$42$x3_1068 = _Prismatic._3;
-      if (_x_1050.$tag === 2) {
-        const _Prismatic$2 = _x_1050;
-        const _$42$y0_1069 = _Prismatic$2._0;
-        const _$42$y1_1070 = _Prismatic$2._1;
-        const _$42$y2_1071 = _Prismatic$2._2;
-        const _$42$y3_1072 = _Prismatic$2._3;
-        return _$42$x0_1065.x === _$42$y0_1069.x && _$42$x0_1065.y === _$42$y0_1069.y && (_$42$x1_1066.x === _$42$y1_1070.x && _$42$x1_1066.y === _$42$y1_1070.y && (_$42$x2_1067.x === _$42$y2_1071.x && _$42$x2_1067.y === _$42$y2_1071.y && _M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene9collision11JointLimitsE(_$42$x3_1068, _$42$y3_1072)));
+      const _Prismatic = _x_1036;
+      const _$42$x0_1052 = _Prismatic._0;
+      const _$42$x1_1053 = _Prismatic._1;
+      const _$42$x2_1054 = _Prismatic._2;
+      const _$42$x3_1055 = _Prismatic._3;
+      if (_x_1037.$tag === 2) {
+        const _Prismatic$2 = _x_1037;
+        const _$42$y0_1056 = _Prismatic$2._0;
+        const _$42$y1_1057 = _Prismatic$2._1;
+        const _$42$y2_1058 = _Prismatic$2._2;
+        const _$42$y3_1059 = _Prismatic$2._3;
+        return _$42$x0_1052.x === _$42$y0_1056.x && _$42$x0_1052.y === _$42$y0_1056.y && (_$42$x1_1053.x === _$42$y1_1057.x && _$42$x1_1053.y === _$42$y1_1057.y && (_$42$x2_1054.x === _$42$y2_1058.x && _$42$x2_1054.y === _$42$y2_1058.y && _M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene9collision11JointLimitsE(_$42$x3_1055, _$42$y3_1059)));
       } else {
         return false;
       }
     }
     case 3: {
-      const _Rope = _x_1049;
-      const _$42$x0_1073 = _Rope._0;
-      const _$42$x1_1074 = _Rope._1;
-      const _$42$x2_1075 = _Rope._2;
-      if (_x_1050.$tag === 3) {
-        const _Rope$2 = _x_1050;
-        const _$42$y0_1076 = _Rope$2._0;
-        const _$42$y1_1077 = _Rope$2._1;
-        const _$42$y2_1078 = _Rope$2._2;
-        return _$42$x0_1073 === _$42$y0_1076 && (_$42$x1_1074.x === _$42$y1_1077.x && _$42$x1_1074.y === _$42$y1_1077.y && (_$42$x2_1075.x === _$42$y2_1078.x && _$42$x2_1075.y === _$42$y2_1078.y));
+      const _Rope = _x_1036;
+      const _$42$x0_1060 = _Rope._0;
+      const _$42$x1_1061 = _Rope._1;
+      const _$42$x2_1062 = _Rope._2;
+      if (_x_1037.$tag === 3) {
+        const _Rope$2 = _x_1037;
+        const _$42$y0_1063 = _Rope$2._0;
+        const _$42$y1_1064 = _Rope$2._1;
+        const _$42$y2_1065 = _Rope$2._2;
+        return _$42$x0_1060 === _$42$y0_1063 && (_$42$x1_1061.x === _$42$y1_1064.x && _$42$x1_1061.y === _$42$y1_1064.y && (_$42$x2_1062.x === _$42$y2_1065.x && _$42$x2_1062.y === _$42$y2_1065.y));
       } else {
         return false;
       }
     }
     default: {
-      const _Spring = _x_1049;
-      const _$42$x0_1079 = _Spring._0;
-      const _$42$x1_1080 = _Spring._1;
-      const _$42$x2_1081 = _Spring._2;
-      const _$42$x3_1082 = _Spring._3;
-      const _$42$x4_1083 = _Spring._4;
-      const _$42$x5_1084 = _Spring._5;
-      if (_x_1050.$tag === 4) {
-        const _Spring$2 = _x_1050;
-        const _$42$y0_1085 = _Spring$2._0;
-        const _$42$y1_1086 = _Spring$2._1;
-        const _$42$y2_1087 = _Spring$2._2;
-        const _$42$y3_1088 = _Spring$2._3;
-        const _$42$y4_1089 = _Spring$2._4;
-        const _$42$y5_1090 = _Spring$2._5;
-        return _$42$x0_1079 === _$42$y0_1085 && (_$42$x1_1080 === _$42$y1_1086 && (_$42$x2_1081 === _$42$y2_1087 && (_$42$x3_1082.x === _$42$y3_1088.x && _$42$x3_1082.y === _$42$y3_1088.y && (_$42$x4_1083.x === _$42$y4_1089.x && _$42$x4_1083.y === _$42$y4_1089.y && _M0IP39Milky20186selene9collision15JointMotorModelPB2Eq5equal(_$42$x5_1084, _$42$y5_1090)))));
+      const _Spring = _x_1036;
+      const _$42$x0_1066 = _Spring._0;
+      const _$42$x1_1067 = _Spring._1;
+      const _$42$x2_1068 = _Spring._2;
+      const _$42$x3_1069 = _Spring._3;
+      const _$42$x4_1070 = _Spring._4;
+      const _$42$x5_1071 = _Spring._5;
+      if (_x_1037.$tag === 4) {
+        const _Spring$2 = _x_1037;
+        const _$42$y0_1072 = _Spring$2._0;
+        const _$42$y1_1073 = _Spring$2._1;
+        const _$42$y2_1074 = _Spring$2._2;
+        const _$42$y3_1075 = _Spring$2._3;
+        const _$42$y4_1076 = _Spring$2._4;
+        const _$42$y5_1077 = _Spring$2._5;
+        return _$42$x0_1066 === _$42$y0_1072 && (_$42$x1_1067 === _$42$y1_1073 && (_$42$x2_1068 === _$42$y2_1074 && (_$42$x3_1069.x === _$42$y3_1075.x && _$42$x3_1069.y === _$42$y3_1075.y && (_$42$x4_1070.x === _$42$y4_1076.x && _$42$x4_1070.y === _$42$y4_1076.y && _M0IP39Milky20186selene9collision15JointMotorModelPB2Eq5equal(_$42$x5_1071, _$42$y5_1077)))));
       } else {
         return false;
       }
     }
   }
 }
-function _M0IP39Milky20186selene9collision10JointMotorPB2Eq5equal(_x_953, _x_954) {
-  if (_x_953.$tag === 0) {
-    const _Position = _x_953;
-    const _$42$x0_955 = _Position._0;
-    const _$42$x1_956 = _Position._1;
-    const _$42$x2_957 = _Position._2;
-    const _$42$x3_958 = _Position._3;
-    const _$42$x4_959 = _Position._4;
-    if (_x_954.$tag === 0) {
-      const _Position$2 = _x_954;
-      const _$42$y0_960 = _Position$2._0;
-      const _$42$y1_961 = _Position$2._1;
-      const _$42$y2_962 = _Position$2._2;
-      const _$42$y3_963 = _Position$2._3;
-      const _$42$y4_964 = _Position$2._4;
-      return _$42$x0_955 === _$42$y0_960 && (_$42$x1_956 === _$42$y1_961 && (_$42$x2_957 === _$42$y2_962 && (_M0IPC16option6OptionPB2Eq5equalGdE(_$42$x3_958, _$42$y3_963) && _M0IP39Milky20186selene9collision15JointMotorModelPB2Eq5equal(_$42$x4_959, _$42$y4_964))));
+function _M0IP39Milky20186selene9collision10JointMotorPB2Eq5equal(_x_940, _x_941) {
+  if (_x_940.$tag === 0) {
+    const _Position = _x_940;
+    const _$42$x0_942 = _Position._0;
+    const _$42$x1_943 = _Position._1;
+    const _$42$x2_944 = _Position._2;
+    const _$42$x3_945 = _Position._3;
+    const _$42$x4_946 = _Position._4;
+    if (_x_941.$tag === 0) {
+      const _Position$2 = _x_941;
+      const _$42$y0_947 = _Position$2._0;
+      const _$42$y1_948 = _Position$2._1;
+      const _$42$y2_949 = _Position$2._2;
+      const _$42$y3_950 = _Position$2._3;
+      const _$42$y4_951 = _Position$2._4;
+      return _$42$x0_942 === _$42$y0_947 && (_$42$x1_943 === _$42$y1_948 && (_$42$x2_944 === _$42$y2_949 && (_M0IPC16option6OptionPB2Eq5equalGdE(_$42$x3_945, _$42$y3_950) && _M0IP39Milky20186selene9collision15JointMotorModelPB2Eq5equal(_$42$x4_946, _$42$y4_951))));
     } else {
       return false;
     }
   } else {
-    const _Velocity = _x_953;
-    const _$42$x0_965 = _Velocity._0;
-    const _$42$x1_966 = _Velocity._1;
-    const _$42$x2_967 = _Velocity._2;
-    const _$42$x3_968 = _Velocity._3;
-    if (_x_954.$tag === 1) {
-      const _Velocity$2 = _x_954;
-      const _$42$y0_969 = _Velocity$2._0;
-      const _$42$y1_970 = _Velocity$2._1;
-      const _$42$y2_971 = _Velocity$2._2;
-      const _$42$y3_972 = _Velocity$2._3;
-      return _$42$x0_965 === _$42$y0_969 && (_$42$x1_966 === _$42$y1_970 && (_M0IPC16option6OptionPB2Eq5equalGdE(_$42$x2_967, _$42$y2_971) && _M0IP39Milky20186selene9collision15JointMotorModelPB2Eq5equal(_$42$x3_968, _$42$y3_972)));
+    const _Velocity = _x_940;
+    const _$42$x0_952 = _Velocity._0;
+    const _$42$x1_953 = _Velocity._1;
+    const _$42$x2_954 = _Velocity._2;
+    const _$42$x3_955 = _Velocity._3;
+    if (_x_941.$tag === 1) {
+      const _Velocity$2 = _x_941;
+      const _$42$y0_956 = _Velocity$2._0;
+      const _$42$y1_957 = _Velocity$2._1;
+      const _$42$y2_958 = _Velocity$2._2;
+      const _$42$y3_959 = _Velocity$2._3;
+      return _$42$x0_952 === _$42$y0_956 && (_$42$x1_953 === _$42$y1_957 && (_M0IPC16option6OptionPB2Eq5equalGdE(_$42$x2_954, _$42$y2_958) && _M0IP39Milky20186selene9collision15JointMotorModelPB2Eq5equal(_$42$x3_955, _$42$y3_959)));
     } else {
       return false;
     }
   }
 }
-function _M0IP39Milky20186selene9collision15JointMotorModelPB2Eq5equal(_x_929, _x_930) {
-  if (_x_929 === 0) {
-    if (_x_930 === 0) {
+function _M0IP39Milky20186selene9collision15JointMotorModelPB2Eq5equal(_x_916, _x_917) {
+  if (_x_916 === 0) {
+    if (_x_917 === 0) {
       return true;
     } else {
       return false;
     }
   } else {
-    if (_x_930 === 1) {
+    if (_x_917 === 1) {
       return true;
     } else {
       return false;
     }
   }
 }
-function _M0IP39Milky20186selene9collision22EntityPhysicsConfigKeyPB2Eq5equal(_x_923, _x_924) {
-  return _M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene4math4Vec2E(_x_923.translation, _x_924.translation) && _M0IPC16option6OptionPB2Eq5equalGdE(_x_923.rotation, _x_924.rotation) && _M0IP39Milky20186selene9collision14CollisionShapePB2Eq5equal(_x_923.shape, _x_924.shape) && _M0IP39Milky20186selene9collision21EntityCollisionConfigPB2Eq5equal(_x_923.collision, _x_924.collision) && _M0IP39Milky20186selene9collision9RigidBodyPB2Eq5equal(_x_923.body, _x_924.body) && _M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene4math4Vec2E(_x_923.linear_velocity, _x_924.linear_velocity) && _M0IPC16option6OptionPB2Eq5equalGdE(_x_923.angular_velocity, _x_924.angular_velocity);
+function _M0IP39Milky20186selene9collision22EntityPhysicsConfigKeyPB2Eq5equal(_x_910, _x_911) {
+  return _M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene4math4Vec2E(_x_910.translation, _x_911.translation) && _M0IPC16option6OptionPB2Eq5equalGdE(_x_910.rotation, _x_911.rotation) && _M0IP39Milky20186selene9collision14CollisionShapePB2Eq5equal(_x_910.shape, _x_911.shape) && _M0IP39Milky20186selene9collision21EntityCollisionConfigPB2Eq5equal(_x_910.collision, _x_911.collision) && _M0IP39Milky20186selene9collision9RigidBodyPB2Eq5equal(_x_910.body, _x_911.body) && _M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene4math4Vec2E(_x_910.linear_velocity, _x_911.linear_velocity) && _M0IPC16option6OptionPB2Eq5equalGdE(_x_910.angular_velocity, _x_911.angular_velocity);
 }
-function _M0IP39Milky20186selene9collision20EntityJointConfigKeyPB2Eq5equal(_x_897, _x_898) {
+function _M0IP39Milky20186selene9collision20EntityJointConfigKeyPB2Eq5equal(_x_884, _x_885) {
   let _tmp;
-  if (_M0IP39Milky20186selene9collision5JointPB2Eq5equal(_x_897.joint, _x_898.joint)) {
-    const _bind$71 = _x_897.body1;
-    const _$42$x0_899 = _bind$71._0;
-    const _$42$x1_900 = _bind$71._1;
-    const _bind$72 = _x_898.body1;
-    const _$42$y0_901 = _bind$72._0;
-    const _$42$y1_902 = _bind$72._1;
-    _tmp = _$42$x0_899 === _$42$y0_901 && _$42$x1_900 === _$42$y1_902;
+  if (_M0IP39Milky20186selene9collision5JointPB2Eq5equal(_x_884.joint, _x_885.joint)) {
+    const _bind$71 = _x_884.body1;
+    const _$42$x0_886 = _bind$71._0;
+    const _$42$x1_887 = _bind$71._1;
+    const _bind$72 = _x_885.body1;
+    const _$42$y0_888 = _bind$72._0;
+    const _$42$y1_889 = _bind$72._1;
+    _tmp = _$42$x0_886 === _$42$y0_888 && _$42$x1_887 === _$42$y1_889;
   } else {
     _tmp = false;
   }
   if (_tmp) {
-    const _bind$71 = _x_897.body2;
-    const _$42$x0_903 = _bind$71._0;
-    const _$42$x1_904 = _bind$71._1;
-    const _bind$72 = _x_898.body2;
-    const _$42$y0_905 = _bind$72._0;
-    const _$42$y1_906 = _bind$72._1;
-    return _$42$x0_903 === _$42$y0_905 && _$42$x1_904 === _$42$y1_906;
+    const _bind$71 = _x_884.body2;
+    const _$42$x0_890 = _bind$71._0;
+    const _$42$x1_891 = _bind$71._1;
+    const _bind$72 = _x_885.body2;
+    const _$42$y0_892 = _bind$72._0;
+    const _$42$y1_893 = _bind$72._1;
+    return _$42$x0_890 === _$42$y0_892 && _$42$x1_891 === _$42$y1_893;
   } else {
     return false;
   }
 }
-function _M0IP39Milky20186selene9collision15CollisionFilterPB2Eq5equal(_x_893, _x_894) {
+function _M0IP39Milky20186selene9collision15CollisionFilterPB2Eq5equal(_x_880, _x_881) {
   let _tmp;
-  const _p = _x_893.group;
-  const _p$2 = _x_894.group;
+  const _p = _x_880.group;
+  const _p$2 = _x_881.group;
   if (_p.value === _p$2.value) {
-    _tmp = _M0IPC15array5ArrayPB2Eq5equalGRP39Milky20186selene9collision14CollisionGroupE(_x_893.mask, _x_894.mask);
+    _tmp = _M0IPC15array5ArrayPB2Eq5equalGRP39Milky20186selene9collision14CollisionGroupE(_x_880.mask, _x_881.mask);
   } else {
     _tmp = false;
   }
   if (_tmp) {
-    return _x_893.match_all === _x_894.match_all;
+    return _x_880.match_all === _x_881.match_all;
   } else {
     return false;
   }
 }
-function _M0IP39Milky20186selene9collision21EntityCollisionConfigPB2Eq5equal(_x_889, _x_890) {
-  return _M0IP39Milky20186selene9collision15CollisionFilterPB2Eq5equal(_x_889.filter, _x_890.filter) && _x_889.sensor === _x_890.sensor && _x_889.active === _x_890.active && _x_889.friction === _x_890.friction && _x_889.restitution === _x_890.restitution;
+function _M0IP39Milky20186selene9collision21EntityCollisionConfigPB2Eq5equal(_x_876, _x_877) {
+  return _M0IP39Milky20186selene9collision15CollisionFilterPB2Eq5equal(_x_876.filter, _x_877.filter) && _x_876.sensor === _x_877.sensor && _x_876.active === _x_877.active && _x_876.friction === _x_877.friction && _x_876.restitution === _x_877.restitution;
 }
-function _M0IP39Milky20186selene9collision14MultibodyJointPB2Eq5equal(_x_885, _x_886) {
-  return _M0IP39Milky20186selene3ecs6EntityPB2Eq5equal(_x_885.parent, _x_886.parent) && _M0IP39Milky20186selene9collision18MultibodyJointKindPB2Eq5equal(_x_885.kind, _x_886.kind) && _x_885.active === _x_886.active;
+function _M0IP39Milky20186selene9collision14MultibodyJointPB2Eq5equal(_x_872, _x_873) {
+  return _M0IP39Milky20186selene3ecs6EntityPB2Eq5equal(_x_872.parent, _x_873.parent) && _M0IP39Milky20186selene9collision18MultibodyJointKindPB2Eq5equal(_x_872.kind, _x_873.kind) && _x_872.active === _x_873.active;
 }
-function _M0IP39Milky20186selene9collision29EntityMultibodyJointConfigKeyPB2Eq5equal(_x_863, _x_864) {
+function _M0IP39Milky20186selene9collision29EntityMultibodyJointConfigKeyPB2Eq5equal(_x_850, _x_851) {
   let _tmp;
-  if (_M0IP39Milky20186selene9collision14MultibodyJointPB2Eq5equal(_x_863.joint, _x_864.joint)) {
-    const _bind$71 = _x_863.parent;
-    const _$42$x0_865 = _bind$71._0;
-    const _$42$x1_866 = _bind$71._1;
-    const _bind$72 = _x_864.parent;
-    const _$42$y0_867 = _bind$72._0;
-    const _$42$y1_868 = _bind$72._1;
-    _tmp = _$42$x0_865 === _$42$y0_867 && _$42$x1_866 === _$42$y1_868;
+  if (_M0IP39Milky20186selene9collision14MultibodyJointPB2Eq5equal(_x_850.joint, _x_851.joint)) {
+    const _bind$71 = _x_850.parent;
+    const _$42$x0_852 = _bind$71._0;
+    const _$42$x1_853 = _bind$71._1;
+    const _bind$72 = _x_851.parent;
+    const _$42$y0_854 = _bind$72._0;
+    const _$42$y1_855 = _bind$72._1;
+    _tmp = _$42$x0_852 === _$42$y0_854 && _$42$x1_853 === _$42$y1_855;
   } else {
     _tmp = false;
   }
   if (_tmp) {
-    const _bind$71 = _x_863.child;
-    const _$42$x0_869 = _bind$71._0;
-    const _$42$x1_870 = _bind$71._1;
-    const _bind$72 = _x_864.child;
-    const _$42$y0_871 = _bind$72._0;
-    const _$42$y1_872 = _bind$72._1;
-    return _$42$x0_869 === _$42$y0_871 && _$42$x1_870 === _$42$y1_872;
+    const _bind$71 = _x_850.child;
+    const _$42$x0_856 = _bind$71._0;
+    const _$42$x1_857 = _bind$71._1;
+    const _bind$72 = _x_851.child;
+    const _$42$y0_858 = _bind$72._0;
+    const _$42$y1_859 = _bind$72._1;
+    return _$42$x0_856 === _$42$y0_858 && _$42$x1_857 === _$42$y1_859;
   } else {
     return false;
   }
 }
-function _M0IP39Milky20186selene9collision9RigidBodyPB2Eq5equal(_x_859, _x_860) {
-  return _M0IP39Milky20186selene9collision13RigidBodyTypePB2Eq5equal(_x_859.body_type, _x_860.body_type) && _x_859.gravity_scale === _x_860.gravity_scale && _x_859.linear_damping === _x_860.linear_damping && _x_859.angular_damping === _x_860.angular_damping && _x_859.ccd_enabled === _x_860.ccd_enabled && _x_859.lock_rotation === _x_860.lock_rotation;
+function _M0IP39Milky20186selene9collision9RigidBodyPB2Eq5equal(_x_846, _x_847) {
+  return _M0IP39Milky20186selene9collision13RigidBodyTypePB2Eq5equal(_x_846.body_type, _x_847.body_type) && _x_846.gravity_scale === _x_847.gravity_scale && _x_846.linear_damping === _x_847.linear_damping && _x_846.angular_damping === _x_847.angular_damping && _x_846.ccd_enabled === _x_847.ccd_enabled && _x_846.lock_rotation === _x_847.lock_rotation;
 }
-function _M0IP39Milky20186selene9collision18MultibodyJointKindPB2Eq5equal(_x_823, _x_824) {
-  const _Revolute = _x_823;
-  const _$42$x0_825 = _Revolute._0;
-  const _$42$x1_826 = _Revolute._1;
-  const _$42$x2_827 = _Revolute._2;
-  const _$42$x3_828 = _Revolute._3;
-  const _$42$x4_829 = _Revolute._4;
-  const _Revolute$2 = _x_824;
-  const _$42$y0_830 = _Revolute$2._0;
-  const _$42$y1_831 = _Revolute$2._1;
-  const _$42$y2_832 = _Revolute$2._2;
-  const _$42$y3_833 = _Revolute$2._3;
-  const _$42$y4_834 = _Revolute$2._4;
-  return _$42$x0_825.x === _$42$y0_830.x && _$42$x0_825.y === _$42$y0_830.y && (_$42$x1_826.x === _$42$y1_831.x && _$42$x1_826.y === _$42$y1_831.y && (_M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene9collision11JointLimitsE(_$42$x2_827, _$42$y2_832) && (_M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene9collision10JointMotorE(_$42$x3_828, _$42$y3_833) && _M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene9collision13JointSoftnessE(_$42$x4_829, _$42$y4_834))));
+function _M0IP39Milky20186selene9collision18MultibodyJointKindPB2Eq5equal(_x_810, _x_811) {
+  const _Revolute = _x_810;
+  const _$42$x0_812 = _Revolute._0;
+  const _$42$x1_813 = _Revolute._1;
+  const _$42$x2_814 = _Revolute._2;
+  const _$42$x3_815 = _Revolute._3;
+  const _$42$x4_816 = _Revolute._4;
+  const _Revolute$2 = _x_811;
+  const _$42$y0_817 = _Revolute$2._0;
+  const _$42$y1_818 = _Revolute$2._1;
+  const _$42$y2_819 = _Revolute$2._2;
+  const _$42$y3_820 = _Revolute$2._3;
+  const _$42$y4_821 = _Revolute$2._4;
+  return _$42$x0_812.x === _$42$y0_817.x && _$42$x0_812.y === _$42$y0_817.y && (_$42$x1_813.x === _$42$y1_818.x && _$42$x1_813.y === _$42$y1_818.y && (_M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene9collision11JointLimitsE(_$42$x2_814, _$42$y2_819) && (_M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene9collision10JointMotorE(_$42$x3_815, _$42$y3_820) && _M0IPC16option6OptionPB2Eq5equalGRP39Milky20186selene9collision13JointSoftnessE(_$42$x4_816, _$42$y4_821))));
 }
 function _M0FP39Milky20186selene9collision6shapes() {
   return _M0FP39Milky20186selene3ecs10componentsGRP39Milky20186selene9collision14CollisionShapeE();
@@ -181786,8 +181802,10 @@ function _M0FP39Milky20186selene9collision29apply__pending__body__actions(entity
     while (true) {
       const _ = _tmp;
       if (_ < _bind$73) {
-        const entry = _bind$74[_];
-        _M0FP39Milky20186selene9collision28apply__force__at__point__now(entity, entry._0, entry._1, true);
+        const _foreach_element = _bind$74[_];
+        const _force = _foreach_element._0;
+        const _point = _foreach_element._1;
+        _M0FP39Milky20186selene9collision28apply__force__at__point__now(entity, _force, _point, true);
         _tmp = _ + 1 | 0;
         continue;
       } else {
@@ -181819,8 +181837,10 @@ function _M0FP39Milky20186selene9collision29apply__pending__body__actions(entity
     while (true) {
       const _ = _tmp;
       if (_ < _bind$76) {
-        const entry = _bind$77[_];
-        _M0FP39Milky20186selene9collision30apply__impulse__at__point__now(entity, entry._0, entry._1, true);
+        const _foreach_element = _bind$77[_];
+        const _impulse = _foreach_element._0;
+        const _point = _foreach_element._1;
+        _M0FP39Milky20186selene9collision30apply__impulse__at__point__now(entity, _impulse, _point, true);
         _tmp = _ + 1 | 0;
         continue;
       } else {
@@ -182043,11 +182063,11 @@ function _M0FP39Milky20186selene9collision35entity__linear__velocity__for__body(
   }
 }
 function _M0MP39Milky20186selene9collision9RigidBody5fixed() {
-  const _bind$71 = _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98395;
+  const _bind$71 = _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98415;
   return new _M0TP39Milky20186selene9collision9RigidBody(1, _bind$71.gravity_scale, _bind$71.linear_damping, _bind$71.angular_damping, _bind$71.ccd_enabled, _bind$71.lock_rotation);
 }
 function _M0MP39Milky20186selene9collision9RigidBody26kinematic__position__based() {
-  const _bind$71 = _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98395;
+  const _bind$71 = _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98415;
   return new _M0TP39Milky20186selene9collision9RigidBody(2, _bind$71.gravity_scale, _bind$71.linear_damping, _bind$71.angular_damping, _bind$71.ccd_enabled, _bind$71.lock_rotation);
 }
 function _M0FP39Milky20186selene9collision19legacy__rigid__body(entity) {
@@ -182479,7 +182499,7 @@ function _M0FP39Milky20186selene9collision23insert__entity__physics(entity, snap
       }
     }
     const body_handle = _M0MP39Milky201812moon__rapier8dynamics12RigidBodySet6insert(_M0FP39Milky20186selene9collision23physics__world__runtime().world.bodies, _M0MP39Milky201812moon__rapier8dynamics16RigidBodyBuilder5build(body_builder));
-    const collider = _M0MP39Milky201812moon__rapier9collision15ColliderBuilder5build(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder7enabled(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder11restitution(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder8friction(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder14active__events(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder14solver__groups(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder17collision__groups(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder13active__hooks(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder6sensor(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder24active__collision__types(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder11translation(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder15ColliderBuilder(_rapier_shape), _M0FP39Milky20186selene9collision17to__physics__vec2(_translation)), _M0MP39Milky201812moon__rapier9collision20ActiveCollisionTypes3allN6recordS87762), snapshot.collision.sensor), active_hooks), _M0FP39Milky20186selene9collision18to__rapier__groups(snapshot.collision.filter)), _M0FP39Milky20186selene9collision18to__rapier__groups(snapshot.collision.filter)), _M0FP39Milky20186selene9collision14active__events()), Math.fround(snapshot.collision.friction)), Math.fround(snapshot.collision.restitution)), snapshot.collision.active));
+    const collider = _M0MP39Milky201812moon__rapier9collision15ColliderBuilder5build(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder7enabled(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder11restitution(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder8friction(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder14active__events(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder14solver__groups(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder17collision__groups(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder13active__hooks(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder6sensor(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder24active__collision__types(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder11translation(_M0MP39Milky201812moon__rapier9collision15ColliderBuilder15ColliderBuilder(_rapier_shape), _M0FP39Milky20186selene9collision17to__physics__vec2(_translation)), _M0MP39Milky201812moon__rapier9collision20ActiveCollisionTypes3allN6recordS87778), snapshot.collision.sensor), active_hooks), _M0FP39Milky20186selene9collision18to__rapier__groups(snapshot.collision.filter)), _M0FP39Milky20186selene9collision18to__rapier__groups(snapshot.collision.filter)), _M0FP39Milky20186selene9collision14active__events()), Math.fround(snapshot.collision.friction)), Math.fround(snapshot.collision.restitution)), snapshot.collision.active));
     const collider_handle = _M0MP39Milky201812moon__rapier9collision11ColliderSet20insert__with__parent(_M0FP39Milky20186selene9collision23physics__world__runtime().world.colliders, collider, body_handle, _M0FP39Milky20186selene9collision23physics__world__runtime().world.bodies);
     _M0MPB3Map3setGRP39Milky20186selene3ecs6EntityRP39Milky201812moon__rapier8dynamics15RigidBodyHandleE(_M0FP39Milky20186selene9collision23physics__world__runtime().world.entity_bodies, entity, body_handle);
     _M0MPB3Map3setGRP39Milky20186selene3ecs6EntityRP39Milky201812moon__rapier9collision14ColliderHandleE(_M0FP39Milky20186selene9collision23physics__world__runtime().world.entity_colliders, entity, collider_handle);
@@ -182496,13 +182516,14 @@ function _M0FP39Milky20186selene9collision27prune__pending__body__state() {
   const _bind$73 = _bind$71.buf;
   let _tmp = 0;
   while (true) {
-    const _idx = _tmp;
-    if (_idx < _bind$72) {
-      const entry = _bind$73[_idx];
-      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(entry._0) || !_M0FP39Milky20186selene9collision13world__entity(entry._0)) {
-        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntitydE(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_rotations, entry._0);
+    const _ = _tmp;
+    if (_ < _bind$72) {
+      const _foreach_element = _bind$73[_];
+      const _entity = _foreach_element._0;
+      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(_entity) || !_M0FP39Milky20186selene9collision13world__entity(_entity)) {
+        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntitydE(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_rotations, _entity);
       }
-      _tmp = _idx + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -182513,13 +182534,14 @@ function _M0FP39Milky20186selene9collision27prune__pending__body__state() {
   const _bind$76 = _bind$74.buf;
   let _tmp$2 = 0;
   while (true) {
-    const _idx = _tmp$2;
-    if (_idx < _bind$75) {
-      const entry = _bind$76[_idx];
-      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(entry._0) || !_M0FP39Milky20186selene9collision13world__entity(entry._0)) {
-        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntityRP39Milky20186selene4math4Vec2E(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_linear_velocities, entry._0);
+    const _ = _tmp$2;
+    if (_ < _bind$75) {
+      const _foreach_element = _bind$76[_];
+      const _entity = _foreach_element._0;
+      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(_entity) || !_M0FP39Milky20186selene9collision13world__entity(_entity)) {
+        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntityRP39Milky20186selene4math4Vec2E(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_linear_velocities, _entity);
       }
-      _tmp$2 = _idx + 1 | 0;
+      _tmp$2 = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -182530,13 +182552,14 @@ function _M0FP39Milky20186selene9collision27prune__pending__body__state() {
   const _bind$79 = _bind$77.buf;
   let _tmp$3 = 0;
   while (true) {
-    const _idx = _tmp$3;
-    if (_idx < _bind$78) {
-      const entry = _bind$79[_idx];
-      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(entry._0) || !_M0FP39Milky20186selene9collision13world__entity(entry._0)) {
-        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntitydE(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_angular_velocities, entry._0);
+    const _ = _tmp$3;
+    if (_ < _bind$78) {
+      const _foreach_element = _bind$79[_];
+      const _entity = _foreach_element._0;
+      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(_entity) || !_M0FP39Milky20186selene9collision13world__entity(_entity)) {
+        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntitydE(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_angular_velocities, _entity);
       }
-      _tmp$3 = _idx + 1 | 0;
+      _tmp$3 = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -182547,13 +182570,14 @@ function _M0FP39Milky20186selene9collision27prune__pending__body__state() {
   const _bind$82 = _bind$80.buf;
   let _tmp$4 = 0;
   while (true) {
-    const _idx = _tmp$4;
-    if (_idx < _bind$81) {
-      const entry = _bind$82[_idx];
-      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(entry._0) || !_M0FP39Milky20186selene9collision13world__entity(entry._0)) {
-        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntityRP39Milky20186selene4math4Vec2E(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_forces, entry._0);
+    const _ = _tmp$4;
+    if (_ < _bind$81) {
+      const _foreach_element = _bind$82[_];
+      const _entity = _foreach_element._0;
+      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(_entity) || !_M0FP39Milky20186selene9collision13world__entity(_entity)) {
+        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntityRP39Milky20186selene4math4Vec2E(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_forces, _entity);
       }
-      _tmp$4 = _idx + 1 | 0;
+      _tmp$4 = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -182564,13 +182588,14 @@ function _M0FP39Milky20186selene9collision27prune__pending__body__state() {
   const _bind$85 = _bind$83.buf;
   let _tmp$5 = 0;
   while (true) {
-    const _idx = _tmp$5;
-    if (_idx < _bind$84) {
-      const entry = _bind$85[_idx];
-      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(entry._0) || !_M0FP39Milky20186selene9collision13world__entity(entry._0)) {
-        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntityRPB5ArrayGURP39Milky20186selene4math4Vec2RP39Milky20186selene4math4Vec2EEE(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_force_points, entry._0);
+    const _ = _tmp$5;
+    if (_ < _bind$84) {
+      const _foreach_element = _bind$85[_];
+      const _entity = _foreach_element._0;
+      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(_entity) || !_M0FP39Milky20186selene9collision13world__entity(_entity)) {
+        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntityRPB5ArrayGURP39Milky20186selene4math4Vec2RP39Milky20186selene4math4Vec2EEE(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_force_points, _entity);
       }
-      _tmp$5 = _idx + 1 | 0;
+      _tmp$5 = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -182581,13 +182606,14 @@ function _M0FP39Milky20186selene9collision27prune__pending__body__state() {
   const _bind$88 = _bind$86.buf;
   let _tmp$6 = 0;
   while (true) {
-    const _idx = _tmp$6;
-    if (_idx < _bind$87) {
-      const entry = _bind$88[_idx];
-      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(entry._0) || !_M0FP39Milky20186selene9collision13world__entity(entry._0)) {
-        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntitydE(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_torques, entry._0);
+    const _ = _tmp$6;
+    if (_ < _bind$87) {
+      const _foreach_element = _bind$88[_];
+      const _entity = _foreach_element._0;
+      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(_entity) || !_M0FP39Milky20186selene9collision13world__entity(_entity)) {
+        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntitydE(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_torques, _entity);
       }
-      _tmp$6 = _idx + 1 | 0;
+      _tmp$6 = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -182598,13 +182624,14 @@ function _M0FP39Milky20186selene9collision27prune__pending__body__state() {
   const _bind$91 = _bind$89.buf;
   let _tmp$7 = 0;
   while (true) {
-    const _idx = _tmp$7;
-    if (_idx < _bind$90) {
-      const entry = _bind$91[_idx];
-      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(entry._0) || !_M0FP39Milky20186selene9collision13world__entity(entry._0)) {
-        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntityRP39Milky20186selene4math4Vec2E(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_impulses, entry._0);
+    const _ = _tmp$7;
+    if (_ < _bind$90) {
+      const _foreach_element = _bind$91[_];
+      const _entity = _foreach_element._0;
+      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(_entity) || !_M0FP39Milky20186selene9collision13world__entity(_entity)) {
+        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntityRP39Milky20186selene4math4Vec2E(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_impulses, _entity);
       }
-      _tmp$7 = _idx + 1 | 0;
+      _tmp$7 = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -182615,13 +182642,14 @@ function _M0FP39Milky20186selene9collision27prune__pending__body__state() {
   const _bind$94 = _bind$92.buf;
   let _tmp$8 = 0;
   while (true) {
-    const _idx = _tmp$8;
-    if (_idx < _bind$93) {
-      const entry = _bind$94[_idx];
-      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(entry._0) || !_M0FP39Milky20186selene9collision13world__entity(entry._0)) {
-        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntityRPB5ArrayGURP39Milky20186selene4math4Vec2RP39Milky20186selene4math4Vec2EEE(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_impulse_points, entry._0);
+    const _ = _tmp$8;
+    if (_ < _bind$93) {
+      const _foreach_element = _bind$94[_];
+      const _entity = _foreach_element._0;
+      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(_entity) || !_M0FP39Milky20186selene9collision13world__entity(_entity)) {
+        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntityRPB5ArrayGURP39Milky20186selene4math4Vec2RP39Milky20186selene4math4Vec2EEE(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_impulse_points, _entity);
       }
-      _tmp$8 = _idx + 1 | 0;
+      _tmp$8 = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -182632,13 +182660,14 @@ function _M0FP39Milky20186selene9collision27prune__pending__body__state() {
   const _bind$97 = _bind$95.buf;
   let _tmp$9 = 0;
   while (true) {
-    const _idx = _tmp$9;
-    if (_idx < _bind$96) {
-      const entry = _bind$97[_idx];
-      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(entry._0) || !_M0FP39Milky20186selene9collision13world__entity(entry._0)) {
-        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntitydE(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_torque_impulses, entry._0);
+    const _ = _tmp$9;
+    if (_ < _bind$96) {
+      const _foreach_element = _bind$97[_];
+      const _entity = _foreach_element._0;
+      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(_entity) || !_M0FP39Milky20186selene9collision13world__entity(_entity)) {
+        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntitydE(_M0FP39Milky20186selene9collision23physics__world__runtime().pending_body_torque_impulses, _entity);
       }
-      _tmp$9 = _idx + 1 | 0;
+      _tmp$9 = _ + 1 | 0;
       continue;
     } else {
       return;
@@ -182809,7 +182838,7 @@ function _M0FP39Milky20186selene9collision21sync__entity__physics(entity, snapsh
         } else {
           const _Some$4 = _bind$75;
           const _collider = _Some$4;
-          _M0MP39Milky201812moon__rapier9collision8Collider10set__shape(_M0MP39Milky201812moon__rapier9collision8Collider29set__translation__wrt__parent(_M0MP39Milky201812moon__rapier9collision8Collider16set__restitution(_M0MP39Milky201812moon__rapier9collision8Collider13set__friction(_M0MP39Milky201812moon__rapier9collision8Collider19set__active__events(_M0MP39Milky201812moon__rapier9collision8Collider19set__solver__groups(_M0MP39Milky201812moon__rapier9collision8Collider22set__collision__groups(_M0MP39Milky201812moon__rapier9collision8Collider18set__active__hooks(_M0MP39Milky201812moon__rapier9collision8Collider29set__active__collision__types(_M0MP39Milky201812moon__rapier9collision8Collider12set__enabled(_M0MP39Milky201812moon__rapier9collision8Collider11set__sensor(_collider, snapshot.collision.sensor), snapshot.collision.active), _M0MP39Milky201812moon__rapier9collision20ActiveCollisionTypes3allN6recordS87762), active_hooks), _M0FP39Milky20186selene9collision18to__rapier__groups(snapshot.collision.filter)), _M0FP39Milky20186selene9collision18to__rapier__groups(snapshot.collision.filter)), _M0FP39Milky20186selene9collision14active__events()), Math.fround(snapshot.collision.friction)), Math.fround(snapshot.collision.restitution)), _M0FP39Milky20186selene9collision17to__physics__vec2(_translation)), _rapier_shape);
+          _M0MP39Milky201812moon__rapier9collision8Collider10set__shape(_M0MP39Milky201812moon__rapier9collision8Collider29set__translation__wrt__parent(_M0MP39Milky201812moon__rapier9collision8Collider16set__restitution(_M0MP39Milky201812moon__rapier9collision8Collider13set__friction(_M0MP39Milky201812moon__rapier9collision8Collider19set__active__events(_M0MP39Milky201812moon__rapier9collision8Collider19set__solver__groups(_M0MP39Milky201812moon__rapier9collision8Collider22set__collision__groups(_M0MP39Milky201812moon__rapier9collision8Collider18set__active__hooks(_M0MP39Milky201812moon__rapier9collision8Collider29set__active__collision__types(_M0MP39Milky201812moon__rapier9collision8Collider12set__enabled(_M0MP39Milky201812moon__rapier9collision8Collider11set__sensor(_collider, snapshot.collision.sensor), snapshot.collision.active), _M0MP39Milky201812moon__rapier9collision20ActiveCollisionTypes3allN6recordS87778), active_hooks), _M0FP39Milky20186selene9collision18to__rapier__groups(snapshot.collision.filter)), _M0FP39Milky20186selene9collision18to__rapier__groups(snapshot.collision.filter)), _M0FP39Milky20186selene9collision14active__events()), Math.fround(snapshot.collision.friction)), Math.fround(snapshot.collision.restitution)), _M0FP39Milky20186selene9collision17to__physics__vec2(_translation)), _rapier_shape);
           return;
         }
       }
@@ -182823,14 +182852,14 @@ function _M0FP39Milky20186selene9collision21sync__world__entities() {
   const _bind$73 = _bind$71.buf;
   let _tmp = 0;
   while (true) {
-    const _idx = _tmp;
-    if (_idx < _bind$72) {
-      const entry = _bind$73[_idx];
-      const entity = entry._0;
-      if (!_M0FP39Milky20186selene9collision21should__have__physics(entity)) {
-        _M0FP39Milky20186selene9collision23remove__entity__physics(entity);
+    const _ = _tmp;
+    if (_ < _bind$72) {
+      const _foreach_element = _bind$73[_];
+      const _entity = _foreach_element._0;
+      if (!_M0FP39Milky20186selene9collision21should__have__physics(_entity)) {
+        _M0FP39Milky20186selene9collision23remove__entity__physics(_entity);
       }
-      _tmp = _idx + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -183587,15 +183616,15 @@ function _M0FP39Milky20186selene9collision19sync__world__joints() {
   const _bind$73 = _bind$71.buf;
   let _tmp = 0;
   while (true) {
-    const _idx = _tmp;
-    if (_idx < _bind$72) {
-      const entry = _bind$73[_idx];
-      const entity = entry._0;
-      const handle = entry._1;
-      if (!_M0FP39Milky20186selene9collision19should__have__joint(entity) || !_M0MP39Milky201812moon__rapier8dynamics15ImpulseJointSet8contains(_M0FP39Milky20186selene9collision23physics__world__runtime().world.impulse_joints, handle)) {
-        _M0FP39Milky20186selene9collision22remove__joint__physics(entity);
+    const _ = _tmp;
+    if (_ < _bind$72) {
+      const _foreach_element = _bind$73[_];
+      const _entity = _foreach_element._0;
+      const _handle = _foreach_element._1;
+      if (!_M0FP39Milky20186selene9collision19should__have__joint(_entity) || !_M0MP39Milky201812moon__rapier8dynamics15ImpulseJointSet8contains(_M0FP39Milky20186selene9collision23physics__world__runtime().world.impulse_joints, _handle)) {
+        _M0FP39Milky20186selene9collision22remove__joint__physics(_entity);
       }
-      _tmp = _idx + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -183784,26 +183813,26 @@ function _M0FP39Milky20186selene9collision30sync__world__multibody__joints() {
   const _bind$73 = _bind$71.buf;
   let _tmp = 0;
   while (true) {
-    const _idx = _tmp;
-    if (_idx < _bind$72) {
-      const entry = _bind$73[_idx];
-      const entity = entry._0;
-      const handle = entry._1;
+    const _ = _tmp;
+    if (_ < _bind$72) {
+      const _foreach_element = _bind$73[_];
+      const _entity = _foreach_element._0;
+      const _handle = _foreach_element._1;
       _L: {
         _L$2: {
-          if (!_M0FP39Milky20186selene9collision30should__have__multibody__joint(entity)) {
+          if (!_M0FP39Milky20186selene9collision30should__have__multibody__joint(_entity)) {
             break _L$2;
           } else {
-            const _bind$74 = _M0MP39Milky201812moon__rapier8dynamics17MultibodyJointSet3get(_M0FP39Milky20186selene9collision23physics__world__runtime().world.multibody_joints, handle);
+            const _bind$74 = _M0MP39Milky201812moon__rapier8dynamics17MultibodyJointSet3get(_M0FP39Milky20186selene9collision23physics__world__runtime().world.multibody_joints, _handle);
             if (_bind$74 === undefined) {
               break _L$2;
             }
           }
           break _L;
         }
-        _M0FP39Milky20186selene9collision33remove__multibody__joint__physics(entity);
+        _M0FP39Milky20186selene9collision33remove__multibody__joint__physics(_entity);
       }
-      _tmp = _idx + 1 | 0;
+      _tmp = _ + 1 | 0;
       continue;
     } else {
       break;
@@ -184245,7 +184274,7 @@ function _M0MP39Milky20186selene9collision8Collider8Collider(filter) {
   return new _M0TP39Milky20186selene9collision8Collider(true, filter, 0.5, 0);
 }
 function _M0MP39Milky20186selene9collision9RigidBody26kinematic__velocity__based() {
-  const _bind$71 = _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98395;
+  const _bind$71 = _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98415;
   return new _M0TP39Milky20186selene9collision9RigidBody(3, _bind$71.gravity_scale, _bind$71.linear_damping, _bind$71.angular_damping, _bind$71.ccd_enabled, _bind$71.lock_rotation);
 }
 function _M0MP39Milky20186selene9collision4Area4Area(filter) {
@@ -184796,7 +184825,7 @@ function _M0FP39Milky20186selene6sprite10parse__int(text) {
 }
 function _M0FP39Milky20186selene6sprite16parse__rgb__body(body, with_alpha) {
   const values = new _M0TPB5ArrayGsE([], 0);
-  const _it = _M0MPC16string6String5split(body, _M0FP39Milky20186selene6sprite16parse__rgb__bodyN6recordS99391);
+  const _it = _M0MPC16string6String5split(body, _M0FP39Milky20186selene6sprite16parse__rgb__bodyN6recordS99420);
   while (true) {
     const _bind$71 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it);
     if (_bind$71 === undefined) {
@@ -184860,11 +184889,11 @@ function _M0FP39Milky20186selene6sprite16parse__rgb__body(body, with_alpha) {
   }
 }
 function _M0FP39Milky20186selene6sprite17parse__rgb__color(color) {
-  if (_M0MPC16string6String11has__prefix(color, _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99412) && _M0MPC16string6String11has__suffix(color, _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99413)) {
+  if (_M0MPC16string6String11has__prefix(color, _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99441) && _M0MPC16string6String11has__suffix(color, _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99442)) {
     const body = color.substring(5, color.length - 1 | 0);
     return _M0FP39Milky20186selene6sprite16parse__rgb__body(body, true);
   }
-  if (_M0MPC16string6String11has__prefix(color, _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99414) && _M0MPC16string6String11has__suffix(color, _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99415)) {
+  if (_M0MPC16string6String11has__prefix(color, _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99443) && _M0MPC16string6String11has__suffix(color, _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99444)) {
     const body = color.substring(4, color.length - 1 | 0);
     return _M0FP39Milky20186selene6sprite16parse__rgb__body(body, false);
   }
@@ -184872,7 +184901,7 @@ function _M0FP39Milky20186selene6sprite17parse__rgb__color(color) {
 }
 function _M0FP39Milky20186selene6sprite12parse__color(color) {
   const normalized = _M0MPC16string6String9to__lower(_M0MPC16string10StringView9to__owned(_M0MPC16string6String4trim(color, undefined)));
-  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene6sprite12parse__colorN6recordS99419)) {
+  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene6sprite12parse__colorN6recordS99448)) {
     const _bind$71 = _M0FP39Milky20186selene6sprite17parse__hex__color(normalized);
     if (_bind$71 === undefined) {
     } else {
@@ -184881,7 +184910,7 @@ function _M0FP39Milky20186selene6sprite12parse__color(color) {
       return _color;
     }
   }
-  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene6sprite12parse__colorN6recordS99420) || _M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene6sprite12parse__colorN6recordS99421)) {
+  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene6sprite12parse__colorN6recordS99449) || _M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene6sprite12parse__colorN6recordS99450)) {
     const _bind$71 = _M0FP39Milky20186selene6sprite17parse__rgb__color(normalized);
     if (_bind$71 === undefined) {
     } else {
@@ -185150,7 +185179,7 @@ function _M0FP39Milky20186selene14runtime__debug35atlas__overlay__from__draw__co
     const _Image = command;
     const _image = _Image._0;
     const _bind$71 = _image.source;
-    return _bind$71 === undefined ? undefined : new _M0DTP39Milky20186selene15render2d__types13DrawCommand2D4Rect(new _M0TP39Milky20186selene15render2d__types17RectDrawCommand2D(_image.destination, _image.transform, 1, 0, _M0FP39Milky20186selene14runtime__debug27atlas__overlay__fill__colorN6recordS99572, _M0FP39Milky20186selene14runtime__debug29atlas__overlay__stroke__colorN6recordS99573));
+    return _bind$71 === undefined ? undefined : new _M0DTP39Milky20186selene15render2d__types13DrawCommand2D4Rect(new _M0TP39Milky20186selene15render2d__types17RectDrawCommand2D(_image.destination, _image.transform, 1, 0, _M0FP39Milky20186selene14runtime__debug27atlas__overlay__fill__colorN6recordS99601, _M0FP39Milky20186selene14runtime__debug29atlas__overlay__stroke__colorN6recordS99602));
   } else {
     return undefined;
   }
@@ -185541,7 +185570,7 @@ function _M0FP39Milky20186selene14runtime__debug28consume__injected__input__or(p
   _M0MPB3Map3setGjRPB5ArrayGRP39Milky20186selene6inputs13InputSnapshotEE(_M0FP39Milky20186selene14runtime__debug25queued__inputs__by__world, _M0FP39Milky20186selene14runtime__debug18current__world__id(), tail);
   return _M0FP39Milky20186selene14runtime__debug14copy__snapshot(head);
 }
-function _M0FP39Milky20186selene5state15advance_2einnerN8_2adeferS99731(_env) {
+function _M0FP39Milky20186selene5state15advance_2einnerN8_2adeferS99760(_env) {
   const _registry = _env._2;
   const world = _env._1;
   const entries = _env._0;
@@ -185648,13 +185677,13 @@ function _M0FP39Milky20186selene5state15advance_2einner(world, on_exit, on_enter
             break _L;
           }
         } else {
-          _M0FP39Milky20186selene5state15advance_2einnerN8_2adeferS99731(_env);
+          _M0FP39Milky20186selene5state15advance_2einnerN8_2adeferS99760(_env);
           return new _M0DTPC16result6ResultGuRP39Milky20186selene3ecs13ScheduleErrorE2Ok(undefined);
         }
-        _M0FP39Milky20186selene5state15advance_2einnerN8_2adeferS99731(_env);
+        _M0FP39Milky20186selene5state15advance_2einnerN8_2adeferS99760(_env);
         return new _M0DTPC16result6ResultGuRP39Milky20186selene3ecs13ScheduleErrorE2Ok(_defer_result);
       }
-      _M0FP39Milky20186selene5state15advance_2einnerN8_2adeferS99731(_env);
+      _M0FP39Milky20186selene5state15advance_2einnerN8_2adeferS99760(_env);
       return new _M0DTPC16result6ResultGuRP39Milky20186selene3ecs13ScheduleErrorE3Err(_err);
     } else {
       return new _M0DTPC16result6ResultGuRP39Milky20186selene3ecs13ScheduleErrorE3Err(_M0DTPC15error5Error60Milky2018_2fselene_2fecs_2eScheduleError_2eReentrantSchedule__);
@@ -185902,7 +185931,7 @@ function _M0FP39Milky20186selene3app8set__key(system, index, deterministic_order
     return _set.name;
   }
 }
-function _M0FP39Milky20186selene3app22sort__systems__by__setN9add__edgeS99853(from, to, outgoing, indegree) {
+function _M0FP39Milky20186selene3app22sort__systems__by__setN9add__edgeS99882(from, to, outgoing, indegree) {
   if (from === to) {
     return undefined;
   }
@@ -185990,7 +186019,7 @@ function _M0FP39Milky20186selene3app22sort__systems__by__set(systems, determinis
         const _ = _tmp$4;
         if (_ < _bind$82) {
           const target = _bind$83[_];
-          _M0FP39Milky20186selene3app22sort__systems__by__setN9add__edgeS99853(current_key, target.name, outgoing, indegree);
+          _M0FP39Milky20186selene3app22sort__systems__by__setN9add__edgeS99882(current_key, target.name, outgoing, indegree);
           _tmp$4 = _ + 1 | 0;
           continue;
         } else {
@@ -186005,7 +186034,7 @@ function _M0FP39Milky20186selene3app22sort__systems__by__set(systems, determinis
         const _ = _tmp$5;
         if (_ < _bind$85) {
           const source = _bind$86[_];
-          _M0FP39Milky20186selene3app22sort__systems__by__setN9add__edgeS99853(source.name, current_key, outgoing, indegree);
+          _M0FP39Milky20186selene3app22sort__systems__by__setN9add__edgeS99882(source.name, current_key, outgoing, indegree);
           _tmp$5 = _ + 1 | 0;
           continue;
         } else {
@@ -186221,7 +186250,7 @@ function _M0FP39Milky20186selene3app28build__runtime__plan_2einner(app, fixed_de
   if (app.zoom <= 0) {
     $panic("App::with_zoom must be a positive number");
   }
-  if (_M0IPC16option6OptionPB2Eq5equalGjE(app.max_fps, _M0FP39Milky20186selene3app28build__runtime__plan_2einnerN6constrS99981)) {
+  if (_M0IPC16option6OptionPB2Eq5equalGjE(app.max_fps, _M0FP39Milky20186selene3app28build__runtime__plan_2einnerN6constrS100010)) {
     $panic("App::with_max_fps must be greater than 0");
   }
   if (app.fixed_hz === 0) {
@@ -186518,7 +186547,7 @@ function _M0FP39Milky20186selene3app18run__render__frame(plan, raw_delta) {
   }
   _M0FP39Milky20186selene14runtime__debug12note__render(delta, draw2d_count, draw3d_count);
 }
-function _M0MP39Milky20186selene3app3App3runN14service__frameS100049() {
+function _M0MP39Milky20186selene3app3App3runN14service__frameS100078() {
   _M0FP39Milky20186selene15platform__audio4tick();
 }
 function _M0MP39Milky20186selene3app3App3run(self) {
@@ -186536,7 +186565,7 @@ function _M0MP39Milky20186selene3app3App3run(self) {
   const game_loop = (raw_delta) => {
     _M0FP39Milky20186selene3app16run__game__frame(plan, accumulator, raw_delta, undefined);
   };
-  const run_game = _M0FP39Milky20186selene16platform__window10initialize(new _M0TP39Milky20186selene17platform__runtime12WindowConfig(self.viewport_width, self.viewport_height, screen_width, screen_height, self.max_fps, self.image_smooth), new _M0TP39Milky20186selene17platform__runtime15RunnerCallbacks(startup, _M0MP39Milky20186selene3app3App3runN14service__frameS100049, render_loop, game_loop));
+  const run_game = _M0FP39Milky20186selene16platform__window10initialize(new _M0TP39Milky20186selene17platform__runtime12WindowConfig(self.viewport_width, self.viewport_height, screen_width, screen_height, self.max_fps, self.image_smooth), new _M0TP39Milky20186selene17platform__runtime15RunnerCallbacks(startup, _M0MP39Milky20186selene3app3App3runN14service__frameS100078, render_loop, game_loop));
   run_game();
 }
 function _M0MP39Milky20186selene3app9SystemSet9SystemSet(name) {
@@ -186663,7 +186692,7 @@ function _M0MP29Milky201815moon__accesskit6NodeId4root() {
   return 0n;
 }
 function _M0MP29Milky201815moon__accesskit6TreeId4root() {
-  return _M0MP29Milky201815moon__accesskit4Uuid3nilN6recordS100292;
+  return _M0MP29Milky201815moon__accesskit4Uuid3nilN6recordS100321;
 }
 function _M0MP29Milky201815moon__accesskit10Properties10Properties() {
   return new _M0TP29Milky201815moon__accesskit10Properties(_M0MPC15array5Array4makeGiE(86, -1), new _M0TPB5ArrayGRP29Milky201815moon__accesskit13PropertyValueE([], 0));
@@ -186780,14 +186809,14 @@ function _M0FP39Milky20186selene4a11y10auto__a11y(entity) {
     const _bind$72 = _M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene2ui5texts(), entity);
     if (_bind$72 === undefined) {
       const _bind$73 = _M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene2ui10ui__images(), entity);
-      return _bind$73 === undefined ? undefined : _M0MP39Milky20186selene4a11y4A11y4A11y(_M0FP39Milky20186selene4a11y10auto__a11yN6constrS100364, _M0DTPC16option6OptionGOsE4None__, _M0DTPC16option6OptionGOsE4None__, -1, -1, _M0DTPC16option6OptionGObE4None__, -1);
+      return _bind$73 === undefined ? undefined : _M0MP39Milky20186selene4a11y4A11y4A11y(_M0FP39Milky20186selene4a11y10auto__a11yN6constrS100393, _M0DTPC16option6OptionGOsE4None__, _M0DTPC16option6OptionGOsE4None__, -1, -1, _M0DTPC16option6OptionGObE4None__, -1);
     } else {
-      return _M0MP39Milky20186selene4a11y4A11y4A11y(_M0FP39Milky20186selene4a11y10auto__a11yN6constrS100363, _M0DTPC16option6OptionGOsE4None__, _M0DTPC16option6OptionGOsE4None__, -1, -1, _M0DTPC16option6OptionGObE4None__, -1);
+      return _M0MP39Milky20186selene4a11y4A11y4A11y(_M0FP39Milky20186selene4a11y10auto__a11yN6constrS100392, _M0DTPC16option6OptionGOsE4None__, _M0DTPC16option6OptionGOsE4None__, -1, -1, _M0DTPC16option6OptionGObE4None__, -1);
     }
   } else {
     const _Some = _bind$71;
     const _button = _Some;
-    return _M0MP39Milky20186selene4a11y4A11y4A11y(_M0FP39Milky20186selene4a11y10auto__a11yN6constrS100361, _M0DTPC16option6OptionGOsE4None__, _M0DTPC16option6OptionGOsE4None__, _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100362, !_button.enabled, _M0DTPC16option6OptionGObE4None__, -1);
+    return _M0MP39Milky20186selene4a11y4A11y4A11y(_M0FP39Milky20186selene4a11y10auto__a11yN6constrS100390, _M0DTPC16option6OptionGOsE4None__, _M0DTPC16option6OptionGOsE4None__, _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100391, !_button.enabled, _M0DTPC16option6OptionGObE4None__, -1);
   }
 }
 function _M0FP39Milky20186selene4a11y9get__a11y(entity) {
@@ -187566,10 +187595,10 @@ function _M0FP39Milky20186selene9animation25animation__player__system(delta) {
   while (true) {
     const _ = _tmp;
     if (_ < _bind$72) {
-      const pair = _bind$73[_];
+      const _foreach_element = _bind$73[_];
+      const _entity = _foreach_element._0;
+      const _player = _foreach_element._1;
       _L: {
-        const _entity = pair._0;
-        const _player = pair._1;
         if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(_entity)) {
           break _L;
         }
@@ -187775,10 +187804,10 @@ function _M0FP39Milky20186selene9animation29animation__transition__system(delta)
   while (true) {
     const _ = _tmp;
     if (_ < _bind$72) {
-      const pair = _bind$73[_];
+      const _foreach_element = _bind$73[_];
+      const _entity = _foreach_element._0;
+      const _transitions = _foreach_element._1;
       _L: {
-        const _entity = pair._0;
-        const _transitions = pair._1;
         if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(_entity)) {
           break _L;
         }
@@ -188391,12 +188420,13 @@ function _M0FP39Milky20186selene9animation22apply__additive__value(base, values)
       while (true) {
         const _ = _tmp;
         if (_ < _bind$71) {
-          const pair = _bind$72[_];
-          const _bind$73 = pair._0;
-          if (_bind$73.$tag === 0) {
-            const _Scalar$2 = _bind$73;
+          const _foreach_element = _bind$72[_];
+          const _sample = _foreach_element._0;
+          const _weight = _foreach_element._1;
+          if (_sample.$tag === 0) {
+            const _Scalar$2 = _sample;
             const _add = _Scalar$2._0;
-            output = output + _add * pair._1;
+            output = output + _add * _weight;
           }
           _tmp = _ + 1 | 0;
           continue;
@@ -188416,12 +188446,13 @@ function _M0FP39Milky20186selene9animation22apply__additive__value(base, values)
       while (true) {
         const _ = _tmp$2;
         if (_ < _bind$73) {
-          const pair = _bind$74[_];
-          const _bind$75 = pair._0;
-          if (_bind$75.$tag === 1) {
-            const _Vec3$2 = _bind$75;
+          const _foreach_element = _bind$74[_];
+          const _sample = _foreach_element._0;
+          const _weight = _foreach_element._1;
+          if (_sample.$tag === 1) {
+            const _Vec3$2 = _sample;
             const _add = _Vec3$2._0;
-            output$2 = _M0IP39Milky20186selene4math4Vec3PB3Add3add(output$2, _M0MP39Milky20186selene4math4Vec311scalar__mul(_add, pair._1));
+            output$2 = _M0IP39Milky20186selene4math4Vec3PB3Add3add(output$2, _M0MP39Milky20186selene4math4Vec311scalar__mul(_add, _weight));
           }
           _tmp$2 = _ + 1 | 0;
           continue;
@@ -188441,13 +188472,14 @@ function _M0FP39Milky20186selene9animation22apply__additive__value(base, values)
       while (true) {
         const _ = _tmp$3;
         if (_ < _bind$75) {
-          const pair = _bind$76[_];
-          const _bind$77 = pair._0;
-          if (_bind$77.$tag === 2) {
-            const _Quat$2 = _bind$77;
+          const _foreach_element = _bind$76[_];
+          const _sample = _foreach_element._0;
+          const _weight = _foreach_element._1;
+          if (_sample.$tag === 2) {
+            const _Quat$2 = _sample;
             const _add = _Quat$2._0;
             const rotation = _M0MPC16option6Option19unwrap__or__defaultGRP39Milky20186selene4math9Rotation3E(_M0MP39Milky20186selene4math9Rotation315try__from__quat(_add));
-            const _p = _M0MP39Milky20186selene4math9Rotation35nlerp(_M0MP39Milky20186selene4math9Rotation38identity(), rotation, pair._1);
+            const _p = _M0MP39Milky20186selene4math9Rotation35nlerp(_M0MP39Milky20186selene4math9Rotation38identity(), rotation, _weight);
             const weighted = _p.value;
             output$3 = _M0MP39Milky20186selene4math4Quat23normalize__or__identity(_M0IP39Milky20186selene4math4QuatPB3Mul3mul(output$3, weighted));
           }
@@ -188469,10 +188501,11 @@ function _M0FP39Milky20186selene9animation22apply__additive__value(base, values)
       while (true) {
         const _ = _tmp$4;
         if (_ < _bind$77) {
-          const pair = _bind$78[_];
-          const _bind$79 = pair._0;
-          if (_bind$79.$tag === 3) {
-            const _Weights$2 = _bind$79;
+          const _foreach_element = _bind$78[_];
+          const _sample = _foreach_element._0;
+          const _weight = _foreach_element._1;
+          if (_sample.$tag === 3) {
+            const _Weights$2 = _sample;
             const _add = _Weights$2._0;
             const count = output$4.len > _add.len ? output$4.len : _add.len;
             while (true) {
@@ -188490,11 +188523,11 @@ function _M0FP39Milky20186selene9animation22apply__additive__value(base, values)
                 if (index < 0 || index >= output$4.len) {
                   $panic();
                 }
-                const _bind$80 = output$4.buf[index] + _M0MPC16option6Option10unwrap__orGdE(_M0MPC15array5Array3getGdE(_add, index), 0) * pair._1;
+                const _bind$79 = output$4.buf[index] + _M0MPC16option6Option10unwrap__orGdE(_M0MPC15array5Array3getGdE(_add, index), 0) * _weight;
                 if (index < 0 || index >= output$4.len) {
                   $panic();
                 }
-                output$4.buf[index] = _bind$80;
+                output$4.buf[index] = _bind$79;
                 _tmp$5 = index + 1 | 0;
                 continue;
               } else {
@@ -188527,16 +188560,17 @@ function _M0FP39Milky20186selene9animation11blend__quat(values, fallback) {
   while (true) {
     const _ = _tmp;
     if (_ < _bind$71) {
-      const pair = _bind$72[_];
-      const _bind$73 = pair._0;
-      if (_bind$73.$tag === 2) {
-        const _Quat = _bind$73;
+      const _foreach_element = _bind$72[_];
+      const _sample = _foreach_element._0;
+      const _weight = _foreach_element._1;
+      if (_sample.$tag === 2) {
+        const _Quat = _sample;
         const _value = _Quat._0;
-        total = total + pair._1;
-        x = x + _value.x * pair._1;
-        y = y + _value.y * pair._1;
-        z = z + _value.z * pair._1;
-        w = w + _value.w * pair._1;
+        total = total + _weight;
+        x = x + _value.x * _weight;
+        y = y + _value.y * _weight;
+        z = z + _value.z * _weight;
+        w = w + _value.w * _weight;
       }
       _tmp = _ + 1 | 0;
       continue;
@@ -188558,13 +188592,14 @@ function _M0FP39Milky20186selene9animation13blend__scalar(values, fallback) {
   while (true) {
     const _ = _tmp;
     if (_ < _bind$71) {
-      const pair = _bind$72[_];
-      const _bind$73 = pair._0;
-      if (_bind$73.$tag === 0) {
-        const _Scalar = _bind$73;
+      const _foreach_element = _bind$72[_];
+      const _sample = _foreach_element._0;
+      const _weight = _foreach_element._1;
+      if (_sample.$tag === 0) {
+        const _Scalar = _sample;
         const _value = _Scalar._0;
-        total = total + pair._1;
-        weighted = weighted + _value * pair._1;
+        total = total + _weight;
+        weighted = weighted + _value * _weight;
       }
       _tmp = _ + 1 | 0;
       continue;
@@ -188586,13 +188621,14 @@ function _M0FP39Milky20186selene9animation11blend__vec3(values, fallback) {
   while (true) {
     const _ = _tmp;
     if (_ < _bind$71) {
-      const pair = _bind$72[_];
-      const _bind$73 = pair._0;
-      if (_bind$73.$tag === 1) {
-        const _Vec3 = _bind$73;
+      const _foreach_element = _bind$72[_];
+      const _sample = _foreach_element._0;
+      const _weight = _foreach_element._1;
+      if (_sample.$tag === 1) {
+        const _Vec3 = _sample;
         const _value = _Vec3._0;
-        total = total + pair._1;
-        weighted = _M0IP39Milky20186selene4math4Vec3PB3Add3add(weighted, _M0MP39Milky20186selene4math4Vec311scalar__mul(_value, pair._1));
+        total = total + _weight;
+        weighted = _M0IP39Milky20186selene4math4Vec3PB3Add3add(weighted, _M0MP39Milky20186selene4math4Vec311scalar__mul(_value, _weight));
       }
       _tmp = _ + 1 | 0;
       continue;
@@ -188613,10 +188649,10 @@ function _M0FP39Milky20186selene9animation14blend__weights(values, fallback) {
   while (true) {
     const _ = _tmp;
     if (_ < _bind$71) {
-      const pair = _bind$72[_];
-      const _bind$73 = pair._0;
-      if (_bind$73.$tag === 3) {
-        const _Weights = _bind$73;
+      const _foreach_element = _bind$72[_];
+      const _sample = _foreach_element._0;
+      if (_sample.$tag === 3) {
+        const _Weights = _sample;
         const _weights = _Weights._0;
         if (_weights.len > max_len) {
           max_len = _weights.len;
@@ -188649,33 +188685,34 @@ function _M0FP39Milky20186selene9animation14blend__weights(values, fallback) {
   while (true) {
     const _ = _tmp$3;
     if (_ < _bind$74) {
-      const pair = _bind$75[_];
-      const _bind$76 = pair._0;
-      if (_bind$76.$tag === 3) {
-        const _Weights = _bind$76;
+      const _foreach_element = _bind$75[_];
+      const _sample = _foreach_element._0;
+      const _weight = _foreach_element._1;
+      if (_sample.$tag === 3) {
+        const _Weights = _sample;
         const _weights = _Weights._0;
-        const _bind$77 = max_len;
+        const _bind$76 = max_len;
         let _tmp$4 = 0;
         while (true) {
           const index = _tmp$4;
-          if (index < _bind$77) {
+          if (index < _bind$76) {
             const value = _M0MPC16option6Option10unwrap__orGdE(_M0MPC15array5Array3getGdE(_weights, index), 0);
             if (index < 0 || index >= totals.len) {
               $panic();
             }
-            const _bind$78 = totals.buf[index] + pair._1;
+            const _bind$77 = totals.buf[index] + _weight;
             if (index < 0 || index >= totals.len) {
               $panic();
             }
-            totals.buf[index] = _bind$78;
+            totals.buf[index] = _bind$77;
             if (index < 0 || index >= weighted.len) {
               $panic();
             }
-            const _bind$79 = weighted.buf[index] + value * pair._1;
+            const _bind$78 = weighted.buf[index] + value * _weight;
             if (index < 0 || index >= weighted.len) {
               $panic();
             }
-            weighted.buf[index] = _bind$79;
+            weighted.buf[index] = _bind$78;
             _tmp$4 = index + 1 | 0;
             continue;
           } else {
@@ -188730,10 +188767,12 @@ function _M0FP39Milky20186selene9animation23select__discrete__value(values, fall
   while (true) {
     const _ = _tmp;
     if (_ < _bind$71) {
-      const pair = _bind$72[_];
-      if (pair._1 > selected_weight) {
-        selected = pair._0;
-        selected_weight = pair._1;
+      const _foreach_element = _bind$72[_];
+      const _sample = _foreach_element._0;
+      const _weight = _foreach_element._1;
+      if (_weight > selected_weight) {
+        selected = _sample;
+        selected_weight = _weight;
       }
       _tmp = _ + 1 | 0;
       continue;
@@ -188811,10 +188850,10 @@ function _M0FP39Milky20186selene9animation24animation__apply__system(_delta) {
   while (true) {
     const _ = _tmp;
     if (_ < _bind$72) {
-      const pair = _bind$73[_];
+      const _foreach_element = _bind$73[_];
+      const _player_entity = _foreach_element._0;
+      const _player = _foreach_element._1;
       _L: {
-        const _player_entity = pair._0;
-        const _player = pair._1;
         if (_M0MP39Milky20186selene3ecs6Entity9is__alive(_player_entity)) {
           const _bind$74 = _M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene9animation20AnimationGraphHandleE(_M0FP39Milky20186selene9animation25animation__graph__handles(), _player_entity);
           if (_bind$74 === undefined) {
@@ -189429,7 +189468,7 @@ function _M0FP39Milky20186selene5audio23audio__playback__system(_delta) {
       const _entity = _x._0;
       const _player = _x._1;
       if (_M0MP39Milky20186selene3ecs6Entity9is__alive(_entity) && !_M0MPB3Map8containsGRP39Milky20186selene3ecs6EntityRP39Milky20186selene5audio13AudioOverrideE(runtime.overrides, _entity)) {
-        _M0FP39Milky20186selene5audio23update__audio__playback(_entity, _player, _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene5audio25audio__playback__settings(), _entity), _M0MP39Milky20186selene5audio16PlaybackSettings4onceN6recordS101225));
+        _M0FP39Milky20186selene5audio23update__audio__playback(_entity, _player, _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene5audio25audio__playback__settings(), _entity), _M0MP39Milky20186selene5audio16PlaybackSettings4onceN6recordS101264));
       } else {
         continue;
       }
@@ -189568,15 +189607,15 @@ function _M0FP39Milky20186selene13input__action21input__action__system(_delta) {
     }
   }
 }
-function _M0IP39Milky20186selene4ldtk20LdtkIntGridRenderingPB2Eq5equal(_x_1132, _x_1133) {
-  if (_x_1132 === 0) {
-    if (_x_1133 === 0) {
+function _M0IP39Milky20186selene4ldtk20LdtkIntGridRenderingPB2Eq5equal(_x_1133, _x_1134) {
+  if (_x_1133 === 0) {
+    if (_x_1134 === 0) {
       return true;
     } else {
       return false;
     }
   } else {
-    if (_x_1133 === 1) {
+    if (_x_1134 === 1) {
       return true;
     } else {
       return false;
@@ -189652,10 +189691,10 @@ function _M0FP39Milky20186selene4ldtk40ldtk__emit__pending__transformed__events(
   while (true) {
     const _ = _tmp;
     if (_ < _bind$72) {
-      const pair = _bind$73[_];
-      const iid = pair._0;
-      _M0MP39Milky20186selene5event6Events7triggerGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(_M0FP39Milky20186selene4ldtk23ldtk__level__event__bus, new _M0DTP39Milky20186selene4ldtk14LdtkLevelEvent11Transformed(iid), undefined);
-      _M0MPB3Map6removeGsbE(_M0FP39Milky20186selene4ldtk18ldtk__world__store().ldtk_pending_transformed_level_iids, iid);
+      const _foreach_element = _bind$73[_];
+      const _iid = _foreach_element._0;
+      _M0MP39Milky20186selene5event6Events7triggerGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(_M0FP39Milky20186selene4ldtk23ldtk__level__event__bus, new _M0DTP39Milky20186selene4ldtk14LdtkLevelEvent11Transformed(_iid), undefined);
+      _M0MPB3Map6removeGsbE(_M0FP39Milky20186selene4ldtk18ldtk__world__store().ldtk_pending_transformed_level_iids, _iid);
       _tmp = _ + 1 | 0;
       continue;
     } else {
@@ -189671,10 +189710,12 @@ function _M0FP39Milky20186selene4ldtk36ldtk__cleanup__dead__spawned__levels(inst
   while (true) {
     const _ = _tmp;
     if (_ < _bind$72) {
-      const pair = _bind$73[_];
-      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(pair._1)) {
-        _M0MPB3Map6removeGsRP39Milky20186selene3ecs6EntityE(instance.spawned_levels, pair._0);
-        _M0MPB3Map6removeGsbE(_M0FP39Milky20186selene4ldtk18ldtk__world__store().ldtk_pending_transformed_level_iids, pair._0);
+      const _foreach_element = _bind$73[_];
+      const _level_iid = _foreach_element._0;
+      const _level_entity = _foreach_element._1;
+      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(_level_entity)) {
+        _M0MPB3Map6removeGsRP39Milky20186selene3ecs6EntityE(instance.spawned_levels, _level_iid);
+        _M0MPB3Map6removeGsbE(_M0FP39Milky20186selene4ldtk18ldtk__world__store().ldtk_pending_transformed_level_iids, _level_iid);
       }
       _tmp = _ + 1 | 0;
       continue;
@@ -189946,7 +189987,7 @@ function _M0FP39Milky20186selene4ldtk27ldtk__parse__color__channel(source) {
 }
 function _M0FP39Milky20186selene4ldtk29ldtk__rgb__color__with__alpha(color, alpha) {
   const body = color.substring(4, color.length - 1 | 0);
-  const values = _M0MPB4Iter9to__arrayGRPC16string10StringViewE(_M0MPC16string6String5split(body, _M0FP39Milky20186selene4ldtk29ldtk__rgb__color__with__alphaN6recordS101469));
+  const values = _M0MPB4Iter9to__arrayGRPC16string10StringViewE(_M0MPC16string6String5split(body, _M0FP39Milky20186selene4ldtk29ldtk__rgb__color__with__alphaN6recordS101510));
   if (values.len !== 3) {
     return undefined;
   }
@@ -190015,7 +190056,7 @@ function _M0FP39Milky20186selene4ldtk27ldtk__parse__alpha__channel(source) {
 }
 function _M0FP39Milky20186selene4ldtk30ldtk__rgba__color__with__alpha(color, alpha) {
   const body = color.substring(5, color.length - 1 | 0);
-  const values = _M0MPB4Iter9to__arrayGRPC16string10StringViewE(_M0MPC16string6String5split(body, _M0FP39Milky20186selene4ldtk30ldtk__rgba__color__with__alphaN6recordS101489));
+  const values = _M0MPB4Iter9to__arrayGRPC16string10StringViewE(_M0MPC16string6String5split(body, _M0FP39Milky20186selene4ldtk30ldtk__rgba__color__with__alphaN6recordS101530));
   if (values.len !== 4) {
     return undefined;
   }
@@ -190078,13 +190119,13 @@ function _M0FP39Milky20186selene4ldtk24ldtk__color__with__alpha(color, alpha) {
     return color;
   }
   const normalized = _M0MPC16string10StringView9to__owned(_M0MPC16string6String4trim(color, undefined));
-  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101507)) {
+  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101548)) {
     return _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene4ldtk29ldtk__hex__color__with__alpha(normalized, clamped_alpha), color);
   }
-  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101508) && _M0MPC16string6String11has__suffix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101509)) {
+  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101549) && _M0MPC16string6String11has__suffix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101550)) {
     return _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene4ldtk30ldtk__rgba__color__with__alpha(normalized, clamped_alpha), color);
   }
-  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101510) && _M0MPC16string6String11has__suffix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101511)) {
+  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101551) && _M0MPC16string6String11has__suffix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101552)) {
     return _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene4ldtk29ldtk__rgb__color__with__alpha(normalized, clamped_alpha), color);
   }
   return color;
@@ -190149,13 +190190,13 @@ function _M0FP39Milky20186selene4ldtk12json__string(value) {
   return _M0FP39Milky20186selene4ldtk12json__decodeGsE(value);
 }
 function _M0FP39Milky20186selene4ldtk18is__absolute__path(path) {
-  if (_M0MPC16string6String8contains(path, _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101530)) {
+  if (_M0MPC16string6String8contains(path, _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101571)) {
     return true;
   }
-  if (_M0MPC16string6String11has__prefix(path, _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101531)) {
+  if (_M0MPC16string6String11has__prefix(path, _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101572)) {
     return true;
   }
-  return _M0MPC16string6String11has__prefix(path, _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101532);
+  return _M0MPC16string6String11has__prefix(path, _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101573);
 }
 function _M0FP39Milky20186selene4ldtk30resolve__relative__asset__path(scene_path, uri) {
   if (uri.length === 0) {
@@ -190164,8 +190205,8 @@ function _M0FP39Milky20186selene4ldtk30resolve__relative__asset__path(scene_path
   if (_M0FP39Milky20186selene4ldtk18is__absolute__path(uri)) {
     return uri;
   }
-  const last_slash = _M0MPC16string6String9rev__find(scene_path, _M0FP39Milky20186selene4ldtk30resolve__relative__asset__pathN6recordS101534);
-  const last_backslash = _M0MPC16string6String9rev__find(scene_path, _M0FP39Milky20186selene4ldtk30resolve__relative__asset__pathN6recordS101535);
+  const last_slash = _M0MPC16string6String9rev__find(scene_path, _M0FP39Milky20186selene4ldtk30resolve__relative__asset__pathN6recordS101575);
+  const last_backslash = _M0MPC16string6String9rev__find(scene_path, _M0FP39Milky20186selene4ldtk30resolve__relative__asset__pathN6recordS101576);
   let last_sep;
   if (last_slash === undefined) {
     if (last_backslash === undefined) {
@@ -190351,7 +190392,7 @@ function _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__background(world_enti
         image_transform = _M0MP39Milky20186selene4math7Affine211from__scale(_M0MP39Milky20186selene4math4Vec24Vec2(_bg_pos.scale.x, _bg_pos.scale.y));
       }
       const scaled_size = _M0MP39Milky20186selene4math4Vec24Vec2(image_size.x * Math.abs(image_transform.a), image_size.y * Math.abs(image_transform.d));
-      _M0MP39Milky20186selene3ecs5World5spawnGURP39Milky20186selene9transform7SpatialRP39Milky20186selene6sprite6SpriteRP39Milky20186selene4ldtk19LdtkLevelBackgroundEE(_M0FP39Milky20186selene3ecs23require__current__world(), { _0: _M0FP39Milky20186selene4ldtk13ldtk__spatial(_M0MP39Milky20186selene4math4Vec24zero(), zindex), _1: _M0MP39Milky20186selene6sprite6Sprite6Sprite(new _M0DTPC16option6OptionGORP39Milky20186selene12asset__types11ImageHandleE4Some(image), _M0DTPC16option6OptionGORP39Milky20186selene6sprite12TextureAtlasE4None__, new _M0DTPC16option6OptionGORP39Milky20186selene4math4RectE4Some(new _M0TP39Milky20186selene4math4Rect(image_offset, image_size)), _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__backgroundN6constrS101596, new _M0DTPC16option6OptionGORP39Milky20186selene4math4Vec2E4Some(scaled_size), _M0MP39Milky20186selene4math4Vec24Vec2(-0.5, 0.5), -1, -1, undefined, undefined), _2: new _M0TP39Milky20186selene4ldtk19LdtkLevelBackground(world_entity, level_entity, level.iid, level.bg_color, _rel_path, zindex) }, level_entity);
+      _M0MP39Milky20186selene3ecs5World5spawnGURP39Milky20186selene9transform7SpatialRP39Milky20186selene6sprite6SpriteRP39Milky20186selene4ldtk19LdtkLevelBackgroundEE(_M0FP39Milky20186selene3ecs23require__current__world(), { _0: _M0FP39Milky20186selene4ldtk13ldtk__spatial(_M0MP39Milky20186selene4math4Vec24zero(), zindex), _1: _M0MP39Milky20186selene6sprite6Sprite6Sprite(new _M0DTPC16option6OptionGORP39Milky20186selene12asset__types11ImageHandleE4Some(image), _M0DTPC16option6OptionGORP39Milky20186selene6sprite12TextureAtlasE4None__, new _M0DTPC16option6OptionGORP39Milky20186selene4math4RectE4Some(new _M0TP39Milky20186selene4math4Rect(image_offset, image_size)), _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__backgroundN6constrS101637, new _M0DTPC16option6OptionGORP39Milky20186selene4math4Vec2E4Some(scaled_size), _M0MP39Milky20186selene4math4Vec24Vec2(-0.5, 0.5), -1, -1, undefined, undefined), _2: new _M0TP39Milky20186selene4ldtk19LdtkLevelBackground(world_entity, level_entity, level.iid, level.bg_color, _rel_path, zindex) }, level_entity);
       return;
     } else {
       return;
@@ -190737,10 +190778,10 @@ function _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__value(self) {
       const _string_value = _Some$2;
       const lowered = _M0MPC16string6String9to__lower(_string_value);
       if (lowered === "true") {
-        return _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__valueN6constrS101763;
+        return _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__valueN6constrS101804;
       }
       if (lowered === "false") {
-        return _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__valueN6constrS101764;
+        return _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__valueN6constrS101805;
       }
     }
     const _bind$74 = _M0FP39Milky20186selene4ldtk12json__number(_json_value);
@@ -190775,14 +190816,15 @@ function _M0FP39Milky20186selene4ldtk21ldtk__worldly__entity(world_entity, entit
   while (true) {
     const _ = _tmp;
     if (_ < _bind$72) {
-      const pair = _bind$73[_];
+      const _foreach_element = _bind$73[_];
+      const _entity = _foreach_element._0;
+      const _worldly = _foreach_element._1;
       _L: {
-        if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(pair._0)) {
+        if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(_entity)) {
           break _L;
         }
-        const worldly = pair._1;
-        if (_M0IP39Milky20186selene3ecs6EntityPB2Eq5equal(worldly.world_entity, world_entity) && worldly.entity_iid === entity_iid) {
-          return pair._0;
+        if (_M0IP39Milky20186selene3ecs6EntityPB2Eq5equal(_worldly.world_entity, world_entity) && _worldly.entity_iid === entity_iid) {
+          return _entity;
         }
         break _L;
       }
@@ -190875,7 +190917,7 @@ function _M0FP39Milky20186selene4ldtk28ldtk__spawn__layer__entities(world_entity
 }
 function _M0FP39Milky20186selene4ldtk28ldtk__grid__coords__from__px(px, cell_size) {
   if (cell_size <= 0) {
-    return _M0FP39Milky20186selene4ldtk28ldtk__grid__coords__from__pxN6recordS101838;
+    return _M0FP39Milky20186selene4ldtk28ldtk__grid__coords__from__pxN6recordS101880;
   }
   return new _M0TP39Milky20186selene4ldtk14LdtkGridCoords(_M0MPC16double6Double7to__int(px.x / cell_size), _M0MPC16double6Double7to__int(px.y / cell_size));
 }
@@ -191265,15 +191307,15 @@ function _M0FP39Milky20186selene4ldtk30ldtk__world__apply__level__set(world_enti
     while (true) {
       const _ = _tmp$2;
       if (_ < _bind$75) {
-        const pair = _bind$76[_];
+        const _foreach_element = _bind$76[_];
+        const _iid = _foreach_element._0;
+        const _level_entity = _foreach_element._1;
         _L: {
-          const iid = pair._0;
-          if (_M0MPC15array5Array8containsGsE(desired_iids, iid)) {
+          if (_M0MPC15array5Array8containsGsE(desired_iids, _iid)) {
             break _L;
           }
-          const level_entity = pair._1;
-          _M0FP39Milky20186selene4ldtk20ldtk__despawn__level(iid, level_entity);
-          _M0MPB3Map6removeGsRP39Milky20186selene3ecs6EntityE(_instance.spawned_levels, iid);
+          _M0FP39Milky20186selene4ldtk20ldtk__despawn__level(_iid, _level_entity);
+          _M0MPB3Map6removeGsRP39Milky20186selene3ecs6EntityE(_instance.spawned_levels, _iid);
           break _L;
         }
         _tmp$2 = _ + 1 | 0;
@@ -191431,16 +191473,16 @@ function _M0FP39Milky20186selene4ldtk28ldtk__force__level__respawns(world_entity
     while (true) {
       const _ = _tmp;
       if (_ < _bind$73) {
-        const pair = _bind$74[_];
+        const _foreach_element = _bind$74[_];
+        const _level_iid = _foreach_element._0;
+        const _level_entity = _foreach_element._1;
         _L: {
-          const level_iid = pair._0;
-          const level_entity = pair._1;
-          if (!_M0MPB3Map8containsGRP39Milky20186selene3ecs6EntityRP39Milky20186selene4ldtk11LdtkRespawnE(_M0FP39Milky20186selene4ldtk18ldtk__world__store().respawns, level_entity)) {
+          if (!_M0MPB3Map8containsGRP39Milky20186selene3ecs6EntityRP39Milky20186selene4ldtk11LdtkRespawnE(_M0FP39Milky20186selene4ldtk18ldtk__world__store().respawns, _level_entity)) {
             break _L;
           }
-          _M0FP39Milky20186selene4ldtk20ldtk__despawn__level(level_iid, level_entity);
-          _M0MPB3Map6removeGsRP39Milky20186selene3ecs6EntityE(_instance.spawned_levels, level_iid);
-          _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntityRP39Milky20186selene4ldtk11LdtkRespawnE(_M0FP39Milky20186selene4ldtk18ldtk__world__store().respawns, level_entity);
+          _M0FP39Milky20186selene4ldtk20ldtk__despawn__level(_level_iid, _level_entity);
+          _M0MPB3Map6removeGsRP39Milky20186selene3ecs6EntityE(_instance.spawned_levels, _level_iid);
+          _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntityRP39Milky20186selene4ldtk11LdtkRespawnE(_M0FP39Milky20186selene4ldtk18ldtk__world__store().respawns, _level_entity);
           break _L;
         }
         _tmp = _ + 1 | 0;
@@ -191465,9 +191507,11 @@ function _M0FP39Milky20186selene4ldtk27ldtk__force__world__respawn(world_entity)
     while (true) {
       const _ = _tmp;
       if (_ < _bind$73) {
-        const pair = _bind$74[_];
-        _M0FP39Milky20186selene4ldtk20ldtk__despawn__level(pair._0, pair._1);
-        _M0MPB3Map6removeGsRP39Milky20186selene3ecs6EntityE(_instance.spawned_levels, pair._0);
+        const _foreach_element = _bind$74[_];
+        const _level_iid = _foreach_element._0;
+        const _level_entity = _foreach_element._1;
+        _M0FP39Milky20186selene4ldtk20ldtk__despawn__level(_level_iid, _level_entity);
+        _M0MPB3Map6removeGsRP39Milky20186selene3ecs6EntityE(_instance.spawned_levels, _level_iid);
         _tmp = _ + 1 | 0;
         continue;
       } else {
@@ -191481,12 +191525,14 @@ function _M0FP39Milky20186selene4ldtk27ldtk__force__world__respawn(world_entity)
     while (true) {
       const _ = _tmp$2;
       if (_ < _bind$76) {
-        const pair = _bind$77[_];
+        const _foreach_element = _bind$77[_];
+        const _entity = _foreach_element._0;
+        const _worldly = _foreach_element._1;
         _L: {
-          if (_M0IP016_24default__implPB2Eq10not__equalGRP39Milky20186selene3ecs6EntityE(pair._1.world_entity, world_entity)) {
+          if (_M0IP016_24default__implPB2Eq10not__equalGRP39Milky20186selene3ecs6EntityE(_worldly.world_entity, world_entity)) {
             break _L;
           }
-          _M0FP39Milky20186selene4ldtk19despawn__ldtk__tree(pair._0);
+          _M0FP39Milky20186selene4ldtk19despawn__ldtk__tree(_entity);
           break _L;
         }
         _tmp$2 = _ + 1 | 0;
@@ -192103,7 +192149,7 @@ function _M0FP39Milky20186selene14render__submit14build__frame2d(camera_views) {
         break;
       }
     }
-    _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(passes, new _M0TP39Milky20186selene15render2d__types12RenderPass2D(undefined, _M0FP39Milky20186selene14render__submit19screen__pass__order(camera_views), _M0FP39Milky20186selene14render__submit22full__screen__viewport(), 0, _M0FP39Milky20186selene14render__submit14build__frame2dN6recordS102283, _M0DTP39Milky20186selene15render2d__types18RenderPassTarget2D6Screen__, screen_world_commands, screen_ui_commands, _M0FP39Milky20186selene14render__submit20build__draw__batches(screen_world_commands), _M0FP39Milky20186selene14render__submit20build__draw__batches(screen_ui_commands)));
+    _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(passes, new _M0TP39Milky20186selene15render2d__types12RenderPass2D(undefined, _M0FP39Milky20186selene14render__submit19screen__pass__order(camera_views), _M0FP39Milky20186selene14render__submit22full__screen__viewport(), 0, _M0FP39Milky20186selene14render__submit14build__frame2dN6recordS102329, _M0DTP39Milky20186selene15render2d__types18RenderPassTarget2D6Screen__, screen_world_commands, screen_ui_commands, _M0FP39Milky20186selene14render__submit20build__draw__batches(screen_world_commands), _M0FP39Milky20186selene14render__submit20build__draw__batches(screen_ui_commands)));
   }
   return { _0: new _M0TP39Milky20186selene15render2d__types13RenderFrame2D(passes, world_commands, ui_commands), _1: world_commands_with_depth };
 }
@@ -192204,21 +192250,21 @@ function _M0FP39Milky20186selene6text2d14truncate__line(style, text, max_width) 
   }
   let current = text;
   while (true) {
-    if (current.length > 0 && _M0FP39Milky20186selene6text2d23measure__text__fragment(style, `${current}${_M0FP39Milky20186selene6text2d14truncate__lineN8ellipsisS102340}`).x > max_width) {
+    if (current.length > 0 && _M0FP39Milky20186selene6text2d23measure__text__fragment(style, `${current}${_M0FP39Milky20186selene6text2d14truncate__lineN8ellipsisS102386}`).x > max_width) {
       current = current.substring(0, current.length - 1 | 0);
       continue;
     } else {
       break;
     }
   }
-  return `${current}${_M0FP39Milky20186selene6text2d14truncate__lineN8ellipsisS102340}`;
+  return `${current}${_M0FP39Milky20186selene6text2d14truncate__lineN8ellipsisS102386}`;
 }
 function _M0FP39Milky20186selene6text2d10wrap__line(style, text, max_width) {
   if (max_width <= 0) {
     return new _M0TPB5ArrayGsE([""], 1);
   }
   const words = new _M0TPB5ArrayGsE([], 0);
-  const _it = _M0MPC16string6String5split(text, _M0FP39Milky20186selene6text2d10wrap__lineN6recordS102346);
+  const _it = _M0MPC16string6String5split(text, _M0FP39Milky20186selene6text2d10wrap__lineN6recordS102392);
   while (true) {
     const _bind$71 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it);
     if (_bind$71 === undefined) {
@@ -192269,7 +192315,7 @@ function _M0FP39Milky20186selene6text2d10wrap__line(style, text, max_width) {
 function _M0FP39Milky20186selene6text2d20bounded__text__lines(text, style, layout, bounds) {
   const width = _M0MPC16option6Option7map__orGRP39Milky20186selene6text2d10TextBoundsdE(bounds, -1, (bounds$2) => bounds$2.width);
   const raw_lines = new _M0TPB5ArrayGsE([], 0);
-  const _it = _M0MPC16string6String5split(text, _M0FP39Milky20186selene6text2d20bounded__text__linesN6recordS102364);
+  const _it = _M0MPC16string6String5split(text, _M0FP39Milky20186selene6text2d20bounded__text__linesN6recordS102410);
   while (true) {
     const _bind$71 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it);
     if (_bind$71 === undefined) {
@@ -192502,9 +192548,10 @@ function _M0FP39Milky20186selene6text2d22render__text2d__system(delta) {
   while (true) {
     const _ = _tmp;
     if (_ < _bind$72) {
-      const pair = _bind$73[_];
-      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(pair._0)) {
-        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntityRP39Milky20186selene6text2d18CachedTextLayout2dE(_M0FP39Milky20186selene6text2d20text2d__world__store().text_layout_caches, pair._0);
+      const _foreach_element = _bind$73[_];
+      const _entity = _foreach_element._0;
+      if (!_M0MP39Milky20186selene3ecs6Entity9is__alive(_entity)) {
+        _M0MPB3Map6removeGRP39Milky20186selene3ecs6EntityRP39Milky20186selene6text2d18CachedTextLayout2dE(_M0FP39Milky20186selene6text2d20text2d__world__store().text_layout_caches, _entity);
       }
       _tmp = _ + 1 | 0;
       continue;
@@ -192614,15 +192661,15 @@ function _M0FP39Milky20186selene6text2d22render__text2d__system(delta) {
     }
   }
 }
-function _M0IP39Milky20186selene5tiled23TiledColliderSourceKindPB2Eq5equal(_x_1114, _x_1115) {
-  if (_x_1114 === 0) {
-    if (_x_1115 === 0) {
+function _M0IP39Milky20186selene5tiled23TiledColliderSourceKindPB2Eq5equal(_x_1116, _x_1117) {
+  if (_x_1116 === 0) {
+    if (_x_1117 === 0) {
       return true;
     } else {
       return false;
     }
   } else {
-    if (_x_1115 === 1) {
+    if (_x_1117 === 1) {
       return true;
     } else {
       return false;
@@ -192639,13 +192686,13 @@ function _M0FP39Milky20186selene5tiled14tiled__spatial(position, depth) {
   return _M0MP39Milky20186selene9transform7Spatial7Spatial(_M0MP39Milky20186selene9transform9Transform9from__xyz(position.x, position.y, depth + 0));
 }
 function _M0FP39Milky20186selene5tiled18is__absolute__path(path) {
-  if (_M0MPC16string6String8contains(path, _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102527)) {
+  if (_M0MPC16string6String8contains(path, _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102574)) {
     return true;
   }
-  if (_M0MPC16string6String11has__prefix(path, _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102528)) {
+  if (_M0MPC16string6String11has__prefix(path, _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102575)) {
     return true;
   }
-  return _M0MPC16string6String11has__prefix(path, _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102529);
+  return _M0MPC16string6String11has__prefix(path, _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102576);
 }
 function _M0FP39Milky20186selene5tiled30resolve__relative__asset__path(scene_path, uri) {
   if (uri.length === 0) {
@@ -192654,8 +192701,8 @@ function _M0FP39Milky20186selene5tiled30resolve__relative__asset__path(scene_pat
   if (_M0FP39Milky20186selene5tiled18is__absolute__path(uri)) {
     return uri;
   }
-  const last_slash = _M0MPC16string6String9rev__find(scene_path, _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS102531);
-  const last_backslash = _M0MPC16string6String9rev__find(scene_path, _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS102532);
+  const last_slash = _M0MPC16string6String9rev__find(scene_path, _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS102578);
+  const last_backslash = _M0MPC16string6String9rev__find(scene_path, _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS102579);
   let last_sep;
   if (last_slash === undefined) {
     if (last_backslash === undefined) {
@@ -192905,8 +192952,10 @@ function _M0FP39Milky20186selene5tiled42tiled__animation__frames__from__definiti
   while (true) {
     const _ = _tmp$2;
     if (_ < _bind$73) {
-      const visual = _bind$74[_];
-      if (_M0IP016_24default__implPB2Eq10not__equalGRP39Milky20186selene12asset__types11ImageHandleE(visual._0, first_image)) {
+      const _foreach_element = _bind$74[_];
+      const _image = _foreach_element._0;
+      const _rect = _foreach_element._1;
+      if (_M0IP016_24default__implPB2Eq10not__equalGRP39Milky20186selene12asset__types11ImageHandleE(_image, first_image)) {
         _M0MPC15array5Array5clearGRP39Milky20186selene5event7TriggerGRP39Milky20186selene6inputs18GamepadButtonEventEE(rects);
         if (0 >= visuals.len) {
           $panic();
@@ -192914,7 +192963,7 @@ function _M0FP39Milky20186selene5tiled42tiled__animation__frames__from__definiti
         _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(rects, visuals.buf[0]._1);
         return { _0: first_image, _1: rects, _2: 0 };
       }
-      _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(rects, visual._1);
+      _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(rects, _rect);
       _tmp$2 = _ + 1 | 0;
       continue;
     } else {
@@ -192976,7 +193025,7 @@ function _M0FP39Milky20186selene5tiled29build__tiled__tile__animation(map, tiles
         } else {
           const _Some$2 = _image;
           const _image$2 = _Some$2;
-          return new _M0TP39Milky20186selene5tiled20TiledSpriteAnimation(_image$2, _M0FP39Milky20186selene6sprite32register__texture__atlas__layout(new _M0TP39Milky20186selene6sprite18TextureAtlasLayout(_M0FP39Milky20186selene5tiled19tiled__layout__size(_rects), _rects)), _fps, true, _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS102653, tile_size, _M0MP39Milky20186selene4math4Vec24Vec2(-0.5, 0.5));
+          return new _M0TP39Milky20186selene5tiled20TiledSpriteAnimation(_image$2, _M0FP39Milky20186selene6sprite32register__texture__atlas__layout(new _M0TP39Milky20186selene6sprite18TextureAtlasLayout(_M0FP39Milky20186selene5tiled19tiled__layout__size(_rects), _rects)), _fps, true, _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS102702, tile_size, _M0MP39Milky20186selene4math4Vec24Vec2(-0.5, 0.5));
         }
       }
     }
@@ -192989,7 +193038,7 @@ function _M0FP39Milky20186selene5tiled29build__tiled__tile__animation(map, tiles
     $panic();
   }
   const first = visuals.buf[0];
-  return new _M0TP39Milky20186selene5tiled20TiledSpriteAnimation(first._0, _M0FP39Milky20186selene6sprite32register__texture__atlas__layout(new _M0TP39Milky20186selene6sprite18TextureAtlasLayout(_M0FP39Milky20186selene5tiled19tiled__layout__size(new _M0TPB5ArrayGRP39Milky20186selene4math4RectE([first._1], 1)), new _M0TPB5ArrayGRP39Milky20186selene4math4RectE([first._1], 1))), 0, false, _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS102654, tile_size, _M0MP39Milky20186selene4math4Vec24Vec2(-0.5, 0.5));
+  return new _M0TP39Milky20186selene5tiled20TiledSpriteAnimation(first._0, _M0FP39Milky20186selene6sprite32register__texture__atlas__layout(new _M0TP39Milky20186selene6sprite18TextureAtlasLayout(_M0FP39Milky20186selene5tiled19tiled__layout__size(new _M0TPB5ArrayGRP39Milky20186selene4math4RectE([first._1], 1)), new _M0TPB5ArrayGRP39Milky20186selene4math4RectE([first._1], 1))), 0, false, _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS102703, tile_size, _M0MP39Milky20186selene4math4Vec24Vec2(-0.5, 0.5));
 }
 function _M0FP39Milky20186selene5tiled22tiled__add__properties(draft, properties) {
   if (properties.len === 0) {
@@ -193616,28 +193665,28 @@ function _M0FP39Milky20186selene5tiled26tiled__physics__body__type(value) {
   const _bind$71 = _M0MPC16string6String9to__lower(_M0MPC16string10StringView9to__owned(_M0MPC16string6String4trim(value, undefined)));
   switch (_bind$71) {
     case "dynamic": {
-      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102955;
+      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS103004;
     }
     case "fixed": {
-      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102956;
+      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS103005;
     }
     case "kinematicpositionbased": {
-      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102957;
+      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS103006;
     }
     case "kinematic_position_based": {
-      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102958;
+      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS103007;
     }
     case "kinematic-position-based": {
-      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102959;
+      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS103008;
     }
     case "kinematicvelocitybased": {
-      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102960;
+      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS103009;
     }
     case "kinematic_velocity_based": {
-      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102961;
+      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS103010;
     }
     case "kinematic-velocity-based": {
-      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102962;
+      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS103011;
     }
     default: {
       return undefined;
@@ -193808,7 +193857,7 @@ function _M0FP39Milky20186selene5tiled20tiled__physics__body(properties) {
     const _x = _Some;
     switch (_x) {
       case 0: {
-        body = _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98395;
+        body = _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98415;
         break;
       }
       case 1: {
@@ -194835,12 +194884,12 @@ function _M0FP39Milky20186selene5tiled30tiled__world__update__chunking(world_ent
         while (true) {
           const _ = _tmp$2;
           if (_ < _bind$79) {
-            const pair = _bind$80[_];
-            const idx = pair._0;
-            if (!_M0MPC15array5Array8containsGiE(visible, idx)) {
-              const map_entity = pair._1;
-              _M0FP39Milky20186selene5tiled20despawn__tiled__tree(map_entity);
-              _M0MPB3Map6removeGiRP39Milky20186selene3ecs6EntityE(_instance.spawned_maps, idx);
+            const _foreach_element = _bind$80[_];
+            const _idx = _foreach_element._0;
+            const _map_entity = _foreach_element._1;
+            if (!_M0MPC15array5Array8containsGiE(visible, _idx)) {
+              _M0FP39Milky20186selene5tiled20despawn__tiled__tree(_map_entity);
+              _M0MPB3Map6removeGiRP39Milky20186selene3ecs6EntityE(_instance.spawned_maps, _idx);
             }
             _tmp$2 = _ + 1 | 0;
             continue;
@@ -195411,31 +195460,31 @@ function _M0FP39Milky20186selene7plugins15default__plugin(app) {
   const app$34 = _M0FP39Milky20186selene7plugins11add__system(app$33, _M0FP39Milky20186selene2ui19ui__prepare__system, 12, "UI Prepare", render_prepare, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([touch_controls_render], 1));
   return _M0FP39Milky20186selene7plugins11add__system(app$34, _M0FP39Milky20186selene14render__submit22render__submit__system, 13, "Render Submit", render_submit, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([render_prepare], 1));
 }
-function _M0IP39Milky201817selene_2dexamples5cards8CardSuitPB2Eq5equal(_x_247, _x_248) {
-  switch (_x_247) {
+function _M0IP39Milky201817selene_2dexamples5cards8CardSuitPB2Eq5equal(_x_250, _x_251) {
+  switch (_x_250) {
     case 0: {
-      if (_x_248 === 0) {
+      if (_x_251 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_248 === 1) {
+      if (_x_251 === 1) {
         return true;
       } else {
         return false;
       }
     }
     case 2: {
-      if (_x_248 === 2) {
+      if (_x_251 === 2) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_248 === 3) {
+      if (_x_251 === 3) {
         return true;
       } else {
         return false;
@@ -195443,65 +195492,65 @@ function _M0IP39Milky201817selene_2dexamples5cards8CardSuitPB2Eq5equal(_x_247, _
     }
   }
 }
-function _M0IP39Milky201817selene_2dexamples5cards8CardSuitPB4Hash13hash__combine(_x_243, _x_244) {
-  switch (_x_243) {
+function _M0IP39Milky201817selene_2dexamples5cards8CardSuitPB4Hash13hash__combine(_x_246, _x_247) {
+  switch (_x_246) {
     case 0: {
-      _M0MPB6Hasher12combine__int(_x_244, 0);
+      _M0MPB6Hasher12combine__int(_x_247, 0);
       return;
     }
     case 1: {
-      _M0MPB6Hasher12combine__int(_x_244, 1);
+      _M0MPB6Hasher12combine__int(_x_247, 1);
       return;
     }
     case 2: {
-      _M0MPB6Hasher12combine__int(_x_244, 2);
+      _M0MPB6Hasher12combine__int(_x_247, 2);
       return;
     }
     default: {
-      _M0MPB6Hasher12combine__int(_x_244, 3);
+      _M0MPB6Hasher12combine__int(_x_247, 3);
       return;
     }
   }
 }
-function _M0IP39Milky201817selene_2dexamples5cards9GamePhasePB2Eq5equal(_x_239, _x_240) {
-  switch (_x_239) {
+function _M0IP39Milky201817selene_2dexamples5cards9GamePhasePB2Eq5equal(_x_242, _x_243) {
+  switch (_x_242) {
     case 0: {
-      if (_x_240 === 0) {
+      if (_x_243 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_240 === 1) {
+      if (_x_243 === 1) {
         return true;
       } else {
         return false;
       }
     }
     case 2: {
-      if (_x_240 === 2) {
+      if (_x_243 === 2) {
         return true;
       } else {
         return false;
       }
     }
     case 3: {
-      if (_x_240 === 3) {
+      if (_x_243 === 3) {
         return true;
       } else {
         return false;
       }
     }
     case 4: {
-      if (_x_240 === 4) {
+      if (_x_243 === 4) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_240 === 5) {
+      if (_x_243 === 5) {
         return true;
       } else {
         return false;
@@ -195509,94 +195558,94 @@ function _M0IP39Milky201817selene_2dexamples5cards9GamePhasePB2Eq5equal(_x_239, 
     }
   }
 }
-function _M0IP39Milky201817selene_2dexamples5cards7CardNumPB2Eq5equal(_x_227, _x_228) {
-  switch (_x_227) {
+function _M0IP39Milky201817selene_2dexamples5cards7CardNumPB2Eq5equal(_x_230, _x_231) {
+  switch (_x_230) {
     case 0: {
-      if (_x_228 === 0) {
+      if (_x_231 === 0) {
         return true;
       } else {
         return false;
       }
     }
     case 1: {
-      if (_x_228 === 1) {
+      if (_x_231 === 1) {
         return true;
       } else {
         return false;
       }
     }
     case 2: {
-      if (_x_228 === 2) {
+      if (_x_231 === 2) {
         return true;
       } else {
         return false;
       }
     }
     case 3: {
-      if (_x_228 === 3) {
+      if (_x_231 === 3) {
         return true;
       } else {
         return false;
       }
     }
     case 4: {
-      if (_x_228 === 4) {
+      if (_x_231 === 4) {
         return true;
       } else {
         return false;
       }
     }
     case 5: {
-      if (_x_228 === 5) {
+      if (_x_231 === 5) {
         return true;
       } else {
         return false;
       }
     }
     case 6: {
-      if (_x_228 === 6) {
+      if (_x_231 === 6) {
         return true;
       } else {
         return false;
       }
     }
     case 7: {
-      if (_x_228 === 7) {
+      if (_x_231 === 7) {
         return true;
       } else {
         return false;
       }
     }
     case 8: {
-      if (_x_228 === 8) {
+      if (_x_231 === 8) {
         return true;
       } else {
         return false;
       }
     }
     case 9: {
-      if (_x_228 === 9) {
+      if (_x_231 === 9) {
         return true;
       } else {
         return false;
       }
     }
     case 10: {
-      if (_x_228 === 10) {
+      if (_x_231 === 10) {
         return true;
       } else {
         return false;
       }
     }
     case 11: {
-      if (_x_228 === 11) {
+      if (_x_231 === 11) {
         return true;
       } else {
         return false;
       }
     }
     default: {
-      if (_x_228 === 12) {
+      if (_x_231 === 12) {
         return true;
       } else {
         return false;
@@ -195604,58 +195653,58 @@ function _M0IP39Milky201817selene_2dexamples5cards7CardNumPB2Eq5equal(_x_227, _x
     }
   }
 }
-function _M0IP39Milky201817selene_2dexamples5cards7CardNumPB4Hash13hash__combine(_x_223, _x_224) {
-  switch (_x_223) {
+function _M0IP39Milky201817selene_2dexamples5cards7CardNumPB4Hash13hash__combine(_x_226, _x_227) {
+  switch (_x_226) {
     case 0: {
-      _M0MPB6Hasher12combine__int(_x_224, 0);
+      _M0MPB6Hasher12combine__int(_x_227, 0);
       return;
     }
     case 1: {
-      _M0MPB6Hasher12combine__int(_x_224, 1);
+      _M0MPB6Hasher12combine__int(_x_227, 1);
       return;
     }
     case 2: {
-      _M0MPB6Hasher12combine__int(_x_224, 2);
+      _M0MPB6Hasher12combine__int(_x_227, 2);
       return;
     }
     case 3: {
-      _M0MPB6Hasher12combine__int(_x_224, 3);
+      _M0MPB6Hasher12combine__int(_x_227, 3);
       return;
     }
     case 4: {
-      _M0MPB6Hasher12combine__int(_x_224, 4);
+      _M0MPB6Hasher12combine__int(_x_227, 4);
       return;
     }
     case 5: {
-      _M0MPB6Hasher12combine__int(_x_224, 5);
+      _M0MPB6Hasher12combine__int(_x_227, 5);
       return;
     }
     case 6: {
-      _M0MPB6Hasher12combine__int(_x_224, 6);
+      _M0MPB6Hasher12combine__int(_x_227, 6);
       return;
     }
     case 7: {
-      _M0MPB6Hasher12combine__int(_x_224, 7);
+      _M0MPB6Hasher12combine__int(_x_227, 7);
       return;
     }
     case 8: {
-      _M0MPB6Hasher12combine__int(_x_224, 8);
+      _M0MPB6Hasher12combine__int(_x_227, 8);
       return;
     }
     case 9: {
-      _M0MPB6Hasher12combine__int(_x_224, 9);
+      _M0MPB6Hasher12combine__int(_x_227, 9);
       return;
     }
     case 10: {
-      _M0MPB6Hasher12combine__int(_x_224, 10);
+      _M0MPB6Hasher12combine__int(_x_227, 10);
       return;
     }
     case 11: {
-      _M0MPB6Hasher12combine__int(_x_224, 11);
+      _M0MPB6Hasher12combine__int(_x_227, 11);
       return;
     }
     default: {
-      _M0MPB6Hasher12combine__int(_x_224, 12);
+      _M0MPB6Hasher12combine__int(_x_227, 12);
       return;
     }
   }
@@ -195751,7 +195800,7 @@ function _M0MP39Milky201817selene_2dexamples5cards9GameState9GameState() {
   const fold_offset = _M0MP39Milky20186selene4math4Vec24Vec2(button_x - 85, 285);
   const call_offset = _M0MP39Milky20186selene4math4Vec24Vec2(button_x, 285);
   const raise_offset = _M0MP39Milky20186selene4math4Vec24Vec2(button_x + 85, 285);
-  return new _M0TP39Milky201817selene_2dexamples5cards9GameState(_M0MPC16random4Rand4Rand(undefined), new _M0TPB5ArrayGRP39Milky201817selene_2dexamples5cards4CardE([], 0), new _M0TP39Milky201817selene_2dexamples5cards6Player(1000, new _M0TPB5ArrayGRP39Milky201817selene_2dexamples5cards4CardE([], 0), 0, false, _M0MP39Milky20186selene4math4Vec24Vec2(240, 240)), 0, 0, new _M0TPB5ArrayGRP39Milky201817selene_2dexamples5cards4CardE([], 0), 0, 10, 20, 10, 1000, 1, _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(160, 20), "Blind: $20", "gold", "20px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(160, 24), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103735, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(160, 42), "Chips: $1000", "lightgreen", "18px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(160, 22), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103736, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(20, 20), "Pre-Flop", "white", "18px ThaleahFat", undefined, undefined, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards19spawn__text_2einner(fold_offset, "Fold", "white", "16px ThaleahFat", button_size, 1, 1, 111), _M0FP39Milky201817selene_2dexamples5cards19spawn__text_2einner(call_offset, "Call", "white", "16px ThaleahFat", button_size, 1, 1, 111), _M0FP39Milky201817selene_2dexamples5cards19spawn__text_2einner(raise_offset, "Raise", "white", "16px ThaleahFat", button_size, 1, 1, 111), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(370, 20), "Turns: 10/10", "white", "18px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(90, 22), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103737, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(130, 256), "", "yellow", "16px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(220, 20), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103738, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(140, 78), "", "cyan", "16px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(200, 20), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103739, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards13spawn__button(fold_offset, button_size, "#cc0000", 0), _M0FP39Milky201817selene_2dexamples5cards13spawn__button(call_offset, button_size, "#00aa00", 1), _M0FP39Milky201817selene_2dexamples5cards13spawn__button(raise_offset, button_size, "#0066cc", 2), false, new _M0TPB5ArrayGRP39Milky20186selene3ecs6EntityE([], 0), new _M0TPB5ArrayGRP39Milky20186selene3ecs6EntityE([], 0));
+  return new _M0TP39Milky201817selene_2dexamples5cards9GameState(_M0MPC16random4Rand4Rand(undefined), new _M0TPB5ArrayGRP39Milky201817selene_2dexamples5cards4CardE([], 0), new _M0TP39Milky201817selene_2dexamples5cards6Player(1000, new _M0TPB5ArrayGRP39Milky201817selene_2dexamples5cards4CardE([], 0), 0, false, _M0MP39Milky20186selene4math4Vec24Vec2(240, 240)), 0, 0, new _M0TPB5ArrayGRP39Milky201817selene_2dexamples5cards4CardE([], 0), 0, 10, 20, 10, 1000, 1, _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(160, 20), "Blind: $20", "gold", "20px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(160, 24), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103784, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(160, 42), "Chips: $1000", "lightgreen", "18px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(160, 22), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103785, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(20, 20), "Pre-Flop", "white", "18px ThaleahFat", undefined, undefined, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards19spawn__text_2einner(fold_offset, "Fold", "white", "16px ThaleahFat", button_size, 1, 1, 111), _M0FP39Milky201817selene_2dexamples5cards19spawn__text_2einner(call_offset, "Call", "white", "16px ThaleahFat", button_size, 1, 1, 111), _M0FP39Milky201817selene_2dexamples5cards19spawn__text_2einner(raise_offset, "Raise", "white", "16px ThaleahFat", button_size, 1, 1, 111), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(370, 20), "Turns: 10/10", "white", "18px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(90, 22), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103786, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(130, 256), "", "yellow", "16px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(220, 20), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103787, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(140, 78), "", "cyan", "16px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(200, 20), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103788, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards13spawn__button(fold_offset, button_size, "#cc0000", 0), _M0FP39Milky201817selene_2dexamples5cards13spawn__button(call_offset, button_size, "#00aa00", 1), _M0FP39Milky201817selene_2dexamples5cards13spawn__button(raise_offset, button_size, "#0066cc", 2), false, new _M0TPB5ArrayGRP39Milky20186selene3ecs6EntityE([], 0), new _M0TPB5ArrayGRP39Milky20186selene3ecs6EntityE([], 0));
 }
 function _M0FP39Milky201817selene_2dexamples5cards11game__state() {
   const runtime = _M0FP39Milky201817selene_2dexamples5cards14cards__runtime();
@@ -196027,8 +196076,10 @@ function _M0FP39Milky201817selene_2dexamples5cards9is__flush(hand) {
       break;
     } else {
       const _Some = _bind$71;
-      const _entry = _Some;
-      if (_entry._1 >= 5) {
+      const _x = _Some;
+      const _suit = _x._0;
+      const _count = _x._1;
+      if (_count >= 5) {
         const _p = new _M0TPB5ArrayGRP39Milky201817selene_2dexamples5cards4CardE([], 0);
         const _p$2 = hand.len;
         const _p$3 = hand.buf;
@@ -196038,7 +196089,7 @@ function _M0FP39Milky201817selene_2dexamples5cards9is__flush(hand) {
           const _p$4 = _tmp;
           if (_p$4 < _p$2) {
             const _p$5 = _p$3[_p$4];
-            if (_M0IP39Milky201817selene_2dexamples5cards8CardSuitPB2Eq5equal(_p$5._1, _entry._0)) {
+            if (_M0IP39Milky201817selene_2dexamples5cards8CardSuitPB2Eq5equal(_p$5._1, _suit)) {
               _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(_p, _p$5);
             }
             _tmp = _p$4 + 1 | 0;
@@ -196114,7 +196165,7 @@ function _M0FP39Milky201817selene_2dexamples5cards12is__straight(hand) {
     return hand$2.buf[4];
   }
   if (_M0IPC15array5ArrayPB2Eq5equalGiE(hand$2, new _M0TPB5ArrayGiE([2, 3, 4, 5, 14], 5))) {
-    return _M0FP39Milky201817selene_2dexamples5cards12is__straightN6constrS103817;
+    return _M0FP39Milky201817selene_2dexamples5cards12is__straightN6constrS103868;
   }
   return undefined;
 }
@@ -196152,9 +196203,11 @@ function _M0FP39Milky201817selene_2dexamples5cards10eval__rank(hand) {
       break;
     } else {
       const _Some = _bind$71;
-      const _entry = _Some;
-      if (_entry._1 === 4) {
-        return new _M0DTP39Milky201817selene_2dexamples5cards8HandRank10FourOfKind(_M0MP39Milky201817selene_2dexamples5cards7CardNum7to__int(_entry._0));
+      const _x = _Some;
+      const _num = _x._0;
+      const _count = _x._1;
+      if (_count === 4) {
+        return new _M0DTP39Milky201817selene_2dexamples5cards8HandRank10FourOfKind(_M0MP39Milky201817selene_2dexamples5cards7CardNum7to__int(_num));
       }
       continue;
     }
@@ -196168,12 +196221,14 @@ function _M0FP39Milky201817selene_2dexamples5cards10eval__rank(hand) {
       break;
     } else {
       const _Some = _bind$71;
-      const _entry = _Some;
-      if (_entry._1 === 3) {
-        three_kind = _M0MP39Milky201817selene_2dexamples5cards7CardNum7to__int(_entry._0);
+      const _x = _Some;
+      const _num = _x._0;
+      const _count = _x._1;
+      if (_count === 3) {
+        three_kind = _M0MP39Milky201817selene_2dexamples5cards7CardNum7to__int(_num);
       }
-      if (_entry._1 === 2) {
-        pair = _M0MP39Milky201817selene_2dexamples5cards7CardNum7to__int(_entry._0);
+      if (_count === 2) {
+        pair = _M0MP39Milky201817selene_2dexamples5cards7CardNum7to__int(_num);
       }
       continue;
     }
@@ -196321,7 +196376,7 @@ function _M0FP39Milky201817selene_2dexamples5cards16find__best__hand(cards) {
   if (cards.len === 5) {
     return _M0FP39Milky201817selene_2dexamples5cards10eval__rank(cards);
   }
-  let best_rank = _M0FP39Milky201817selene_2dexamples5cards16find__best__handN6constrS103883;
+  let best_rank = _M0FP39Milky201817selene_2dexamples5cards16find__best__handN6constrS103938;
   let best_value = 0;
   const n = cards.len;
   let _tmp = 0;
@@ -196636,7 +196691,7 @@ function _M0FP39Milky201817selene_2dexamples5cards17touch__action__at(position, 
   if (position.y < screen.y * 0.72) {
     return undefined;
   }
-  return position.x < screen.x / 3 ? _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103952 : position.x < screen.x * 2 / 3 ? _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103953 : _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103954;
+  return position.x < screen.x / 3 ? _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS104007 : position.x < screen.x * 2 / 3 ? _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS104008 : _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS104009;
 }
 function _M0FP39Milky201817selene_2dexamples5cards20apply__touch__action(action) {
   const game = _M0FP39Milky201817selene_2dexamples5cards11game__state();
@@ -196952,7 +197007,7 @@ function _M0FP39Milky201817selene_2dexamples5cards16start__new__hand() {
 }
 function _M0FP39Milky201817selene_2dexamples5cards11game__start(_world) {
   _M0FP39Milky201817selene_2dexamples5cards21reset__cards__runtime();
-  _M0FP39Milky20186selene5asset10load__font("assets/cards/ThaleahFat.ttf", _M0FP39Milky201817selene_2dexamples5cards11game__startN6constrS104048);
+  _M0FP39Milky20186selene5asset10load__font("assets/cards/ThaleahFat.ttf", _M0FP39Milky201817selene_2dexamples5cards11game__startN6constrS104103);
   _M0FP39Milky20186selene2ui20set__ui__scale__mode(1);
   _M0FP39Milky201817selene_2dexamples5cards20spawn__cards__entityGURP39Milky20186selene6camera6CameraRP39Milky20186selene6camera8Camera2dRP39Milky20186selene6camera22OrthographicProjectionRP39Milky20186selene9transform7SpatialEE({ _0: _M0MP39Milky20186selene6camera6Camera6Camera(-1, undefined, _M0DTPC16option6OptionGORP39Milky20186selene6camera14CameraViewportE4None__, undefined), _1: _M0MP39Milky20186selene6camera8Camera2d8Camera2d(), _2: _M0MP39Milky20186selene6camera22OrthographicProjection30OrthographicProjection_2einner(1, -1000, 1000), _3: _M0MP39Milky20186selene9transform7Spatial7Spatial(_M0MP39Milky20186selene9transform9Transform9from__xyz(240, 160, 0)) });
   _M0FP39Milky201817selene_2dexamples5cards9setup__ui();
