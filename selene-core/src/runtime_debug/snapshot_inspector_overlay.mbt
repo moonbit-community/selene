@@ -63,7 +63,7 @@ pub fn world_snapshot() -> WorldSnapshot {
 
 ///|
 fn debug_vec2(value : @math.Vec2) -> DebugVec2 {
-  { x: value[X], y: value[Y], }
+  { x: value.x, y: value.y, }
 }
 
 ///|
@@ -74,10 +74,10 @@ fn debug_vec3(value : @math.Vec3) -> DebugVec3 {
 ///|
 fn debug_rect(value : @math.Rect) -> DebugRect {
   {
-    x: value.position[X],
-    y: value.position[Y],
-    width: value.size[X],
-    height: value.size[Y],
+    x: value.position.x,
+    y: value.position.y,
+    width: value.size.x,
+    height: value.size.y,
   }
 }
 

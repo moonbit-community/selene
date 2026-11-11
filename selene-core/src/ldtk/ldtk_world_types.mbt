@@ -1,7 +1,7 @@
 ///|
 fn ldtk_spatial(position : @math.Vec2, depth : Int32) -> @transform.Spatial {
   Spatial(
-    @transform.Transform::from_xyz(position[X], position[Y], depth.to_double()),
+    @transform.Transform::from_xyz(position.x, position.y, depth.to_double()),
   )
 }
 
@@ -10,10 +10,10 @@ fn ldtk_sprite_anchor_for_pixel_offset(
   offset : @math.Vec2,
   size : @math.Vec2,
 ) -> @sprite.Anchor {
-  if size[X].abs() <= 0.000000001 || size[Y].abs() <= 0.000000001 {
+  if size.x.abs() <= 0.000000001 || size.y.abs() <= 0.000000001 {
     return Anchor(Vec2(-0.5, 0.5))
   }
-  Anchor(Vec2(-(offset[X] / size[X]) - 0.5, offset[Y] / size[Y] + 0.5))
+  Anchor(Vec2(-(offset.x / size.x) - 0.5, offset.y / size.y + 0.5))
 }
 
 ///|

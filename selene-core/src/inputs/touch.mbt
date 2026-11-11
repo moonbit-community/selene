@@ -332,7 +332,7 @@ pub fn advanced_pointer_system(_delta : Double) -> Unit {
       primary: true,
     })
   }
-  if mouse_movement.movement[X] != 0.0 || mouse_movement.movement[Y] != 0.0 {
+  if mouse_movement.movement.x != 0.0 || mouse_movement.movement.y != 0.0 {
     push_pointer_change({
       id,
       source: PointerMouse,
@@ -367,7 +367,7 @@ fn abs_double(value : Double) -> Double {
 
 ///|
 fn distance_between(a : @math.Vec2, b : @math.Vec2) -> Double {
-  (a - b).distance()
+  (a - b).length()
 }
 
 ///|
@@ -624,8 +624,8 @@ fn update_pinch(cancelled : Bool) -> Unit {
           } else if state.active &&
             (
               abs_double(delta_distance) > 0.000001 ||
-              center_delta[X] != 0.0 ||
-              center_delta[Y] != 0.0
+              center_delta.x != 0.0 ||
+              center_delta.y != 0.0
             ) {
             push_gesture(
               PinchMove,

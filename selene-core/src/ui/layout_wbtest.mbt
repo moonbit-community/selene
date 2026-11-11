@@ -135,7 +135,7 @@ test "ui layout uses wrapped text height in the computed node" {
 
   ui_layout_system(0.0)
 
-  debug_inspect(computed_ui_node(entity).unwrap().size, content="Vec2(60, 32)")
+  assert_eq(computed_ui_node(entity).unwrap().size, Vec2(60.0, 32.0))
   cleanup_layout_test_entity(entity)
 }
 
@@ -272,10 +272,10 @@ test "ui layout uses overflow clip margins from the requested visual box" {
   ui_layout_system(0.0)
 
   let clip = calculated_clips().get(entity).unwrap().clip
-  inspect(clip.position[X] == 11.0, content="true")
-  inspect(clip.position[Y] == 21.0, content="true")
-  inspect(clip.size[X] == 98.0, content="true")
-  inspect(clip.size[Y] == 78.0, content="true")
+  inspect(clip.position.x == 11.0, content="true")
+  inspect(clip.position.y == 21.0, content="true")
+  inspect(clip.size.x == 98.0, content="true")
+  inspect(clip.size.y == 78.0, content="true")
 
   cleanup_layout_test_entity(entity)
 }
@@ -306,18 +306,14 @@ test "ui layout projects nested border and padding offsets exactly once" {
 
   ui_layout_system(0.0)
 
-  debug_inspect(
-    (
-      computed_ui_node(parent).unwrap().position,
-      computed_ui_node(parent).unwrap().content_position,
-      computed_ui_node(child).unwrap().position,
-      computed_ui_node(child).unwrap().content_position,
-      computed_ui_node(grandchild).unwrap().position,
-    ),
-    content=(
-      #|(Vec2(10, 20), Vec2(18, 28), Vec2(18, 28), Vec2(22, 32), Vec2(22, 32))
-    ),
+  assert_eq(computed_ui_node(parent).unwrap().position, Vec2(10.0, 20.0))
+  assert_eq(
+    computed_ui_node(parent).unwrap().content_position,
+    Vec2(18.0, 28.0),
   )
+  assert_eq(computed_ui_node(child).unwrap().position, Vec2(18.0, 28.0))
+  assert_eq(computed_ui_node(child).unwrap().content_position, Vec2(22.0, 32.0))
+  assert_eq(computed_ui_node(grandchild).unwrap().position, Vec2(22.0, 32.0))
 
   cleanup_layout_test_entity(grandchild)
   cleanup_layout_test_entity(child)
@@ -341,8 +337,8 @@ test "ui layout config controls screen-space rounding for viewport-scaled rects"
     ui_layout_space(None),
     LayoutConfig().use_rounding,
   )
-  inspect(rounded_rect.position[X] == 51.0, content="true")
-  inspect(rounded_rect.position[Y] == 51.0, content="true")
+  inspect(rounded_rect.position.x == 51.0, content="true")
+  inspect(rounded_rect.position.y == 51.0, content="true")
 
   let unrounded_rect = screen_rect_for(
     logical_rect,
@@ -351,16 +347,16 @@ test "ui layout config controls screen-space rounding for viewport-scaled rects"
   )
   let expected = 33.835 * 1.5
   inspect(
-    (unrounded_rect.position[X] - expected).abs() < 0.000001,
+    (unrounded_rect.position.x - expected).abs() < 0.000001,
     content="true",
   )
   inspect(
-    (unrounded_rect.position[Y] - expected).abs() < 0.000001,
+    (unrounded_rect.position.y - expected).abs() < 0.000001,
     content="true",
   )
 
   set_ui_scale_mode(old_scale_mode)
-  @system.configure_display(old_viewport[X], old_viewport[Y], old_zoom)
+  @system.configure_display(old_viewport.x, old_viewport.y, old_zoom)
 }
 
 ///|
@@ -374,11 +370,7 @@ test "ui target camera layouts use the camera viewport as screen-space origin" {
   camera_draft.add_to(@camera.camera2ds(), Camera2d())
   camera_draft.add_to(
     @transform.spatials(),
-    Spatial(
-      @transform.GlobalTransform::from_transform(
-        @transform.Transform::default(),
-      ).compute_transform(),
-    ),
+    Spatial(@transform.Transform::default()),
   )
   let camera = camera_draft.spawn()
 
@@ -393,8 +385,8 @@ test "ui target camera layouts use the camera viewport as screen-space origin" {
   ui_layout_system(0.0)
 
   let global = global_ui_node(entity).unwrap()
-  inspect(global.screen_rect.position[X] == 24.0, content="true")
-  inspect(global.screen_rect.position[Y] == 16.0, content="true")
+  inspect(global.screen_rect.position.x == 24.0, content="true")
+  inspect(global.screen_rect.position.y == 16.0, content="true")
   inspect(global.target_camera == Some(camera), content="true")
 
   cleanup_layout_test_entity(entity)
@@ -417,10 +409,8 @@ test "ui layout clamps scroll positions to overflowing content" {
   let scroll = scroll_positions().get(parent).unwrap()
   debug_inspect([scroll.x, scroll.y], content="[0, 200]")
   let initial = computed_ui_node(parent).unwrap()
-  debug_inspect(
-    [initial.max_scroll_position, Vec2(scroll.x, scroll.y)],
-    content="[Vec2(0, 200), Vec2(0, 200)]",
-  )
+  assert_eq(initial.max_scroll_position, Vec2(0.0, 200.0))
+  assert_eq(initial.max_scroll_position, Vec2(scroll.x, scroll.y))
 
   nodes().set(
     parent,
@@ -429,7 +419,7 @@ test "ui layout clamps scroll positions to overflowing content" {
   ui_layout_system(0.0)
   let resized = computed_ui_node(parent).unwrap()
   debug_inspect(
-    [resized.max_scroll_position[Y], scroll_positions().get(parent).unwrap().y],
+    [resized.max_scroll_position.y, scroll_positions().get(parent).unwrap().y],
     content="[50, 50]",
   )
 
@@ -440,7 +430,7 @@ test "ui layout clamps scroll positions to overflowing content" {
   ui_layout_system(0.0)
   let shrunk = computed_ui_node(parent).unwrap()
   debug_inspect(
-    [shrunk.max_scroll_position[Y], scroll_positions().get(parent).unwrap().y],
+    [shrunk.max_scroll_position.y, scroll_positions().get(parent).unwrap().y],
     content="[0, 0]",
   )
 
@@ -456,7 +446,7 @@ test "ui layout clamps scroll positions to overflowing content" {
   ui_layout_system(0.0)
   let disabled = computed_ui_node(parent).unwrap()
   debug_inspect(
-    [disabled.max_scroll_position[Y], scroll_positions().get(parent).unwrap().y],
+    [disabled.max_scroll_position.y, scroll_positions().get(parent).unwrap().y],
     content="[0, 0]",
   )
 
@@ -483,10 +473,7 @@ test "ui scrolling preserves nested border and padding offsets" {
 
   ui_layout_system(0.0)
 
-  debug_inspect(
-    computed_ui_node(child).unwrap().position,
-    content="Vec2(18, 8)",
-  )
+  assert_eq(computed_ui_node(child).unwrap().position, Vec2(18.0, 8.0))
   cleanup_layout_test_entity(child)
   cleanup_layout_test_entity(parent)
 }

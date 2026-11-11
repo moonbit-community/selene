@@ -110,10 +110,10 @@ test "ui material nodes render gradient materials ahead of legacy background fil
   inspect(
     match frame.ui_commands[0] {
       GradientRect(command) =>
-        command.rect.position[X] == 8.0 &&
-        command.rect.position[Y] == 12.0 &&
-        command.rect.size[X] == 80.0 &&
-        command.rect.size[Y] == 40.0
+        command.rect.position.x == 8.0 &&
+        command.rect.position.y == 12.0 &&
+        command.rect.size.x == 80.0 &&
+        command.rect.size.y == 40.0
       _ => false
     },
     content="true",
@@ -145,10 +145,10 @@ test "ui material assets can render through custom draw callbacks" {
   inspect(
     match frame.ui_commands[0] {
       Rect(command) =>
-        command.rect.position[X] == 12.0 &&
-        command.rect.position[Y] == 18.0 &&
-        command.rect.size[X] == 64.0 &&
-        command.rect.size[Y] == 24.0
+        command.rect.position.x == 12.0 &&
+        command.rect.position.y == 18.0 &&
+        command.rect.size.x == 64.0 &&
+        command.rect.size.y == 24.0
       _ => false
     },
     content="true",
@@ -228,10 +228,10 @@ test "ui outlines resolve width and offset into outer bands" {
   inspect(
     match frame.ui_commands[0] {
       Rect(command) =>
-        command.rect.position[X] == 14.0 &&
-        command.rect.position[Y] == 24.0 &&
-        command.rect.size[X] == 112.0 &&
-        command.rect.size[Y] == 4.0
+        command.rect.position.x == 14.0 &&
+        command.rect.position.y == 24.0 &&
+        command.rect.size.x == 112.0 &&
+        command.rect.size.y == 4.0
       _ => false
     },
     content="true",
@@ -239,10 +239,10 @@ test "ui outlines resolve width and offset into outer bands" {
   inspect(
     match frame.ui_commands[2] {
       Rect(command) =>
-        command.rect.position[X] == 14.0 &&
-        command.rect.position[Y] == 28.0 &&
-        command.rect.size[X] == 4.0 &&
-        command.rect.size[Y] == 64.0
+        command.rect.position.x == 14.0 &&
+        command.rect.position.y == 28.0 &&
+        command.rect.size.x == 4.0 &&
+        command.rect.size.y == 64.0
       _ => false
     },
     content="true",

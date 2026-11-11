@@ -13,7 +13,7 @@ fn test_rect_command(
 ) -> @render2d_types.RectDrawCommand2D {
   {
     rect: { position, size: Vec2(8.0, 8.0), },
-    transform: @math.Transform::identity(),
+    transform: @math.Affine2::identity(),
     alpha_mode: Opaque,
     blend_mode: Alpha,
     fill_color: { r: 255U, g: 255U, b: 255U, a: 1.0, },
@@ -41,11 +41,7 @@ test "build_frame2d keeps clear-only camera passes" {
     camera_entity_draft.add_to(@camera.camera2ds(), Camera2d())
     camera_entity_draft.add_to(
       @transform.spatials(),
-      Spatial(
-        @transform.GlobalTransform::from_transform(
-          @transform.Transform::from_xyz(0.0, 0.0, 0.0),
-        ).compute_transform(),
-      ),
+      Spatial(@transform.Transform::from_xyz(0.0, 0.0, 0.0)),
     )
     ignore(camera_entity_draft.spawn())
 
@@ -60,10 +56,10 @@ test "build_frame2d keeps clear-only camera passes" {
     )
     inspect(frame.passes[0].world_commands.length(), content="0")
     inspect(
-      frame.passes[0].viewport.position[X] == 20.0 &&
-      frame.passes[0].viewport.position[Y] == 10.0 &&
-      frame.passes[0].viewport.size[X] == 80.0 &&
-      frame.passes[0].viewport.size[Y] == 40.0,
+      frame.passes[0].viewport.position.x == 20.0 &&
+      frame.passes[0].viewport.position.y == 10.0 &&
+      frame.passes[0].viewport.size.x == 80.0 &&
+      frame.passes[0].viewport.size.y == 40.0,
       content="true",
     )
     inspect(
@@ -101,11 +97,7 @@ test "build_frame2d normalizes offscreen viewport and command coordinates" {
     camera_entity_draft.add_to(@camera.camera2ds(), Camera2d())
     camera_entity_draft.add_to(
       @transform.spatials(),
-      Spatial(
-        @transform.GlobalTransform::from_transform(
-          @transform.Transform::from_xyz(0.0, 0.0, 0.0),
-        ).compute_transform(),
-      ),
+      Spatial(@transform.Transform::from_xyz(0.0, 0.0, 0.0)),
     )
     let camera_entity = camera_entity_draft.spawn()
     @render2d.push_rect_with_depth_to_camera(
@@ -117,16 +109,16 @@ test "build_frame2d normalizes offscreen viewport and command coordinates" {
 
     let (frame, _) = build_frame2d(@camera.active_camera2d_views())
     inspect(
-      frame.passes[0].viewport.position[X] == 0.0 &&
-      frame.passes[0].viewport.position[Y] == 0.0 &&
-      frame.passes[0].viewport.size[X] == 80.0 &&
-      frame.passes[0].viewport.size[Y] == 40.0,
+      frame.passes[0].viewport.position.x == 0.0 &&
+      frame.passes[0].viewport.position.y == 0.0 &&
+      frame.passes[0].viewport.size.x == 80.0 &&
+      frame.passes[0].viewport.size.y == 40.0,
       content="true",
     )
     inspect(
       match frame.passes[0].world_commands[0] {
         Rect(command) =>
-          command.rect.position[X] == 10.0 && command.rect.position[Y] == 12.0
+          command.rect.position.x == 10.0 && command.rect.position.y == 12.0
         _ => false
       },
       content="true",
@@ -146,11 +138,7 @@ test "build_frame2d batches camera ui commands with clip barriers" {
     camera_entity_draft.add_to(@camera.camera2ds(), Camera2d())
     camera_entity_draft.add_to(
       @transform.spatials(),
-      Spatial(
-        @transform.GlobalTransform::from_transform(
-          @transform.Transform::from_xyz(0.0, 0.0, 0.0),
-        ).compute_transform(),
-      ),
+      Spatial(@transform.Transform::from_xyz(0.0, 0.0, 0.0)),
     )
     let camera_entity = camera_entity_draft.spawn()
 
@@ -200,11 +188,7 @@ test "build_frame2d maps camera offscreen pass target" {
     camera_entity_draft.add_to(@camera.camera2ds(), Camera2d())
     camera_entity_draft.add_to(
       @transform.spatials(),
-      Spatial(
-        @transform.GlobalTransform::from_transform(
-          @transform.Transform::from_xyz(0.0, 0.0, 0.0),
-        ).compute_transform(),
-      ),
+      Spatial(@transform.Transform::from_xyz(0.0, 0.0, 0.0)),
     )
     ignore(camera_entity_draft.spawn())
 

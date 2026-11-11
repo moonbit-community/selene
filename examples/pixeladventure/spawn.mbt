@@ -81,8 +81,8 @@ fn spawn_text_box(
   color : String,
   font : String,
   size~ : @math.Vec2 = Vec2(-1.0, -1.0),
-  align~ : @math.HAlign = Left,
-  baseline~ : @math.VAlign = Top,
+  align~ : @render2d_types.HAlign = Left,
+  baseline~ : @render2d_types.VAlign = Top,
 ) -> @ecs.Entity {
   spawn_game_entity(
     (
@@ -264,7 +264,7 @@ fn spawn_terrain_collider(
   let shape : @physics2d.ColliderShape = Rect(size~, offset=@math.Vec2::zero())
   let terrain = plan.spawn(
     (
-      Spatial(@transform.Transform::from_xyz(pos[X], pos[Y], 0.0)),
+      Spatial(@transform.Transform::from_xyz(pos.x, pos.y, 0.0)),
       shape,
       Collider(
         CollisionFilter(terrain_collision_group, [

@@ -277,10 +277,7 @@ fn focusable_entities() -> Array[@ecs.Entity] {
 
 ///|
 fn rect_center(rect : @math.Rect) -> @math.Vec2 {
-  Vec2(
-    rect.position[X] + rect.size[X] / 2.0,
-    rect.position[Y] + rect.size[Y] / 2.0,
-  )
+  Vec2(rect.position.x + rect.size.x / 2.0, rect.position.y + rect.size.y / 2.0)
 }
 
 ///|
@@ -291,20 +288,10 @@ fn directional_score(
 ) -> (Double, Double)? {
   let delta = candidate - current
   match direction {
-    Left =>
-      if delta[X] < 0.0 {
-        Some((-delta[X], delta[Y].abs()))
-      } else {
-        None
-      }
-    Right =>
-      if delta[X] > 0.0 {
-        Some((delta[X], delta[Y].abs()))
-      } else {
-        None
-      }
-    Up => if delta[Y] < 0.0 { Some((-delta[Y], delta[X].abs())) } else { None }
-    Down => if delta[Y] > 0.0 { Some((delta[Y], delta[X].abs())) } else { None }
+    Left => if delta.x < 0.0 { Some((-delta.x, delta.y.abs())) } else { None }
+    Right => if delta.x > 0.0 { Some((delta.x, delta.y.abs())) } else { None }
+    Up => if delta.y < 0.0 { Some((-delta.y, delta.x.abs())) } else { None }
+    Down => if delta.y > 0.0 { Some((delta.y, delta.x.abs())) } else { None }
     Activate | Cancel => None
   }
 }
@@ -389,10 +376,10 @@ fn move_focus_by_tab(reverse : Bool) -> Unit {
 
 ///|
 fn point_in_rect(point : @math.Vec2, rect : @math.Rect) -> Bool {
-  point[X] >= rect.position[X] &&
-  point[Y] >= rect.position[Y] &&
-  point[X] <= rect.position[X] + rect.size[X] &&
-  point[Y] <= rect.position[Y] + rect.size[Y]
+  point.x >= rect.position.x &&
+  point.y >= rect.position.y &&
+  point.x <= rect.position.x + rect.size.x &&
+  point.y <= rect.position.y + rect.size.y
 }
 
 ///|
@@ -414,13 +401,13 @@ fn normalized_cursor_position(
   point : @math.Vec2,
   rect : @math.Rect,
 ) -> @math.Vec2? {
-  if rect.size[X] <= 0.0 || rect.size[Y] <= 0.0 {
+  if rect.size.x <= 0.0 || rect.size.y <= 0.0 {
     None
   } else {
     Some(
       Vec2(
-        (point[X] - rect.position[X]) / rect.size[X] - 0.5,
-        (point[Y] - rect.position[Y]) / rect.size[Y] - 0.5,
+        (point.x - rect.position.x) / rect.size.x - 0.5,
+        (point.y - rect.position.y) / rect.size.y - 0.5,
       ),
     )
   }
@@ -595,14 +582,14 @@ fn apply_scroll_delta(entity : @ecs.Entity, delta : @math.Vec2) -> Unit {
   let scroll = scroll_positions().get_or_init(entity, ScrollPosition::zero)
   if node.overflow_x == Scroll {
     scroll.x = @cmp.minimum(
-      computed.max_scroll_position[X],
-      @cmp.maximum(0.0, scroll.x + delta[X]),
+      computed.max_scroll_position.x,
+      @cmp.maximum(0.0, scroll.x + delta.x),
     )
   }
   if node.overflow_y == Scroll {
     scroll.y = @cmp.minimum(
-      computed.max_scroll_position[Y],
-      @cmp.maximum(0.0, scroll.y + delta[Y]),
+      computed.max_scroll_position.y,
+      @cmp.maximum(0.0, scroll.y + delta.y),
     )
   }
 }
@@ -610,11 +597,11 @@ fn apply_scroll_delta(entity : @ecs.Entity, delta : @math.Vec2) -> Unit {
 ///|
 fn update_scroll(position : @math.Vec2) -> Unit {
   let delta = @inputs.mouse_wheel.delta
-  if delta[X] == 0.0 && delta[Y] == 0.0 {
+  if delta.x == 0.0 && delta.y == 0.0 {
     return
   }
   if scrollable_target_at(position) is Some(entity) {
-    apply_scroll_delta(entity, Vec2(delta[X] * 16.0, delta[Y] * 16.0))
+    apply_scroll_delta(entity, Vec2(delta.x * 16.0, delta.y * 16.0))
   }
 }
 
@@ -624,7 +611,7 @@ fn update_contact_drag_scroll() -> Unit {
     if event.source != PointerMouse && event.primary && event.phase == Move {
       if scrollable_target_at(event.previous_position) is Some(entity) {
         // Dragging content down should move the scroll offset up.
-        apply_scroll_delta(entity, Vec2(-event.delta[X], -event.delta[Y]))
+        apply_scroll_delta(entity, Vec2(-event.delta.x, -event.delta.y))
       }
       return
     }

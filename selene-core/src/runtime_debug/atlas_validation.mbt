@@ -5,15 +5,15 @@ fn rect_equals(lhs : @math.Rect, rhs : @math.Rect) -> Bool {
 
 ///|
 fn rect_overlap(lhs : @math.Rect, rhs : @math.Rect) -> Bool {
-  let l_min_x = lhs.position[X]
-  let l_min_y = lhs.position[Y]
-  let l_max_x = lhs.position[X] + lhs.size[X]
-  let l_max_y = lhs.position[Y] + lhs.size[Y]
+  let l_min_x = lhs.position.x
+  let l_min_y = lhs.position.y
+  let l_max_x = lhs.position.x + lhs.size.x
+  let l_max_y = lhs.position.y + lhs.size.y
 
-  let r_min_x = rhs.position[X]
-  let r_min_y = rhs.position[Y]
-  let r_max_x = rhs.position[X] + rhs.size[X]
-  let r_max_y = rhs.position[Y] + rhs.size[Y]
+  let r_min_x = rhs.position.x
+  let r_min_y = rhs.position.y
+  let r_max_x = rhs.position.x + rhs.size.x
+  let r_max_y = rhs.position.y + rhs.size.y
 
   l_min_x < r_max_x &&
   l_max_x > r_min_x &&
@@ -77,7 +77,7 @@ pub fn validate_texture_atlas_layout_for_image(
   let atlas_size = @sprite.texture_atlas_layout_size(layout)
   let rects = @sprite.texture_atlas_layout_rects(layout)
   let issues : Array[AtlasValidationIssue] = []
-  if atlas_size[X] <= 0.0 || atlas_size[Y] <= 0.0 {
+  if atlas_size.x <= 0.0 || atlas_size.y <= 0.0 {
     issues.push({
       kind: InvalidAtlasSize,
       rect_index: None,
@@ -86,7 +86,7 @@ pub fn validate_texture_atlas_layout_for_image(
     })
   }
   for index, rect in rects {
-    if rect.size[X] <= 0.0 || rect.size[Y] <= 0.0 {
+    if rect.size.x <= 0.0 || rect.size.y <= 0.0 {
       issues.push({
         kind: InvalidRectSize,
         rect_index: Some(index),
@@ -94,12 +94,12 @@ pub fn validate_texture_atlas_layout_for_image(
         message: "Frame rect size must be positive",
       })
     }
-    let max_x = rect.position[X] + rect.size[X]
-    let max_y = rect.position[Y] + rect.size[Y]
-    if rect.position[X] < 0.0 ||
-      rect.position[Y] < 0.0 ||
-      max_x > atlas_size[X] ||
-      max_y > atlas_size[Y] {
+    let max_x = rect.position.x + rect.size.x
+    let max_y = rect.position.y + rect.size.y
+    if rect.position.x < 0.0 ||
+      rect.position.y < 0.0 ||
+      max_x > atlas_size.x ||
+      max_y > atlas_size.y {
       issues.push({
         kind: OutOfBounds,
         rect_index: Some(index),

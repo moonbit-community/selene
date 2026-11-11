@@ -16,7 +16,7 @@ fn clamp(value : Double, min : Double, max : Double) -> Double {
 
 ///|
 fn clamp_vec2_length(value : @math.Vec2, radius : Double) -> @math.Vec2 {
-  let length = value.distance()
+  let length = value.length()
   if radius <= 0.0 || length <= radius || length <= 0.000001 {
     value
   } else {
@@ -32,18 +32,12 @@ fn resolved_placement(
 ) -> @math.Vec2 {
   let margin = @cmp.maximum(16.0, radius * 0.65)
   match placement {
-    BottomLeft => Vec2(margin + radius, screen[Y] - margin - radius)
-    BottomRight =>
-      Vec2(screen[X] - margin - radius, screen[Y] - margin - radius)
+    BottomLeft => Vec2(margin + radius, screen.y - margin - radius)
+    BottomRight => Vec2(screen.x - margin - radius, screen.y - margin - radius)
     TopLeft => Vec2(margin + radius, margin + radius)
-    TopRight => Vec2(screen[X] - margin - radius, margin + radius)
-    Anchor(x, y, offset) => Vec2(screen[X] * x, screen[Y] * y) + offset
+    TopRight => Vec2(screen.x - margin - radius, margin + radius)
+    Anchor(x, y, offset) => Vec2(screen.x * x, screen.y * y) + offset
   }
-}
-
-///|
-fn point_distance(lhs : @math.Vec2, rhs : @math.Vec2) -> Double {
-  (lhs - rhs).distance()
 }
 
 ///|
@@ -57,5 +51,5 @@ fn point_in_circle(
   center : @math.Vec2,
   radius : Double,
 ) -> Bool {
-  point_distance(point, center) <= radius
+  radius >= 0.0 && point.distance_squared(center) <= radius * radius
 }

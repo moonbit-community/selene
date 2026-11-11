@@ -5,7 +5,7 @@ fn test_rect_command(
 ) -> @render2d_types.RectDrawCommand2D {
   {
     rect: { position: @math.Vec2::zero(), size: Vec2(8.0, 8.0), },
-    transform: @math.Transform::identity(),
+    transform: @math.Affine2::identity(),
     alpha_mode,
     blend_mode: Alpha,
     fill_color: { r: 255U, g: 255U, b: 255U, a: alpha, },

@@ -55,19 +55,19 @@ pub fn TextureAtlasLayout::from_grid(
   for row in 0..<rows {
     for column in 0..<columns {
       let position = @math.Vec2(
-        offset[X] + column.to_double() * (tile_size[X] + padding[X]),
-        offset[Y] + row.to_double() * (tile_size[Y] + padding[Y]),
+        offset.x + column.to_double() * (tile_size.x + padding.x),
+        offset.y + row.to_double() * (tile_size.y + padding.y),
       )
       rects.push({ position, size: tile_size, })
     }
   }
   let size = @math.Vec2(
-    offset[X] +
-    columns.to_double() * tile_size[X] +
-    @cmp.maximum(0.0, (columns - 1).to_double()) * padding[X],
-    offset[Y] +
-    rows.to_double() * tile_size[Y] +
-    @cmp.maximum(0.0, (rows - 1).to_double()) * padding[Y],
+    offset.x +
+    columns.to_double() * tile_size.x +
+    @cmp.maximum(0.0, (columns - 1).to_double()) * padding.x,
+    offset.y +
+    rows.to_double() * tile_size.y +
+    @cmp.maximum(0.0, (rows - 1).to_double()) * padding.y,
   )
   { size, rects, }
 }

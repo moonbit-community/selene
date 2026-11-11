@@ -361,7 +361,11 @@ fn parse_scene_template(path : String, source : GltfSource) -> SceneTemplate {
   let mesh_templates = parse_mesh_templates(
     root_object, material_handles, buffers, buffer_views, accessors,
   )
-  let nodes = parse_node_templates(root_object, mesh_templates, cameras, lights)
+  guard parse_node_templates(root_object, mesh_templates, cameras, lights)
+    is Some(nodes) else {
+    report_scene_load_failure(path, "Node matrix is not a finite TRS transform")
+    return SceneTemplate()
+  }
   let roots = parse_root_nodes(root_object, nodes.length())
   let animations = parse_animation_clips(
     root_object, buffers, buffer_views, accessors, nodes, roots,

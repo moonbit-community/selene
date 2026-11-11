@@ -43,18 +43,16 @@ fn add_border(size : @math.Vec2) -> Unit {
             @physics2d.CollisionFilter::empty(wall_collision_group),
           ),
           shape,
-          @transform.Spatial(
-            @transform.Transform::from_xyz(pos[X], pos[Y], 0.0),
-          ),
+          @transform.Spatial(@transform.Transform::from_xyz(pos.x, pos.y, 0.0)),
         ),
       ),
     )
   }
 
-  add_one_border(Vec2(-16.0, -16.0), Vec2(size[X] + 32.0, 16.0))
-  add_one_border(Vec2(-16.0, 0), Vec2(16.0, size[Y]))
-  add_one_border(Vec2(-16.0, size[Y]), Vec2(size[X] + 32.0, 16.0))
-  add_one_border(Vec2(size[X], 0), Vec2(16.0, size[Y]))
+  add_one_border(Vec2(-16.0, -16.0), Vec2(size.x + 32.0, 16.0))
+  add_one_border(Vec2(-16.0, 0), Vec2(16.0, size.y))
+  add_one_border(Vec2(-16.0, size.y), Vec2(size.x + 32.0, 16.0))
+  add_one_border(Vec2(size.x, 0), Vec2(16.0, size.y))
 }
 
 ///|

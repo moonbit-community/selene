@@ -250,31 +250,40 @@ fn additional_mass_properties_to_rapier(
 }
 
 ///|
+fn rigid_pose(global : @transform.GlobalTransform) -> @transform.Transform? {
+  let { x_axis, y_axis, z_axis, .. } = global.affine
+  let zero = @math.Vec3::zero()
+  guard x_axis != zero && y_axis != zero && z_axis != zero else { None }
+  global.try_decompose_trs()
+}
+
+///|
 fn current_world_transform(entity : @ecs.Entity) -> @transform.Transform? {
-  @transform.compute_global_transform(entity).map(global => {
-    global.compute_transform()
-  })
+  @transform.compute_global_transform(entity).bind(rigid_pose)
 }
 
 ///|
 fn set_entity_world_transform(
   entity : @ecs.Entity,
   world_transform : @transform.Transform,
-) -> Unit {
-  let local_transform = match entity.get_parent() {
-    Some(parent) =>
-      match @transform.compute_global_transform(parent) {
-        Some(parent_global) =>
-          @transform.GlobalTransform::from_transform(world_transform).reparented_to(
+) -> Bool {
+  if @transform.spatials().contains(entity) {
+    let local_transform = match entity.get_parent() {
+      Some(parent) => {
+        guard @transform.compute_global_transform(parent) is Some(parent_global) &&
+          @transform.GlobalTransform::from_transform(world_transform).relative_trs(
             parent_global,
           )
-        None => world_transform
+          is Some(local_transform) else {
+          return false
+        }
+        local_transform
       }
-    None => world_transform
-  }
-  if @transform.spatials().contains(entity) {
+      None => world_transform
+    }
     @transform.set_local_transform(entity, local_transform)
   }
+  true
 }
 
 ///|
@@ -293,23 +302,24 @@ fn attached_rigid_body_entity(entity : @ecs.Entity) -> @ecs.Entity? {
 }
 
 ///|
-fn collider_relative_transform(
+fn collider_transform(
   entity : @ecs.Entity,
-  body_entity : @ecs.Entity,
-) -> @transform.Transform {
-  if entity == body_entity {
-    return @transform.Transform::identity()
+  body_entity : @ecs.Entity?,
+) -> @transform.Transform? {
+  guard @transform.compute_global_transform(entity) is Some(global) &&
+    rigid_pose(global) is Some(world_pose) else {
+    None
   }
-  match
-    (
-      current_world_transform(entity),
-      @transform.compute_global_transform(body_entity),
-    ) {
-    (Some(entity_world), Some(body_global)) =>
-      @transform.GlobalTransform::from_transform(entity_world).reparented_to(
-        body_global,
-      )
-    _ => @transform.local_transform(entity).unwrap_or_default()
+  match body_entity {
+    Some(parent) if parent == entity => Some(@transform.Transform::identity())
+    Some(parent) => {
+      guard @transform.compute_global_transform(parent) is Some(parent_global) &&
+        rigid_pose(parent_global) is Some(_) else {
+        None
+      }
+      global.relative_trs(parent_global)
+    }
+    None => Some(world_pose)
   }
 }
 
@@ -322,8 +332,8 @@ fn set_standalone_collider_position(
     Some(transform) =>
       collider.set_position(
         Isometry3(
-          transform.translation.to_rapier(),
-          transform.rotation.to_rapier(),
+          vec3_to_rapier(transform.translation),
+          rotation_to_rapier(transform.rotation),
         ),
       )
     None => ()

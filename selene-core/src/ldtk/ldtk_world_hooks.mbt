@@ -70,8 +70,8 @@ fn ldtk_entity_position(entity_instance : LdtkEntityInstance) -> @math.Vec2 {
   let width = entity_instance.width.to_double()
   let height = entity_instance.height.to_double()
   let anchor_offset = @math.Vec2(
-    width * entity_instance.pivot[X],
-    height * entity_instance.pivot[Y],
+    width * entity_instance.pivot.x,
+    height * entity_instance.pivot.y,
   )
   entity_instance.px - anchor_offset
 }
@@ -181,7 +181,7 @@ fn ldtk_tile_exists_at_px(
   px : @math.Vec2,
 ) -> Bool {
   for tile in tiles {
-    if tile.px[X] == px[X] && tile.px[Y] == px[Y] {
+    if tile.px.x == px.x && tile.px.y == px.y {
       return true
     }
   }
@@ -195,10 +195,7 @@ fn ldtk_tile_in_layer_bounds(
 ) -> Bool {
   let max_x = (layer.c_wid * layer.grid_size).to_double()
   let max_y = (layer.c_hei * layer.grid_size).to_double()
-  tile.px[X] >= 0.0 &&
-  tile.px[Y] >= 0.0 &&
-  tile.px[X] < max_x &&
-  tile.px[Y] < max_y
+  tile.px.x >= 0.0 && tile.px.y >= 0.0 && tile.px.x < max_x && tile.px.y < max_y
 }
 
 ///|
@@ -264,7 +261,7 @@ fn ldtk_grid_coords_from_px(
   if cell_size <= 0.0 {
     return { x: 0, y: 0, }
   }
-  { x: (px[X] / cell_size).to_int(), y: (px[Y] / cell_size).to_int(), }
+  { x: (px.x / cell_size).to_int(), y: (px.y / cell_size).to_int(), }
 }
 
 ///|

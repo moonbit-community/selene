@@ -52,25 +52,37 @@ test "render3d camera culling context reuses frame constants" {
   let mesh = cube_mesh(Vec3(1.0, 1.0, 1.0))
   let visible_transform : @transform.Transform = {
     translation: @math.Vec3::zero(),
-    rotation: @math.Quat::identity(),
+    rotation: @math.Rotation3::identity(),
     scale: @math.Vec3::one(),
   }
   let hidden_transform : @transform.Transform = {
     translation: Vec3(100.0, 0.0, 0.0),
-    rotation: @math.Quat::identity(),
+    rotation: @math.Rotation3::identity(),
     scale: @math.Vec3::one(),
   }
   let context = camera_culling_context(camera)
   inspect(
-    is_visible_in_camera_culling_context(context, mesh, visible_transform),
+    is_visible_in_camera_culling_context(
+      context,
+      mesh,
+      visible_transform.compute_affine(),
+    ),
     content="true",
   )
   inspect(
-    is_visible_in_camera_culling_context(context, mesh, hidden_transform),
+    is_visible_in_camera_culling_context(
+      context,
+      mesh,
+      hidden_transform.compute_affine(),
+    ),
     content="false",
   )
   inspect(
-    _is_visible_in_camera_frustum(camera, mesh, visible_transform),
+    _is_visible_in_camera_frustum(
+      camera,
+      mesh,
+      visible_transform.compute_affine(),
+    ),
     content="true",
   )
 }
@@ -237,4 +249,31 @@ test "render3d cascade config builder clamps invalid ranges" {
   inspect(config.overlap_proportion == 1.0, content="true")
   inspect(config.bounds.length(), content="1")
   inspect(config.bounds[0] == 1.0, content="true")
+}
+
+///|
+test "orthographic culling retains a cube whose shear reaches into the viewport" {
+  let camera : @render3d_types.FrameCamera3D = {
+    position: Vec3(0.0, 0.0, 10.0),
+    target: @math.Vec3::zero(),
+    up: @math.Vec3::y_axis(),
+    fov_y: 60.0,
+    projection: Orthographic,
+    orthographic_size: Some(Vec2(2.0, 2.0)),
+    near: 0.1,
+    far: 100.0,
+    clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0, },
+  }
+  let transform : @math.Affine3 = {
+    ..@math.Affine3::identity(),
+    translation: Vec3(1.95, 0.0, 0.0),
+    y_axis: Vec3(1.0, 0.1, 0.0),
+  }
+  assert_true(
+    _is_visible_in_camera_frustum(
+      camera,
+      cube_mesh(Vec3(1.0, 1.0, 1.0)),
+      transform,
+    ),
+  )
 }

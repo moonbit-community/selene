@@ -115,8 +115,7 @@ fn draw3d_info(item : @render3d_types.RenderItem3D) -> DrawSubmission3DInfo {
     material: item.material,
     cast_shadows: item.cast_shadows,
     receive_shadows: item.receive_shadows,
-    translation: item.transform.translation,
-    scale: item.transform.scale,
+    transform: item.transform,
   }
 }
 

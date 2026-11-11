@@ -19,8 +19,8 @@ test "advanced mouse system falls back to position delta" {
   last_mouse.pos = Vec2(2.0, 3.0)
   mouse.pos = Vec2(5.0, 7.0)
   advanced_mouse_system(0.0)
-  inspect(mouse_movement.movement[X], content="3")
-  inspect(mouse_movement.movement[Y], content="4")
+  inspect(mouse_movement.movement.x, content="3")
+  inspect(mouse_movement.movement.y, content="4")
   reset_mouse_wbtest_state()
 }
 
@@ -31,7 +31,7 @@ test "advanced mouse system preserves platform relative movement" {
   mouse.pos = Vec2(100.0, 200.0)
   pending_mouse_relative_delta.val = Some(Vec2(12.0, -5.0))
   advanced_mouse_system(0.0)
-  inspect(mouse_movement.movement[X], content="12")
-  inspect(mouse_movement.movement[Y], content="-5")
+  inspect(mouse_movement.movement.x, content="12")
+  inspect(mouse_movement.movement.y, content="-5")
   reset_mouse_wbtest_state()
 }

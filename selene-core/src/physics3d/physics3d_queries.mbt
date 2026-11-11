@@ -13,8 +13,8 @@ pub fn FixedJoint::FixedJoint() -> FixedJoint {
   {
     local_anchor1: @math.Vec3::zero(),
     local_anchor2: @math.Vec3::zero(),
-    local_basis1: @math.Quat::identity(),
-    local_basis2: @math.Quat::identity(),
+    local_basis1: @math.Rotation3::identity(),
+    local_basis2: @math.Rotation3::identity(),
   }
 }
 

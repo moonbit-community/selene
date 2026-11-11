@@ -198,9 +198,11 @@ fn spawn_tiled_tile_layer_physics(
     }
     guard tile_definition.object_layer is Some(object_layer) else { continue }
     let tile_size = tiled_tileset_tile_size(map, tileset)
-    let base_transform = @math.Transform::from_translation(
-        tiled_cell_position(map, tileset, cell)[X],
-        tiled_cell_position(map, tileset, cell)[Y],
+    let base_transform = @math.Affine2::from_translation(
+        Vec2(
+          tiled_cell_position(map, tileset, cell).x,
+          tiled_cell_position(map, tileset, cell).y,
+        ),
       ) *
       tiled_gid_transform(cell.gid, tile_size)
     let inherited_properties = tile_definition.properties
@@ -329,7 +331,7 @@ fn tiled_object_physics_specs(
             layer,
             Object,
             object,
-            @math.Transform::from_rotation_deg(object.rotation),
+            @math.Affine2::from_rotation_deg(object.rotation),
             object.properties,
             settings,
           )
@@ -341,7 +343,7 @@ fn tiled_object_physics_specs(
         layer,
         Object,
         object,
-        @math.Transform::from_rotation_deg(object.rotation),
+        @math.Affine2::from_rotation_deg(object.rotation),
         object.properties,
         settings,
       )
@@ -355,7 +357,7 @@ fn tiled_physics_specs_from_shape_object(
   layer : TiledLayer,
   source_kind : TiledColliderSourceKind,
   object : TiledObject,
-  transform : @math.Transform,
+  transform : @math.Affine2,
   inherited_properties : Array[TiledProperty],
   settings : TiledPhysicsSettings,
   size_override~ : @math.Vec2? = None,
@@ -372,7 +374,7 @@ fn tiled_physics_specs_from_shape_object(
     Some(
       @physics2d.CollisionShape::Ball(
         radius=settings.point_radius,
-        offset=transform.apply_to_vec2(@math.Vec2::zero()),
+        offset=transform.transform_point(@math.Vec2::zero()),
       ),
     )
   } else if object.polyline.length() > 0 {
@@ -398,7 +400,7 @@ fn tiled_physics_specs_from_shape_object(
     )
   } else if object.ellipse {
     let size = size_override.unwrap_or(Vec2(object.width, object.height))
-    if size[X] <= 0.0 || size[Y] <= 0.0 {
+    if size.x <= 0.0 || size.y <= 0.0 {
       None
     } else {
       Some(
@@ -415,7 +417,7 @@ fn tiled_physics_specs_from_shape_object(
     None
   } else {
     let size = size_override.unwrap_or(Vec2(object.width, object.height))
-    if size[X] <= 0.0 || size[Y] <= 0.0 {
+    if size.x <= 0.0 || size.y <= 0.0 {
       None
     } else {
       Some(tiled_shape_from_rect(size, transform))
@@ -507,30 +509,30 @@ fn spawn_tiled_physics_spec(
 }
 
 ///|
-fn tiled_collision_object_transform(object : TiledObject) -> @math.Transform {
-  @math.Transform::from_translation(object.x, object.y) *
-  @math.Transform::from_rotation_deg(object.rotation)
+fn tiled_collision_object_transform(object : TiledObject) -> @math.Affine2 {
+  @math.Affine2::from_translation(Vec2(object.x, object.y)) *
+  @math.Affine2::from_rotation_deg(object.rotation)
 }
 
 ///|
 fn tiled_transform_points(
   points : Array[@math.Vec2],
-  transform : @math.Transform,
+  transform : @math.Affine2,
 ) -> Array[@math.Vec2] {
-  points.map(point => transform.apply_to_vec2(point))
+  points.map(point => transform.transform_point(point))
 }
 
 ///|
 fn tiled_shape_from_rect(
   size : @math.Vec2,
-  transform : @math.Transform,
+  transform : @math.Affine2,
 ) -> @physics2d.CollisionShape {
   let corners = tiled_transform_points(
     [
       @math.Vec2::zero(),
-      Vec2(size[X], 0.0),
-      Vec2(size[X], size[Y]),
-      Vec2(0.0, size[Y]),
+      Vec2(size.x, 0.0),
+      Vec2(size.x, size.y),
+      Vec2(0.0, size.y),
     ],
     transform,
   )
@@ -547,18 +549,18 @@ fn tiled_axis_aligned_rect(
   if corners.length() != 4 {
     return None
   }
-  let mut min_x = corners[0][X]
-  let mut max_x = corners[0][X]
-  let mut min_y = corners[0][Y]
-  let mut max_y = corners[0][Y]
+  let mut min_x = corners[0].x
+  let mut max_x = corners[0].x
+  let mut min_y = corners[0].y
+  let mut max_y = corners[0].y
   for point in corners {
-    min_x = if point[X] < min_x { point[X] } else { min_x }
-    max_x = if point[X] > max_x { point[X] } else { max_x }
-    min_y = if point[Y] < min_y { point[Y] } else { min_y }
-    max_y = if point[Y] > max_y { point[Y] } else { max_y }
+    min_x = if point.x < min_x { point.x } else { min_x }
+    max_x = if point.x > max_x { point.x } else { max_x }
+    min_y = if point.y < min_y { point.y } else { min_y }
+    max_y = if point.y > max_y { point.y } else { max_y }
   }
   let rect_size = @math.Vec2(max_x - min_x, max_y - min_y)
-  if rect_size[X] <= 0.0 || rect_size[Y] <= 0.0 {
+  if rect_size.x <= 0.0 || rect_size.y <= 0.0 {
     return None
   }
   let expected = [
@@ -593,8 +595,7 @@ fn tiled_ellipse_points(
   for index in 0..<count {
     let angle = index.to_double() * @cmath.PI * 2.0 / count.to_double()
     points.push(
-      center +
-      Vec2(center[X] * @cmath.cos(angle), center[Y] * @cmath.sin(angle)),
+      center + Vec2(center.x * @cmath.cos(angle), center.y * @cmath.sin(angle)),
     )
   }
   points
@@ -669,30 +670,22 @@ fn tiled_merge_rects(
   right_offset : @math.Vec2,
   right_size : @math.Vec2,
 ) -> (@math.Vec2, @math.Vec2)? {
-  if tiled_scalars_close(left_offset[Y], right_offset[Y]) &&
-    tiled_scalars_close(left_size[Y], right_size[Y]) {
-    if tiled_scalars_close(left_offset[X] + left_size[X], right_offset[X]) {
-      return Some(
-        (left_offset, Vec2(left_size[X] + right_size[X], left_size[Y])),
-      )
+  if tiled_scalars_close(left_offset.y, right_offset.y) &&
+    tiled_scalars_close(left_size.y, right_size.y) {
+    if tiled_scalars_close(left_offset.x + left_size.x, right_offset.x) {
+      return Some((left_offset, Vec2(left_size.x + right_size.x, left_size.y)))
     }
-    if tiled_scalars_close(right_offset[X] + right_size[X], left_offset[X]) {
-      return Some(
-        (right_offset, Vec2(left_size[X] + right_size[X], left_size[Y])),
-      )
+    if tiled_scalars_close(right_offset.x + right_size.x, left_offset.x) {
+      return Some((right_offset, Vec2(left_size.x + right_size.x, left_size.y)))
     }
   }
-  if tiled_scalars_close(left_offset[X], right_offset[X]) &&
-    tiled_scalars_close(left_size[X], right_size[X]) {
-    if tiled_scalars_close(left_offset[Y] + left_size[Y], right_offset[Y]) {
-      return Some(
-        (left_offset, Vec2(left_size[X], left_size[Y] + right_size[Y])),
-      )
+  if tiled_scalars_close(left_offset.x, right_offset.x) &&
+    tiled_scalars_close(left_size.x, right_size.x) {
+    if tiled_scalars_close(left_offset.y + left_size.y, right_offset.y) {
+      return Some((left_offset, Vec2(left_size.x, left_size.y + right_size.y)))
     }
-    if tiled_scalars_close(right_offset[Y] + right_size[Y], left_offset[Y]) {
-      return Some(
-        (right_offset, Vec2(left_size[X], left_size[Y] + right_size[Y])),
-      )
+    if tiled_scalars_close(right_offset.y + right_size.y, left_offset.y) {
+      return Some((right_offset, Vec2(left_size.x, left_size.y + right_size.y)))
     }
   }
   None
@@ -870,8 +863,7 @@ fn tiled_merge_properties(
 
 ///|
 fn tiled_points_close(left : @math.Vec2, right : @math.Vec2) -> Bool {
-  tiled_scalars_close(left[X], right[X]) &&
-  tiled_scalars_close(left[Y], right[Y])
+  tiled_scalars_close(left.x, right.x) && tiled_scalars_close(left.y, right.y)
 }
 
 ///|

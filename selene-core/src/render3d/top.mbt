@@ -511,7 +511,6 @@ fn mesh_local_radius(mesh : MeshAsset) -> Double {
 ///|
 priv struct CameraCullingContext3D {
   camera : @render3d_types.FrameCamera3D
-  has_forward : Bool
   forward_n : @math.Vec3
   right_n : @math.Vec3
   up_n : @math.Vec3
@@ -525,44 +524,28 @@ priv struct CameraCullingContext3D {
 fn camera_culling_context(
   camera : @render3d_types.FrameCamera3D,
 ) -> CameraCullingContext3D {
-  let forward = camera.target - camera.position
-  let has_forward = forward.length_squared() > 0.0000001
-  let forward_n = if has_forward {
-    forward.normalize()
-  } else {
-    Vec3(0.0, 0.0, -1.0)
-  }
-  let up = if camera.up.length_squared() > 0.0000001 {
-    camera.up.normalize()
-  } else {
-    Vec3(0.0, 1.0, 0.0)
-  }
-  let right = forward_n.cross(up)
-  let right_n = if right.length_squared() > 0.0000001 {
-    right.normalize()
-  } else {
-    Vec3(1.0, 0.0, 0.0)
-  }
-  let up_n = right_n.cross(forward_n).normalize()
+  let (right_n, up_n, forward_n) = @math.view_basis_rh(
+    camera.target - camera.position,
+    camera.up,
+  )
   let viewport = @system.get_viewport_size()
-  let aspect = if viewport[Y] <= 0.0000001 {
+  let aspect = if viewport.y <= 0.0000001 {
     1.0
   } else {
-    viewport[X] / viewport[Y]
+    viewport.x / viewport.y
   }
   let half_fovy_rad = camera.fov_y * 0.5 * @cmath.PI / 180.0
   let tan_half_y = @cmath.tan(half_fovy_rad)
   let ortho_size = camera.orthographic_size.unwrap_or(Vec2(20.0, 20.0))
   {
     camera,
-    has_forward,
     forward_n,
     right_n,
     up_n,
     tan_half_x: tan_half_y * aspect,
     tan_half_y,
-    half_width: abs_double(ortho_size[X]) * 0.5,
-    half_height: abs_double(ortho_size[Y]) * 0.5,
+    half_width: abs_double(ortho_size.x) * 0.5,
+    half_height: abs_double(ortho_size.y) * 0.5,
   }
 }
 
@@ -570,25 +553,19 @@ fn camera_culling_context(
 fn is_visible_in_camera_culling_context(
   context : CameraCullingContext3D,
   mesh : MeshAsset,
-  transform : @transform.Transform,
+  transform : @math.Affine3,
 ) -> Bool {
-  let scale = transform.scale
-  let max_scale_xy = if abs_double(scale.x) > abs_double(scale.y) {
-    abs_double(scale.x)
-  } else {
-    abs_double(scale.y)
-  }
-  let max_scale = if max_scale_xy > abs_double(scale.z) {
-    max_scale_xy
-  } else {
-    abs_double(scale.z)
-  }
-  let radius = mesh_local_radius(mesh) * max_scale
+  // The largest absolute row sum of A^T A bounds the squared stretch.
+  let { x_axis: x, y_axis: y, z_axis: z, .. } = transform
+  let xy = x.dot(y).abs()
+  let xz = x.dot(z).abs()
+  let yz = y.dot(z).abs()
+  let stretch_squared = (x.length_squared() + xy + xz).max(
+    (y.length_squared() + xy + yz).max(z.length_squared() + xz + yz),
+  )
+  let radius = mesh_local_radius(mesh) * stretch_squared.sqrt()
   let camera = context.camera
   let to_center = transform.translation - camera.position
-  if !context.has_forward {
-    return true
-  }
   let depth = to_center.dot(context.forward_n)
   if depth + radius < camera.near || depth - radius > camera.far {
     return false
@@ -621,7 +598,7 @@ fn is_visible_in_camera_culling_context(
 fn _is_visible_in_camera_frustum(
   camera : @render3d_types.FrameCamera3D,
   mesh : MeshAsset,
-  transform : @transform.Transform,
+  transform : @math.Affine3,
 ) -> Bool {
   is_visible_in_camera_culling_context(
     camera_culling_context(camera),
@@ -671,7 +648,7 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
     guard @transform.global_transform(entity) is Some(global_transform) else {
       continue
     }
-    let transform = global_transform.compute_transform()
+    let transform = global_transform.affine
     if camera_culling is Some(context) {
       if !is_visible_in_camera_culling_context(
           context,
@@ -683,11 +660,7 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
     }
     items.push({
       entity_id: Some(entity.id()),
-      transform: {
-        translation: transform.translation,
-        rotation: transform.rotation,
-        scale: transform.scale,
-      },
+      transform,
       mesh: renderer.mesh,
       material: renderer.material,
       cast_shadows: renderer.cast_shadows,
@@ -701,14 +674,17 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
       guard @transform.global_transform(entity) is Some(global_transform) else {
         continue
       }
-      let transform = global_transform.compute_transform()
+      let transform = global_transform.affine
       let local_direction = if light.direction.length_squared() <= 0.0000001 {
         @math.Vec3(0.0, 0.0, -1.0)
       } else {
-        light.direction.normalize()
+        light.direction.normalize_or_zero()
       }
       dir_lights.push({
-        direction: transform.rotation.rotate_vec3(local_direction),
+        direction: transform
+        .transform_vector(local_direction)
+        .try_normalize()
+        .unwrap_or(local_direction),
         color: light.color,
         intensity: light.intensity,
         shadows: light.shadows,
@@ -724,7 +700,7 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
       guard @transform.global_transform(entity) is Some(global_transform) else {
         continue
       }
-      let transform = global_transform.compute_transform()
+      let transform = global_transform.affine
       point_lights.push({
         position: transform.translation,
         color: light.color,
@@ -743,15 +719,16 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
       guard @transform.global_transform(entity) is Some(global_transform) else {
         continue
       }
-      let transform = global_transform.compute_transform()
+      let transform = global_transform.affine
       let local_direction = if light.direction.length_squared() <= 0.0000001 {
         @math.Vec3(0.0, -1.0, 0.0)
       } else {
-        light.direction.normalize()
+        light.direction.normalize_or_zero()
       }
-      let world_direction = transform.rotation
-        .rotate_vec3(local_direction)
-        .normalize()
+      let world_direction = transform
+        .transform_vector(local_direction)
+        .try_normalize()
+        .unwrap_or(local_direction)
       spot_lights.push({
         position: transform.translation,
         direction: world_direction,

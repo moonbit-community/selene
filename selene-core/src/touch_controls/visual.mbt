@@ -16,7 +16,7 @@ fn push_circle(
   @render2d.push_ui_circle({
     center,
     radius,
-    transform: @math.Transform::identity(),
+    transform: @math.Affine2::identity(),
     alpha_mode: alpha_mode(color),
     blend_mode: Alpha,
     fill_color: color,
@@ -37,7 +37,7 @@ fn push_label(
   @render2d.push_ui_text({
     text,
     position: center,
-    transform: @math.Transform::identity(),
+    transform: @math.Affine2::identity(),
     blend_mode: Alpha,
     style: {
       font: None,

@@ -43,13 +43,13 @@ test "level up shows panel and buttons" {
       survivors_runtime().levelup_button_icons[0],
     ).unwrap().screen_rect
   inspect(
-    icon_rect.position[X] ==
-    button_rect.position[X] + LEVELUP_BUTTON_ICON_OFFSET_X,
+    icon_rect.position.x ==
+    button_rect.position.x + LEVELUP_BUTTON_ICON_OFFSET_X,
     content="true",
   )
   inspect(
-    icon_rect.position[Y] ==
-    button_rect.position[Y] + LEVELUP_BUTTON_ICON_OFFSET_Y,
+    icon_rect.position.y ==
+    button_rect.position.y + LEVELUP_BUTTON_ICON_OFFSET_Y,
     content="true",
   )
   inspect(

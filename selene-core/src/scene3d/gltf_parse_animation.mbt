@@ -210,7 +210,7 @@ fn compute_vertex_normals(
     normals[index] = if normal.length_squared() <= 0.0000001 {
       Vec3(0.0, 1.0, 0.0)
     } else {
-      normal.normalize()
+      normal.normalize_or_zero()
     }
   }
   normals
@@ -368,16 +368,18 @@ fn parse_node_templates(
   mesh_templates : Array[MeshSceneTemplate?],
   camera_templates : Array[@camera3d.Camera3DComponent?],
   light_templates : Array[ParsedLightTemplate?],
-) -> Array[SceneNodeTemplate] {
-  guard root_object.get("nodes") is Some(nodes_json) else { return [] }
-  guard json_array(nodes_json) is Some(nodes) else { return [] }
+) -> Array[SceneNodeTemplate]? {
+  guard root_object.get("nodes") is Some(nodes_json) else { return Some([]) }
+  guard json_array(nodes_json) is Some(nodes) else { return Some([]) }
   let templates : Array[SceneNodeTemplate] = []
   for node_json in nodes {
     guard json_object(node_json) is Some(node_object) else {
       templates.push(SceneNodeTemplate())
       continue
     }
-    let transform = parse_node_transform(node_object)
+    guard parse_node_transform(node_object) is Some(transform) else {
+      return None
+    }
     let children = parse_node_children(node_object)
     let name = field_string(node_object, "name")
     let skin_index = field_int(node_object, "skin")
@@ -418,5 +420,5 @@ fn parse_node_templates(
       children,
     })
   }
-  templates
+  Some(templates)
 }

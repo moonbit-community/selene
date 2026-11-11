@@ -9,9 +9,9 @@ pub(all) struct ImageDrawCommand2D {
   image : @asset_types.ImageHandle
   destination : @math.Rect
   source : ImageRegion2D?
-  transform : @math.Transform
-  uv_transform : @math.Transform
-  repeat : @math.RepeatMode
+  transform : @math.Affine2
+  uv_transform : @math.Affine2
+  repeat : RepeatMode
   alpha_mode : @render.AlphaMode2D
   blend_mode : @render.BlendMode2D
   color : @render.Color
@@ -23,15 +23,15 @@ pub(all) struct TextStyle2D {
   family : String
   size : Double
   color : @render.Color
-  align : @math.HAlign
-  baseline : @math.VAlign
+  align : HAlign
+  baseline : VAlign
 }
 
 ///|
 pub(all) struct TextDrawCommand2D {
   text : String
   position : @math.Vec2
-  transform : @math.Transform
+  transform : @math.Affine2
   blend_mode : @render.BlendMode2D
   style : TextStyle2D
 }
@@ -39,7 +39,7 @@ pub(all) struct TextDrawCommand2D {
 ///|
 pub(all) struct RectDrawCommand2D {
   rect : @math.Rect
-  transform : @math.Transform
+  transform : @math.Affine2
   alpha_mode : @render.AlphaMode2D
   blend_mode : @render.BlendMode2D
   fill_color : @render.Color
@@ -50,7 +50,7 @@ pub(all) struct RectDrawCommand2D {
 pub(all) struct CircleDrawCommand2D {
   center : @math.Vec2
   radius : Double
-  transform : @math.Transform
+  transform : @math.Affine2
   alpha_mode : @render.AlphaMode2D
   blend_mode : @render.BlendMode2D
   fill_color : @render.Color
@@ -60,7 +60,7 @@ pub(all) struct CircleDrawCommand2D {
 ///|
 pub(all) struct GradientRectDrawCommand2D {
   rect : @math.Rect
-  transform : @math.Transform
+  transform : @math.Affine2
   alpha_mode : @render.AlphaMode2D
   blend_mode : @render.BlendMode2D
   color_start : @render.Color

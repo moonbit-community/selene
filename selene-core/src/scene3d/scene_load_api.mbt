@@ -61,7 +61,7 @@ fn SceneNodeTemplate::SceneNodeTemplate() -> SceneNodeTemplate {
     name: None,
     transform: {
       translation: @math.Vec3::zero(),
-      rotation: @math.Quat::identity(),
+      rotation: @math.Rotation3::identity(),
       scale: @math.Vec3::one(),
     },
     renderers: [],

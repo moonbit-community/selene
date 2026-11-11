@@ -24,8 +24,8 @@ pub fn CameraViewport::CameraViewport(
   position : @math.Vec2,
   size : @math.Vec2,
 ) -> CameraViewport {
-  let width = if size[X] < 0.0 { 0.0 } else { size[X] }
-  let height = if size[Y] < 0.0 { 0.0 } else { size[Y] }
+  let width = if size.x < 0.0 { 0.0 } else { size.x }
+  let height = if size.y < 0.0 { 0.0 } else { size.y }
   { position, size: Vec2(width, height), }
 }
 
@@ -155,7 +155,7 @@ pub fn orthographic_projections() -> @ecs.ComponentStore[OrthographicProjection]
 
 ///|
 fn projection_scale(scale : Double) -> Double {
-  if scale <= 0.0 {
+  if scale <= 0.0 || !scale.is_finite() {
     1.0
   } else {
     scale
@@ -190,32 +190,37 @@ pub fn Camera::with_pass(self : Camera, pass : CameraPass2D) -> Camera {
 ///|
 pub fn Camera::contains_screen_point(self : Camera, point : @math.Vec2) -> Bool {
   let viewport = self.viewport_rect()
-  point[X] >= viewport.position[X] &&
-  point[X] <= viewport.position[X] + viewport.size[X] &&
-  point[Y] >= viewport.position[Y] &&
-  point[Y] <= viewport.position[Y] + viewport.size[Y]
+  point.x >= viewport.position.x &&
+  point.x <= viewport.position.x + viewport.size.x &&
+  point.y >= viewport.position.y &&
+  point.y <= viewport.position.y + viewport.size.y
 }
 
 ///|
+fn viewport_to_world_affine(
+  camera_transform : @transform.GlobalTransform,
+  projection : OrthographicProjection,
+  viewport : @math.Rect,
+) -> @math.Affine2 {
+  let world_units_per_pixel = projection_scale(projection.scale) /
+    @system.get_zoom()
+  let center = viewport.position + viewport.size.scalar_mul(0.5)
+  camera_transform.affine.project_xy() *
+  @math.Affine2::from_scale(Vec2(world_units_per_pixel, world_units_per_pixel)) *
+  @math.Affine2::from_translation(Vec2(-center.x, -center.y))
+}
+
+///|
+/// Projects onto the viewport. Returns None if the camera's XY plane collapses.
 pub fn Camera::world_to_viewport(
   self : Camera,
   camera_transform : @transform.GlobalTransform,
   projection : OrthographicProjection,
   world_position : @math.Vec2,
-) -> @math.Vec2 {
-  let world_point = @math.Vec3(world_position[X], world_position[Y], 0.0)
-  let view_point = match camera_transform.affine.inverse() {
-    Some(inverse_camera) => inverse_camera.transform_point3(world_point)
-    None => world_point
-  }
-  let pixels_per_world_unit = @system.get_zoom() /
-    projection_scale(projection.scale)
-  let viewport = self.viewport_rect()
-  let viewport_center = viewport.position + viewport.size.scalar_mul(0.5)
-  Vec2(
-    viewport_center[X] + view_point.x * pixels_per_world_unit,
-    viewport_center[Y] + view_point.y * pixels_per_world_unit,
-  )
+) -> @math.Vec2? {
+  viewport_to_world_affine(camera_transform, projection, self.viewport_rect())
+  .inverse()
+  .map(transform => transform.transform_point(world_position))
 }
 
 ///|
@@ -225,17 +230,9 @@ pub fn Camera::viewport_to_world_2d(
   projection : OrthographicProjection,
   viewport_position : @math.Vec2,
 ) -> @math.Vec2 {
-  let pixels_per_world_unit = @system.get_zoom() /
-    projection_scale(projection.scale)
-  let viewport = self.viewport_rect()
-  let viewport_center = viewport.position + viewport.size.scalar_mul(0.5)
-  let view_point = @math.Vec3(
-    (viewport_position[X] - viewport_center[X]) / pixels_per_world_unit,
-    (viewport_position[Y] - viewport_center[Y]) / pixels_per_world_unit,
-    0.0,
+  viewport_to_world_affine(camera_transform, projection, self.viewport_rect()).transform_point(
+    viewport_position,
   )
-  let world_point = camera_transform.transform_point(view_point)
-  Vec2(world_point.x, world_point.y)
 }
 
 ///|
@@ -247,12 +244,14 @@ test "camera world_to_viewport roundtrip" {
     @transform.Transform::from_xyz(100.0, 50.0, 0.0),
   )
   let world = @math.Vec2(132.5, 64.0)
-  let viewport = camera.world_to_viewport(camera_transform, projection, world)
+  let viewport = camera
+    .world_to_viewport(camera_transform, projection, world)
+    .unwrap()
   let world2 = camera.viewport_to_world_2d(
     camera_transform, projection, viewport,
   )
-  assert_eq(world2[X], world[X])
-  assert_eq(world2[Y], world[Y])
+  assert_eq(world2.x, world.x)
+  assert_eq(world2.y, world.y)
 }
 
 ///|
@@ -260,7 +259,7 @@ test "camera world_to_viewport respects camera rotation" {
   @system.configure_display(100.0, 100.0, 1.0)
   let camera = Camera()
   let projection = OrthographicProjection()
-  let quarter_turn = @math.Quat::from_axis_angle(
+  let quarter_turn = @math.Rotation3::from_axis_angle(
     @math.Vec3::z_axis(),
     1.5707963267948966,
   )
@@ -269,13 +268,11 @@ test "camera world_to_viewport respects camera rotation" {
     rotation: quarter_turn,
     scale: @math.Vec3::one(),
   })
-  let viewport = camera.world_to_viewport(
-    camera_transform,
-    projection,
-    Vec2(0.0, 10.0),
-  )
-  assert_eq(viewport[X], 60.0)
-  assert_eq(viewport[Y], 50.0)
+  let viewport = camera
+    .world_to_viewport(camera_transform, projection, Vec2(0.0, 10.0))
+    .unwrap()
+  assert_eq(viewport.x, 60.0)
+  assert_eq(viewport.y, 50.0)
 }
 
 ///|
@@ -288,16 +285,36 @@ test "camera viewport offsets world_to_viewport into viewport rect" {
   let camera_transform = @transform.GlobalTransform::from_transform(
     @transform.Transform::default(),
   )
-  let viewport = camera.world_to_viewport(
-    camera_transform,
-    projection,
-    @math.Vec2::zero(),
-  )
-  assert_eq(viewport[X], 60.0)
-  assert_eq(viewport[Y], 30.0)
+  let viewport = camera
+    .world_to_viewport(camera_transform, projection, @math.Vec2::zero())
+    .unwrap()
+  assert_eq(viewport.x, 60.0)
+  assert_eq(viewport.y, 30.0)
   let world = camera.viewport_to_world_2d(
     camera_transform, projection, viewport,
   )
-  assert_eq(world[X], 0.0)
-  assert_eq(world[Y], 0.0)
+  assert_eq(world.x, 0.0)
+  assert_eq(world.y, 0.0)
+}
+
+///|
+test "camera viewport projection inverts the same XY plane it draws" {
+  @system.configure_display(100.0, 100.0, 1.0)
+  let camera = Camera()
+  let projection = OrthographicProjection()
+  let pose = @transform.GlobalTransform::from_transform(
+    @transform.Transform::from_rotation(
+      @math.Rotation3::from_axis_angle(@math.Vec3::x_axis(), 0.7),
+    ).with_translation(Vec3(1.0, 2.0, 3.0)),
+  )
+  let world = @math.Vec2(3.0, 5.0)
+  let viewport = camera.world_to_viewport(pose, projection, world).unwrap()
+  assert_true(
+    camera.viewport_to_world_2d(pose, projection, viewport).distance(world) <
+    1.0e-10,
+  )
+  let collapsed = @transform.GlobalTransform::from_transform(
+    @transform.Transform::from_scale(Vec3(0.0, 1.0, 1.0)),
+  )
+  assert_true(camera.world_to_viewport(collapsed, projection, world) is None)
 }

@@ -341,20 +341,19 @@ fn ldtk_spawn_level_background(
     let image = @asset.load_image(instance.project.resolve_path(rel_path))
     let mut image_size = size
     let mut image_offset = @math.Vec2::zero()
-    let mut image_transform = @math.Transform::identity()
+    let mut image_transform = @math.Affine2::identity()
     if level.bg_pos is Some(bg_pos) {
       image_offset = bg_pos.top_left_px
       if bg_pos.crop_width > 0.0 && bg_pos.crop_height > 0.0 {
         image_size = Vec2(bg_pos.crop_width, bg_pos.crop_height)
       }
-      image_transform = @math.Transform::from_scale(
-        bg_pos.scale[X],
-        bg_pos.scale[Y],
+      image_transform = @math.Affine2::from_scale(
+        Vec2(bg_pos.scale.x, bg_pos.scale.y),
       )
     }
     let scaled_size = @math.Vec2(
-      image_size[X] * image_transform.a.abs(),
-      image_size[Y] * image_transform.d.abs(),
+      image_size.x * image_transform.a.abs(),
+      image_size.y * image_transform.d.abs(),
     )
     ignore(
       @ecs.require_current_world().spawn(
@@ -723,8 +722,8 @@ fn ldtk_spawn_layer_entities(
     let spatial = ldtk_spatial(spawn_offset, zindex)
     draft.add(spatial)
     draft.add(LdtkGridCoords::{
-      x: entity_instance.grid[X].to_int(),
-      y: entity_instance.grid[Y].to_int(),
+      x: entity_instance.grid.x.to_int(),
+      y: entity_instance.grid.y.to_int(),
     })
     draft.add(LdtkEntityIid::{ iid: entity_instance.iid, })
     if is_worldly {

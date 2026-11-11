@@ -1,5 +1,9 @@
 import {
   "moonbitlang/core/debug",
-  "Milky2018/moon_rapier/core" @rcore,
+  "moonbitlang/core/cmp",
   "moonbitlang/core/math" @cmath,
 }
+
+import {
+  "moonbitlang/core/bench",
+} for "test"

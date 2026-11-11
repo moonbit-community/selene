@@ -164,7 +164,7 @@ pub(all) enum CubemapAsset3D {
 pub(all) struct Skybox3D {
   cubemap : CubemapHandle
   brightness : Double
-  rotation : @math.Quat
+  rotation : @math.Rotation3
 }
 
 ///|
@@ -289,14 +289,6 @@ pub(all) struct CascadeShadowConfig3D {
 }
 
 ///|
-#derive(Eq, Debug)
-pub(all) struct FrameTransform3D {
-  translation : @math.Vec3
-  rotation : @math.Quat
-  scale : @math.Vec3
-}
-
-///|
 pub(all) struct FrameCamera3D {
   position : @math.Vec3
   target : @math.Vec3
@@ -312,7 +304,7 @@ pub(all) struct FrameCamera3D {
 ///|
 pub(all) struct RenderItem3D {
   entity_id : UInt32?
-  transform : FrameTransform3D
+  transform : @math.Affine3
   mesh : MeshHandle
   material : MaterialHandle
   cast_shadows : Bool
@@ -367,8 +359,8 @@ pub fn apply_texture_transform3d(
   let sin_rotation = @cmath.sin(transform.rotation)
   let cos_rotation = @cmath.cos(transform.rotation)
   Vec2(
-    scaled[X] * cos_rotation - scaled[Y] * sin_rotation + transform.offset[X],
-    scaled[X] * sin_rotation + scaled[Y] * cos_rotation + transform.offset[Y],
+    scaled.x * cos_rotation - scaled.y * sin_rotation + transform.offset.x,
+    scaled.x * sin_rotation + scaled.y * cos_rotation + transform.offset.y,
   )
 }
 
@@ -403,7 +395,7 @@ pub fn cubemap_asset_six_faces(faces : CubemapFaces3D) -> CubemapAsset3D {
 pub fn Skybox3D::Skybox3D(
   cubemap : CubemapHandle,
   brightness~ : Double = 1.0,
-  rotation~ : @math.Quat = @math.Quat::identity(),
+  rotation~ : @math.Rotation3 = @math.Rotation3::identity(),
 ) -> Skybox3D {
   {
     cubemap,

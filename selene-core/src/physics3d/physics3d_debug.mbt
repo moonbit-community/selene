@@ -229,15 +229,15 @@ fn build_halfspace_wire(normal : @math.Vec3) -> Array[ColliderWireSegment3D] {
   let n = if normal.length_squared() <= 0.0000001 {
     @math.Vec3::y_axis()
   } else {
-    normal.normalize()
+    normal.normalize_or_zero()
   }
   let tangent_seed = if n.y.abs() < 0.9 {
     @math.Vec3::y_axis()
   } else {
     @math.Vec3::x_axis()
   }
-  let tangent = n.cross(tangent_seed).normalize()
-  let bitangent = n.cross(tangent).normalize()
+  let tangent = n.cross(tangent_seed).normalize_or_zero()
+  let bitangent = n.cross(tangent).normalize_or_zero()
   let size = 5.0
   let a = tangent.scalar_mul(size) + bitangent.scalar_mul(size)
   let b = tangent.scalar_mul(size) - bitangent.scalar_mul(size)

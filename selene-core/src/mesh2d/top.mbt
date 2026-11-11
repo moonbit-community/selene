@@ -92,8 +92,8 @@ pub fn circle(radius : Double) -> Mesh2dHandle {
 }
 
 ///|
-fn centered_quad_transform(size : @math.Vec2) -> @math.Transform {
-  @math.Transform::from_translation(-size[X] / 2.0, -size[Y] / 2.0)
+fn centered_quad_transform(size : @math.Vec2) -> @math.Affine2 {
+  @math.Affine2::from_translation(Vec2(-size.x / 2.0, -size.y / 2.0))
 }
 
 ///|
@@ -117,8 +117,8 @@ pub fn render_mesh2d_system(delta : Double) -> Unit {
     guard material is Some(material) else { continue }
     let sorting = @render2d.entity_sorting2d(entity)
     let depth = @render2d.sort_depth_for_transform(global_transform, sorting)
-    let transform = global_transform.compute_transform()
-    let base_pos = @math.Vec2(transform.translation.x, transform.translation.y)
+    let translation = global_transform.translation()
+    let base_pos = @math.Vec2(translation.x, translation.y)
     let parallax = @parallax2d.inherited_parallax2d(entity)
     if camera_views.is_empty() {
       let screen_pos = @parallax2d.parallax_world_position(
@@ -192,7 +192,7 @@ fn push_mesh2d_draw_command(
   material : @material2d.ColorMaterial,
   depth : Double,
   snapped_pos : @math.Vec2,
-  screen_transform : @math.Transform,
+  screen_transform : @math.Affine2,
   camera_entity_id : UInt32?,
   sorting : @render2d.Sorting2d,
 ) -> Unit {
@@ -294,7 +294,7 @@ fn push_mesh2d_draw_command(
 fn mesh2d_bounds(
   mesh_asset : Mesh2dAsset,
   snapped_pos : @math.Vec2,
-  screen_transform : @math.Transform,
+  screen_transform : @math.Affine2,
 ) -> @math.Rect {
   match mesh_asset.primitive {
     Rectangle(size) =>

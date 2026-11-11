@@ -514,8 +514,8 @@ fn compute_dirty_layout_roots(
     runtime.tree.compute_layout_with_measure(
       root_runtime.node_id,
       Size(
-        width=@style_helpers.available_space_definite(viewport[X]),
-        height=@style_helpers.available_space_definite(viewport[Y]),
+        width=@style_helpers.available_space_definite(viewport.x),
+        height=@style_helpers.available_space_definite(viewport.y),
       ),
       measure_node,
     ) catch {

@@ -3,8 +3,8 @@
 pub(all) struct FixedJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
-  local_basis1 : @math.Quat
-  local_basis2 : @math.Quat
+  local_basis1 : @math.Rotation3
+  local_basis2 : @math.Rotation3
 }
 
 ///|
@@ -55,7 +55,7 @@ pub(all) struct SpringJoint {
 pub(all) struct SphericalJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
-  motor_target : (@math.Quat, Double, Double)?
+  motor_target : (@math.Rotation3, Double, Double)?
 }
 
 ///|

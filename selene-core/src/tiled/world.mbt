@@ -222,10 +222,10 @@ fn tiled_world_update_chunking(world_entity : @ecs.Entity) -> Unit {
       world_origin + map_offset,
       loaded,
     )
-    if min[X] <= view_max[X] &&
-      max[X] >= view_min[X] &&
-      min[Y] <= view_max[Y] &&
-      max[Y] >= view_min[Y] {
+    if min.x <= view_max.x &&
+      max.x >= view_min.x &&
+      min.y <= view_max.y &&
+      max.y >= view_min.y {
       visible.push(loaded.index)
     }
   }
@@ -254,23 +254,23 @@ fn tiled_camera_view_bounds() -> (@math.Vec2, @math.Vec2) {
     return (@math.Vec2::zero(), @system.get_viewport_size())
   }
   let first_bounds = camera_views[0].world_bounds()
-  let mut min_x = first_bounds.position[X]
-  let mut min_y = first_bounds.position[Y]
-  let mut max_x = first_bounds.position[X] + first_bounds.size[X]
-  let mut max_y = first_bounds.position[Y] + first_bounds.size[Y]
+  let mut min_x = first_bounds.position.x
+  let mut min_y = first_bounds.position.y
+  let mut max_x = first_bounds.position.x + first_bounds.size.x
+  let mut max_y = first_bounds.position.y + first_bounds.size.y
   for camera_view in camera_views {
     let bounds = camera_view.world_bounds()
-    if bounds.position[X] < min_x {
-      min_x = bounds.position[X]
+    if bounds.position.x < min_x {
+      min_x = bounds.position.x
     }
-    if bounds.position[Y] < min_y {
-      min_y = bounds.position[Y]
+    if bounds.position.y < min_y {
+      min_y = bounds.position.y
     }
-    if bounds.position[X] + bounds.size[X] > max_x {
-      max_x = bounds.position[X] + bounds.size[X]
+    if bounds.position.x + bounds.size.x > max_x {
+      max_x = bounds.position.x + bounds.size.x
     }
-    if bounds.position[Y] + bounds.size[Y] > max_y {
-      max_y = bounds.position[Y] + bounds.size[Y]
+    if bounds.position.y + bounds.size.y > max_y {
+      max_y = bounds.position.y + bounds.size.y
     }
   }
   (Vec2(min_x, min_y), Vec2(max_x, max_y))
@@ -293,9 +293,9 @@ fn tiled_world_spawn_loaded_map(
   }
   let child_offset = @math.Vec2(
     loaded_map.world_map.x.to_double() +
-    instance.settings.map_settings.position[X],
+    instance.settings.map_settings.position.x,
     loaded_map.world_map.y.to_double() +
-    instance.settings.map_settings.position[Y],
+    instance.settings.map_settings.position.y,
   )
   let map_settings = {
     ..instance.settings.map_settings,

@@ -37,13 +37,11 @@ fn spawn_pickable_camera(
   camera_entity_draft.add_to(
     @transform.spatials(),
     Spatial(
-      @transform.GlobalTransform::from_transform(
-        @transform.Transform::from_xyz(
-          viewport.size[X] * 0.5,
-          viewport.size[Y] * 0.5,
-          0.0,
-        ),
-      ).compute_transform(),
+      @transform.Transform::from_xyz(
+        viewport.size.x * 0.5,
+        viewport.size.y * 0.5,
+        0.0,
+      ),
     ),
   )
   camera_entity_draft.add_to(@visibility.render_layers(), layers)
@@ -62,11 +60,7 @@ fn spawn_pickable_shape(
   entity_draft.add_to(shapes(), shape)
   entity_draft.add_to(
     @transform.spatials(),
-    Spatial(
-      @transform.GlobalTransform::from_transform(
-        @transform.Transform::from_xyz(position[X], position[Y], 0.0),
-      ).compute_transform(),
-    ),
+    Spatial(@transform.Transform::from_xyz(position.x, position.y, 0.0)),
   )
   entity_draft.add_to(@visibility.render_layers(), layers)
   let entity = entity_draft.spawn()
@@ -148,6 +142,49 @@ test "pickable click supports ball shapes" {
     inspect(
       left_events.all(fn(event) { event.entity == entity }),
       content="true",
+    )
+  })
+}
+
+///|
+test "pickable uses the sheared world plane and rejects a collapsed shape" {
+  with_pickable_test_world(fn() raise {
+    let world = @ecs.require_current_world()
+    let parent = world.spawn1(
+      @transform.Spatial(@transform.Transform::from_scale(Vec3(3.0, 1.0, 1.0))),
+    )
+    let child = world.spawn(
+      (
+        Pickable(),
+        CollisionShape::Rect(size=Vec2(10.0, 10.0), offset=@math.Vec2::zero()),
+        @transform.Spatial(
+          @transform.Transform::from_rotation(
+            @math.Rotation3::from_axis_angle(@math.Vec3::z_axis(), 0.7),
+          ),
+        ),
+      ),
+      parent~,
+    )
+    @transform.transform_propagate_system(0.0)
+    let pose = @transform.global_transform(child).unwrap()
+    let render = @camera.world_transform_2d(pose)
+    let inside = render.transform_point(Vec2(9.0, 1.0))
+    let outside = render.transform_point(Vec2(11.0, 1.0))
+    assert_true(hit_test_pickable(child, inside, inside, inside, None))
+    assert_false(hit_test_pickable(child, outside, outside, outside, None))
+    @transform.set_local_transform(
+      parent,
+      @transform.Transform::from_scale(Vec3(0.0, 1.0, 1.0)),
+    )
+    let inside_old_fallback = @math.Vec2(1.0, 1.0)
+    assert_false(
+      hit_test_pickable(
+        child,
+        inside_old_fallback,
+        inside_old_fallback,
+        inside_old_fallback,
+        None,
+      ),
     )
   })
 }

@@ -1,4 +1,41 @@
 ///|
+fn vec3_to_rapier(value : @math.Vec3) -> @core.Vec3 {
+  Vec3(
+    Float::from_double(value.x),
+    Float::from_double(value.y),
+    Float::from_double(value.z),
+  )
+}
+
+///|
+fn vec3_from_rapier(value : @core.Vec3) -> @math.Vec3 {
+  Vec3(value.x.to_double(), value.y.to_double(), value.z.to_double())
+}
+
+///|
+fn rotation_to_rapier(rotation : @math.Rotation3) -> @core.Quat {
+  let self = rotation.to_quat()
+  Quat(
+    Float::from_double(self.x),
+    Float::from_double(self.y),
+    Float::from_double(self.z),
+    Float::from_double(self.w),
+  )
+}
+
+///|
+fn rotation_from_rapier(value : @core.Quat) -> @math.Rotation3 {
+  @math.Rotation3::try_from_quat(
+    Quat(
+      value.x.to_double(),
+      value.y.to_double(),
+      value.z.to_double(),
+      value.w.to_double(),
+    ),
+  ).unwrap_or_default()
+}
+
+///|
 fn interaction_groups(
   memberships : Int32,
   filters : Int32,
@@ -18,7 +55,9 @@ fn cleanup_world_components() -> Unit {
     let entity = pair.0
     let handle = pair.1
     let missing_component = !colliders().contains(entity)
-    if !entity.is_alive() || missing_component {
+    if !entity.is_alive() ||
+      missing_component ||
+      collider_transform(entity, attached_rigid_body_entity(entity)) is None {
       world.colliders.remove(handle) |> ignore
       collider_handles.remove(entity)
       collider_entities_by_key.remove(collider_key(handle))
@@ -28,7 +67,9 @@ fn cleanup_world_components() -> Unit {
   for pair in body_handles.to_array() {
     let entity = pair.0
     let handle = pair.1
-    if !entity.is_alive() || !rigid_bodies().contains(entity) {
+    if !entity.is_alive() ||
+      !rigid_bodies().contains(entity) ||
+      current_world_transform(entity) is None {
       world.bodies.remove(handle) |> ignore
       body_handles.remove(entity)
     }
@@ -102,11 +143,11 @@ fn collect_events() -> Unit {
     contact_force_event_bus.send({
       entity_a,
       entity_b,
-      total_force: @math.vec3_from_rapier(contact_force_event.total_force()),
+      total_force: vec3_from_rapier(contact_force_event.total_force()),
       total_force_magnitude: contact_force_event
       .total_force_magnitude()
       .to_double(),
-      max_force_direction: @math.vec3_from_rapier(
+      max_force_direction: vec3_from_rapier(
         contact_force_event.max_force_direction(),
       ),
       max_force_magnitude: contact_force_event.max_force_magnitude().to_double(),
@@ -123,10 +164,10 @@ fn fixed_joint_to_rapier(
     @dynamics.JointAxesMask3DReal::all(),
   )
   .contacts_enabled(contacts_enabled)
-  .local_anchor1(joint.local_anchor1.to_rapier())
-  .local_anchor2(joint.local_anchor2.to_rapier())
-  .local_basis1(joint.local_basis1.to_rapier())
-  .local_basis2(joint.local_basis2.to_rapier())
+  .local_anchor1(vec3_to_rapier(joint.local_anchor1))
+  .local_anchor2(vec3_to_rapier(joint.local_anchor2))
+  .local_basis1(rotation_to_rapier(joint.local_basis1))
+  .local_basis2(rotation_to_rapier(joint.local_basis2))
   .build()
 }
 
@@ -150,11 +191,11 @@ fn revolute_joint_to_generic(
       locked,
     )
     .contacts_enabled(contacts_enabled)
-    .local_axis1(joint.axis.to_rapier())
-    .local_axis2(joint.axis.to_rapier())
+    .local_axis1(vec3_to_rapier(joint.axis))
+    .local_axis2(vec3_to_rapier(joint.axis))
   builder = builder
-    .local_anchor1(joint.local_anchor1.to_rapier())
-    .local_anchor2(joint.local_anchor2.to_rapier())
+    .local_anchor1(vec3_to_rapier(joint.local_anchor1))
+    .local_anchor2(vec3_to_rapier(joint.local_anchor2))
   if joint.limits is Some((min, max)) {
     builder = builder.limits(
       AngX,
@@ -202,11 +243,11 @@ fn prismatic_joint_to_rapier(
       locked,
     )
     .contacts_enabled(contacts_enabled)
-    .local_axis1(joint.axis.to_rapier())
-    .local_axis2(joint.axis.to_rapier())
+    .local_axis1(vec3_to_rapier(joint.axis))
+    .local_axis2(vec3_to_rapier(joint.axis))
   builder = builder
-    .local_anchor1(joint.local_anchor1.to_rapier())
-    .local_anchor2(joint.local_anchor2.to_rapier())
+    .local_anchor1(vec3_to_rapier(joint.local_anchor1))
+    .local_anchor2(vec3_to_rapier(joint.local_anchor2))
   if joint.limits is Some((min, max)) {
     builder = builder.limits(
       LinX,
@@ -244,8 +285,8 @@ fn spherical_joint_to_rapier(
     @dynamics.JointAxesMask3DReal::lin_axes(),
   ).contacts_enabled(contacts_enabled)
   builder = builder
-    .local_anchor1(joint.local_anchor1.to_rapier())
-    .local_anchor2(joint.local_anchor2.to_rapier())
+    .local_anchor1(vec3_to_rapier(joint.local_anchor1))
+    .local_anchor2(vec3_to_rapier(joint.local_anchor2))
   builder.build()
 }
 
@@ -258,8 +299,8 @@ fn rope_joint_to_rapier(
     @dynamics.RopeJointBuilder3::RopeJointBuilder3(
       Float::from_double(joint.max_distance),
     )
-    .local_anchor1(joint.local_anchor1.to_rapier())
-    .local_anchor2(joint.local_anchor2.to_rapier())
+    .local_anchor1(vec3_to_rapier(joint.local_anchor1))
+    .local_anchor2(vec3_to_rapier(joint.local_anchor2))
     .build(),
   )
   .set_contacts_enabled(contacts_enabled)
@@ -275,8 +316,8 @@ fn spring_joint_to_rapier(
     @dynamics.RopeJointBuilder3::RopeJointBuilder3(
       Float::from_double(joint.rest_length),
     )
-    .local_anchor1(joint.local_anchor1.to_rapier())
-    .local_anchor2(joint.local_anchor2.to_rapier())
+    .local_anchor1(vec3_to_rapier(joint.local_anchor1))
+    .local_anchor2(vec3_to_rapier(joint.local_anchor2))
     .motor_position(
       Float::from_double(joint.rest_length),
       Float::from_double(joint.stiffness),
@@ -307,10 +348,10 @@ fn multibody_joint_to_rapier(
           @dynamics.JointAxesMask3DReal::lin_axes(),
         )
         .contacts_enabled(contacts_enabled)
-        .local_anchor1(spherical_joint.local_anchor1.to_rapier())
-        .local_anchor2(spherical_joint.local_anchor2.to_rapier())
+        .local_anchor1(vec3_to_rapier(spherical_joint.local_anchor1))
+        .local_anchor2(vec3_to_rapier(spherical_joint.local_anchor2))
       if spherical_joint.motor_target is Some((target, stiffness, damping)) {
-        let axis = target.to_rapier().to_scaled_axis()
+        let axis = rotation_to_rapier(target).to_scaled_axis()
         builder = builder
           .motor_position(
             AngX,
@@ -354,7 +395,7 @@ fn controller_to_rapier(
   )
   .with_snap_to_ground(controller.snap_to_ground)
   .with_normal_nudge_factor(Float::from_double(controller.normal_nudge_factor))
-  .with_up(controller.up.to_rapier())
+  .with_up(vec3_to_rapier(controller.up))
 }
 
 ///|
@@ -366,17 +407,19 @@ fn apply_character_controller_translation(
   if translation.length_squared() <= 0.000000001 {
     return
   }
-  let transform = current_world_transform(entity).unwrap_or_default()
+  guard current_world_transform(entity) is Some(transform) else { return }
   let target = transform.translation + translation
   let target_world_transform = { ..transform, translation: target, }
-  set_entity_world_transform(entity, target_world_transform)
+  guard set_entity_world_transform(entity, target_world_transform) else {
+    return
+  }
   match rigid_bodies().get(entity) {
     Some(KinematicPositionBased) =>
       match body_handles().get(entity) {
         Some(handle) =>
           match physics3d_world().bodies.get_mut(handle) {
             Some(body) =>
-              body.set_next_kinematic_translation(target.to_rapier())
+              body.set_next_kinematic_translation(vec3_to_rapier(target))
             None => ()
           }
         None => ()
@@ -392,7 +435,7 @@ fn apply_character_controller_translation(
           velocities().set(entity, { ..current, linvel: velocity, })
         } else if body_handles().get(entity) is Some(handle) &&
           physics3d_world().bodies.get_mut(handle) is Some(body) {
-          body.set_linvel(velocity.to_rapier())
+          body.set_linvel(vec3_to_rapier(velocity))
         }
       }
     _ => ()
@@ -453,17 +496,17 @@ fn to_query_shape(shape : Collider) -> @collision.Shape3D {
         Float::from_double(border_radius),
       )
     Halfspace(normal) =>
-      @collision.Shape3D::halfspace(normal.normalize().to_rapier())
+      @collision.Shape3D::halfspace(vec3_to_rapier(normal.normalize_or_zero()))
     ConvexHull(points) =>
-      ConvexHull(points.map(point => point.to_rapier()), 0.0)
+      ConvexHull(points.map(point => vec3_to_rapier(point)), 0.0)
     TriMesh(vertices, indices) =>
-      TriMesh(vertices.map(point => point.to_rapier()), indices)
+      TriMesh(vertices.map(point => vec3_to_rapier(point)), indices)
     Heightfield(heights, nrows, ncols, scale) =>
       @collision.ColliderBuilder3D::heightfield(
         heights.map(Float::from_double),
         nrows,
         ncols,
-        scale.to_rapier(),
+        vec3_to_rapier(scale),
       )
       .map(builder => builder.build().shape())
       .unwrap_or(@collision.Shape3D::ball(0.0))
@@ -473,20 +516,26 @@ fn to_query_shape(shape : Collider) -> @collision.Shape3D {
 ///|
 fn to_query_shape_with_rotation(
   shape : Collider,
-  rotation : @math.Quat,
-) -> (@collision.Shape3D, @math.Quat) {
+  rotation : @math.Rotation3,
+) -> (@collision.Shape3D, @math.Rotation3) {
   match shape {
     CapsuleX(_, _) =>
       (
         to_query_shape(shape),
         rotation *
-        @math.Quat::from_axis_angle(@math.Vec3::z_axis(), -1.5707963267948966),
+        @math.Rotation3::from_axis_angle(
+          @math.Vec3::z_axis(),
+          -1.5707963267948966,
+        ),
       )
     CapsuleZ(_, _) =>
       (
         to_query_shape(shape),
         rotation *
-        @math.Quat::from_axis_angle(@math.Vec3::x_axis(), 1.5707963267948966),
+        @math.Rotation3::from_axis_angle(
+          @math.Vec3::x_axis(),
+          1.5707963267948966,
+        ),
       )
     _ => (to_query_shape(shape), rotation)
   }
@@ -532,7 +581,7 @@ fn to_query_filter(query_filter : QueryFilter) -> @collision.QueryFilter3DReal {
 fn shape_world_aabb(
   shape : @collision.Shape3D,
   translation : @math.Vec3,
-  rotation : @math.Quat,
+  rotation : @math.Rotation3,
 ) -> @core.Aabb3 {
   let local_aabb = shape.local_aabb()
   let mins = local_aabb.mins
@@ -564,5 +613,5 @@ fn shape_world_aabb(
       Double::max(max_point.z, point.z),
     )
   }
-  @core.Aabb3::from_points(min_point.to_rapier(), max_point.to_rapier())
+  @core.Aabb3::from_points(vec3_to_rapier(min_point), vec3_to_rapier(max_point))
 }

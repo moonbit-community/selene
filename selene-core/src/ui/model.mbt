@@ -576,16 +576,16 @@ pub fn Node::absolute(
   overflow_clip_margin~ : OverflowClipMargin = OverflowClipMargin::content_box(),
   active~ : Bool = true,
 ) -> Node {
-  let (width, height) = if size[X] >= 0.0 && size[Y] >= 0.0 {
-    (Val::Px(size[X]), Val::Px(size[Y]))
+  let (width, height) = if size.x >= 0.0 && size.y >= 0.0 {
+    (Val::Px(size.x), Val::Px(size.y))
   } else {
     (Auto, Auto)
   }
   Node(
     width~,
     height~,
-    left=Px(offset[X]),
-    top=Px(offset[Y]),
+    left=Px(offset.x),
+    top=Px(offset.y),
     padding~,
     border~,
     display~,

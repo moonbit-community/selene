@@ -92,10 +92,10 @@ fn rect_cell_bounds(
   rect : @math.Rect,
   cell_size : Double,
 ) -> (Int32, Int32, Int32, Int32) {
-  let min_x = cell_index(rect.position[X], cell_size)
-  let min_y = cell_index(rect.position[Y], cell_size)
-  let max_x = cell_index(rect.position[X] + rect.size[X], cell_size)
-  let max_y = cell_index(rect.position[Y] + rect.size[Y], cell_size)
+  let min_x = cell_index(rect.position.x, cell_size)
+  let min_y = cell_index(rect.position.y, cell_size)
+  let max_x = cell_index(rect.position.x + rect.size.x, cell_size)
+  let max_y = cell_index(rect.position.y + rect.size.y, cell_size)
   (min_x, min_y, max_x, max_y)
 }
 
@@ -113,7 +113,7 @@ pub fn SpatialGrid2d::SpatialGrid2d(
   let buckets : Map[String, Array[UInt32]] = Map([])
   for entry in entries {
     let bounds = entry.bounds
-    guard bounds.size[X] > 0.0 && bounds.size[Y] > 0.0 else { continue }
+    guard bounds.size.x > 0.0 && bounds.size.y > 0.0 else { continue }
     let (min_x, min_y, max_x, max_y) = rect_cell_bounds(bounds, effective_size)
     for x in min_x..<(max_x + 1) {
       for y in min_y..<(max_y + 1) {
@@ -129,7 +129,7 @@ pub fn SpatialGrid2d::query(
   self : SpatialGrid2d,
   region : @math.Rect,
 ) -> Array[UInt32] {
-  if region.size[X] <= 0.0 || region.size[Y] <= 0.0 {
+  if region.size.x <= 0.0 || region.size.y <= 0.0 {
     return []
   }
   let unique : @set.Set[UInt32] = Set([])

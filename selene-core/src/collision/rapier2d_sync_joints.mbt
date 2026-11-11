@@ -3,8 +3,8 @@ fn collision_polygon_signed_area(points : Array[@math.Vec2]) -> Double {
   let mut area = 0.0
   for index in 0..<points.length() {
     let next_index = if index + 1 == points.length() { 0 } else { index + 1 }
-    area += points[index][X] * points[next_index][Y] -
-      points[next_index][X] * points[index][Y]
+    area += points[index].x * points[next_index].y -
+      points[next_index].x * points[index].y
   }
   area * 0.5
 }
@@ -15,7 +15,7 @@ fn collision_triangle_area(
   b : @math.Vec2,
   c : @math.Vec2,
 ) -> Double {
-  (b[X] - a[X]) * (c[Y] - a[Y]) - (b[Y] - a[Y]) * (c[X] - a[X])
+  (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
 }
 
 ///|
@@ -35,7 +35,7 @@ fn collision_point_in_triangle(
 
 ///|
 fn collision_points_equal(left : @math.Vec2, right : @math.Vec2) -> Bool {
-  (left[X] - right[X]).abs() <= EPSILON && (left[Y] - right[Y]).abs() <= EPSILON
+  (left.x - right.x).abs() <= EPSILON && (left.y - right.y).abs() <= EPSILON
 }
 
 ///|

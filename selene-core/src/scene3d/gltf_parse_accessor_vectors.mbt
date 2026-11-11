@@ -242,7 +242,7 @@ fn read_accessor_quat(
   }
   let output : Array[@math.Quat] = []
   for _ in 0..<accessor.count {
-    output.push(@math.Quat::identity())
+    output.push(Quat(0.0, 0.0, 0.0, 0.0))
   }
   if resolve_accessor_bytes(accessor, buffers, buffer_views)
     is Some((bytes, base_offset, stride, view_end)) {
@@ -289,7 +289,7 @@ fn read_accessor_quat(
       guard (x, y, z, w) is (Some(px), Some(py), Some(pz), Some(pw)) else {
         return None
       }
-      output[idx] = quat_from_components(px, py, pz, pw)
+      output[idx] = Quat(px, py, pz, pw)
     }
   }
   if accessor.sparse is Some(sparse) {
@@ -350,7 +350,7 @@ fn read_accessor_quat(
       guard (x, y, z, w) is (Some(px), Some(py), Some(pz), Some(pw)) else {
         return None
       }
-      output[target_index] = quat_from_components(px, py, pz, pw)
+      output[target_index] = Quat(px, py, pz, pw)
     }
   }
   Some(output)

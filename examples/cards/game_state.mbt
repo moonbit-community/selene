@@ -133,7 +133,7 @@ fn game_state() -> GameState {
 fn GameState::GameState() -> GameState {
   let button_y = VIEWPORT_HEIGHT - 35.0
   let button_size = @math.Vec2(70.0, 25.0)
-  let button_x = VIEWPORT_WIDTH / 2.0 - button_size[X] / 2.0
+  let button_x = VIEWPORT_WIDTH / 2.0 - button_size.x / 2.0
   let fold_offset = @math.Vec2(button_x - 85.0, button_y)
   let call_offset = @math.Vec2(button_x, button_y)
   let raise_offset = @math.Vec2(button_x + 85.0, button_y)

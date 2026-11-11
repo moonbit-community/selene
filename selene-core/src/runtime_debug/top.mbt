@@ -43,7 +43,7 @@ pub(all) struct DrawSubmission2DInfo {
   texture_path : String?
   uv_rect : @math.Rect?
   destination_rect : @math.Rect?
-  transform : @math.Transform?
+  transform : @math.Affine2?
   color : @render.Color?
 }
 
@@ -54,8 +54,7 @@ pub(all) struct DrawSubmission3DInfo {
   material : @render3d_types.MaterialHandle
   cast_shadows : Bool
   receive_shadows : Bool
-  translation : @math.Vec3
-  scale : @math.Vec3
+  transform : @math.Affine3
 }
 
 ///|

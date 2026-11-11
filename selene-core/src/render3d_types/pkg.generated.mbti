@@ -153,16 +153,6 @@ pub(all) struct FrameSpotLight3D {
 }
 
 #derive(Eq, @debug.Debug)
-pub(all) struct FrameTransform3D {
-  translation : @math.Vec3
-  rotation : @math.Quat
-  scale : @math.Vec3
-}
-pub fn FrameTransform3D::equal(Self, Self) -> Bool
-pub fn FrameTransform3D::not_equal(Self, Self) -> Bool
-pub fn FrameTransform3D::to_repr(Self) -> @debug.Repr
-
-#derive(Eq, @debug.Debug)
 pub(all) struct ImageAsset {
   path : String
 }
@@ -252,7 +242,7 @@ pub fn RenderFrame3D::RenderFrame3D() -> Self
 
 pub(all) struct RenderItem3D {
   entity_id : UInt32?
-  transform : FrameTransform3D
+  transform : @math.Affine3
   mesh : MeshHandle
   material : MaterialHandle
   cast_shadows : Bool
@@ -282,9 +272,9 @@ pub impl @ecs.Component for SceneHandle
 pub(all) struct Skybox3D {
   cubemap : CubemapHandle
   brightness : Double
-  rotation : @math.Quat
+  rotation : @math.Rotation3
 }
-pub fn Skybox3D::Skybox3D(CubemapHandle, brightness? : Double, rotation? : @math.Quat) -> Self
+pub fn Skybox3D::Skybox3D(CubemapHandle, brightness? : Double, rotation? : @math.Rotation3) -> Self
 pub fn Skybox3D::equal(Self, Self) -> Bool
 pub fn Skybox3D::not_equal(Self, Self) -> Bool
 pub fn Skybox3D::to_repr(Self) -> @debug.Repr

@@ -28,15 +28,15 @@ pub(all) struct Parallax2d {
 ///|
 fn clamped_parallax_factor(factor : @math.Vec2) -> @math.Vec2 {
   Vec2(
-    if factor[X] < 0.0 {
+    if factor.x < 0.0 {
       0.0
     } else {
-      factor[X]
+      factor.x
     },
-    if factor[Y] < 0.0 {
+    if factor.y < 0.0 {
       0.0
     } else {
-      factor[Y]
+      factor.y
     },
   )
 }
@@ -89,8 +89,8 @@ pub fn parallax_world_position(
       }
       shifted +
       Vec2(
-        reference_offset[X] * (1.0 - parallax.factor[X]),
-        reference_offset[Y] * (1.0 - parallax.factor[Y]),
+        reference_offset.x * (1.0 - parallax.factor.x),
+        reference_offset.y * (1.0 - parallax.factor.y),
       )
     }
     _ => shifted
@@ -101,8 +101,8 @@ pub fn parallax_world_position(
 pub fn parallax_depends_on_camera(parallax : Parallax2d?) -> Bool {
   match parallax {
     Some(parallax) =>
-      (parallax.factor[X] - 1.0).abs() > 0.000001 ||
-      (parallax.factor[Y] - 1.0).abs() > 0.000001
+      (parallax.factor.x - 1.0).abs() > 0.000001 ||
+      (parallax.factor.y - 1.0).abs() > 0.000001
     None => false
   }
 }

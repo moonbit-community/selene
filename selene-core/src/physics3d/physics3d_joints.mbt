@@ -4,7 +4,7 @@ pub fn rigid_body_translation(entity : @ecs.Entity) -> @math.Vec3? {
     Some(handle) =>
       physics3d_world().bodies
       .get(handle)
-      .map(body => @math.vec3_from_rapier(body.translation()))
+      .map(body => vec3_from_rapier(body.translation()))
     None => None
   }
 }
@@ -14,15 +14,13 @@ pub fn set_rigid_body_translation(
   entity : @ecs.Entity,
   translation : @math.Vec3,
 ) -> Unit {
-  let world_transform = {
-    ..current_world_transform(entity).unwrap_or_default(),
-    translation,
-  }
-  set_entity_world_transform(entity, world_transform)
+  guard current_world_transform(entity) is Some(transform) else { return }
+  let world_transform = { ..transform, translation, }
+  guard set_entity_world_transform(entity, world_transform) else { return }
   match body_handles().get(entity) {
     Some(handle) =>
       match physics3d_world().bodies.get_mut(handle) {
-        Some(body) => body.set_translation(translation.to_rapier())
+        Some(body) => body.set_translation(vec3_to_rapier(translation))
         None => ()
       }
     None => ()
@@ -30,12 +28,12 @@ pub fn set_rigid_body_translation(
 }
 
 ///|
-pub fn rigid_body_rotation(entity : @ecs.Entity) -> @math.Quat? {
+pub fn rigid_body_rotation(entity : @ecs.Entity) -> @math.Rotation3? {
   match body_handles().get(entity) {
     Some(handle) =>
       physics3d_world().bodies
       .get(handle)
-      .map(body => @math.quat_from_rapier(body.rotation()))
+      .map(body => rotation_from_rapier(body.rotation()))
     None => None
   }
 }
@@ -43,17 +41,15 @@ pub fn rigid_body_rotation(entity : @ecs.Entity) -> @math.Quat? {
 ///|
 pub fn set_rigid_body_rotation(
   entity : @ecs.Entity,
-  rotation : @math.Quat,
+  rotation : @math.Rotation3,
 ) -> Unit {
-  let world_transform = {
-    ..current_world_transform(entity).unwrap_or_default(),
-    rotation,
-  }
-  set_entity_world_transform(entity, world_transform)
+  guard current_world_transform(entity) is Some(transform) else { return }
+  let world_transform = { ..transform, rotation, }
+  guard set_entity_world_transform(entity, world_transform) else { return }
   match body_handles().get(entity) {
     Some(handle) =>
       match physics3d_world().bodies.get_mut(handle) {
-        Some(body) => body.set_rotation(rotation.to_rapier())
+        Some(body) => body.set_rotation(rotation_to_rapier(rotation))
         None => ()
       }
     None => ()
@@ -66,7 +62,7 @@ pub fn rigid_body_linear_velocity(entity : @ecs.Entity) -> @math.Vec3? {
     Some(handle) =>
       physics3d_world().bodies
       .get(handle)
-      .map(body => @math.vec3_from_rapier(body.linvel()))
+      .map(body => vec3_from_rapier(body.linvel()))
     None => None
   }
 }
@@ -81,7 +77,7 @@ pub fn set_rigid_body_linear_velocity(
   match body_handles().get(entity) {
     Some(handle) =>
       match physics3d_world().bodies.get_mut(handle) {
-        Some(body) => body.set_linvel(linear_velocity.to_rapier())
+        Some(body) => body.set_linvel(vec3_to_rapier(linear_velocity))
         None => ()
       }
     None => ()
@@ -94,7 +90,7 @@ pub fn rigid_body_angular_velocity(entity : @ecs.Entity) -> @math.Vec3? {
     Some(handle) =>
       physics3d_world().bodies
       .get(handle)
-      .map(body => @math.vec3_from_rapier(body.angvel()))
+      .map(body => vec3_from_rapier(body.angvel()))
     None => None
   }
 }
@@ -109,7 +105,7 @@ pub fn set_rigid_body_angular_velocity(
   match body_handles().get(entity) {
     Some(handle) =>
       match physics3d_world().bodies.get_mut(handle) {
-        Some(body) => body.set_angvel(angular_velocity.to_rapier())
+        Some(body) => body.set_angvel(vec3_to_rapier(angular_velocity))
         None => ()
       }
     None => ()
@@ -185,7 +181,7 @@ pub fn physics_step_system(delta : Double) -> Unit {
   let world = physics3d_world()
   world.integration = world.integration.with_dt(Float::from_double(delta))
   world.pipeline.step_with_events(
-    config.gravity.to_rapier(),
+    vec3_to_rapier(config.gravity),
     world.integration,
     world.islands,
     world.broad_phase,
@@ -221,8 +217,8 @@ pub fn RapierContext::cast_ray(
   let world = physics3d_world()
   let query = make_query_pipeline(query_filter~)
   let ray = @collision.Ray3::Ray3(
-    origin.to_rapier(),
-    direction.normalize().to_rapier(),
+    vec3_to_rapier(origin),
+    vec3_to_rapier(direction.normalize_or_zero()),
   )
   match
     query.cast_ray_and_get_normal(
@@ -237,7 +233,7 @@ pub fn RapierContext::cast_ray(
         {
           entity,
           toi: hit.toi().to_double(),
-          normal: @math.vec3_from_rapier(hit.normal()),
+          normal: vec3_from_rapier(hit.normal()),
         }
       })
     None => None
@@ -249,7 +245,7 @@ pub fn RapierContext::cast_shape(
   _self : RapierContext,
   shape : Collider,
   origin : @math.Vec3,
-  rotation~ : @math.Quat = @math.Quat::identity(),
+  rotation~ : @math.Rotation3 = @math.Rotation3::identity(),
   direction~ : @math.Vec3 = Vec3(0.0, -1.0, 0.0),
   max_toi~ : Double = 1000.0,
   stop_at_penetration~ : Bool = false,
@@ -271,8 +267,8 @@ pub fn RapierContext::cast_shape(
     query.cast_shape(
       world.bodies,
       world.colliders,
-      Isometry3(origin.to_rapier(), shape_rotation.to_rapier()),
-      direction.normalize().to_rapier(),
+      Isometry3(vec3_to_rapier(origin), rotation_to_rapier(shape_rotation)),
+      vec3_to_rapier(direction.normalize_or_zero()),
       query_shape,
       options,
     ) {
@@ -281,7 +277,7 @@ pub fn RapierContext::cast_shape(
         {
           entity,
           toi: hit.toi().to_double(),
-          normal: @math.vec3_from_rapier(hit.normal()),
+          normal: vec3_from_rapier(hit.normal()),
         }
       })
     None => None
@@ -301,7 +297,7 @@ pub fn RapierContext::intersections_with_point(
     handle in query.intersect_point(
       world.bodies,
       world.colliders,
-      point.to_rapier(),
+      vec3_to_rapier(point),
     ) {
     match resolve_collider_entity(handle) {
       Some(entity) => entities.push(entity)
@@ -316,7 +312,7 @@ pub fn RapierContext::intersections_with_shape(
   _self : RapierContext,
   shape : Collider,
   origin : @math.Vec3,
-  rotation~ : @math.Quat = @math.Quat::identity(),
+  rotation~ : @math.Rotation3 = @math.Rotation3::identity(),
   query_filter~ : QueryFilter = QueryFilter::all(),
 ) -> Array[@ecs.Entity] {
   let world = physics3d_world()
@@ -326,8 +322,8 @@ pub fn RapierContext::intersections_with_shape(
     shape, rotation,
   )
   let query_iso = @core.Isometry3::Isometry3(
-    origin.to_rapier(),
-    shape_rotation.to_rapier(),
+    vec3_to_rapier(origin),
+    rotation_to_rapier(shape_rotation),
   )
   let query_aabb = shape_world_aabb(query_shape, origin, shape_rotation)
   for
@@ -363,7 +359,7 @@ pub fn RapierContext::project_point(
     query.project_point(
       world.bodies,
       world.colliders,
-      point.to_rapier(),
+      vec3_to_rapier(point),
       1.0e30,
       solid,
     ) {
@@ -371,7 +367,7 @@ pub fn RapierContext::project_point(
       resolve_collider_entity(handle).map(fn(entity) {
         {
           entity,
-          point: @math.vec3_from_rapier(projection.point()),
+          point: vec3_from_rapier(projection.point()),
           is_inside: projection.is_inside(),
         }
       })
@@ -385,14 +381,14 @@ fn ensure_bodies_and_colliders() -> Unit {
     if !entity.is_alive() {
       continue
     }
-    ignore(ensure_rigid_body(entity))
+    ensure_rigid_body(entity)
   }
 
   for entity, collider in colliders() {
     if !entity.is_alive() {
       continue
     }
-    ignore(ensure_collider(entity, collider_desc(entity, collider)))
+    ensure_collider(entity, collider_desc(entity, collider))
   }
 }
 
@@ -407,20 +403,24 @@ fn sync_components_to_rapier() -> Unit {
     guard world.bodies.get_mut(handle) is Some(body) else { continue }
     let body_desc = rigid_body_desc(entity)
 
-    body.set_linvel(body_desc.velocity.linvel.to_rapier())
-    body.set_angvel(body_desc.velocity.angvel.to_rapier())
+    body.set_linvel(vec3_to_rapier(body_desc.velocity.linvel))
+    body.set_angvel(vec3_to_rapier(body_desc.velocity.angvel))
     body.set_dominance_group(body_desc.dominance.map(d => d.0).unwrap_or(0))
 
     match body_desc.body_type {
       KinematicPositionBased =>
         if current_world_transform(entity) is Some(transform) {
-          body.set_next_kinematic_translation(transform.translation.to_rapier())
-          body.set_next_kinematic_rotation(transform.rotation.to_rapier())
+          body.set_next_kinematic_translation(
+            vec3_to_rapier(transform.translation),
+          )
+          body.set_next_kinematic_rotation(
+            rotation_to_rapier(transform.rotation),
+          )
         }
       Fixed =>
         if current_world_transform(entity) is Some(transform) {
-          body.set_translation(transform.translation.to_rapier())
-          body.set_rotation(transform.rotation.to_rapier())
+          body.set_translation(vec3_to_rapier(transform.translation))
+          body.set_rotation(rotation_to_rapier(transform.rotation))
         }
       _ => ()
     }
@@ -442,29 +442,25 @@ fn sync_rapier_to_components() -> Unit {
       continue
     }
     guard world.bodies.get(handle) is Some(body) else { continue }
-    let world_transform : @transform.Transform = {
-      ..current_world_transform(entity).unwrap_or_default(),
-      translation: @math.vec3_from_rapier(body.translation()),
-      rotation: @math.quat_from_rapier(body.rotation()),
+    guard current_world_transform(entity) is Some(transform) else { continue }
+    let world_transform = {
+      ..transform,
+      translation: vec3_from_rapier(body.translation()),
+      rotation: rotation_from_rapier(body.rotation()),
     }
-    let local_transform = match entity.get_parent() {
-      Some(parent) =>
-        match @transform.compute_global_transform(parent) {
-          Some(parent_global) =>
-            @transform.GlobalTransform::from_transform(world_transform).reparented_to(
-              parent_global,
-            )
-          None => world_transform
-        }
-      None => world_transform
-    }
-    if @transform.spatials().contains(entity) {
-      @transform.set_local_transform(entity, local_transform)
+    guard set_entity_world_transform(entity, world_transform) else {
+      // A simulated rotation can introduce local shear under a scaled parent.
+      // Keep the body at the last pose the hierarchy can represent.
+      if world.bodies.get_mut(handle) is Some(body) {
+        body.set_translation(vec3_to_rapier(transform.translation))
+        body.set_rotation(rotation_to_rapier(transform.rotation))
+      }
+      continue
     }
     if velocities().contains(entity) {
       velocities().set(entity, {
-        linvel: @math.vec3_from_rapier(body.linvel()),
-        angvel: @math.vec3_from_rapier(body.angvel()),
+        linvel: vec3_from_rapier(body.linvel()),
+        angvel: vec3_from_rapier(body.angvel()),
       })
     }
   }

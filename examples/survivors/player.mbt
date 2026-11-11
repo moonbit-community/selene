@@ -53,8 +53,8 @@ fn player_input_vector() -> @math.Vec2 {
     @input_action.action_value(survivors_move_down_action()) -
     @input_action.action_value(survivors_move_up_action()),
   )
-  if input.distance() > 1.0 {
-    input.normalize()
+  if input.length() > 1.0 {
+    input.normalize_or_zero()
   } else {
     input
   }
@@ -207,15 +207,15 @@ fn player_update_system(_world : @ecs.World) -> Unit {
   } else {
     game.player_stats.speed
   }
-  let vel = player_input_vector().normalize().scalar_mul(speed)
+  let vel = player_input_vector().normalize_or_zero().scalar_mul(speed)
   @physics2d.linear_velocities().set(entity, vel)
-  if vel[X] > 0.0 {
+  if vel.x > 0.0 {
     game.player_direction = Right
-  } else if vel[X] < 0.0 {
+  } else if vel.x < 0.0 {
     game.player_direction = Left
-  } else if vel[Y] > 0.0 {
+  } else if vel.y > 0.0 {
     game.player_direction = Down
-  } else if vel[Y] < 0.0 {
+  } else if vel.y < 0.0 {
     game.player_direction = Up
   }
   guard player_animation_controllers().get(entity) is Some(animation_controller) else {
@@ -336,7 +336,7 @@ fn find_nearest_enemy_in_range(
       enemy_transform.translation.x,
       enemy_transform.translation.y,
     )
-    let dist = player_pos.distance_to(enemy_pos)
+    let dist = player_pos.distance(enemy_pos)
     if dist < min {
       min = dist
       res = Some(enemy_pos)

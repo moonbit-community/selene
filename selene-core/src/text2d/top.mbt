@@ -114,13 +114,13 @@ fn truncate_line(
   if max_width <= 0.0 {
     return ""
   }
-  if measure_text_fragment(style, text)[X] <= max_width {
+  if measure_text_fragment(style, text).x <= max_width {
     return text
   }
   let ellipsis = "..."
   let mut current = text
   while current.length() > 0 &&
-        measure_text_fragment(style, current + ellipsis)[X] > max_width {
+        measure_text_fragment(style, current + ellipsis).x > max_width {
     current = current.unsafe_substring(start=0, end=current.length() - 1)
   }
   current + ellipsis
@@ -146,7 +146,7 @@ fn wrap_line(
   let mut current = ""
   for word in words {
     let candidate = if current == "" { word } else { current + " " + word }
-    if measure_text_fragment(style, candidate)[X] <= max_width {
+    if measure_text_fragment(style, candidate).x <= max_width {
       current = candidate
     } else if current == "" {
       lines.push(truncate_line(style, word, max_width))
@@ -266,7 +266,7 @@ fn cached_text_layout(
       let line_height = style.size * @cmp.maximum(1.0, layout.line_height)
       let block_height = line_height * lines.length().to_double()
       let max_line_width = lines.fold(init=0.0, fn(acc, line) {
-        @cmp.maximum(acc, measure_text_fragment(style, line)[X])
+        @cmp.maximum(acc, measure_text_fragment(style, line).x)
       })
       let cached = { key, lines, max_line_width, line_height, block_height, }
       text_layout_caches().set(entity, cached)
@@ -278,7 +278,7 @@ fn cached_text_layout(
 ///|
 fn anchor_origin(anchor : @sprite.Anchor, size : @math.Vec2) -> @math.Vec2 {
   let normalized = anchor.as_vec()
-  Vec2(-size[X] * (normalized[X] + 0.5), -size[Y] * (0.5 - normalized[Y]))
+  Vec2(-size.x * (normalized.x + 0.5), -size.y * (0.5 - normalized.y))
 }
 
 ///|
@@ -301,8 +301,8 @@ pub fn render_text2d_system(delta : Double) -> Unit {
     guard @ui.text_style_for(entity) is Some(style) else { continue }
     let layout = text2d_layout(entity)
     let bounds = text_bounds().get(entity)
-    let transform = global_transform.compute_transform()
-    let base_pos = @math.Vec2(transform.translation.x, transform.translation.y)
+    let translation = global_transform.translation()
+    let base_pos = @math.Vec2(translation.x, translation.y)
     let parallax = @parallax2d.inherited_parallax2d(entity)
     let sorting = @render2d.entity_sorting2d(entity)
     let anchor = text2d_anchor(entity)
@@ -433,17 +433,17 @@ fn push_text2d_lines(
 ) -> Unit {
   let origin = screen_pos + anchor_origin(text2d_anchor(entity), layout_size)
   let start_y = match layout.baseline {
-    Top => origin[Y]
-    Center => origin[Y] + (bounds_height - block_height) / 2.0
-    Bottom => origin[Y] + bounds_height - block_height
+    Top => origin.y
+    Center => origin.y + (bounds_height - block_height) / 2.0
+    Bottom => origin.y + bounds_height - block_height
   }
   let style_for_draw = { ..style, align: Left, baseline: Top, }
   for index, line in lines {
     let measured = measure_text_fragment(style, line)
     let x = match layout.align {
-      Left => origin[X]
-      Center => origin[X] + (layout_width - measured[X]) / 2.0
-      Right => origin[X] + layout_width - measured[X]
+      Left => origin.x
+      Center => origin.x + (layout_width - measured.x) / 2.0
+      Right => origin.x + layout_width - measured.x
     }
     let command : @render2d_types.TextDrawCommand2D = {
       text: line,

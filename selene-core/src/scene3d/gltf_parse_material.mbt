@@ -63,8 +63,8 @@ fn parse_texture_transform_vec2(
   match values {
     Some(items) if items.length() >= 2 =>
       Vec2(
-        json_number(items[0]).unwrap_or(fallback[X]),
-        json_number(items[1]).unwrap_or(fallback[Y]),
+        json_number(items[0]).unwrap_or(fallback.x),
+        json_number(items[1]).unwrap_or(fallback.y),
       )
     _ => fallback
   }

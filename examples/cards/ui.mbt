@@ -80,8 +80,8 @@ fn spawn_text(
   color : String,
   font : String,
   size~ : @math.Vec2 = Vec2(-1.0, -1.0),
-  align~ : @math.HAlign = Left,
-  baseline~ : @math.VAlign = Top,
+  align~ : @render2d_types.HAlign = Left,
+  baseline~ : @render2d_types.VAlign = Top,
   zindex~ : Int32 = HUD_ZINDEX,
 ) -> @ecs.Entity {
   spawn_cards_entity(
@@ -242,12 +242,12 @@ fn on_raise_click() -> Unit {
 
 ///|
 fn touch_action_at(position : @math.Vec2, screen : @math.Vec2) -> TouchAction? {
-  if position[Y] < screen[Y] * 0.72 {
+  if position.y < screen.y * 0.72 {
     return None
   }
-  if position[X] < screen[X] / 3.0 {
+  if position.x < screen.x / 3.0 {
     Some(TouchFold)
-  } else if position[X] < screen[X] * 2.0 / 3.0 {
+  } else if position.x < screen.x * 2.0 / 3.0 {
     Some(TouchCall)
   } else {
     Some(TouchRaise)
@@ -325,8 +325,8 @@ fn display_all_cards() -> Unit {
 
   let player = game.player
   let pos = player.position
-  let x_base = pos.0
-  let y_base = pos.1 - 40.0
+  let x_base = pos.x
+  let y_base = pos.y - 40.0
 
   let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
   for j, card in player.hole_cards {

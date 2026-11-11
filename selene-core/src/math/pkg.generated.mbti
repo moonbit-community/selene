@@ -2,20 +2,45 @@
 package "Milky2018/selene/math"
 
 import {
-  "Milky2018/moon_rapier/core",
   "moonbitlang/core/debug",
 }
 
 // Values
 pub fn normalize_angle(Double) -> Double
 
-pub fn quat_from_rapier(@core.Quat) -> Quat
-
-pub fn vec3_from_rapier(@core.Vec3) -> Vec3
+pub fn view_basis_rh(Vec3, Vec3) -> (Vec3, Vec3, Vec3)
 
 // Errors
 
 // Types and methods
+pub(all) struct Affine2 {
+  a : Double
+  b : Double
+  c : Double
+  d : Double
+  tx : Double
+  ty : Double
+}
+pub fn Affine2::Affine2(a? : Double, b? : Double, c? : Double, d? : Double, tx? : Double, ty? : Double) -> Self
+#deprecated
+pub fn Affine2::default() -> Self
+pub fn Affine2::flip_x(Double) -> Self
+pub fn Affine2::flip_y(Double) -> Self
+pub fn Affine2::from_rotation(Double) -> Self
+pub fn Affine2::from_rotation_deg(Double) -> Self
+pub fn Affine2::from_scale(Vec2) -> Self
+pub fn Affine2::from_skew(Double, Double) -> Self
+pub fn Affine2::from_translation(Vec2) -> Self
+pub fn Affine2::identity() -> Self
+pub fn Affine2::inverse(Self) -> Self?
+#deprecated
+pub fn Affine2::mul(Self, Self) -> Self
+pub fn Affine2::transform_point(Self, Vec2) -> Vec2
+pub fn Affine2::transform_vector(Self, Vec2) -> Vec2
+pub fn Affine2::with_translation(Self, Vec2) -> Self
+pub impl Default for Affine2
+pub impl Mul for Affine2
+
 #derive(Eq, @debug.Debug)
 pub(all) struct Affine3 {
   x_axis : Vec3
@@ -23,33 +48,25 @@ pub(all) struct Affine3 {
   z_axis : Vec3
   translation : Vec3
 }
+#deprecated
 pub fn Affine3::default() -> Self
+#deprecated
 pub fn Affine3::equal(Self, Self) -> Bool
-pub fn Affine3::from_scale_rotation_translation(Vec3, Quat, Vec3) -> Self
+pub fn Affine3::from_scale_rotation_translation(Vec3, Rotation3, Vec3) -> Self
 pub fn Affine3::identity() -> Self
 pub fn Affine3::inverse(Self) -> Self?
+#deprecated
 pub fn Affine3::mul(Self, Self) -> Self
+pub fn Affine3::normal_transform(Self) -> NormalTransform3
+#deprecated
 pub fn Affine3::not_equal(Self, Self) -> Bool
+pub fn Affine3::project_xy(Self) -> Affine2
+#deprecated
 pub fn Affine3::to_repr(Self) -> @debug.Repr
-pub fn Affine3::transform_point3(Self, Vec3) -> Vec3
-pub fn Affine3::transform_vector3(Self, Vec3) -> Vec3
+pub fn Affine3::transform_point(Self, Vec3) -> Vec3
+pub fn Affine3::transform_vector(Self, Vec3) -> Vec3
 pub impl Default for Affine3
 pub impl Mul for Affine3
-
-#derive(Eq, @debug.Debug)
-pub(all) enum Axis {
-  X
-  Y
-}
-pub fn Axis::equal(Self, Self) -> Bool
-pub fn Axis::not_equal(Self, Self) -> Bool
-pub fn Axis::to_repr(Self) -> @debug.Repr
-
-pub(all) enum HAlign {
-  Left
-  Center
-  Right
-}
 
 #derive(Eq, @debug.Debug)
 pub(all) struct Mat4 {
@@ -70,15 +87,40 @@ pub(all) struct Mat4 {
   m32 : Double
   m33 : Double
 }
+#deprecated
+pub fn Mat4::add(Self, Self) -> Self
+pub fn Mat4::affine_part(Self) -> Affine3
+#deprecated
 pub fn Mat4::default() -> Self
+#deprecated
 pub fn Mat4::equal(Self, Self) -> Bool
-pub fn Mat4::from_trs(Vec3, Quat, Vec3) -> Self
+pub fn Mat4::from_affine(Affine3) -> Self
+pub fn Mat4::from_column_major(ArrayView[Double]) -> Self?
 pub fn Mat4::identity() -> Self
+pub fn Mat4::is_finite(Self) -> Bool
+pub fn Mat4::look_at_rh(Vec3, Vec3, Vec3) -> Self
+#deprecated
 pub fn Mat4::mul(Self, Self) -> Self
+#deprecated
 pub fn Mat4::not_equal(Self, Self) -> Bool
+pub fn Mat4::orthographic_rh_zo(Double, Double, Double, Double) -> Self
+pub fn Mat4::perspective_rh_zo(Double, Double, Double, Double) -> Self
+pub fn Mat4::project_point(Self, Vec3) -> Vec3?
+pub fn Mat4::scalar_mul(Self, Double) -> Self
+pub fn Mat4::to_column_major(Self) -> Array[Double]
+#deprecated
 pub fn Mat4::to_repr(Self) -> @debug.Repr
-pub fn Mat4::transform_point(Self, Vec3) -> Vec3
+pub fn Mat4::try_to_affine(Self) -> Affine3?
+pub fn Mat4::zero() -> Self
+pub impl Add for Mat4
 pub impl Default for Mat4
+pub impl Mul for Mat4
+
+pub struct NormalTransform3 {
+  // private fields
+}
+pub fn NormalTransform3::handedness(Self) -> Double
+pub fn NormalTransform3::transform_normal(Self, Vec3) -> Vec3?
 
 #derive(Eq, @debug.Debug)
 pub(all) struct Quat {
@@ -88,22 +130,19 @@ pub(all) struct Quat {
   w : Double
 }
 pub fn Quat::Quat(Double, Double, Double, Double) -> Self
-pub fn Quat::conjugate(Self) -> Self
+#deprecated
 pub fn Quat::default() -> Self
 pub fn Quat::dot(Self, Self) -> Double
+#deprecated
 pub fn Quat::equal(Self, Self) -> Bool
-pub fn Quat::from_axis_angle(Vec3, Double) -> Self
-pub fn Quat::from_basis(Vec3, Vec3, Vec3) -> Self
 pub fn Quat::identity() -> Self
-pub fn Quat::inverse(Self) -> Self
 pub fn Quat::length_squared(Self) -> Double
+#deprecated
 pub fn Quat::mul(Self, Self) -> Self
-pub fn Quat::multiply(Self, Self) -> Self
-pub fn Quat::nlerp(Self, Self, Double) -> Self
-pub fn Quat::normalize(Self) -> Self
+pub fn Quat::normalize_or_identity(Self) -> Self
+#deprecated
 pub fn Quat::not_equal(Self, Self) -> Bool
-pub fn Quat::rotate_vec3(Self, Vec3) -> Vec3
-pub fn Quat::to_rapier(Self) -> @core.Quat
+#deprecated
 pub fn Quat::to_repr(Self) -> @debug.Repr
 pub impl Default for Quat
 pub impl Mul for Quat
@@ -115,84 +154,69 @@ pub(all) struct Rect {
 pub fn Rect::intersects(Self, Self) -> Bool
 pub fn Rect::shift(Self, Vec2) -> Self
 
-pub(all) enum RepeatMode {
-  RepeatX
-  RepeatY
-  NoRepeat
-  Repeat
+#derive(Eq, @debug.Debug)
+pub struct Rotation3 {
+  // private fields
 }
-
-pub(all) struct Transform {
-  a : Double
-  b : Double
-  c : Double
-  d : Double
-  tx : Double
-  ty : Double
-}
-pub fn Transform::Transform(a? : Double, b? : Double, c? : Double, d? : Double, tx? : Double, ty? : Double) -> Self
-pub fn Transform::append(Self, Self) -> Self
-pub fn Transform::append_rotation_deg(Self, Double) -> Self
-pub fn Transform::append_rotation_rad(Self, Double) -> Self
-pub fn Transform::append_scale(Self, Double, Double) -> Self
-pub fn Transform::append_skew(Self, Double, Double) -> Self
-pub fn Transform::append_translation(Self, Double, Double) -> Self
-pub fn Transform::apply_to_point(Self, Double, Double) -> (Double, Double)
-pub fn Transform::apply_to_vec2(Self, Vec2) -> Vec2
-pub fn Transform::clone(Self) -> Self
-pub fn Transform::compose(Self, Self) -> Self
-pub fn Transform::default() -> Self
-pub fn Transform::flip_x(Double) -> Self
-pub fn Transform::flip_y(Double) -> Self
-pub fn Transform::from_rotation_deg(Double) -> Self
-pub fn Transform::from_rotation_rad(Double) -> Self
-pub fn Transform::from_scale(Double, Double) -> Self
-pub fn Transform::from_skew(Double, Double) -> Self
-pub fn Transform::from_translation(Double, Double) -> Self
-pub fn Transform::get_rotation_rad(Self) -> Double
-pub fn Transform::get_scale(Self) -> (Double, Double)
-pub fn Transform::get_translation(Self) -> (Double, Double)
-pub fn Transform::identity() -> Self
-pub fn Transform::inverse(Self) -> Self?
-pub fn Transform::mul(Self, Self) -> Self
-pub fn Transform::multiply(Self, Self) -> Self
-pub fn Transform::prepend(Self, Self) -> Self
-pub fn Transform::prepend_rotation_deg(Self, Double) -> Self
-pub fn Transform::prepend_rotation_rad(Self, Double) -> Self
-pub fn Transform::prepend_scale(Self, Double, Double) -> Self
-pub fn Transform::prepend_skew(Self, Double, Double) -> Self
-pub fn Transform::prepend_translation(Self, Double, Double) -> Self
-pub fn Transform::set_translation(Self, Double, Double) -> Self
-pub fn Transform::with_translation(Self, Double, Double) -> Self
-pub impl Default for Transform
-pub impl Mul for Transform
-
-pub(all) enum VAlign {
-  Top
-  Center
-  Bottom
-}
+#deprecated
+pub fn Rotation3::default() -> Self
+#deprecated
+pub fn Rotation3::equal(Self, Self) -> Bool
+pub fn Rotation3::from_axis_angle(Vec3, Double) -> Self
+pub fn Rotation3::identity() -> Self
+pub fn Rotation3::inverse(Self) -> Self
+#deprecated
+pub fn Rotation3::mul(Self, Self) -> Self
+pub fn Rotation3::nlerp(Self, Self, Double) -> Self
+#deprecated
+pub fn Rotation3::not_equal(Self, Self) -> Bool
+pub fn Rotation3::rotate_vec3(Self, Vec3) -> Vec3
+pub fn Rotation3::slerp(Self, Self, Double) -> Self
+pub fn Rotation3::to_quat(Self) -> Quat
+#deprecated
+pub fn Rotation3::to_repr(Self) -> @debug.Repr
+pub fn Rotation3::try_from_axis_angle(Vec3, Double) -> Self?
+pub fn Rotation3::try_from_basis(Vec3, Vec3, Vec3, tolerance? : Double) -> Self?
+pub fn Rotation3::try_from_quat(Quat) -> Self?
+pub impl Default for Rotation3
+pub impl Mul for Rotation3
 
 #derive(Eq, @debug.Debug)
-pub(all) struct Vec2(Double, Double)
+pub(all) struct Vec2 {
+  x : Double
+  y : Double
+}
+pub fn Vec2::Vec2(Double, Double) -> Self
+#deprecated
 pub fn Vec2::add(Self, Self) -> Self
-pub fn Vec2::clone(Self) -> Self
+#deprecated
 pub fn Vec2::default() -> Self
-pub fn Vec2::distance(Self) -> Double
-pub fn Vec2::distance_to(Self, Self) -> Double
+pub fn Vec2::distance(Self, Self) -> Double
+pub fn Vec2::distance_squared(Self, Self) -> Double
 pub fn Vec2::dot(Self, Self) -> Double
+#deprecated
 pub fn Vec2::equal(Self, Self) -> Bool
-#alias("_[_]")
-pub fn Vec2::get(Self, Axis) -> Double
+pub fn Vec2::is_finite(Self) -> Bool
+pub fn Vec2::length(Self) -> Double
+pub fn Vec2::length_squared(Self) -> Double
+pub fn Vec2::lerp(Self, Self, Double) -> Self
+#deprecated
 pub fn Vec2::mul(Self, Self) -> Self
+#deprecated
 pub fn Vec2::neg(Self) -> Self
-pub fn Vec2::normalize(Self) -> Self
+pub fn Vec2::normalize_or_zero(Self) -> Self
+#deprecated
 pub fn Vec2::not_equal(Self, Self) -> Bool
+pub fn Vec2::one() -> Self
 pub fn Vec2::scalar_div(Self, Double) -> Self
 pub fn Vec2::scalar_mul(Self, Double) -> Self
+#deprecated
 pub fn Vec2::sub(Self, Self) -> Self
+#deprecated
 pub fn Vec2::to_repr(Self) -> @debug.Repr
-pub fn Vec2::update(Self, Axis, Double) -> Self
+pub fn Vec2::try_normalize(Self) -> Self?
+pub fn Vec2::x_axis() -> Self
+pub fn Vec2::y_axis() -> Self
 pub fn Vec2::zero() -> Self
 pub impl Add for Vec2
 pub impl Default for Vec2
@@ -207,24 +231,35 @@ pub(all) struct Vec3 {
   z : Double
 }
 pub fn Vec3::Vec3(Double, Double, Double) -> Self
+#deprecated
 pub fn Vec3::add(Self, Self) -> Self
 pub fn Vec3::cross(Self, Self) -> Self
+#deprecated
 pub fn Vec3::default() -> Self
+pub fn Vec3::distance(Self, Self) -> Double
+pub fn Vec3::distance_squared(Self, Self) -> Double
 pub fn Vec3::dot(Self, Self) -> Double
+#deprecated
 pub fn Vec3::equal(Self, Self) -> Bool
+pub fn Vec3::is_finite(Self) -> Bool
 pub fn Vec3::length(Self) -> Double
 pub fn Vec3::length_squared(Self) -> Double
 pub fn Vec3::lerp(Self, Self, Double) -> Self
+#deprecated
 pub fn Vec3::mul(Self, Self) -> Self
+#deprecated
 pub fn Vec3::neg(Self) -> Self
-pub fn Vec3::normalize(Self) -> Self
+pub fn Vec3::normalize_or_zero(Self) -> Self
+#deprecated
 pub fn Vec3::not_equal(Self, Self) -> Bool
 pub fn Vec3::one() -> Self
 pub fn Vec3::scalar_div(Self, Double) -> Self
 pub fn Vec3::scalar_mul(Self, Double) -> Self
+#deprecated
 pub fn Vec3::sub(Self, Self) -> Self
-pub fn Vec3::to_rapier(Self) -> @core.Vec3
+#deprecated
 pub fn Vec3::to_repr(Self) -> @debug.Repr
+pub fn Vec3::try_normalize(Self) -> Self?
 pub fn Vec3::x_axis() -> Self
 pub fn Vec3::y_axis() -> Self
 pub fn Vec3::z_axis() -> Self
