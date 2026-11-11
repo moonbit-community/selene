@@ -78,7 +78,7 @@ fn click_left_mouse(position : @math.Vec2) -> Unit {
 test "pickable click respects top-most camera render layers" {
   with_pickable_test_world(fn() raise {
     reset_pickable_test_input()
-    @system.configure_display(100.0, 100.0, 1.0)
+    @window.configure_display(100.0, 100.0, 1.0)
     let viewport : @math.Rect = {
       position: @math.Vec2::zero(),
       size: Vec2(100.0, 100.0),
@@ -119,7 +119,7 @@ test "pickable click respects top-most camera render layers" {
 test "pickable click supports ball shapes" {
   with_pickable_test_world(fn() raise {
     reset_pickable_test_input()
-    @system.configure_display(100.0, 100.0, 1.0)
+    @window.configure_display(100.0, 100.0, 1.0)
     ignore(
       spawn_pickable_camera(
         { position: @math.Vec2::zero(), size: Vec2(100.0, 100.0), },

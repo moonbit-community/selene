@@ -4,6 +4,21 @@ Core ECS/runtime package for Selene.
 
 It includes app/runtime orchestration, ECS data flow, assets, scenes, animation, 2D/3D rendering, UI, physics.
 
+## Runtime packages
+
+| Package | Responsibility |
+| --- | --- |
+| `ecs` | Worlds, entities, queries, resources, commands, and safe schedule execution |
+| `app` | Application stages (`Schedule`), system registration and ordering (`SystemSet`, `SystemOrdering`), plugins, and the game loop |
+| `time` | World-local clocks, time scale, and cancellable timeouts |
+| `window` | Display configuration and coordinate conversion, mouse capture, and window exit |
+| `platform_*` | Virtual interfaces implemented by a platform backend |
+
+`window` provides engine-level operations over the platform interfaces. Input
+snapshots and queries remain in `inputs`. Application stages belong to `app`;
+standalone ECS code can execute systems through `ecs.run_schedule` without
+depending on an application or platform backend.
+
 ## Install
 
 ```bash

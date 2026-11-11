@@ -72,7 +72,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
         bounds_height,
         block_height,
         line_height,
-        @camera.pixel_snapped_position(@system.scale_vec2(screen_pos)),
+        @camera.pixel_snapped_position(@window.scale_vec2(screen_pos)),
         layout_size,
         global_transform,
         None,

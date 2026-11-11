@@ -191,5 +191,4 @@ pub fn App::step_fixed(
   for _ in 0..<steps {
     run_fixed_step_once(plan)
   }
-  @system.set_render_alpha(0.0)
 }

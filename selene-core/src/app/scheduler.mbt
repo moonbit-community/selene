@@ -4,23 +4,23 @@ pub type RunCondition = (@ecs.World) -> Bool
 ///|
 pub(all) struct RegisteredSystem {
   system : @ecs.System
-  schedule : @system.Schedule
+  schedule : Schedule
   name : String
-  in_set : @system_set.SystemSet?
-  before : Array[@system_set.SystemSet]
-  after : Array[@system_set.SystemSet]
+  in_set : SystemSet?
+  before : Array[SystemSet]
+  after : Array[SystemSet]
   run_if : RunCondition?
 }
 
 ///|
 pub fn App::add_system(
   self : App,
-  schedule : @system.Schedule,
+  schedule : Schedule,
   system : @ecs.System,
   system_name? : String,
-  in_set? : @system_set.SystemSet,
-  before~ : Array[@system_set.SystemSet] = [],
-  after~ : Array[@system_set.SystemSet] = [],
+  in_set? : SystemSet,
+  before~ : Array[SystemSet] = [],
+  after~ : Array[SystemSet] = [],
   run_if? : RunCondition,
 ) -> App {
   let system_name = system_name.unwrap_or(
@@ -42,11 +42,11 @@ pub fn App::add_system(
 ///|
 pub fn App::add_systems(
   self : App,
-  schedule : @system.Schedule,
+  schedule : Schedule,
   systems_to_add : Array[@ecs.System],
-  in_set? : @system_set.SystemSet,
-  before~ : Array[@system_set.SystemSet] = [],
-  after~ : Array[@system_set.SystemSet] = [],
+  in_set? : SystemSet,
+  before~ : Array[SystemSet] = [],
+  after~ : Array[SystemSet] = [],
   run_if? : RunCondition,
 ) -> App {
   let systems = self.systems
@@ -208,7 +208,7 @@ fn sort_systems_by_set(
 fn collect_systems(
   systems : Array[RegisteredSystem],
   deterministic_ordering : Bool,
-  matcher : (@system.Schedule) -> Bool,
+  matcher : (Schedule) -> Bool,
 ) -> Array[RegisteredSystem] {
   let selected : Array[RegisteredSystem] = []
   for system in systems {

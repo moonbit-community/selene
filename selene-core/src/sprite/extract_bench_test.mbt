@@ -1,6 +1,6 @@
 ///|
 fn make_sprite_fixture(size : Int32) -> Array[@ecs.Entity] {
-  @system.configure_display(960.0, 540.0, 1.0)
+  @window.configure_display(960.0, 540.0, 1.0)
   let world = @ecs.require_current_world()
   let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = world.prepare_spawn()
   let entities = []

@@ -14,7 +14,7 @@
 
 ///|
 test "camera world_to_viewport roundtrip" {
-  @system.configure_display(480.0, 320.0, 2.0)
+  @window.configure_display(480.0, 320.0, 2.0)
   let camera = Camera()
   let projection = OrthographicProjection()
   let camera_transform = @transform.GlobalTransform::from_transform(
@@ -33,7 +33,7 @@ test "camera world_to_viewport roundtrip" {
 
 ///|
 test "camera world_to_viewport respects camera rotation" {
-  @system.configure_display(100.0, 100.0, 1.0)
+  @window.configure_display(100.0, 100.0, 1.0)
   let camera = Camera()
   let projection = OrthographicProjection()
   let quarter_turn = @math.Rotation3::from_axis_angle(
@@ -54,7 +54,7 @@ test "camera world_to_viewport respects camera rotation" {
 
 ///|
 test "camera viewport offsets world_to_viewport into viewport rect" {
-  @system.configure_display(200.0, 120.0, 1.0)
+  @window.configure_display(200.0, 120.0, 1.0)
   let camera = Camera(
     viewport=Some(CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0))),
   )
@@ -76,7 +76,7 @@ test "camera viewport offsets world_to_viewport into viewport rect" {
 
 ///|
 test "camera viewport projection inverts the same XY plane it draws" {
-  @system.configure_display(100.0, 100.0, 1.0)
+  @window.configure_display(100.0, 100.0, 1.0)
   let camera = Camera()
   let projection = OrthographicProjection()
   let pose = @transform.GlobalTransform::from_transform(

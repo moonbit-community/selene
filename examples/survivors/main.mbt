@@ -132,7 +132,7 @@ priv struct SurvivorsRuntime {
   mut levelup_title : @ecs.Entity?
   mut game_over_title : @ecs.Entity?
   mut restart_button : @ecs.Entity?
-  timers : Map[Int32, @system.TimerHandle]
+  timers : Map[Int32, @time.TimerHandle]
   mut next_timer : Int32
 }
 
@@ -179,7 +179,7 @@ fn survivors_timeout(delay : Double, callback : () -> Unit) -> Unit {
   runtime.next_timer += 1
   runtime.timers.set(
     id,
-    @system.timeout(delay, () => {
+    @time.timeout(delay, () => {
       runtime.timers.remove(id)
       callback()
     }),

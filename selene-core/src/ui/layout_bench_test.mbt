@@ -86,7 +86,7 @@ test "BENCH-UI retained static layout" (b : @bench.T) {
   let world = @ecs.World()
   @ecs.set_current_world(world)
   defer @ecs.set_current_world(previous_world)
-  @system.configure_display(960.0, 540.0, 1.0)
+  @window.configure_display(960.0, 540.0, 1.0)
   let entities = build_retained_layout_benchmark()
   assert_eq(entities.length(), 410)
 

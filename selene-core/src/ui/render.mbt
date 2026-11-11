@@ -371,7 +371,7 @@ fn scaled_text_style(
 ) -> @render2d_types.TextStyle2D {
   match get_ui_scale_mode() {
     Screen => style
-    Viewport => { ..style, size: @system.scale_value(style.size), }
+    Viewport => { ..style, size: @window.scale_value(style.size), }
   }
 }
 

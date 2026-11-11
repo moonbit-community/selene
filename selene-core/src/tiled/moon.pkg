@@ -1,4 +1,5 @@
 import {
+  "Milky2018/selene/window",
   "Milky2018/selene/render2d_types",
   "Milky2018/zstd",
   "Milky2018/selene/animation",
@@ -10,7 +11,6 @@ import {
   "Milky2018/selene/parallax2d",
   "Milky2018/selene/physics2d",
   "Milky2018/selene/render",
-  "Milky2018/selene/system",
   "Milky2018/selene/sprite",
   "Milky2018/selene/transform",
   "Milky2018/selene/visibility",

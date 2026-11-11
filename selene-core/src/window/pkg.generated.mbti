@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "Milky2018/selene/system"
+package "Milky2018/selene/window"
 
 import {
   "Milky2018/selene/math",
@@ -9,8 +9,6 @@ import {
 pub fn configure_display(Double, Double, Double) -> Unit
 
 pub fn exit() -> Unit
-
-pub fn get_render_alpha() -> Double
 
 pub fn get_screen_size() -> @math.Vec2
 
@@ -22,8 +20,6 @@ pub fn is_mouse_locked() -> Bool
 
 pub fn lock_mouse() -> Unit
 
-pub fn realtime_timer_system(Double) -> Unit
-
 pub fn scale_transform_translation(@math.Affine2) -> @math.Affine2
 
 pub fn scale_value(Double) -> Double
@@ -32,15 +28,7 @@ pub fn scale_vec2(@math.Vec2) -> @math.Vec2
 
 pub fn screen_to_ui_virtual(@math.Vec2) -> @math.Vec2
 
-pub fn set_render_alpha(Double) -> Unit
-
 pub fn sync_mouse_lock_system(Double) -> Unit
-
-pub fn timeout(Double, () -> Unit, pausible? : Bool) -> TimerHandle
-
-pub fn timer_system(Double) -> Unit
-
-pub fn timers_system(Double) -> Unit
 
 pub fn ui_virtual_to_screen(@math.Vec2) -> @math.Vec2
 
@@ -51,28 +39,6 @@ pub fn unscale_vec2(@math.Vec2) -> @math.Vec2
 // Errors
 
 // Types and methods
-pub(all) enum Schedule {
-  Startup
-  First
-  PreUpdate
-  OnExit(() -> Bool)
-  OnEnter(() -> Bool)
-  FixedUpdate
-  FixedFirst
-  FixedPreUpdate
-  FixedPostUpdate
-  FixedLast
-  Update
-  PostUpdate
-  Last
-  RenderExtract
-  RenderPrepare
-  Render
-  RenderCleanup
-}
-
-type TimerHandle
-pub fn TimerHandle::cancel(Self) -> Bool
 
 // Type aliases
 

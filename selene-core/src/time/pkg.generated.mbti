@@ -22,11 +22,19 @@ pub fn initialize(@ecs.World) -> Unit
 
 pub fn raw_delta() -> Double
 
+pub fn realtime_timer_system(Double) -> Unit
+
 pub fn scale() -> Double
 
 pub fn set_delta(Double) -> Unit
 
 pub fn set_scale(Double) -> Unit
+
+pub fn timeout(Double, () -> Unit, pausible? : Bool) -> TimerHandle
+
+pub fn timer_system(Double) -> Unit
+
+pub fn timers_system(Double) -> Unit
 
 pub fn use_fixed_delta(Double) -> Unit
 
@@ -35,6 +43,8 @@ pub fn use_frame_delta() -> Unit
 // Errors
 
 // Types and methods
+type TimerHandle
+pub fn TimerHandle::cancel(Self) -> Bool
 
 // Type aliases
 

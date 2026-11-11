@@ -1125,7 +1125,7 @@ pub fn is_ui_entity(entity : @ecs.Entity) -> Bool {
 
 ///|
 fn full_screen_ui_viewport() -> @math.Rect {
-  { position: @math.Vec2::zero(), size: @system.get_screen_size(), }
+  { position: @math.Vec2::zero(), size: @window.get_screen_size(), }
 }
 
 ///|
@@ -1150,7 +1150,7 @@ pub fn ui_layout_space(target_camera : @ecs.Entity?) -> UiLayoutSpace {
 pub fn ui_layout_root_size(space : UiLayoutSpace) -> @math.Vec2 {
   match get_ui_scale_mode() {
     Screen => space.viewport.size
-    Viewport => @system.unscale_vec2(space.viewport.size)
+    Viewport => @window.unscale_vec2(space.viewport.size)
   }
 }
 
@@ -1161,7 +1161,7 @@ pub fn logical_to_screen_point(
 ) -> @math.Vec2 {
   match get_ui_scale_mode() {
     Screen => space.viewport.position + point
-    Viewport => space.viewport.position + @system.ui_virtual_to_screen(point)
+    Viewport => space.viewport.position + @window.ui_virtual_to_screen(point)
   }
 }
 
@@ -1172,7 +1172,7 @@ pub fn logical_to_screen_size(
 ) -> @math.Vec2 {
   match get_ui_scale_mode() {
     Screen => size
-    Viewport => @system.scale_vec2(size)
+    Viewport => @window.scale_vec2(size)
   }
 }
 

@@ -3,4 +3,4 @@ import {
   "moonbitlang/core/cmp",
 }
 
-formatter(ignore: [ "time.g.mbt" ])
+formatter(ignore: [ "time.g.mbt", "timer.g.mbt" ])

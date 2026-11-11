@@ -1,9 +1,8 @@
 import {
+  "Milky2018/selene/window",
   "Milky2018/selene/app",
   "Milky2018/selene/animation",
   "Milky2018/selene/asset",
-  "Milky2018/selene/system",
-  "Milky2018/selene/system_set",
   "Milky2018/selene/sprite",
   "Milky2018/selene/physics2d",
   "Milky2018/selene/physics3d",

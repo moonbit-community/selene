@@ -30,6 +30,11 @@
 
 ### Changed
 
+- Move application stages and system ordering to `app`, and move cancellable
+  timeouts and timer systems to `time`. Move display configuration, coordinate
+  conversion, mouse capture, and window exit to the new `window` package.
+  Update engine plugins and examples to use these package owners.
+
 - Organize source files by responsibility, colocate trait extensions with their
   types and implementations, and replace legacy index loops with range loops.
   Remove empty facade files and keep tests in dedicated files.
@@ -172,6 +177,10 @@
 - Initialized the registry index before the pre-release CI compatibility check.
 
 ### Removed
+
+- Remove the `system` and `system_set` packages. Import scheduling types from
+  `app`, timer APIs from `time`, and display and window APIs from `window`.
+- Remove unused render interpolation alpha state and its getter and setter.
 
 - Removed the Scene 3D, Tank 3D, and Perf 3D examples and their Web launchers.
 - Removed local MoonBit warning suppressions so compiler checks expose diagnostics.

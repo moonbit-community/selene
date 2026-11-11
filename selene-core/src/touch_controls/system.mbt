@@ -8,7 +8,7 @@ fn stick_runtime_for(
       touch_id: None,
       center: resolved_placement(
         stick.placement,
-        @system.get_screen_size(),
+        @window.get_screen_size(),
         stick.radius,
       ),
       value: @math.Vec2::zero(),
@@ -198,7 +198,7 @@ fn capture_stick_start(
 
 ///|
 fn capture_new_starts(runtime : TouchControlsWorldStore) -> Unit {
-  let screen = @system.get_screen_size()
+  let screen = @window.get_screen_size()
   for event in @ui.unconsumed_touch_changes_this_frame() {
     if event.phase != Started {
       continue

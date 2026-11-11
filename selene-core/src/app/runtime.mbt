@@ -26,7 +26,7 @@ pub(all) struct RuntimePlan {
 fn setup_runtime_world(app : App) -> Unit {
   @ecs.set_current_world(app.world)
   @time.initialize(app.world)
-  @system.configure_display(app.viewport_width, app.viewport_height, app.zoom)
+  @window.configure_display(app.viewport_width, app.viewport_height, app.zoom)
   for register_event in app.event_registrations {
     register_event(app.world)
   }
@@ -242,12 +242,6 @@ fn run_game_frame(
   })
 
   @runtime_debug.note_update(delta, @ecs.alive_entity_count())
-
-  let alpha = @cmp.maximum(
-    0.0,
-    @cmp.minimum(1.0, accumulator.val / plan.fixed_dt),
-  )
-  @system.set_render_alpha(alpha)
 }
 
 ///|

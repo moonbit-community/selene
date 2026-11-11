@@ -947,9 +947,9 @@ test "replace_tiled_world replaces previous spawned maps" {
 
 ///|
 test "tiled world chunking spawns maps around camera view" {
-  let previous_viewport = @system.get_viewport_size()
-  let previous_zoom = @system.get_zoom()
-  @system.configure_display(100.0, 100.0, 1.0)
+  let previous_viewport = @window.get_viewport_size()
+  let previous_zoom = @window.get_zoom()
+  @window.configure_display(100.0, 100.0, 1.0)
 
   let camera_entity = spawn_tiled_test_camera(Vec2(50.0, 50.0))
   defer ignore(camera_entity.delete())
@@ -1001,7 +1001,7 @@ test "tiled world chunking spawns maps around camera view" {
     inspect(second_spawned[0].1.resolved_map_path, content="worlds/maps/b.tmj")
   })
 
-  @system.configure_display(
+  @window.configure_display(
     previous_viewport.x,
     previous_viewport.y,
     previous_zoom,
@@ -1010,9 +1010,9 @@ test "tiled world chunking spawns maps around camera view" {
 
 ///|
 test "tiled world chunking unions multiple active camera views" {
-  let previous_viewport = @system.get_viewport_size()
-  let previous_zoom = @system.get_zoom()
-  @system.configure_display(100.0, 100.0, 1.0)
+  let previous_viewport = @window.get_viewport_size()
+  let previous_zoom = @window.get_zoom()
+  @window.configure_display(100.0, 100.0, 1.0)
 
   let left_camera = spawn_tiled_test_camera(Vec2(50.0, 50.0), order=0)
   defer ignore(left_camera.delete())
@@ -1058,7 +1058,7 @@ test "tiled world chunking unions multiple active camera views" {
     )
   })
 
-  @system.configure_display(
+  @window.configure_display(
     previous_viewport.x,
     previous_viewport.y,
     previous_zoom,
@@ -1067,9 +1067,9 @@ test "tiled world chunking unions multiple active camera views" {
 
 ///|
 test "Tiled parallax uses map origin for each camera view" {
-  let previous_viewport = @system.get_viewport_size()
-  let previous_zoom = @system.get_zoom()
-  @system.configure_display(100.0, 100.0, 1.0)
+  let previous_viewport = @window.get_viewport_size()
+  let previous_zoom = @window.get_zoom()
+  @window.configure_display(100.0, 100.0, 1.0)
 
   let left_camera = spawn_tiled_test_camera(Vec2(50.0, 50.0), order=0)
   defer ignore(left_camera.delete())
@@ -1134,7 +1134,7 @@ test "Tiled parallax uses map origin for each camera view" {
     )
   })
 
-  @system.configure_display(
+  @window.configure_display(
     previous_viewport.x,
     previous_viewport.y,
     previous_zoom,

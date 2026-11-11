@@ -108,7 +108,7 @@ fn tick_timers(scaled : Double?, unscaled : Double?) -> Unit {
 ///|
 /// Advances both timer clocks in one tick. The default plugins use this system.
 pub fn timers_system(delta : Double) -> Unit {
-  tick_timers(Some(delta), Some(@time.raw_delta()))
+  tick_timers(Some(delta), Some(raw_delta()))
 }
 
 ///|
@@ -120,5 +120,5 @@ pub fn timer_system(delta : Double) -> Unit {
 ///|
 /// Advances only unscaled timers using the active World's raw frame delta.
 pub fn realtime_timer_system(_delta : Double) -> Unit {
-  tick_timers(None, Some(@time.raw_delta()))
+  tick_timers(None, Some(raw_delta()))
 }

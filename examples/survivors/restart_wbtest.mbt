@@ -18,7 +18,7 @@ test "restarting Survivors replaces its entities and cancels its old timers" {
 
   @ecs.run_schedule(world, fn(_world) {
     restart_game()
-    @system.timers_system(0.0)
+    @time.timers_system(0.0)
   })
 
   assert_false(previous_entities.is_empty())

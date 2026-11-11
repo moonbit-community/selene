@@ -171,7 +171,7 @@ pub fn camera_screen_transform(
   let view = match camera_view {
     Some(view) => view.world_to_viewport.with_translation(Vec2(0.0, 0.0))
     None =>
-      @math.Affine2::from_scale(Vec2(@system.get_zoom(), @system.get_zoom()))
+      @math.Affine2::from_scale(Vec2(@window.get_zoom(), @window.get_zoom()))
   }
   view * world
 }

@@ -1,11 +1,11 @@
 import {
+  "Milky2018/selene/window",
   "moonbitlang/core/debug",
   "Milky2018/selene/ecs",
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
   "Milky2018/selene/render2d",
-  "Milky2018/selene/system",
   "Milky2018/selene/ui",
   "moonbitlang/core/cmp",
 }

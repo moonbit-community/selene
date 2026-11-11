@@ -111,7 +111,7 @@ pub fn touch_controls_render_system(_delta : Double) -> Unit {
   if !runtime.visible {
     return
   }
-  let screen = @system.get_screen_size()
+  let screen = @window.get_screen_size()
   render_sticks(runtime, screen)
   render_buttons(runtime, screen)
 }

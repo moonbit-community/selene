@@ -17,7 +17,6 @@ priv struct DisplayState {
   mut viewport_size : @math.Vec2
   mut screen_size : @math.Vec2
   mut zoom : Double
-  mut render_alpha : Double
 }
 
 ///|
@@ -30,7 +29,6 @@ fn display_state() -> DisplayState {
     viewport_size: Vec2(512.0, 256.0),
     screen_size: Vec2(512.0, 256.0),
     zoom: 1.0,
-    render_alpha: 1.0,
   })
 }
 
@@ -54,7 +52,6 @@ pub fn configure_display(
   state.viewport_size = Vec2(viewport_width, viewport_height)
   state.screen_size = Vec2(viewport_width * zoom, viewport_height * zoom)
   state.zoom = zoom
-  state.render_alpha = 1.0
 }
 
 ///|
@@ -70,17 +67,6 @@ pub fn get_screen_size() -> @math.Vec2 {
 ///|
 pub fn get_zoom() -> Double {
   display_state().zoom
-}
-
-///|
-pub fn set_render_alpha(alpha : Double) -> Unit {
-  let state = display_state()
-  state.render_alpha = @cmp.maximum(0.0, @cmp.minimum(1.0, alpha))
-}
-
-///|
-pub fn get_render_alpha() -> Double {
-  display_state().render_alpha
 }
 
 ///|
@@ -116,18 +102,4 @@ pub fn ui_virtual_to_screen(pos : @math.Vec2) -> @math.Vec2 {
 ///|
 pub fn screen_to_ui_virtual(pos : @math.Vec2) -> @math.Vec2 {
   unscale_vec2(pos)
-}
-
-///|
-test "scale transform translation only" {
-  configure_display(480.0, 320.0, 2.0)
-  let transformed = scale_transform_translation(
-    Affine2(a=1.2, b=0.3, c=0.4, d=1.1, tx=10.0, ty=20.0),
-  )
-  assert_eq(transformed.a, 1.2)
-  assert_eq(transformed.b, 0.3)
-  assert_eq(transformed.c, 0.4)
-  assert_eq(transformed.d, 1.1)
-  assert_eq(transformed.tx, 20.0)
-  assert_eq(transformed.ty, 40.0)
 }

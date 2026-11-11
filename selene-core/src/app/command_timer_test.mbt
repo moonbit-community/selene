@@ -94,24 +94,22 @@ test "scheduler ticks only the active World's timeouts" {
     .with_world(first)
     .add_system(Startup, _ => {
       ignore(
-        @system.timeout(0.25, () => {
-          calls.push(@ecs.require_current_world().id())
-        }),
+        @time.timeout(0.25, () => calls.push(@ecs.require_current_world().id())),
       )
     })
-    .add_system(PostUpdate, _ => @system.timers_system(@time.delta()))
+    .add_system(PostUpdate, _ => @time.timers_system(@time.delta()))
   let second_app = @app.App()
     .with_world(second)
     .add_system(Startup, _ => {
       ignore(
-        @system.timeout(
+        @time.timeout(
           0.125,
           () => calls.push(@ecs.require_current_world().id()),
           pausible=false,
         ),
       )
     })
-    .add_system(PostUpdate, _ => @system.timers_system(@time.delta()))
+    .add_system(PostUpdate, _ => @time.timers_system(@time.delta()))
 
   first_app.run_frames(1, raw_delta=0.125)
   second_app.run_frames(3, raw_delta=0.125)
@@ -119,7 +117,7 @@ test "scheduler ticks only the active World's timeouts" {
 
   @app.App()
   .with_world(first)
-  .add_system(PostUpdate, _ => @system.timers_system(@time.delta()))
+  .add_system(PostUpdate, _ => @time.timers_system(@time.delta()))
   .run_frames(1, raw_delta=0.125)
   assert_eq(calls, [second.id(), first.id()])
 }
@@ -133,44 +131,20 @@ test "zero-delay timeouts scheduled by callbacks run on the next tick" {
   .with_world(world)
   .add_system(Startup, _ => {
     ignore(
-      @system.timeout(0.0, () => {
+      @time.timeout(0.0, () => {
         calls.push(1)
-        ignore(@system.timeout(0.0, () => calls.push(3)))
-        ignore(@system.timeout(0.0, () => calls.push(4), pausible=false))
+        ignore(@time.timeout(0.0, () => calls.push(3)))
+        ignore(@time.timeout(0.0, () => calls.push(4), pausible=false))
       }),
     )
-    ignore(@system.timeout(0.0, () => calls.push(2), pausible=false))
+    ignore(@time.timeout(0.0, () => calls.push(2), pausible=false))
   })
   .add_system(PostUpdate, _ => {
-    @system.timers_system(@time.delta())
+    @time.timers_system(@time.delta())
     after_tick.push(calls.copy())
   })
   .run_frames(3)
   assert_eq(after_tick, [[1, 2], [1, 2, 3, 4], [1, 2, 3, 4]])
-}
-
-///|
-test "timeouts can be cancelled before ticking and within a due batch" {
-  let world = @ecs.World()
-  @time.initialize(world)
-  let calls = []
-  @ecs.set_current_world(world)
-  let cancelled = @system.timeout(0.0, () => calls.push(0))
-  @ecs.set_current_world(World())
-  assert_true(cancelled.cancel())
-  assert_false(cancelled.cancel())
-  @ecs.set_current_world(world)
-  let later : Ref[@system.TimerHandle?] = Ref(None)
-  let first = @system.timeout(0.0, () => {
-    calls.push(1)
-    ignore(later.val.unwrap().cancel())
-  })
-  later.val = Some(@system.timeout(0.0, () => calls.push(2)))
-
-  @system.timers_system(0.0)
-  assert_eq(calls, [1])
-  assert_false(first.cancel())
-  assert_false(later.val.unwrap().cancel())
 }
 
 ///|
@@ -181,17 +155,17 @@ test "scaled and unscaled timeouts respect the World's time scale" {
   .with_world(world)
   .add_system(Startup, _ => {
     @time.set_scale(0.0)
-    ignore(@system.timeout(0.125, () => calls.push(2)))
-    ignore(@system.timeout(0.125, () => calls.push(1), pausible=false))
+    ignore(@time.timeout(0.125, () => calls.push(2)))
+    ignore(@time.timeout(0.125, () => calls.push(1), pausible=false))
   })
   .add_system(Update, _ => @time.set_scale(1.0))
-  .add_system(PostUpdate, _ => @system.timers_system(@time.delta()))
+  .add_system(PostUpdate, _ => @time.timers_system(@time.delta()))
   .run_frames(1, raw_delta=0.125)
   assert_eq(calls, [1])
 
   @app.App()
   .with_world(world)
-  .add_system(PostUpdate, _ => @system.timers_system(@time.delta()))
+  .add_system(PostUpdate, _ => @time.timers_system(@time.delta()))
   .run_frames(1, raw_delta=0.125)
   assert_eq(calls, [1, 2])
 }

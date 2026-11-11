@@ -251,7 +251,7 @@ fn tiled_world_update_chunking(world_entity : @ecs.Entity) -> Unit {
 fn tiled_camera_view_bounds() -> (@math.Vec2, @math.Vec2) {
   let camera_views = @camera.active_camera2d_views()
   if camera_views.is_empty() {
-    return (@math.Vec2::zero(), @system.get_viewport_size())
+    return (@math.Vec2::zero(), @window.get_viewport_size())
   }
   let first_bounds = camera_views[0].world_bounds()
   let mut min_x = first_bounds.position.x
