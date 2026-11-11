@@ -23,6 +23,14 @@ pub(all) struct Affine3 {
 }
 
 ///|
+#deprecated
+pub extend Affine3 with Eq::{not_equal, equal}
+
+///|
+#deprecated
+pub extend Affine3 with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub fn Affine3::identity() -> Affine3 {
   {
     x_axis: Vec3::x_axis(),
@@ -36,6 +44,10 @@ pub fn Affine3::identity() -> Affine3 {
 pub impl Default for Affine3 with fn default() -> Affine3 {
   Affine3::identity()
 }
+
+///|
+#deprecated
+pub extend Affine3 with Default::{default}
 
 ///|
 pub fn Affine3::from_scale_rotation_translation(
@@ -85,6 +97,10 @@ pub impl Mul for Affine3 with fn mul(self, other) {
     translation: self.transform_point3(other.translation),
   }
 }
+
+///|
+#deprecated
+pub extend Affine3 with Mul::{mul}
 
 ///|
 /// Returns a linear map for normals and the handedness of the original basis.

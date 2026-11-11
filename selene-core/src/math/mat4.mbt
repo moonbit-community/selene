@@ -35,6 +35,14 @@ pub(all) struct Mat4 {
 }
 
 ///|
+#deprecated
+pub extend Mat4 with Eq::{not_equal, equal}
+
+///|
+#deprecated
+pub extend Mat4 with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// Decodes a 16-element column-major matrix (glTF and WebGPU order).
 pub fn Mat4::from_column_major(values : ArrayView[Double]) -> Mat4? {
   guard values.length() == 16 else { None }
@@ -230,6 +238,10 @@ pub impl Default for Mat4 with fn default() -> Mat4 {
 }
 
 ///|
+#deprecated
+pub extend Mat4 with Default::{default}
+
+///|
 pub fn Mat4::from_affine(affine : Affine3) -> Mat4 {
   {
     m00: affine.x_axis.x,
@@ -408,3 +420,7 @@ pub impl Add for Mat4 with fn add(lhs, rhs) {
     m33: lhs.m33 + rhs.m33,
   }
 }
+
+///|
+#deprecated
+pub extend Mat4 with Add::{add}

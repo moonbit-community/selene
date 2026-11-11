@@ -92,6 +92,10 @@ pub impl Default for Affine2 with fn default() -> Affine2 {
 }
 
 ///|
+#deprecated
+pub extend Affine2 with Default::{default}
+
+///|
 /// `a * b` applies `b` first and then `a`.
 pub impl Mul for Affine2 with fn mul(self : Affine2, other : Affine2) -> Affine2 {
   {
@@ -103,6 +107,10 @@ pub impl Mul for Affine2 with fn mul(self : Affine2, other : Affine2) -> Affine2
     ty: self.b * other.tx + self.d * other.ty + self.ty,
   }
 }
+
+///|
+#deprecated
+pub extend Affine2 with Mul::{mul}
 
 ///|
 pub fn Affine2::transform_vector(self : Affine2, value : Vec2) -> Vec2 {

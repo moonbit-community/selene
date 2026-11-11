@@ -22,6 +22,14 @@ pub(all) struct Quat {
 }
 
 ///|
+#deprecated
+pub extend Quat with Eq::{not_equal, equal}
+
+///|
+#deprecated
+pub extend Quat with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub fn Quat::Quat(x : Double, y : Double, z : Double, w : Double) -> Quat {
   { x, y, z, w, }
 }
@@ -35,6 +43,10 @@ pub fn Quat::identity() -> Quat {
 pub impl Default for Quat with fn default() -> Quat {
   Quat::identity()
 }
+
+///|
+#deprecated
+pub extend Quat with Default::{default}
 
 ///|
 fn Quat::conjugate(self : Quat) -> Quat {
@@ -60,6 +72,10 @@ pub impl Mul for Quat with fn mul(self, other) {
     self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z,
   )
 }
+
+///|
+#deprecated
+pub extend Quat with Mul::{mul}
 
 ///|
 pub fn Quat::dot(self : Quat, other : Quat) -> Double {
@@ -89,6 +105,14 @@ pub struct Rotation3 {
 }
 
 ///|
+#deprecated
+pub extend Rotation3 with Eq::{not_equal, equal}
+
+///|
+#deprecated
+pub extend Rotation3 with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub fn Rotation3::identity() -> Rotation3 {
   { value: Quat::identity(), }
 }
@@ -97,6 +121,10 @@ pub fn Rotation3::identity() -> Rotation3 {
 pub impl Default for Rotation3 with fn default() -> Rotation3 {
   Rotation3::identity()
 }
+
+///|
+#deprecated
+pub extend Rotation3 with Default::{default}
 
 ///|
 /// Rejects zero and non-finite quaternions.
@@ -156,6 +184,10 @@ pub impl Mul for Rotation3 with fn mul(self, other) {
   // Products of unit quaternions are nonzero and finite.
   Rotation3::from_quat(self.value * other.value).unwrap()
 }
+
+///|
+#deprecated
+pub extend Rotation3 with Mul::{mul}
 
 ///|
 pub fn Rotation3::rotate_vec3(self : Rotation3, vector : Vec3) -> Vec3 {

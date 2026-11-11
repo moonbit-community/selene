@@ -27,6 +27,9 @@
 
 ### Changed
 
+- Keep math trait method extensions next to their implementations and deprecate
+  direct calls to promoted trait methods. Use operators and trait APIs instead.
+
 - Use named `Vec2.x` and `Vec2.y` fields. Both vector types now expose
   `length()`, `distance(other)`, `try_normalize()`, and `normalize_or_zero()`.
 - Use `@math.Affine2` for 2D drawing and UV transforms, and `@math.Rotation3`

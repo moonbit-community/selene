@@ -20,6 +20,14 @@ pub(all) struct Vec2 {
 }
 
 ///|
+#deprecated
+pub extend Vec2 with Eq::{not_equal, equal}
+
+///|
+#deprecated
+pub extend Vec2 with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub fn Vec2::Vec2(x : Double, y : Double) -> Vec2 {
   { x, y, }
 }
@@ -35,9 +43,17 @@ pub impl Default for Vec2 with fn default() -> Vec2 {
 }
 
 ///|
+#deprecated
+pub extend Vec2 with Default::{default}
+
+///|
 pub impl Add for Vec2 with fn add(self, other) {
   Vec2(self.x + other.x, self.y + other.y)
 }
+
+///|
+#deprecated
+pub extend Vec2 with Add::{add}
 
 ///|
 pub impl Sub for Vec2 with fn sub(self, other) {
@@ -45,14 +61,26 @@ pub impl Sub for Vec2 with fn sub(self, other) {
 }
 
 ///|
+#deprecated
+pub extend Vec2 with Sub::{sub}
+
+///|
 pub impl Mul for Vec2 with fn mul(self, other) {
   Vec2(self.x * other.x, self.y * other.y)
 }
 
 ///|
+#deprecated
+pub extend Vec2 with Mul::{mul}
+
+///|
 pub impl Neg for Vec2 with fn neg(self) {
   Vec2(-self.x, -self.y)
 }
+
+///|
+#deprecated
+pub extend Vec2 with Neg::{neg}
 
 ///|
 pub fn Vec2::scalar_mul(self : Vec2, scalar : Double) -> Vec2 {

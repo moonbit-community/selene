@@ -21,6 +21,14 @@ pub(all) struct Vec3 {
 }
 
 ///|
+#deprecated
+pub extend Vec3 with Eq::{not_equal, equal}
+
+///|
+#deprecated
+pub extend Vec3 with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub fn Vec3::Vec3(x : Double, y : Double, z : Double) -> Vec3 {
   { x, y, z, }
 }
@@ -56,9 +64,17 @@ pub impl Default for Vec3 with fn default() -> Vec3 {
 }
 
 ///|
+#deprecated
+pub extend Vec3 with Default::{default}
+
+///|
 pub impl Add for Vec3 with fn add(self, other) {
   Vec3(self.x + other.x, self.y + other.y, self.z + other.z)
 }
+
+///|
+#deprecated
+pub extend Vec3 with Add::{add}
 
 ///|
 pub impl Sub for Vec3 with fn sub(self, other) {
@@ -66,14 +82,26 @@ pub impl Sub for Vec3 with fn sub(self, other) {
 }
 
 ///|
+#deprecated
+pub extend Vec3 with Sub::{sub}
+
+///|
 pub impl Neg for Vec3 with fn neg(self) {
   Vec3(-self.x, -self.y, -self.z)
 }
 
 ///|
+#deprecated
+pub extend Vec3 with Neg::{neg}
+
+///|
 pub impl Mul for Vec3 with fn mul(self, other) {
   Vec3(self.x * other.x, self.y * other.y, self.z * other.z)
 }
+
+///|
+#deprecated
+pub extend Vec3 with Mul::{mul}
 
 ///|
 pub fn Vec3::scalar_mul(self : Vec3, scalar : Double) -> Vec3 {
