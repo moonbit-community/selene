@@ -271,10 +271,7 @@ fn build_trimesh_wire(
   indices : Array[(Int32, Int32, Int32)],
 ) -> Array[ColliderWireSegment3D] {
   let segments : Array[ColliderWireSegment3D] = []
-  for triangle in indices {
-    let a = triangle.0
-    let b = triangle.1
-    let c = triangle.2
+  for (a, b, c) in indices {
     if valid_vertex_index(vertices, a) &&
       valid_vertex_index(vertices, b) &&
       valid_vertex_index(vertices, c) {
@@ -514,10 +511,7 @@ fn points_key(points : Array[@math.Vec3]) -> String {
 ///|
 fn indices_key(indices : Array[(Int32, Int32, Int32)]) -> String {
   let mut key = indices.length().to_string()
-  for triangle in indices {
-    let a = triangle.0
-    let b = triangle.1
-    let c = triangle.2
+  for (a, b, c) in indices {
     key = key + ";" + a.to_string() + "," + b.to_string() + "," + c.to_string()
   }
   key

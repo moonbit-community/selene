@@ -178,14 +178,12 @@ pub fn transform_scale_field() -> AnimatedFieldHandle {
 
 ///|
 fn morph_weights_of(target_entity : @ecs.Entity) -> Array[Double] {
-  for _, pair in morphed_meshes().to_array() {
-    let (_, binding) = pair
+  for (_, binding) in morphed_meshes().to_array() {
     if binding.target_entity == target_entity {
       return binding.morph_weights.copy()
     }
   }
-  for _, pair in skinned_meshes().to_array() {
-    let (_, binding) = pair
+  for (_, binding) in skinned_meshes().to_array() {
     if binding.target_entity == target_entity {
       return binding.morph_weights.copy()
     }
@@ -198,15 +196,13 @@ fn set_target_morph_weights(
   target_entity : @ecs.Entity,
   weights : Array[Double],
 ) -> Unit {
-  for _, pair in morphed_meshes().to_array() {
-    let (entity, binding) = pair
+  for (entity, binding) in morphed_meshes().to_array() {
     if binding.target_entity == target_entity {
       binding.morph_weights = weights.copy()
       morphed_meshes().set(entity, binding)
     }
   }
-  for _, pair in skinned_meshes().to_array() {
-    let (entity, binding) = pair
+  for (entity, binding) in skinned_meshes().to_array() {
     if binding.target_entity == target_entity {
       binding.morph_weights = weights.copy()
       skinned_meshes().set(entity, binding)

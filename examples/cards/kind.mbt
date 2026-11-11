@@ -139,10 +139,10 @@ fn is_straight(hand : Array[Card]) -> Int32? {
 fn is_flush(hand : Array[Card]) -> Int32? {
   // Check if there's a suit with 5+ cards
   let suit_counts = count_by_suit(hand)
-  for entry in suit_counts {
-    if entry.1 >= 5 {
+  for (suit, count) in suit_counts {
+    if count >= 5 {
       // Found a flush, return the high card value of that suit
-      let flush_cards = hand.filter(fn(c) { c.1 == entry.0 })
+      let flush_cards = hand.filter(fn(c) { c.1 == suit })
       let values = flush_cards.map(fn(c) { c.0.to_int() })
       values.sort()
       return Some(values[values.length() - 1])
@@ -175,20 +175,20 @@ fn eval_rank(hand : Array[Card]) -> HandRank {
   }
 
   // FourOfKind
-  for entry in nums {
-    if entry.1 == 4 {
-      return FourOfKind(entry.0.to_int())
+  for (num, count) in nums {
+    if count == 4 {
+      return FourOfKind(num.to_int())
     }
   }
   // FullHouse
   let mut three_kind : Int32? = None
   let mut pair : Int32? = None
-  for entry in nums {
-    if entry.1 == 3 {
-      three_kind = Some(entry.0.to_int())
+  for (num, count) in nums {
+    if count == 3 {
+      three_kind = Some(num.to_int())
     }
-    if entry.1 == 2 {
-      pair = Some(entry.0.to_int())
+    if count == 2 {
+      pair = Some(num.to_int())
     }
   }
   if three_kind is Some(n) && pair is Some(m) {

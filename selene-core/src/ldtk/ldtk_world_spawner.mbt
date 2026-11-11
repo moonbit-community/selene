@@ -120,8 +120,8 @@ pub fn unregister_default_ldtk_entity() -> Unit {
 
 ///|
 pub fn clear_ldtk_entity_registrations() -> Unit {
-  for pair in ldtk_entity_typed_registrations().to_array() {
-    ldtk_entity_typed_registrations().remove(pair.0)
+  for (key, _) in ldtk_entity_typed_registrations().to_array() {
+    ldtk_entity_typed_registrations().remove(key)
   }
 }
 

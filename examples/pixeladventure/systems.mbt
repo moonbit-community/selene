@@ -503,8 +503,7 @@ fn player_bird_contact_system(world : @ecs.World) -> Unit {
     player_resolved_velocity.scalar_mul(-fixed_delta),
   )
 
-  for pair in birds().to_array() {
-    let bird_entity = pair.0
+  for (bird_entity, _) in birds().to_array() {
     if !bird_entity.is_alive() {
       continue
     }
@@ -541,8 +540,7 @@ fn player_bird_contact_system(world : @ecs.World) -> Unit {
 
 ///|
 fn bird_patrol_system(_world : @ecs.World) -> Unit {
-  for pair in birds().to_array() {
-    let bird_entity = pair.0
+  for (bird_entity, _) in birds().to_array() {
     if !bird_entity.is_alive() {
       continue
     }
@@ -590,8 +588,7 @@ fn trigger_system(world : @ecs.World) -> Unit {
     return
   }
 
-  for pair in flags().to_array() {
-    let flag_entity = pair.0
+  for (flag_entity, _) in flags().to_array() {
     if !flag_entity.is_alive() {
       continue
     }
@@ -602,8 +599,7 @@ fn trigger_system(world : @ecs.World) -> Unit {
     }
   }
 
-  for pair in apples().to_array() {
-    let apple_entity = pair.0
+  for (apple_entity, _) in apples().to_array() {
     if !apple_entity.is_alive() {
       continue
     }

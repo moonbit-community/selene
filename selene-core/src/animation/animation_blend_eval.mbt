@@ -95,10 +95,10 @@ fn blend_scalar(
   }
   let mut total = 0.0
   let mut weighted = 0.0
-  for pair in values {
-    if pair.0 is Scalar(value) {
-      total += pair.1
-      weighted += value * pair.1
+  for (sample, weight) in values {
+    if sample is Scalar(value) {
+      total += weight
+      weighted += value * weight
     }
   }
   if total <= 0.000001 {
@@ -118,10 +118,10 @@ fn blend_vec3(
   }
   let mut total = 0.0
   let mut weighted = @math.Vec3::zero()
-  for pair in values {
-    if pair.0 is Vec3(value) {
-      total += pair.1
-      weighted = weighted + value.scalar_mul(pair.1)
+  for (sample, weight) in values {
+    if sample is Vec3(value) {
+      total += weight
+      weighted = weighted + value.scalar_mul(weight)
     }
   }
   if total <= 0.000001 {
@@ -144,13 +144,13 @@ fn blend_quat(
   let mut y = 0.0
   let mut z = 0.0
   let mut w = 0.0
-  for pair in values {
-    if pair.0 is Quat(value) {
-      total += pair.1
-      x += value.x * pair.1
-      y += value.y * pair.1
-      z += value.z * pair.1
-      w += value.w * pair.1
+  for (sample, weight) in values {
+    if sample is Quat(value) {
+      total += weight
+      x += value.x * weight
+      y += value.y * weight
+      z += value.z * weight
+      w += value.w * weight
     }
   }
   if total <= 0.000001 {
@@ -169,8 +169,8 @@ fn blend_weights(
     return fallback.copy()
   }
   let mut max_len = fallback.length()
-  for pair in values {
-    if pair.0 is Weights(weights) && weights.length() > max_len {
+  for (sample, _) in values {
+    if sample is Weights(weights) && weights.length() > max_len {
       max_len = weights.length()
     }
   }
@@ -180,12 +180,12 @@ fn blend_weights(
     totals.push(0.0)
     weighted.push(0.0)
   }
-  for pair in values {
-    if pair.0 is Weights(weights) {
+  for (sample, weight) in values {
+    if sample is Weights(weights) {
       for index in 0..<max_len {
         let value = weights.get(index).unwrap_or(0.0)
-        totals[index] = totals[index] + pair.1
-        weighted[index] = weighted[index] + value * pair.1
+        totals[index] = totals[index] + weight
+        weighted[index] = weighted[index] + value * weight
       }
     }
   }
@@ -210,10 +210,10 @@ fn select_discrete_value(
   }
   let mut selected = fallback
   let mut selected_weight = -1.0
-  for pair in values {
-    if pair.1 > selected_weight {
-      selected = pair.0
-      selected_weight = pair.1
+  for (sample, weight) in values {
+    if weight > selected_weight {
+      selected = sample
+      selected_weight = weight
     }
   }
   selected
@@ -227,29 +227,29 @@ fn apply_additive_value(
   match base {
     Scalar(value) => {
       let mut output = value
-      for pair in values {
-        if pair.0 is Scalar(add) {
-          output += add * pair.1
+      for (sample, weight) in values {
+        if sample is Scalar(add) {
+          output += add * weight
         }
       }
       Scalar(output)
     }
     Vec3(value) => {
       let mut output = value
-      for pair in values {
-        if pair.0 is Vec3(add) {
-          output = output + add.scalar_mul(pair.1)
+      for (sample, weight) in values {
+        if sample is Vec3(add) {
+          output = output + add.scalar_mul(weight)
         }
       }
       Vec3(output)
     }
     Quat(value) => {
       let mut output = value
-      for pair in values {
-        if pair.0 is Quat(add) {
+      for (sample, weight) in values {
+        if sample is Quat(add) {
           let rotation = @math.Rotation3::try_from_quat(add).unwrap_or_default()
           let weighted = @math.Rotation3::identity()
-            .nlerp(rotation, pair.1)
+            .nlerp(rotation, weight)
             .to_quat()
           output = (output * weighted).normalize_or_identity()
         }
@@ -258,8 +258,8 @@ fn apply_additive_value(
     }
     Weights(weights) => {
       let output = weights.copy()
-      for pair in values {
-        if pair.0 is Weights(add) {
+      for (sample, weight) in values {
+        if sample is Weights(add) {
           let count = if output.length() > add.length() {
             output.length()
           } else {
@@ -270,7 +270,7 @@ fn apply_additive_value(
           }
           for index in 0..<count {
             output[index] = output[index] +
-              add.get(index).unwrap_or(0.0) * pair.1
+              add.get(index).unwrap_or(0.0) * weight
           }
         }
       }

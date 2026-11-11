@@ -12,9 +12,9 @@ fn anchor_origin(anchor : @sprite.Anchor, size : @math.Vec2) -> @math.Vec2 {
 ///|
 pub fn render_text2d_system(delta : Double) -> Unit {
   ignore(delta)
-  for pair in text_layout_caches().to_array() {
-    if !pair.0.is_alive() {
-      text_layout_caches().remove(pair.0)
+  for (entity, _) in text_layout_caches().to_array() {
+    if !entity.is_alive() {
+      text_layout_caches().remove(entity)
     }
   }
   let camera_views = @camera.active_camera2d_views()

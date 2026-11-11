@@ -42,8 +42,7 @@ fn consume_pending_body_controls(entity : @ecs.Entity) -> Unit {
 ///|
 fn sync_world_entities() -> Unit {
   prune_pending_body_state()
-  for _idx, entry in world().entity_bodies.to_array() {
-    let entity = entry.0
+  for (entity, _) in world().entity_bodies.to_array() {
     if !should_have_physics(entity) {
       remove_entity_physics(entity)
     }

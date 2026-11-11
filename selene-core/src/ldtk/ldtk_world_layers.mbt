@@ -1,7 +1,7 @@
 ///|
 pub fn clear_ldtk_int_cell_registrations() -> Unit {
-  for pair in ldtk_int_cell_typed_registrations().to_array() {
-    ldtk_int_cell_typed_registrations().remove(pair.0)
+  for (key, _) in ldtk_int_cell_typed_registrations().to_array() {
+    ldtk_int_cell_typed_registrations().remove(key)
   }
 }
 

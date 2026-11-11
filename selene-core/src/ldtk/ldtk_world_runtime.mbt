@@ -12,8 +12,8 @@ pub fn clear_ldtk_int_grid_default_spawn_hook() -> Unit {
 
 ///|
 pub fn clear_ldtk_int_grid_layer_spawn_hooks() -> Unit {
-  for pair in ldtk_int_grid_layer_spawn_hooks().to_array() {
-    ldtk_int_grid_layer_spawn_hooks().remove(pair.0)
+  for (key, _) in ldtk_int_grid_layer_spawn_hooks().to_array() {
+    ldtk_int_grid_layer_spawn_hooks().remove(key)
   }
 }
 
@@ -41,15 +41,15 @@ pub fn unregister_ldtk_int_grid_cell_spawn_hook(
 
 ///|
 pub fn clear_ldtk_int_grid_cell_spawn_hooks() -> Unit {
-  for pair in ldtk_int_grid_cell_spawn_hooks().to_array() {
-    ldtk_int_grid_cell_spawn_hooks().remove(pair.0)
+  for (key, _) in ldtk_int_grid_cell_spawn_hooks().to_array() {
+    ldtk_int_grid_cell_spawn_hooks().remove(key)
   }
 }
 
 ///|
 pub fn clear_ldtk_int_grid_value_spawn_hooks() -> Unit {
-  for pair in ldtk_int_grid_value_spawn_hooks().to_array() {
-    ldtk_int_grid_value_spawn_hooks().remove(pair.0)
+  for (key, _) in ldtk_int_grid_value_spawn_hooks().to_array() {
+    ldtk_int_grid_value_spawn_hooks().remove(key)
   }
 }
 
@@ -121,13 +121,12 @@ pub fn ldtk_worldly_entity(
   world_entity : @ecs.Entity,
   entity_iid : String,
 ) -> @ecs.Entity? {
-  for pair in ldtk_worldly_entities().to_array() {
-    if !pair.0.is_alive() {
+  for (entity, worldly) in ldtk_worldly_entities().to_array() {
+    if !entity.is_alive() {
       continue
     }
-    let worldly = pair.1
     if worldly.world_entity == world_entity && worldly.entity_iid == entity_iid {
-      return Some(pair.0)
+      return Some(entity)
     }
   }
   None
@@ -138,18 +137,18 @@ pub fn ldtk_entity_by_iid(
   world_entity : @ecs.Entity,
   entity_iid : String,
 ) -> @ecs.Entity? {
-  for pair in ldtk_entity_iids().to_array() {
-    if !pair.0.is_alive() {
+  for (entity, iid_instance) in ldtk_entity_iids().to_array() {
+    if !entity.is_alive() {
       continue
     }
-    if pair.1.iid != entity_iid {
+    if iid_instance.iid != entity_iid {
       continue
     }
-    guard ldtk_spawned_entity_instances().get(pair.0) is Some(runtime) else {
+    guard ldtk_spawned_entity_instances().get(entity) is Some(runtime) else {
       continue
     }
     if runtime.world_entity == world_entity {
-      return Some(pair.0)
+      return Some(entity)
     }
   }
   None
@@ -239,12 +238,10 @@ fn ldtk_world_apply_level_set(world_entity : @ecs.Entity) -> Unit {
     instance.spawned_levels.set(iid, level_entity)
   }
 
-  for pair in instance.spawned_levels.to_array() {
-    let iid = pair.0
+  for (iid, level_entity) in instance.spawned_levels.to_array() {
     if desired_iids.contains(iid) {
       continue
     }
-    let level_entity = pair.1
     ldtk_despawn_level(iid, level_entity)
     instance.spawned_levels.remove(iid)
   }

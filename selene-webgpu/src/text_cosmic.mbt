@@ -232,10 +232,8 @@ fn rasterize_with_cosmic(
   let width = max_x - min_x + 1
   let height = max_y - min_y + 1
   let pixels = Array::make(width * height * 4, 0)
-  for point in points {
-    let x = point.0
-    let y = point.1
-    let (r, g, b, a) = styled_text_pixel_rgba(command.style.color, point.2)
+  for (x, y, alpha) in points {
+    let (r, g, b, a) = styled_text_pixel_rgba(command.style.color, alpha)
     let local_x = x - min_x
     let local_y = y - min_y
     let idx = (local_y * width + local_x) * 4

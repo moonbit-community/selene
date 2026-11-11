@@ -56,8 +56,7 @@ fn[Columns] ArchetypeQuery::for_each_table(
     storage.active_queries -= 1
     leave_query()
   }
-  for match_entry in self.matches {
-    let (id, columns) = match_entry
+  for (id, columns) in self.matches {
     let entities = storage.tables[id].entities
     if !entities.is_empty() {
       visit(entities, columns)

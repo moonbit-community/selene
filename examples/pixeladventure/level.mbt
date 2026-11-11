@@ -40,8 +40,7 @@ fn load_level_scene() -> LoadedLevelScene {
   let rows : Map[Int32, Array[Int32]] = Map([])
   let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
   let entities = pixeladventure_world_state().entities
-  for run in terrain_runs {
-    let (x, y, count, atlas_x, atlas_y) = run
+  for (x, y, count, atlas_x, atlas_y) in terrain_runs {
     for offset in 0..<count {
       let tile_x = x + offset
       let entity = plan.spawn(

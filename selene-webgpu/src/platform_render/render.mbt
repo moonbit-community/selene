@@ -77,17 +77,17 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
   let clear = frame.frame3d.clear_color
   @impl.frame_begin(clear)
 
-  for pair in frame.assets3d.mesh_upserts {
-    @impl.sync_mesh_asset(pair.0, pair.1)
+  for (handle, asset) in frame.assets3d.mesh_upserts {
+    @impl.sync_mesh_asset(handle, asset)
   }
-  for pair in frame.assets3d.material_upserts {
-    @impl.sync_material_asset(pair.0, pair.1)
+  for (handle, asset) in frame.assets3d.material_upserts {
+    @impl.sync_material_asset(handle, asset)
   }
-  for pair in frame.assets3d.image_upserts {
-    @impl.sync_image_asset(pair.0, pair.1)
+  for (handle, asset) in frame.assets3d.image_upserts {
+    @impl.sync_image_asset(handle, asset)
   }
-  for pair in frame.assets3d.cubemap_upserts {
-    @impl.sync_cubemap_asset(pair.0, pair.1)
+  for (handle, asset) in frame.assets3d.cubemap_upserts {
+    @impl.sync_cubemap_asset(handle, asset)
   }
   for handle in frame.assets3d.mesh_releases {
     @impl.release_mesh_asset(handle)

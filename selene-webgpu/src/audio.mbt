@@ -213,20 +213,17 @@ fn create_audio_instance(path : String) -> (AudioInstance, AudioPlayback) {
 
 ///|
 fn reset_audio_runtime() -> Unit {
-  for pair in audio_instances.to_array() {
-    let playback = pair.1
+  for (_, playback) in audio_instances.to_array() {
     playback.audio.pause()
     playback.audio.set_current_time(0.0)
   }
   audio_instances.clear()
-  for pair in preloaded_audio_templates.to_array() {
-    let template = pair.1
+  for (_, template) in preloaded_audio_templates.to_array() {
     template.pause()
     template.set_current_time(0.0)
   }
   preloaded_audio_templates.clear()
-  for pair in cached_audio_sources.to_array() {
-    let entry = pair.1
+  for (_, entry) in cached_audio_sources.to_array() {
     if entry.blob_owned {
       revoke_object_url(entry.src)
     }
@@ -319,11 +316,10 @@ pub fn is_finished(instance~ : AudioInstance) -> Bool {
 ///|
 pub fn tick_audio() -> Unit {
   let activation_epoch = current_audio_activation_epoch()
-  for pair in audio_instances.to_array() {
-    let playback = pair.1
+  for (instance, playback) in audio_instances.to_array() {
     let play_state = audio_play_state(playback.audio)
     if playback.audio.is_ended() || play_state == AUDIO_PLAY_STATE_FAILED {
-      audio_instances.remove(pair.0)
+      audio_instances.remove(instance)
     } else if should_retry_blocked_audio_playback(
         play_state,
         playback.requested_paused,

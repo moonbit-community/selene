@@ -195,8 +195,7 @@ fn max_attribute_set_index(
   prefix : String,
 ) -> Int32 {
   let mut max_index = -1
-  for pair in attributes_object.to_array() {
-    let key = pair.0
+  for (key, _) in attributes_object.to_array() {
     if !key.has_prefix(prefix) {
       continue
     }

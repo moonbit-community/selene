@@ -1,7 +1,6 @@
 ///|
 fn ldtk_emit_pending_transformed_events() -> Unit {
-  for pair in ldtk_pending_transformed_level_iids().to_array() {
-    let iid = pair.0
+  for (iid, _) in ldtk_pending_transformed_level_iids().to_array() {
     ldtk_level_event_bus.trigger(Transformed(iid), None)
     ldtk_pending_transformed_level_iids().remove(iid)
   }
@@ -9,10 +8,10 @@ fn ldtk_emit_pending_transformed_events() -> Unit {
 
 ///|
 fn ldtk_cleanup_dead_spawned_levels(instance : LdtkWorldInstance) -> Unit {
-  for pair in instance.spawned_levels.to_array() {
-    if !pair.1.is_alive() {
-      instance.spawned_levels.remove(pair.0)
-      ldtk_pending_transformed_level_iids().remove(pair.0)
+  for (level_iid, level_entity) in instance.spawned_levels.to_array() {
+    if !level_entity.is_alive() {
+      instance.spawned_levels.remove(level_iid)
+      ldtk_pending_transformed_level_iids().remove(level_iid)
     }
   }
 }
