@@ -278,7 +278,7 @@ function _M0TPB9ArrayViewGUjRP39Milky20186selene2ui20UiInteractionRuntimeEE(para
   this.start = param1;
   this.end = param2;
 }
-function _M0TPB9ArrayViewGUjRP39Milky20186selene6system12DisplayStateEE(param0, param1, param2) {
+function _M0TPB9ArrayViewGUjRP39Milky20186selene6window12DisplayStateEE(param0, param1, param2) {
   this.buf = param0;
   this.start = param1;
   this.end = param2;
@@ -564,11 +564,6 @@ function _M0TPB9ArrayViewGUjRP39Milky20186selene2ui15UiLayoutRuntimeEE(param0, p
   this.start = param1;
   this.end = param2;
 }
-function _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(param0, param1, param2) {
-  this.buf = param0;
-  this.start = param1;
-  this.end = param2;
-}
 function _M0TPB9ArrayViewGURP39Milky20186selene9animation30AnimationEventDescriptorHandleRP39Milky20186selene9animation24AnimationEventDescriptorEE(param0, param1, param2) {
   this.buf = param0;
   this.start = param1;
@@ -610,6 +605,11 @@ function _M0TPB9ArrayViewGURP39Milky20186selene6inputs11VirtualAxisdEE(param0, p
   this.end = param2;
 }
 function _M0TPB9ArrayViewGRP39Milky20186selene6inputs13VirtualButtonE(param0, param1, param2) {
+  this.buf = param0;
+  this.start = param1;
+  this.end = param2;
+}
+function _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(param0, param1, param2) {
   this.buf = param0;
   this.start = param1;
   this.end = param2;
@@ -1408,7 +1408,7 @@ function _M0TPB3MapGRP39Milky20186selene6inputs16GamepadAxisInputdE(param0, para
   this.head = param5;
   this.tail = param6;
 }
-function _M0TPB3MapGjRP39Milky20186selene6system12DisplayStateE(param0, param1, param2, param3, param4, param5, param6) {
+function _M0TPB3MapGjRP39Milky20186selene6window12DisplayStateE(param0, param1, param2, param3, param4, param5, param6) {
   this.entries = param0;
   this.size = param1;
   this.capacity = param2;
@@ -2340,7 +2340,7 @@ function _M0TPB5EntryGsRPB5ArrayGjEE(param0, param1, param2, param3, param4, par
   this.key = param4;
   this.value = param5;
 }
-function _M0TPB5EntryGjRP39Milky20186selene6system12DisplayStateE(param0, param1, param2, param3, param4, param5) {
+function _M0TPB5EntryGjRP39Milky20186selene6window12DisplayStateE(param0, param1, param2, param3, param4, param5) {
   this.prev = param0;
   this.next = param1;
   this.psl = param2;
@@ -10735,25 +10735,6 @@ function _M0TPB5ArrayGRP39Milky201812moon__rapier9collision17ContactForceEventE(
   this.buf = param0;
   this.len = param1;
 }
-function _M0TP39Milky20186selene4time9TimeState(param0, param1, param2, param3, param4, param5, param6) {
-  this.raw_delta = param0;
-  this.delta = param1;
-  this.frame_delta = param2;
-  this.fixed_delta = param3;
-  this.elapsed_raw = param4;
-  this.elapsed = param5;
-  this.scale = param6;
-}
-function _M0TPB5ArrayGRP39Milky20186selene6system11TimerHandleE(param0, param1) {
-  this.buf = param0;
-  this.len = param1;
-}
-function _M0TP39Milky20186selene6system12DisplayState(param0, param1, param2, param3) {
-  this.viewport_size = param0;
-  this.screen_size = param1;
-  this.zoom = param2;
-  this.render_alpha = param3;
-}
 function _M0TP39Milky20186selene9transform9Transform(param0, param1, param2) {
   this.translation = param0;
   this.rotation = param1;
@@ -10765,6 +10746,11 @@ function _M0TP39Milky20186selene9transform15GlobalTransform(param0) {
 function _M0TP39Milky20186selene9transform7Spatial(param0, param1) {
   this.pose = param0;
   this.global = param1;
+}
+function _M0TP39Milky20186selene6window12DisplayState(param0, param1, param2) {
+  this.viewport_size = param0;
+  this.screen_size = param1;
+  this.zoom = param2;
 }
 function _M0TP39Milky20186selene6camera12CameraPass2D(param0, param1, param2) {
   this.load_op = param0;
@@ -12020,8 +12006,18 @@ function _M0TPB5ArrayGWEuE(param0, param1) {
   this.buf = param0;
   this.len = param1;
 }
-function _M0TP39Milky20186selene11system__set9SystemSet(param0) {
-  this.name = param0;
+function _M0TPB5ArrayGRP39Milky20186selene4time11TimerHandleE(param0, param1) {
+  this.buf = param0;
+  this.len = param1;
+}
+function _M0TP39Milky20186selene4time9TimeState(param0, param1, param2, param3, param4, param5, param6) {
+  this.raw_delta = param0;
+  this.delta = param1;
+  this.frame_delta = param2;
+  this.fixed_delta = param3;
+  this.elapsed_raw = param4;
+  this.elapsed = param5;
+  this.scale = param6;
 }
 function _M0TP39Milky20186selene3app16RegisteredSystem(param0, param1, param2, param3, param4, param5, param6) {
   this.system = param0;
@@ -12044,7 +12040,7 @@ function _M0TP39Milky20186selene3app3App(param0, param1, param2, param3, param4,
   this.event_registrations = param8;
   this.systems = param9;
 }
-function _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE(param0, param1) {
+function _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE(param0, param1) {
   this.buf = param0;
   this.len = param1;
 }
@@ -12097,6 +12093,9 @@ function _M0TP39Milky20186selene17platform__runtime15RunnerCallbacks(param0, par
   this.service_frame = param1;
   this.render_loop = param2;
   this.game_loop = param3;
+}
+function _M0TP39Milky20186selene3app9SystemSet(param0) {
+  this.name = param0;
 }
 function _M0TP29Milky201815moon__accesskit8TreeInfo(param0, param1, param2) {
   this.root = param0;
@@ -13170,52 +13169,52 @@ function _M0TPB9ArrayViewGUsRP39Milky20186selene15touch__controls13ButtonRuntime
   this.start = param1;
   this.end = param2;
 }
-function _M0DTP39Milky20186selene6system8Schedule7Startup() {}
-_M0DTP39Milky20186selene6system8Schedule7Startup.prototype.$tag = 0;
-const _M0DTP39Milky20186selene6system8Schedule7Startup__ = new _M0DTP39Milky20186selene6system8Schedule7Startup();
-function _M0DTP39Milky20186selene6system8Schedule5First() {}
-_M0DTP39Milky20186selene6system8Schedule5First.prototype.$tag = 1;
-function _M0DTP39Milky20186selene6system8Schedule9PreUpdate() {}
-_M0DTP39Milky20186selene6system8Schedule9PreUpdate.prototype.$tag = 2;
-const _M0DTP39Milky20186selene6system8Schedule9PreUpdate__ = new _M0DTP39Milky20186selene6system8Schedule9PreUpdate();
-function _M0DTP39Milky20186selene6system8Schedule6OnExit(param0) {
+function _M0DTP39Milky20186selene3app8Schedule7Startup() {}
+_M0DTP39Milky20186selene3app8Schedule7Startup.prototype.$tag = 0;
+const _M0DTP39Milky20186selene3app8Schedule7Startup__ = new _M0DTP39Milky20186selene3app8Schedule7Startup();
+function _M0DTP39Milky20186selene3app8Schedule5First() {}
+_M0DTP39Milky20186selene3app8Schedule5First.prototype.$tag = 1;
+function _M0DTP39Milky20186selene3app8Schedule9PreUpdate() {}
+_M0DTP39Milky20186selene3app8Schedule9PreUpdate.prototype.$tag = 2;
+const _M0DTP39Milky20186selene3app8Schedule9PreUpdate__ = new _M0DTP39Milky20186selene3app8Schedule9PreUpdate();
+function _M0DTP39Milky20186selene3app8Schedule6OnExit(param0) {
   this._0 = param0;
 }
-_M0DTP39Milky20186selene6system8Schedule6OnExit.prototype.$tag = 3;
-function _M0DTP39Milky20186selene6system8Schedule7OnEnter(param0) {
+_M0DTP39Milky20186selene3app8Schedule6OnExit.prototype.$tag = 3;
+function _M0DTP39Milky20186selene3app8Schedule7OnEnter(param0) {
   this._0 = param0;
 }
-_M0DTP39Milky20186selene6system8Schedule7OnEnter.prototype.$tag = 4;
-function _M0DTP39Milky20186selene6system8Schedule11FixedUpdate() {}
-_M0DTP39Milky20186selene6system8Schedule11FixedUpdate.prototype.$tag = 5;
-const _M0DTP39Milky20186selene6system8Schedule11FixedUpdate__ = new _M0DTP39Milky20186selene6system8Schedule11FixedUpdate();
-function _M0DTP39Milky20186selene6system8Schedule10FixedFirst() {}
-_M0DTP39Milky20186selene6system8Schedule10FixedFirst.prototype.$tag = 6;
-function _M0DTP39Milky20186selene6system8Schedule14FixedPreUpdate() {}
-_M0DTP39Milky20186selene6system8Schedule14FixedPreUpdate.prototype.$tag = 7;
-function _M0DTP39Milky20186selene6system8Schedule15FixedPostUpdate() {}
-_M0DTP39Milky20186selene6system8Schedule15FixedPostUpdate.prototype.$tag = 8;
-function _M0DTP39Milky20186selene6system8Schedule9FixedLast() {}
-_M0DTP39Milky20186selene6system8Schedule9FixedLast.prototype.$tag = 9;
-function _M0DTP39Milky20186selene6system8Schedule6Update() {}
-_M0DTP39Milky20186selene6system8Schedule6Update.prototype.$tag = 10;
-const _M0DTP39Milky20186selene6system8Schedule6Update__ = new _M0DTP39Milky20186selene6system8Schedule6Update();
-function _M0DTP39Milky20186selene6system8Schedule10PostUpdate() {}
-_M0DTP39Milky20186selene6system8Schedule10PostUpdate.prototype.$tag = 11;
-const _M0DTP39Milky20186selene6system8Schedule10PostUpdate__ = new _M0DTP39Milky20186selene6system8Schedule10PostUpdate();
-function _M0DTP39Milky20186selene6system8Schedule4Last() {}
-_M0DTP39Milky20186selene6system8Schedule4Last.prototype.$tag = 12;
-function _M0DTP39Milky20186selene6system8Schedule13RenderExtract() {}
-_M0DTP39Milky20186selene6system8Schedule13RenderExtract.prototype.$tag = 13;
-const _M0DTP39Milky20186selene6system8Schedule13RenderExtract__ = new _M0DTP39Milky20186selene6system8Schedule13RenderExtract();
-function _M0DTP39Milky20186selene6system8Schedule13RenderPrepare() {}
-_M0DTP39Milky20186selene6system8Schedule13RenderPrepare.prototype.$tag = 14;
-const _M0DTP39Milky20186selene6system8Schedule13RenderPrepare__ = new _M0DTP39Milky20186selene6system8Schedule13RenderPrepare();
-function _M0DTP39Milky20186selene6system8Schedule6Render() {}
-_M0DTP39Milky20186selene6system8Schedule6Render.prototype.$tag = 15;
-const _M0DTP39Milky20186selene6system8Schedule6Render__ = new _M0DTP39Milky20186selene6system8Schedule6Render();
-function _M0DTP39Milky20186selene6system8Schedule13RenderCleanup() {}
-_M0DTP39Milky20186selene6system8Schedule13RenderCleanup.prototype.$tag = 16;
+_M0DTP39Milky20186selene3app8Schedule7OnEnter.prototype.$tag = 4;
+function _M0DTP39Milky20186selene3app8Schedule11FixedUpdate() {}
+_M0DTP39Milky20186selene3app8Schedule11FixedUpdate.prototype.$tag = 5;
+const _M0DTP39Milky20186selene3app8Schedule11FixedUpdate__ = new _M0DTP39Milky20186selene3app8Schedule11FixedUpdate();
+function _M0DTP39Milky20186selene3app8Schedule10FixedFirst() {}
+_M0DTP39Milky20186selene3app8Schedule10FixedFirst.prototype.$tag = 6;
+function _M0DTP39Milky20186selene3app8Schedule14FixedPreUpdate() {}
+_M0DTP39Milky20186selene3app8Schedule14FixedPreUpdate.prototype.$tag = 7;
+function _M0DTP39Milky20186selene3app8Schedule15FixedPostUpdate() {}
+_M0DTP39Milky20186selene3app8Schedule15FixedPostUpdate.prototype.$tag = 8;
+function _M0DTP39Milky20186selene3app8Schedule9FixedLast() {}
+_M0DTP39Milky20186selene3app8Schedule9FixedLast.prototype.$tag = 9;
+function _M0DTP39Milky20186selene3app8Schedule6Update() {}
+_M0DTP39Milky20186selene3app8Schedule6Update.prototype.$tag = 10;
+const _M0DTP39Milky20186selene3app8Schedule6Update__ = new _M0DTP39Milky20186selene3app8Schedule6Update();
+function _M0DTP39Milky20186selene3app8Schedule10PostUpdate() {}
+_M0DTP39Milky20186selene3app8Schedule10PostUpdate.prototype.$tag = 11;
+const _M0DTP39Milky20186selene3app8Schedule10PostUpdate__ = new _M0DTP39Milky20186selene3app8Schedule10PostUpdate();
+function _M0DTP39Milky20186selene3app8Schedule4Last() {}
+_M0DTP39Milky20186selene3app8Schedule4Last.prototype.$tag = 12;
+function _M0DTP39Milky20186selene3app8Schedule13RenderExtract() {}
+_M0DTP39Milky20186selene3app8Schedule13RenderExtract.prototype.$tag = 13;
+const _M0DTP39Milky20186selene3app8Schedule13RenderExtract__ = new _M0DTP39Milky20186selene3app8Schedule13RenderExtract();
+function _M0DTP39Milky20186selene3app8Schedule13RenderPrepare() {}
+_M0DTP39Milky20186selene3app8Schedule13RenderPrepare.prototype.$tag = 14;
+const _M0DTP39Milky20186selene3app8Schedule13RenderPrepare__ = new _M0DTP39Milky20186selene3app8Schedule13RenderPrepare();
+function _M0DTP39Milky20186selene3app8Schedule6Render() {}
+_M0DTP39Milky20186selene3app8Schedule6Render.prototype.$tag = 15;
+const _M0DTP39Milky20186selene3app8Schedule6Render__ = new _M0DTP39Milky20186selene3app8Schedule6Render();
+function _M0DTP39Milky20186selene3app8Schedule13RenderCleanup() {}
+_M0DTP39Milky20186selene3app8Schedule13RenderCleanup.prototype.$tag = 16;
 function _M0TP39Milky201817selene_2dexamples5cards9GameState(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15, param16, param17, param18, param19, param20, param21, param22, param23, param24, param25, param26) {
   this.rand = param0;
   this.deck = param1;
@@ -16580,14 +16579,14 @@ const _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tu
 const _M0FP39Milky201812moon__rapier9collision28cuboid__edge__endpoints__ccwN5tupleS86101 = { _0: 2, _1: 3 };
 const _M0MP39Milky201812moon__rapier9collision15ColliderChanges3allN6recordS86759 = new _M0TP39Milky201812moon__rapier9collision15ColliderChanges(511);
 const _M0MP39Milky201812moon__rapier9collision20ActiveCollisionTypes3allN6recordS87811 = new _M0TP39Milky201812moon__rapier9collision20ActiveCollisionTypes(60975);
-const _M0FP39Milky20186selene6camera29default__camera__clear__colorN6recordS91572 = new _M0TP39Milky20186selene6render5Color(0, 0, 0, 1);
-const _M0MP39Milky20186selene10visibility12RenderLayers12RenderLayersN6recordS96438 = new _M0TP39Milky20186selene10visibility12RenderLayers(1);
-const _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS97060 = new _M0TP39Milky20186selene2ui18OverflowClipMargin(0, 0);
+const _M0FP39Milky20186selene6camera29default__camera__clear__colorN6recordS91536 = new _M0TP39Milky20186selene6render5Color(0, 0, 0, 1);
+const _M0MP39Milky20186selene10visibility12RenderLayers12RenderLayersN6recordS96402 = new _M0TP39Milky20186selene10visibility12RenderLayers(1);
+const _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS97024 = new _M0TP39Milky20186selene2ui18OverflowClipMargin(0, 0);
 const _M0FP39Milky20186selene9collision27collision__group__generator = new _M0TPC13ref3RefGjE(0);
-const _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98480 = new _M0TP39Milky20186selene9collision9RigidBody(0, 1, 0, 0, false, true);
-const _M0FP39Milky20186selene14runtime__debug27atlas__overlay__fill__colorN6recordS99657 = new _M0TP39Milky20186selene6render5Color(255, 64, 160, 0.08);
-const _M0FP39Milky20186selene14runtime__debug29atlas__overlay__stroke__colorN6recordS99658 = new _M0TP39Milky20186selene6render5Color(255, 64, 160, 0.95);
-const _M0MP29Milky201815moon__accesskit4Uuid3nilN6recordS100297 = new _M0TP29Milky201815moon__accesskit4Uuid(0n, 0n);
+const _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98444 = new _M0TP39Milky20186selene9collision9RigidBody(0, 1, 0, 0, false, true);
+const _M0FP39Milky20186selene14runtime__debug27atlas__overlay__fill__colorN6recordS99621 = new _M0TP39Milky20186selene6render5Color(255, 64, 160, 0.08);
+const _M0FP39Milky20186selene14runtime__debug29atlas__overlay__stroke__colorN6recordS99622 = new _M0TP39Milky20186selene6render5Color(255, 64, 160, 0.95);
+const _M0MP29Milky201815moon__accesskit4Uuid3nilN6recordS100294 = new _M0TP29Milky201815moon__accesskit4Uuid(0n, 0n);
 const _M0FP39Milky20186selene4a11y25latest__tree__update__ref = new _M0TPC13ref3RefGORP29Milky201815moon__accesskit10TreeUpdateE(undefined);
 const _M0FP39Milky20186selene4a11y14next__node__id = new _M0TPC13ref3RefGmE(1n);
 const _M0FP39Milky20186selene4a11y25pending__action__requests = new _M0TPB5ArrayGRP29Milky201815moon__accesskit13ActionRequestE([], 0);
@@ -16595,10 +16594,10 @@ const _M0FP39Milky20186selene8render3d22released__mesh__assets = new _M0TPB5Arra
 const _M0FP39Milky20186selene8render3d26released__material__assets = new _M0TPB5ArrayGRP39Milky20186selene15render3d__types14MaterialHandleE([], 0);
 const _M0FP39Milky20186selene8render3d23released__image__assets = new _M0TPB5ArrayGRP39Milky20186selene15render3d__types11ImageHandleE([], 0);
 const _M0FP39Milky20186selene8render3d25released__cubemap__assets = new _M0TPB5ArrayGRP39Milky20186selene15render3d__types13CubemapHandleE([], 0);
-const _M0MP39Milky20186selene5audio16PlaybackSettings4onceN6recordS101230 = new _M0TP39Milky20186selene5audio16PlaybackSettings(0, 1, 1, false, false);
-const _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103957 = 0;
-const _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103958 = 1;
-const _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103959 = 2;
+const _M0MP39Milky20186selene5audio16PlaybackSettings4onceN6recordS101227 = new _M0TP39Milky20186selene5audio16PlaybackSettings(0, 1, 1, false, false);
+const _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103954 = 0;
+const _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103955 = 1;
+const _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103956 = 2;
 const _M0FPB4seed = _M0FPB12random__seed();
 const _M0FP39Milky20186selene3ecs23bootstrap__world__value = _M0MP39Milky20186selene3ecs5World8with__id(0);
 const _M0FP39Milky20186selene3ecs19current__world__ref = _M0MPC13ref3Ref3RefGORP39Milky20186selene3ecs14ComponentStoreGRP39Milky20186selene6sprite6SpriteEE(_M0FP39Milky20186selene3ecs23bootstrap__world__value);
@@ -16610,18 +16609,18 @@ const _M0FPC28internal7strconv20parse__int64_2einnerN6recordS45803 = new _M0TPC1
 const _M0MPC16string10StringView4trimN6recordS20048 = new _M0TPC16string10StringView("\t\n\r ", 0, 4);
 const _M0FPC28internal7strconv17parse__scientificN8exp__numS45669 = 0n;
 const _M0MPC16string10StringView4findN6constrS14218 = 0;
-const _M0FP39Milky20186selene2ui16parse__rgb__bodyN6recordS96624 = new _M0TPC16string10StringView(",", 0, 1);
-const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96645 = new _M0TPC16string10StringView("rgba(", 0, 5);
-const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96646 = new _M0TPC16string10StringView(")", 0, 1);
-const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96647 = new _M0TPC16string10StringView("rgb(", 0, 4);
-const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96648 = new _M0TPC16string10StringView(")", 0, 1);
-const _M0FP39Milky20186selene2ui12parse__colorN6recordS96652 = new _M0TPC16string10StringView("#", 0, 1);
-const _M0FP39Milky20186selene2ui12parse__colorN6recordS96653 = new _M0TPC16string10StringView("rgb(", 0, 4);
-const _M0FP39Milky20186selene2ui12parse__colorN6recordS96654 = new _M0TPC16string10StringView("rgba(", 0, 5);
-const _M0MP39Milky20186selene2ui4Node16absolute_2einnerN6constrS97225 = 1;
+const _M0FP39Milky20186selene2ui16parse__rgb__bodyN6recordS96588 = new _M0TPC16string10StringView(",", 0, 1);
+const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96609 = new _M0TPC16string10StringView("rgba(", 0, 5);
+const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96610 = new _M0TPC16string10StringView(")", 0, 1);
+const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96611 = new _M0TPC16string10StringView("rgb(", 0, 4);
+const _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96612 = new _M0TPC16string10StringView(")", 0, 1);
+const _M0FP39Milky20186selene2ui12parse__colorN6recordS96616 = new _M0TPC16string10StringView("#", 0, 1);
+const _M0FP39Milky20186selene2ui12parse__colorN6recordS96617 = new _M0TPC16string10StringView("rgb(", 0, 4);
+const _M0FP39Milky20186selene2ui12parse__colorN6recordS96618 = new _M0TPC16string10StringView("rgba(", 0, 5);
+const _M0MP39Milky20186selene2ui4Node16absolute_2einnerN6constrS97189 = 1;
 const _bind = [];
 const _M0FP39Milky20186selene5asset24font__handle__by__family = _M0MPB3Map3MapGsRP39Milky20186selene12asset__types10FontHandleE(new _M0TPB9ArrayViewGUsRP39Milky20186selene12asset__types10FontHandleEE(_bind, 0, 0), undefined);
-const _M0MP39Milky20186selene2ui8TextFont9from__cssN6recordS96733 = new _M0TPC16string10StringView("px", 0, 2);
+const _M0MP39Milky20186selene2ui8TextFont9from__cssN6recordS96697 = new _M0TPC16string10StringView("px", 0, 2);
 const _M0FP39Milky20186selene3ecs18entity__store__key = _M0MP39Milky20186selene3ecs11ResourceKey11ResourceKeyGRP39Milky201817selene_2dexamples5cards12CardsRuntimeE();
 const _M0FP39Milky20186selene2ui30selene__component__key__ZIndex = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene2ui28selene__component__key__Node = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
@@ -16634,19 +16633,19 @@ const _M0FP39Milky20186selene2ui39selene__component__key__BackgroundColor = _M0M
 const _M0FP39Milky20186selene2ui36selene__component__key__BorderRadius = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene2ui30selene__component__key__Button = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene2ui32selene__component__key__TabIndex = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
+const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103737 = 1;
+const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103738 = 1;
+const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103739 = 2;
 const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103740 = 1;
 const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103741 = 1;
-const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103742 = 2;
-const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103743 = 1;
-const _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103744 = 1;
-const _M0FP39Milky20186selene6sprite16parse__rgb__bodyN6recordS99476 = new _M0TPC16string10StringView(",", 0, 1);
-const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99497 = new _M0TPC16string10StringView("rgba(", 0, 5);
-const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99498 = new _M0TPC16string10StringView(")", 0, 1);
-const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99499 = new _M0TPC16string10StringView("rgb(", 0, 4);
-const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99500 = new _M0TPC16string10StringView(")", 0, 1);
-const _M0FP39Milky20186selene6sprite12parse__colorN6recordS99504 = new _M0TPC16string10StringView("#", 0, 1);
-const _M0FP39Milky20186selene6sprite12parse__colorN6recordS99505 = new _M0TPC16string10StringView("rgb(", 0, 4);
-const _M0FP39Milky20186selene6sprite12parse__colorN6recordS99506 = new _M0TPC16string10StringView("rgba(", 0, 5);
+const _M0FP39Milky20186selene6sprite16parse__rgb__bodyN6recordS99440 = new _M0TPC16string10StringView(",", 0, 1);
+const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99461 = new _M0TPC16string10StringView("rgba(", 0, 5);
+const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99462 = new _M0TPC16string10StringView(")", 0, 1);
+const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99463 = new _M0TPC16string10StringView("rgb(", 0, 4);
+const _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99464 = new _M0TPC16string10StringView(")", 0, 1);
+const _M0FP39Milky20186selene6sprite12parse__colorN6recordS99468 = new _M0TPC16string10StringView("#", 0, 1);
+const _M0FP39Milky20186selene6sprite12parse__colorN6recordS99469 = new _M0TPC16string10StringView("rgb(", 0, 4);
+const _M0FP39Milky20186selene6sprite12parse__colorN6recordS99470 = new _M0TPC16string10StringView("rgba(", 0, 5);
 const _bind$2 = [];
 const _M0FP39Milky20186selene5asset13image__states = _M0MPB3Map3MapGRP39Milky20186selene12asset__types11ImageHandleRP39Milky20186selene5asset9LoadStateE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types11ImageHandleRP39Milky20186selene5asset9LoadStateEE(_bind$2, 0, 0), undefined);
 const _M0FP39Milky20186selene5asset20image__asset__events = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
@@ -16664,12 +16663,12 @@ const _M0FP39Milky20186selene5asset15next__image__id = _M0MPC13ref3Ref3RefGjE(0)
 const _M0FP39Milky20186selene9transform31selene__component__key__Spatial = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene6sprite30selene__component__key__Sprite = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0MP39Milky20186selene3ecs6Entity7destroyN6constrS50858 = 2;
-const _M0FP39Milky201817selene_2dexamples5cards12is__straightN6constrS103822 = 14;
-const _M0FP39Milky201817selene_2dexamples5cards16find__best__handN6constrS103888 = new _M0DTP39Milky201817selene_2dexamples5cards8HandRank8HighCard(0);
+const _M0FP39Milky201817selene_2dexamples5cards12is__straightN6constrS103819 = 14;
+const _M0FP39Milky201817selene_2dexamples5cards16find__best__handN6constrS103885 = new _M0DTP39Milky201817selene_2dexamples5cards8HandRank8HighCard(0);
 const _bind$7 = [];
 const _M0FP39Milky20186selene2ui25ui__interaction__runtimes = _M0MPB3Map3MapGjRP39Milky20186selene2ui20UiInteractionRuntimeE(new _M0TPB9ArrayViewGUjRP39Milky20186selene2ui20UiInteractionRuntimeEE(_bind$7, 0, 0), undefined);
 const _bind$8 = [];
-const _M0FP39Milky20186selene6system22display__world__states = _M0MPB3Map3MapGjRP39Milky20186selene6system12DisplayStateE(new _M0TPB9ArrayViewGUjRP39Milky20186selene6system12DisplayStateEE(_bind$8, 0, 0), undefined);
+const _M0FP39Milky20186selene6window22display__world__states = _M0MPB3Map3MapGjRP39Milky20186selene6window12DisplayStateE(new _M0TPB9ArrayViewGUjRP39Milky20186selene6window12DisplayStateEE(_bind$8, 0, 0), undefined);
 const _M0FP39Milky20186selene2ui17click__event__bus = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
 const _M0FP39Milky20186selene5asset19font__asset__events = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
 const _bind$9 = [];
@@ -16692,7 +16691,7 @@ const _M0FP39Milky20186selene2ui16ui__scale__modes = _M0MPB3Map3MapGjRP39Milky20
 const _M0FP39Milky20186selene6camera32selene__component__key__Camera2d = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene6camera8Camera2dE();
 const _M0FP39Milky20186selene6camera30selene__component__key__Camera = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene6camera46selene__component__key__OrthographicProjection = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky201817selene_2dexamples5cards11game__startN6constrS104053 = "ThaleahFat";
+const _M0FP39Milky201817selene_2dexamples5cards11game__startN6constrS104050 = "ThaleahFat";
 const _M0MP39Milky20186selene15render3d__types13RenderFrame3D13RenderFrame3DN6recordS79788 = new _M0TP39Milky20186selene6render5Color(0, 0, 0, 1);
 const _bind$16 = [];
 const _M0FP39Milky20186selene18render3d__pipeline28prepared__frame3d__by__world = _M0MPB3Map3MapGjRP39Milky20186selene15render3d__types13RenderFrame3DE(new _M0TPB9ArrayViewGUjRP39Milky20186selene15render3d__types13RenderFrame3DEE(_bind$16, 0, 0), undefined);
@@ -16942,7 +16941,7 @@ const _bind$28 = [];
 const _M0FP39Milky20186selene14runtime__debug34atlas__overlay__enabled__by__world = _M0MPB3Map3MapGjbE(new _M0TPB9ArrayViewGUjbEE(_bind$28, 0, 0), undefined);
 const _bind$29 = [];
 const _M0FP39Milky20186selene8render2d18frame2d__by__world = _M0MPB3Map3MapGjRP39Milky20186selene8render2d18RenderFrameState2DE(new _M0TPB9ArrayViewGUjRP39Milky20186selene8render2d18RenderFrameState2DEE(_bind$29, 0, 0), undefined);
-const _M0FP39Milky20186selene14render__submit14build__frame2dN6recordS102288 = new _M0TP39Milky20186selene6render5Color(0, 0, 0, 1);
+const _M0FP39Milky20186selene14render__submit14build__frame2dN6recordS102285 = new _M0TP39Milky20186selene6render5Color(0, 0, 0, 1);
 const _bind$30 = [];
 const _M0FP39Milky20186selene14runtime__debug29render__submission__by__world = _M0MPB3Map3MapGjRP39Milky20186selene14runtime__debug21RenderSubmissionDebugE(new _M0TPB9ArrayViewGUjRP39Milky20186selene14runtime__debug21RenderSubmissionDebugEE(_bind$30, 0, 0), undefined);
 const _bind$31 = [];
@@ -16983,11 +16982,11 @@ const _M0FP39Milky20186selene2ui20ui__material__assets = _M0MPB3Map3MapGRP39Milk
 const _M0FP39Milky20186selene2ui31selene__component__key__Outline = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene10visibility22visibility__state__key = _M0MP39Milky20186selene3ecs11ResourceKey11ResourceKeyGRP39Milky201817selene_2dexamples5cards12CardsRuntimeE();
 const _M0FP39Milky20186selene2ui31selene__component__key__UiImage = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky20186selene2ui14truncate__lineN8ellipsisS96783 = "...";
-const _M0FP39Milky20186selene2ui10wrap__lineN6recordS96789 = new _M0TPC16string10StringView(" ", 0, 1);
-const _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96807 = new _M0TPC16string10StringView("\n", 0, 1);
-const _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96808 = new _M0TPC16string10StringView(" ", 0, 1);
-const _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96809 = new _M0TPC16string10StringView("\n", 0, 1);
+const _M0FP39Milky20186selene2ui14truncate__lineN8ellipsisS96747 = "...";
+const _M0FP39Milky20186selene2ui10wrap__lineN6recordS96753 = new _M0TPC16string10StringView(" ", 0, 1);
+const _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96771 = new _M0TPC16string10StringView("\n", 0, 1);
+const _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96772 = new _M0TPC16string10StringView(" ", 0, 1);
+const _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96773 = new _M0TPC16string10StringView("\n", 0, 1);
 const _M0FP39Milky20186selene2ui36selene__component__key__OverrideClip = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene9physics3d18sensor__event__bus = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
 const _M0FP39Milky20186selene6inputs27virtual__button__event__bus = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
@@ -17043,47 +17042,37 @@ const _M0FP39Milky20186selene6inputs7touches = _M0MPB3Map3MapGRP39Milky20186sele
 const _bind$43 = [];
 const _M0FP39Milky20186selene6inputs22gamepad__world__stores = _M0MPB3Map3MapGjRP39Milky20186selene6inputs17GamepadWorldStoreE(new _M0TPB9ArrayViewGUjRP39Milky20186selene6inputs17GamepadWorldStoreEE(_bind$43, 0, 0), undefined);
 const _M0FP39Milky20186selene9animation44selene__component__key__AnimationTransitions = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0MP39Milky20186chicle5style5Style7defaultN6recordS91828 = new _M0TP39Milky20186chicle8geometry5PointGRP39Milky20186chicle5style8OverflowE(0, 0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91829 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91830 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91831 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91832 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91833 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91834 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91835 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91836 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91837 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91838 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91839 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91840 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91841 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
-const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91842 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6recordS91792 = new _M0TP39Milky20186chicle8geometry5PointGRP39Milky20186chicle5style8OverflowE(0, 0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91793 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91794 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91795 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91796 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91797 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91798 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91799 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91800 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91801 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91802 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91803 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91804 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91805 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
+const _M0MP39Milky20186chicle5style5Style7defaultN6constrS91806 = new _M0DTP39Milky20186chicle5style9Dimension9DimLength(0);
 const _M0FP39Milky20186selene2ui38selene__component__key__UiTargetCamera = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene2ui36selene__component__key__GlobalZIndex = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene2ui36selene__component__key__LayoutConfig = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS93783 = { _0: 0, _1: 0 };
-const _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS93784 = { _0: 0, _1: 0 };
-const _M0FP39Milky20186chicle4tree29margin__collapse__state__fromN5tupleS92456 = { _0: 0, _1: 0 };
-const _M0FP39Milky20186chicle4tree22spanned__definite__lenN6constrS92774 = new _M0DTPC16option6OptionGdE4Some(0);
-const _M0FP39Milky20186chicle4tree43grid__definite__axis__border__content__sizeN5tupleS93609 = { _0: 0, _1: 0 };
-const _M0FP39Milky20186chicle4tree21collapse__state__fromN5tupleS92301 = { _0: 0, _1: 0 };
-const _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS94053GRP39Milky20186selene3ecs6EntityE = { _0: 0, _1: 0 };
-const _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS94054GRP39Milky20186selene3ecs6EntityE = { _0: 0, _1: 0 };
+const _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS93747 = { _0: 0, _1: 0 };
+const _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS93748 = { _0: 0, _1: 0 };
+const _M0FP39Milky20186chicle4tree29margin__collapse__state__fromN5tupleS92420 = { _0: 0, _1: 0 };
+const _M0FP39Milky20186chicle4tree22spanned__definite__lenN6constrS92738 = new _M0DTPC16option6OptionGdE4Some(0);
+const _M0FP39Milky20186chicle4tree43grid__definite__axis__border__content__sizeN5tupleS93573 = { _0: 0, _1: 0 };
+const _M0FP39Milky20186chicle4tree21collapse__state__fromN5tupleS92265 = { _0: 0, _1: 0 };
+const _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS94017GRP39Milky20186selene3ecs6EntityE = { _0: 0, _1: 0 };
+const _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS94018GRP39Milky20186selene3ecs6EntityE = { _0: 0, _1: 0 };
 const _bind$44 = [];
 const _M0FP39Milky20186selene2ui20ui__layout__runtimes = _M0MPB3Map3MapGjRP39Milky20186selene2ui15UiLayoutRuntimeE(new _M0TPB9ArrayViewGUjRP39Milky20186selene2ui15UiLayoutRuntimeEE(_bind$44, 0, 0), undefined);
 const _M0FP39Milky20186selene5scene21scene__instances__key = _M0MP39Milky20186selene3ecs11ResourceKey11ResourceKeyGRP39Milky201817selene_2dexamples5cards12CardsRuntimeE();
-const _M0FP39Milky20186selene6system20mouse__lock__enabled = _M0MPC13ref3Ref3RefGbE(false);
-const _M0FP39Milky20186selene15platform__input27mouse__lock__requested__ref = _M0MPC13ref3Ref3RefGbE(false);
-const _M0FP29Milky201814selene__webgpu15canvas__backend = _M0MP29Milky201814selene__webgpu13WebGpuBackend13WebGpuBackend();
-const _M0FP39Milky20186selene15platform__input33mouse__lock__handlers__registered = _M0MPC13ref3Ref3RefGbE(false);
-const _M0FP29Milky201814selene__webgpu30audio__user__activation__epoch = _M0MPC13ref3Ref3RefGiE(0);
-const _M0FP39Milky20186selene6system22mouse__lock__requested = _M0MPC13ref3Ref3RefGbE(false);
 const _bind$45 = [];
-const _M0FP39Milky20186selene6inputs19just__pressed__keys = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs4CodeE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(_bind$45, 0, 0), undefined);
-const _M0FP39Milky20186selene6inputs20just__pressed__mouse = new _M0TP39Milky20186selene6inputs5Mouse(_M0MP39Milky20186selene4math4Vec24Vec2(0, 0), false, false, false);
-const _M0FP39Milky20186selene6system19mouse__lock__active = _M0MPC13ref3Ref3RefGbE(false);
-const _bind$46 = [];
-const _M0FP39Milky20186selene9animation29animation__event__descriptors = _M0MPB3Map3MapGRP39Milky20186selene9animation30AnimationEventDescriptorHandleRP39Milky20186selene9animation24AnimationEventDescriptorE(new _M0TPB9ArrayViewGURP39Milky20186selene9animation30AnimationEventDescriptorHandleRP39Milky20186selene9animation24AnimationEventDescriptorEE(_bind$46, 0, 0), undefined);
+const _M0FP39Milky20186selene9animation29animation__event__descriptors = _M0MPB3Map3MapGRP39Milky20186selene9animation30AnimationEventDescriptorHandleRP39Milky20186selene9animation24AnimationEventDescriptorE(new _M0TPB9ArrayViewGURP39Milky20186selene9animation30AnimationEventDescriptorHandleRP39Milky20186selene9animation24AnimationEventDescriptorEE(_bind$45, 0, 0), undefined);
 const _M0FP39Milky20186selene10visibility34selene__component__key__Visibility = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene10visibility10VisibilityE();
 const _M0MP39Milky201812moon__rapier8dynamics18SpringCoefficients10cfm__coeffN3oneS83902 = Math.fround(1);
 const _M0FP39Milky201812moon__rapier8pipeline18separation__vectorN6marginS89036 = Math.fround(1e-06);
@@ -17147,8 +17136,8 @@ const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2
 const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84304 = Math.fround(10);
 const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84305 = Math.fround(0.002);
 const _M0MP39Milky201812moon__rapier8dynamics21IntegrationParameters7defaultN7_2abindS84306 = Math.fround(1);
-const _bind$47 = [];
-const _M0FP39Milky20186selene9collision24physics__world__runtimes = _M0MPB3Map3MapGjRP39Milky20186selene9collision19PhysicsWorldRuntimeE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9collision19PhysicsWorldRuntimeEE(_bind$47, 0, 0), undefined);
+const _bind$46 = [];
+const _M0FP39Milky20186selene9collision24physics__world__runtimes = _M0MPB3Map3MapGjRP39Milky20186selene9collision19PhysicsWorldRuntimeE(new _M0TPB9ArrayViewGUjRP39Milky20186selene9collision19PhysicsWorldRuntimeEE(_bind$46, 0, 0), undefined);
 const _M0FP39Milky20186selene9collision15physics__config = new _M0TP39Milky20186selene9collision13PhysicsConfig(_M0MP39Milky20186selene4math4Vec24zero(), 100, 1);
 const _M0FP39Milky20186selene8velocity32selene__component__key__Velocity = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene9collision33selene__component__key__RigidBody = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
@@ -17162,58 +17151,62 @@ const _M0FP39Milky20186selene9collision28selene__component__key__Area = _M0MP39M
 const _M0FP39Milky20186selene9collision38selene__component__key__MultibodyJoint = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene9collision29selene__component__key__Joint = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene5audio19global__volume__ref = _M0MPC13ref3Ref3RefGdE(1);
+const _M0FP29Milky201814selene__webgpu30audio__user__activation__epoch = _M0MPC13ref3Ref3RefGiE(0);
 const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81507 = new _M0TPC16string10StringView(".ogg", 0, 4);
 const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81508 = new _M0TPC16string10StringView(".oga", 0, 4);
 const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81509 = new _M0TPC16string10StringView(".mp3", 0, 4);
 const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81510 = new _M0TPC16string10StringView(".wav", 0, 4);
 const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81511 = new _M0TPC16string10StringView(".flac", 0, 5);
 const _M0FP29Milky201814selene__webgpu26browser__audio__mime__typeN6recordS81512 = new _M0TPC16string10StringView(".aac", 0, 4);
-const _bind$48 = [];
-const _M0FP29Milky201814selene__webgpu22cached__audio__sources = _M0MPB3Map3MapGsRP29Milky201814selene__webgpu17CachedAudioSourceE(new _M0TPB9ArrayViewGUsRP29Milky201814selene__webgpu17CachedAudioSourceEE(_bind$48, 0, 0), undefined);
+const _bind$47 = [];
+const _M0FP29Milky201814selene__webgpu22cached__audio__sources = _M0MPB3Map3MapGsRP29Milky201814selene__webgpu17CachedAudioSourceE(new _M0TPB9ArrayViewGUsRP29Milky201814selene__webgpu17CachedAudioSourceEE(_bind$47, 0, 0), undefined);
 const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81501 = new _M0TPC16string10StringView("http://", 0, 7);
 const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81502 = new _M0TPC16string10StringView("https://", 0, 8);
 const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81503 = new _M0TPC16string10StringView("data:", 0, 5);
 const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81504 = new _M0TPC16string10StringView("blob:", 0, 5);
 const _M0FP29Milky201814selene__webgpu36audio__prefers__byte__backed__sourceN6recordS81505 = new _M0TPC16string10StringView("assets/", 0, 7);
-const _bind$49 = [];
-const _M0FP29Milky201814selene__webgpu27preloaded__audio__templates = _M0MPB3Map3MapGsRP29Milky201814selene__webgpu5AudioE(new _M0TPB9ArrayViewGUsRP29Milky201814selene__webgpu5AudioEE(_bind$49, 0, 0), undefined);
+const _bind$48 = [];
+const _M0FP29Milky201814selene__webgpu27preloaded__audio__templates = _M0MPB3Map3MapGsRP29Milky201814selene__webgpu5AudioE(new _M0TPB9ArrayViewGUsRP29Milky201814selene__webgpu5AudioEE(_bind$48, 0, 0), undefined);
 const _M0FP29Milky201814selene__webgpu21next__audio__instance = _M0MPC13ref3Ref3RefGiE(1);
+const _bind$49 = [];
+const _M0FP39Milky20186selene5asset23audio__path__by__handle = _M0MPB3Map3MapGRP39Milky20186selene12asset__types11AudioHandlesE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types11AudioHandlesEE(_bind$49, 0, 0), undefined);
 const _bind$50 = [];
-const _M0FP39Milky20186selene5asset23audio__path__by__handle = _M0MPB3Map3MapGRP39Milky20186selene12asset__types11AudioHandlesE(new _M0TPB9ArrayViewGURP39Milky20186selene12asset__types11AudioHandlesEE(_bind$50, 0, 0), undefined);
+const _M0FP39Milky20186selene13input__action15input__bindings = _M0MPB3Map3MapGRP39Milky20186selene13input__action11InputActionRPB5ArrayGRP39Milky20186selene13input__action12InputBindingEE(new _M0TPB9ArrayViewGURP39Milky20186selene13input__action11InputActionRPB5ArrayGRP39Milky20186selene13input__action12InputBindingEEE(_bind$50, 0, 0), undefined);
 const _bind$51 = [];
-const _M0FP39Milky20186selene13input__action15input__bindings = _M0MPB3Map3MapGRP39Milky20186selene13input__action11InputActionRPB5ArrayGRP39Milky20186selene13input__action12InputBindingEE(new _M0TPB9ArrayViewGURP39Milky20186selene13input__action11InputActionRPB5ArrayGRP39Milky20186selene13input__action12InputBindingEEE(_bind$51, 0, 0), undefined);
+const _M0FP39Milky20186selene6inputs21virtual__axis__values = _M0MPB3Map3MapGRP39Milky20186selene6inputs11VirtualAxisdE(new _M0TPB9ArrayViewGURP39Milky20186selene6inputs11VirtualAxisdEE(_bind$51, 0, 0), undefined);
 const _bind$52 = [];
-const _M0FP39Milky20186selene6inputs21virtual__axis__values = _M0MPB3Map3MapGRP39Milky20186selene6inputs11VirtualAxisdE(new _M0TPB9ArrayViewGURP39Milky20186selene6inputs11VirtualAxisdEE(_bind$52, 0, 0), undefined);
+const _M0FP39Milky20186selene6inputs25pressed__virtual__buttons = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs13VirtualButtonE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs13VirtualButtonE(_bind$52, 0, 0), undefined);
 const _bind$53 = [];
-const _M0FP39Milky20186selene6inputs25pressed__virtual__buttons = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs13VirtualButtonE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs13VirtualButtonE(_bind$53, 0, 0), undefined);
+const _M0FP39Milky20186selene6inputs13pressed__keys = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs4CodeE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(_bind$53, 0, 0), undefined);
 const _bind$54 = [];
-const _M0FP39Milky20186selene6inputs13pressed__keys = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs4CodeE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(_bind$54, 0, 0), undefined);
-const _bind$55 = [];
-const _M0FP39Milky20186selene13input__action14action__states = _M0MPB3Map3MapGRP39Milky20186selene13input__action11InputActionRP39Milky20186selene13input__action11ActionStateE(new _M0TPB9ArrayViewGURP39Milky20186selene13input__action11InputActionRP39Milky20186selene13input__action11ActionStateEE(_bind$55, 0, 0), undefined);
+const _M0FP39Milky20186selene13input__action14action__states = _M0MPB3Map3MapGRP39Milky20186selene13input__action11InputActionRP39Milky20186selene13input__action11ActionStateE(new _M0TPB9ArrayViewGURP39Milky20186selene13input__action11InputActionRP39Milky20186selene13input__action11ActionStateEE(_bind$54, 0, 0), undefined);
+const _M0FP39Milky20186selene4time32selene__resource__key__TimeState = _M0MP39Milky20186selene3ecs11ResourceKey11ResourceKeyGRP39Milky201817selene_2dexamples5cards12CardsRuntimeE();
+const _M0FP39Milky20186selene4time29selene__resource__key__Timers = _M0MP39Milky20186selene3ecs11ResourceKey11ResourceKeyGRP39Milky201817selene_2dexamples5cards12CardsRuntimeE();
 const _M0FP39Milky20186selene8render2d33selene__component__key__Sorting2d = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene6sprite30selene__component__key__Anchor = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene10parallax2d34selene__component__key__Parallax2d = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene10visibility36selene__component__key__RenderLayers = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky20186selene6text2d14truncate__lineN8ellipsisS102345 = "...";
-const _M0FP39Milky20186selene6text2d10wrap__lineN6recordS102351 = new _M0TPC16string10StringView(" ", 0, 1);
-const _M0FP39Milky20186selene6text2d20bounded__text__linesN6recordS102369 = new _M0TPC16string10StringView("\n", 0, 1);
+const _M0FP39Milky20186selene6text2d14truncate__lineN8ellipsisS102342 = "...";
+const _M0FP39Milky20186selene6text2d10wrap__lineN6recordS102348 = new _M0TPC16string10StringView(" ", 0, 1);
+const _M0FP39Milky20186selene6text2d20bounded__text__linesN6recordS102366 = new _M0TPC16string10StringView("\n", 0, 1);
 const _M0FP39Milky20186selene6text2d25text2d__world__store__key = _M0MP39Milky20186selene3ecs11ResourceKey11ResourceKeyGRP39Milky201817selene_2dexamples5cards12CardsRuntimeE();
 const _M0FP39Milky20186selene6text2d30selene__component__key__Text2d = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene6text2d34selene__component__key__TextBounds = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky20186selene4time32selene__resource__key__TimeState = _M0MP39Milky20186selene3ecs11ResourceKey11ResourceKeyGRP39Milky201817selene_2dexamples5cards12CardsRuntimeE();
-const _M0FP39Milky20186selene6system29selene__resource__key__Timers = _M0MP39Milky20186selene3ecs11ResourceKey11ResourceKeyGRP39Milky201817selene_2dexamples5cards12CardsRuntimeE();
-const _bind$56 = [];
-const _M0FP39Milky20186selene10material2d16color__materials = _M0MPB3Map3MapGRP39Milky20186selene10material2d19ColorMaterialHandleRP39Milky20186selene10material2d13ColorMaterialE(new _M0TPB9ArrayViewGURP39Milky20186selene10material2d19ColorMaterialHandleRP39Milky20186selene10material2d13ColorMaterialEE(_bind$56, 0, 0), undefined);
+const _bind$55 = [];
+const _M0FP39Milky20186selene10material2d16color__materials = _M0MPB3Map3MapGRP39Milky20186selene10material2d19ColorMaterialHandleRP39Milky20186selene10material2d13ColorMaterialE(new _M0TPB9ArrayViewGURP39Milky20186selene10material2d19ColorMaterialHandleRP39Milky20186selene10material2d13ColorMaterialEE(_bind$55, 0, 0), undefined);
 const _M0FP39Milky20186selene6mesh2d30selene__component__key__Mesh2d = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _bind$57 = [];
-const _M0FP39Milky20186selene6mesh2d13mesh__storage = new _M0TP39Milky20186selene6mesh2d13Mesh2dStorage(_M0MPB3Map3MapGRP39Milky20186selene6mesh2d12Mesh2dHandleRP39Milky20186selene6mesh2d11Mesh2dAssetE(new _M0TPB9ArrayViewGURP39Milky20186selene6mesh2d12Mesh2dHandleRP39Milky20186selene6mesh2d11Mesh2dAssetEE(_bind$57, 0, 0), undefined));
+const _bind$56 = [];
+const _M0FP39Milky20186selene6mesh2d13mesh__storage = new _M0TP39Milky20186selene6mesh2d13Mesh2dStorage(_M0MPB3Map3MapGRP39Milky20186selene6mesh2d12Mesh2dHandleRP39Milky20186selene6mesh2d11Mesh2dAssetE(new _M0TPB9ArrayViewGURP39Milky20186selene6mesh2d12Mesh2dHandleRP39Milky20186selene6mesh2d11Mesh2dAssetEE(_bind$56, 0, 0), undefined));
 const _M0FP39Milky20186selene10material2d38selene__component__key__MeshMaterial2d = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene6inputs15mouse__movement = new _M0TP39Milky20186selene6inputs13MouseMovement(_M0MP39Milky20186selene4math4Vec24Vec2(0, 0));
 const _M0FP39Milky20186selene6inputs19pointer__event__bus = _M0MP39Milky20186selene5event6Events6EventsGRP39Milky20186selene5tiled21TiledTileSpawnedEventE(undefined);
+const _M0FP39Milky20186selene6inputs20just__pressed__mouse = new _M0TP39Milky20186selene6inputs5Mouse(_M0MP39Milky20186selene4math4Vec24Vec2(0, 0), false, false, false);
 const _M0FP39Milky20186selene6inputs20just__release__mouse = new _M0TP39Milky20186selene6inputs5Mouse(_M0MP39Milky20186selene4math4Vec24Vec2(0, 0), false, false, false);
 const _M0FP39Milky20186selene6inputs25advanced__pointer__systemN2idS55847 = new _M0TP39Milky20186selene6inputs9PointerId(0, 0);
+const _bind$57 = [];
+const _M0FP39Milky20186selene6inputs19last__pressed__keys = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs4CodeE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(_bind$57, 0, 0), undefined);
 const _bind$58 = [];
-const _M0FP39Milky20186selene6inputs19last__pressed__keys = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs4CodeE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(_bind$58, 0, 0), undefined);
+const _M0FP39Milky20186selene6inputs19just__pressed__keys = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs4CodeE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(_bind$58, 0, 0), undefined);
 const _bind$59 = [];
 const _M0FP39Milky20186selene6inputs19just__release__keys = _M0MPC13set3Set3SetGRP39Milky20186selene6inputs4CodeE(new _M0TPB9ArrayViewGRP39Milky20186selene6inputs4CodeE(_bind$59, 0, 0), undefined);
 const _bind$60 = [];
@@ -17227,26 +17220,26 @@ const _M0FP39Milky20186selene2ui46selene__component__key__RelativeCursorPosition
 const _M0FP39Milky20186selene5tiled42selene__component__key__TiledWorldInstance = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene5tiled39selene__component__key__TiledMapStorage = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene5tiled43selene__component__key__TiledColliderOrigin = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102960 = 0;
-const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102961 = 1;
-const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102962 = 2;
-const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102963 = 2;
-const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102964 = 2;
-const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102965 = 3;
-const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102966 = 3;
-const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102967 = 3;
+const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102957 = 0;
+const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102958 = 1;
+const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102959 = 2;
+const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102960 = 2;
+const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102961 = 2;
+const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102962 = 3;
+const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102963 = 3;
+const _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102964 = 3;
 const _M0FP39Milky20186selene5tiled39selene__component__key__TiledProperties = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene5tiled47selene__component__key__TiledImageLayerInstance = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102532 = new _M0TPC16string10StringView(":\\", 0, 2);
-const _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102533 = new _M0TPC16string10StringView("/", 0, 1);
-const _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102534 = new _M0TPC16string10StringView("\\\\", 0, 2);
-const _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS102536 = new _M0TPC16string10StringView("/", 0, 1);
-const _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS102537 = new _M0TPC16string10StringView("\\", 0, 1);
+const _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102529 = new _M0TPC16string10StringView(":\\", 0, 2);
+const _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102530 = new _M0TPC16string10StringView("/", 0, 1);
+const _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102531 = new _M0TPC16string10StringView("\\\\", 0, 2);
+const _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS102533 = new _M0TPC16string10StringView("/", 0, 1);
+const _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS102534 = new _M0TPC16string10StringView("\\", 0, 1);
 const _M0FP39Milky20186selene6sprite32next__texture__atlas__layout__id = _M0MPC13ref3Ref3RefGjE(0);
 const _bind$61 = [];
 const _M0FP39Milky20186selene6sprite30dirty__texture__atlas__layouts = _M0MPB3Map3MapGRP39Milky20186selene6sprite24TextureAtlasLayoutHandleRP39Milky20186selene6sprite18TextureAtlasLayoutE(new _M0TPB9ArrayViewGURP39Milky20186selene6sprite24TextureAtlasLayoutHandleRP39Milky20186selene6sprite18TextureAtlasLayoutEE(_bind$61, 0, 0), undefined);
-const _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS102658 = new _M0TP39Milky20186selene6render5Color(255, 255, 255, 1);
-const _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS102659 = new _M0TP39Milky20186selene6render5Color(255, 255, 255, 1);
+const _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS102655 = new _M0TP39Milky20186selene6render5Color(255, 255, 255, 1);
+const _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS102656 = new _M0TP39Milky20186selene6render5Color(255, 255, 255, 1);
 const _M0FP39Milky20186selene5tiled43selene__component__key__TiledObjectInstance = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene9animation15next__graph__id = _M0MPC13ref3Ref3RefGjE(0);
 const _bind$62 = [];
@@ -17267,15 +17260,15 @@ const _M0FP39Milky20186selene6inputs12pinch__state = _M0MPC13ref3Ref3RefGORP39Mi
 const _M0FP39Milky20186selene4ldtk41selene__component__key__LdtkWorldInstance = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk23ldtk__world__store__key = _M0MP39Milky20186selene3ecs11ResourceKey11ResourceKeyGRP39Milky201817selene_2dexamples5cards12CardsRuntimeE();
 const _M0FP39Milky20186selene4ldtk36selene__component__key__LdtkLevelIid = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101535 = new _M0TPC16string10StringView(":\\", 0, 2);
-const _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101536 = new _M0TPC16string10StringView("/", 0, 1);
-const _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101537 = new _M0TPC16string10StringView("\\\\", 0, 2);
-const _M0FP39Milky20186selene4ldtk30resolve__relative__asset__pathN6recordS101539 = new _M0TPC16string10StringView("/", 0, 1);
-const _M0FP39Milky20186selene4ldtk30resolve__relative__asset__pathN6recordS101540 = new _M0TPC16string10StringView("\\", 0, 1);
+const _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101532 = new _M0TPC16string10StringView(":\\", 0, 2);
+const _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101533 = new _M0TPC16string10StringView("/", 0, 1);
+const _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101534 = new _M0TPC16string10StringView("\\\\", 0, 2);
+const _M0FP39Milky20186selene4ldtk30resolve__relative__asset__pathN6recordS101536 = new _M0TPC16string10StringView("/", 0, 1);
+const _M0FP39Milky20186selene4ldtk30resolve__relative__asset__pathN6recordS101537 = new _M0TPC16string10StringView("\\", 0, 1);
 const _M0FP39Milky20186selene4ldtk43selene__component__key__LdtkLevelBackground = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk41selene__component__key__LdtkLevelInstance = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__backgroundN6recordS101600 = new _M0TP39Milky20186selene6render5Color(255, 255, 255, 1);
-const _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__backgroundN6constrS101601 = _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__backgroundN6recordS101600;
+const _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__backgroundN6recordS101597 = new _M0TP39Milky20186selene6render5Color(255, 255, 255, 1);
+const _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__backgroundN6constrS101598 = _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__backgroundN6recordS101597;
 const _M0FP39Milky20186selene4ldtk14ldtk__settings = new _M0TPC13ref3RefGRP39Milky20186selene4ldtk12LdtkSettingsE(_M0MP39Milky20186selene4ldtk12LdtkSettings12LdtkSettings());
 const _M0FP39Milky20186selene4ldtk48selene__component__key__LdtkSpawnedLayerInstance = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk41selene__component__key__LdtkLayerMetadata = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
@@ -17283,27 +17276,33 @@ const _M0FP39Milky20186selene4ldtk49selene__component__key__LdtkSpawnedEntityIns
 const _M0FP39Milky20186selene4ldtk35selene__component__key__LdtkWorldly = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk37selene__component__key__LdtkEntityIid = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk38selene__component__key__LdtkGridCoords = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__valueN6constrS101768 = true;
-const _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__valueN6constrS101769 = false;
-const _M0FP39Milky20186selene4ldtk30ldtk__rgba__color__with__alphaN6recordS101494 = new _M0TPC16string10StringView(",", 0, 1);
-const _M0FP39Milky20186selene4ldtk29ldtk__rgb__color__with__alphaN6recordS101474 = new _M0TPC16string10StringView(",", 0, 1);
-const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101512 = new _M0TPC16string10StringView("#", 0, 1);
-const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101513 = new _M0TPC16string10StringView("rgba(", 0, 5);
-const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101514 = new _M0TPC16string10StringView(")", 0, 1);
-const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101515 = new _M0TPC16string10StringView("rgb(", 0, 4);
-const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101516 = new _M0TPC16string10StringView(")", 0, 1);
+const _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__valueN6constrS101765 = true;
+const _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__valueN6constrS101766 = false;
+const _M0FP39Milky20186selene4ldtk30ldtk__rgba__color__with__alphaN6recordS101491 = new _M0TPC16string10StringView(",", 0, 1);
+const _M0FP39Milky20186selene4ldtk29ldtk__rgb__color__with__alphaN6recordS101471 = new _M0TPC16string10StringView(",", 0, 1);
+const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101509 = new _M0TPC16string10StringView("#", 0, 1);
+const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101510 = new _M0TPC16string10StringView("rgba(", 0, 5);
+const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101511 = new _M0TPC16string10StringView(")", 0, 1);
+const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101512 = new _M0TPC16string10StringView("rgb(", 0, 4);
+const _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101513 = new _M0TPC16string10StringView(")", 0, 1);
 const _M0FP39Milky20186selene4ldtk39selene__component__key__LdtkIntGridCell = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk46selene__component__key__LdtkSpawnedIntGridCell = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk43selene__component__key__LdtkIntGridCollider = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk34ldtk__int__grid__physics__settings = new _M0TPC13ref3RefGRP39Milky20186selene4ldtk26LdtkIntGridPhysicsSettingsE(_M0MP39Milky20186selene4ldtk26LdtkIntGridPhysicsSettings26LdtkIntGridPhysicsSettings());
 const _M0FP39Milky20186selene4ldtk47selene__component__key__LdtkSpawnedTileInstance = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4ldtk40selene__component__key__LdtkTileMetadata = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
-const _M0FP39Milky20186selene4ldtk28ldtk__grid__coords__from__pxN6recordS101843 = new _M0TP39Milky20186selene4ldtk14LdtkGridCoords(0, 0);
+const _M0FP39Milky20186selene4ldtk28ldtk__grid__coords__from__pxN6recordS101840 = new _M0TP39Milky20186selene4ldtk14LdtkGridCoords(0, 0);
 const _M0FP39Milky20186selene4ldtk22ldtk__level__selection = new _M0TPC13ref3RefGRP39Milky20186selene4ldtk18LdtkLevelSelectionE(_M0FP39Milky20186selene4ldtk31default__ldtk__level__selection());
-const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100366 = 2;
-const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100367 = true;
-const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100368 = 1;
-const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100369 = 6;
+const _M0FP39Milky20186selene15platform__input27mouse__lock__requested__ref = _M0MPC13ref3Ref3RefGbE(false);
+const _M0FP29Milky201814selene__webgpu15canvas__backend = _M0MP29Milky201814selene__webgpu13WebGpuBackend13WebGpuBackend();
+const _M0FP39Milky20186selene15platform__input33mouse__lock__handlers__registered = _M0MPC13ref3Ref3RefGbE(false);
+const _M0FP39Milky20186selene6window20mouse__lock__enabled = _M0MPC13ref3Ref3RefGbE(false);
+const _M0FP39Milky20186selene6window22mouse__lock__requested = _M0MPC13ref3Ref3RefGbE(false);
+const _M0FP39Milky20186selene6window19mouse__lock__active = _M0MPC13ref3Ref3RefGbE(false);
+const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100363 = 2;
+const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100364 = true;
+const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100365 = 1;
+const _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100366 = 6;
 const _M0FP39Milky20186selene4a11y28selene__component__key__A11y = _M0MP39Milky20186selene3ecs12ComponentKey12ComponentKeyGRP39Milky20186selene2ui10TextLayoutE();
 const _M0FP39Milky20186selene4a11y14a11y__tree__id = _M0MP29Milky201815moon__accesskit6TreeId4root();
 const _bind$65 = [];
@@ -17351,7 +17350,7 @@ const _bind$70 = [];
 const _M0FP39Milky20186selene5state22state__world__runtimes = _M0MPB3Map3MapGjRP39Milky20186selene5state17StateWorldRuntimeE(new _M0TPB9ArrayViewGUjRP39Milky20186selene5state17StateWorldRuntimeEE(_bind$70, 0, 0), undefined);
 const _bind$71 = [];
 const _M0FP39Milky20186selene14runtime__debug25queued__inputs__by__world = _M0MPB3Map3MapGjRPB5ArrayGRP39Milky20186selene6inputs13InputSnapshotEE(new _M0TPB9ArrayViewGUjRPB5ArrayGRP39Milky20186selene6inputs13InputSnapshotEEE(_bind$71, 0, 0), undefined);
-const _M0FP39Milky20186selene3app28build__runtime__plan_2einnerN6constrS99993 = 0;
+const _M0FP39Milky20186selene3app28build__runtime__plan_2einnerN6constrS99990 = 0;
 function _M0MPC16string10StringView12unsafe__view(self, start, end) {
   return new _M0TPC16string10StringView(self.str, self.start + start | 0, self.start + end | 0);
 }
@@ -23677,13 +23676,13 @@ function _M0FPB8new__mapGRP39Milky20186selene6inputs16GamepadAxisInputdE(capacit
   const _bind$75 = undefined;
   return new _M0TPB3MapGRP39Milky20186selene6inputs16GamepadAxisInputdE(_bind$74, 0, capacity$2, _bind$72, _bind$73, _bind$75, -1);
 }
-function _M0FPB8new__mapGjRP39Milky20186selene6system12DisplayStateE(capacity) {
+function _M0FPB8new__mapGjRP39Milky20186selene6window12DisplayStateE(capacity) {
   const capacity$2 = _M0MPC13int3Int20next__power__of__two(capacity);
   const _bind$72 = capacity$2 - 1 | 0;
   const _bind$73 = _M0FPB21calc__grow__threshold(capacity$2);
   const _bind$74 = $make_array_len_and_init(capacity$2, undefined);
   const _bind$75 = undefined;
-  return new _M0TPB3MapGjRP39Milky20186selene6system12DisplayStateE(_bind$74, 0, capacity$2, _bind$72, _bind$73, _bind$75, -1);
+  return new _M0TPB3MapGjRP39Milky20186selene6window12DisplayStateE(_bind$74, 0, capacity$2, _bind$72, _bind$73, _bind$75, -1);
 }
 function _M0FPB8new__mapGjRPB5ArrayGRP39Milky20186selene8render2d20OrderedDrawCommand2DEE(capacity) {
   const capacity$2 = _M0MPC13int3Int20next__power__of__two(capacity);
@@ -24904,7 +24903,7 @@ function _M0MPB3Map20add__entry__to__tailGRP39Milky20186selene6inputs16GamepadAx
   self.entries[idx] = entry;
   self.size = self.size + 1 | 0;
 }
-function _M0MPB3Map20add__entry__to__tailGjRP39Milky20186selene6system12DisplayStateE(self, idx, entry) {
+function _M0MPB3Map20add__entry__to__tailGjRP39Milky20186selene6window12DisplayStateE(self, idx, entry) {
   const _bind$72 = self.tail;
   if (_bind$72 === -1) {
     self.head = entry;
@@ -25760,7 +25759,7 @@ function _M0MPB3Map10set__entryGRP39Milky20186selene6inputs16GamepadAxisInputdE(
   }
   self.entries[new_idx] = entry;
 }
-function _M0MPB3Map10set__entryGjRP39Milky20186selene6system12DisplayStateE(self, entry, new_idx) {
+function _M0MPB3Map10set__entryGjRP39Milky20186selene6window12DisplayStateE(self, entry, new_idx) {
   const _bind$72 = entry.next;
   if (_bind$72 === undefined) {
     self.tail = new_idx;
@@ -27628,7 +27627,7 @@ function _M0MPB3Map10push__awayGRP39Milky20186selene6inputs16GamepadAxisInputdE(
     }
   }
 }
-function _M0MPB3Map10push__awayGjRP39Milky20186selene6system12DisplayStateE(self, idx, entry) {
+function _M0MPB3Map10push__awayGjRP39Milky20186selene6window12DisplayStateE(self, idx, entry) {
   let _tmp = entry.psl + 1 | 0;
   let _tmp$2 = idx + 1 & self.capacity_mask;
   let _tmp$3 = entry;
@@ -27639,14 +27638,14 @@ function _M0MPB3Map10push__awayGjRP39Milky20186selene6system12DisplayStateE(self
     const _bind$72 = self.entries[idx$2];
     if (_bind$72 === undefined) {
       entry$2.psl = psl;
-      _M0MPB3Map10set__entryGjRP39Milky20186selene6system12DisplayStateE(self, entry$2, idx$2);
+      _M0MPB3Map10set__entryGjRP39Milky20186selene6window12DisplayStateE(self, entry$2, idx$2);
       return;
     } else {
       const _Some = _bind$72;
       const _curr_entry = _Some;
       if (psl > _curr_entry.psl) {
         entry$2.psl = psl;
-        _M0MPB3Map10set__entryGjRP39Milky20186selene6system12DisplayStateE(self, entry$2, idx$2);
+        _M0MPB3Map10set__entryGjRP39Milky20186selene6window12DisplayStateE(self, entry$2, idx$2);
         _tmp = _curr_entry.psl + 1 | 0;
         _tmp$2 = idx$2 + 1 & self.capacity_mask;
         _tmp$3 = _curr_entry;
@@ -29680,7 +29679,7 @@ function _M0MPB3Map20rehash__place__entryGRP39Milky20186selene6inputs16GamepadAx
     }
   }
 }
-function _M0MPB3Map20rehash__place__entryGjRP39Milky20186selene6system12DisplayStateE(self, outer) {
+function _M0MPB3Map20rehash__place__entryGjRP39Milky20186selene6window12DisplayStateE(self, outer) {
   const hash = outer.hash;
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
@@ -29691,16 +29690,16 @@ function _M0MPB3Map20rehash__place__entryGjRP39Milky20186selene6system12DisplayS
     if (_bind$72 === undefined) {
       outer.psl = psl;
       outer.prev = self.tail;
-      _M0MPB3Map20add__entry__to__tailGjRP39Milky20186selene6system12DisplayStateE(self, idx, outer);
+      _M0MPB3Map20add__entry__to__tailGjRP39Milky20186selene6window12DisplayStateE(self, idx, outer);
       return undefined;
     } else {
       const _Some = _bind$72;
       const _curr = _Some;
       if (psl > _curr.psl) {
-        _M0MPB3Map10push__awayGjRP39Milky20186selene6system12DisplayStateE(self, idx, _curr);
+        _M0MPB3Map10push__awayGjRP39Milky20186selene6window12DisplayStateE(self, idx, _curr);
         outer.psl = psl;
         outer.prev = self.tail;
-        _M0MPB3Map20add__entry__to__tailGjRP39Milky20186selene6system12DisplayStateE(self, idx, outer);
+        _M0MPB3Map20add__entry__to__tailGjRP39Milky20186selene6window12DisplayStateE(self, idx, outer);
         return undefined;
       } else {
         _tmp = psl + 1 | 0;
@@ -31496,7 +31495,7 @@ function _M0MPB3Map4growGRP39Milky20186selene6inputs16GamepadAxisInputdE(self) {
     }
   }
 }
-function _M0MPB3Map4growGjRP39Milky20186selene6system12DisplayStateE(self) {
+function _M0MPB3Map4growGjRP39Milky20186selene6window12DisplayStateE(self) {
   const old_head = self.head;
   const new_capacity = self.capacity << 1;
   self.entries = $make_array_len_and_init(new_capacity, undefined);
@@ -31516,7 +31515,7 @@ function _M0MPB3Map4growGjRP39Milky20186selene6system12DisplayStateE(self) {
       const _e = _Some;
       const next_in_chain = _e.next;
       _e.next = undefined;
-      _M0MPB3Map20rehash__place__entryGjRP39Milky20186selene6system12DisplayStateE(self, _e);
+      _M0MPB3Map20rehash__place__entryGjRP39Milky20186selene6window12DisplayStateE(self, _e);
       _tmp = next_in_chain;
       continue;
     }
@@ -36735,7 +36734,7 @@ function _M0MPB3Map15set__with__hashGsRPB5ArrayGjEE(self, key, value, hash) {
     }
   }
 }
-function _M0MPB3Map15set__with__hashGjRP39Milky20186selene6system12DisplayStateE(self, key, value, hash) {
+function _M0MPB3Map15set__with__hashGjRP39Milky20186selene6window12DisplayStateE(self, key, value, hash) {
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -36744,15 +36743,15 @@ function _M0MPB3Map15set__with__hashGjRP39Milky20186selene6system12DisplayStateE
     const _bind$72 = self.entries[idx];
     if (_bind$72 === undefined) {
       if (self.size >= self.grow_at) {
-        _M0MPB3Map4growGjRP39Milky20186selene6system12DisplayStateE(self);
+        _M0MPB3Map4growGjRP39Milky20186selene6window12DisplayStateE(self);
         _tmp = 0;
         _tmp$2 = hash & self.capacity_mask;
         continue;
       }
       const _bind$73 = self.tail;
       const _bind$74 = undefined;
-      const entry = new _M0TPB5EntryGjRP39Milky20186selene6system12DisplayStateE(_bind$73, _bind$74, psl, hash, key, value);
-      _M0MPB3Map20add__entry__to__tailGjRP39Milky20186selene6system12DisplayStateE(self, idx, entry);
+      const entry = new _M0TPB5EntryGjRP39Milky20186selene6window12DisplayStateE(_bind$73, _bind$74, psl, hash, key, value);
+      _M0MPB3Map20add__entry__to__tailGjRP39Milky20186selene6window12DisplayStateE(self, idx, entry);
       return undefined;
     } else {
       const _Some = _bind$72;
@@ -36763,16 +36762,16 @@ function _M0MPB3Map15set__with__hashGjRP39Milky20186selene6system12DisplayStateE
       }
       if (psl > _curr_entry.psl) {
         if (self.size >= self.grow_at) {
-          _M0MPB3Map4growGjRP39Milky20186selene6system12DisplayStateE(self);
+          _M0MPB3Map4growGjRP39Milky20186selene6window12DisplayStateE(self);
           _tmp = 0;
           _tmp$2 = hash & self.capacity_mask;
           continue;
         }
-        _M0MPB3Map10push__awayGjRP39Milky20186selene6system12DisplayStateE(self, idx, _curr_entry);
+        _M0MPB3Map10push__awayGjRP39Milky20186selene6window12DisplayStateE(self, idx, _curr_entry);
         const _bind$73 = self.tail;
         const _bind$74 = undefined;
-        const entry = new _M0TPB5EntryGjRP39Milky20186selene6system12DisplayStateE(_bind$73, _bind$74, psl, hash, key, value);
-        _M0MPB3Map20add__entry__to__tailGjRP39Milky20186selene6system12DisplayStateE(self, idx, entry);
+        const entry = new _M0TPB5EntryGjRP39Milky20186selene6window12DisplayStateE(_bind$73, _bind$74, psl, hash, key, value);
+        _M0MPB3Map20add__entry__to__tailGjRP39Milky20186selene6window12DisplayStateE(self, idx, entry);
         return undefined;
       }
       _tmp = psl + 1 | 0;
@@ -37805,8 +37804,8 @@ function _M0MPB3Map3setGsiE(self, key, value) {
 function _M0MPB3Map3setGRP39Milky20186selene6inputs16GamepadAxisInputdE(self, key, value) {
   _M0MPB3Map15set__with__hashGRP39Milky20186selene6inputs16GamepadAxisInputdE(self, key, value, _M0IP016_24default__implPB4Hash4hashGRP39Milky20186selene6inputs16GamepadAxisInputE(key));
 }
-function _M0MPB3Map3setGjRP39Milky20186selene6system12DisplayStateE(self, key, value) {
-  _M0MPB3Map15set__with__hashGjRP39Milky20186selene6system12DisplayStateE(self, key, value, _M0IPC14uint4UIntPB4Hash4hash(key));
+function _M0MPB3Map3setGjRP39Milky20186selene6window12DisplayStateE(self, key, value) {
+  _M0MPB3Map15set__with__hashGjRP39Milky20186selene6window12DisplayStateE(self, key, value, _M0IPC14uint4UIntPB4Hash4hash(key));
 }
 function _M0MPB3Map3setGsRPB5ArrayGjEE(self, key, value) {
   _M0MPB3Map15set__with__hashGsRPB5ArrayGjEE(self, key, value, _M0IPC16string6StringPB4Hash4hash(key));
@@ -40482,7 +40481,7 @@ function _M0MPB3Map3MapGRP39Milky20186selene6inputs16GamepadAxisInputdE(arr, cap
   }
   return m;
 }
-function _M0MPB3Map3MapGjRP39Milky20186selene6system12DisplayStateE(arr, capacity) {
+function _M0MPB3Map3MapGjRP39Milky20186selene6window12DisplayStateE(arr, capacity) {
   const length = arr.end - arr.start | 0;
   let capacity$2;
   if (capacity === undefined) {
@@ -40492,14 +40491,14 @@ function _M0MPB3Map3MapGjRP39Milky20186selene6system12DisplayStateE(arr, capacit
     const _capacity = _Some;
     capacity$2 = _M0FPB21capacity__for__length(_capacity > length ? _capacity : length);
   }
-  const m = _M0FPB8new__mapGjRP39Milky20186selene6system12DisplayStateE(capacity$2);
+  const m = _M0FPB8new__mapGjRP39Milky20186selene6window12DisplayStateE(capacity$2);
   const _bind$72 = arr.end - arr.start | 0;
   let _tmp = 0;
   while (true) {
     const _ = _tmp;
     if (_ < _bind$72) {
       const e = arr.buf[arr.start + _ | 0];
-      _M0MPB3Map3setGjRP39Milky20186selene6system12DisplayStateE(m, e._0, e._1);
+      _M0MPB3Map3setGjRP39Milky20186selene6window12DisplayStateE(m, e._0, e._1);
       _tmp = _ + 1 | 0;
       continue;
     } else {
@@ -43574,7 +43573,7 @@ function _M0MPB3Map13get__or__initGsRPB5ArrayGjEE(self, key, default_) {
   _M0MPB3Map15set__with__hashGsRPB5ArrayGjEE(self, key, new_value, hash);
   return new_value;
 }
-function _M0MPB3Map13get__or__initGjRP39Milky20186selene6system12DisplayStateE(self, key, default_) {
+function _M0MPB3Map13get__or__initGjRP39Milky20186selene6window12DisplayStateE(self, key, default_) {
   const hash = _M0IPC14uint4UIntPB4Hash4hash(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
@@ -43599,7 +43598,7 @@ function _M0MPB3Map13get__or__initGjRP39Milky20186selene6system12DisplayStateE(s
     }
   }
   const new_value = default_();
-  _M0MPB3Map15set__with__hashGjRP39Milky20186selene6system12DisplayStateE(self, key, new_value, hash);
+  _M0MPB3Map15set__with__hashGjRP39Milky20186selene6window12DisplayStateE(self, key, new_value, hash);
   return new_value;
 }
 function _M0MPB3Map13get__or__initGjRP39Milky20186selene2ui11UiScaleModeE(self, key, default_) {
@@ -55823,8 +55822,8 @@ function _M0MP39Milky20186selene3ecs5World13get__resourceGRP39Milky20186selene4t
   const key = _M0FP39Milky20186selene4time32selene__resource__key__TimeState;
   return _M0MP39Milky20186selene3ecs5World13get__or__initGRP39Milky20186selene3ecs14ComponentStoreGRP39Milky20186selene4ldtk17LdtkLayerMetadataEE(self, key.key).val;
 }
-function _M0MP39Milky20186selene3ecs5World13get__resourceGRP39Milky20186selene6system6TimersE(self) {
-  const key = _M0FP39Milky20186selene6system29selene__resource__key__Timers;
+function _M0MP39Milky20186selene3ecs5World13get__resourceGRP39Milky20186selene4time6TimersE(self) {
+  const key = _M0FP39Milky20186selene4time29selene__resource__key__Timers;
   return _M0MP39Milky20186selene3ecs5World13get__or__initGRP39Milky20186selene3ecs14ComponentStoreGRP39Milky20186selene4ldtk17LdtkLayerMetadataEE(self, key.key).val;
 }
 function _M0MP39Milky20186selene3ecs5World8resourceGRP39Milky201817selene_2dexamples5cards12CardsRuntimeE(self) {
@@ -158660,203 +158659,6 @@ function _M0MP39Milky201812moon__rapier8pipeline12EventHandler26take__intersecti
   _M0MPC15array5Array5clearGRP39Milky20186selene5event7TriggerGRP39Milky20186selene6inputs18GamepadButtonEventEE(self.intersection_events);
   return result;
 }
-function _M0MP39Milky20186selene4time9TimeState9TimeState() {
-  return new _M0TP39Milky20186selene4time9TimeState(0, 0, 0, 0, 0, 0, 1);
-}
-function _M0FP39Milky20186selene4time11time__state() {
-  return _M0MP39Milky20186selene3ecs5World8resourceGRP39Milky20186selene4time9TimeStateE(_M0FP39Milky20186selene3ecs23require__current__world());
-}
-function _M0FP39Milky20186selene4time10initialize(world) {
-  const state = _M0MP39Milky20186selene3ecs5World13get__resourceGRP39Milky20186selene4time9TimeStateE(world);
-  if (state === undefined) {
-    _M0MP39Milky20186selene3ecs5World16insert__resourceGRP39Milky20186selene4time9TimeStateE(world, _M0MP39Milky20186selene4time9TimeState9TimeState());
-    return;
-  } else {
-    return;
-  }
-}
-function _M0FP39Milky20186selene4time12begin__frame(raw_delta) {
-  const state = _M0FP39Milky20186selene4time11time__state();
-  const safe_raw = 0 > raw_delta ? 0 : raw_delta;
-  const scaled = safe_raw * state.scale;
-  state.raw_delta = safe_raw;
-  state.frame_delta = scaled;
-  state.delta = scaled;
-  state.elapsed_raw = state.elapsed_raw + safe_raw;
-  state.elapsed = state.elapsed + scaled;
-}
-function _M0FP39Milky20186selene4time10set__delta(delta) {
-  const state = _M0FP39Milky20186selene4time11time__state();
-  state.delta = 0 > delta ? 0 : delta;
-}
-function _M0FP39Milky20186selene4time17use__frame__delta() {
-  const state = _M0FP39Milky20186selene4time11time__state();
-  state.delta = state.frame_delta;
-}
-function _M0FP39Milky20186selene4time17use__fixed__delta(delta) {
-  const state = _M0FP39Milky20186selene4time11time__state();
-  const safe = 0 > delta ? 0 : delta;
-  state.fixed_delta = safe;
-  state.delta = safe;
-}
-function _M0FP39Milky20186selene6system12tick__timers(scaled, unscaled) {
-  const world = _M0FP39Milky20186selene3ecs23require__current__world();
-  const existing = _M0MP39Milky20186selene3ecs5World13get__resourceGRP39Milky20186selene6system6TimersE(world);
-  if (existing === undefined) {
-    return;
-  } else {
-    const _Some = existing;
-    const _state = _Some;
-    let _tmp;
-    if (!_state.ticking) {
-      const _p = _state.pending;
-      _tmp = !(_p.len === 0);
-    } else {
-      _tmp = false;
-    }
-    if (_tmp) {
-      _state.ticking = true;
-      const due = new _M0TPB5ArrayGRP39Milky20186selene6system11TimerHandleE([], 0);
-      const _p = _state.pending;
-      const _p$2 = _p.len;
-      const _p$3 = _p.len;
-      const _p$4 = _p.buf;
-      let _p$5;
-      let _tmp$2 = 0;
-      let _tmp$3 = 0;
-      while (true) {
-        const _p$6 = _tmp$2;
-        const _p$7 = _tmp$3;
-        if (_p$6 < _p$3) {
-          const _p$8 = _p$4[_p$6];
-          let _tmp$4;
-          let _p$9;
-          _L: {
-            _L$2: {
-              const _p$10 = _p$8.handle.callback;
-              if (_p$10 === undefined) {
-                _p$9 = false;
-                break _L$2;
-              }
-              const _p$11 = _p$8.pausible ? scaled : unscaled;
-              if (_p$11.$tag === 1) {
-                const _p$12 = _p$11;
-                const _p$13 = _p$12._0;
-                _p$8.remaining = _p$8.remaining - _p$13;
-                if (_p$8.remaining <= 0) {
-                  _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(due, _p$8.handle);
-                  _p$9 = false;
-                  break _L$2;
-                }
-              }
-              _tmp$4 = true;
-              break _L;
-            }
-            _tmp$4 = _p$9;
-          }
-          if (_tmp$4) {
-            if (_p$6 !== _p$7) {
-              _p.buf[_p$7] = _p$8;
-            }
-            _tmp$2 = _p$6 + 1 | 0;
-            _tmp$3 = _p$7 + 1 | 0;
-            continue;
-          }
-          _tmp$2 = _p$6 + 1 | 0;
-          continue;
-        } else {
-          _p$5 = _p$7;
-          break;
-        }
-      }
-      if (_p$5 !== _p$2) {
-        _M0MPC15array5Array28unsafe__truncate__to__lengthGRP39Milky20186selene5event7TriggerGRP39Milky20186selene6inputs18GamepadButtonEventEE(_p, _p$5);
-      }
-      const _bind$72 = due.len;
-      const _bind$73 = due.buf;
-      let _tmp$4 = 0;
-      while (true) {
-        const _ = _tmp$4;
-        if (_ < _bind$72) {
-          const handle = _bind$73[_];
-          const _bind$74 = handle.callback;
-          if (_bind$74 === undefined) {
-          } else {
-            const _Some$2 = _bind$74;
-            const _callback = _Some$2;
-            handle.callback = undefined;
-            _M0FP39Milky20186selene3ecs19set__current__world(world);
-            _callback();
-          }
-          _tmp$4 = _ + 1 | 0;
-          continue;
-        } else {
-          break;
-        }
-      }
-      _state.ticking = false;
-      _M0FP39Milky20186selene3ecs19set__current__world(world);
-      return;
-    } else {
-      return;
-    }
-  }
-}
-function _M0FP39Milky20186selene6system14timers__system(delta) {
-  _M0FP39Milky20186selene6system12tick__timers(new _M0DTPC16option6OptionGdE4Some(delta), new _M0DTPC16option6OptionGdE4Some(_M0FP39Milky20186selene4time11time__state().raw_delta));
-}
-function _M0FP39Milky20186selene6system26next__mouse__lock__request(enabled, requested, active, escape_pressed, left_mouse_pressed) {
-  if (!enabled) {
-    return false;
-  }
-  if (active && escape_pressed) {
-    return false;
-  }
-  if (!active && left_mouse_pressed) {
-    return true;
-  }
-  return requested;
-}
-function _M0FP39Milky20186selene6system25sync__mouse__lock__system(_delta) {
-  _M0FP39Milky20186selene6system22mouse__lock__requested.val = _M0FP39Milky20186selene6system26next__mouse__lock__request(_M0FP39Milky20186selene6system20mouse__lock__enabled.val, _M0FP39Milky20186selene6system22mouse__lock__requested.val, _M0FP39Milky20186selene6system19mouse__lock__active.val, _M0FP39Milky20186selene6inputs17is__just__pressed(34), _M0FP39Milky20186selene6inputs24is__mouse__just__pressed(0));
-  _M0FP39Milky20186selene6system19mouse__lock__active.val = _M0FP39Milky20186selene15platform__input16set__mouse__lock(_M0FP39Milky20186selene6system22mouse__lock__requested.val);
-}
-function _M0FP39Milky20186selene6system14display__state() {
-  const _p = _M0FP39Milky20186selene3ecs23require__current__world();
-  const world_id = _p.id;
-  return _M0MPB3Map13get__or__initGjRP39Milky20186selene6system12DisplayStateE(_M0FP39Milky20186selene6system22display__world__states, world_id, () => new _M0TP39Milky20186selene6system12DisplayState(_M0MP39Milky20186selene4math4Vec24Vec2(512, 256), _M0MP39Milky20186selene4math4Vec24Vec2(512, 256), 1, 1));
-}
-function _M0FP39Milky20186selene6system18configure__display(viewport_width, viewport_height, zoom) {
-  const state = _M0FP39Milky20186selene6system14display__state();
-  const zoom$2 = zoom <= 0 ? 1 : zoom;
-  state.viewport_size = _M0MP39Milky20186selene4math4Vec24Vec2(viewport_width, viewport_height);
-  state.screen_size = _M0MP39Milky20186selene4math4Vec24Vec2(viewport_width * zoom$2, viewport_height * zoom$2);
-  state.zoom = zoom$2;
-  state.render_alpha = 1;
-}
-function _M0FP39Milky20186selene6system18set__render__alpha(alpha) {
-  const state = _M0FP39Milky20186selene6system14display__state();
-  const _p = 1 > alpha ? alpha : 1;
-  state.render_alpha = 0 > _p ? 0 : _p;
-}
-function _M0FP39Milky20186selene6system11scale__vec2(vec) {
-  const _p = vec.x;
-  const _tmp = _p * _M0FP39Milky20186selene6system14display__state().zoom;
-  const _p$2 = vec.y;
-  return _M0MP39Milky20186selene4math4Vec24Vec2(_tmp, _p$2 * _M0FP39Milky20186selene6system14display__state().zoom);
-}
-function _M0FP39Milky20186selene6system13unscale__vec2(vec) {
-  const _p = vec.x;
-  const _tmp = _p / _M0FP39Milky20186selene6system14display__state().zoom;
-  const _p$2 = vec.y;
-  return _M0MP39Milky20186selene4math4Vec24Vec2(_tmp, _p$2 / _M0FP39Milky20186selene6system14display__state().zoom);
-}
-function _M0FP39Milky20186selene6system23ui__virtual__to__screen(pos) {
-  return _M0FP39Milky20186selene6system11scale__vec2(pos);
-}
-function _M0FP39Milky20186selene6system23screen__to__ui__virtual(pos) {
-  return _M0FP39Milky20186selene6system13unscale__vec2(pos);
-}
 function _M0MP39Milky20186selene9transform9Transform8identity() {
   return new _M0TP39Milky20186selene9transform9Transform(_M0MP39Milky20186selene4math4Vec34zeroN6recordS55490, _M0MP39Milky20186selene4math9Rotation38identity(), _M0MP39Milky20186selene4math4Vec33oneN6recordS55491);
 }
@@ -159104,6 +158906,52 @@ function _M0MP39Milky20186selene9transform15GlobalTransform27try__decompose__trs
     return undefined;
   }
 }
+function _M0FP39Milky20186selene6window26next__mouse__lock__request(enabled, requested, active, escape_pressed, left_mouse_pressed) {
+  if (!enabled) {
+    return false;
+  }
+  if (active && escape_pressed) {
+    return false;
+  }
+  if (!active && left_mouse_pressed) {
+    return true;
+  }
+  return requested;
+}
+function _M0FP39Milky20186selene6window25sync__mouse__lock__system(_delta) {
+  _M0FP39Milky20186selene6window22mouse__lock__requested.val = _M0FP39Milky20186selene6window26next__mouse__lock__request(_M0FP39Milky20186selene6window20mouse__lock__enabled.val, _M0FP39Milky20186selene6window22mouse__lock__requested.val, _M0FP39Milky20186selene6window19mouse__lock__active.val, _M0FP39Milky20186selene6inputs17is__just__pressed(34), _M0FP39Milky20186selene6inputs24is__mouse__just__pressed(0));
+  _M0FP39Milky20186selene6window19mouse__lock__active.val = _M0FP39Milky20186selene15platform__input16set__mouse__lock(_M0FP39Milky20186selene6window22mouse__lock__requested.val);
+}
+function _M0FP39Milky20186selene6window14display__state() {
+  const _p = _M0FP39Milky20186selene3ecs23require__current__world();
+  const world_id = _p.id;
+  return _M0MPB3Map13get__or__initGjRP39Milky20186selene6window12DisplayStateE(_M0FP39Milky20186selene6window22display__world__states, world_id, () => new _M0TP39Milky20186selene6window12DisplayState(_M0MP39Milky20186selene4math4Vec24Vec2(512, 256), _M0MP39Milky20186selene4math4Vec24Vec2(512, 256), 1));
+}
+function _M0FP39Milky20186selene6window18configure__display(viewport_width, viewport_height, zoom) {
+  const state = _M0FP39Milky20186selene6window14display__state();
+  const zoom$2 = zoom <= 0 ? 1 : zoom;
+  state.viewport_size = _M0MP39Milky20186selene4math4Vec24Vec2(viewport_width, viewport_height);
+  state.screen_size = _M0MP39Milky20186selene4math4Vec24Vec2(viewport_width * zoom$2, viewport_height * zoom$2);
+  state.zoom = zoom$2;
+}
+function _M0FP39Milky20186selene6window11scale__vec2(vec) {
+  const _p = vec.x;
+  const _tmp = _p * _M0FP39Milky20186selene6window14display__state().zoom;
+  const _p$2 = vec.y;
+  return _M0MP39Milky20186selene4math4Vec24Vec2(_tmp, _p$2 * _M0FP39Milky20186selene6window14display__state().zoom);
+}
+function _M0FP39Milky20186selene6window13unscale__vec2(vec) {
+  const _p = vec.x;
+  const _tmp = _p / _M0FP39Milky20186selene6window14display__state().zoom;
+  const _p$2 = vec.y;
+  return _M0MP39Milky20186selene4math4Vec24Vec2(_tmp, _p$2 / _M0FP39Milky20186selene6window14display__state().zoom);
+}
+function _M0FP39Milky20186selene6window23ui__virtual__to__screen(pos) {
+  return _M0FP39Milky20186selene6window11scale__vec2(pos);
+}
+function _M0FP39Milky20186selene6window23screen__to__ui__virtual(pos) {
+  return _M0FP39Milky20186selene6window13unscale__vec2(pos);
+}
 function _M0MP39Milky20186selene6camera14CameraViewport4rect(self) {
   return new _M0TP39Milky20186selene4math4Rect(self.position, self.size);
 }
@@ -159120,7 +158968,7 @@ function _M0MP39Milky20186selene6camera12CameraPass2D12CameraPass2D(load_op$46$o
   }
   let clear_color;
   if (clear_color$46$opt === undefined) {
-    clear_color = _M0FP39Milky20186selene6camera29default__camera__clear__colorN6recordS91572;
+    clear_color = _M0FP39Milky20186selene6camera29default__camera__clear__colorN6recordS91536;
   } else {
     const _Some = clear_color$46$opt;
     clear_color = _Some;
@@ -159150,12 +158998,12 @@ function _M0FP39Milky20186selene6camera17projection__scale(scale) {
   return scale <= 0 || !(scale >= _M0FPB18double__min__value && scale <= _M0FPB18double__max__value) ? 1 : scale;
 }
 function _M0FP39Milky20186selene6camera27viewport__to__world__affine(camera_transform, projection, viewport) {
-  const world_units_per_pixel = _M0FP39Milky20186selene6camera17projection__scale(projection.scale) / _M0FP39Milky20186selene6system14display__state().zoom;
+  const world_units_per_pixel = _M0FP39Milky20186selene6camera17projection__scale(projection.scale) / _M0FP39Milky20186selene6window14display__state().zoom;
   const center = _M0IP39Milky20186selene4math4Vec2PB3Add3add(viewport.position, _M0MP39Milky20186selene4math4Vec211scalar__mul(viewport.size, 0.5));
   return _M0IP39Milky20186selene4math7Affine2PB3Mul3mul(_M0IP39Milky20186selene4math7Affine2PB3Mul3mul(_M0MP39Milky20186selene4math7Affine311project__xy(camera_transform.affine), _M0MP39Milky20186selene4math7Affine211from__scale(_M0MP39Milky20186selene4math4Vec24Vec2(world_units_per_pixel, world_units_per_pixel))), _M0MP39Milky20186selene4math7Affine217from__translation(_M0MP39Milky20186selene4math4Vec24Vec2(-center.x, -center.y)));
 }
 function _M0FP39Milky20186selene6camera28full__screen__viewport__rect() {
-  return new _M0TP39Milky20186selene4math4Rect(_M0MP39Milky20186selene4math4Vec24zero(), _M0FP39Milky20186selene6system14display__state().screen_size);
+  return new _M0TP39Milky20186selene4math4Rect(_M0MP39Milky20186selene4math4Vec24zero(), _M0FP39Milky20186selene6window14display__state().screen_size);
 }
 function _M0MP39Milky20186selene6camera6Camera14viewport__rect(self) {
   return _M0MPC16option6Option7map__orGRP39Milky20186selene6camera14CameraViewportRP39Milky20186selene4math4RectE(self.viewport, _M0FP39Milky20186selene6camera28full__screen__viewport__rect(), (viewport) => _M0MP39Milky20186selene6camera14CameraViewport4rect(viewport));
@@ -159331,7 +159179,7 @@ function _M0FP39Milky20186selene6camera25camera__screen__transform(global_transf
   const world = _M0FP39Milky20186selene6camera20world__transform__2d(global_transform);
   let view;
   if (camera_view === undefined) {
-    view = _M0MP39Milky20186selene4math7Affine211from__scale(_M0MP39Milky20186selene4math4Vec24Vec2(_M0FP39Milky20186selene6system14display__state().zoom, _M0FP39Milky20186selene6system14display__state().zoom));
+    view = _M0MP39Milky20186selene4math7Affine211from__scale(_M0MP39Milky20186selene4math4Vec24Vec2(_M0FP39Milky20186selene6window14display__state().zoom, _M0FP39Milky20186selene6window14display__state().zoom));
   } else {
     const _Some = camera_view;
     const _view = _Some;
@@ -159645,7 +159493,7 @@ function _M0MP39Milky20186chicle8geometry4Line4LineGbE(start, end) {
   return new _M0TP39Milky20186chicle8geometry4LineGbE(start, end);
 }
 function _M0MP39Milky20186chicle5style5Style7default() {
-  return new _M0TP39Milky20186chicle5style5Style(1, 0, _M0MP39Milky20186chicle5style5Style7defaultN6recordS91828, 0, 0, _M0MP39Milky20186chicle8geometry4Rect4RectGRP39Milky20186chicle5style9DimensionE(_M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__), _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__), _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__), _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__), _M0DTPC16option6OptionGdE4None__, _M0MP39Milky20186chicle8geometry4Rect4RectGRP39Milky20186chicle5style9DimensionE(_M0MP39Milky20186chicle5style5Style7defaultN6constrS91829, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91830, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91831, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91832), _M0MP39Milky20186chicle8geometry4Rect4RectGRP39Milky20186chicle5style9DimensionE(_M0MP39Milky20186chicle5style5Style7defaultN6constrS91833, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91834, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91835, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91836), _M0MP39Milky20186chicle8geometry4Rect4RectGRP39Milky20186chicle5style9DimensionE(_M0MP39Milky20186chicle5style5Style7defaultN6constrS91837, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91838, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91839, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91840), undefined, undefined, undefined, undefined, undefined, undefined, _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0MP39Milky20186chicle5style5Style7defaultN6constrS91841, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91842), 0, 0, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__, 0, 1, new _M0TPB5ArrayGRP39Milky20186chicle5style9DimensionE([], 0), new _M0TPB5ArrayGRP39Milky20186chicle5style9DimensionE([], 0), new _M0TPB5ArrayGRP39Milky20186chicle5style9DimensionE([], 0), new _M0TPB5ArrayGRP39Milky20186chicle5style9DimensionE([], 0), 0, _M0MP39Milky20186chicle8geometry4Line4LineGRP39Milky20186chicle5style13GridPlacementE(_M0DTP39Milky20186chicle5style13GridPlacement9PlaceAuto__, _M0DTP39Milky20186chicle5style13GridPlacement9PlaceAuto__), _M0MP39Milky20186chicle8geometry4Line4LineGRP39Milky20186chicle5style13GridPlacementE(_M0DTP39Milky20186chicle5style13GridPlacement9PlaceAuto__, _M0DTP39Milky20186chicle5style13GridPlacement9PlaceAuto__), undefined, undefined);
+  return new _M0TP39Milky20186chicle5style5Style(1, 0, _M0MP39Milky20186chicle5style5Style7defaultN6recordS91792, 0, 0, _M0MP39Milky20186chicle8geometry4Rect4RectGRP39Milky20186chicle5style9DimensionE(_M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__), _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__), _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__), _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0DTP39Milky20186chicle5style9Dimension7DimAuto__, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__), _M0DTPC16option6OptionGdE4None__, _M0MP39Milky20186chicle8geometry4Rect4RectGRP39Milky20186chicle5style9DimensionE(_M0MP39Milky20186chicle5style5Style7defaultN6constrS91793, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91794, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91795, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91796), _M0MP39Milky20186chicle8geometry4Rect4RectGRP39Milky20186chicle5style9DimensionE(_M0MP39Milky20186chicle5style5Style7defaultN6constrS91797, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91798, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91799, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91800), _M0MP39Milky20186chicle8geometry4Rect4RectGRP39Milky20186chicle5style9DimensionE(_M0MP39Milky20186chicle5style5Style7defaultN6constrS91801, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91802, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91803, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91804), undefined, undefined, undefined, undefined, undefined, undefined, _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0MP39Milky20186chicle5style5Style7defaultN6constrS91805, _M0MP39Milky20186chicle5style5Style7defaultN6constrS91806), 0, 0, _M0DTP39Milky20186chicle5style9Dimension7DimAuto__, 0, 1, new _M0TPB5ArrayGRP39Milky20186chicle5style9DimensionE([], 0), new _M0TPB5ArrayGRP39Milky20186chicle5style9DimensionE([], 0), new _M0TPB5ArrayGRP39Milky20186chicle5style9DimensionE([], 0), new _M0TPB5ArrayGRP39Milky20186chicle5style9DimensionE([], 0), 0, _M0MP39Milky20186chicle8geometry4Line4LineGRP39Milky20186chicle5style13GridPlacementE(_M0DTP39Milky20186chicle5style13GridPlacement9PlaceAuto__, _M0DTP39Milky20186chicle5style13GridPlacement9PlaceAuto__), _M0MP39Milky20186chicle8geometry4Line4LineGRP39Milky20186chicle5style13GridPlacementE(_M0DTP39Milky20186chicle5style13GridPlacement9PlaceAuto__, _M0DTP39Milky20186chicle5style13GridPlacement9PlaceAuto__), undefined, undefined);
 }
 function _M0MP39Milky20186chicle5style5Style12with__border(self, border) {
   return new _M0TP39Milky20186chicle5style5Style(self.display, self.box_sizing, self.overflow, self.scrollbar_width, self.position, self.inset, self.size, self.min_size, self.max_size, self.aspect_ratio, self.margin, self.padding, border, self.align_items, self.align_self, self.justify_items, self.justify_self, self.align_content, self.justify_content, self.gap, self.flex_direction, self.flex_wrap, self.flex_basis, self.flex_grow, self.flex_shrink, self.grid_template_rows, self.grid_template_columns, self.grid_auto_rows, self.grid_auto_columns, self.grid_auto_flow, self.grid_row, self.grid_column, self.grid_row_start, self.grid_column_start);
@@ -161179,7 +161027,7 @@ function _M0FP39Milky20186chicle4tree20collapse__state__add(state, margin) {
   return { _0: max_pos, _1: min_neg };
 }
 function _M0FP39Milky20186chicle4tree21collapse__state__from(margin) {
-  return _M0FP39Milky20186chicle4tree20collapse__state__add(_M0FP39Milky20186chicle4tree21collapse__state__fromN5tupleS92301, margin);
+  return _M0FP39Milky20186chicle4tree20collapse__state__add(_M0FP39Milky20186chicle4tree21collapse__state__fromN5tupleS92265, margin);
 }
 function _M0FP39Milky20186chicle4tree22collapse__state__merge(a, b) {
   return { _0: a._0 > b._0 ? a._0 : b._0, _1: a._1 < b._1 ? a._1 : b._1 };
@@ -161691,7 +161539,7 @@ function _M0FP39Milky20186chicle4tree36margin__collapse__state__add__margin(stat
   return { _0: max_pos, _1: min_neg };
 }
 function _M0FP39Milky20186chicle4tree29margin__collapse__state__from(margin) {
-  return _M0FP39Milky20186chicle4tree36margin__collapse__state__add__margin(_M0FP39Milky20186chicle4tree29margin__collapse__state__fromN5tupleS92456, margin);
+  return _M0FP39Milky20186chicle4tree36margin__collapse__state__add__margin(_M0FP39Milky20186chicle4tree29margin__collapse__state__fromN5tupleS92420, margin);
 }
 function _M0FP39Milky20186chicle4tree33layout__input__for__compute__size(known_dimensions, parent_size, available_space, sizing_mode, axis, vertical_margins_are_collapsible) {
   return new _M0TP39Milky20186chicle4tree11LayoutInput(1, sizing_mode, axis, known_dimensions, parent_size, available_space, vertical_margins_are_collapsible);
@@ -162697,7 +162545,7 @@ function _M0FP39Milky20186chicle4tree20track__definite__len(track) {
 }
 function _M0FP39Milky20186chicle4tree22spanned__definite__len(tracks, start, span, gap) {
   if (span <= 0) {
-    return _M0FP39Milky20186chicle4tree22spanned__definite__lenN6constrS92774;
+    return _M0FP39Milky20186chicle4tree22spanned__definite__lenN6constrS92738;
   }
   let total = 0;
   const _bind$72 = start + span | 0;
@@ -165515,7 +165363,7 @@ function _M0FP39Milky20186chicle4tree12ensure__rows(occ, row_tracks, auto_rows, 
     }
   }
 }
-function _M0FP39Milky20186chicle4tree28expand__grid__template__axisN11push__trackS93535(expanded, track, content_size, gap, used, first) {
+function _M0FP39Milky20186chicle4tree28expand__grid__template__axisN11push__trackS93499(expanded, track, content_size, gap, used, first) {
   let u = used;
   if (!first) {
     u = u + gap;
@@ -165563,7 +165411,7 @@ function _M0FP39Milky20186chicle4tree28expand__grid__template__axis(template, co
                         const _$2 = _tmp$3;
                         if (_$2 < _bind$74) {
                           const t = _bind$75[_$2];
-                          const r = _M0FP39Milky20186chicle4tree28expand__grid__template__axisN11push__trackS93535(expanded, t, content_size, gap, used, first);
+                          const r = _M0FP39Milky20186chicle4tree28expand__grid__template__axisN11push__trackS93499(expanded, t, content_size, gap, used, first);
                           used = r._0;
                           first = r._1;
                           non_auto_fit_count = non_auto_fit_count + 1 | 0;
@@ -165632,7 +165480,7 @@ function _M0FP39Milky20186chicle4tree28expand__grid__template__axis(template, co
                 const _$2 = _tmp$3;
                 if (_$2 < _bind$76) {
                   const t = _bind$77[_$2];
-                  const r = _M0FP39Milky20186chicle4tree28expand__grid__template__axisN11push__trackS93535(expanded, t, content_size, gap, used, first);
+                  const r = _M0FP39Milky20186chicle4tree28expand__grid__template__axisN11push__trackS93499(expanded, t, content_size, gap, used, first);
                   used = r._0;
                   first = r._1;
                   if (!is_auto_fit) {
@@ -165652,7 +165500,7 @@ function _M0FP39Milky20186chicle4tree28expand__grid__template__axis(template, co
             }
           }
         } else {
-          const r = _M0FP39Milky20186chicle4tree28expand__grid__template__axisN11push__trackS93535(expanded, item, content_size, gap, used, first);
+          const r = _M0FP39Milky20186chicle4tree28expand__grid__template__axisN11push__trackS93499(expanded, item, content_size, gap, used, first);
           used = r._0;
           first = r._1;
           non_auto_fit_count = non_auto_fit_count + 1 | 0;
@@ -165716,7 +165564,7 @@ function _M0FP39Milky20186chicle4tree43grid__definite__axis__border__content__si
     const _p$2 = border_box - inset;
     return { _0: border_box, _1: _p$2 > 0 ? _p$2 : 0 };
   } else {
-    return _M0FP39Milky20186chicle4tree43grid__definite__axis__border__content__sizeN5tupleS93609;
+    return _M0FP39Milky20186chicle4tree43grid__definite__axis__border__content__sizeN5tupleS93573;
   }
 }
 function _M0MP39Milky20186chicle4tree8GridItem21set__track__crossings(self, col_tracks, row_tracks) {
@@ -166127,7 +165975,7 @@ function _M0FP39Milky20186chicle4tree21cache__entry__matches(entry_known_dimensi
   }
 }
 function _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__size(size) {
-  return new _M0TP39Milky20186chicle4tree12LayoutOutput(size, _M0MP39Milky20186chicle8geometry4Size4zero(), _M0MP39Milky20186chicle8geometry5Point5PointGOdE(_M0DTPC16option6OptionGdE4None__, _M0DTPC16option6OptionGdE4None__), _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS93783, _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS93784, false);
+  return new _M0TP39Milky20186chicle4tree12LayoutOutput(size, _M0MP39Milky20186chicle8geometry4Size4zero(), _M0MP39Milky20186chicle8geometry5Point5PointGOdE(_M0DTPC16option6OptionGdE4None__, _M0DTPC16option6OptionGdE4None__), _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS93747, _M0MP39Milky20186chicle4tree12LayoutOutput17from__outer__sizeN5tupleS93748, false);
 }
 function _M0FP39Milky20186chicle4tree26find__leaf__measure__cache(cache, known_dimensions, available_space, run_mode) {
   let _tmp;
@@ -166238,7 +166086,7 @@ function _M0FP39Milky20186chicle4tree27store__leaf__measure__cache(cache, known_
   }
   _bind$72.buf[slot] = _bind$73;
 }
-function _M0FP39Milky20186chicle4tree21compute__leaf__layoutN19clamp__opt__to__maxS93816GRP39Milky20186selene3ecs6EntityE(v, max_v) {
+function _M0FP39Milky20186chicle4tree21compute__leaf__layoutN19clamp__opt__to__maxS93780GRP39Milky20186selene3ecs6EntityE(v, max_v) {
   _L: {
     if (v.$tag === 1) {
       const _Some = v;
@@ -166333,7 +166181,7 @@ function _M0FP39Milky20186chicle4tree21compute__leaf__layoutGRP39Milky20186selen
   let measure_known_dimensions = _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_tmp$2, _tmp$3);
   const resolved_max_width = _M0FP39Milky20186chicle4util28resolve__optional__dimension(node.style.max_size.width, available_space.width);
   const resolved_max_height = _M0FP39Milky20186chicle4util28resolve__optional__dimension(node.style.max_size.height, available_space.height);
-  measure_known_dimensions = _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0FP39Milky20186chicle4tree21compute__leaf__layoutN19clamp__opt__to__maxS93816GRP39Milky20186selene3ecs6EntityE(measure_known_dimensions.width, resolved_max_width), _M0FP39Milky20186chicle4tree21compute__leaf__layoutN19clamp__opt__to__maxS93816GRP39Milky20186selene3ecs6EntityE(measure_known_dimensions.height, resolved_max_height));
+  measure_known_dimensions = _M0MP39Milky20186chicle8geometry4Size4SizeGRP39Milky20186chicle8geometry14AvailableSpaceE(_M0FP39Milky20186chicle4tree21compute__leaf__layoutN19clamp__opt__to__maxS93780GRP39Milky20186selene3ecs6EntityE(measure_known_dimensions.width, resolved_max_width), _M0FP39Milky20186chicle4tree21compute__leaf__layoutN19clamp__opt__to__maxS93780GRP39Milky20186selene3ecs6EntityE(measure_known_dimensions.height, resolved_max_height));
   let _tmp$4;
   _L: {
     _L$2: {
@@ -167251,7 +167099,7 @@ function _M0FP39Milky20186chicle4tree22compute__block__layoutGRP39Milky20186sele
   const abs_child_ids = new _M0TPB5ArrayGiE([], 0);
   const abs_child_static_y = new _M0TPB5ArrayGdE([], 0);
   let flow_anchor_border_bottom = 0;
-  let flow_margin_collapse = _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS94053GRP39Milky20186selene3ecs6EntityE;
+  let flow_margin_collapse = _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS94017GRP39Milky20186selene3ecs6EntityE;
   let max_flow_child_width = 0;
   const _bind$86 = flow_available.width;
   let content_width_definite;
@@ -167578,7 +167426,7 @@ function _M0FP39Milky20186chicle4tree22compute__block__layoutGRP39Milky20186sele
     _M0MPC15array5Array5clearGiE(abs_child_ids);
     _M0MPC15array5Array5clearGdE(abs_child_static_y);
     flow_anchor_border_bottom = 0;
-    flow_margin_collapse = _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS94054GRP39Milky20186selene3ecs6EntityE;
+    flow_margin_collapse = _M0FP39Milky20186chicle4tree22compute__block__layoutN5tupleS94018GRP39Milky20186selene3ecs6EntityE;
     max_flow_child_width = 0;
     let is_first_in_flow2 = true;
     const _bind$92 = tree.children;
@@ -175845,7 +175693,7 @@ function _M0FP39Milky20186selene10visibility14render__layers() {
   return _M0FP39Milky20186selene3ecs10componentsGRP39Milky20186selene10visibility12RenderLayersE();
 }
 function _M0FP39Milky20186selene10visibility22entity__render__layers(entity) {
-  return _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene10visibility14render__layers(), entity), _M0MP39Milky20186selene10visibility12RenderLayers12RenderLayersN6recordS96438);
+  return _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene10visibility14render__layers(), entity), _M0MP39Milky20186selene10visibility12RenderLayers12RenderLayersN6recordS96402);
 }
 function _M0IP39Milky20186selene2ui12TextOverflowPB2Eq5equal(_x_1252, _x_1253) {
   if (_x_1252 === 0) {
@@ -176773,7 +176621,7 @@ function _M0FP39Milky20186selene2ui10parse__int(text) {
 }
 function _M0FP39Milky20186selene2ui16parse__rgb__body(body, with_alpha) {
   const values = new _M0TPB5ArrayGsE([], 0);
-  const _it = _M0MPC16string6String5split(body, _M0FP39Milky20186selene2ui16parse__rgb__bodyN6recordS96624);
+  const _it = _M0MPC16string6String5split(body, _M0FP39Milky20186selene2ui16parse__rgb__bodyN6recordS96588);
   while (true) {
     const _bind$72 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it);
     if (_bind$72 === undefined) {
@@ -176837,11 +176685,11 @@ function _M0FP39Milky20186selene2ui16parse__rgb__body(body, with_alpha) {
   }
 }
 function _M0FP39Milky20186selene2ui17parse__rgb__color(color) {
-  if (_M0MPC16string6String11has__prefix(color, _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96645) && _M0MPC16string6String11has__suffix(color, _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96646)) {
+  if (_M0MPC16string6String11has__prefix(color, _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96609) && _M0MPC16string6String11has__suffix(color, _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96610)) {
     const body = color.substring(5, color.length - 1 | 0);
     return _M0FP39Milky20186selene2ui16parse__rgb__body(body, true);
   }
-  if (_M0MPC16string6String11has__prefix(color, _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96647) && _M0MPC16string6String11has__suffix(color, _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96648)) {
+  if (_M0MPC16string6String11has__prefix(color, _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96611) && _M0MPC16string6String11has__suffix(color, _M0FP39Milky20186selene2ui17parse__rgb__colorN6recordS96612)) {
     const body = color.substring(4, color.length - 1 | 0);
     return _M0FP39Milky20186selene2ui16parse__rgb__body(body, false);
   }
@@ -176849,7 +176697,7 @@ function _M0FP39Milky20186selene2ui17parse__rgb__color(color) {
 }
 function _M0FP39Milky20186selene2ui12parse__color(color) {
   const normalized = _M0MPC16string6String9to__lower(_M0MPC16string10StringView9to__owned(_M0MPC16string6String4trim(color, undefined)));
-  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene2ui12parse__colorN6recordS96652)) {
+  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene2ui12parse__colorN6recordS96616)) {
     const _bind$72 = _M0FP39Milky20186selene2ui17parse__hex__color(normalized);
     if (_bind$72 === undefined) {
     } else {
@@ -176858,7 +176706,7 @@ function _M0FP39Milky20186selene2ui12parse__color(color) {
       return _parsed;
     }
   }
-  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene2ui12parse__colorN6recordS96653) || _M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene2ui12parse__colorN6recordS96654)) {
+  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene2ui12parse__colorN6recordS96617) || _M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene2ui12parse__colorN6recordS96618)) {
     const _bind$72 = _M0FP39Milky20186selene2ui17parse__rgb__color(normalized);
     if (_bind$72 === undefined) {
     } else {
@@ -177052,7 +176900,7 @@ function _M0MP39Milky20186selene2ui8TextFont9from__css(font) {
     return _M0MP39Milky20186selene2ui8TextFont16TextFont_2einner("Arial", 16);
   }
   const parts = new _M0TPB5ArrayGRPC16string10StringViewE([], 0);
-  const _it = _M0MPC16string6String5split(font$2, _M0MP39Milky20186selene2ui8TextFont9from__cssN6recordS96733);
+  const _it = _M0MPC16string6String5split(font$2, _M0MP39Milky20186selene2ui8TextFont9from__cssN6recordS96697);
   while (true) {
     const _bind$72 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it);
     if (_bind$72 === undefined) {
@@ -177218,21 +177066,21 @@ function _M0FP39Milky20186selene2ui14truncate__line(style, text, max_width) {
   }
   let current = text;
   while (true) {
-    if (current.length > 0 && _M0FP39Milky20186selene2ui23measure__text__fragment(style, `${current}${_M0FP39Milky20186selene2ui14truncate__lineN8ellipsisS96783}`).x > max_width) {
+    if (current.length > 0 && _M0FP39Milky20186selene2ui23measure__text__fragment(style, `${current}${_M0FP39Milky20186selene2ui14truncate__lineN8ellipsisS96747}`).x > max_width) {
       current = current.substring(0, current.length - 1 | 0);
       continue;
     } else {
       break;
     }
   }
-  return `${current}${_M0FP39Milky20186selene2ui14truncate__lineN8ellipsisS96783}`;
+  return `${current}${_M0FP39Milky20186selene2ui14truncate__lineN8ellipsisS96747}`;
 }
 function _M0FP39Milky20186selene2ui10wrap__line(style, text, max_width) {
   if (max_width <= 0) {
     return new _M0TPB5ArrayGsE([""], 1);
   }
   const words = new _M0TPB5ArrayGsE([], 0);
-  const _it = _M0MPC16string6String5split(text, _M0FP39Milky20186selene2ui10wrap__lineN6recordS96789);
+  const _it = _M0MPC16string6String5split(text, _M0FP39Milky20186selene2ui10wrap__lineN6recordS96753);
   while (true) {
     const _bind$72 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it);
     if (_bind$72 === undefined) {
@@ -177295,7 +177143,7 @@ function _M0FP39Milky20186selene2ui21prepare__text__layout(content, style, layou
     }
     default: {
       let longest = 0;
-      const _it = _M0MPC16string6String5split(content, _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96807);
+      const _it = _M0MPC16string6String5split(content, _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96771);
       while (true) {
         const _bind$72 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it);
         if (_bind$72 === undefined) {
@@ -177303,7 +177151,7 @@ function _M0FP39Milky20186selene2ui21prepare__text__layout(content, style, layou
         } else {
           const _Some = _bind$72;
           const _raw_line = _Some;
-          const _it$2 = _M0MPC16string10StringView5split(_raw_line, _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96808);
+          const _it$2 = _M0MPC16string10StringView5split(_raw_line, _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96772);
           while (true) {
             const _bind$73 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it$2);
             if (_bind$73 === undefined) {
@@ -177324,7 +177172,7 @@ function _M0FP39Milky20186selene2ui21prepare__text__layout(content, style, layou
     }
   }
   const lines = new _M0TPB5ArrayGsE([], 0);
-  const _it$2 = _M0MPC16string6String5split(content, _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96809);
+  const _it$2 = _M0MPC16string6String5split(content, _M0FP39Milky20186selene2ui21prepare__text__layoutN6recordS96773);
   while (true) {
     const _bind$72 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it$2);
     if (_bind$72 === undefined) {
@@ -177564,7 +177412,7 @@ function _M0FP39Milky20186selene2ui19scaled__text__style(style) {
     const _tmp = style.font;
     const _tmp$2 = style.family;
     const _p = style.size;
-    return new _M0TP39Milky20186selene15render2d__types11TextStyle2D(_tmp, _tmp$2, _p * _M0FP39Milky20186selene6system14display__state().zoom, style.color, style.align, style.baseline);
+    return new _M0TP39Milky20186selene15render2d__types11TextStyle2D(_tmp, _tmp$2, _p * _M0FP39Milky20186selene6window14display__state().zoom, style.color, style.align, style.baseline);
   }
 }
 function _M0FP39Milky20186selene2ui19render__text__style(entity) {
@@ -178166,7 +178014,7 @@ function _M0MP39Milky20186selene2ui4Node4Node(width$46$opt, height$46$opt, min_w
   }
   let overflow_clip_margin;
   if (overflow_clip_margin$46$opt === undefined) {
-    overflow_clip_margin = _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS97060;
+    overflow_clip_margin = _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS97024;
   } else {
     const _Some = overflow_clip_margin$46$opt;
     overflow_clip_margin = _Some;
@@ -178307,7 +178155,7 @@ function _M0MP39Milky20186selene2ui4Node16absolute_2einner(offset, size, padding
       break _L;
     }
   }
-  return _M0MP39Milky20186selene2ui4Node4Node(width, height, undefined, undefined, undefined, undefined, new _M0DTP39Milky20186selene2ui3Val2Px(offset.x), undefined, new _M0DTP39Milky20186selene2ui3Val2Px(offset.y), undefined, undefined, padding, border, display, _M0MP39Milky20186selene2ui4Node16absolute_2einnerN6constrS97225, flex_direction, justify_content, align_items, new _M0DTPC16option6OptionGdE4Some(row_gap), new _M0DTPC16option6OptionGdE4Some(column_gap), overflow_x, overflow_y, overflow_clip_margin, _M0DTPC16option6OptionGdE4None__, _M0DTPC16option6OptionGdE4None__, active, _M0DTPC16option6OptionGORP39Milky20186selene2ui12AlignContentE4None__, _M0DTPC16option6OptionGORP39Milky20186selene2ui10AlignItemsE4None__, _M0DTPC16option6OptionGORP39Milky20186selene2ui10AlignItemsE4None__, _M0DTPC16option6OptionGORP39Milky20186selene2ui10AlignItemsE4None__, undefined, undefined, undefined, _M0DTPC16option6OptionGdE4None__, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+  return _M0MP39Milky20186selene2ui4Node4Node(width, height, undefined, undefined, undefined, undefined, new _M0DTP39Milky20186selene2ui3Val2Px(offset.x), undefined, new _M0DTP39Milky20186selene2ui3Val2Px(offset.y), undefined, undefined, padding, border, display, _M0MP39Milky20186selene2ui4Node16absolute_2einnerN6constrS97189, flex_direction, justify_content, align_items, new _M0DTPC16option6OptionGdE4Some(row_gap), new _M0DTPC16option6OptionGdE4Some(column_gap), overflow_x, overflow_y, overflow_clip_margin, _M0DTPC16option6OptionGdE4None__, _M0DTPC16option6OptionGdE4None__, active, _M0DTPC16option6OptionGORP39Milky20186selene2ui12AlignContentE4None__, _M0DTPC16option6OptionGORP39Milky20186selene2ui10AlignItemsE4None__, _M0DTPC16option6OptionGORP39Milky20186selene2ui10AlignItemsE4None__, _M0DTPC16option6OptionGORP39Milky20186selene2ui10AlignItemsE4None__, undefined, undefined, undefined, _M0DTPC16option6OptionGdE4None__, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
 }
 function _M0MP39Milky20186selene2ui4Node8absolute(offset, size$46$opt, padding$46$opt, border$46$opt, display$46$opt, flex_direction$46$opt, justify_content$46$opt, align_items$46$opt, row_gap$46$opt, column_gap$46$opt, overflow_x$46$opt, overflow_y$46$opt, overflow_clip_margin$46$opt, active$46$opt) {
   let size;
@@ -178389,7 +178237,7 @@ function _M0MP39Milky20186selene2ui4Node8absolute(offset, size$46$opt, padding$4
   }
   let overflow_clip_margin;
   if (overflow_clip_margin$46$opt === undefined) {
-    overflow_clip_margin = _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS97060;
+    overflow_clip_margin = _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS97024;
   } else {
     const _Some = overflow_clip_margin$46$opt;
     overflow_clip_margin = _Some;
@@ -178469,7 +178317,7 @@ function _M0FP39Milky20186selene2ui24compare__ui__root__order(lhs, rhs) {
   return lz !== rz ? lz - rz | 0 : $compare_int(_M0IP016_24default__implPB4Hash4hashGRP39Milky20186selene3ecs6EntityE(lhs), _M0IP016_24default__implPB4Hash4hashGRP39Milky20186selene3ecs6EntityE(rhs));
 }
 function _M0FP39Milky20186selene2ui26full__screen__ui__viewport() {
-  return new _M0TP39Milky20186selene4math4Rect(_M0MP39Milky20186selene4math4Vec24zero(), _M0FP39Milky20186selene6system14display__state().screen_size);
+  return new _M0TP39Milky20186selene4math4Rect(_M0MP39Milky20186selene4math4Vec24zero(), _M0FP39Milky20186selene6window14display__state().screen_size);
 }
 function _M0FP39Milky20186selene2ui17ui__layout__space(target_camera) {
   if (target_camera === undefined) {
@@ -178506,7 +178354,7 @@ function _M0FP39Milky20186selene2ui22ui__layout__root__size(space) {
   if (_bind$72 === 0) {
     return space.viewport.size;
   } else {
-    return _M0FP39Milky20186selene6system13unscale__vec2(space.viewport.size);
+    return _M0FP39Milky20186selene6window13unscale__vec2(space.viewport.size);
   }
 }
 function _M0FP39Milky20186selene2ui26logical__to__screen__point(point, space) {
@@ -178514,7 +178362,7 @@ function _M0FP39Milky20186selene2ui26logical__to__screen__point(point, space) {
   if (_bind$72 === 0) {
     return _M0IP39Milky20186selene4math4Vec2PB3Add3add(space.viewport.position, point);
   } else {
-    return _M0IP39Milky20186selene4math4Vec2PB3Add3add(space.viewport.position, _M0FP39Milky20186selene6system23ui__virtual__to__screen(point));
+    return _M0IP39Milky20186selene4math4Vec2PB3Add3add(space.viewport.position, _M0FP39Milky20186selene6window23ui__virtual__to__screen(point));
   }
 }
 function _M0FP39Milky20186selene2ui25logical__to__screen__size(size, _space) {
@@ -178522,7 +178370,7 @@ function _M0FP39Milky20186selene2ui25logical__to__screen__size(size, _space) {
   if (_bind$72 === 0) {
     return size;
   } else {
-    return _M0FP39Milky20186selene6system11scale__vec2(size);
+    return _M0FP39Milky20186selene6window11scale__vec2(size);
   }
 }
 function _M0FP39Milky20186selene2ui16to__screen__rect(rect, space) {
@@ -179060,7 +178908,7 @@ function _M0FP39Milky20186selene2ui23chicle__style__snapshot(node) {
       break;
     }
   }
-  return new _M0TP39Milky20186selene2ui21UiChicleStyleSnapshot(new _M0TP39Milky20186selene2ui4Node(_tmp, _tmp$2, _tmp$3, _tmp$4, _tmp$5, _tmp$6, _tmp$7, _tmp$8, _tmp$9, _tmp$10, _tmp$11, _tmp$12, _tmp$13, node.display, node.position_type, node.flex_direction, node.justify_content, node.align_items, node.align_content, node.align_self, node.justify_items, node.justify_self, _tmp$14, _tmp$15, node.overflow_x, node.overflow_y, _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS97060, node.flex_wrap, _tmp$16, node.flex_grow, node.flex_shrink, _tmp$18, _tmp$19, _p$5, _p$9, _p$13, _p$17, node.grid_auto_flow, node.grid_row, node.grid_column, true));
+  return new _M0TP39Milky20186selene2ui21UiChicleStyleSnapshot(new _M0TP39Milky20186selene2ui4Node(_tmp, _tmp$2, _tmp$3, _tmp$4, _tmp$5, _tmp$6, _tmp$7, _tmp$8, _tmp$9, _tmp$10, _tmp$11, _tmp$12, _tmp$13, node.display, node.position_type, node.flex_direction, node.justify_content, node.align_items, node.align_content, node.align_self, node.justify_items, node.justify_self, _tmp$14, _tmp$15, node.overflow_x, node.overflow_y, _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS97024, node.flex_wrap, _tmp$16, node.flex_grow, node.flex_shrink, _tmp$18, _tmp$19, _p$5, _p$9, _p$13, _p$17, node.grid_auto_flow, node.grid_row, node.grid_column, true));
 }
 function _M0FP39Milky20186selene2ui21ui__measure__snapshot(entity) {
   const text = _M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene2ui5texts(), entity);
@@ -179077,7 +178925,7 @@ function _M0FP39Milky20186selene2ui21ui__measure__snapshot(entity) {
   return new _M0TP39Milky20186selene2ui17UiMeasureSnapshot(_M0MPC16option6Option3mapGRP39Milky20186selene2ui4TextsE(text, (value) => value.content), font_handle, _M0MPC16option6Option3mapGRP39Milky20186selene12asset__types10FontHandleRP39Milky20186selene5asset9LoadStateE(font_handle, _M0FP39Milky20186selene5asset17font__load__state), _M0MPC16option6Option10unwrap__orGjE(_M0MPC16option6Option3mapGRP39Milky20186selene15render2d__types11TextStyle2DjE(style, (value) => _M0FP39Milky20186selene16platform__render23font__metrics__revision(value.family)), 0), _M0MPC16option6Option3mapGRP39Milky20186selene15render2d__types11TextStyle2DsE(style, (value) => value.family), _M0MPC16option6Option3mapGRP39Milky20186selene15render2d__types11TextStyle2DdE(style, (value) => value.size), layout.line_height, layout.wrap, layout.overflow, _M0MPC16option6Option3mapGRP39Milky20186selene2ui7UiImageRP39Milky20186selene4math4Vec2E(_M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene2ui10ui__images(), entity), (value) => value.size));
 }
 function _M0FP39Milky20186selene2ui24ui__projection__snapshot(entity) {
-  const overflow_clip_margin = _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0MPC16option6Option3mapGRP39Milky20186selene2ui4NodeRP39Milky20186selene2ui18OverflowClipMarginE(_M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene2ui5nodes(), entity), (node) => node.overflow_clip_margin), _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS97060);
+  const overflow_clip_margin = _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0MPC16option6Option3mapGRP39Milky20186selene2ui4NodeRP39Milky20186selene2ui18OverflowClipMarginE(_M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene2ui5nodes(), entity), (node) => node.overflow_clip_margin), _M0MP39Milky20186selene2ui18OverflowClipMargin12content__boxN6recordS97024);
   let target_camera;
   let target_viewport_position;
   let target_viewport_size;
@@ -182497,11 +182345,11 @@ function _M0FP39Milky20186selene9collision35entity__linear__velocity__for__body(
   }
 }
 function _M0MP39Milky20186selene9collision9RigidBody5fixed() {
-  const _bind$72 = _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98480;
+  const _bind$72 = _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98444;
   return new _M0TP39Milky20186selene9collision9RigidBody(1, _bind$72.gravity_scale, _bind$72.linear_damping, _bind$72.angular_damping, _bind$72.ccd_enabled, _bind$72.lock_rotation);
 }
 function _M0MP39Milky20186selene9collision9RigidBody26kinematic__position__based() {
-  const _bind$72 = _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98480;
+  const _bind$72 = _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98444;
   return new _M0TP39Milky20186selene9collision9RigidBody(2, _bind$72.gravity_scale, _bind$72.linear_damping, _bind$72.angular_damping, _bind$72.ccd_enabled, _bind$72.lock_rotation);
 }
 function _M0FP39Milky20186selene9collision19legacy__rigid__body(entity) {
@@ -184517,14 +184365,14 @@ function _M0FP39Milky20186selene9collision19point__on__polyline(point, points, o
 }
 function _M0FP39Milky20186selene9collision25pickable__line__tolerance(camera_view) {
   if (camera_view === undefined) {
-    const _p = _M0FP39Milky20186selene6system14display__state().zoom;
+    const _p = _M0FP39Milky20186selene6window14display__state().zoom;
     return 4 / (_p > 1e-06 ? _p : 1e-06);
   } else {
     const _Some = camera_view;
     const _camera_view = _Some;
     const projection_scale = _camera_view.projection.scale <= 0 ? 1 : _camera_view.projection.scale;
     const _tmp = 4 * projection_scale;
-    const _p = _M0FP39Milky20186selene6system14display__state().zoom;
+    const _p = _M0FP39Milky20186selene6window14display__state().zoom;
     return _tmp / (_p > 1e-06 ? _p : 1e-06);
   }
 }
@@ -184644,13 +184492,13 @@ function _M0FP39Milky20186selene9collision23pickable__click__system(_delta) {
   const camera_view = _M0FP39Milky20186selene6camera34camera2d__view__for__screen__point(mouse_screen);
   let mouse_world;
   if (camera_view === undefined) {
-    mouse_world = _M0FP39Milky20186selene6system13unscale__vec2(mouse_screen);
+    mouse_world = _M0FP39Milky20186selene6window13unscale__vec2(mouse_screen);
   } else {
     const _Some = camera_view;
     const _camera_view = _Some;
     mouse_world = _M0MP39Milky20186selene6camera12Camera2dView23viewport__to__world__2d(_camera_view, mouse_screen);
   }
-  const mouse_virtual = _M0FP39Milky20186selene6system23screen__to__ui__virtual(mouse_screen);
+  const mouse_virtual = _M0FP39Milky20186selene6window23screen__to__ui__virtual(mouse_screen);
   const _it = _M0MP39Milky20186selene3ecs14ComponentStore5iter2GRP39Milky20186selene2ui22RelativeCursorPositionE(_M0FP39Milky20186selene9collision9pickables());
   while (true) {
     const _bind$72 = _M0MPB5Iter24nextGRP39Milky20186selene3ecs6EntityRP39Milky20186selene2ui22RelativeCursorPositionE(_it);
@@ -184699,7 +184547,7 @@ function _M0MP39Milky20186selene9collision8Collider8Collider(filter) {
   return new _M0TP39Milky20186selene9collision8Collider(true, filter, 0.5, 0);
 }
 function _M0MP39Milky20186selene9collision9RigidBody26kinematic__velocity__based() {
-  const _bind$72 = _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98480;
+  const _bind$72 = _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98444;
   return new _M0TP39Milky20186selene9collision9RigidBody(3, _bind$72.gravity_scale, _bind$72.linear_damping, _bind$72.angular_damping, _bind$72.ccd_enabled, _bind$72.lock_rotation);
 }
 function _M0MP39Milky20186selene9collision4Area4Area(filter) {
@@ -185250,7 +185098,7 @@ function _M0FP39Milky20186selene6sprite10parse__int(text) {
 }
 function _M0FP39Milky20186selene6sprite16parse__rgb__body(body, with_alpha) {
   const values = new _M0TPB5ArrayGsE([], 0);
-  const _it = _M0MPC16string6String5split(body, _M0FP39Milky20186selene6sprite16parse__rgb__bodyN6recordS99476);
+  const _it = _M0MPC16string6String5split(body, _M0FP39Milky20186selene6sprite16parse__rgb__bodyN6recordS99440);
   while (true) {
     const _bind$72 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it);
     if (_bind$72 === undefined) {
@@ -185314,11 +185162,11 @@ function _M0FP39Milky20186selene6sprite16parse__rgb__body(body, with_alpha) {
   }
 }
 function _M0FP39Milky20186selene6sprite17parse__rgb__color(color) {
-  if (_M0MPC16string6String11has__prefix(color, _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99497) && _M0MPC16string6String11has__suffix(color, _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99498)) {
+  if (_M0MPC16string6String11has__prefix(color, _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99461) && _M0MPC16string6String11has__suffix(color, _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99462)) {
     const body = color.substring(5, color.length - 1 | 0);
     return _M0FP39Milky20186selene6sprite16parse__rgb__body(body, true);
   }
-  if (_M0MPC16string6String11has__prefix(color, _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99499) && _M0MPC16string6String11has__suffix(color, _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99500)) {
+  if (_M0MPC16string6String11has__prefix(color, _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99463) && _M0MPC16string6String11has__suffix(color, _M0FP39Milky20186selene6sprite17parse__rgb__colorN6recordS99464)) {
     const body = color.substring(4, color.length - 1 | 0);
     return _M0FP39Milky20186selene6sprite16parse__rgb__body(body, false);
   }
@@ -185326,7 +185174,7 @@ function _M0FP39Milky20186selene6sprite17parse__rgb__color(color) {
 }
 function _M0FP39Milky20186selene6sprite12parse__color(color) {
   const normalized = _M0MPC16string6String9to__lower(_M0MPC16string10StringView9to__owned(_M0MPC16string6String4trim(color, undefined)));
-  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene6sprite12parse__colorN6recordS99504)) {
+  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene6sprite12parse__colorN6recordS99468)) {
     const _bind$72 = _M0FP39Milky20186selene6sprite17parse__hex__color(normalized);
     if (_bind$72 === undefined) {
     } else {
@@ -185335,7 +185183,7 @@ function _M0FP39Milky20186selene6sprite12parse__color(color) {
       return _color;
     }
   }
-  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene6sprite12parse__colorN6recordS99505) || _M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene6sprite12parse__colorN6recordS99506)) {
+  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene6sprite12parse__colorN6recordS99469) || _M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene6sprite12parse__colorN6recordS99470)) {
     const _bind$72 = _M0FP39Milky20186selene6sprite17parse__rgb__color(normalized);
     if (_bind$72 === undefined) {
     } else {
@@ -185538,7 +185386,7 @@ function _M0FP39Milky20186selene6sprite22render__sprite__system(delta) {
           const local_transform = _M0FP39Milky20186selene6sprite24sprite__local__transform(sprite, _size);
           if (camera_views.len === 0) {
             const screen_pos = _M0FP39Milky20186selene10parallax2d25parallax__world__position(base_pos, parallax, undefined);
-            _M0FP39Milky20186selene6sprite27push__sprite__draw__command(entity, sprite, _size, depth, _M0FP39Milky20186selene6camera24pixel__snapped__position(_M0FP39Milky20186selene6system11scale__vec2(screen_pos)), _M0IP39Milky20186selene4math7Affine2PB3Mul3mul(_M0FP39Milky20186selene6camera25camera__screen__transform(global_transform, undefined), local_transform), undefined, sorting, order);
+            _M0FP39Milky20186selene6sprite27push__sprite__draw__command(entity, sprite, _size, depth, _M0FP39Milky20186selene6camera24pixel__snapped__position(_M0FP39Milky20186selene6window11scale__vec2(screen_pos)), _M0IP39Milky20186selene4math7Affine2PB3Mul3mul(_M0FP39Milky20186selene6camera25camera__screen__transform(global_transform, undefined), local_transform), undefined, sorting, order);
             return undefined;
           }
           const world_pos = _M0FP39Milky20186selene10parallax2d25parallax__world__position(base_pos, parallax, undefined);
@@ -185604,7 +185452,7 @@ function _M0FP39Milky20186selene14runtime__debug35atlas__overlay__from__draw__co
     const _Image = command;
     const _image = _Image._0;
     const _bind$72 = _image.source;
-    return _bind$72 === undefined ? undefined : new _M0DTP39Milky20186selene15render2d__types13DrawCommand2D4Rect(new _M0TP39Milky20186selene15render2d__types17RectDrawCommand2D(_image.destination, _image.transform, 1, 0, _M0FP39Milky20186selene14runtime__debug27atlas__overlay__fill__colorN6recordS99657, _M0FP39Milky20186selene14runtime__debug29atlas__overlay__stroke__colorN6recordS99658));
+    return _bind$72 === undefined ? undefined : new _M0DTP39Milky20186selene15render2d__types13DrawCommand2D4Rect(new _M0TP39Milky20186selene15render2d__types17RectDrawCommand2D(_image.destination, _image.transform, 1, 0, _M0FP39Milky20186selene14runtime__debug27atlas__overlay__fill__colorN6recordS99621, _M0FP39Milky20186selene14runtime__debug29atlas__overlay__stroke__colorN6recordS99622));
   } else {
     return undefined;
   }
@@ -186021,8 +185869,150 @@ function _M0FP39Milky20186selene5state25state__transition__system(_delta) {
     }
   }
 }
-function _M0MP39Milky20186selene11system__set9SystemSet9SystemSet(name) {
-  return new _M0TP39Milky20186selene11system__set9SystemSet(name);
+function _M0FP39Milky20186selene4time12tick__timers(scaled, unscaled) {
+  const world = _M0FP39Milky20186selene3ecs23require__current__world();
+  const existing = _M0MP39Milky20186selene3ecs5World13get__resourceGRP39Milky20186selene4time6TimersE(world);
+  if (existing === undefined) {
+    return;
+  } else {
+    const _Some = existing;
+    const _state = _Some;
+    let _tmp;
+    if (!_state.ticking) {
+      const _p = _state.pending;
+      _tmp = !(_p.len === 0);
+    } else {
+      _tmp = false;
+    }
+    if (_tmp) {
+      _state.ticking = true;
+      const due = new _M0TPB5ArrayGRP39Milky20186selene4time11TimerHandleE([], 0);
+      const _p = _state.pending;
+      const _p$2 = _p.len;
+      const _p$3 = _p.len;
+      const _p$4 = _p.buf;
+      let _p$5;
+      let _tmp$2 = 0;
+      let _tmp$3 = 0;
+      while (true) {
+        const _p$6 = _tmp$2;
+        const _p$7 = _tmp$3;
+        if (_p$6 < _p$3) {
+          const _p$8 = _p$4[_p$6];
+          let _tmp$4;
+          let _p$9;
+          _L: {
+            _L$2: {
+              const _p$10 = _p$8.handle.callback;
+              if (_p$10 === undefined) {
+                _p$9 = false;
+                break _L$2;
+              }
+              const _p$11 = _p$8.pausible ? scaled : unscaled;
+              if (_p$11.$tag === 1) {
+                const _p$12 = _p$11;
+                const _p$13 = _p$12._0;
+                _p$8.remaining = _p$8.remaining - _p$13;
+                if (_p$8.remaining <= 0) {
+                  _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(due, _p$8.handle);
+                  _p$9 = false;
+                  break _L$2;
+                }
+              }
+              _tmp$4 = true;
+              break _L;
+            }
+            _tmp$4 = _p$9;
+          }
+          if (_tmp$4) {
+            if (_p$6 !== _p$7) {
+              _p.buf[_p$7] = _p$8;
+            }
+            _tmp$2 = _p$6 + 1 | 0;
+            _tmp$3 = _p$7 + 1 | 0;
+            continue;
+          }
+          _tmp$2 = _p$6 + 1 | 0;
+          continue;
+        } else {
+          _p$5 = _p$7;
+          break;
+        }
+      }
+      if (_p$5 !== _p$2) {
+        _M0MPC15array5Array28unsafe__truncate__to__lengthGRP39Milky20186selene5event7TriggerGRP39Milky20186selene6inputs18GamepadButtonEventEE(_p, _p$5);
+      }
+      const _bind$72 = due.len;
+      const _bind$73 = due.buf;
+      let _tmp$4 = 0;
+      while (true) {
+        const _ = _tmp$4;
+        if (_ < _bind$72) {
+          const handle = _bind$73[_];
+          const _bind$74 = handle.callback;
+          if (_bind$74 === undefined) {
+          } else {
+            const _Some$2 = _bind$74;
+            const _callback = _Some$2;
+            handle.callback = undefined;
+            _M0FP39Milky20186selene3ecs19set__current__world(world);
+            _callback();
+          }
+          _tmp$4 = _ + 1 | 0;
+          continue;
+        } else {
+          break;
+        }
+      }
+      _state.ticking = false;
+      _M0FP39Milky20186selene3ecs19set__current__world(world);
+      return;
+    } else {
+      return;
+    }
+  }
+}
+function _M0FP39Milky20186selene4time11time__state() {
+  return _M0MP39Milky20186selene3ecs5World8resourceGRP39Milky20186selene4time9TimeStateE(_M0FP39Milky20186selene3ecs23require__current__world());
+}
+function _M0FP39Milky20186selene4time14timers__system(delta) {
+  _M0FP39Milky20186selene4time12tick__timers(new _M0DTPC16option6OptionGdE4Some(delta), new _M0DTPC16option6OptionGdE4Some(_M0FP39Milky20186selene4time11time__state().raw_delta));
+}
+function _M0MP39Milky20186selene4time9TimeState9TimeState() {
+  return new _M0TP39Milky20186selene4time9TimeState(0, 0, 0, 0, 0, 0, 1);
+}
+function _M0FP39Milky20186selene4time10initialize(world) {
+  const state = _M0MP39Milky20186selene3ecs5World13get__resourceGRP39Milky20186selene4time9TimeStateE(world);
+  if (state === undefined) {
+    _M0MP39Milky20186selene3ecs5World16insert__resourceGRP39Milky20186selene4time9TimeStateE(world, _M0MP39Milky20186selene4time9TimeState9TimeState());
+    return;
+  } else {
+    return;
+  }
+}
+function _M0FP39Milky20186selene4time12begin__frame(raw_delta) {
+  const state = _M0FP39Milky20186selene4time11time__state();
+  const safe_raw = 0 > raw_delta ? 0 : raw_delta;
+  const scaled = safe_raw * state.scale;
+  state.raw_delta = safe_raw;
+  state.frame_delta = scaled;
+  state.delta = scaled;
+  state.elapsed_raw = state.elapsed_raw + safe_raw;
+  state.elapsed = state.elapsed + scaled;
+}
+function _M0FP39Milky20186selene4time10set__delta(delta) {
+  const state = _M0FP39Milky20186selene4time11time__state();
+  state.delta = 0 > delta ? 0 : delta;
+}
+function _M0FP39Milky20186selene4time17use__frame__delta() {
+  const state = _M0FP39Milky20186selene4time11time__state();
+  state.delta = state.frame_delta;
+}
+function _M0FP39Milky20186selene4time17use__fixed__delta(delta) {
+  const state = _M0FP39Milky20186selene4time11time__state();
+  const safe = 0 > delta ? 0 : delta;
+  state.fixed_delta = safe;
+  state.delta = safe;
 }
 function _M0MP39Milky20186selene3app3App19add__system_2einner(self, schedule, system, system_name, in_set, before, after, run_if) {
   const _string_builder = _M0MPB13StringBuilder21StringBuilder_2einner(14);
@@ -186036,14 +186026,14 @@ function _M0MP39Milky20186selene3app3App19add__system_2einner(self, schedule, sy
 function _M0MP39Milky20186selene3app3App11add__system(self, schedule, system, system_name, in_set, before$46$opt, after$46$opt, run_if) {
   let before;
   if (before$46$opt === undefined) {
-    before = new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([], 0);
+    before = new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([], 0);
   } else {
     const _Some = before$46$opt;
     before = _Some;
   }
   let after;
   if (after$46$opt === undefined) {
-    after = new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([], 0);
+    after = new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([], 0);
   } else {
     const _Some = after$46$opt;
     after = _Some;
@@ -186072,7 +186062,7 @@ function _M0FP39Milky20186selene3app8set__key(system, index, deterministic_order
     return _set.name;
   }
 }
-function _M0FP39Milky20186selene3app22sort__systems__by__setN9add__edgeS99859(from, to, outgoing, indegree) {
+function _M0FP39Milky20186selene3app22sort__systems__by__setN9add__edgeS99856(from, to, outgoing, indegree) {
   if (from === to) {
     return undefined;
   }
@@ -186160,7 +186150,7 @@ function _M0FP39Milky20186selene3app22sort__systems__by__set(systems, determinis
         const _ = _tmp$4;
         if (_ < _bind$83) {
           const target = _bind$84[_];
-          _M0FP39Milky20186selene3app22sort__systems__by__setN9add__edgeS99859(current_key, target.name, outgoing, indegree);
+          _M0FP39Milky20186selene3app22sort__systems__by__setN9add__edgeS99856(current_key, target.name, outgoing, indegree);
           _tmp$4 = _ + 1 | 0;
           continue;
         } else {
@@ -186175,7 +186165,7 @@ function _M0FP39Milky20186selene3app22sort__systems__by__set(systems, determinis
         const _ = _tmp$5;
         if (_ < _bind$86) {
           const source = _bind$87[_];
-          _M0FP39Milky20186selene3app22sort__systems__by__setN9add__edgeS99859(source.name, current_key, outgoing, indegree);
+          _M0FP39Milky20186selene3app22sort__systems__by__setN9add__edgeS99856(source.name, current_key, outgoing, indegree);
           _tmp$5 = _ + 1 | 0;
           continue;
         } else {
@@ -186375,7 +186365,7 @@ function _M0FP39Milky20186selene3app10run__stage(systems, world) {
 function _M0FP39Milky20186selene3app21setup__runtime__world(app) {
   _M0FP39Milky20186selene3ecs19set__current__world(app.world);
   _M0FP39Milky20186selene4time10initialize(app.world);
-  _M0FP39Milky20186selene6system18configure__display(app.viewport_width, app.viewport_height, app.zoom);
+  _M0FP39Milky20186selene6window18configure__display(app.viewport_width, app.viewport_height, app.zoom);
   const _bind$72 = app.event_registrations;
   const _bind$73 = _bind$72.len;
   const _bind$74 = _bind$72.buf;
@@ -186413,7 +186403,7 @@ function _M0FP39Milky20186selene3app28build__runtime__plan_2einner(app, fixed_de
   if (app.zoom <= 0) {
     $panic("App::with_zoom must be a positive number");
   }
-  if (_M0IPC16option6OptionPB2Eq5equalGjE(app.max_fps, _M0FP39Milky20186selene3app28build__runtime__plan_2einnerN6constrS99993)) {
+  if (_M0IPC16option6OptionPB2Eq5equalGjE(app.max_fps, _M0FP39Milky20186selene3app28build__runtime__plan_2einnerN6constrS99990)) {
     $panic("App::with_max_fps must be greater than 0");
   }
   if (app.fixed_hz === 0) {
@@ -186659,10 +186649,6 @@ function _M0FP39Milky20186selene3app16run__game__frame(plan, accumulator, raw_de
     $panic();
   }
   _M0FP39Milky20186selene14runtime__debug12note__update(delta, _M0FP39Milky20186selene3ecs13entity__store(undefined).alive_count);
-  const _p = accumulator.val / plan.fixed_dt;
-  const _p$2 = 1 > _p ? _p : 1;
-  const alpha = 0 > _p$2 ? 0 : _p$2;
-  _M0FP39Milky20186selene6system18set__render__alpha(alpha);
 }
 function _M0FP39Milky20186selene3app18run__render__frame(plan, raw_delta) {
   _M0FP39Milky20186selene3ecs19set__current__world(plan.world);
@@ -186693,7 +186679,7 @@ function _M0FP39Milky20186selene3app18run__render__frame(plan, raw_delta) {
   }
   _M0FP39Milky20186selene14runtime__debug12note__render(delta, draw2d_count, draw3d_count);
 }
-function _M0MP39Milky20186selene3app3App3runN14service__frameS100055() {
+function _M0MP39Milky20186selene3app3App3runN14service__frameS100051() {
   _M0FP39Milky20186selene15platform__audio4tick();
 }
 function _M0MP39Milky20186selene3app3App3run(self) {
@@ -186711,8 +186697,11 @@ function _M0MP39Milky20186selene3app3App3run(self) {
   const game_loop = (raw_delta) => {
     _M0FP39Milky20186selene3app16run__game__frame(plan, accumulator, raw_delta, undefined);
   };
-  const run_game = _M0FP39Milky20186selene16platform__window10initialize(new _M0TP39Milky20186selene17platform__runtime12WindowConfig(self.viewport_width, self.viewport_height, screen_width, screen_height, self.max_fps, self.image_smooth), new _M0TP39Milky20186selene17platform__runtime15RunnerCallbacks(startup, _M0MP39Milky20186selene3app3App3runN14service__frameS100055, render_loop, game_loop));
+  const run_game = _M0FP39Milky20186selene16platform__window10initialize(new _M0TP39Milky20186selene17platform__runtime12WindowConfig(self.viewport_width, self.viewport_height, screen_width, screen_height, self.max_fps, self.image_smooth), new _M0TP39Milky20186selene17platform__runtime15RunnerCallbacks(startup, _M0MP39Milky20186selene3app3App3runN14service__frameS100051, render_loop, game_loop));
   run_game();
+}
+function _M0MP39Milky20186selene3app9SystemSet9SystemSet(name) {
+  return new _M0TP39Milky20186selene3app9SystemSet(name);
 }
 function _M0MP39Milky20186selene3app3App3App() {
   const world = _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene3ecs19current__world__ref.val, _M0FP39Milky20186selene3ecs23bootstrap__world__value);
@@ -186835,7 +186824,7 @@ function _M0MP29Milky201815moon__accesskit6NodeId4root() {
   return 0n;
 }
 function _M0MP29Milky201815moon__accesskit6TreeId4root() {
-  return _M0MP29Milky201815moon__accesskit4Uuid3nilN6recordS100297;
+  return _M0MP29Milky201815moon__accesskit4Uuid3nilN6recordS100294;
 }
 function _M0MP29Milky201815moon__accesskit10Properties10Properties() {
   return new _M0TP29Milky201815moon__accesskit10Properties(_M0MPC15array5Array4makeGiE(86, -1), new _M0TPB5ArrayGRP29Milky201815moon__accesskit13PropertyValueE([], 0));
@@ -186952,14 +186941,14 @@ function _M0FP39Milky20186selene4a11y10auto__a11y(entity) {
     const _bind$73 = _M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene2ui5texts(), entity);
     if (_bind$73 === undefined) {
       const _bind$74 = _M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene2ui10ui__images(), entity);
-      return _bind$74 === undefined ? undefined : _M0MP39Milky20186selene4a11y4A11y4A11y(_M0FP39Milky20186selene4a11y10auto__a11yN6constrS100369, _M0DTPC16option6OptionGOsE4None__, _M0DTPC16option6OptionGOsE4None__, -1, -1, _M0DTPC16option6OptionGObE4None__, -1);
+      return _bind$74 === undefined ? undefined : _M0MP39Milky20186selene4a11y4A11y4A11y(_M0FP39Milky20186selene4a11y10auto__a11yN6constrS100366, _M0DTPC16option6OptionGOsE4None__, _M0DTPC16option6OptionGOsE4None__, -1, -1, _M0DTPC16option6OptionGObE4None__, -1);
     } else {
-      return _M0MP39Milky20186selene4a11y4A11y4A11y(_M0FP39Milky20186selene4a11y10auto__a11yN6constrS100368, _M0DTPC16option6OptionGOsE4None__, _M0DTPC16option6OptionGOsE4None__, -1, -1, _M0DTPC16option6OptionGObE4None__, -1);
+      return _M0MP39Milky20186selene4a11y4A11y4A11y(_M0FP39Milky20186selene4a11y10auto__a11yN6constrS100365, _M0DTPC16option6OptionGOsE4None__, _M0DTPC16option6OptionGOsE4None__, -1, -1, _M0DTPC16option6OptionGObE4None__, -1);
     }
   } else {
     const _Some = _bind$72;
     const _button = _Some;
-    return _M0MP39Milky20186selene4a11y4A11y4A11y(_M0FP39Milky20186selene4a11y10auto__a11yN6constrS100366, _M0DTPC16option6OptionGOsE4None__, _M0DTPC16option6OptionGOsE4None__, _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100367, !_button.enabled, _M0DTPC16option6OptionGObE4None__, -1);
+    return _M0MP39Milky20186selene4a11y4A11y4A11y(_M0FP39Milky20186selene4a11y10auto__a11yN6constrS100363, _M0DTPC16option6OptionGOsE4None__, _M0DTPC16option6OptionGOsE4None__, _M0FP39Milky20186selene4a11y10auto__a11yN6constrS100364, !_button.enabled, _M0DTPC16option6OptionGObE4None__, -1);
   }
 }
 function _M0FP39Milky20186selene4a11y9get__a11y(entity) {
@@ -189601,7 +189590,7 @@ function _M0FP39Milky20186selene5audio23audio__playback__system(_delta) {
       const _entity = _x._0;
       const _player = _x._1;
       if (_M0MP39Milky20186selene3ecs6Entity9is__alive(_entity) && !_M0MPB3Map8containsGRP39Milky20186selene3ecs6EntityRP39Milky20186selene5audio13AudioOverrideE(runtime.overrides, _entity)) {
-        _M0FP39Milky20186selene5audio23update__audio__playback(_entity, _player, _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene5audio25audio__playback__settings(), _entity), _M0MP39Milky20186selene5audio16PlaybackSettings4onceN6recordS101230));
+        _M0FP39Milky20186selene5audio23update__audio__playback(_entity, _player, _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0MP39Milky20186selene3ecs14ComponentStore3getGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene5audio25audio__playback__settings(), _entity), _M0MP39Milky20186selene5audio16PlaybackSettings4onceN6recordS101227));
       } else {
         continue;
       }
@@ -190118,7 +190107,7 @@ function _M0FP39Milky20186selene4ldtk27ldtk__parse__color__channel(source) {
 }
 function _M0FP39Milky20186selene4ldtk29ldtk__rgb__color__with__alpha(color, alpha) {
   const body = color.substring(4, color.length - 1 | 0);
-  const values = _M0MPB4Iter9to__arrayGRPC16string10StringViewE(_M0MPC16string6String5split(body, _M0FP39Milky20186selene4ldtk29ldtk__rgb__color__with__alphaN6recordS101474));
+  const values = _M0MPB4Iter9to__arrayGRPC16string10StringViewE(_M0MPC16string6String5split(body, _M0FP39Milky20186selene4ldtk29ldtk__rgb__color__with__alphaN6recordS101471));
   if (values.len !== 3) {
     return undefined;
   }
@@ -190187,7 +190176,7 @@ function _M0FP39Milky20186selene4ldtk27ldtk__parse__alpha__channel(source) {
 }
 function _M0FP39Milky20186selene4ldtk30ldtk__rgba__color__with__alpha(color, alpha) {
   const body = color.substring(5, color.length - 1 | 0);
-  const values = _M0MPB4Iter9to__arrayGRPC16string10StringViewE(_M0MPC16string6String5split(body, _M0FP39Milky20186selene4ldtk30ldtk__rgba__color__with__alphaN6recordS101494));
+  const values = _M0MPB4Iter9to__arrayGRPC16string10StringViewE(_M0MPC16string6String5split(body, _M0FP39Milky20186selene4ldtk30ldtk__rgba__color__with__alphaN6recordS101491));
   if (values.len !== 4) {
     return undefined;
   }
@@ -190250,13 +190239,13 @@ function _M0FP39Milky20186selene4ldtk24ldtk__color__with__alpha(color, alpha) {
     return color;
   }
   const normalized = _M0MPC16string10StringView9to__owned(_M0MPC16string6String4trim(color, undefined));
-  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101512)) {
+  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101509)) {
     return _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene4ldtk29ldtk__hex__color__with__alpha(normalized, clamped_alpha), color);
   }
-  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101513) && _M0MPC16string6String11has__suffix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101514)) {
+  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101510) && _M0MPC16string6String11has__suffix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101511)) {
     return _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene4ldtk30ldtk__rgba__color__with__alpha(normalized, clamped_alpha), color);
   }
-  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101515) && _M0MPC16string6String11has__suffix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101516)) {
+  if (_M0MPC16string6String11has__prefix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101512) && _M0MPC16string6String11has__suffix(normalized, _M0FP39Milky20186selene4ldtk24ldtk__color__with__alphaN6recordS101513)) {
     return _M0MPC16option6Option10unwrap__orGRP39Milky20186selene2ui10TextLayoutE(_M0FP39Milky20186selene4ldtk29ldtk__rgb__color__with__alpha(normalized, clamped_alpha), color);
   }
   return color;
@@ -190321,13 +190310,13 @@ function _M0FP39Milky20186selene4ldtk12json__string(value) {
   return _M0FP39Milky20186selene4ldtk12json__decodeGsE(value);
 }
 function _M0FP39Milky20186selene4ldtk18is__absolute__path(path) {
-  if (_M0MPC16string6String8contains(path, _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101535)) {
+  if (_M0MPC16string6String8contains(path, _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101532)) {
     return true;
   }
-  if (_M0MPC16string6String11has__prefix(path, _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101536)) {
+  if (_M0MPC16string6String11has__prefix(path, _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101533)) {
     return true;
   }
-  return _M0MPC16string6String11has__prefix(path, _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101537);
+  return _M0MPC16string6String11has__prefix(path, _M0FP39Milky20186selene4ldtk18is__absolute__pathN6recordS101534);
 }
 function _M0FP39Milky20186selene4ldtk30resolve__relative__asset__path(scene_path, uri) {
   if (uri.length === 0) {
@@ -190336,8 +190325,8 @@ function _M0FP39Milky20186selene4ldtk30resolve__relative__asset__path(scene_path
   if (_M0FP39Milky20186selene4ldtk18is__absolute__path(uri)) {
     return uri;
   }
-  const last_slash = _M0MPC16string6String9rev__find(scene_path, _M0FP39Milky20186selene4ldtk30resolve__relative__asset__pathN6recordS101539);
-  const last_backslash = _M0MPC16string6String9rev__find(scene_path, _M0FP39Milky20186selene4ldtk30resolve__relative__asset__pathN6recordS101540);
+  const last_slash = _M0MPC16string6String9rev__find(scene_path, _M0FP39Milky20186selene4ldtk30resolve__relative__asset__pathN6recordS101536);
+  const last_backslash = _M0MPC16string6String9rev__find(scene_path, _M0FP39Milky20186selene4ldtk30resolve__relative__asset__pathN6recordS101537);
   let last_sep;
   if (last_slash === undefined) {
     if (last_backslash === undefined) {
@@ -190523,7 +190512,7 @@ function _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__background(world_enti
         image_transform = _M0MP39Milky20186selene4math7Affine211from__scale(_M0MP39Milky20186selene4math4Vec24Vec2(_bg_pos.scale.x, _bg_pos.scale.y));
       }
       const scaled_size = _M0MP39Milky20186selene4math4Vec24Vec2(image_size.x * Math.abs(image_transform.a), image_size.y * Math.abs(image_transform.d));
-      _M0MP39Milky20186selene3ecs5World5spawnGURP39Milky20186selene9transform7SpatialRP39Milky20186selene6sprite6SpriteRP39Milky20186selene4ldtk19LdtkLevelBackgroundEE(_M0FP39Milky20186selene3ecs23require__current__world(), { _0: _M0FP39Milky20186selene4ldtk13ldtk__spatial(_M0MP39Milky20186selene4math4Vec24zero(), zindex), _1: _M0MP39Milky20186selene6sprite6Sprite6Sprite(new _M0DTPC16option6OptionGORP39Milky20186selene12asset__types11ImageHandleE4Some(image), _M0DTPC16option6OptionGORP39Milky20186selene6sprite12TextureAtlasE4None__, new _M0DTPC16option6OptionGORP39Milky20186selene4math4RectE4Some(new _M0TP39Milky20186selene4math4Rect(image_offset, image_size)), _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__backgroundN6constrS101601, new _M0DTPC16option6OptionGORP39Milky20186selene4math4Vec2E4Some(scaled_size), _M0MP39Milky20186selene4math4Vec24Vec2(-0.5, 0.5), -1, -1, undefined, undefined), _2: new _M0TP39Milky20186selene4ldtk19LdtkLevelBackground(world_entity, level_entity, level.iid, level.bg_color, _rel_path, zindex) }, level_entity);
+      _M0MP39Milky20186selene3ecs5World5spawnGURP39Milky20186selene9transform7SpatialRP39Milky20186selene6sprite6SpriteRP39Milky20186selene4ldtk19LdtkLevelBackgroundEE(_M0FP39Milky20186selene3ecs23require__current__world(), { _0: _M0FP39Milky20186selene4ldtk13ldtk__spatial(_M0MP39Milky20186selene4math4Vec24zero(), zindex), _1: _M0MP39Milky20186selene6sprite6Sprite6Sprite(new _M0DTPC16option6OptionGORP39Milky20186selene12asset__types11ImageHandleE4Some(image), _M0DTPC16option6OptionGORP39Milky20186selene6sprite12TextureAtlasE4None__, new _M0DTPC16option6OptionGORP39Milky20186selene4math4RectE4Some(new _M0TP39Milky20186selene4math4Rect(image_offset, image_size)), _M0FP39Milky20186selene4ldtk30ldtk__spawn__level__backgroundN6constrS101598, new _M0DTPC16option6OptionGORP39Milky20186selene4math4Vec2E4Some(scaled_size), _M0MP39Milky20186selene4math4Vec24Vec2(-0.5, 0.5), -1, -1, undefined, undefined), _2: new _M0TP39Milky20186selene4ldtk19LdtkLevelBackground(world_entity, level_entity, level.iid, level.bg_color, _rel_path, zindex) }, level_entity);
       return;
     } else {
       return;
@@ -190909,10 +190898,10 @@ function _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__value(self) {
       const _string_value = _Some$2;
       const lowered = _M0MPC16string6String9to__lower(_string_value);
       if (lowered === "true") {
-        return _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__valueN6constrS101768;
+        return _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__valueN6constrS101765;
       }
       if (lowered === "false") {
-        return _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__valueN6constrS101769;
+        return _M0MP39Milky20186selene4ldtk17LdtkFieldInstance11bool__valueN6constrS101766;
       }
     }
     const _bind$75 = _M0FP39Milky20186selene4ldtk12json__number(_json_value);
@@ -191047,7 +191036,7 @@ function _M0FP39Milky20186selene4ldtk28ldtk__spawn__layer__entities(world_entity
 }
 function _M0FP39Milky20186selene4ldtk28ldtk__grid__coords__from__px(px, cell_size) {
   if (cell_size <= 0) {
-    return _M0FP39Milky20186selene4ldtk28ldtk__grid__coords__from__pxN6recordS101843;
+    return _M0FP39Milky20186selene4ldtk28ldtk__grid__coords__from__pxN6recordS101840;
   }
   return new _M0TP39Milky20186selene4ldtk14LdtkGridCoords(_M0MPC16double6Double7to__int(px.x / cell_size), _M0MPC16double6Double7to__int(px.y / cell_size));
 }
@@ -191884,7 +191873,7 @@ function _M0FP39Milky20186selene6mesh2d22render__mesh2d__system(delta) {
                   const parallax = _M0FP39Milky20186selene10parallax2d21inherited__parallax2d(_entity);
                   if (camera_views.len === 0) {
                     const screen_pos = _M0FP39Milky20186selene10parallax2d25parallax__world__position(base_pos, parallax, undefined);
-                    _M0FP39Milky20186selene6mesh2d27push__mesh2d__draw__command(_entity, _mesh_asset, _material, depth, _M0FP39Milky20186selene6camera24pixel__snapped__position(_M0FP39Milky20186selene6system11scale__vec2(screen_pos)), _M0FP39Milky20186selene6camera25camera__screen__transform(_global_transform, undefined), undefined, sorting);
+                    _M0FP39Milky20186selene6mesh2d27push__mesh2d__draw__command(_entity, _mesh_asset, _material, depth, _M0FP39Milky20186selene6camera24pixel__snapped__position(_M0FP39Milky20186selene6window11scale__vec2(screen_pos)), _M0FP39Milky20186selene6camera25camera__screen__transform(_global_transform, undefined), undefined, sorting);
                     continue;
                   }
                   const world_pos = _M0FP39Milky20186selene10parallax2d25parallax__world__position(base_pos, parallax, undefined);
@@ -191942,7 +191931,7 @@ function _M0FP39Milky20186selene18render3d__pipeline22get__prepared__frame3d() {
   return _M0FP39Milky20186selene18render3d__pipeline17prepared__frame3d();
 }
 function _M0FP39Milky20186selene14render__submit22full__screen__viewport() {
-  return new _M0TP39Milky20186selene4math4Rect(_M0MP39Milky20186selene4math4Vec24zero(), _M0FP39Milky20186selene6system14display__state().screen_size);
+  return new _M0TP39Milky20186selene4math4Rect(_M0MP39Milky20186selene4math4Vec24zero(), _M0FP39Milky20186selene6window14display__state().screen_size);
 }
 function _M0FP39Milky20186selene14render__submit19screen__pass__order(camera_views) {
   if (camera_views.len === 0) {
@@ -192275,7 +192264,7 @@ function _M0FP39Milky20186selene14render__submit14build__frame2d(camera_views) {
         break;
       }
     }
-    _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(passes, new _M0TP39Milky20186selene15render2d__types12RenderPass2D(undefined, _M0FP39Milky20186selene14render__submit19screen__pass__order(camera_views), _M0FP39Milky20186selene14render__submit22full__screen__viewport(), 0, _M0FP39Milky20186selene14render__submit14build__frame2dN6recordS102288, _M0DTP39Milky20186selene15render2d__types18RenderPassTarget2D6Screen__, screen_world_commands, screen_ui_commands, _M0FP39Milky20186selene14render__submit20build__draw__batches(screen_world_commands), _M0FP39Milky20186selene14render__submit20build__draw__batches(screen_ui_commands)));
+    _M0MPC15array5Array4pushGRP39Milky201811moon__swash8internal12SubtableDataE(passes, new _M0TP39Milky20186selene15render2d__types12RenderPass2D(undefined, _M0FP39Milky20186selene14render__submit19screen__pass__order(camera_views), _M0FP39Milky20186selene14render__submit22full__screen__viewport(), 0, _M0FP39Milky20186selene14render__submit14build__frame2dN6recordS102285, _M0DTP39Milky20186selene15render2d__types18RenderPassTarget2D6Screen__, screen_world_commands, screen_ui_commands, _M0FP39Milky20186selene14render__submit20build__draw__batches(screen_world_commands), _M0FP39Milky20186selene14render__submit20build__draw__batches(screen_ui_commands)));
   }
   return { _0: new _M0TP39Milky20186selene15render2d__types13RenderFrame2D(passes, world_commands, ui_commands), _1: world_commands_with_depth };
 }
@@ -192376,21 +192365,21 @@ function _M0FP39Milky20186selene6text2d14truncate__line(style, text, max_width) 
   }
   let current = text;
   while (true) {
-    if (current.length > 0 && _M0FP39Milky20186selene6text2d23measure__text__fragment(style, `${current}${_M0FP39Milky20186selene6text2d14truncate__lineN8ellipsisS102345}`).x > max_width) {
+    if (current.length > 0 && _M0FP39Milky20186selene6text2d23measure__text__fragment(style, `${current}${_M0FP39Milky20186selene6text2d14truncate__lineN8ellipsisS102342}`).x > max_width) {
       current = current.substring(0, current.length - 1 | 0);
       continue;
     } else {
       break;
     }
   }
-  return `${current}${_M0FP39Milky20186selene6text2d14truncate__lineN8ellipsisS102345}`;
+  return `${current}${_M0FP39Milky20186selene6text2d14truncate__lineN8ellipsisS102342}`;
 }
 function _M0FP39Milky20186selene6text2d10wrap__line(style, text, max_width) {
   if (max_width <= 0) {
     return new _M0TPB5ArrayGsE([""], 1);
   }
   const words = new _M0TPB5ArrayGsE([], 0);
-  const _it = _M0MPC16string6String5split(text, _M0FP39Milky20186selene6text2d10wrap__lineN6recordS102351);
+  const _it = _M0MPC16string6String5split(text, _M0FP39Milky20186selene6text2d10wrap__lineN6recordS102348);
   while (true) {
     const _bind$72 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it);
     if (_bind$72 === undefined) {
@@ -192441,7 +192430,7 @@ function _M0FP39Milky20186selene6text2d10wrap__line(style, text, max_width) {
 function _M0FP39Milky20186selene6text2d20bounded__text__lines(text, style, layout, bounds) {
   const width = _M0MPC16option6Option7map__orGRP39Milky20186selene6text2d10TextBoundsdE(bounds, -1, (bounds$2) => bounds$2.width);
   const raw_lines = new _M0TPB5ArrayGsE([], 0);
-  const _it = _M0MPC16string6String5split(text, _M0FP39Milky20186selene6text2d20bounded__text__linesN6recordS102369);
+  const _it = _M0MPC16string6String5split(text, _M0FP39Milky20186selene6text2d20bounded__text__linesN6recordS102366);
   while (true) {
     const _bind$72 = _M0MPB4Iter4nextGRP39Milky201812moon__skrifa7outline18AutoHintScaledBlueE(_it);
     if (_bind$72 === undefined) {
@@ -192738,7 +192727,7 @@ function _M0FP39Milky20186selene6text2d22render__text2d__system(delta) {
                 const layout_size = _M0MP39Milky20186selene4math4Vec24Vec2(layout_width, bounds_height);
                 if (camera_views.len === 0) {
                   const screen_pos = _M0FP39Milky20186selene10parallax2d25parallax__world__position(base_pos, parallax, undefined);
-                  _M0FP39Milky20186selene6text2d19push__text2d__lines(_entity, lines, _style, layout, layout_width, bounds_height, block_height, line_height, _M0FP39Milky20186selene6camera24pixel__snapped__position(_M0FP39Milky20186selene6system11scale__vec2(screen_pos)), layout_size, _global_transform, undefined, _text2d.blend_mode, depth, sorting);
+                  _M0FP39Milky20186selene6text2d19push__text2d__lines(_entity, lines, _style, layout, layout_width, bounds_height, block_height, line_height, _M0FP39Milky20186selene6camera24pixel__snapped__position(_M0FP39Milky20186selene6window11scale__vec2(screen_pos)), layout_size, _global_transform, undefined, _text2d.blend_mode, depth, sorting);
                   continue;
                 }
                 const world_pos = _M0FP39Milky20186selene10parallax2d25parallax__world__position(base_pos, parallax, undefined);
@@ -192811,13 +192800,13 @@ function _M0FP39Milky20186selene5tiled14tiled__spatial(position, depth) {
   return _M0MP39Milky20186selene9transform7Spatial7Spatial(_M0MP39Milky20186selene9transform9Transform9from__xyz(position.x, position.y, depth + 0));
 }
 function _M0FP39Milky20186selene5tiled18is__absolute__path(path) {
-  if (_M0MPC16string6String8contains(path, _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102532)) {
+  if (_M0MPC16string6String8contains(path, _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102529)) {
     return true;
   }
-  if (_M0MPC16string6String11has__prefix(path, _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102533)) {
+  if (_M0MPC16string6String11has__prefix(path, _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102530)) {
     return true;
   }
-  return _M0MPC16string6String11has__prefix(path, _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102534);
+  return _M0MPC16string6String11has__prefix(path, _M0FP39Milky20186selene5tiled18is__absolute__pathN6recordS102531);
 }
 function _M0FP39Milky20186selene5tiled30resolve__relative__asset__path(scene_path, uri) {
   if (uri.length === 0) {
@@ -192826,8 +192815,8 @@ function _M0FP39Milky20186selene5tiled30resolve__relative__asset__path(scene_pat
   if (_M0FP39Milky20186selene5tiled18is__absolute__path(uri)) {
     return uri;
   }
-  const last_slash = _M0MPC16string6String9rev__find(scene_path, _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS102536);
-  const last_backslash = _M0MPC16string6String9rev__find(scene_path, _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS102537);
+  const last_slash = _M0MPC16string6String9rev__find(scene_path, _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS102533);
+  const last_backslash = _M0MPC16string6String9rev__find(scene_path, _M0FP39Milky20186selene5tiled30resolve__relative__asset__pathN6recordS102534);
   let last_sep;
   if (last_slash === undefined) {
     if (last_backslash === undefined) {
@@ -193148,7 +193137,7 @@ function _M0FP39Milky20186selene5tiled29build__tiled__tile__animation(map, tiles
         } else {
           const _Some$2 = _image;
           const _image$2 = _Some$2;
-          return new _M0TP39Milky20186selene5tiled20TiledSpriteAnimation(_image$2, _M0FP39Milky20186selene6sprite32register__texture__atlas__layout(new _M0TP39Milky20186selene6sprite18TextureAtlasLayout(_M0FP39Milky20186selene5tiled19tiled__layout__size(_rects), _rects)), _fps, true, _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS102658, tile_size, _M0MP39Milky20186selene4math4Vec24Vec2(-0.5, 0.5));
+          return new _M0TP39Milky20186selene5tiled20TiledSpriteAnimation(_image$2, _M0FP39Milky20186selene6sprite32register__texture__atlas__layout(new _M0TP39Milky20186selene6sprite18TextureAtlasLayout(_M0FP39Milky20186selene5tiled19tiled__layout__size(_rects), _rects)), _fps, true, _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS102655, tile_size, _M0MP39Milky20186selene4math4Vec24Vec2(-0.5, 0.5));
         }
       }
     }
@@ -193161,7 +193150,7 @@ function _M0FP39Milky20186selene5tiled29build__tiled__tile__animation(map, tiles
     $panic();
   }
   const first = visuals.buf[0];
-  return new _M0TP39Milky20186selene5tiled20TiledSpriteAnimation(first._0, _M0FP39Milky20186selene6sprite32register__texture__atlas__layout(new _M0TP39Milky20186selene6sprite18TextureAtlasLayout(_M0FP39Milky20186selene5tiled19tiled__layout__size(new _M0TPB5ArrayGRP39Milky20186selene4math4RectE([first._1], 1)), new _M0TPB5ArrayGRP39Milky20186selene4math4RectE([first._1], 1))), 0, false, _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS102659, tile_size, _M0MP39Milky20186selene4math4Vec24Vec2(-0.5, 0.5));
+  return new _M0TP39Milky20186selene5tiled20TiledSpriteAnimation(first._0, _M0FP39Milky20186selene6sprite32register__texture__atlas__layout(new _M0TP39Milky20186selene6sprite18TextureAtlasLayout(_M0FP39Milky20186selene5tiled19tiled__layout__size(new _M0TPB5ArrayGRP39Milky20186selene4math4RectE([first._1], 1)), new _M0TPB5ArrayGRP39Milky20186selene4math4RectE([first._1], 1))), 0, false, _M0FP39Milky20186selene5tiled29build__tiled__tile__animationN6recordS102656, tile_size, _M0MP39Milky20186selene4math4Vec24Vec2(-0.5, 0.5));
 }
 function _M0FP39Milky20186selene5tiled22tiled__add__properties(draft, properties) {
   if (properties.len === 0) {
@@ -193788,28 +193777,28 @@ function _M0FP39Milky20186selene5tiled26tiled__physics__body__type(value) {
   const _bind$72 = _M0MPC16string6String9to__lower(_M0MPC16string10StringView9to__owned(_M0MPC16string6String4trim(value, undefined)));
   switch (_bind$72) {
     case "dynamic": {
-      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102960;
+      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102957;
     }
     case "fixed": {
-      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102961;
+      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102958;
     }
     case "kinematicpositionbased": {
-      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102962;
+      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102959;
     }
     case "kinematic_position_based": {
-      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102963;
+      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102960;
     }
     case "kinematic-position-based": {
-      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102964;
+      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102961;
     }
     case "kinematicvelocitybased": {
-      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102965;
+      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102962;
     }
     case "kinematic_velocity_based": {
-      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102966;
+      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102963;
     }
     case "kinematic-velocity-based": {
-      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102967;
+      return _M0FP39Milky20186selene5tiled26tiled__physics__body__typeN6constrS102964;
     }
     default: {
       return undefined;
@@ -193980,7 +193969,7 @@ function _M0FP39Milky20186selene5tiled20tiled__physics__body(properties) {
     const _x = _Some;
     switch (_x) {
       case 0: {
-        body = _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98480;
+        body = _M0MP39Milky20186selene9collision9RigidBody7dynamicN6recordS98444;
         break;
       }
       case 1: {
@@ -194904,7 +194893,7 @@ function _M0FP39Milky20186selene5tiled20despawn__tiled__tree(root) {
 function _M0FP39Milky20186selene5tiled27tiled__camera__view__bounds() {
   const camera_views = _M0FP39Milky20186selene6camera23active__camera2d__views();
   if (camera_views.len === 0) {
-    return { _0: _M0MP39Milky20186selene4math4Vec24zero(), _1: _M0FP39Milky20186selene6system14display__state().viewport_size };
+    return { _0: _M0MP39Milky20186selene4math4Vec24zero(), _1: _M0FP39Milky20186selene6window14display__state().viewport_size };
   }
   if (0 >= camera_views.len) {
     $panic();
@@ -195133,7 +195122,7 @@ function _M0FP39Milky20186selene15touch__controls19resolved__placement(placement
   }
 }
 function _M0FP39Milky20186selene15touch__controls19stick__runtime__for(runtime, stick) {
-  return _M0MPB3Map13get__or__initGsRP39Milky20186selene15touch__controls12StickRuntimeE(runtime.stick_runtimes, stick.id, () => new _M0TP39Milky20186selene15touch__controls12StickRuntime(undefined, _M0FP39Milky20186selene15touch__controls19resolved__placement(stick.placement, _M0FP39Milky20186selene6system14display__state().screen_size, stick.radius), _M0MP39Milky20186selene4math4Vec24zero()));
+  return _M0MPB3Map13get__or__initGsRP39Milky20186selene15touch__controls12StickRuntimeE(runtime.stick_runtimes, stick.id, () => new _M0TP39Milky20186selene15touch__controls12StickRuntime(undefined, _M0FP39Milky20186selene15touch__controls19resolved__placement(stick.placement, _M0FP39Milky20186selene6window14display__state().screen_size, stick.radius), _M0MP39Milky20186selene4math4Vec24zero()));
 }
 function _M0FP39Milky20186selene15touch__controls14render__sticks(runtime, screen) {
   const _it = _M0MPB3Map5iter2GsRP39Milky20186selene15touch__controls13ButtonRuntimeE(runtime.sticks);
@@ -195200,7 +195189,7 @@ function _M0FP39Milky20186selene15touch__controls31touch__controls__render__syst
   if (!runtime.visible) {
     return undefined;
   }
-  const screen = _M0FP39Milky20186selene6system14display__state().screen_size;
+  const screen = _M0FP39Milky20186selene6window14display__state().screen_size;
   _M0FP39Milky20186selene15touch__controls14render__sticks(runtime, screen);
   _M0FP39Milky20186selene15touch__controls15render__buttons(runtime, screen);
 }
@@ -195465,7 +195454,7 @@ function _M0FP39Milky20186selene15touch__controls21capture__stick__start(runtime
   return false;
 }
 function _M0FP39Milky20186selene15touch__controls20capture__new__starts(runtime) {
-  const screen = _M0FP39Milky20186selene6system14display__state().screen_size;
+  const screen = _M0FP39Milky20186selene6window14display__state().screen_size;
   const _bind$72 = _M0FP39Milky20186selene2ui39unconsumed__touch__changes__this__frame();
   const _bind$73 = _bind$72.len;
   const _bind$74 = _bind$72.buf;
@@ -195515,14 +195504,14 @@ function _M0FP39Milky20186selene7plugins19add__system_2einner(app, system, sched
 function _M0FP39Milky20186selene7plugins11add__system(app, system, schedule, name, in_set, before$46$opt, after$46$opt) {
   let before;
   if (before$46$opt === undefined) {
-    before = new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([], 0);
+    before = new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([], 0);
   } else {
     const _Some = before$46$opt;
     before = _Some;
   }
   let after;
   if (after$46$opt === undefined) {
-    after = new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([], 0);
+    after = new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([], 0);
   } else {
     const _Some = after$46$opt;
     after = _Some;
@@ -195534,54 +195523,54 @@ function _M0FP39Milky20186selene7plugins27register__builtin__messages(app) {
 }
 function _M0FP39Milky20186selene7plugins15default__plugin(app) {
   const app$2 = _M0FP39Milky20186selene7plugins27register__builtin__messages(app);
-  const input = _M0MP39Milky20186selene11system__set9SystemSet9SystemSet("input");
-  const pointer_input = _M0MP39Milky20186selene11system__set9SystemSet9SystemSet("pointer_input");
-  const ui_input = _M0MP39Milky20186selene11system__set9SystemSet9SystemSet("ui_input");
-  const touch_controls = _M0MP39Milky20186selene11system__set9SystemSet9SystemSet("touch_controls");
-  const physics = _M0MP39Milky20186selene11system__set9SystemSet9SystemSet("physics");
-  const gameplay = _M0MP39Milky20186selene11system__set9SystemSet9SystemSet("gameplay");
-  const audio = _M0MP39Milky20186selene11system__set9SystemSet9SystemSet("audio");
-  const time = _M0MP39Milky20186selene11system__set9SystemSet9SystemSet("time");
-  const animation = _M0MP39Milky20186selene11system__set9SystemSet9SystemSet("animation");
-  const transform = _M0MP39Milky20186selene11system__set9SystemSet9SystemSet("transform");
-  const ui = _M0MP39Milky20186selene11system__set9SystemSet9SystemSet("ui");
-  const render_extract = _M0MP39Milky20186selene11system__set9SystemSet9SystemSet("render_extract");
-  const render_prepare = _M0MP39Milky20186selene11system__set9SystemSet9SystemSet("render_prepare");
-  const touch_controls_render = _M0MP39Milky20186selene11system__set9SystemSet9SystemSet("touch_controls_render");
-  const render_submit = _M0MP39Milky20186selene11system__set9SystemSet9SystemSet("render_submit");
-  const app$3 = _M0FP39Milky20186selene7plugins11add__system(app$2, _M0FP39Milky20186selene6inputs21advanced__key__system, _M0DTP39Milky20186selene6system8Schedule9PreUpdate__, "Advanced Key System", input, undefined, undefined);
-  const app$4 = _M0FP39Milky20186selene7plugins11add__system(app$3, _M0FP39Milky20186selene6inputs23advanced__mouse__system, _M0DTP39Milky20186selene6system8Schedule9PreUpdate__, "Advanced Mouse System", input, undefined, undefined);
-  const app$5 = _M0FP39Milky20186selene7plugins11add__system(app$4, _M0FP39Milky20186selene6inputs23advanced__touch__system, _M0DTP39Milky20186selene6system8Schedule9PreUpdate__, "Advanced Touch System", input, undefined, undefined);
-  const app$6 = _M0FP39Milky20186selene7plugins11add__system(app$5, _M0FP39Milky20186selene6inputs25advanced__gamepad__system, _M0DTP39Milky20186selene6system8Schedule9PreUpdate__, "Advanced Gamepad System", input, undefined, undefined);
-  const app$7 = _M0FP39Milky20186selene7plugins11add__system(app$6, _M0FP39Milky20186selene6inputs25advanced__pointer__system, _M0DTP39Milky20186selene6system8Schedule9PreUpdate__, "Advanced Pointer System", pointer_input, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([input], 1));
-  const app$8 = _M0FP39Milky20186selene7plugins11add__system(app$7, _M0FP39Milky20186selene2ui26ui__input__capture__system, _M0DTP39Milky20186selene6system8Schedule9PreUpdate__, "UI Input Capture System", ui_input, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([pointer_input], 1));
-  const app$9 = _M0FP39Milky20186selene7plugins11add__system(app$8, _M0FP39Milky20186selene15touch__controls23touch__controls__system, _M0DTP39Milky20186selene6system8Schedule9PreUpdate__, "Touch Controls System", touch_controls, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([ui_input], 1));
-  const app$10 = _M0FP39Milky20186selene7plugins11add__system(app$9, _M0FP39Milky20186selene13input__action21input__action__system, _M0DTP39Milky20186selene6system8Schedule9PreUpdate__, "Input Action System", undefined, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([touch_controls], 1));
-  const app$11 = _M0FP39Milky20186selene7plugins11add__system(app$10, _M0FP39Milky20186selene6system25sync__mouse__lock__system, _M0DTP39Milky20186selene6system8Schedule9PreUpdate__, "Sync Mouse Lock", undefined, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([input], 1));
-  const app$12 = _M0FP39Milky20186selene7plugins11add__system(app$11, _M0FP39Milky20186selene9physics2d21physics__step__system, _M0DTP39Milky20186selene6system8Schedule11FixedUpdate__, "Physics2D Step System", physics, undefined, undefined);
-  const app$13 = _M0FP39Milky20186selene7plugins11add__system(app$12, _M0FP39Milky20186selene9physics2d23pickable__click__system, _M0DTP39Milky20186selene6system8Schedule6Update__, "Pickable Click System", gameplay, undefined, undefined);
-  const app$14 = _M0FP39Milky20186selene7plugins11add__system(app$13, _M0FP39Milky20186selene4ldtk25ldtk__world__sync__system, _M0DTP39Milky20186selene6system8Schedule6Update__, "LDtk World Sync System", gameplay, undefined, undefined);
-  const app$15 = _M0FP39Milky20186selene7plugins11add__system(app$14, _M0FP39Milky20186selene5tiled30tiled__world__chunking__system, _M0DTP39Milky20186selene6system8Schedule6Update__, "Tiled World Chunking System", gameplay, undefined, undefined);
-  const app$16 = _M0FP39Milky20186selene7plugins11add__system(app$15, _M0FP39Milky20186selene5audio30audio__event__playback__system, _M0DTP39Milky20186selene6system8Schedule10PostUpdate__, "Audio Event Playback System", audio, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([gameplay], 1));
-  const app$17 = _M0FP39Milky20186selene7plugins11add__system(app$16, _M0FP39Milky20186selene5audio23audio__playback__system, _M0DTP39Milky20186selene6system8Schedule10PostUpdate__, "Audio Playback System", audio, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([gameplay], 1));
-  const app$18 = _M0FP39Milky20186selene7plugins11add__system(app$17, _M0FP39Milky20186selene6system14timers__system, _M0DTP39Milky20186selene6system8Schedule10PostUpdate__, "Timer System", time, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([gameplay], 1));
-  const app$19 = _M0FP39Milky20186selene7plugins11add__system(app$18, _M0FP39Milky20186selene9animation25animation__player__system, _M0DTP39Milky20186selene6system8Schedule10PostUpdate__, "Animation Player System", animation, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([gameplay], 1));
-  const app$20 = _M0FP39Milky20186selene7plugins11add__system(app$19, _M0FP39Milky20186selene9animation29animation__transition__system, _M0DTP39Milky20186selene6system8Schedule10PostUpdate__, "Animation Transition System", animation, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([animation], 1));
-  const app$21 = _M0FP39Milky20186selene7plugins11add__system(app$20, _M0FP39Milky20186selene9animation24animation__apply__system, _M0DTP39Milky20186selene6system8Schedule10PostUpdate__, "Animation Apply System", animation, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([animation], 1));
-  const app$22 = _M0FP39Milky20186selene7plugins11add__system(app$21, _M0FP39Milky20186selene9transform28transform__propagate__system, _M0DTP39Milky20186selene6system8Schedule10PostUpdate__, "Transform Propagation System", transform, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([animation], 1));
-  const app$23 = _M0FP39Milky20186selene7plugins11add__system(app$22, _M0FP39Milky20186selene10visibility29visibility__propagate__system, _M0DTP39Milky20186selene6system8Schedule10PostUpdate__, "Visibility Propagation System", transform, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([transform], 1));
-  const app$24 = _M0FP39Milky20186selene7plugins11add__system(app$23, _M0FP39Milky20186selene5scene31scene__spawner__cleanup__system, _M0DTP39Milky20186selene6system8Schedule10PostUpdate__, "Scene Spawner Cleanup System", transform, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([transform], 1));
-  const app$25 = _M0FP39Milky20186selene7plugins11add__system(app$24, _M0FP39Milky20186selene2ui18ui__layout__system, _M0DTP39Milky20186selene6system8Schedule10PostUpdate__, "UI Layout System", ui, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([transform], 1));
-  const app$26 = _M0FP39Milky20186selene7plugins11add__system(app$25, _M0FP39Milky20186selene2ui23ui__interaction__system, _M0DTP39Milky20186selene6system8Schedule10PostUpdate__, "UI Interaction System", ui, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([ui], 1));
-  const app$27 = _M0FP39Milky20186selene7plugins11add__system(app$26, _M0FP39Milky20186selene4a11y18a11y__sync__system, _M0DTP39Milky20186selene6system8Schedule10PostUpdate__, "A11y Sync System", ui, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([ui], 1));
-  const app$28 = _M0FP39Milky20186selene7plugins11add__system(app$27, _M0FP39Milky20186selene8render2d22begin__frame2d__system, _M0DTP39Milky20186selene6system8Schedule13RenderExtract__, "Render2D Begin Frame", render_extract, undefined, undefined);
-  const app$29 = _M0FP39Milky20186selene7plugins11add__system(app$28, _M0FP39Milky20186selene2ui19ui__extract__system, _M0DTP39Milky20186selene6system8Schedule13RenderExtract__, "UI Extract", render_extract, undefined, undefined);
-  const app$30 = _M0FP39Milky20186selene7plugins11add__system(app$29, _M0FP39Milky20186selene6sprite22render__sprite__system, _M0DTP39Milky20186selene6system8Schedule13RenderPrepare__, "Render Sprite System", render_prepare, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([render_extract], 1));
-  const app$31 = _M0FP39Milky20186selene7plugins11add__system(app$30, _M0FP39Milky20186selene6mesh2d22render__mesh2d__system, _M0DTP39Milky20186selene6system8Schedule13RenderPrepare__, "Render Mesh2d System", render_prepare, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([render_extract], 1));
-  const app$32 = _M0FP39Milky20186selene7plugins11add__system(app$31, _M0FP39Milky20186selene6text2d22render__text2d__system, _M0DTP39Milky20186selene6system8Schedule13RenderPrepare__, "Render Text2d System", render_prepare, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([render_extract], 1));
-  const app$33 = _M0FP39Milky20186selene7plugins11add__system(app$32, _M0FP39Milky20186selene15touch__controls31touch__controls__render__system, _M0DTP39Milky20186selene6system8Schedule13RenderPrepare__, "Touch Controls Prepare", touch_controls_render, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([render_extract], 1));
-  const app$34 = _M0FP39Milky20186selene7plugins11add__system(app$33, _M0FP39Milky20186selene2ui19ui__prepare__system, _M0DTP39Milky20186selene6system8Schedule13RenderPrepare__, "UI Prepare", render_prepare, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([touch_controls_render], 1));
-  return _M0FP39Milky20186selene7plugins11add__system(app$34, _M0FP39Milky20186selene14render__submit22render__submit__system, _M0DTP39Milky20186selene6system8Schedule6Render__, "Render Submit", render_submit, undefined, new _M0TPB5ArrayGRP39Milky20186selene11system__set9SystemSetE([render_prepare], 1));
+  const input = _M0MP39Milky20186selene3app9SystemSet9SystemSet("input");
+  const pointer_input = _M0MP39Milky20186selene3app9SystemSet9SystemSet("pointer_input");
+  const ui_input = _M0MP39Milky20186selene3app9SystemSet9SystemSet("ui_input");
+  const touch_controls = _M0MP39Milky20186selene3app9SystemSet9SystemSet("touch_controls");
+  const physics = _M0MP39Milky20186selene3app9SystemSet9SystemSet("physics");
+  const gameplay = _M0MP39Milky20186selene3app9SystemSet9SystemSet("gameplay");
+  const audio = _M0MP39Milky20186selene3app9SystemSet9SystemSet("audio");
+  const time = _M0MP39Milky20186selene3app9SystemSet9SystemSet("time");
+  const animation = _M0MP39Milky20186selene3app9SystemSet9SystemSet("animation");
+  const transform = _M0MP39Milky20186selene3app9SystemSet9SystemSet("transform");
+  const ui = _M0MP39Milky20186selene3app9SystemSet9SystemSet("ui");
+  const render_extract = _M0MP39Milky20186selene3app9SystemSet9SystemSet("render_extract");
+  const render_prepare = _M0MP39Milky20186selene3app9SystemSet9SystemSet("render_prepare");
+  const touch_controls_render = _M0MP39Milky20186selene3app9SystemSet9SystemSet("touch_controls_render");
+  const render_submit = _M0MP39Milky20186selene3app9SystemSet9SystemSet("render_submit");
+  const app$3 = _M0FP39Milky20186selene7plugins11add__system(app$2, _M0FP39Milky20186selene6inputs21advanced__key__system, _M0DTP39Milky20186selene3app8Schedule9PreUpdate__, "Advanced Key System", input, undefined, undefined);
+  const app$4 = _M0FP39Milky20186selene7plugins11add__system(app$3, _M0FP39Milky20186selene6inputs23advanced__mouse__system, _M0DTP39Milky20186selene3app8Schedule9PreUpdate__, "Advanced Mouse System", input, undefined, undefined);
+  const app$5 = _M0FP39Milky20186selene7plugins11add__system(app$4, _M0FP39Milky20186selene6inputs23advanced__touch__system, _M0DTP39Milky20186selene3app8Schedule9PreUpdate__, "Advanced Touch System", input, undefined, undefined);
+  const app$6 = _M0FP39Milky20186selene7plugins11add__system(app$5, _M0FP39Milky20186selene6inputs25advanced__gamepad__system, _M0DTP39Milky20186selene3app8Schedule9PreUpdate__, "Advanced Gamepad System", input, undefined, undefined);
+  const app$7 = _M0FP39Milky20186selene7plugins11add__system(app$6, _M0FP39Milky20186selene6inputs25advanced__pointer__system, _M0DTP39Milky20186selene3app8Schedule9PreUpdate__, "Advanced Pointer System", pointer_input, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([input], 1));
+  const app$8 = _M0FP39Milky20186selene7plugins11add__system(app$7, _M0FP39Milky20186selene2ui26ui__input__capture__system, _M0DTP39Milky20186selene3app8Schedule9PreUpdate__, "UI Input Capture System", ui_input, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([pointer_input], 1));
+  const app$9 = _M0FP39Milky20186selene7plugins11add__system(app$8, _M0FP39Milky20186selene15touch__controls23touch__controls__system, _M0DTP39Milky20186selene3app8Schedule9PreUpdate__, "Touch Controls System", touch_controls, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([ui_input], 1));
+  const app$10 = _M0FP39Milky20186selene7plugins11add__system(app$9, _M0FP39Milky20186selene13input__action21input__action__system, _M0DTP39Milky20186selene3app8Schedule9PreUpdate__, "Input Action System", undefined, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([touch_controls], 1));
+  const app$11 = _M0FP39Milky20186selene7plugins11add__system(app$10, _M0FP39Milky20186selene6window25sync__mouse__lock__system, _M0DTP39Milky20186selene3app8Schedule9PreUpdate__, "Sync Mouse Lock", undefined, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([input], 1));
+  const app$12 = _M0FP39Milky20186selene7plugins11add__system(app$11, _M0FP39Milky20186selene9physics2d21physics__step__system, _M0DTP39Milky20186selene3app8Schedule11FixedUpdate__, "Physics2D Step System", physics, undefined, undefined);
+  const app$13 = _M0FP39Milky20186selene7plugins11add__system(app$12, _M0FP39Milky20186selene9physics2d23pickable__click__system, _M0DTP39Milky20186selene3app8Schedule6Update__, "Pickable Click System", gameplay, undefined, undefined);
+  const app$14 = _M0FP39Milky20186selene7plugins11add__system(app$13, _M0FP39Milky20186selene4ldtk25ldtk__world__sync__system, _M0DTP39Milky20186selene3app8Schedule6Update__, "LDtk World Sync System", gameplay, undefined, undefined);
+  const app$15 = _M0FP39Milky20186selene7plugins11add__system(app$14, _M0FP39Milky20186selene5tiled30tiled__world__chunking__system, _M0DTP39Milky20186selene3app8Schedule6Update__, "Tiled World Chunking System", gameplay, undefined, undefined);
+  const app$16 = _M0FP39Milky20186selene7plugins11add__system(app$15, _M0FP39Milky20186selene5audio30audio__event__playback__system, _M0DTP39Milky20186selene3app8Schedule10PostUpdate__, "Audio Event Playback System", audio, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([gameplay], 1));
+  const app$17 = _M0FP39Milky20186selene7plugins11add__system(app$16, _M0FP39Milky20186selene5audio23audio__playback__system, _M0DTP39Milky20186selene3app8Schedule10PostUpdate__, "Audio Playback System", audio, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([gameplay], 1));
+  const app$18 = _M0FP39Milky20186selene7plugins11add__system(app$17, _M0FP39Milky20186selene4time14timers__system, _M0DTP39Milky20186selene3app8Schedule10PostUpdate__, "Timer System", time, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([gameplay], 1));
+  const app$19 = _M0FP39Milky20186selene7plugins11add__system(app$18, _M0FP39Milky20186selene9animation25animation__player__system, _M0DTP39Milky20186selene3app8Schedule10PostUpdate__, "Animation Player System", animation, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([gameplay], 1));
+  const app$20 = _M0FP39Milky20186selene7plugins11add__system(app$19, _M0FP39Milky20186selene9animation29animation__transition__system, _M0DTP39Milky20186selene3app8Schedule10PostUpdate__, "Animation Transition System", animation, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([animation], 1));
+  const app$21 = _M0FP39Milky20186selene7plugins11add__system(app$20, _M0FP39Milky20186selene9animation24animation__apply__system, _M0DTP39Milky20186selene3app8Schedule10PostUpdate__, "Animation Apply System", animation, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([animation], 1));
+  const app$22 = _M0FP39Milky20186selene7plugins11add__system(app$21, _M0FP39Milky20186selene9transform28transform__propagate__system, _M0DTP39Milky20186selene3app8Schedule10PostUpdate__, "Transform Propagation System", transform, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([animation], 1));
+  const app$23 = _M0FP39Milky20186selene7plugins11add__system(app$22, _M0FP39Milky20186selene10visibility29visibility__propagate__system, _M0DTP39Milky20186selene3app8Schedule10PostUpdate__, "Visibility Propagation System", transform, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([transform], 1));
+  const app$24 = _M0FP39Milky20186selene7plugins11add__system(app$23, _M0FP39Milky20186selene5scene31scene__spawner__cleanup__system, _M0DTP39Milky20186selene3app8Schedule10PostUpdate__, "Scene Spawner Cleanup System", transform, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([transform], 1));
+  const app$25 = _M0FP39Milky20186selene7plugins11add__system(app$24, _M0FP39Milky20186selene2ui18ui__layout__system, _M0DTP39Milky20186selene3app8Schedule10PostUpdate__, "UI Layout System", ui, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([transform], 1));
+  const app$26 = _M0FP39Milky20186selene7plugins11add__system(app$25, _M0FP39Milky20186selene2ui23ui__interaction__system, _M0DTP39Milky20186selene3app8Schedule10PostUpdate__, "UI Interaction System", ui, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([ui], 1));
+  const app$27 = _M0FP39Milky20186selene7plugins11add__system(app$26, _M0FP39Milky20186selene4a11y18a11y__sync__system, _M0DTP39Milky20186selene3app8Schedule10PostUpdate__, "A11y Sync System", ui, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([ui], 1));
+  const app$28 = _M0FP39Milky20186selene7plugins11add__system(app$27, _M0FP39Milky20186selene8render2d22begin__frame2d__system, _M0DTP39Milky20186selene3app8Schedule13RenderExtract__, "Render2D Begin Frame", render_extract, undefined, undefined);
+  const app$29 = _M0FP39Milky20186selene7plugins11add__system(app$28, _M0FP39Milky20186selene2ui19ui__extract__system, _M0DTP39Milky20186selene3app8Schedule13RenderExtract__, "UI Extract", render_extract, undefined, undefined);
+  const app$30 = _M0FP39Milky20186selene7plugins11add__system(app$29, _M0FP39Milky20186selene6sprite22render__sprite__system, _M0DTP39Milky20186selene3app8Schedule13RenderPrepare__, "Render Sprite System", render_prepare, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([render_extract], 1));
+  const app$31 = _M0FP39Milky20186selene7plugins11add__system(app$30, _M0FP39Milky20186selene6mesh2d22render__mesh2d__system, _M0DTP39Milky20186selene3app8Schedule13RenderPrepare__, "Render Mesh2d System", render_prepare, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([render_extract], 1));
+  const app$32 = _M0FP39Milky20186selene7plugins11add__system(app$31, _M0FP39Milky20186selene6text2d22render__text2d__system, _M0DTP39Milky20186selene3app8Schedule13RenderPrepare__, "Render Text2d System", render_prepare, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([render_extract], 1));
+  const app$33 = _M0FP39Milky20186selene7plugins11add__system(app$32, _M0FP39Milky20186selene15touch__controls31touch__controls__render__system, _M0DTP39Milky20186selene3app8Schedule13RenderPrepare__, "Touch Controls Prepare", touch_controls_render, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([render_extract], 1));
+  const app$34 = _M0FP39Milky20186selene7plugins11add__system(app$33, _M0FP39Milky20186selene2ui19ui__prepare__system, _M0DTP39Milky20186selene3app8Schedule13RenderPrepare__, "UI Prepare", render_prepare, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([touch_controls_render], 1));
+  return _M0FP39Milky20186selene7plugins11add__system(app$34, _M0FP39Milky20186selene14render__submit22render__submit__system, _M0DTP39Milky20186selene3app8Schedule6Render__, "Render Submit", render_submit, undefined, new _M0TPB5ArrayGRP39Milky20186selene3app9SystemSetE([render_prepare], 1));
 }
 function _M0IP39Milky201817selene_2dexamples5cards8CardSuitPB2Eq5equal(_x_247, _x_248) {
   switch (_x_247) {
@@ -195923,7 +195912,7 @@ function _M0MP39Milky201817selene_2dexamples5cards9GameState9GameState() {
   const fold_offset = _M0MP39Milky20186selene4math4Vec24Vec2(button_x - 85, 285);
   const call_offset = _M0MP39Milky20186selene4math4Vec24Vec2(button_x, 285);
   const raise_offset = _M0MP39Milky20186selene4math4Vec24Vec2(button_x + 85, 285);
-  return new _M0TP39Milky201817selene_2dexamples5cards9GameState(_M0MPC16random4Rand4Rand(undefined), new _M0TPB5ArrayGRP39Milky201817selene_2dexamples5cards4CardE([], 0), new _M0TP39Milky201817selene_2dexamples5cards6Player(1000, new _M0TPB5ArrayGRP39Milky201817selene_2dexamples5cards4CardE([], 0), 0, false, _M0MP39Milky20186selene4math4Vec24Vec2(240, 240)), 0, 0, new _M0TPB5ArrayGRP39Milky201817selene_2dexamples5cards4CardE([], 0), 0, 10, 20, 10, 1000, 1, _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(160, 20), "Blind: $20", "gold", "20px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(160, 24), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103740, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(160, 42), "Chips: $1000", "lightgreen", "18px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(160, 22), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103741, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(20, 20), "Pre-Flop", "white", "18px ThaleahFat", undefined, undefined, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards19spawn__text_2einner(fold_offset, "Fold", "white", "16px ThaleahFat", button_size, 1, 1, 111), _M0FP39Milky201817selene_2dexamples5cards19spawn__text_2einner(call_offset, "Call", "white", "16px ThaleahFat", button_size, 1, 1, 111), _M0FP39Milky201817selene_2dexamples5cards19spawn__text_2einner(raise_offset, "Raise", "white", "16px ThaleahFat", button_size, 1, 1, 111), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(370, 20), "Turns: 10/10", "white", "18px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(90, 22), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103742, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(130, 256), "", "yellow", "16px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(220, 20), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103743, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(140, 78), "", "cyan", "16px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(200, 20), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103744, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards13spawn__button(fold_offset, button_size, "#cc0000", 0), _M0FP39Milky201817selene_2dexamples5cards13spawn__button(call_offset, button_size, "#00aa00", 1), _M0FP39Milky201817selene_2dexamples5cards13spawn__button(raise_offset, button_size, "#0066cc", 2), false, new _M0TPB5ArrayGRP39Milky20186selene3ecs6EntityE([], 0), new _M0TPB5ArrayGRP39Milky20186selene3ecs6EntityE([], 0));
+  return new _M0TP39Milky201817selene_2dexamples5cards9GameState(_M0MPC16random4Rand4Rand(undefined), new _M0TPB5ArrayGRP39Milky201817selene_2dexamples5cards4CardE([], 0), new _M0TP39Milky201817selene_2dexamples5cards6Player(1000, new _M0TPB5ArrayGRP39Milky201817selene_2dexamples5cards4CardE([], 0), 0, false, _M0MP39Milky20186selene4math4Vec24Vec2(240, 240)), 0, 0, new _M0TPB5ArrayGRP39Milky201817selene_2dexamples5cards4CardE([], 0), 0, 10, 20, 10, 1000, 1, _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(160, 20), "Blind: $20", "gold", "20px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(160, 24), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103737, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(160, 42), "Chips: $1000", "lightgreen", "18px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(160, 22), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103738, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(20, 20), "Pre-Flop", "white", "18px ThaleahFat", undefined, undefined, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards19spawn__text_2einner(fold_offset, "Fold", "white", "16px ThaleahFat", button_size, 1, 1, 111), _M0FP39Milky201817selene_2dexamples5cards19spawn__text_2einner(call_offset, "Call", "white", "16px ThaleahFat", button_size, 1, 1, 111), _M0FP39Milky201817selene_2dexamples5cards19spawn__text_2einner(raise_offset, "Raise", "white", "16px ThaleahFat", button_size, 1, 1, 111), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(370, 20), "Turns: 10/10", "white", "18px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(90, 22), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103739, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(130, 256), "", "yellow", "16px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(220, 20), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103740, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards11spawn__text(_M0MP39Milky20186selene4math4Vec24Vec2(140, 78), "", "cyan", "16px ThaleahFat", _M0MP39Milky20186selene4math4Vec24Vec2(200, 20), _M0MP39Milky201817selene_2dexamples5cards9GameState9GameStateN6constrS103741, undefined, undefined), _M0FP39Milky201817selene_2dexamples5cards13spawn__button(fold_offset, button_size, "#cc0000", 0), _M0FP39Milky201817selene_2dexamples5cards13spawn__button(call_offset, button_size, "#00aa00", 1), _M0FP39Milky201817selene_2dexamples5cards13spawn__button(raise_offset, button_size, "#0066cc", 2), false, new _M0TPB5ArrayGRP39Milky20186selene3ecs6EntityE([], 0), new _M0TPB5ArrayGRP39Milky20186selene3ecs6EntityE([], 0));
 }
 function _M0FP39Milky201817selene_2dexamples5cards11game__state() {
   const runtime = _M0FP39Milky201817selene_2dexamples5cards14cards__runtime();
@@ -196286,7 +196275,7 @@ function _M0FP39Milky201817selene_2dexamples5cards12is__straight(hand) {
     return hand$2.buf[4];
   }
   if (_M0IPC15array5ArrayPB2Eq5equalGiE(hand$2, new _M0TPB5ArrayGiE([2, 3, 4, 5, 14], 5))) {
-    return _M0FP39Milky201817selene_2dexamples5cards12is__straightN6constrS103822;
+    return _M0FP39Milky201817selene_2dexamples5cards12is__straightN6constrS103819;
   }
   return undefined;
 }
@@ -196493,7 +196482,7 @@ function _M0FP39Milky201817selene_2dexamples5cards16find__best__hand(cards) {
   if (cards.len === 5) {
     return _M0FP39Milky201817selene_2dexamples5cards10eval__rank(cards);
   }
-  let best_rank = _M0FP39Milky201817selene_2dexamples5cards16find__best__handN6constrS103888;
+  let best_rank = _M0FP39Milky201817selene_2dexamples5cards16find__best__handN6constrS103885;
   let best_value = 0;
   const n = cards.len;
   let _tmp = 0;
@@ -196808,7 +196797,7 @@ function _M0FP39Milky201817selene_2dexamples5cards17touch__action__at(position, 
   if (position.y < screen.y * 0.72) {
     return undefined;
   }
-  return position.x < screen.x / 3 ? _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103957 : position.x < screen.x * 2 / 3 ? _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103958 : _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103959;
+  return position.x < screen.x / 3 ? _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103954 : position.x < screen.x * 2 / 3 ? _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103955 : _M0FP39Milky201817selene_2dexamples5cards17touch__action__atN6constrS103956;
 }
 function _M0FP39Milky201817selene_2dexamples5cards20apply__touch__action(action) {
   const game = _M0FP39Milky201817selene_2dexamples5cards11game__state();
@@ -196839,7 +196828,7 @@ function _M0FP39Milky201817selene_2dexamples5cards31handle__cards__touch__shortc
   if (!_M0FP39Milky201817selene_2dexamples5cards11game__state().waiting_for_player) {
     return false;
   }
-  const screen = _M0FP39Milky20186selene6system14display__state().screen_size;
+  const screen = _M0FP39Milky20186selene6window14display__state().screen_size;
   const _bind$72 = _M0FP39Milky20186selene2ui39unconsumed__touch__changes__this__frame();
   const _bind$73 = _bind$72.len;
   const _bind$74 = _bind$72.buf;
@@ -197124,7 +197113,7 @@ function _M0FP39Milky201817selene_2dexamples5cards16start__new__hand() {
 }
 function _M0FP39Milky201817selene_2dexamples5cards11game__start(_world) {
   _M0FP39Milky201817selene_2dexamples5cards21reset__cards__runtime();
-  _M0FP39Milky20186selene5asset10load__font("assets/cards/ThaleahFat.ttf", _M0FP39Milky201817selene_2dexamples5cards11game__startN6constrS104053);
+  _M0FP39Milky20186selene5asset10load__font("assets/cards/ThaleahFat.ttf", _M0FP39Milky201817selene_2dexamples5cards11game__startN6constrS104050);
   _M0FP39Milky20186selene2ui20set__ui__scale__mode(1);
   _M0FP39Milky201817selene_2dexamples5cards20spawn__cards__entityGURP39Milky20186selene6camera6CameraRP39Milky20186selene6camera8Camera2dRP39Milky20186selene6camera22OrthographicProjectionRP39Milky20186selene9transform7SpatialEE({ _0: _M0MP39Milky20186selene6camera6Camera6Camera(-1, undefined, _M0DTPC16option6OptionGORP39Milky20186selene6camera14CameraViewportE4None__, undefined), _1: _M0MP39Milky20186selene6camera8Camera2d8Camera2d(), _2: _M0MP39Milky20186selene6camera22OrthographicProjection30OrthographicProjection_2einner(1, -1000, 1000), _3: _M0MP39Milky20186selene9transform7Spatial7Spatial(_M0MP39Milky20186selene9transform9Transform9from__xyz(240, 160, 0)) });
   _M0FP39Milky201817selene_2dexamples5cards9setup__ui();
@@ -197213,7 +197202,7 @@ function _M0FP39Milky201817selene_2dexamples5cards20game__update__system(_world)
   _M0FP39Milky201817selene_2dexamples5cards22handle__betting__round();
 }
 function _M0FP39Milky201817selene_2dexamples5cards3run() {
-  _M0MP39Milky20186selene3app3App3run(_M0MP39Milky20186selene3app3App11add__system(_M0MP39Milky20186selene3app3App11add__system(_M0MP39Milky20186selene3app3App11add__system(_M0MP39Milky20186selene3app3App11add__plugin(_M0MP39Milky20186selene3app3App10with__zoom(_M0MP39Milky20186selene3app3App22with__viewport__height(_M0MP39Milky20186selene3app3App21with__viewport__width(_M0MP39Milky20186selene3app3App3App(), 480), 320), 2), _M0FP39Milky20186selene7plugins15default__plugin), _M0DTP39Milky20186selene6system8Schedule7Startup__, _M0FP39Milky201817selene_2dexamples5cards11game__start, undefined, undefined, undefined, undefined, undefined), _M0DTP39Milky20186selene6system8Schedule10PostUpdate__, _M0FP39Milky201817selene_2dexamples5cards26cards__ui__pointer__system, undefined, undefined, undefined, undefined, undefined), _M0DTP39Milky20186selene6system8Schedule6Update__, _M0FP39Milky201817selene_2dexamples5cards20game__update__system, undefined, undefined, undefined, undefined, undefined));
+  _M0MP39Milky20186selene3app3App3run(_M0MP39Milky20186selene3app3App11add__system(_M0MP39Milky20186selene3app3App11add__system(_M0MP39Milky20186selene3app3App11add__system(_M0MP39Milky20186selene3app3App11add__plugin(_M0MP39Milky20186selene3app3App10with__zoom(_M0MP39Milky20186selene3app3App22with__viewport__height(_M0MP39Milky20186selene3app3App21with__viewport__width(_M0MP39Milky20186selene3app3App3App(), 480), 320), 2), _M0FP39Milky20186selene7plugins15default__plugin), _M0DTP39Milky20186selene3app8Schedule7Startup__, _M0FP39Milky201817selene_2dexamples5cards11game__start, undefined, undefined, undefined, undefined, undefined), _M0DTP39Milky20186selene3app8Schedule10PostUpdate__, _M0FP39Milky201817selene_2dexamples5cards26cards__ui__pointer__system, undefined, undefined, undefined, undefined, undefined), _M0DTP39Milky20186selene3app8Schedule6Update__, _M0FP39Milky201817selene_2dexamples5cards20game__update__system, undefined, undefined, undefined, undefined, undefined));
 }
 (() => {
   _M0FP39Milky201817selene_2dexamples5cards3run();
