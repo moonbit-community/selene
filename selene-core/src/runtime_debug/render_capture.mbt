@@ -1,4 +1,120 @@
 ///|
+pub(all) struct DrawSubmission2DInfo {
+  entity_id : UInt32?
+  layer : String
+  kind : String
+  depth : Double?
+  texture_path : String?
+  uv_rect : @math.Rect?
+  destination_rect : @math.Rect?
+  transform : @math.Affine2?
+  color : @render.Color?
+}
+
+///|
+pub(all) struct DrawSubmission3DInfo {
+  entity_id : UInt32?
+  mesh : @render3d_types.MeshHandle
+  material : @render3d_types.MaterialHandle
+  cast_shadows : Bool
+  receive_shadows : Bool
+  transform : @math.Affine3
+}
+
+///|
+pub(all) struct RenderSubmissionDebug {
+  frame_index : UInt32
+  fixed_step_index : UInt32
+  draw2d : Array[DrawSubmission2DInfo]
+  draw3d : Array[DrawSubmission3DInfo]
+}
+
+///|
+#derive(Debug, ToJson)
+pub(all) struct DrawSubmission2DMetadataEntry {
+  entity_id : UInt32?
+  layer : String
+  kind : String
+  depth : Double?
+  texture_path : String?
+  source_rect : DebugRect?
+  destination_rect : DebugRect?
+  transform_translation : DebugVec2?
+  color : DebugColor?
+}
+
+///|
+pub extend DrawSubmission2DMetadataEntry with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend DrawSubmission2DMetadataEntry with ToJson::{to_json}
+
+///|
+#derive(Eq, Debug, ToJson)
+pub(all) struct FramePerformanceMetricsExport {
+  frame_index : UInt32
+  fixed_step_index : UInt32
+  fixed_steps_this_frame : Int32
+  update_delta : Double
+  fixed_delta_total : Double
+  render_delta : Double
+  entity_count : Int32
+  draw2d_count : Int32
+  draw3d_count : Int32
+}
+
+///|
+pub extend FramePerformanceMetricsExport with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend FramePerformanceMetricsExport with Eq::{not_equal, equal}
+
+///|
+pub extend FramePerformanceMetricsExport with ToJson::{to_json}
+
+///|
+#derive(Debug, ToJson)
+pub(all) struct FrameCaptureMetadata {
+  frame_index : UInt32
+  fixed_step_index : UInt32
+  metrics : FramePerformanceMetricsExport?
+  draw2d : Array[DrawSubmission2DMetadataEntry]
+  draw3d_count : Int32
+  sprites : Array[SpriteInspectorEntry]
+  atlas_overlay : Array[AtlasOverlayEntry]
+}
+
+///|
+pub extend FrameCaptureMetadata with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FrameCaptureMetadata with ToJson::{to_json}
+
+///|
+#derive(Debug)
+pub(all) struct FrameCaptureArtifact {
+  frame_index : UInt32
+  fixed_step_index : UInt32
+  file_stem : String
+  png : Bytes
+  metadata_json : String
+}
+
+///|
+pub extend FrameCaptureArtifact with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+let render_submission_by_world : Map[UInt32, RenderSubmissionDebug] = Map([])
+
+///|
+let latest_render_frame_by_world : Map[UInt32, @render_pipeline.RenderFrame] = Map([],
+)
+
+///|
 fn draw2d_info(
   entity_id : UInt32?,
   layer : String,

@@ -96,6 +96,12 @@ pub(all) enum Render3DLightingMode {
 }
 
 ///|
+pub extend Render3DLightingMode with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Render3DLightingMode with Eq::{not_equal, equal}
+
+///|
 let synced_mesh_assets : Map[
   @render3d_types.MeshHandle,
   @render3d_types.MeshAsset,
@@ -181,6 +187,14 @@ pub(all) struct Render3DSubmissionStatsSnapshot {
 }
 
 ///|
+pub extend Render3DSubmissionStatsSnapshot with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend Render3DSubmissionStatsSnapshot with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) struct WebGpuRender3DTimingSnapshot {
   setup_ms : Double
@@ -189,6 +203,14 @@ pub(all) struct WebGpuRender3DTimingSnapshot {
   cleanup_ms : Double
   submit_total_ms : Double
 }
+
+///|
+pub extend WebGpuRender3DTimingSnapshot with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend WebGpuRender3DTimingSnapshot with Eq::{not_equal, equal}
 
 ///|
 priv struct LitPrimitiveMeshBatchAccumulator {

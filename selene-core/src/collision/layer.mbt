@@ -22,6 +22,9 @@ pub struct CollisionGroup {
 }
 
 ///|
+pub extend CollisionGroup with Eq::{not_equal, equal}
+
+///|
 /// A collision filter used by colliders and trigger areas.
 ///
 /// `group` defines which group the owner belongs to.
@@ -32,6 +35,9 @@ pub struct CollisionFilter {
   mask : Array[CollisionGroup]
   match_all : Bool
 }
+
+///|
+pub extend CollisionFilter with Eq::{not_equal, equal}
 
 ///|
 let collision_group_generator : Ref[UInt32] = { val: 0, }

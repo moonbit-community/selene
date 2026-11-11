@@ -23,6 +23,9 @@ pub(all) struct Area {
 }
 
 ///|
+pub extend Area with Eq::{not_equal, equal}
+
+///|
 pub fn Area::Area(filter : CollisionFilter) -> Area {
   { active: true, filter, contains: Set([]), }
 }

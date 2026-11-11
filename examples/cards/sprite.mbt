@@ -17,6 +17,12 @@
 struct Card(CardNum, CardSuit)
 
 ///|
+pub extend Card with Eq::{not_equal, equal}
+
+///|
+pub extend Card with Hash::{hash, hash_combine}
+
+///|
 fn Card::to_path(self : Card) -> String {
   "assets/cards/\{self.0.to_string()}-\{self.1.to_string()}.png"
 }
@@ -46,6 +52,12 @@ enum CardNum {
   Q
   K
 }
+
+///|
+pub extend CardNum with Eq::{not_equal, equal}
+
+///|
+pub extend CardNum with Hash::{hash, hash_combine}
 
 ///|
 fn CardNum::to_string(self : CardNum) -> String {
@@ -93,6 +105,12 @@ enum CardSuit {
   C
   S
 }
+
+///|
+pub extend CardSuit with Eq::{not_equal, equal}
+
+///|
+pub extend CardSuit with Hash::{hash, hash_combine}
 
 ///|
 fn CardSuit::to_string(self : CardSuit) -> String {

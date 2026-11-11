@@ -23,6 +23,9 @@ pub enum SpatialQueryBodyFilter {
 }
 
 ///|
+pub extend SpatialQueryBodyFilter with Eq::{not_equal, equal}
+
+///|
 /// Spatial-query filter translated to Rapier query predicates.
 #derive(Eq)
 pub struct SpatialQueryFilter {
@@ -32,6 +35,9 @@ pub struct SpatialQueryFilter {
   exclude_solids : Bool
   body_filter : SpatialQueryBodyFilter
 }
+
+///|
+pub extend SpatialQueryFilter with Eq::{not_equal, equal}
 
 ///|
 pub fn SpatialQueryFilter::SpatialQueryFilter() -> SpatialQueryFilter {
@@ -70,6 +76,12 @@ pub struct RaycastHit {
 }
 
 ///|
+pub extend RaycastHit with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RaycastHit with Eq::{not_equal, equal}
+
+///|
 /// Payload for a 2D shape-cast hit.
 #derive(Eq, Debug)
 pub struct ShapeCastHit {
@@ -78,3 +90,9 @@ pub struct ShapeCastHit {
   point : @math.Vec2
   normal : @math.Vec2
 }
+
+///|
+pub extend ShapeCastHit with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ShapeCastHit with Eq::{not_equal, equal}

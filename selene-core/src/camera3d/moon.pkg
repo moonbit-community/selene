@@ -6,4 +6,4 @@ import {
   "Milky2018/selene/transform",
 }
 
-formatter(ignore: [ "top.g.mbt" ])
+formatter(ignore: [ "camera.g.mbt" ])

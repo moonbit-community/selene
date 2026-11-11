@@ -9,11 +9,23 @@ pub(all) enum TouchPlacement {
 }
 
 ///|
+pub extend TouchPlacement with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TouchPlacement with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) enum StickMode {
   Fixed
   Floating
 }
+
+///|
+pub extend StickMode with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend StickMode with Eq::{not_equal, equal}
 
 ///|
 pub(all) struct TouchControlStyle {

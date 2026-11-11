@@ -351,6 +351,12 @@ enum EnemyType {
 }
 
 ///|
+pub extend EnemyType with Eq::{not_equal, equal}
+
+///|
+pub extend EnemyType with Hash::{hash, hash_combine}
+
+///|
 fn enemies() -> @ecs.ComponentStore[Enemy] {
   @ecs.components()
 }

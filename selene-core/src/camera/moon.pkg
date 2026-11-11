@@ -8,4 +8,4 @@ import {
   "moonbitlang/core/cmp",
 }
 
-formatter(ignore: [ "top.g.mbt" ])
+formatter(ignore: [ "camera.g.mbt", "projection.g.mbt" ])

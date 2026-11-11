@@ -5,6 +5,15 @@ pub(all) struct VirtualButton {
 }
 
 ///|
+pub extend VirtualButton with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend VirtualButton with Eq::{not_equal, equal}
+
+///|
+pub extend VirtualButton with Hash::{hash, hash_combine}
+
+///|
 pub fn VirtualButton::VirtualButton(name : String) -> VirtualButton {
   { name, }
 }
@@ -19,6 +28,15 @@ pub fn VirtualButton::name(self : VirtualButton) -> String {
 pub(all) struct VirtualAxis {
   name : String
 }
+
+///|
+pub extend VirtualAxis with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend VirtualAxis with Eq::{not_equal, equal}
+
+///|
+pub extend VirtualAxis with Hash::{hash, hash_combine}
 
 ///|
 pub fn VirtualAxis::VirtualAxis(name : String) -> VirtualAxis {
@@ -36,6 +54,12 @@ pub(all) enum VirtualButtonInputState {
   Pressed
   Released
 }
+
+///|
+pub extend VirtualButtonInputState with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend VirtualButtonInputState with Eq::{not_equal, equal}
 
 ///|
 pub(all) struct VirtualButtonEvent {

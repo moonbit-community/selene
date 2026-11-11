@@ -5,6 +5,15 @@ pub(all) struct TouchId {
 }
 
 ///|
+pub extend TouchId with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TouchId with Eq::{not_equal, equal}
+
+///|
+pub extend TouchId with Hash::{hash, hash_combine}
+
+///|
 pub fn TouchId::TouchId(value : Int32) -> TouchId {
   { value, }
 }
@@ -22,6 +31,12 @@ pub(all) enum TouchPhase {
   Ended
   Cancelled
 }
+
+///|
+pub extend TouchPhase with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TouchPhase with Eq::{not_equal, equal}
 
 ///|
 pub(all) struct TouchPoint {
@@ -53,6 +68,15 @@ pub(all) enum PointerSource {
 }
 
 ///|
+pub extend PointerSource with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PointerSource with Eq::{not_equal, equal}
+
+///|
+pub extend PointerSource with Hash::{hash, hash_combine}
+
+///|
 #derive(Eq, Debug)
 pub(all) enum PointerPhase {
   Down
@@ -62,11 +86,26 @@ pub(all) enum PointerPhase {
 }
 
 ///|
+pub extend PointerPhase with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PointerPhase with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Hash, Debug)
 pub(all) struct PointerId {
   source : PointerSource
   value : Int32
 }
+
+///|
+pub extend PointerId with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PointerId with Eq::{not_equal, equal}
+
+///|
+pub extend PointerId with Hash::{hash, hash_combine}
 
 ///|
 pub(all) struct PointerEvent {
@@ -93,6 +132,12 @@ pub(all) enum TouchGestureKind {
   PinchEnd
   PinchCancel
 }
+
+///|
+pub extend TouchGestureKind with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TouchGestureKind with Eq::{not_equal, equal}
 
 ///|
 pub(all) struct TouchGestureEvent {

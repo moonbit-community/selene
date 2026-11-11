@@ -1,4 +1,29 @@
 ///|
+pub(all) enum AtlasValidationIssueKind {
+  InvalidAtlasSize
+  InvalidRectSize
+  OutOfBounds
+  DuplicateRect
+  Overlap
+  FullyTransparentRect
+  TransparencyCheckUnavailable
+}
+
+///|
+pub(all) struct AtlasValidationIssue {
+  kind : AtlasValidationIssueKind
+  rect_index : Int32?
+  other_rect_index : Int32?
+  message : String
+}
+
+///|
+pub(all) struct AtlasValidationReport {
+  total_rects : Int32
+  issues : Array[AtlasValidationIssue]
+}
+
+///|
 fn rect_equals(lhs : @math.Rect, rhs : @math.Rect) -> Bool {
   lhs.position == rhs.position && lhs.size == rhs.size
 }

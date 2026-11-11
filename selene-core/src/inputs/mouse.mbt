@@ -29,11 +29,23 @@ pub(all) enum MouseButton {
 }
 
 ///|
+pub extend MouseButton with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend MouseButton with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) enum MouseButtonInputState {
   Pressed
   Released
 }
+
+///|
+pub extend MouseButtonInputState with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend MouseButtonInputState with Eq::{not_equal, equal}
 
 ///|
 pub struct MouseButtonEvent {

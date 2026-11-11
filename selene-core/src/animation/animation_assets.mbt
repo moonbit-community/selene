@@ -20,6 +20,12 @@ pub(all) struct MorphTargetBinding3D {
 }
 
 ///|
+pub extend MorphTargetBinding3D with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend MorphTargetBinding3D with Eq::{not_equal, equal}
+
+///|
 pub(all) struct SkinVertexInfluence3D {
   joint0 : Int32
   joint1 : Int32

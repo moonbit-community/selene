@@ -4,6 +4,12 @@
 pub(all) struct Anchor(@math.Vec2)
 
 ///|
+pub extend Anchor with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Anchor with Eq::{not_equal, equal}
+
+///|
 pub fn default_anchor() -> Anchor {
   Anchor(Vec2(0.0, 0.0))
 }

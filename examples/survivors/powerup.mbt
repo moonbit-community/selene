@@ -28,6 +28,9 @@ enum PowerupType {
 }
 
 ///|
+pub extend PowerupType with Eq::{not_equal, equal}
+
+///|
 priv struct Powerup {
   powerup_type : PowerupType
   name : String

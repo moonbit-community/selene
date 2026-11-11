@@ -64,7 +64,7 @@ fn solved_index_at(
 ///|
 test "bitmask4 solves all neighbor directions deterministically" {
   let rules : Array[AutoTileMaskRule] = []
-  for mask = 0; mask < 16; mask = mask + 1 {
+  for mask in 0..<16 {
     rules.push(mask_rule(mask, "m" + mask.to_string()))
   }
   let palette = [
@@ -77,7 +77,7 @@ test "bitmask4 solves all neighbor directions deterministically" {
       wang_rules: [],
     },
   ]
-  for mask = 0; mask < 16; mask = mask + 1 {
+  for mask in 0..<16 {
     let cells : Array[AutoTileCell] = [{ x: 0, y: 0, terrain: 1, }]
     if (mask & 1) != 0 {
       cells.push({ x: 0, y: -1, terrain: 1, })
@@ -126,7 +126,7 @@ test "bitmask8 supports corner-aware diagonal masking" {
 ///|
 test "bitmask8 reachable mask set is the canonical 47-tiles subset" {
   let rules : Array[AutoTileMaskRule] = []
-  for mask = 0; mask < 256; mask = mask + 1 {
+  for mask in 0..<256 {
     rules.push(mask_rule(mask, "m" + mask.to_string()))
   }
   let palette = [
@@ -140,7 +140,7 @@ test "bitmask8 reachable mask set is the canonical 47-tiles subset" {
   let reachable_masks : Map[Int32, Bool] = Map([])
   // Neighbor bit order (for generated input combinations):
   // 0:N, 1:E, 2:S, 3:W, 4:NE, 5:SE, 6:SW, 7:NW
-  for combo = 0; combo < 256; combo = combo + 1 {
+  for combo in 0..<256 {
     let cells : Array[AutoTileCell] = [AutoTileCell(0, 0, 7)]
     if (combo & 1) != 0 {
       cells.push(AutoTileCell(0, -1, 7))

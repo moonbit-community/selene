@@ -21,6 +21,12 @@ pub enum JointMotorModel {
 }
 
 ///|
+pub extend JointMotorModel with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend JointMotorModel with Eq::{not_equal, equal}
+
+///|
 pub fn JointMotorModel::acceleration_based() -> JointMotorModel {
   AccelerationBased
 }
@@ -39,6 +45,12 @@ pub struct JointLimits {
 }
 
 ///|
+pub extend JointLimits with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend JointLimits with Eq::{not_equal, equal}
+
+///|
 pub fn JointLimits::JointLimits(min : Double, max : Double) -> JointLimits {
   { min, max, }
 }
@@ -50,6 +62,12 @@ pub struct JointSoftness {
   damping_ratio : Double
   natural_frequency : Double
 }
+
+///|
+pub extend JointSoftness with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend JointSoftness with Eq::{not_equal, equal}
 
 ///|
 pub fn JointSoftness::JointSoftness(
@@ -77,6 +95,12 @@ pub enum JointMotor {
     model~ : JointMotorModel
   )
 }
+
+///|
+pub extend JointMotor with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend JointMotor with Eq::{not_equal, equal}
 
 ///|
 pub fn JointMotor::position(
@@ -133,6 +157,12 @@ pub enum JointKind {
 }
 
 ///|
+pub extend JointKind with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend JointKind with Eq::{not_equal, equal}
+
+///|
 /// Authored 2D joint component that connects two rigid-body entities.
 #derive(Eq, Debug)
 #selene.component
@@ -143,6 +173,12 @@ pub struct Joint {
   active : Bool
   contacts_enabled : Bool
 }
+
+///|
+pub extend Joint with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Joint with Eq::{not_equal, equal}
 
 ///|
 /// Native Rapier impulse-joint handle.
@@ -162,6 +198,12 @@ pub enum MultibodyJointKind {
 }
 
 ///|
+pub extend MultibodyJointKind with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend MultibodyJointKind with Eq::{not_equal, equal}
+
+///|
 /// Authored 2D multibody joint attached to the child rigid-body entity.
 #derive(Eq, Debug)
 #selene.component
@@ -170,6 +212,12 @@ pub struct MultibodyJoint {
   kind : MultibodyJointKind
   active : Bool
 }
+
+///|
+pub extend MultibodyJoint with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend MultibodyJoint with Eq::{not_equal, equal}
 
 ///|
 /// Native Rapier multibody-joint handle.

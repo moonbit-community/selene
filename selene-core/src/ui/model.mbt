@@ -6,6 +6,12 @@ pub(all) enum UiScaleMode {
 }
 
 ///|
+pub extend UiScaleMode with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend UiScaleMode with Eq::{not_equal, equal}
+
+///|
 let ui_scale_modes : Map[UInt32, UiScaleMode] = Map([])
 
 ///|
@@ -33,6 +39,12 @@ pub(all) enum Val {
 }
 
 ///|
+pub extend Val with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Val with Eq::{not_equal, equal}
+
+///|
 pub fn Val::px(value : Double) -> Val {
   Px(value)
 }
@@ -50,6 +62,12 @@ pub(all) struct UiRectValues {
   top : Val
   bottom : Val
 }
+
+///|
+pub extend UiRectValues with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend UiRectValues with Eq::{not_equal, equal}
 
 ///|
 pub fn UiRectValues::all(value : Double) -> UiRectValues {
@@ -87,6 +105,12 @@ pub(all) struct UiInsets {
 }
 
 ///|
+pub extend UiInsets with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend UiInsets with Eq::{not_equal, equal}
+
+///|
 pub fn UiInsets::zero() -> UiInsets {
   { left: 0.0, right: 0.0, top: 0.0, bottom: 0.0, }
 }
@@ -101,11 +125,23 @@ pub(all) enum Display {
 }
 
 ///|
+pub extend Display with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Display with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) enum PositionType {
   Relative
   Absolute
 }
+
+///|
+pub extend PositionType with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend PositionType with Eq::{not_equal, equal}
 
 ///|
 #derive(Eq, Debug)
@@ -115,6 +151,12 @@ pub(all) enum FlexDirection {
   Column
   ColumnReverse
 }
+
+///|
+pub extend FlexDirection with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FlexDirection with Eq::{not_equal, equal}
 
 ///|
 #derive(Eq, Debug)
@@ -131,6 +173,12 @@ pub(all) enum JustifyContent {
 }
 
 ///|
+pub extend JustifyContent with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend JustifyContent with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) enum AlignItems {
   Start
@@ -141,6 +189,12 @@ pub(all) enum AlignItems {
   Baseline
   Stretch
 }
+
+///|
+pub extend AlignItems with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AlignItems with Eq::{not_equal, equal}
 
 ///|
 #derive(Eq, Debug)
@@ -157,12 +211,24 @@ pub(all) enum AlignContent {
 }
 
 ///|
+pub extend AlignContent with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AlignContent with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) enum FlexWrap {
   NoWrap
   Wrap
   WrapReverse
 }
+
+///|
+pub extend FlexWrap with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FlexWrap with Eq::{not_equal, equal}
 
 ///|
 #derive(Eq, Debug)
@@ -174,6 +240,12 @@ pub(all) enum GridAutoFlow {
 }
 
 ///|
+pub extend GridAutoFlow with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GridAutoFlow with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) enum GridPlacement {
   Auto
@@ -182,11 +254,23 @@ pub(all) enum GridPlacement {
 }
 
 ///|
+pub extend GridPlacement with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GridPlacement with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) struct GridLine {
   start : GridPlacement
   end : GridPlacement
 }
+
+///|
+pub extend GridLine with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GridLine with Eq::{not_equal, equal}
 
 ///|
 pub fn GridLine::GridLine(
@@ -205,6 +289,12 @@ pub(all) enum GridTrackRepetition {
 }
 
 ///|
+pub extend GridTrackRepetition with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GridTrackRepetition with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) enum GridTrack {
   Auto
@@ -217,6 +307,12 @@ pub(all) enum GridTrack {
   MinMax(GridTrack, GridTrack)
   Repeat(GridTrackRepetition, Array[GridTrack])
 }
+
+///|
+pub extend GridTrack with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GridTrack with Eq::{not_equal, equal}
 
 ///|
 pub fn align_content_start() -> AlignContent {
@@ -386,6 +482,12 @@ pub(all) enum Overflow {
 }
 
 ///|
+pub extend Overflow with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Overflow with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) enum OverflowClipBox {
   ContentBox
@@ -394,11 +496,23 @@ pub(all) enum OverflowClipBox {
 }
 
 ///|
+pub extend OverflowClipBox with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend OverflowClipBox with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 pub(all) struct OverflowClipMargin {
   visual_box : OverflowClipBox
   margin : Double
 }
+
+///|
+pub extend OverflowClipMargin with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend OverflowClipMargin with Eq::{not_equal, equal}
 
 ///|
 pub fn OverflowClipMargin::content_box() -> OverflowClipMargin {
@@ -469,6 +583,12 @@ pub(all) struct Node {
   grid_column : GridLine
   active : Bool
 }
+
+///|
+pub extend Node with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Node with Eq::{not_equal, equal}
 
 ///|
 pub fn Node::Node(
@@ -631,6 +751,12 @@ pub(all) struct UiTargetCamera {
 }
 
 ///|
+pub extend UiTargetCamera with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend UiTargetCamera with Eq::{not_equal, equal}
+
+///|
 pub fn UiTargetCamera::UiTargetCamera(camera : @ecs.Entity) -> UiTargetCamera {
   { camera, }
 }
@@ -667,6 +793,12 @@ pub(all) struct LayoutConfig {
 }
 
 ///|
+pub extend LayoutConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend LayoutConfig with Eq::{not_equal, equal}
+
+///|
 pub fn LayoutConfig::LayoutConfig(use_rounding~ : Bool = true) -> LayoutConfig {
   { use_rounding, }
 }
@@ -679,6 +811,12 @@ pub fn LayoutConfig::LayoutConfig(use_rounding~ : Bool = true) -> LayoutConfig {
 pub(all) struct ZIndex {
   value : Int32
 }
+
+///|
+pub extend ZIndex with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ZIndex with Eq::{not_equal, equal}
 
 ///|
 pub fn ZIndex::ZIndex(value : Int32) -> ZIndex {
@@ -695,6 +833,12 @@ pub(all) struct GlobalZIndex {
 }
 
 ///|
+pub extend GlobalZIndex with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GlobalZIndex with Eq::{not_equal, equal}
+
+///|
 pub fn GlobalZIndex::GlobalZIndex(value : Int32) -> GlobalZIndex {
   { value, }
 }
@@ -705,6 +849,12 @@ pub(all) struct ScrollPosition {
   mut x : Double
   mut y : Double
 }
+
+///|
+pub extend ScrollPosition with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ScrollPosition with Eq::{not_equal, equal}
 
 ///|
 pub fn ScrollPosition::zero() -> ScrollPosition {
@@ -719,6 +869,12 @@ pub(all) struct TabIndex {
 }
 
 ///|
+pub extend TabIndex with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TabIndex with Eq::{not_equal, equal}
+
+///|
 pub fn TabIndex::TabIndex(value : Int32) -> TabIndex {
   { value, }
 }
@@ -730,6 +886,12 @@ pub(all) enum FocusPolicy {
   Block
   Pass
 }
+
+///|
+pub extend FocusPolicy with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FocusPolicy with Eq::{not_equal, equal}
 
 ///|
 pub(all) struct Focused {
@@ -760,6 +922,12 @@ pub(all) struct OverrideClip {
 }
 
 ///|
+pub extend OverrideClip with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend OverrideClip with Eq::{not_equal, equal}
+
+///|
 pub fn OverrideClip::OverrideClip() -> OverrideClip {
   { _tag: (), }
 }
@@ -771,6 +939,12 @@ pub(all) struct RelativeCursorPosition {
   mut normalized : @math.Vec2?
   mut cursor_over : Bool
 }
+
+///|
+pub extend RelativeCursorPosition with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RelativeCursorPosition with Eq::{not_equal, equal}
 
 ///|
 pub fn RelativeCursorPosition::RelativeCursorPosition() -> RelativeCursorPosition {

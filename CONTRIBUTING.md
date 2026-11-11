@@ -29,6 +29,9 @@ See the [README](README.md) for package roles and tutorials.
   platform, and a minimal reproduction.
 - Keep changes focused. Add tests for changed behavior and update affected
   documentation and examples. Verify rendering and input changes in a browser.
+- Name source files by responsibility instead of using `top.mbt`. Keep trait
+  extensions beside their type declarations or implementations, and put tests
+  in dedicated files.
 - Document public APIs. Run `moon info` for affected targets and include the
   generated `.mbti` changes when the public API changes.
 - Add release notes under `Unreleased` in [docs/CHANGELOG.md](docs/CHANGELOG.md),

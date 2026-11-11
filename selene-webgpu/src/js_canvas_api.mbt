@@ -34,6 +34,14 @@ pub(all) struct WebGpuFrameTimingSnapshot {
 }
 
 ///|
+pub extend WebGpuFrameTimingSnapshot with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend WebGpuFrameTimingSnapshot with Eq::{not_equal, equal}
+
+///|
 pub fn WebGpuBackend::WebGpuBackend() -> WebGpuBackend {
   {
     canvas: None,

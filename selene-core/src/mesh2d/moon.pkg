@@ -13,4 +13,4 @@ import {
   "Milky2018/selene/system",
 }
 
-formatter(ignore: [ "top.g.mbt" ])
+formatter(ignore: [ "mesh.g.mbt" ])

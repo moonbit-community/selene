@@ -1,4 +1,24 @@
 ///|
+pub(all) struct FramePerformanceMetrics {
+  frame_index : UInt32
+  fixed_step_index : UInt32
+  fixed_steps_this_frame : Int32
+  update_delta : Double
+  fixed_delta_total : Double
+  render_delta : Double
+  entity_count : Int32
+  draw2d_count : Int32
+  draw3d_count : Int32
+}
+
+///|
+let frame_metrics_by_world : Map[UInt32, FramePerformanceMetrics] = Map([])
+
+///|
+let frame_metrics_history_by_world : Map[UInt32, Array[FramePerformanceMetrics]] = Map([],
+)
+
+///|
 fn FramePerformanceMetrics::FramePerformanceMetrics(
   world : @ecs.World,
 ) -> FramePerformanceMetrics {

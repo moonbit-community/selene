@@ -23,12 +23,24 @@ pub(all) enum RigidBody {
 }
 
 ///|
+pub extend RigidBody with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RigidBody with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 #selene.component
 pub(all) struct Velocity {
   linvel : @math.Vec3
   angvel : @math.Vec3
 }
+
+///|
+pub extend Velocity with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Velocity with Eq::{not_equal, equal}
 
 ///|
 #derive(Eq, Debug)
@@ -39,9 +51,21 @@ pub(all) struct Damping {
 }
 
 ///|
+pub extend Damping with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Damping with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 #selene.component
 pub(all) struct GravityScale(Double)
+
+///|
+pub extend GravityScale with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend GravityScale with Eq::{not_equal, equal}
 
 ///|
 #derive(Eq, Debug)
@@ -56,14 +80,32 @@ pub(all) struct LockedAxes {
 }
 
 ///|
+pub extend LockedAxes with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend LockedAxes with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 #selene.component
 pub(all) struct Ccd {}
 
 ///|
+pub extend Ccd with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Ccd with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 #selene.component
 pub(all) struct Dominance(Int32)
+
+///|
+pub extend Dominance with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Dominance with Eq::{not_equal, equal}
 
 ///|
 #selene.component
@@ -91,9 +133,21 @@ pub(all) enum Collider {
 }
 
 ///|
+pub extend Collider with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Collider with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 #selene.component
 pub(all) struct Sensor {}
+
+///|
+pub extend Sensor with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Sensor with Eq::{not_equal, equal}
 
 ///|
 #derive(Eq, Debug)
@@ -101,9 +155,21 @@ pub(all) struct Sensor {}
 pub(all) struct Friction(Double)
 
 ///|
+pub extend Friction with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Friction with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 #selene.component
 pub(all) struct Restitution(Double)
+
+///|
+pub extend Restitution with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Restitution with Eq::{not_equal, equal}
 
 ///|
 #derive(Eq, Debug)
@@ -114,6 +180,12 @@ pub(all) struct CollisionGroups {
 }
 
 ///|
+pub extend CollisionGroups with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CollisionGroups with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 #selene.component
 pub(all) struct SolverGroups {
@@ -122,9 +194,23 @@ pub(all) struct SolverGroups {
 }
 
 ///|
+pub extend SolverGroups with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SolverGroups with Eq::{not_equal, equal}
+
+///|
 #derive(Eq, Debug)
 #selene.component
 pub(all) struct ContactForceEventThreshold(Double)
+
+///|
+pub extend ContactForceEventThreshold with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend ContactForceEventThreshold with Eq::{not_equal, equal}
 
 ///|
 #derive(Eq, Debug)
@@ -132,6 +218,12 @@ pub(all) struct ContactForceEventThreshold(Double)
 pub(all) enum ColliderMassProperties {
   Density(Double)
 }
+
+///|
+pub extend ColliderMassProperties with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ColliderMassProperties with Eq::{not_equal, equal}
 
 ///|
 pub type RapierRigidBodyHandle = @dynamics.RigidBodyHandle
@@ -168,6 +260,12 @@ pub(all) enum QueryFilterBody {
   Fixed
   Kinematic
 }
+
+///|
+pub extend QueryFilterBody with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend QueryFilterBody with Eq::{not_equal, equal}
 
 ///|
 pub(all) struct QueryFilter {

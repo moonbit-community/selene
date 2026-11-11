@@ -40,6 +40,12 @@ pub(all) enum UiNavigationDirection {
 }
 
 ///|
+pub extend UiNavigationDirection with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend UiNavigationDirection with Eq::{not_equal, equal}
+
+///|
 pub(all) struct UiNavigationEvent {
   entity : @ecs.Entity?
   direction : UiNavigationDirection
