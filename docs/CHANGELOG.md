@@ -8,6 +8,9 @@
   state values and pending requests through resource storage. Applications can
   initialize states, use World-aware `in_state` conditions, and register typed
   entry and exit systems with `add_on_enter` and `add_on_exit`.
+- Generate `GamePhase::set(value)` through a shared `StateType` default method.
+  It requests a deferred transition in the active World; `set_next(world, value)`
+  remains available for explicit World selection.
 
 - Add `distance_squared` for both vectors and complete the `Vec2` interpolation,
   finite-value, unit-axis, and unit-scale helpers.

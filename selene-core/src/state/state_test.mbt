@@ -15,6 +15,9 @@ impl @state.StateType for Phase with fn state_key() {
 }
 
 ///|
+extend Phase with @state.StateType::{set}
+
+///|
 fn phase(world : @ecs.World) -> Phase {
   @state.current(world)
 }
@@ -43,6 +46,47 @@ test "state identity is shared while values and requests are World-local" {
   advance(first)
   assert_true(playing(first))
   assert_false(playing(second))
+}
+
+///|
+test "static setters request changes only in the scheduled World" {
+  let previous = @ecs.current_world()
+  defer (match previous {
+    Some(world) => @ecs.set_current_world(world)
+    None => @ecs.clear_current_world()
+  })
+  let first = @ecs.World()
+  let second = @ecs.World()
+  let outer = @ecs.World()
+  @ecs.set_current_world(outer)
+  @state.initialize(first, Phase::Menu)
+  @state.initialize(second, Phase::Menu)
+  advance(first)
+  advance(second)
+
+  @ecs.run_schedule(first, _ => Phase::set(Playing))
+  @ecs.run_schedule(second, _ => Phase::set(Paused))
+  assert_eq(@ecs.require_current_world().id(), outer.id())
+  assert_eq(phase(first), Menu)
+  assert_eq(phase(second), Menu)
+
+  advance(first)
+  assert_eq(phase(first), Playing)
+  assert_eq(phase(second), Menu)
+  advance(second)
+  assert_eq(phase(first), Playing)
+  assert_eq(phase(second), Paused)
+}
+
+///|
+test "panic static setter requires an active World" {
+  let previous = @ecs.current_world()
+  defer (match previous {
+    Some(world) => @ecs.set_current_world(world)
+    None => @ecs.clear_current_world()
+  })
+  @ecs.clear_current_world()
+  Phase::set(Playing)
 }
 
 ///|

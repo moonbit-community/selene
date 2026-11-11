@@ -78,6 +78,9 @@ fn generate(source : String, input : String) -> String raise CodegenError {
           out.write_string(
             "\n///|\n\{visibility}impl @state.StateType for \{name} with state_key() {\n  \{key}\n}\n",
           )
+          out.write_string(
+            "\n///|\n\{visibility}extend \{name} with @state.StateType::{set}\n",
+          )
         }
         _ =>
           raise InvalidInput(

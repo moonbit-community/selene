@@ -32,6 +32,15 @@ test "state markers generate identity and visibility without resource access" {
   assert_true(generated.contains("pub impl @state.StateType for GamePhase"))
   assert_true(generated.contains("impl @state.StateType for Connection"))
   assert_false(generated.contains("pub impl @state.StateType for Connection"))
+  assert_true(
+    generated.contains("pub extend GamePhase with @state.StateType::{ set }"),
+  )
+  assert_true(
+    generated.contains("extend Connection with @state.StateType::{ set }"),
+  )
+  assert_false(
+    generated.contains("pub extend Connection with @state.StateType::{ set }"),
+  )
   assert_false(generated.contains("@ecs.Resource"))
   assert_false(generated.contains("initialize"))
 }

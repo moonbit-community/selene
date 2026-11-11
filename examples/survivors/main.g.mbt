@@ -9,6 +9,9 @@ impl @state.StateType for GamePhase with fn state_key() {
 }
 
 ///|
+extend GamePhase with @state.StateType::{ set }
+
+///|
 let selene_resource_key_SurvivorsRuntime : @ecs.ResourceKey[SurvivorsRuntime] = ResourceKey(
 
 )

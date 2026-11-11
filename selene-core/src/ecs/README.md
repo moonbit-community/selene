@@ -245,7 +245,7 @@ shown below.
 To regenerate a file, run:
 
 ```sh
-moonx Milky2018/selene_codegen@0.40.0-beta2 input.mbt input.g.mbt
+moonx Milky2018/selene_codegen@0.40.0-beta3 input.mbt input.g.mbt
 ```
 
 Projects can define the same rule in their `moon.mod`. During development,
@@ -257,7 +257,7 @@ Stable Selene releases use the matching stable generator. See the
 ```moonbit
 rule(
   name: "selene_codegen",
-  command: "moonx Milky2018/selene_codegen@0.40.0-beta2 \"$input\" \"$output\"",
+  command: "moonx Milky2018/selene_codegen@0.40.0-beta3 \"$input\" \"$output\"",
 )
 ```
 

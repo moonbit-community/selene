@@ -17,8 +17,9 @@ enum GamePhase {
 ```
 
 Import `Milky2018/selene/state` as `@state`. The code generator supplies one
-`StateKey[GamePhase]` and a `StateType` implementation. It does not generate
-per-state transition algorithms or make the enum an ordinary Resource.
+`StateKey[GamePhase]`, a `StateType` implementation, and an `extend` attaching
+the trait's shared `set` method. It does not generate per-state transition
+algorithms or make the enum an ordinary Resource.
 The key stores no World data; its resource storage resolves values per World.
 
 ```moonbit
@@ -41,10 +42,15 @@ in Startup through `@state.initialize(world, initial)`.
 fn start_game(world : @ecs.World) -> Unit {
   let phase : GamePhase = @state.current(world)
   if phase == Menu {
-    @state.set_next(world, GamePhase::Playing)
+    GamePhase::set(Playing)
   }
 }
 ```
+
+`GamePhase::set(value)` uses the active World selected by the scheduler and
+requests a deferred transition. It requires an active World. For explicit setup,
+tests, or cross-World work, use `@state.set_next(world, GamePhase::Playing)`.
+No implicit World is captured by a state declaration or its generated key.
 
 Reading, requesting, or testing an uninitialized state aborts with a configuration
 error. Conditions have the same `(World) -> Bool` shape as `run_if`; they read

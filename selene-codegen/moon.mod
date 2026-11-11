@@ -1,6 +1,6 @@
 name = "Milky2018/selene_codegen"
 
-version = "0.40.0-beta2"
+version = "0.40.0-beta3"
 
 import {
   "moonbitlang/async@0.22.5",

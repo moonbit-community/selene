@@ -2,6 +2,13 @@
 /// Supplies one state identity, shared by this type across Worlds.
 pub(open) trait StateType: Eq {
   fn state_key() -> StateKey[Self]
+  /// Requests a transition in the active World. Applied at its next transition point.
+  fn set(Self) -> Unit = _
+}
+
+///|
+impl StateType with fn set(self) {
+  set_next(@ecs.require_current_world(), self)
 }
 
 ///|

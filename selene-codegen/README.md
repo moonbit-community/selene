@@ -4,7 +4,7 @@ Generate a MoonBit companion file for `#selene.component`, `#selene.resource`,
 and `#selene.state` declarations.
 
 ```sh
-moonx Milky2018/selene_codegen@0.40.0-beta2 movement.mbt movement.g.mbt
+moonx Milky2018/selene_codegen@0.40.0-beta3 movement.mbt movement.g.mbt
 ```
 
 Pin the generator version used by your project. See the
@@ -20,7 +20,9 @@ with `world.resource()`, or use `world.get_resource()` to handle a missing value
 Resource markers with factory arguments are rejected.
 
 State markers generate one `@state.StateKey[T]` and an implementation of
-`@state.StateType`. Import `Milky2018/selene/state` as `@state` in that package.
+`@state.StateType`, and attach its shared `set` method to the declared type.
+Use `GamePhase::set(Playing)` in a running system to request a transition in
+the active World. Import `Milky2018/selene/state` as `@state` in that package.
 The state type must implement `Eq`, usually with `#derive(Eq)`. The marker
 does not implement `Resource` for the state value or initialize a World.
 Use `app.init_state(initial)` explicitly. See the

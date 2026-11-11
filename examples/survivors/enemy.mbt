@@ -649,7 +649,7 @@ fn enemy_collision_system(_world : @ecs.World) -> Unit {
 }
 
 ///|
-fn check_victory_system(world : @ecs.World) -> Unit {
+fn check_victory_system(_world : @ecs.World) -> Unit {
   let game = game_state()
 
   // Only check after timer has reached 0 (all 10 waves completed)
@@ -667,6 +667,6 @@ fn check_victory_system(world : @ecs.World) -> Unit {
 
   // If no enemies left, trigger victory
   if alive_count == 0 {
-    @state.set_next(world, GamePhase::GameOver)
+    GamePhase::set(GameOver)
   }
 }

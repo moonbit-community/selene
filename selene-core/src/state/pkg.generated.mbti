@@ -31,4 +31,5 @@ pub fn[T] StateKey::StateKey() -> Self[T]
 // Traits
 pub(open) trait StateType : Eq {
   fn state_key() -> StateKey[Self]
+  fn set(Self) -> Unit = _
 }

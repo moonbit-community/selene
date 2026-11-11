@@ -702,5 +702,5 @@ fn show_game_over(_world : @ecs.World) -> Unit {
 
 ///|
 fn restart_game() -> Unit {
-  @state.set_next(@ecs.require_current_world(), GamePhase::Playing)
+  GamePhase::set(Playing)
 }
