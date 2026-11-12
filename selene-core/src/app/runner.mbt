@@ -153,6 +153,7 @@ pub fn App::run_frames_capture(
   metadata_indent~ : Int32 = 2,
   capture_frame_indexes~ : Array[Int32]? = None,
 ) -> Array[@runtime_debug.FrameCaptureArtifact] {
+  let world = self.world
   let resolved_width = resolved_capture_dimension(
     capture_width,
     self.viewport_width * self.zoom,
@@ -168,6 +169,7 @@ pub fn App::run_frames_capture(
     capture_frame_indexes,
     fn(_frame_index) {
       @runtime_debug.capture_last_frame_with_metadata(
+        world~,
         resolved_width,
         resolved_height,
         indent=metadata_indent,

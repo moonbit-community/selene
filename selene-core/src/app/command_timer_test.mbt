@@ -50,14 +50,14 @@ test "schedule rejects reentry and leaves the nested batch queued" {
 ///|
 test "schedule rejects streaming and archetype batch queries" {
   let world = @ecs.World()
-  let storage : @ecs.ComponentStore[Int32] = ComponentStore(world)
-  ignore(storage.spawn_plan(world).spawn(42))
+  let storage : @ecs.Query[CommandValue] = world.query()
+  ignore(world.spawn1(CommandValue(42)))
   let commands = @ecs.commands(world)
   let calls = []
   let rejected = []
   commands.add(_ => calls.push(1))
 
-  @ecs.query(world, storage).for_each((_, _) => {
+  storage.for_each((_, _) => {
     try @ecs.run_schedule(world, _ => calls.push(99)) catch {
       ActiveQuery => rejected.push(true)
       _ => rejected.push(false)
@@ -65,14 +65,15 @@ test "schedule rejects streaming and archetype batch queries" {
       _ => rejected.push(false)
     }
   })
-  @ecs.Query5(storage, storage, storage, storage, storage).for_each_batch((
-    _,
-    _,
-    _,
-    _,
-    _,
-    _,
-  ) => {
+  (
+    world.query5() :
+    @ecs.Query5[
+      CommandValue,
+      CommandValue,
+      CommandValue,
+      CommandValue,
+      CommandValue,
+    ]).for_each_batch((_, _, _, _, _, _) => {
     try @ecs.run_schedule(world, _ => calls.push(99)) catch {
       ActiveQuery => rejected.push(true)
       _ => rejected.push(false)
@@ -175,13 +176,16 @@ test "scaled and unscaled timeouts respect the World's time scale" {
 test "entities reserved during a command batch go live with the next batch" {
   let world = @ecs.World()
   let commands = @ecs.commands(world)
-  let storage : @ecs.ComponentStore[Int32] = ComponentStore(world)
-  let bundle = storage.spawn_plan(world)
+  let storage : @ecs.Query[CommandValue] = world.query()
+  let bundle : @ecs.SpawnPlan[@ecs.Single[CommandValue]] = world.prepare_spawn()
   let spawned : Ref[(@ecs.Entity, @ecs.Entity)?] = Ref(None)
   let observed = []
   commands.add(_ => {
     spawned.val = Some(
-      (commands.spawn(()), commands.spawn_prepared(bundle, 42)),
+      (
+        commands.spawn(()),
+        commands.spawn_prepared(bundle, Single(CommandValue(42))),
+      ),
     )
   })
 
@@ -202,7 +206,19 @@ test "entities reserved during a command batch go live with the next batch" {
   .run_frames(1, raw_delta=0.125, fixed_delta_override=Some(1.0))
   assert_eq(observed, [
     (false, false, None),
-    (true, true, Some(42)),
-    (true, true, Some(42)),
+    (true, true, Some(CommandValue(42))),
+    (true, true, Some(CommandValue(42))),
   ])
+}
+
+///|
+#derive(Eq, Debug)
+struct CommandValue(Int32)
+
+///|
+let command_value_key : @ecs.ComponentKey[CommandValue] = ComponentKey()
+
+///|
+impl @ecs.Component for CommandValue with fn component_key() {
+  command_value_key
 }

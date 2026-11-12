@@ -72,14 +72,13 @@ pub fn latest_tree_update_json() -> Json? {
 }
 
 ///|
-pub fn a11y_sync_system(_delta : Double) -> Unit {
-  let world = @ecs.require_current_world()
+pub fn a11y_sync_system(world~ : @ecs.World, _delta : Double) -> Unit {
   a11y_runtime().entity_node_ids.retain((entity, _) => entity.is_valid_in(world))
-  let ordered = collect_ordered_semantic_entities()
-  let (roots, child_map) = build_hierarchy(ordered)
-  let update = build_tree_update(ordered, roots, child_map)
+  let ordered = collect_ordered_semantic_entities(world~)
+  let (roots, child_map) = build_hierarchy(world~, ordered)
+  let update = build_tree_update(world~, ordered, roots, child_map)
   a11y_runtime().latest_update = Some(update)
-  process_action_requests()
+  process_action_requests(world~)
 }
 
 ///|
@@ -96,12 +95,12 @@ fn to_accesskit_role(role : A11yRole) -> @moon_accesskit.Role {
 }
 
 ///|
-fn auto_a11y(entity : @ecs.Entity) -> A11y? {
-  if @ui.buttons().get(entity) is Some(button) {
+fn auto_a11y(world~ : @ecs.World, entity : @ecs.Entity) -> A11y? {
+  if (world.get_component(entity) : @ui.Button?) is Some(button) {
     Some(A11y(role=Button, focusable=true, disabled=!button.enabled))
-  } else if @ui.texts().get(entity) is Some(_) {
+  } else if (world.get_component(entity) : @ui.Text?) is Some(_) {
     Some(A11y(role=Label))
-  } else if @ui.ui_images().get(entity) is Some(_) {
+  } else if (world.get_component(entity) : @ui.UiImage?) is Some(_) {
     Some(A11y(role=Image))
   } else {
     None
@@ -109,43 +108,46 @@ fn auto_a11y(entity : @ecs.Entity) -> A11y? {
 }
 
 ///|
-fn get_a11y(entity : @ecs.Entity) -> A11y? {
-  if a11ys().get(entity) is Some(a11y) {
+fn get_a11y(world~ : @ecs.World, entity : @ecs.Entity) -> A11y? {
+  if (world.get_component(entity) : A11y?) is Some(a11y) {
     if a11y.hidden {
       None
     } else {
       Some(a11y)
     }
   } else {
-    auto_a11y(entity)
+    auto_a11y(world~, entity)
   }
 }
 
 ///|
-fn ui_children(entity : @ecs.Entity) -> Array[@ecs.Entity] {
+fn ui_children(world~ : @ecs.World, entity : @ecs.Entity) -> Array[@ecs.Entity] {
+  let query_node : @ecs.Query[@ui.Node] = world.query()
+  let query_global_z_index : @ecs.Query[@ui.GlobalZIndex] = world.query()
+  let query_z_index : @ecs.Query[@ui.ZIndex] = world.query()
   let children : Array[@ecs.Entity] = []
   for child in entity.get_children() {
-    if child.is_alive() && @ui.nodes().contains(child) {
+    if child.is_alive() && query_node.contains(child) {
       children.push(child)
     }
   }
   children.sort_by(fn(lhs, rhs) {
-    let lg = @ui.global_zindexes()
+    let lg = query_global_z_index
       .get(lhs)
       .map(fn(value) { value.value })
       .unwrap_or(0)
-    let rg = @ui.global_zindexes()
+    let rg = query_global_z_index
       .get(rhs)
       .map(fn(value) { value.value })
       .unwrap_or(0)
     if lg != rg {
       lg - rg
     } else {
-      let lz = @ui.z_indexes()
+      let lz = query_z_index
         .get(lhs)
         .map(fn(value) { value.value })
         .unwrap_or(0)
-      let rz = @ui.z_indexes()
+      let rz = query_z_index
         .get(rhs)
         .map(fn(value) { value.value })
         .unwrap_or(0)
@@ -161,34 +163,37 @@ fn ui_children(entity : @ecs.Entity) -> Array[@ecs.Entity] {
 
 ///|
 fn collect_semantic_descendants(
+  world~ : @ecs.World,
   root : @ecs.Entity,
   ordered : Array[@ecs.Entity],
   seen : @set.Set[@ecs.Entity],
 ) -> Unit {
-  if get_a11y(root) is Some(_) && !seen.contains(root) {
+  if get_a11y(world~, root) is Some(_) && !seen.contains(root) {
     seen.add(root)
     ordered.push(root)
   }
-  for child in ui_children(root) {
-    collect_semantic_descendants(child, ordered, seen)
+  for child in ui_children(world~, root) {
+    collect_semantic_descendants(world~, child, ordered, seen)
   }
 }
 
 ///|
-fn collect_ordered_semantic_entities() -> Array[@ecs.Entity] {
+fn collect_ordered_semantic_entities(world~ : @ecs.World) -> Array[@ecs.Entity] {
+  let query_node : @ecs.Query[@ui.Node] = world.query()
+  let query_a11y : @ecs.Query[A11y] = world.query()
   let ordered : Array[@ecs.Entity] = []
   let seen : @set.Set[@ecs.Entity] = Set([])
-  for entity, _node in @ui.nodes() {
+  for entity, _node in query_node {
     guard entity.is_alive() else { continue }
     match entity.get_parent() {
-      Some(parent) => if @ui.nodes().contains(parent) { continue }
+      Some(parent) => if query_node.contains(parent) { continue }
       None => ()
     }
-    collect_semantic_descendants(entity, ordered, seen)
+    collect_semantic_descendants(world~, entity, ordered, seen)
   }
-  for entity, _ in a11ys() {
+  for entity, _ in query_a11y {
     guard entity.is_alive() else { continue }
-    guard get_a11y(entity) is Some(_) else { continue }
+    guard get_a11y(world~, entity) is Some(_) else { continue }
     if !seen.contains(entity) {
       seen.add(entity)
       ordered.push(entity)
@@ -198,10 +203,13 @@ fn collect_ordered_semantic_entities() -> Array[@ecs.Entity] {
 }
 
 ///|
-fn find_semantic_parent(entity : @ecs.Entity) -> @ecs.Entity? {
+fn find_semantic_parent(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> @ecs.Entity? {
   let mut parent = entity.get_parent()
   while parent is Some(p) {
-    if get_a11y(p) is Some(_) {
+    if get_a11y(world~, p) is Some(_) {
       return Some(p)
     }
     parent = p.get_parent()
@@ -211,6 +219,7 @@ fn find_semantic_parent(entity : @ecs.Entity) -> @ecs.Entity? {
 
 ///|
 fn build_hierarchy(
+  world~ : @ecs.World,
   ordered : Array[@ecs.Entity],
 ) -> (Array[@ecs.Entity], @ecs.EntityTable[Array[@ecs.Entity]]) {
   let roots : Array[@ecs.Entity] = []
@@ -218,7 +227,7 @@ fn build_hierarchy(
     @ecs.require_current_world(),
   )
   for entity in ordered {
-    if find_semantic_parent(entity) is Some(parent) {
+    if find_semantic_parent(world~, entity) is Some(parent) {
       children.get_or_init(parent, () => []).push(entity)
     } else {
       roots.push(entity)
@@ -241,11 +250,16 @@ fn resolve_bounds(entity : @ecs.Entity) -> @moon_accesskit.Rect? {
 }
 
 ///|
-fn effective_label(entity : @ecs.Entity, a11y : A11y) -> String? {
+fn effective_label(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  a11y : A11y,
+) -> String? {
   if a11y.label is Some(label) {
     return Some(label)
   }
-  if @ui.texts().get(entity) is Some(text) && text.content != "" {
+  if (world.get_component(entity) : @ui.Text?) is Some(text) &&
+    text.content != "" {
     Some(text.content)
   } else {
     None
@@ -253,8 +267,9 @@ fn effective_label(entity : @ecs.Entity, a11y : A11y) -> String? {
 }
 
 ///|
-fn is_clickable(entity : @ecs.Entity, a11y : A11y) -> Bool {
-  @ui.buttons().contains(entity) || a11y.action_callbacks.length() > 0
+fn is_clickable(world~ : @ecs.World, entity : @ecs.Entity, a11y : A11y) -> Bool {
+  let query_button : @ecs.Query[@ui.Button] = world.query()
+  query_button.contains(entity) || a11y.action_callbacks.length() > 0
 }
 
 ///|
@@ -270,8 +285,8 @@ fn get_or_create_node_id(entity : @ecs.Entity) -> @moon_accesskit.NodeId {
 }
 
 ///|
-fn focused_node_id() -> @moon_accesskit.NodeId {
-  if get_focused_entity() is Some(entity) && get_a11y(entity) is Some(_) {
+fn focused_node_id(world~ : @ecs.World) -> @moon_accesskit.NodeId {
+  if get_focused_entity() is Some(entity) && get_a11y(world~, entity) is Some(_) {
     get_or_create_node_id(entity)
   } else {
     @moon_accesskit.NodeId::root()
@@ -280,12 +295,13 @@ fn focused_node_id() -> @moon_accesskit.NodeId {
 
 ///|
 fn build_tree_update(
+  world~ : @ecs.World,
   ordered : Array[@ecs.Entity],
   roots : Array[@ecs.Entity],
   child_map : @ecs.EntityTable[Array[@ecs.Entity]],
 ) -> @moon_accesskit.TreeUpdate {
   a11y_runtime().current_node_entities.clear()
-  let update = @moon_accesskit.TreeUpdate(a11y_tree_id, focused_node_id())
+  let update = @moon_accesskit.TreeUpdate(a11y_tree_id, focused_node_id(world~))
   let root = @moon_accesskit.Node(Window)
   root.set_label("Selene")
   let root_children : Array[@moon_accesskit.NodeId] = []
@@ -298,11 +314,11 @@ fn build_tree_update(
   update.push_node(@moon_accesskit.NodeId::root(), root)
 
   for entity in ordered {
-    guard get_a11y(entity) is Some(a11y) else { continue }
+    guard get_a11y(world~, entity) is Some(a11y) else { continue }
     let id = get_or_create_node_id(entity)
     a11y_runtime().current_node_entities.set(id, entity)
     let node = @moon_accesskit.Node(to_accesskit_role(a11y.role))
-    if effective_label(entity, a11y) is Some(label) {
+    if effective_label(world~, entity, a11y) is Some(label) {
       node.set_label(label)
     }
     if a11y.value is Some(value) {
@@ -320,7 +336,7 @@ fn build_tree_update(
     if a11y.focusable && !a11y.disabled {
       node.add_action(Focus)
     }
-    if is_clickable(entity, a11y) && !a11y.disabled {
+    if is_clickable(world~, entity, a11y) && !a11y.disabled {
       node.add_action(Click)
     }
     let child_ids : Array[@moon_accesskit.NodeId] = []

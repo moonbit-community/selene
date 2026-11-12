@@ -13,65 +13,27 @@ import {
 }
 
 // Values
-pub fn active_collision_types() -> @ecs.ComponentStore[@collision.ActiveCollisionTypes]
-
-pub fn active_events() -> @ecs.ComponentStore[@collision.ActiveEvents]
-
-pub fn active_hooks() -> @ecs.ComponentStore[@collision.ActiveHooks]
-
-pub fn additional_mass_properties() -> @ecs.ComponentStore[AdditionalMassProperties]
-
-pub fn ccds() -> @ecs.ComponentStore[Ccd]
-
 pub fn collider_handle(@ecs.Entity) -> @collision.ColliderHandle3D?
 
-pub fn collider_mass_properties() -> @ecs.ComponentStore[ColliderMassProperties]
-
-pub fn colliders() -> @ecs.ComponentStore[Collider]
-
 pub let collision_event_bus : @event.Events[CollisionEvent]
-
-pub fn collision_groups() -> @ecs.ComponentStore[CollisionGroups]
 
 pub let config : Physics3DConfig
 
 pub let contact_force_event_bus : @event.Events[ContactForceEvent]
 
-pub fn contact_force_event_thresholds() -> @ecs.ComponentStore[ContactForceEventThreshold]
-
 pub fn context() -> RapierContext
 
-pub fn dampings() -> @ecs.ComponentStore[Damping]
-
-pub fn debug_colliders_system(Double) -> Unit
-
-pub fn dominances() -> @ecs.ComponentStore[Dominance]
-
-pub fn frictions() -> @ecs.ComponentStore[Friction]
-
-pub fn gravity_scales() -> @ecs.ComponentStore[GravityScale]
+pub fn debug_colliders_system(world~ : @ecs.World, Double) -> Unit
 
 pub fn impulse_joint_handle(@ecs.Entity) -> @dynamics.JointHandle3DReal?
-
-pub fn impulse_joints() -> @ecs.ComponentStore[ImpulseJoint]
 
 pub fn kinematic_character_controller_collisions(@ecs.Entity) -> KinematicCharacterControllerCollisions?
 
 pub fn kinematic_character_controller_output(@ecs.Entity) -> KinematicCharacterControllerOutput?
 
-pub fn kinematic_character_controllers() -> @ecs.ComponentStore[KinematicCharacterController]
-
-pub fn locked_axes() -> @ecs.ComponentStore[LockedAxes]
-
 pub fn multibody_joint_handle(@ecs.Entity) -> @dynamics.MultibodyJointHandle?
 
-pub fn multibody_joints() -> @ecs.ComponentStore[MultibodyJoint]
-
-pub fn physics_step_system(Double) -> Unit
-
-pub fn restitutions() -> @ecs.ComponentStore[Restitution]
-
-pub fn rigid_bodies() -> @ecs.ComponentStore[RigidBody]
+pub fn physics_step_system(world~ : @ecs.World, Double) -> Unit
 
 pub fn rigid_body_angular_velocity(@ecs.Entity) -> @math.Vec3?
 
@@ -85,25 +47,28 @@ pub fn rigid_body_translation(@ecs.Entity) -> @math.Vec3?
 
 pub let sensor_event_bus : @event.Events[SensorEvent]
 
-pub fn sensors() -> @ecs.ComponentStore[Sensor]
-
 pub fn set_gravity(@math.Vec3) -> Unit
 
-pub fn set_rigid_body_angular_velocity(@ecs.Entity, @math.Vec3) -> Unit
+pub fn set_rigid_body_angular_velocity(world~ : @ecs.World, @ecs.Entity, @math.Vec3) -> Unit
 
-pub fn set_rigid_body_linear_velocity(@ecs.Entity, @math.Vec3) -> Unit
+pub fn set_rigid_body_linear_velocity(world~ : @ecs.World, @ecs.Entity, @math.Vec3) -> Unit
 
-pub fn set_rigid_body_rotation(@ecs.Entity, @math.Rotation3) -> Unit
+pub fn set_rigid_body_rotation(world~ : @ecs.World, @ecs.Entity, @math.Rotation3) -> Unit
 
-pub fn set_rigid_body_translation(@ecs.Entity, @math.Vec3) -> Unit
-
-pub fn solver_groups() -> @ecs.ComponentStore[SolverGroups]
-
-pub fn velocities() -> @ecs.ComponentStore[Velocity]
+pub fn set_rigid_body_translation(world~ : @ecs.World, @ecs.Entity, @math.Vec3) -> Unit
 
 // Errors
 
 // Types and methods
+pub(all) struct ActiveCollisionTypes(@collision.ActiveCollisionTypes)
+pub impl @ecs.Component for ActiveCollisionTypes
+
+pub(all) struct ActiveEvents(@collision.ActiveEvents)
+pub impl @ecs.Component for ActiveEvents
+
+pub(all) struct ActiveHooks(@collision.ActiveHooks)
+pub impl @ecs.Component for ActiveHooks
+
 pub(all) enum AdditionalMassProperties {
   Mass(Double)
   MassProperties(@core.MassProperties3)

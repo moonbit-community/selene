@@ -14,8 +14,6 @@ pub fn apply_texture_transform3d(@render3d_types.TextureTransform3D, @math.Vec2)
 
 pub fn build_cascade_shadow_config3d(@render3d_types.CascadeShadowConfigBuilder3D) -> @render3d_types.CascadeShadowConfig3D
 
-pub fn camera_skyboxes3d() -> @ecs.ComponentStore[@render3d_types.Skybox3D]
-
 pub fn cube_mesh(@math.Vec3) -> @render3d_types.MeshAsset
 
 pub fn cubemap_asset(@render3d_types.CubemapHandle) -> @render3d_types.CubemapAsset3D?
@@ -23,8 +21,6 @@ pub fn cubemap_asset(@render3d_types.CubemapHandle) -> @render3d_types.CubemapAs
 pub fn cubemap_asset_six_faces(@render3d_types.CubemapFaces3D) -> @render3d_types.CubemapAsset3D
 
 pub fn cylinder_mesh(Double, Double, Double, slices? : Int32) -> @render3d_types.MeshAsset
-
-pub fn directional_lights3d() -> @ecs.ComponentStore[@render3d_types.DirectionalLight3D]
 
 pub fn get_ambient_light3d() -> @render3d_types.AmbientLight3D?
 
@@ -36,13 +32,9 @@ pub fn get_point_light_shadow_map3d() -> @render3d_types.PointLightShadowMap3D
 
 pub fn get_scene_path(@render3d_types.SceneHandle) -> String?
 
-pub fn mesh3d_renderers() -> @ecs.ComponentStore[Mesh3DRenderer]
-
 pub fn mesh_asset(@render3d_types.MeshHandle) -> @render3d_types.MeshAsset?
 
 pub fn plane_mesh(@math.Vec3) -> @render3d_types.MeshAsset
-
-pub fn point_lights3d() -> @ecs.ComponentStore[@render3d_types.PointLight3D]
 
 pub fn push_line3d(@render3d_types.RenderLine3D) -> Unit
 
@@ -64,7 +56,7 @@ pub fn release_material_asset(@render3d_types.MaterialHandle) -> Unit
 
 pub fn release_mesh_asset(@render3d_types.MeshHandle) -> Unit
 
-pub fn render3d_extract_system(Double) -> Unit
+pub fn render3d_extract_system(world~ : @ecs.World, Double) -> Unit
 
 pub fn set_ambient_light3d(@render3d_types.AmbientLight3D?) -> Unit
 
@@ -73,8 +65,6 @@ pub fn set_directional_light_shadow_map3d(@render3d_types.DirectionalLightShadow
 pub fn set_point_light_shadow_map3d(@render3d_types.PointLightShadowMap3D) -> Unit
 
 pub fn sphere_mesh(Double) -> @render3d_types.MeshAsset
-
-pub fn spot_lights3d() -> @ecs.ComponentStore[@render3d_types.SpotLight3D]
 
 pub fn take_dirty_cubemap_assets() -> Array[(@render3d_types.CubemapHandle, @render3d_types.CubemapAsset3D)]
 

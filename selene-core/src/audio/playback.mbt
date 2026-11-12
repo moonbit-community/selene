@@ -185,10 +185,11 @@ pub fn audio_event_playback_system(_delta : Double) -> Unit {
 }
 
 ///|
-pub fn audio_playback_system(_delta : Double) -> Unit {
+pub fn audio_playback_system(world~ : @ecs.World, _delta : Double) -> Unit {
+  let query_playback_settings : @ecs.Query[PlaybackSettings] = world.query()
+  let players : @ecs.Query[AudioPlayer] = world.query()
   cleanup_orphaned_audio(instance => @platform_audio.stop(instance~))
   let runtime = audio_runtime()
-  let players = audio_players()
   for entity, player in players {
     guard entity.is_alive() && !runtime.overrides.contains(entity) else {
       continue
@@ -196,7 +197,7 @@ pub fn audio_playback_system(_delta : Double) -> Unit {
     update_audio_playback(
       entity,
       player,
-      audio_playback_settings().get(entity).unwrap_or(PlaybackSettings::once()),
+      query_playback_settings.get(entity).unwrap_or(PlaybackSettings::once()),
     )
   }
   for entity, playback in runtime.overrides {

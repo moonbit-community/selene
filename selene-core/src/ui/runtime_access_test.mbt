@@ -13,7 +13,7 @@ test "UI runtime access uses operations and copies scroll positions" {
   assert_true(@ui.calculated_clip(entity) is None)
   assert_eq(@ui.interaction(entity), None)
   let requested : @ui.ScrollPosition = { x: 10.0, y: 20.0, }
-  @ui.set_scroll_position(entity, requested)
+  @ui.set_scroll_position(world=first, entity, requested)
   requested.x = 99.0
   let snapshot = @ui.scroll_position(entity).unwrap()
   assert_eq(snapshot.x, 10.0)
@@ -25,7 +25,7 @@ test "UI runtime access uses operations and copies scroll positions" {
   assert_false(@ui.is_focused(entity))
   @ecs.set_current_world(second)
   assert_true(@ui.scroll_position(entity) is None)
-  @ui.set_scroll_position(entity, { x: 100.0, y: 100.0, })
+  @ui.set_scroll_position(world=second, entity, { x: 100.0, y: 100.0, })
   @ui.focus(entity)
   assert_true(@ui.focused_entity() is None)
   assert_false(@ui.is_focused(entity))

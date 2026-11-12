@@ -491,70 +491,10 @@ pub extend Interaction with @moonbitlang/core/debug.Debug::{to_repr}
 pub extend Interaction with Eq::{not_equal, equal}
 
 ///|
-pub fn background_colors() -> @ecs.ComponentStore[BackgroundColor] {
-  @ecs.components()
-}
-
-///|
-pub fn border_colors() -> @ecs.ComponentStore[BorderColor] {
-  @ecs.components()
-}
-
-///|
-pub fn border_radii() -> @ecs.ComponentStore[BorderRadius] {
-  @ecs.components()
-}
-
-///|
-pub fn box_shadows() -> @ecs.ComponentStore[BoxShadow] {
-  @ecs.components()
-}
-
-///|
-pub fn outlines() -> @ecs.ComponentStore[Outline] {
-  @ecs.components()
-}
-
-///|
-pub fn ui_images() -> @ecs.ComponentStore[UiImage] {
-  @ecs.components()
-}
-
-///|
-pub fn material_nodes() -> @ecs.ComponentStore[MaterialNode] {
-  @ecs.components()
-}
-
-///|
 let ui_material_assets : Map[UiMaterialHandle, UiMaterialAsset] = Map([])
 
 ///|
 let next_ui_material_id : Ref[UInt32] = Ref(0)
-
-///|
-pub fn texts() -> @ecs.ComponentStore[Text] {
-  @ecs.components()
-}
-
-///|
-pub fn text_fonts() -> @ecs.ComponentStore[TextFont] {
-  @ecs.components()
-}
-
-///|
-pub fn text_colors() -> @ecs.ComponentStore[TextColor] {
-  @ecs.components()
-}
-
-///|
-pub fn text_layouts() -> @ecs.ComponentStore[TextLayout] {
-  @ecs.components()
-}
-
-///|
-pub fn buttons() -> @ecs.ComponentStore[Button] {
-  @ecs.components()
-}
 
 ///|
 fn interactions() -> @ecs.EntityTable[Interaction] {
@@ -595,26 +535,29 @@ fn default_text_color() -> TextColor {
 }
 
 ///|
-fn text_font(entity : @ecs.Entity) -> TextFont {
-  text_fonts().get(entity).unwrap_or(TextFont())
+fn text_font(world~ : @ecs.World, entity : @ecs.Entity) -> TextFont {
+  (world.get_component(entity) : TextFont?).unwrap_or(TextFont())
 }
 
 ///|
-fn text_color(entity : @ecs.Entity) -> TextColor {
-  text_colors().get(entity).unwrap_or(default_text_color())
+fn text_color(world~ : @ecs.World, entity : @ecs.Entity) -> TextColor {
+  (world.get_component(entity) : TextColor?).unwrap_or(default_text_color())
 }
 
 ///|
-fn text_layout(entity : @ecs.Entity) -> TextLayout {
-  text_layouts().get(entity).unwrap_or(TextLayout())
+fn text_layout(world~ : @ecs.World, entity : @ecs.Entity) -> TextLayout {
+  (world.get_component(entity) : TextLayout?).unwrap_or(TextLayout())
 }
 
 ///|
-pub fn text_style_for(entity : @ecs.Entity) -> @render2d_types.TextStyle2D? {
-  guard texts().get(entity) is Some(_) else { return None }
-  let font = text_font(entity)
-  let color = text_color(entity)
-  let layout = text_layout(entity)
+pub fn text_style_for(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> @render2d_types.TextStyle2D? {
+  guard (world.get_component(entity) : Text?) is Some(_) else { return None }
+  let font = text_font(world~, entity)
+  let color = text_color(world~, entity)
+  let layout = text_layout(world~, entity)
   Some({
     font: font.font_handle,
     family: font.family,

@@ -41,18 +41,17 @@ pub fn Spatial::global(self : Spatial) -> GlobalTransform {
 }
 
 ///|
-pub fn spatials() -> @ecs.ComponentStore[Spatial] {
-  @ecs.components()
+pub fn local_transform(world~ : @ecs.World, entity : @ecs.Entity) -> Transform? {
+  (world.get_component(entity) : Spatial?).map(spatial => spatial.pose())
 }
 
 ///|
-pub fn local_transform(entity : @ecs.Entity) -> Transform? {
-  spatials().get(entity).map(spatial => spatial.pose())
-}
-
-///|
-pub fn set_local_transform(entity : @ecs.Entity, pose : Transform) -> Unit {
-  guard spatials().get(entity) is Some(spatial) else {
+pub fn set_local_transform(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  pose : Transform,
+) -> Unit {
+  guard (world.get_component(entity) : Spatial?) is Some(spatial) else {
     abort("local transform write requires a Spatial component")
   }
   spatial.set_local(pose)
@@ -60,18 +59,24 @@ pub fn set_local_transform(entity : @ecs.Entity, pose : Transform) -> Unit {
 
 ///|
 /// Returns the world-space pose from the last propagation pass.
-pub fn global_transform(entity : @ecs.Entity) -> GlobalTransform? {
-  guard entity.is_alive() else { None }
-  spatials().get(entity).map(spatial => spatial.global())
+pub fn global_transform(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> GlobalTransform? {
+  guard world.is_alive(entity) else { None }
+  (world.get_component(entity) : Spatial?).map(spatial => spatial.global())
 }
 
 ///|
 /// Computes a world-space pose from the current pose values and parent links.
-pub fn compute_global_transform(entity : @ecs.Entity) -> GlobalTransform? {
-  guard entity.is_alive() else { None }
-  let pose = local_transform(entity).unwrap_or_default()
-  if entity.get_parent() is Some(parent) &&
-    compute_global_transform(parent) is Some(parent_global) {
+pub fn compute_global_transform(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> GlobalTransform? {
+  guard world.is_alive(entity) else { None }
+  let pose = local_transform(world~, entity).unwrap_or_default()
+  if world.get_parent(entity) is Some(parent) &&
+    compute_global_transform(world~, parent) is Some(parent_global) {
     Some({ affine: parent_global.affine * pose.compute_affine(), })
   } else {
     Some(GlobalTransform::from_transform(pose))

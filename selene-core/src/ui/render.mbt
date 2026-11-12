@@ -306,13 +306,16 @@ fn shadow_samples(blur : Double) -> Int32 {
 
 ///|
 fn push_box_shadow(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   camera_entity_id~ : UInt32? = None,
 ) -> Unit {
-  guard box_shadows().get(entity) is Some(shadow) else { return }
+  let query_box_shadow : @ecs.Query[BoxShadow] = world.query()
+  let query_border_radius : @ecs.Query[BorderRadius] = world.query()
+  guard query_box_shadow.get(entity) is Some(shadow) else { return }
   guard global_ui_node(entity) is Some(global) else { return }
   let base_radius = resolved_border_radius(
-    border_radii().get(entity).unwrap_or(BorderRadius::all(Val::px(0.0))),
+    query_border_radius.get(entity).unwrap_or(BorderRadius::all(Val::px(0.0))),
     global.screen_rect.size,
   )
   let spread_basis = @cmp.minimum(
@@ -355,12 +358,11 @@ fn push_box_shadow(
 }
 
 ///|
-fn should_render_ui(entity : @ecs.Entity) -> Bool {
+fn should_render_ui(world~ : @ecs.World, entity : @ecs.Entity) -> Bool {
   entity.is_alive() &&
   @visibility.is_visible(entity) &&
   ui_geometry().contains(entity) &&
-  nodes()
-  .get(entity)
+  (world.get_component(entity) : Node?)
   .map(fn(node) { node.active && node.display != None })
   .unwrap_or(false)
 }
@@ -376,12 +378,16 @@ fn scaled_text_style(
 }
 
 ///|
-fn render_text_style(entity : @ecs.Entity) -> @render2d_types.TextStyle2D? {
-  text_style_for(entity).map(scaled_text_style)
+fn render_text_style(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> @render2d_types.TextStyle2D? {
+  text_style_for(world~, entity).map(scaled_text_style)
 }
 
 ///|
 fn ui_material_context_for(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   camera_entity_id~ : UInt32? = None,
 ) -> UiMaterialContext? {
@@ -390,9 +396,9 @@ fn ui_material_context_for(
       entity,
       transform.screen_rect,
       content_rect=transform.screen_content_rect,
-      border_radius=border_radii()
-        .get(entity)
-        .unwrap_or(BorderRadius::all(Val::px(0.0))),
+      border_radius=(world.get_component(entity) : BorderRadius?).unwrap_or(
+        BorderRadius::all(Val::px(0.0)),
+      ),
       target_camera_entity_id=camera_entity_id,
     )
   })
@@ -451,12 +457,17 @@ pub fn draw_ui_material_image(
 
 ///|
 fn push_background(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   camera_entity_id~ : UInt32? = None,
 ) -> Unit {
-  guard !material_nodes().contains(entity) else { return }
-  guard background_colors().get(entity) is Some(background) else { return }
-  guard ui_material_context_for(entity, camera_entity_id~) is Some(context) else {
+  let query_material_node : @ecs.Query[MaterialNode] = world.query()
+  guard !query_material_node.contains(entity) else { return }
+  guard (world.get_component(entity) : BackgroundColor?) is Some(background) else {
+    return
+  }
+  guard ui_material_context_for(world~, entity, camera_entity_id~)
+    is Some(context) else {
     return
   }
   draw_ui_material_solid(context, background.color)
@@ -464,16 +475,18 @@ fn push_background(
 
 ///|
 fn push_material_node(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   camera_entity_id~ : UInt32? = None,
 ) -> Bool {
-  guard material_nodes().get(entity) is Some(material_node) else {
+  guard (world.get_component(entity) : MaterialNode?) is Some(material_node) else {
     return false
   }
   guard ui_material_asset(material_node.material) is Some(material) else {
     return false
   }
-  guard ui_material_context_for(entity, camera_entity_id~) is Some(context) else {
+  guard ui_material_context_for(world~, entity, camera_entity_id~)
+    is Some(context) else {
     return false
   }
   (material.draw)(context)
@@ -482,19 +495,24 @@ fn push_material_node(
 
 ///|
 fn push_border(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   geometry : UiGeometry,
   camera_entity_id~ : UInt32? = None,
 ) -> Unit {
-  guard border_colors().get(entity) is Some(border_color) else { return }
+  guard (world.get_component(entity) : BorderColor?) is Some(border_color) else {
+    return
+  }
   let rect = geometry.global.screen_rect
   let border = geometry.computed.border
   let radius = resolved_border_radius(
-    border_radii().get(entity).unwrap_or(BorderRadius::all(Val::px(0.0))),
+    (world.get_component(entity) : BorderRadius?).unwrap_or(
+      BorderRadius::all(Val::px(0.0)),
+    ),
     rect.size,
   )
   if has_rounded_corners(radius) {
-    match background_colors().get(entity) {
+    match (world.get_component(entity) : BackgroundColor?) {
       Some(background) => {
         push_rounded_rect(rect, radius, border_color.color, camera_entity_id~)
         push_rounded_rect(
@@ -564,10 +582,13 @@ fn push_border(
 
 ///|
 fn push_outline(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   camera_entity_id~ : UInt32? = None,
 ) -> Unit {
-  guard outlines().get(entity) is Some(outline) else { return }
+  guard (world.get_component(entity) : Outline?) is Some(outline) else {
+    return
+  }
   guard global_ui_node(entity) is Some(transform) else { return }
   let width = resolve_val(outline.width, transform.screen_rect.size.x)
   let offset = resolve_val(outline.offset, transform.screen_rect.size.x)
@@ -577,7 +598,9 @@ fn push_outline(
   let inner = inflate_rect(transform.screen_rect, offset)
   let outer = inflate_rect(transform.screen_rect, offset + width)
   let radius = resolved_border_radius(
-    border_radii().get(entity).unwrap_or(BorderRadius::all(Val::px(0.0))),
+    (world.get_component(entity) : BorderRadius?).unwrap_or(
+      BorderRadius::all(Val::px(0.0)),
+    ),
     transform.screen_rect.size,
   )
   if has_rounded_corners(radius) {
@@ -690,9 +713,14 @@ fn fitted_image_rect(container : @math.Rect, image : UiImage) -> @math.Rect {
 }
 
 ///|
-fn push_image(entity : @ecs.Entity, camera_entity_id~ : UInt32? = None) -> Unit {
-  guard !material_nodes().contains(entity) else { return }
-  guard ui_images().get(entity) is Some(image) else { return }
+fn push_image(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  camera_entity_id~ : UInt32? = None,
+) -> Unit {
+  let query_material_node : @ecs.Query[MaterialNode] = world.query()
+  guard !query_material_node.contains(entity) else { return }
+  guard (world.get_component(entity) : UiImage?) is Some(image) else { return }
   guard global_ui_node(entity) is Some(transform) else { return }
   @render2d.push_ui_image_to_camera(camera_entity_id, {
     image: image.image,
@@ -773,21 +801,33 @@ fn wrap_line(
 
 ///|
 fn prepared_text_lines(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   available_width : @geometry.AvailableSpace,
 ) -> Array[String] {
-  guard texts().get(entity) is Some(text) else { return [] }
-  guard text_style_for(entity) is Some(style) else { return [] }
-  prepare_text_layout(text.content, style, text_layout(entity), available_width).lines
+  guard (world.get_component(entity) : Text?) is Some(text) else { return [] }
+  guard text_style_for(world~, entity) is Some(style) else { return [] }
+  prepare_text_layout(
+    text.content,
+    style,
+    text_layout(world~, entity),
+    available_width,
+  ).lines
 }
 
 ///|
-fn push_text(entity : @ecs.Entity, camera_entity_id~ : UInt32? = None) -> Unit {
-  guard texts().get(entity) is Some(_) else { return }
+fn push_text(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  camera_entity_id~ : UInt32? = None,
+) -> Unit {
+  let query_text : @ecs.Query[Text] = world.query()
+  guard query_text.get(entity) is Some(_) else { return }
   guard global_ui_node(entity) is Some(transform) else { return }
-  guard render_text_style(entity) is Some(style) else { return }
-  let layout = text_layout(entity)
+  guard render_text_style(world~, entity) is Some(style) else { return }
+  let layout = text_layout(world~, entity)
   let lines = prepared_text_lines(
+    world~,
     entity,
     AvailDefinite(transform.logical_content_rect.size.x),
   )
@@ -832,8 +872,12 @@ fn push_text(entity : @ecs.Entity, camera_entity_id~ : UInt32? = None) -> Unit {
 }
 
 ///|
-fn inherited_clip_for_entity(entity : @ecs.Entity) -> @math.Rect? {
-  if override_clips().contains(entity) {
+fn inherited_clip_for_entity(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> @math.Rect? {
+  let query_override_clip : @ecs.Query[OverrideClip] = world.query()
+  if query_override_clip.contains(entity) {
     return None
   }
   let mut current = entity.get_parent()
@@ -845,7 +889,7 @@ fn inherited_clip_for_entity(entity : @ecs.Entity) -> @math.Rect? {
         None => Some(calculated.clip)
       }
     }
-    if override_clips().contains(ancestor) {
+    if query_override_clip.contains(ancestor) {
       break
     }
     current = ancestor.get_parent()
@@ -855,12 +899,13 @@ fn inherited_clip_for_entity(entity : @ecs.Entity) -> @math.Rect? {
 
 ///|
 fn render_entity(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   camera_entity_id~ : UInt32? = None,
 ) -> Unit {
-  guard should_render_ui(entity) else { return }
-  guard nodes().get(entity) is Some(node) else { return }
-  let effective_inherited_clip = inherited_clip_for_entity(entity)
+  guard should_render_ui(world~, entity) else { return }
+  guard (world.get_component(entity) : Node?) is Some(node) else { return }
+  let effective_inherited_clip = inherited_clip_for_entity(world~, entity)
 
   let mut pushed_inherited_clip = false
   match effective_inherited_clip {
@@ -871,13 +916,13 @@ fn render_entity(
     None => ()
   }
 
-  push_box_shadow(entity, camera_entity_id~)
-  ignore(push_material_node(entity, camera_entity_id~))
-  push_background(entity, camera_entity_id~)
+  push_box_shadow(world~, entity, camera_entity_id~)
+  ignore(push_material_node(world~, entity, camera_entity_id~))
+  push_background(world~, entity, camera_entity_id~)
   if ui_geometry().get(entity) is Some(geometry) {
-    push_border(entity, geometry, camera_entity_id~)
+    push_border(world~, entity, geometry, camera_entity_id~)
   }
-  push_outline(entity, camera_entity_id~)
+  push_outline(world~, entity, camera_entity_id~)
 
   if pushed_inherited_clip {
     @render2d.pop_ui_clip_for_camera(camera_entity_id)
@@ -903,8 +948,8 @@ fn render_entity(
       }
       None => ()
     }
-    push_image(entity, camera_entity_id~)
-    push_text(entity, camera_entity_id~)
+    push_image(world~, entity, camera_entity_id~)
+    push_text(world~, entity, camera_entity_id~)
     if pushed_content_clip {
       @render2d.pop_ui_clip_for_camera(camera_entity_id)
     }
@@ -925,10 +970,10 @@ pub fn ui_extract_system(_delta : Double) -> Unit {
 }
 
 ///|
-pub fn ui_prepare_system(_delta : Double) -> Unit {
+pub fn ui_prepare_system(world~ : @ecs.World, _delta : Double) -> Unit {
   guard !extracted_ui_entities().is_empty() else { return }
   for entity in extracted_ui_entities() {
     let camera_entity_id = render_target_camera_id(entity)
-    render_entity(entity, camera_entity_id~)
+    render_entity(world~, entity, camera_entity_id~)
   }
 }

@@ -48,8 +48,8 @@ fn text_layout_caches() -> @ecs.EntityTable[CachedTextLayout2d] {
 }
 
 ///|
-fn text2d_layout(entity : @ecs.Entity) -> @ui.TextLayout {
-  @ui.text_layouts().get(entity).unwrap_or(TextLayout())
+fn text2d_layout(world~ : @ecs.World, entity : @ecs.Entity) -> @ui.TextLayout {
+  (world.get_component(entity) : @ui.TextLayout?).unwrap_or(TextLayout())
 }
 
 ///|

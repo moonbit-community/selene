@@ -38,6 +38,15 @@
 
 ### Changed
 
+- Require explicit World ownership for component access. Construct opaque
+  queries with `world.query()` or `world.query2()` through `world.query5()`;
+  use `world.get_component` and `world.set_component` for point access.
+  Migrate engine systems, importers, and all examples to the same interfaces.
+- LDtk component registrations infer their column from the callback result;
+  spawn drafts accept typed component values only.
+- Animation field sample/apply callbacks receive their execution World so
+  globally shared field descriptors cannot capture another World's storage.
+
 - Remove redundant runtime-table writes after mutating morph weights.
 
 - Keep entity runtime tables private to their subsystems. Read individual UI,
@@ -188,6 +197,9 @@
 
 ### Fixed
 
+- Reject immediate structural changes during single-component query callbacks,
+  matching joined-query traversal, and keep `Without` filters World-bound.
+
 - Preserve shortest-path, constant-speed rotation interpolation, including
   antipodal quaternion representations and small angles.
 - Accept Float32-rounded glTF node transforms using an explicit source-precision
@@ -215,6 +227,9 @@
 - Initialized the registry index before the pre-release CI compatibility check.
 
 ### Removed
+
+- Remove public component stores, global component accessors, key data-access
+  methods, store-based query constructors, and store-selected spawn APIs.
 
 - Remove manually held `State[T]` and `NextState[T]` objects, global state
   callback storage, frame-serial transition predicates, and condition-bearing

@@ -67,14 +67,22 @@ const WEAPON_SNIPERRIFLE_ICON_PATH = "assets/survivors/icon/weapon_sniperrifle.p
 const WEAPON_SWORD_ICON_PATH = "assets/survivors/icon/weapon_sword.png"
 
 ///|
-fn set_ui_text(entity : @ecs.Entity, content : String) -> Unit {
-  guard @ui.texts().get(entity) is Some(text) else { return }
+fn set_ui_text(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  content : String,
+) -> Unit {
+  guard (world.get_component(entity) : @ui.Text?) is Some(text) else { return }
   text.content = content
 }
 
 ///|
-fn set_ui_text_color(entity : @ecs.Entity, color : String) -> Unit {
-  @ui.text_colors().set(entity, @ui.TextColor::from_css(color))
+fn set_ui_text_color(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  color : String,
+) -> Unit {
+  world.set_component(entity, (@ui.TextColor::from_css(color) : @ui.TextColor))
 }
 
 ///|
@@ -164,28 +172,41 @@ fn game_over_panel_origin() -> @math.Vec2 {
 }
 
 ///|
-fn set_ui_active(entity : @ecs.Entity, active : Bool) -> Unit {
-  if @ui.nodes().get(entity) is Some(node) {
-    @ui.nodes().set(entity, { ..node, active, })
+fn set_ui_active(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  active : Bool,
+) -> Unit {
+  if (world.get_component(entity) : @ui.Node?) is Some(node) {
+    world.set_component(entity, ({ ..node, active, } : @ui.Node))
   }
 }
 
 ///|
-fn set_button_enabled(entity : @ecs.Entity, enabled : Bool) -> Unit {
-  if @ui.buttons().get(entity) is Some(_) {
-    @ui.buttons().set(entity, Button(enabled~))
+fn set_button_enabled(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  enabled : Bool,
+) -> Unit {
+  if (world.get_component(entity) : @ui.Button?) is Some(_) {
+    world.set_component(entity, (Button(enabled~) : @ui.Button))
   }
 }
 
 ///|
-fn set_icon_image(entity : @ecs.Entity, path : String) -> Unit {
-  @ui.ui_images().set(
+fn set_icon_image(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  path : String,
+) -> Unit {
+  world.set_component(
     entity,
-    UiImage(
-      Vec2(LEVELUP_BUTTON_ICON_SIZE, LEVELUP_BUTTON_ICON_SIZE),
-      path,
-      fit=Contain,
-    ),
+    (
+      UiImage(
+        Vec2(LEVELUP_BUTTON_ICON_SIZE, LEVELUP_BUTTON_ICON_SIZE),
+        path,
+        fit=Contain,
+      ) : @ui.UiImage),
   )
 }
 
@@ -211,69 +232,69 @@ fn weapon_icon_path(weapon_type : WeaponType) -> String {
 }
 
 ///|
-fn hide_level_up_ui() -> Unit {
+fn hide_level_up_ui(world~ : @ecs.World) -> Unit {
   let runtime = survivors_runtime()
-  set_ui_active(game_state().level_up_panel.panel_entity, false)
+  set_ui_active(world~, game_state(world~).level_up_panel.panel_entity, false)
   if runtime.levelup_title is Some(title) {
-    set_ui_active(title, false)
+    set_ui_active(world~, title, false)
   }
   for button in runtime.levelup_buttons {
-    set_ui_active(button, false)
-    set_button_enabled(button, false)
+    set_ui_active(world~, button, false)
+    set_button_enabled(world~, button, false)
   }
   for icon in runtime.levelup_button_icons {
-    set_ui_active(icon, false)
+    set_ui_active(world~, icon, false)
   }
 }
 
 ///|
-fn show_level_up_ui() -> Unit {
+fn show_level_up_ui(world~ : @ecs.World) -> Unit {
   let runtime = survivors_runtime()
-  set_ui_active(game_state().level_up_panel.panel_entity, true)
+  set_ui_active(world~, game_state(world~).level_up_panel.panel_entity, true)
   if runtime.levelup_title is Some(title) {
-    set_ui_active(title, true)
+    set_ui_active(world~, title, true)
   }
   for button in runtime.levelup_buttons {
-    set_ui_active(button, true)
-    set_button_enabled(button, true)
+    set_ui_active(world~, button, true)
+    set_button_enabled(world~, button, true)
   }
   for icon in runtime.levelup_button_icons {
-    set_ui_active(icon, true)
+    set_ui_active(world~, icon, true)
   }
 }
 
 ///|
-fn hide_game_over_ui() -> Unit {
+fn hide_game_over_ui(world~ : @ecs.World) -> Unit {
   let runtime = survivors_runtime()
-  let game = game_state()
-  set_ui_active(game.game_over_panel.panel_entity, false)
-  set_ui_active(game.game_over_box, false)
+  let game = game_state(world~)
+  set_ui_active(world~, game.game_over_panel.panel_entity, false)
+  set_ui_active(world~, game.game_over_box, false)
   if runtime.game_over_title is Some(title) {
-    set_ui_active(title, false)
+    set_ui_active(world~, title, false)
   }
   if runtime.restart_button is Some(button) {
-    set_ui_active(button, false)
-    set_button_enabled(button, false)
+    set_ui_active(world~, button, false)
+    set_button_enabled(world~, button, false)
   }
 }
 
 ///|
-fn show_game_over_ui() -> Unit {
+fn show_game_over_ui(world~ : @ecs.World) -> Unit {
   let runtime = survivors_runtime()
-  let game = game_state()
-  set_ui_active(game.game_over_panel.panel_entity, true)
-  set_ui_active(game.game_over_box, true)
+  let game = game_state(world~)
+  set_ui_active(world~, game.game_over_panel.panel_entity, true)
+  set_ui_active(world~, game.game_over_box, true)
   if runtime.game_over_title is Some(title) {
-    set_ui_active(title, true)
+    set_ui_active(world~, title, true)
   }
   if runtime.restart_button is Some(button) {
-    set_ui_active(button, true)
-    set_button_enabled(button, true)
+    set_ui_active(world~, button, true)
+    set_button_enabled(world~, button, true)
   }
 }
 
 ///|
-fn setup_level_up_ui() -> Unit {
+fn setup_level_up_ui(world~ : @ecs.World) -> Unit {
   let runtime = survivors_runtime()
   runtime.levelup_buttons.clear()
   runtime.levelup_button_icons.clear()
@@ -302,7 +323,7 @@ fn setup_level_up_ui() -> Unit {
     )
     runtime.levelup_buttons.push(button)
 
-    let icon = @ecs.require_current_world().spawn(
+    let icon = world.spawn(
       (
         @ui.Node::absolute(
           Vec2(LEVELUP_BUTTON_ICON_OFFSET_X, LEVELUP_BUTTON_ICON_OFFSET_Y),
@@ -320,20 +341,21 @@ fn setup_level_up_ui() -> Unit {
     runtime.levelup_button_icons.push(icon)
   }
 
-  hide_level_up_ui()
+  hide_level_up_ui(world~)
 }
 
 ///|
-fn level_up(level : Int32) -> Unit {
+fn level_up(world~ : @ecs.World, level : Int32) -> Unit {
   let runtime = survivors_runtime()
   @time.set_scale(0.0)
-  let panel = game_state().level_up_panel
+  let panel = game_state(world~).level_up_panel
 
-  panel.available_selections = generate_level_up_selections(level)
-  show_level_up_ui()
+  panel.available_selections = generate_level_up_selections(world~, level)
+  show_level_up_ui(world~)
 
   for i in 0..<3 {
     update_selection_display(
+      world~,
       panel.available_selections[i],
       runtime.levelup_buttons[i],
       runtime.levelup_button_icons[i],
@@ -343,53 +365,62 @@ fn level_up(level : Int32) -> Unit {
 
 ///|
 fn update_selection_display(
+  world~ : @ecs.World,
   selection : LevelUpSelection,
   button_entity : @ecs.Entity,
   icon_entity : @ecs.Entity,
 ) -> Unit {
   match selection {
     PowerupSelection(powerup) => {
-      @ui.background_colors().set(
+      world.set_component(
         button_entity,
-        @ui.BackgroundColor::from_css("rgba(13, 167, 170, 1)"),
+        (
+          @ui.BackgroundColor::from_css("rgba(13, 167, 170, 1)") :
+          @ui.BackgroundColor),
       )
-      set_ui_text(button_entity, powerup.name)
-      set_icon_image(icon_entity, powerup_icon_path(powerup.powerup_type))
+      set_ui_text(world~, button_entity, powerup.name)
+      set_icon_image(
+        world~,
+        icon_entity,
+        powerup_icon_path(powerup.powerup_type),
+      )
     }
     WeaponSelection(weapon_type) => {
-      @ui.background_colors().set(
+      world.set_component(
         button_entity,
-        @ui.BackgroundColor::from_css("rgba(255, 140, 0, 1)"),
+        (
+          @ui.BackgroundColor::from_css("rgba(255, 140, 0, 1)") :
+          @ui.BackgroundColor),
       )
-      set_ui_text(button_entity, get_weapon_name(weapon_type))
-      set_icon_image(icon_entity, weapon_icon_path(weapon_type))
+      set_ui_text(world~, button_entity, get_weapon_name(weapon_type))
+      set_icon_image(world~, icon_entity, weapon_icon_path(weapon_type))
     }
   }
 }
 
 ///|
-fn select_powerup(index : Int32) -> Unit {
-  let panel = game_state().level_up_panel
+fn select_powerup(world~ : @ecs.World, index : Int32) -> Unit {
+  let panel = game_state(world~).level_up_panel
   if index < panel.available_selections.length() {
     let selection = panel.available_selections[index]
-    apply_selection(selection)
+    apply_selection(world~, selection)
   }
-  resume_game()
+  resume_game(world~)
 }
 
 ///|
-fn resume_game() -> Unit {
-  hide_level_up_ui()
+fn resume_game(world~ : @ecs.World) -> Unit {
+  hide_level_up_ui(world~)
 
-  if game_state().pending_level_ups.is_empty() {
+  if game_state(world~).pending_level_ups.is_empty() {
     @time.set_scale(1.0)
   } else {
-    process_next_level_up()
+    process_next_level_up(world~)
   }
 }
 
 ///|
-fn setup_game_over_ui() -> Unit {
+fn setup_game_over_ui(world~ : @ecs.World) -> Unit {
   let runtime = survivors_runtime()
   let title = spawn_text_entity(
     game_over_panel_origin() + Vec2(10.0, 18.0),
@@ -413,16 +444,16 @@ fn setup_game_over_ui() -> Unit {
   )
   runtime.restart_button = Some(restart_button)
 
-  hide_game_over_ui()
+  hide_game_over_ui(world~)
 }
 
 ///|
-fn add_game_over_box() -> Unit {
-  show_game_over_ui()
+fn add_game_over_box(world~ : @ecs.World) -> Unit {
+  show_game_over_ui(world~)
 }
 
 ///|
-fn survivors_ui_pointer_system(_world : @ecs.World) -> Unit {
+fn survivors_ui_pointer_system(world : @ecs.World) -> Unit {
   let runtime = survivors_runtime()
   for event in @ui.click_event_bus.read(runtime.ui_click_reader) {
     if runtime.restart_button is Some(restart_button) &&
@@ -432,7 +463,7 @@ fn survivors_ui_pointer_system(_world : @ecs.World) -> Unit {
     }
     for index, button in runtime.levelup_buttons {
       if event.entity == button {
-        select_powerup(index)
+        select_powerup(world~, index)
         break
       }
     }

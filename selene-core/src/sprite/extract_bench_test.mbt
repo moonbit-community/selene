@@ -28,21 +28,22 @@ test "sprite CPU extraction and transform propagation" (b : @bench.T) {
     None => @ecs.clear_current_world()
   })
   for size in [1000, 10000] {
-    @ecs.set_current_world(World())
+    let world = @ecs.World()
+    @ecs.set_current_world(world)
     ignore(make_sprite_fixture(size))
     @render2d.begin_frame2d_system(0.0)
-    @sprite.render_sprite_system(0.0)
+    @sprite.render_sprite_system(world~, 0.0)
     assert_eq(
       @render2d.get_screen_world_commands_with_depth().length(),
       size - size / 4,
     )
     b.bench(name="sprite-extract/n=\{size}", count=10, () => {
       @render2d.begin_frame2d_system(0.0)
-      @sprite.render_sprite_system(0.0)
+      @sprite.render_sprite_system(world~, 0.0)
     })
-    @transform.transform_propagate_system(0.0)
+    @transform.transform_propagate_system(world~, 0.0)
     b.bench(name="transform-propagate/n=\{size}", count=10, () => {
-      @transform.transform_propagate_system(0.0)
+      @transform.transform_propagate_system(world~, 0.0)
     })
   }
 }
@@ -55,11 +56,12 @@ test "sprite archetype join" (b : @bench.T) {
     None => @ecs.clear_current_world()
   })
   for size in [1000, 10000] {
-    @ecs.set_current_world(World())
+    let world = @ecs.World()
+    @ecs.set_current_world(world)
     ignore(make_sprite_fixture(size))
     let archetype_checksum = () => {
       let mut checksum = 0
-      @sprite.for_each_sprite_transform((_, sprite, transform) => {
+      @sprite.for_each_sprite_transform(world~, (_, sprite, transform) => {
         checksum += sprite.color.r.reinterpret_as_int() +
           transform.translation().x.to_int()
       })

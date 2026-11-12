@@ -35,20 +35,3 @@ pub extend Velocity with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub extend Velocity with Eq::{not_equal, equal}
-
-///|
-/// Returns the current world's velocity component store.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// // Set velocity for an entity
-/// let entity = @ecs.require_current_world().spawn1(
-///   @velocity.Velocity(@math.Vec2(10.0, 0.0)),
-/// )
-/// defer ignore(entity.delete())
-/// ```
-///
-pub fn velocities() -> @ecs.ComponentStore[Velocity] {
-  @ecs.components()
-}

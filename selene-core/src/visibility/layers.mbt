@@ -12,11 +12,6 @@ pub extend RenderLayers with @moonbitlang/core/debug.Debug::{to_repr}
 pub extend RenderLayers with Eq::{not_equal, equal}
 
 ///|
-pub fn render_layers() -> @ecs.ComponentStore[RenderLayers] {
-  @ecs.components()
-}
-
-///|
 pub fn RenderLayers::RenderLayers() -> RenderLayers {
   { mask: 1U, }
 }
@@ -41,6 +36,9 @@ pub fn matches(lhs : RenderLayers, rhs : RenderLayers) -> Bool {
 }
 
 ///|
-pub fn entity_render_layers(entity : @ecs.Entity) -> RenderLayers {
-  render_layers().get(entity).unwrap_or(RenderLayers())
+pub fn entity_render_layers(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> RenderLayers {
+  (world.get_component(entity) : RenderLayers?).unwrap_or(RenderLayers())
 }

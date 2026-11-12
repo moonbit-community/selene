@@ -35,14 +35,20 @@ fn rgba(r : UInt32, g : UInt32, b : UInt32, a : Double) -> @render.Color {
 /// Panics if an entity has a position component but lacks a collision shape, or
 /// if the collision shape is not a rectangle.
 ///
-pub fn debug_collide_system(_delta : Double) -> Unit {
-  let camera_view = @camera.primary_camera2d_view()
-  for e, collide in colliders() {
+pub fn debug_collide_system(world~ : @ecs.World, _delta : Double) -> Unit {
+  let query_collider : @ecs.Query[Collider] = world.query()
+  let query_collision_shape : @ecs.Query[CollisionShape] = world.query()
+  let query_area : @ecs.Query[Area] = world.query()
+  let query_pickable : @ecs.Query[Pickable] = world.query()
+  let camera_view = @camera.primary_camera2d_view(world~)
+  for e, collide in query_collider {
     guard e.is_alive() else { continue }
     guard collide.active else { continue }
-    guard! shapes().get(e) is Some(shape)
+    guard! query_collision_shape.get(e) is Some(shape)
     guard! shape is Rect(size~, offset~)
-    guard debug_entity_global_transform(e) is Some(global) else { continue }
+    guard debug_entity_global_transform(world~, e) is Some(global) else {
+      continue
+    }
     let rect = to_screen_rect(e, global, offset, size, camera_view)
     @render2d.push_rect({
       rect,
@@ -53,12 +59,14 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
       stroke_color: None,
     })
   }
-  for e, area in areas() {
+  for e, area in query_area {
     guard e.is_alive() else { continue }
     guard area.active else { continue }
-    guard shapes().get(e) is Some(shape) else { continue }
+    guard query_collision_shape.get(e) is Some(shape) else { continue }
     guard! shape is Rect(size~, offset~)
-    guard debug_entity_global_transform(e) is Some(global) else { continue }
+    guard debug_entity_global_transform(world~, e) is Some(global) else {
+      continue
+    }
     let rect = to_screen_rect(e, global, offset, size, camera_view)
     @render2d.push_rect({
       rect,
@@ -69,11 +77,13 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
       stroke_color: None,
     })
   }
-  for e, _pickable in pickables() {
+  for e, _pickable in query_pickable {
     guard e.is_alive() else { continue }
-    guard shapes().get(e) is Some(shape) else { continue }
+    guard query_collision_shape.get(e) is Some(shape) else { continue }
     guard! shape is Rect(size~, offset~)
-    guard debug_entity_global_transform(e) is Some(global) else { continue }
+    guard debug_entity_global_transform(world~, e) is Some(global) else {
+      continue
+    }
     let rect = to_screen_rect(e, global, offset, size, camera_view)
     @render2d.push_rect({
       rect,
@@ -167,7 +177,8 @@ fn screen_point(
 
 ///|
 fn debug_entity_global_transform(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
 ) -> @transform.GlobalTransform? {
-  @transform.global_transform(entity)
+  @transform.global_transform(world~, entity)
 }

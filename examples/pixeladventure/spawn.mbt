@@ -18,7 +18,7 @@ fn game_start(world : @ecs.World) -> Unit {
   @ui.set_ui_scale_mode(Viewport)
   configure_pixeladventure_input()
   reset_pixeladventure_world_store()
-  let loaded_level = load_level_scene()
+  let loaded_level = load_level_scene(world~)
 
   let result_box = spawn_text_box(
     Vec2(VIEWPORT_WIDTH / 2.0 - 96.0, VIEWPORT_HEIGHT / 2.0 - 32.0),
@@ -147,7 +147,11 @@ fn build_bird_animation_nodes() -> (
 }
 
 ///|
-fn spawn_player_entity(x : Double, y : Double) -> @ecs.Entity {
+fn spawn_player_entity(
+  world~ : @ecs.World,
+  x : Double,
+  y : Double,
+) -> @ecs.Entity {
   let (animations, graph) = build_player_animation_nodes()
   let shape : @physics2d.ColliderShape = Rect(
     size=Vec2(24.0, 32.0),
@@ -163,7 +167,6 @@ fn spawn_player_entity(x : Double, y : Double) -> @ecs.Entity {
     animations,
     active_animation: None,
   }
-  let world = @ecs.require_current_world()
   let plan = world.prepare_spawn().combine(world.prepare_spawn())
   let entity = plan.spawn(
     (
@@ -188,12 +191,12 @@ fn spawn_player_entity(x : Double, y : Double) -> @ecs.Entity {
     ),
   )
   pixeladventure_world_state().entities.push(entity)
-  play_player_animation(entity, controller)
+  play_player_animation(world~, entity, controller)
   entity
 }
 
 ///|
-fn spawn_bird_entity(x : Double, y : Double) -> Unit {
+fn spawn_bird_entity(world~ : @ecs.World, x : Double, y : Double) -> Unit {
   let (animations, graph) = build_bird_animation_nodes()
   let shape : @physics2d.ColliderShape = Rect(
     size=Vec2(32.0, 32.0),
@@ -205,7 +208,6 @@ fn spawn_bird_entity(x : Double, y : Double) -> Unit {
     animations,
     active_animation: None,
   }
-  let world = @ecs.require_current_world()
   let plan = world.prepare_spawn().combine(world.prepare_spawn())
   let entity = plan.spawn(
     (
@@ -228,7 +230,7 @@ fn spawn_bird_entity(x : Double, y : Double) -> Unit {
     ),
   )
   pixeladventure_world_state().entities.push(entity)
-  play_bird_animation(entity, bird)
+  play_bird_animation(world~, entity, bird)
 }
 
 ///|
@@ -277,18 +279,20 @@ fn spawn_terrain_collider(
 }
 
 ///|
-fn spawn_flag_entity(x : Double, y : Double) -> Unit {
-  spawn_animated_item(x, y, Vec2(64.0, 64.0), flag_idle_animation, FlagTag::{ })
+fn spawn_flag_entity(world~ : @ecs.World, x : Double, y : Double) -> Unit {
+  spawn_animated_item(world~, x, y, Vec2(64.0, 64.0), flag_idle_animation, FlagTag::{
+  })
 }
 
 ///|
-fn spawn_apple_entity(x : Double, y : Double) -> Unit {
-  spawn_animated_item(x, y, Vec2(32.0, 32.0), apple_spin_animation, AppleTag::{
+fn spawn_apple_entity(world~ : @ecs.World, x : Double, y : Double) -> Unit {
+  spawn_animated_item(world~, x, y, Vec2(32.0, 32.0), apple_spin_animation, AppleTag::{
   })
 }
 
 ///|
 fn[T : @ecs.Component] spawn_animated_item(
+  world~ : @ecs.World,
   x : Double,
   y : Double,
   size : @math.Vec2,
@@ -302,7 +306,6 @@ fn[T : @ecs.Component] spawn_animated_item(
   let player = @animation.AnimationPlayer()
   ignore(player.play(nodes[0], repeat=Forever))
   let shape : @physics2d.ColliderShape = Rect(size~, offset=@math.Vec2::zero())
-  let world = @ecs.require_current_world()
   let plan = world.prepare_spawn().combine(world.prepare_spawn())
   let entity = plan.spawn(
     (

@@ -31,12 +31,6 @@ pub fn Area::Area(filter : CollisionFilter) -> Area {
 }
 
 ///|
-/// All area components.
-pub fn areas() -> @ecs.ComponentStore[Area] {
-  @ecs.components()
-}
-
-///|
 /// Trigger event emitted by the fixed-step physics system.
 pub struct TriggerEvent {
   area : @ecs.Entity
@@ -54,6 +48,9 @@ fn push_trigger_event(event : TriggerEvent) -> Unit {
 }
 
 ///|
-pub fn get_contains(area : @ecs.Entity) -> Set[@ecs.Entity] {
-  areas().get(area).map_or(Set([]), fn(area) { area.contains })
+pub fn get_contains(
+  world~ : @ecs.World,
+  area : @ecs.Entity,
+) -> Set[@ecs.Entity] {
+  (world.get_component(area) : Area?).map_or(Set([]), fn(area) { area.contains })
 }

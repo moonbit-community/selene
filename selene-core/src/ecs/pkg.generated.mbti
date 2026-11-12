@@ -18,10 +18,6 @@ pub fn clear_current_world() -> Unit
 
 pub fn commands(World) -> Commands
 
-pub fn[T : Component] components() -> ComponentStore[T]
-
-pub fn[T : Component] components_in(World) -> ComponentStore[T]
-
 pub fn current_world() -> World?
 
 pub fn get_roots() -> Iter[Entity]
@@ -29,8 +25,6 @@ pub fn get_roots() -> Iter[Entity]
 pub fn has_pending_commands(World) -> Bool
 
 pub fn iter_entities() -> Iter[Entity]
-
-pub fn[T] query(World, ComponentStore[T]) -> Query[T]
 
 pub fn[Q] query_system((World) -> Q, (Q) -> Unit) -> (World) -> Unit
 
@@ -57,28 +51,6 @@ pub fn[T] Commands::spawn_prepared(Self, SpawnPlan[T], T, parent? : Entity) -> E
 
 type ComponentKey[T]
 pub fn[T] ComponentKey::ComponentKey() -> Self[T]
-pub fn[T] ComponentKey::get(Self[T], Entity) -> T?
-pub fn[T] ComponentKey::set(Self[T], Entity, T) -> Unit
-pub fn[T] ComponentKey::store(Self[T]) -> ComponentStore[T]
-pub fn[T] ComponentKey::store_in(Self[T], World) -> ComponentStore[T]
-
-type ComponentStore[T]
-pub fn[T] ComponentStore::ComponentStore(World) -> Self[T]
-pub fn[T] ComponentStore::belongs_to(Self[T], World) -> Bool
-pub fn[T] ComponentStore::contains(Self[T], Entity) -> Bool
-pub fn[T] ComponentStore::get(Self[T], Entity) -> T?
-pub fn[T] ComponentStore::insertion_order(Self[T], Entity) -> Int32
-pub fn[T] ComponentStore::is_empty(Self[T]) -> Bool
-pub fn[T] ComponentStore::iter(Self[T]) -> Iter[(Entity, T)]
-pub fn[T] ComponentStore::iter2(Self[T]) -> Iter2[Entity, T]
-pub fn[T] ComponentStore::keys(Self[T]) -> Iter[Entity]
-pub fn[T] ComponentStore::length(Self[T]) -> Int32
-pub fn[T] ComponentStore::order_span(Self[T]) -> Int32
-#alias(op_set)
-pub fn[T] ComponentStore::set(Self[T], Entity, T) -> Unit
-pub fn[T] ComponentStore::spawn_plan(Self[T], World) -> SpawnPlan[T]
-pub fn[T] ComponentStore::to_array(Self[T]) -> Array[(Entity, T)]
-pub fn[T] ComponentStore::values(Self[T]) -> Iter[T]
 
 #derive(Eq, Hash, @debug.Debug)
 type Entity
@@ -122,37 +94,40 @@ pub fn[T] EntityTable::set(Self[T], Entity, T) -> Unit
 pub fn[T] EntityTable::to_array(Self[T]) -> Array[(Entity, T)]
 pub fn[T] EntityTable::values(Self[T]) -> Iter[T]
 
-pub(all) struct Query[T] {
-  world : World
-  storage : ComponentStore[T]
-}
+type Query[T]
+pub fn[T] Query::contains(Self[T], Entity) -> Bool
 pub fn[T] Query::for_each(Self[T], (Entity, T) -> Unit, require_filters? : Array[EntityFilter], reject_filters? : Array[EntityFilter]) -> Unit
+pub fn[T] Query::get(Self[T], Entity) -> T?
+pub fn[T] Query::insertion_order(Self[T], Entity) -> Int32
+pub fn[T] Query::is_empty(Self[T]) -> Bool
 pub fn[T] Query::iter(Self[T], require_filters? : Array[EntityFilter], reject_filters? : Array[EntityFilter]) -> Array[(Entity, T)]
+pub fn[T] Query::iter2(Self[T]) -> Iter2[Entity, T]
+pub fn[T] Query::keys(Self[T]) -> Iter[Entity]
+pub fn[T] Query::length(Self[T]) -> Int32
+pub fn[T] Query::order_span(Self[T]) -> Int32
 pub fn[T] Query::single(Self[T], require_filters? : Array[EntityFilter], reject_filters? : Array[EntityFilter]) -> (Entity, T)?
+pub fn[T] Query::to_array(Self[T]) -> Array[(Entity, T)]
+pub fn[T] Query::values(Self[T]) -> Iter[T]
 
 type Query2[A, B]
-pub fn[A, B] Query2::Query2(ComponentStore[A], ComponentStore[B]) -> Self[A, B]
 pub fn[A, B] Query2::for_each(Self[A, B], (Entity, A, B) -> Unit) -> Unit
 pub fn[A, B] Query2::for_each_batch(Self[A, B], (ArrayView[Entity], ArrayView[A], ArrayView[B]) -> Unit) -> Unit
 pub fn[A, B] Query2::for_each_batch_mut_a(Self[A, B], (ArrayView[Entity], MutArrayView[A], ArrayView[B]) -> Unit) -> Unit
 pub fn[A, B] Query2::get(Self[A, B], Entity) -> (A, B)?
 
 type Query3[A, B, C]
-pub fn[A, B, C] Query3::Query3(ComponentStore[A], ComponentStore[B], ComponentStore[C]) -> Self[A, B, C]
 pub fn[A, B, C] Query3::for_each(Self[A, B, C], (Entity, A, B, C) -> Unit) -> Unit
 pub fn[A, B, C] Query3::for_each_batch(Self[A, B, C], (ArrayView[Entity], ArrayView[A], ArrayView[B], ArrayView[C]) -> Unit) -> Unit
 pub fn[A, B, C] Query3::for_each_batch_mut_a(Self[A, B, C], (ArrayView[Entity], MutArrayView[A], ArrayView[B], ArrayView[C]) -> Unit) -> Unit
 pub fn[A, B, C] Query3::get(Self[A, B, C], Entity) -> (A, B, C)?
 
 type Query4[A, B, C, D]
-pub fn[A, B, C, D] Query4::Query4(ComponentStore[A], ComponentStore[B], ComponentStore[C], ComponentStore[D]) -> Self[A, B, C, D]
 pub fn[A, B, C, D] Query4::for_each(Self[A, B, C, D], (Entity, A, B, C, D) -> Unit) -> Unit
 pub fn[A, B, C, D] Query4::for_each_batch(Self[A, B, C, D], (ArrayView[Entity], ArrayView[A], ArrayView[B], ArrayView[C], ArrayView[D]) -> Unit) -> Unit
 pub fn[A, B, C, D] Query4::for_each_batch_mut_a(Self[A, B, C, D], (ArrayView[Entity], MutArrayView[A], ArrayView[B], ArrayView[C], ArrayView[D]) -> Unit) -> Unit
 pub fn[A, B, C, D] Query4::get(Self[A, B, C, D], Entity) -> (A, B, C, D)?
 
 type Query5[A, B, C, D, E]
-pub fn[A, B, C, D, E] Query5::Query5(ComponentStore[A], ComponentStore[B], ComponentStore[C], ComponentStore[D], ComponentStore[E]) -> Self[A, B, C, D, E]
 pub fn[A, B, C, D, E] Query5::for_each(Self[A, B, C, D, E], (Entity, A, B, C, D, E) -> Unit) -> Unit
 pub fn[A, B, C, D, E] Query5::for_each_batch(Self[A, B, C, D, E], (ArrayView[Entity], ArrayView[A], ArrayView[B], ArrayView[C], ArrayView[D], ArrayView[E]) -> Unit) -> Unit
 pub fn[A, B, C, D, E] Query5::for_each_batch_mut_a(Self[A, B, C, D, E], (ArrayView[Entity], MutArrayView[A], ArrayView[B], ArrayView[C], ArrayView[D], ArrayView[E]) -> Unit) -> Unit
@@ -167,7 +142,7 @@ pub fn[T] QueryDelta::empty() -> Self[T]
 
 type QueryReader[T]
 pub fn[T] QueryReader::QueryReader() -> Self[T]
-pub fn[T : Eq] QueryReader::read(Self[T], World, ComponentStore[T]) -> QueryDelta[T]
+pub fn[T : Eq] QueryReader::read(Self[T], Query[T]) -> QueryDelta[T]
 pub fn[T] QueryReader::reset(Self[T]) -> Unit
 
 type ResourceKey[T]
@@ -181,23 +156,18 @@ pub impl[T : Component] Bundle for Single[T]
 
 type SpawnDraft
 pub fn[T : Component] SpawnDraft::add(Self, T) -> Unit
-pub fn[T] SpawnDraft::add_to(Self, ComponentStore[T], T) -> Unit
 pub fn SpawnDraft::spawn(Self, parent? : Entity) -> Entity
 
 type SpawnPlan[T]
 pub fn[A, B] SpawnPlan::combine(Self[A], Self[B]) -> Self[(A, B)]
 pub fn[T] SpawnPlan::spawn(Self[T], T, parent? : Entity) -> Entity
 
-pub(all) struct With[T] {
-  storage : ComponentStore[T]
-}
-pub fn[T] With::With(ComponentStore[T]) -> Self[T]
+type With[T]
+pub fn[T : Component] With::With(World) -> Self[T]
 pub fn[T] With::to_filter(Self[T]) -> EntityFilter
 
-pub(all) struct Without[T] {
-  storage : ComponentStore[T]
-}
-pub fn[T] Without::Without(ComponentStore[T]) -> Self[T]
+type Without[T]
+pub fn[T : Component] Without::Without(World) -> Self[T]
 pub fn[T] Without::to_filter(Self[T]) -> EntityFilter
 
 pub struct World {
@@ -211,11 +181,22 @@ pub fn World::advance_fixed_step(Self) -> Unit
 pub fn World::advance_frame(Self) -> Unit
 pub fn World::fixed_step_index(Self) -> UInt32
 pub fn World::frame_index(Self) -> UInt32
+pub fn World::get_children(Self, Entity) -> Array[Entity]
+pub fn[T : Component] World::get_component(Self, Entity) -> T?
+pub fn World::get_parent(Self, Entity) -> Entity?
 pub fn[T : Resource] World::get_resource(Self) -> T?
+pub fn World::get_roots(Self) -> Iter[Entity]
 pub fn World::id(Self) -> UInt32
 pub fn[T : Resource] World::insert_resource(Self, T) -> Unit
+pub fn World::is_alive(Self, Entity) -> Bool
 pub fn[T : Bundle] World::prepare_spawn(Self) -> SpawnPlan[T]
+pub fn[T : Component] World::query(Self) -> Query[T]
+pub fn[A : Component, B : Component] World::query2(Self) -> Query2[A, B]
+pub fn[A : Component, B : Component, C : Component] World::query3(Self) -> Query3[A, B, C]
+pub fn[A : Component, B : Component, C : Component, D : Component] World::query4(Self) -> Query4[A, B, C, D]
+pub fn[A : Component, B : Component, C : Component, D : Component, E : Component] World::query5(Self) -> Query5[A, B, C, D, E]
 pub fn[T : Resource] World::resource(Self) -> T
+pub fn[T : Component] World::set_component(Self, Entity, T) -> Unit
 pub fn[T : Bundle] World::spawn(Self, T, parent? : Entity) -> Entity
 pub fn[T : Component] World::spawn1(Self, T, parent? : Entity) -> Entity
 pub fn World::spawn_draft(Self) -> SpawnDraft

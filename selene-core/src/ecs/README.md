@@ -38,7 +38,7 @@ Register the callback with a query constructor.
 
 ```moonbit
 app.add_system(Update, @ecs.query_system(
-  world => @ecs.Query2(@ecs.components_in(world), @ecs.components_in(world)),
+  world => world.query2(),
   move_entities,
 ))
 ```
@@ -49,21 +49,45 @@ outside a system, `@ecs.cache_query(make)` returns a World-to-query function
 with the same caching behavior. Use batch views within their callback and
 queue structural changes through `Commands`.
 
-Use the expected type to select a component store for point access or a spawn
-bundle. A value write requires a materialized entity with that column in the
-store's World. An explicit World is useful for setup, tests, or cross-World work.
+For direct query construction, the expected type selects the components:
 
 ```moonbit
-let positions : @ecs.ComponentStore[Position] = @ecs.components()
-positions.set(player, { x: 3.0, y: 4.0 })
-
-let preview_positions : @ecs.ComponentStore[Position] =
-  @ecs.components_in(preview_world)
+let positions : @ecs.Query[Position] = world.query()
+let moving : @ecs.Query2[Position, Velocity] = world.query2()
+positions.for_each((entity, position) => update_position(entity, position))
+let position : Position? = positions.get(player)
 ```
 
-When two columns use the same value type, declare separate
-`@ecs.ComponentKey[T]` values with `ComponentKey()`. The key provides
-`get(entity)`, `set(entity, value)`, `store()`, and `store_in(world)`.
+`Query`, `Query2`, `Query3`, `Query4`, and `Query5` are opaque, World-bound
+access objects. Their storage is private. Query callbacks receive component
+values; they do not receive the World or a component store implicitly.
+`cache_query` and `query_system` cache queries separately for each World.
+`With[T](world)` and `Without[T](world)` filters also bind to that World.
+`QueryReader::read(query)` derives its World from the query rather than taking
+an independent World/store pair.
+
+For setup and systems that explicitly need the whole World, use point access:
+
+```moonbit
+let position : Position? = world.get_component(player)
+world.set_component(player, Position::{ x: 3.0, y: 4.0 })
+```
+
+Reads return `None` for foreign handles, deleted generations, or missing
+components. Writes require an existing component on a materialized entity in
+that World and abort otherwise. They replace values without changing the
+entity's component layout.
+
+There is no public `ComponentStore` or global component accessor. A
+`ComponentKey` supplies identity only; it cannot read, write, or expose storage.
+Use distinct component wrapper types for semantically different values of the
+same underlying type. Component code generation produces only the identity
+and `Component` implementation, with no global access functions.
+
+MoonBit mutable values have reference semantics. A component obtained through
+a query or point read can still be retained and mutated. These APIs establish
+World ownership; they do not provide Rust-style borrow checking or read-only
+component references. Systems currently execute sequentially.
 
 ## Spawning entities
 
@@ -94,14 +118,12 @@ let player = players.spawn((position, velocity))
 let pending = commands.spawn_prepared(players, (position, velocity))
 ```
 
-Use `SpawnPlan::combine` to join plans for larger groups. For explicitly
-selected columns, start with `store.spawn_plan(world)`. A plan belongs to
-a single World and each component column may occur only once.
+Use `SpawnPlan::combine` to join plans for larger groups. A plan belongs to a single World and each component column may occur only once.
 
 For imports whose columns depend on data, collect the values with
 `world.spawn_draft()` and `draft.add(value)`, then call `draft.spawn()` once.
-Use `draft.add_to(store, value)` to choose a specific column. The draft rejects
-duplicate columns and stores from another World.
+The draft infers each column from its component type and rejects duplicate
+columns. Component stores cannot be supplied by callers.
 
 ## Hierarchy and transforms
 
@@ -124,26 +146,26 @@ spawn. `destroy()` and `respawn()` preserve the subtree and its components.
 replacement to change a node's parent or component layout.
 
 `Spatial` holds the local pose and the cached world transform. Use
-`@transform.set_local_transform(entity, pose)` to update a pose and
-`@transform.global_transform(entity)` to read the propagation result. When a
+`@transform.set_local_transform(world~, entity, pose)` to update a pose and
+`@transform.global_transform(world~, entity)` to read the propagation result. When a
 system needs the current world pose before propagation, use
-`@transform.compute_global_transform(entity)`. A container without `Spatial`
+`@transform.compute_global_transform(world~, entity)`. A container without `Spatial`
 passes the parent's transform to its children.
 
 ## Multi-component queries
 
-Use `Query2`, `Query3`, `Query4`, or `Query5` with stores from the same World.
+Use `world.query2()`, `world.query3()`, `world.query4()`, or `world.query5()`.
 Keep the query for repeated use. It only matches newly created archetypes,
 then visits their aligned component columns in archetype order.
 
 ```moonbit
-let moving = @ecs.Query3(positions, velocities, health)
+let moving : @ecs.Query3[Position, Velocity, Health] = world.query3()
 moving.for_each((entity, position, velocity, hp) => {
   update_moving_entity(entity, position, velocity, hp)
 })
 ```
 
-Use `for_each_batch` for read-only column views or `for_each_batch_mut_a`
+Use `for_each_batch` for column views that cannot replace array elements or `for_each_batch_mut_a`
 to update the first column in place. Views are valid during the callback.
 Queue entity spawns and permanent deletions through `Commands` for the next flush.
 
@@ -210,6 +232,11 @@ fixed step, and after the ordinary updates. State transitions run between
 `PreUpdate` and fixed updates, with command synchronization after exit and
 entry systems. Render stages consume the resulting state. See the
 [state guide](../state/README.md) for initialization and lifecycle semantics.
+
+The app passes its selected World to engine systems, including rendering,
+physics, transforms, and animation. Helpers that access components take an
+explicit `world~` argument. Engine packages follow the same access rules as
+game code.
 
 Standalone ECS code can run a schedule with `@ecs.run_schedule(world, system)`.
 The scheduler rejects nested schedules and schedules started during a query.

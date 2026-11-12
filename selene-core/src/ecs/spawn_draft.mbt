@@ -18,7 +18,7 @@ pub fn[T : Component] SpawnDraft::add(self : SpawnDraft, value : T) -> Unit {
 }
 
 ///|
-pub fn[T] SpawnDraft::add_to(
+fn[T] SpawnDraft::add_to(
   self : SpawnDraft,
   store : ComponentStore[T],
   value : T,

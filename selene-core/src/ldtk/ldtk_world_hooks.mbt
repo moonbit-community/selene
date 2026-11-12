@@ -1,38 +1,51 @@
 ///|
-fn ldtk_despawn_level(level_iid : String, level_entity : @ecs.Entity) -> Unit {
+fn ldtk_despawn_level(
+  world~ : @ecs.World,
+  level_iid : String,
+  level_entity : @ecs.Entity,
+) -> Unit {
   ldtk_pending_transformed_level_iids().remove(level_iid)
   ldtk_level_event_bus.trigger(Despawned(level_iid), Some(level_entity))
-  despawn_ldtk_tree(level_entity)
+  despawn_ldtk_tree(world~, level_entity)
   ldtk_respawns().remove(level_entity)
 }
 
 ///|
-fn ldtk_force_world_respawn(world_entity : @ecs.Entity) -> Unit {
-  guard ldtk_world_instances().get(world_entity) is Some(instance) else {
+fn ldtk_force_world_respawn(
+  world~ : @ecs.World,
+  world_entity : @ecs.Entity,
+) -> Unit {
+  let query_ldtk_world_instance : @ecs.Query[LdtkWorldInstance] = world.query()
+  let query_ldtk_worldly : @ecs.Query[LdtkWorldly] = world.query()
+  guard query_ldtk_world_instance.get(world_entity) is Some(instance) else {
     return
   }
   for (level_iid, level_entity) in instance.spawned_levels.to_array() {
-    ldtk_despawn_level(level_iid, level_entity)
+    ldtk_despawn_level(world~, level_iid, level_entity)
     instance.spawned_levels.remove(level_iid)
   }
-  for (entity, worldly) in ldtk_worldly_entities().to_array() {
+  for (entity, worldly) in query_ldtk_worldly.to_array() {
     if worldly.world_entity != world_entity {
       continue
     }
-    despawn_ldtk_tree(entity)
+    despawn_ldtk_tree(world~, entity)
   }
 }
 
 ///|
-fn ldtk_force_level_respawns(world_entity : @ecs.Entity) -> Unit {
-  guard ldtk_world_instances().get(world_entity) is Some(instance) else {
+fn ldtk_force_level_respawns(
+  world~ : @ecs.World,
+  world_entity : @ecs.Entity,
+) -> Unit {
+  let query_ldtk_world_instance : @ecs.Query[LdtkWorldInstance] = world.query()
+  guard query_ldtk_world_instance.get(world_entity) is Some(instance) else {
     return
   }
   for (level_iid, level_entity) in instance.spawned_levels.to_array() {
     if !ldtk_respawns().contains(level_entity) {
       continue
     }
-    ldtk_despawn_level(level_iid, level_entity)
+    ldtk_despawn_level(world~, level_iid, level_entity)
     instance.spawned_levels.remove(level_iid)
     ldtk_respawns().remove(level_entity)
   }
@@ -114,10 +127,12 @@ fn ldtk_layer_tileset_image(
 
 ///|
 fn ldtk_entity_tile_image(
+  world~ : @ecs.World,
   event : LdtkEntitySpawn,
   tile : LdtkTilesetRect,
 ) -> @asset.ImageHandle? {
-  guard ldtk_world_instances().get(event.world_entity) is Some(instance) else {
+  guard (world.get_component(event.world_entity) : LdtkWorldInstance?)
+    is Some(instance) else {
     return None
   }
   if tile.tileset_uid is Some(uid) {
@@ -310,10 +325,12 @@ fn ldtk_level_offset(
 
 ///|
 fn ldtk_level_zindex(
+  world~ : @ecs.World,
   level_entity : @ecs.Entity,
   settings : LdtkWorldSpawnSettings,
 ) -> Int32 {
-  guard ldtk_level_instances().get(level_entity) is Some(level_instance) else {
+  guard (world.get_component(level_entity) : LdtkLevelInstance?)
+    is Some(level_instance) else {
     return settings.zindex
   }
   settings.zindex +

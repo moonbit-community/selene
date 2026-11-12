@@ -1,9 +1,9 @@
 ///|
 test "a cached query sees new tables and repairs swapped rows after deletion" {
-  let world = @ecs.World()
-  let a : @ecs.ComponentStore[Int32] = ComponentStore(world)
-  let b : @ecs.ComponentStore[String] = ComponentStore(world)
-  let query = @ecs.Query2(a, b)
+  let world = World()
+  let a : ComponentStore[Int32] = ComponentStore(world)
+  let b : ComponentStore[String] = ComponentStore(world)
+  let query = Query2(a, b)
   let plan = a.spawn_plan(world).combine(b.spawn_plan(world))
   let matches = () => {
     let result = []
@@ -11,7 +11,7 @@ test "a cached query sees new tables and repairs swapped rows after deletion" {
     result
   }
   assert_true(matches().is_empty())
-  @ecs.run_schedule(world, _ => {
+  run_schedule(world, _ => {
     let first = plan.spawn((11, "first"))
     let second = plan.spawn((22, "second"))
     if matches() != [(first.id(), 11, "first"), (second.id(), 22, "second")] {
@@ -29,19 +29,19 @@ test "a cached query sees new tables and repairs swapped rows after deletion" {
 
 ///|
 test "archetype signatures support more than 64 components and isolate worlds" {
-  let world = @ecs.World()
-  let other = @ecs.World()
+  let world = World()
+  let other = World()
   let draft = world.spawn_draft()
   let foreign = other.spawn(())
-  let stores : Array[@ecs.ComponentStore[Int32]] = []
+  let stores : Array[ComponentStore[Int32]] = []
   for i in 0..<70 {
-    let store = @ecs.ComponentStore(world)
+    let store = ComponentStore(world)
     draft.add_to(store, i)
     stores.push(store)
   }
   let entity = draft.spawn()
   assert_eq(entity.id(), foreign.id())
-  let query = @ecs.Query2(stores[0], stores[69])
+  let query = Query2(stores[0], stores[69])
   let result = []
   query.for_each((_, first, last) => result.push((first, last)))
   assert_eq(result, [(0, 69)])
@@ -55,15 +55,15 @@ test "archetype signatures support more than 64 components and isolate worlds" {
 
 ///|
 test "batch views stay aligned across tables and write only the first column" {
-  let world = @ecs.World()
-  let a : @ecs.ComponentStore[Int32] = ComponentStore(world)
-  let b : @ecs.ComponentStore[Int32] = ComponentStore(world)
-  let tag : @ecs.ComponentStore[Unit] = ComponentStore(world)
+  let world = World()
+  let a : ComponentStore[Int32] = ComponentStore(world)
+  let b : ComponentStore[Int32] = ComponentStore(world)
+  let tag : ComponentStore[Unit] = ComponentStore(world)
   let plan = a.spawn_plan(world).combine(b.spawn_plan(world))
   let first = plan.spawn((2, 3))
   let second = plan.combine(tag.spawn_plan(world)).spawn(((5, 7), ()))
   let unmatched = a.spawn_plan(world).spawn(11)
-  let query = @ecs.Query2(a, b)
+  let query = Query2(a, b)
   let batches = []
   query.for_each_batch_mut_a((entities, left, right) => {
     batches.push(entities.length())
@@ -77,7 +77,7 @@ test "batch views stay aligned across tables and write only the first column" {
   assert_eq(a.get(unmatched), Some(11))
   assert_eq(b.get(first), Some(3))
   assert_eq(b.get(second), Some(7))
-  @ecs.run_schedule(world, _ => {
+  run_schedule(world, _ => {
     if !first.delete() {
       abort("first row was not deleted")
     }
@@ -93,14 +93,14 @@ test "batch views stay aligned across tables and write only the first column" {
 
 ///|
 test "component iteration preserves spawn order when the current row is deleted" {
-  let world = @ecs.World()
-  let a : @ecs.ComponentStore[Int32] = ComponentStore(world)
+  let world = World()
+  let a : ComponentStore[Int32] = ComponentStore(world)
   let plan = a.spawn_plan(world)
   let first = plan.spawn(1)
   let second = plan.spawn(2)
   let third = plan.spawn(3)
   let seen = []
-  @ecs.run_schedule(world, _ => {
+  run_schedule(world, _ => {
     for entity, value in a {
       seen.push(value)
       if entity == second {
@@ -116,21 +116,21 @@ test "component iteration preserves spawn order when the current row is deleted"
 
 ///|
 test "three to five column queries follow new tables and recycled slots" {
-  let previous = @ecs.current_world()
+  let previous = current_world()
   defer (match previous {
-    Some(world) => @ecs.set_current_world(world)
-    None => @ecs.clear_current_world()
+    Some(world) => set_current_world(world)
+    None => clear_current_world()
   })
-  let world = @ecs.World()
-  @ecs.set_current_world(world)
-  let a : @ecs.ComponentStore[Int32] = ComponentStore(world)
-  let b : @ecs.ComponentStore[String] = ComponentStore(world)
-  let c : @ecs.ComponentStore[Bool] = ComponentStore(world)
-  let d : @ecs.ComponentStore[Int32] = ComponentStore(world)
-  let e : @ecs.ComponentStore[Int32] = ComponentStore(world)
-  let three = @ecs.Query3(a, b, c)
-  let four = @ecs.Query4(a, b, c, d)
-  let five = @ecs.Query5(a, b, c, d, e)
+  let world = World()
+  set_current_world(world)
+  let a : ComponentStore[Int32] = ComponentStore(world)
+  let b : ComponentStore[String] = ComponentStore(world)
+  let c : ComponentStore[Bool] = ComponentStore(world)
+  let d : ComponentStore[Int32] = ComponentStore(world)
+  let e : ComponentStore[Int32] = ComponentStore(world)
+  let three = Query3(a, b, c)
+  let four = Query4(a, b, c, d)
+  let five = Query5(a, b, c, d, e)
   let four_plan = a
     .spawn_plan(world)
     .combine(b.spawn_plan(world))
@@ -167,7 +167,7 @@ test "three to five column queries follow new tables and recycled slots" {
   assert_eq(five.get(second), None)
   assert_eq(four.get(second), Some((11, "label", false, 40)))
   assert_eq(three.get(second), Some((11, "label", false)))
-  let foreign = @ecs.commands(World()).spawn(())
+  let foreign = commands(World()).spawn(())
   assert_eq(foreign.slot_index(), first.slot_index())
   assert_eq(five.get(foreign), None)
 
@@ -184,24 +184,24 @@ test "three to five column queries follow new tables and recycled slots" {
 
 ///|
 test "panic joined queries reject stores from another world" {
-  let own : @ecs.ComponentStore[Int32] = ComponentStore(World())
-  let foreign : @ecs.ComponentStore[Int32] = ComponentStore(World())
-  ignore(@ecs.Query5(own, own, own, own, foreign))
+  let own : ComponentStore[Int32] = ComponentStore(World())
+  let foreign : ComponentStore[Int32] = ComponentStore(World())
+  ignore(Query5(own, own, own, own, foreign))
 }
 
 ///|
 test "panic a value write cannot add a column to an entity" {
-  let world = @ecs.World()
-  let store : @ecs.ComponentStore[Int32] = ComponentStore(world)
+  let world = World()
+  let store : ComponentStore[Int32] = ComponentStore(world)
   store.set(world.spawn(()), 1)
 }
 
 ///|
 test "panic a value write cannot address an entity from another World" {
-  let world = @ecs.World()
-  let store : @ecs.ComponentStore[Int32] = ComponentStore(world)
-  let other = @ecs.World()
-  let foreign : @ecs.ComponentStore[Int32] = ComponentStore(other)
+  let world = World()
+  let store : ComponentStore[Int32] = ComponentStore(world)
+  let other = World()
+  let foreign : ComponentStore[Int32] = ComponentStore(other)
   ignore(store.spawn_plan(world).spawn(1))
   store.set(foreign.spawn_plan(other).spawn(2), 3)
 }

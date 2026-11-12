@@ -10,13 +10,13 @@ test "commands reserve and flush entities in the queue's world" {
   @ecs.set_current_world(first)
   let active = first.spawn(())
   let commands = @ecs.commands(second)
-  let components : @ecs.ComponentStore[Int32] = ComponentStore(second)
-  let entity = commands.spawn_prepared(components.spawn_plan(second), 30)
+  let components : @ecs.Query[Position] = second.query()
+  let entity = commands.spawn1(Position(30))
   assert_eq(components.get(entity), None)
   @ecs.run_schedule(second, _ => ())
   assert_eq(@ecs.require_current_world().id(), first.id())
   assert_true(entity.belongs_to(second))
-  assert_eq(components.get(entity), Some(30))
+  assert_eq(components.get(entity), Some(Position(30)))
   assert_eq(components.get(active), None)
   assert_true(active.is_alive())
   @ecs.set_current_world(second)
@@ -27,7 +27,7 @@ test "commands reserve and flush entities in the queue's world" {
   assert_true(active.is_alive())
   @ecs.set_current_world(second)
   assert_false(entity.is_alive())
-  assert_eq(components.get(entity), Some(30))
+  assert_eq(components.get(entity), Some(Position(30)))
 }
 
 ///|
@@ -41,26 +41,27 @@ test "deferred bundles initialize before later commands in the queue's world" {
   @ecs.set_current_world(active)
   let world = @ecs.World()
   let commands = @ecs.commands(world)
-  let a : @ecs.ComponentStore[Int32] = ComponentStore(world)
-  let b : @ecs.ComponentStore[String] = ComponentStore(world)
-  let tag : @ecs.ComponentStore[Bool] = ComponentStore(world)
-  let bundle = a.spawn_plan(world).combine(b.spawn_plan(world))
-  let first = commands.spawn_prepared(bundle, (11, "first"))
+  let a : @ecs.Query[Position] = world.query()
+  let b : @ecs.Query[Label] = world.query()
+  let tag : @ecs.Query[Tagged] = world.query()
+  let bundle : @ecs.SpawnPlan[(Position, Label)] = world.prepare_spawn()
+  let first = commands.spawn_prepared(bundle, (Position(11), Label("first")))
+  let tagged : @ecs.SpawnPlan[(Position, Label, Tagged)] = world.prepare_spawn()
   let second = commands.spawn_prepared(
-    bundle.combine(tag.spawn_plan(world)),
-    ((22, "second"), true),
+    tagged,
+    (Position(22), Label("second"), Tagged(true)),
   )
   let alive = @ecs.alive_in_world(world)
   assert_false(alive(first))
   assert_eq(a.get(first), None)
-  commands.add(_ => a.set(first, 12))
+  commands.add(world => world.set_component(first, Position(12)))
   @ecs.run_schedule(world, _ => ())
   assert_eq(@ecs.require_current_world().id(), active.id())
-  assert_eq(a.get(first), Some(12))
-  assert_eq(b.get(first), Some("first"))
-  assert_eq(a.get(second), Some(22))
-  assert_eq(b.get(second), Some("second"))
-  assert_eq(tag.get(second), Some(true))
+  assert_eq(a.get(first), Some(Position(12)))
+  assert_eq(b.get(first), Some(Label("first")))
+  assert_eq(a.get(second), Some(Position(22)))
+  assert_eq(b.get(second), Some(Label("second")))
+  assert_eq(tag.get(second), Some(Tagged(true)))
   assert_true(alive(first))
   assert_true(alive(second))
 }
@@ -75,13 +76,13 @@ test "permanent commands recycle a slot and skip canceled initialization" {
   let world = @ecs.World()
   @ecs.set_current_world(world)
   let queue = @ecs.commands(world)
-  let components : @ecs.ComponentStore[Int32] = ComponentStore(world)
-  let pending = queue.spawn_prepared(components.spawn_plan(world), 99)
+  let components : @ecs.Query[Position] = world.query()
+  let pending = queue.spawn1(Position(99))
   assert_true(pending.delete())
-  let entity = components.spawn_plan(world).spawn(10)
+  let entity = world.spawn1(Position(10))
   assert_eq(entity.slot_index(), pending.slot_index())
   @ecs.run_schedule(world, _ => ())
-  assert_eq(components.get(entity), Some(10))
+  assert_eq(components.get(entity), Some(Position(10)))
   queue.delete(entity)
   @ecs.run_schedule(world, _ => ())
   assert_false(entity.is_valid_in(world))
@@ -132,18 +133,42 @@ test "panic deferred spawn rejects a parent in another World" {
 test "despawning a newly initialized parent also suspends its pending child" {
   let world = @ecs.World()
   let queue = @ecs.commands(world)
-  let values : @ecs.ComponentStore[Int32] = ComponentStore(world)
+  let values : @ecs.Query[Position] = world.query()
   let parent = queue.spawn(())
-  let child = queue.spawn_prepared(values.spawn_plan(world), 42, parent~)
+  let child = queue.spawn1(Position(42), parent~)
   queue.despawn(parent)
   @ecs.run_schedule(world, _ => ())
   let alive = @ecs.alive_in_world(world)
   assert_false(alive(parent))
   assert_false(alive(child))
-  assert_eq(values.get(child), Some(42))
+  assert_eq(values.get(child), Some(Position(42)))
 
   @ecs.run_schedule(world, _ => parent.respawn())
   assert_true(alive(parent))
   assert_true(alive(child))
-  assert_eq(values.get(child), Some(42))
+  assert_eq(values.get(child), Some(Position(42)))
+}
+
+///|
+#derive(Eq, Debug)
+struct Label(String)
+
+///|
+let key_label : @ecs.ComponentKey[Label] = ComponentKey()
+
+///|
+impl @ecs.Component for Label with fn component_key() {
+  key_label
+}
+
+///|
+#derive(Eq, Debug)
+struct Tagged(Bool)
+
+///|
+let key_tagged : @ecs.ComponentKey[Tagged] = ComponentKey()
+
+///|
+impl @ecs.Component for Tagged with fn component_key() {
+  key_tagged
 }

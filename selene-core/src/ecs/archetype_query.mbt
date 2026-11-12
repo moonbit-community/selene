@@ -71,7 +71,7 @@ struct Query2[A, B] {
 }
 
 ///|
-pub fn[A, B] Query2::Query2(
+fn[A, B] Query2::Query2(
   a : ComponentStore[A],
   b : ComponentStore[B],
 ) -> Query2[A, B] {
@@ -139,7 +139,7 @@ struct Query3[A, B, C] {
 }
 
 ///|
-pub fn[A, B, C] Query3::Query3(
+fn[A, B, C] Query3::Query3(
   a : ComponentStore[A],
   b : ComponentStore[B],
   c : ComponentStore[C],
@@ -212,7 +212,7 @@ struct Query4[A, B, C, D] {
 }
 
 ///|
-pub fn[A, B, C, D] Query4::Query4(
+fn[A, B, C, D] Query4::Query4(
   a : ComponentStore[A],
   b : ComponentStore[B],
   c : ComponentStore[C],
@@ -299,7 +299,7 @@ struct Query5[A, B, C, D, E] {
 }
 
 ///|
-pub fn[A, B, C, D, E] Query5::Query5(
+fn[A, B, C, D, E] Query5::Query5(
   a : ComponentStore[A],
   b : ComponentStore[B],
   c : ComponentStore[C],
@@ -385,4 +385,52 @@ pub fn[A, B, C, D, E] Query5::for_each_batch_mut_a(
     let (a, b, c, d, e) = columns
     visit(entities[:], a.mut_view(), b[:], c[:], d[:], e[:])
   })
+}
+
+///|
+pub fn[A : Component, B : Component] World::query2(
+  self : World,
+) -> Query2[A, B] {
+  let a : ComponentStore[A] = components_in(self)
+  let b : ComponentStore[B] = components_in(self)
+  Query2(a, b)
+}
+
+///|
+pub fn[A : Component, B : Component, C : Component] World::query3(
+  self : World,
+) -> Query3[A, B, C] {
+  let a : ComponentStore[A] = components_in(self)
+  let b : ComponentStore[B] = components_in(self)
+  let c : ComponentStore[C] = components_in(self)
+  Query3(a, b, c)
+}
+
+///|
+pub fn[A : Component, B : Component, C : Component, D : Component] World::query4(
+  self : World,
+) -> Query4[A, B, C, D] {
+  let a : ComponentStore[A] = components_in(self)
+  let b : ComponentStore[B] = components_in(self)
+  let c : ComponentStore[C] = components_in(self)
+  let d : ComponentStore[D] = components_in(self)
+  Query4(a, b, c, d)
+}
+
+///|
+pub fn[
+  A : Component,
+  B : Component,
+  C : Component,
+  D : Component,
+  E : Component,
+] World::query5(
+  self : World,
+) -> Query5[A, B, C, D, E] {
+  let a : ComponentStore[A] = components_in(self)
+  let b : ComponentStore[B] = components_in(self)
+  let c : ComponentStore[C] = components_in(self)
+  let d : ComponentStore[D] = components_in(self)
+  let e : ComponentStore[E] = components_in(self)
+  Query5(a, b, c, d, e)
 }

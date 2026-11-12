@@ -15,6 +15,9 @@ test "generates typed keys only for marked declarations" {
   assert_true(generated.contains("@ecs.ResourceKey[Clock] = ResourceKey()"))
   assert_false(generated.contains("pub impl @ecs.Resource for Clock"))
   assert_false(generated.contains("Unmarked"))
+  assert_false(generated.contains("ComponentStore"))
+  assert_false(generated.contains("components()"))
+  assert_false(generated.contains("store_in"))
 }
 
 ///|

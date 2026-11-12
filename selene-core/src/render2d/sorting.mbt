@@ -38,13 +38,8 @@ pub fn Sorting2d::Sorting2d(
 }
 
 ///|
-pub fn sorting2ds() -> @ecs.ComponentStore[Sorting2d] {
-  @ecs.components()
-}
-
-///|
-pub fn entity_sorting2d(entity : @ecs.Entity) -> Sorting2d {
-  sorting2ds().get(entity).unwrap_or(Sorting2d())
+pub fn entity_sorting2d(world~ : @ecs.World, entity : @ecs.Entity) -> Sorting2d {
+  (world.get_component(entity) : Sorting2d?).unwrap_or(Sorting2d())
 }
 
 ///|

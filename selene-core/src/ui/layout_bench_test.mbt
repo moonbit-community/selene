@@ -91,14 +91,14 @@ test "BENCH-UI retained static layout" (b : @bench.T) {
   assert_eq(entities.length(), 410)
 
   // Build every layout cache before timing repeated unchanged frames.
-  @ui.ui_layout_system(0.0)
+  @ui.ui_layout_system(world~, 0.0)
   assert_true(
     entities.iter().all(entity => @ui.global_ui_node(entity) is Some(_)),
   )
   b.bench(
     name="ui-layout/static/n=410",
     fn() {
-      @ui.ui_layout_system(0.0)
+      @ui.ui_layout_system(world~, 0.0)
       b.keep(@ui.global_ui_node(entities[0]))
     },
     count=20,
@@ -109,5 +109,5 @@ test "BENCH-UI retained static layout" (b : @bench.T) {
       entity.destroy()
     }
   }
-  @ui.ui_layout_system(0.0)
+  @ui.ui_layout_system(world~, 0.0)
 }

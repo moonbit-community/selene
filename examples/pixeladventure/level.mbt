@@ -9,7 +9,7 @@ priv struct LoadedLevelScene {
 }
 
 ///|
-fn load_level_scene() -> LoadedLevelScene {
+fn load_level_scene(world~ : @ecs.World) -> LoadedLevelScene {
   let camera_entity = spawn_game_entity(
     (
       @transform.Spatial(@transform.Transform::identity()),
@@ -18,8 +18,8 @@ fn load_level_scene() -> LoadedLevelScene {
       @camera.OrthographicProjection(),
     ),
   )
-  let player_entity = spawn_player_entity(80.0, 496.0)
-  spawn_flag_entity(64.0, 80.0)
+  let player_entity = spawn_player_entity(world~, 80.0, 496.0)
+  spawn_flag_entity(world~, 64.0, 80.0)
   for
     (x, y) in [
       (160.0, 384.0),
@@ -30,15 +30,15 @@ fn load_level_scene() -> LoadedLevelScene {
       (848.0, 208.0),
       (448.0, 208.0),
     ] {
-    spawn_apple_entity(x, y)
+    spawn_apple_entity(world~, x, y)
   }
-  spawn_bird_entity(240.0, 50.0)
-  spawn_bird_entity(752.0, 210.0)
+  spawn_bird_entity(world~, 240.0, 50.0)
+  spawn_bird_entity(world~, 752.0, 210.0)
   let terrain_image = @asset.load_image(
     "assets/pixeladventure/Terrain/Terrain (16x16).png",
   )
   let rows : Map[Int32, Array[Int32]] = Map([])
-  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
+  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = world.prepare_spawn()
   let entities = pixeladventure_world_state().entities
   for (x, y, count, atlas_x, atlas_y) in terrain_runs {
     for offset in 0..<count {

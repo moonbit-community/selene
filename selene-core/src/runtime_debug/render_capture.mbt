@@ -306,7 +306,9 @@ fn metrics_export(
 }
 
 ///|
-pub fn capture_last_frame_metadata() -> FrameCaptureMetadata? {
+pub fn capture_last_frame_metadata(
+  world~ : @ecs.World,
+) -> FrameCaptureMetadata? {
   guard latest_render_submission() is Some(submission) else { return None }
   let draw2d = submission.draw2d.map(draw2d_metadata_entry)
   let metrics = frame_metrics_key.get_in(current_world()).map(metrics_export)
@@ -316,14 +318,17 @@ pub fn capture_last_frame_metadata() -> FrameCaptureMetadata? {
     metrics,
     draw2d,
     draw3d_count: submission.draw3d.length(),
-    sprites: sprite_inspector_entries(),
+    sprites: sprite_inspector_entries(world~),
     atlas_overlay: atlas_overlay_entries(),
   })
 }
 
 ///|
-pub fn capture_last_frame_metadata_json(indent~ : Int32 = 2) -> String? {
-  capture_last_frame_metadata().map(fn(metadata) {
+pub fn capture_last_frame_metadata_json(
+  world~ : @ecs.World,
+  indent~ : Int32 = 2,
+) -> String? {
+  capture_last_frame_metadata(world~).map(fn(metadata) {
     metadata.to_json().stringify(indent~)
   })
 }
@@ -338,11 +343,14 @@ pub fn frame_capture_file_stem(
 
 ///|
 pub fn capture_last_frame_with_metadata(
+  world~ : @ecs.World,
   width : Int32,
   height : Int32,
   indent~ : Int32 = 2,
 ) -> FrameCaptureArtifact? {
-  guard capture_last_frame_metadata() is Some(metadata) else { return None }
+  guard capture_last_frame_metadata(world~) is Some(metadata) else {
+    return None
+  }
   let png = match render_last_frame_offscreen_png(width, height) {
     Some(bytes) => Some(bytes)
     None => capture_frame_png()

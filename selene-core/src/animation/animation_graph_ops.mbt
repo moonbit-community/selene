@@ -1,19 +1,4 @@
 ///|
-pub fn animation_transitions() -> @ecs.ComponentStore[AnimationTransitions] {
-  @ecs.components()
-}
-
-///|
-pub fn animation_target_ids() -> @ecs.ComponentStore[AnimationTargetId] {
-  @ecs.components()
-}
-
-///|
-pub fn animated_bys() -> @ecs.ComponentStore[AnimatedBy] {
-  @ecs.components()
-}
-
-///|
 let skinned_meshes_key : @ecs.ResourceKey[
   @ecs.EntityTable[SkinnedMeshBinding3D],
 ] = ResourceKey()

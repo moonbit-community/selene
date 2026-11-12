@@ -1,7 +1,6 @@
 ///|
 test "CPU skinning with four joint influences" (b : @bench.T) {
-  with_animation_test_world(fn() {
-    let world = @ecs.require_current_world()
+  with_animation_test_world(fn(world) {
     let positions = Array::makei(4096, i => {
       @math.Vec3(
         i.to_double() * 0.13,
@@ -52,9 +51,9 @@ test "CPU skinning with four joint influences" (b : @bench.T) {
       joint_entities: joints,
       inverse_bind_matrices: [],
     })
-    @transform.transform_propagate_system(0.0)
+    @transform.transform_propagate_system(world~, 0.0)
     b.bench(name="skin/4096/four-joints", () => {
-      animation_skinning_system(0.0)
+      animation_skinning_system(world~, 0.0)
       b.keep(@render3d.mesh_asset(mesh))
     })
     clear_skinned_mesh(target)

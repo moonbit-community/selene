@@ -226,26 +226,6 @@ fn reset_pixeladventure_world_store() -> Unit {
 }
 
 ///|
-fn players() -> @ecs.ComponentStore[PlayerController] {
-  @ecs.components()
-}
-
-///|
-fn birds() -> @ecs.ComponentStore[BirdController] {
-  @ecs.components()
-}
-
-///|
-fn apples() -> @ecs.ComponentStore[AppleTag] {
-  @ecs.components()
-}
-
-///|
-fn flags() -> @ecs.ComponentStore[FlagTag] {
-  @ecs.components()
-}
-
-///|
 fn ui_click_reader() -> @event.EventReader[@ui.UiClickEvent] {
   pixeladventure_world_state().click_reader
 }

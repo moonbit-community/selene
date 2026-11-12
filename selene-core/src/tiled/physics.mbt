@@ -78,8 +78,11 @@ pub struct TiledColliderSpawnedEvent {
 }
 
 ///|
-pub fn tiled_colliders(source : @ecs.Entity) -> TiledColliders? {
-  let origins = tiled_collider_origins()
+pub fn tiled_colliders(
+  world~ : @ecs.World,
+  source : @ecs.Entity,
+) -> TiledColliders? {
+  let origins : @ecs.Query[TiledColliderOrigin] = world.query()
   let entities = source
     .get_children()
     .filter(entity => origins.contains(entity))
@@ -88,11 +91,6 @@ pub fn tiled_colliders(source : @ecs.Entity) -> TiledColliders? {
   } else {
     Some({ entities, })
   }
-}
-
-///|
-pub fn tiled_collider_origins() -> @ecs.ComponentStore[TiledColliderOrigin] {
-  @ecs.components()
 }
 
 ///|
@@ -131,21 +129,24 @@ priv struct TiledPhysicsSpawnSpec {
 
 ///|
 fn spawn_tiled_map_physics(
+  world~ : @ecs.World,
   map_entity : @ecs.Entity,
   map : TiledMap,
   settings : TiledPhysicsSettings,
 ) -> Unit {
-  spawn_tiled_physics_layers(map_entity, map, map.layers, settings)
+  spawn_tiled_physics_layers(world~, map_entity, map, map.layers, settings)
 }
 
 ///|
 fn spawn_tiled_physics_layers(
+  world~ : @ecs.World,
   map_entity : @ecs.Entity,
   map : TiledMap,
   layers : Array[TiledLayer],
   settings : TiledPhysicsSettings,
 ) -> Unit {
-  guard tiled_map_storages().get(map_entity) is Some(storage) else { return }
+  let query_tiled_map_storage : @ecs.Query[TiledMapStorage] = world.query()
+  guard query_tiled_map_storage.get(map_entity) is Some(storage) else { return }
   for layer in layers {
     match layer.kind {
       TileLayer(tile_layer) => {
@@ -172,7 +173,7 @@ fn spawn_tiled_physics_layers(
           )
         }
       GroupLayer(children) =>
-        spawn_tiled_physics_layers(map_entity, map, children, settings)
+        spawn_tiled_physics_layers(world~, map_entity, map, children, settings)
       _ => ()
     }
   }

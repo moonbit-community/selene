@@ -14,15 +14,13 @@ pub fn mesh2d_asset(Mesh2dHandle) -> Mesh2dAsset?
 
 pub fn mesh2d_storage() -> Mesh2dStorage
 
-pub fn mesh2ds() -> @ecs.ComponentStore[Mesh2d]
-
 pub fn rectangle(@math.Vec2) -> Mesh2dHandle
 
 pub fn register_mesh2d_asset(Mesh2dAsset) -> Mesh2dHandle
 
 pub fn release_mesh2d_asset(Mesh2dHandle) -> Unit
 
-pub fn render_mesh2d_system(Double) -> Unit
+pub fn render_mesh2d_system(world~ : @ecs.World, Double) -> Unit
 
 pub fn update_mesh2d_asset(Mesh2dHandle, Mesh2dAsset) -> Unit
 

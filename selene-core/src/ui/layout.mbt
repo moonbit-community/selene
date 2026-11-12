@@ -285,6 +285,7 @@ fn implicit_root_style(size : @math.Vec2) -> @style.Style {
 
 ///|
 fn measure_node(
+  world~ : @ecs.World,
   known_dimensions : @geometry.Size[Double?],
   available : @geometry.Size[@geometry.AvailableSpace],
   _node_id : Int32,
@@ -292,8 +293,10 @@ fn measure_node(
   style : @style.Style,
 ) -> @geometry.Size[Double] {
   guard entity is Some(entity) else { return @geometry.Size::zero() }
-  let (intrinsic_width, intrinsic_height) = if texts().get(entity) is Some(text) {
-    let text_style = text_style_for(entity).unwrap_or({
+  let (intrinsic_width, intrinsic_height) = if (
+      world.get_component(entity) : Text?)
+    is Some(text) {
+    let text_style = text_style_for(world~, entity).unwrap_or({
       font: None,
       family: "Arial",
       size: 16.0,
@@ -331,11 +334,11 @@ fn measure_node(
     let prepared = prepare_text_layout(
       text.content,
       text_style,
-      text_layout(entity),
+      text_layout(world~, entity),
       available_content_width,
     )
     (prepared.width, prepared.height)
-  } else if ui_images().get(entity) is Some(image) {
+  } else if (world.get_component(entity) : UiImage?) is Some(image) {
     (image.size.x, image.size.y)
   } else {
     (0.0, 0.0)
@@ -443,6 +446,7 @@ fn cleanup_dead_ui_state() -> Unit {
 
 ///|
 fn apply_layout_recursive(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   chicle : @tree.ChicleTree[@ecs.Entity],
   layout_nodes : @ecs.EntityTable[UiLayoutNodeRuntime],
@@ -452,15 +456,19 @@ fn apply_layout_recursive(
   layout_space : UiLayoutSpace,
   projected : Set[@ecs.Entity],
 ) -> Unit {
+  let query_node : @ecs.Query[Node] = world.query()
+  let query_ui_target_camera : @ecs.Query[UiTargetCamera] = world.query()
+  let query_layout_config : @ecs.Query[LayoutConfig] = world.query()
+  let query_override_clip : @ecs.Query[OverrideClip] = world.query()
   guard layout_nodes.get(entity) is Some(runtime_node) else { return }
   let node_id = runtime_node.node_id
-  guard nodes().get(entity) is Some(node) else { return }
-  let effective_layout_space = match ui_target_cameras().get(entity) {
-    Some(target) => ui_layout_space(Some(target.camera))
+  guard query_node.get(entity) is Some(node) else { return }
+  let effective_layout_space = match query_ui_target_camera.get(entity) {
+    Some(target) => ui_layout_space(world~, Some(target.camera))
     None => layout_space
   }
   let effective_target_camera = effective_layout_space.target_camera
-  let use_rounding = layout_configs()
+  let use_rounding = query_layout_config
     .get(entity)
     .map(fn(config) { config.use_rounding })
     .unwrap_or(inherited_use_rounding)
@@ -536,7 +544,7 @@ fn apply_layout_recursive(
   }
   ui_geometry().set(entity, { computed, global, })
 
-  let inherited_clip : @math.Rect? = if override_clips().contains(entity) {
+  let inherited_clip : @math.Rect? = if query_override_clip.contains(entity) {
     None
   } else {
     parent_clip
@@ -561,9 +569,16 @@ fn apply_layout_recursive(
     logical_pos.x - effective_scroll_position.x,
     logical_pos.y - effective_scroll_position.y,
   )
-  for child in ui_children(entity) {
+  for child in ui_children(world~, entity) {
     apply_layout_recursive(
-      child, chicle, layout_nodes, next_origin, current_clip, use_rounding, effective_layout_space,
+      world~,
+      child,
+      chicle,
+      layout_nodes,
+      next_origin,
+      current_clip,
+      use_rounding,
+      effective_layout_space,
       projected,
     )
   }

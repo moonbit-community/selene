@@ -425,6 +425,7 @@ test "parse_material_asset preserves glTF material factors, bindings, and textur
 
 ///|
 test "instantiate_scene_instance installs animation components without autoplay" {
+  let world = @ecs.require_current_world()
   let scene = @render3d.register_scene_path("wbtest://animation-scene")
   let clip = @animation.AnimationClip("idle")
   let clip_handle = @animation.register_animation_clip_asset(clip)
@@ -439,11 +440,13 @@ test "instantiate_scene_instance installs animation components without autoplay"
   )
   inspect(instance.animations.contains("idle"), content="true")
   inspect(
-    @animation.animation_players().contains(instance.root),
+    (world.query() : @ecs.Query[@animation.AnimationPlayer]).contains(
+      instance.root,
+    ),
     content="true",
   )
   inspect(
-    @animation.animation_players()
+    (world.query() : @ecs.Query[@animation.AnimationPlayer])
     .get(instance.root)
     .unwrap()
     .playing_animations()

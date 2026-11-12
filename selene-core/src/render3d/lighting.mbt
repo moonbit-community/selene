@@ -13,26 +13,6 @@
 // limitations under the License.
 
 ///|
-pub fn directional_lights3d() -> @ecs.ComponentStore[DirectionalLight3D] {
-  @ecs.components()
-}
-
-///|
-pub fn point_lights3d() -> @ecs.ComponentStore[PointLight3D] {
-  @ecs.components()
-}
-
-///|
-pub fn spot_lights3d() -> @ecs.ComponentStore[SpotLight3D] {
-  @ecs.components()
-}
-
-///|
-pub fn camera_skyboxes3d() -> @ecs.ComponentStore[Skybox3D] {
-  @ecs.components()
-}
-
-///|
 pub fn build_cascade_shadow_config3d(
   builder : CascadeShadowConfigBuilder3D,
 ) -> CascadeShadowConfig3D {

@@ -31,7 +31,7 @@ pub fn run() -> Unit {
 
 ///|
 /// Game initialization
-fn game_start(_world : @ecs.World) -> Unit {
+fn game_start(world : @ecs.World) -> Unit {
   reset_cards_runtime()
   // Load font
   ignore(@asset.load_font("assets/cards/ThaleahFat.ttf", family="ThaleahFat"))
@@ -54,18 +54,18 @@ fn game_start(_world : @ecs.World) -> Unit {
   )
 
   // Setup UI
-  setup_ui()
+  setup_ui(world~)
 
   // Start first hand
-  start_new_hand()
+  start_new_hand(world~)
 }
 
 ///|
 /// Main game update system
-fn game_update_system(_world : @ecs.World) -> Unit {
+fn game_update_system(world : @ecs.World) -> Unit {
   match game_state().phase {
-    PreFlop | Flop | Turn | River => handle_betting_round()
-    Showdown => handle_showdown()
+    PreFlop | Flop | Turn | River => handle_betting_round(world~)
+    Showdown => handle_showdown(world~)
     GameOver => ()
   }
 }

@@ -36,15 +36,19 @@ test "load_ldtk_project reads UTF-8 LDtk asset bytes" {
 }
 
 ///|
-fn ldtk_test_entity_translation_2d(entity : @ecs.Entity) -> @math.Vec2 {
-  let transform = @transform.local_transform(entity).unwrap_or_default()
+fn ldtk_test_entity_translation_2d(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> @math.Vec2 {
+  let transform = @transform.local_transform(world~, entity).unwrap_or_default()
   Vec2(transform.translation.x, transform.translation.y)
 }
 
 ///|
-fn reset_ldtk_runtime() -> Unit {
-  for entity in ldtk_world_instances().keys().collect() {
-    despawn_ldtk_tree(entity)
+fn reset_ldtk_runtime(world~ : @ecs.World) -> Unit {
+  let query_ldtk_world_instance : @ecs.Query[LdtkWorldInstance] = world.query()
+  for entity in query_ldtk_world_instance.keys().collect() {
+    despawn_ldtk_tree(world~, entity)
   }
   ldtk_respawns().clear()
   for iid in ldtk_pending_transformed_level_iids().to_array() {
@@ -90,12 +94,12 @@ fn reset_ldtk_runtime() -> Unit {
 }
 
 ///|
-fn cleanup_ldtk_entity(entity : @ecs.Entity) -> Unit {
+fn cleanup_ldtk_entity(world~ : @ecs.World, entity : @ecs.Entity) -> Unit {
   if entity.is_alive() {
-    despawn_ldtk_tree(entity)
+    despawn_ldtk_tree(world~, entity)
   }
   try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
-  reset_ldtk_runtime()
+  reset_ldtk_runtime(world~)
 }
 
 ///|
@@ -221,10 +225,12 @@ fn count_transformed_events(
 
 ///|
 fn spawned_entity_by_iid_in_level(
+  world~ : @ecs.World,
   iid : String,
   level_entity : @ecs.Entity,
 ) -> @ecs.Entity? {
-  for (entity, runtime) in ldtk_spawned_entity_instances().to_array() {
+  let query_ldtk_spawned_entity_instance : @ecs.Query[LdtkSpawnedEntityInstance] = world.query()
+  for (entity, runtime) in query_ldtk_spawned_entity_instance.to_array() {
     if runtime.instance.iid == iid && runtime.level_entity == level_entity {
       return Some(entity)
     }
@@ -233,9 +239,10 @@ fn spawned_entity_by_iid_in_level(
 }
 
 ///|
-fn worldly_count(world_entity : @ecs.Entity) -> Int32 {
+fn worldly_count(world~ : @ecs.World, world_entity : @ecs.Entity) -> Int32 {
+  let query_ldtk_worldly : @ecs.Query[LdtkWorldly] = world.query()
   let mut count = 0
-  for (_, worldly) in ldtk_worldly_entities().to_array() {
+  for (_, worldly) in query_ldtk_worldly.to_array() {
     if worldly.world_entity == world_entity {
       count += 1
     }
@@ -244,9 +251,10 @@ fn worldly_count(world_entity : @ecs.Entity) -> Int32 {
 }
 
 ///|
-fn level_background_count(level_iid : String) -> Int32 {
+fn level_background_count(world~ : @ecs.World, level_iid : String) -> Int32 {
+  let query_ldtk_level_background : @ecs.Query[LdtkLevelBackground] = world.query()
   let mut count = 0
-  for (_, background) in ldtk_level_backgrounds().to_array() {
+  for (_, background) in query_ldtk_level_background.to_array() {
     if background.level_iid == level_iid {
       count += 1
     }
@@ -255,9 +263,13 @@ fn level_background_count(level_iid : String) -> Int32 {
 }
 
 ///|
-fn level_background_image_count(level_iid : String) -> Int32 {
+fn level_background_image_count(
+  world~ : @ecs.World,
+  level_iid : String,
+) -> Int32 {
+  let query_ldtk_level_background : @ecs.Query[LdtkLevelBackground] = world.query()
   let mut count = 0
-  for (_, background) in ldtk_level_backgrounds().to_array() {
+  for (_, background) in query_ldtk_level_background.to_array() {
     if background.level_iid == level_iid && background.rel_path is Some(_) {
       count += 1
     }
@@ -478,7 +490,8 @@ test "load_ldtk_project parses level background position" {
 
 ///|
 test "ldtk_world_sync_system updates spawned levels from selection" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project : LdtkProject = {
     source_path: None,
     external_levels: false,
@@ -512,41 +525,49 @@ test "ldtk_world_sync_system updates spawned levels from selection" {
     level_spawn_behavior: UseWorldTranslation(false),
   })
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
-  inspect(ldtk_world_instances().contains(world), content="true")
-  let world_instance = ldtk_world_instances().get(world).unwrap()
+  let world_entity = spawn_ldtk_world(world~, project)
+  inspect(
+    (world.query() : @ecs.Query[LdtkWorldInstance]).contains(world_entity),
+    content="true",
+  )
+  let world_instance = (world.query() : @ecs.Query[LdtkWorldInstance])
+    .get(world_entity)
+    .unwrap()
   inspect(world_instance.spawned_levels.contains("iid-a"), content="true")
   inspect(world_instance.spawned_levels.contains("iid-b"), content="false")
   let spawned_a = world_instance.spawned_levels.get("iid-a").unwrap()
-  let spawned_a_translation = ldtk_test_entity_translation_2d(spawned_a)
+  let spawned_a_translation = ldtk_test_entity_translation_2d(world~, spawned_a)
   inspect(
     spawned_a_translation.x == 10.0 && spawned_a_translation.y == 20.0,
     content="true",
   )
 
   set_ldtk_level_selection(ldtk_level_selection_index(1))
-  ldtk_world_sync_system(0.0)
-  let updated = ldtk_world_instances().get(world).unwrap()
+  ldtk_world_sync_system(world~, 0.0)
+  let updated = (world.query() : @ecs.Query[LdtkWorldInstance])
+    .get(world_entity)
+    .unwrap()
   inspect(updated.spawned_levels.contains("iid-a"), content="false")
   inspect(updated.spawned_levels.contains("iid-b"), content="true")
   let spawned_b = updated.spawned_levels.get("iid-b").unwrap()
-  let spawned_b_translation = ldtk_test_entity_translation_2d(spawned_b)
+  let spawned_b_translation = ldtk_test_entity_translation_2d(world~, spawned_b)
   inspect(
     spawned_b_translation.x == 110.0 && spawned_b_translation.y == 220.0,
     content="true",
   )
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let files : Map[String, Bytes] = Map([])
   files.set("levels/assets/bg.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
     let project : LdtkProject = {
-      source_path: Some("levels/world.ldtk"),
+      source_path: Some("levels/world_entity.ldtk"),
       external_levels: false,
       world_layout: None,
       bg_color: None,
@@ -577,21 +598,31 @@ test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
     }
     set_ldtk_settings(LdtkSettings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
-    let world = spawn_ldtk_world(project)
-    inspect(level_background_count("level-main"), content="2")
-    inspect(level_background_image_count("level-main"), content="1")
-    inspect(ldtk_level_backgrounds().to_array().length(), content="2")
-    for (entity, _) in ldtk_level_backgrounds().to_array() {
-      inspect(@sprite.sprites().contains(entity), content="true")
+    let world_entity = spawn_ldtk_world(world~, project)
+    inspect(level_background_count(world~, "level-main"), content="2")
+    inspect(level_background_image_count(world~, "level-main"), content="1")
+    inspect(
+      (world.query() : @ecs.Query[LdtkLevelBackground]).to_array().length(),
+      content="2",
+    )
+    for
+      (entity, _) in (world.query() : @ecs.Query[LdtkLevelBackground]).to_array() {
+      inspect(
+        (world.query() : @ecs.Query[@sprite.Sprite]).contains(entity),
+        content="true",
+      )
     }
     let mut image_background_entity : @ecs.Entity? = None
-    for (entity, background) in ldtk_level_backgrounds().to_array() {
+    for
+      (entity, background) in (world.query() : @ecs.Query[LdtkLevelBackground]).to_array() {
       if background.level_iid == "level-main" && background.rel_path is Some(_) {
         image_background_entity = Some(entity)
       }
     }
     let background_entity = image_background_entity.unwrap()
-    let background_sprite = @sprite.sprites().get(background_entity).unwrap()
+    let background_sprite = (world.query() : @ecs.Query[@sprite.Sprite])
+      .get(background_entity)
+      .unwrap()
     guard background_sprite.rect is Some(background_rect) else {
       fail("expected level background rect")
     }
@@ -615,14 +646,18 @@ test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
       background_anchor.x == -0.5 && background_anchor.y == 0.5,
       content="true",
     )
-    cleanup_ldtk_entity(world)
-    inspect(ldtk_level_backgrounds().to_array().length(), content="0")
+    cleanup_ldtk_entity(world~, world_entity)
+    inspect(
+      (world.query() : @ecs.Query[LdtkLevelBackground]).to_array().length(),
+      content="0",
+    )
   })
 }
 
 ///|
 test "spawn_ldtk_world spawns layer tiles entities and intgrid cells" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let files : Map[String, Bytes] = Map([])
   files.set("assets/tiles.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
@@ -777,48 +812,92 @@ test "spawn_ldtk_world spawns layer tiles entities and intgrid cells" {
     }
     set_ldtk_settings(LdtkSettings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
-    let world = spawn_ldtk_world(project)
-    let world_instance = ldtk_world_instances().get(world).unwrap()
+    let world_entity = spawn_ldtk_world(world~, project)
+    let world_instance = (world.query() : @ecs.Query[LdtkWorldInstance])
+      .get(world_entity)
+      .unwrap()
     let level_entity = world_instance.spawned_levels.get("level-main").unwrap()
     inspect(world_instance.spawned_levels.length(), content="1")
-    inspect(ldtk_level_iids().contains(level_entity), content="true")
     inspect(
-      ldtk_level_entity(world, "level-main").unwrap() == level_entity,
+      (world.query() : @ecs.Query[LdtkLevelIid]).contains(level_entity),
       content="true",
     )
-    inspect(ldtk_spawned_layer_instances().to_array().length(), content="3")
-    inspect(ldtk_spawned_tile_instances().to_array().length(), content="1")
-    inspect(ldtk_spawned_int_grid_cells().to_array().length(), content="1")
-    inspect(ldtk_spawned_entity_instances().to_array().length(), content="1")
-    inspect(ldtk_entity_iids().to_array().length(), content="1")
-    inspect(ldtk_tile_metadata().to_array().length(), content="1")
-    inspect(ldtk_int_grid_cells().to_array().length(), content="1")
-    inspect(ldtk_int_grid_colliders().to_array().length(), content="0")
-    let tile_entity = ldtk_spawned_tile_instances().to_array()[0].0
-    inspect(@sprite.sprites().contains(tile_entity), content="true")
-    inspect(ldtk_tile_metadata().get(tile_entity).unwrap().tile_id, content="0")
-    let int_grid_entity = ldtk_spawned_int_grid_cells().to_array()[0].0
-    inspect(@sprite.sprites().contains(int_grid_entity), content="true")
     inspect(
-      ldtk_int_grid_cells().get(int_grid_entity).unwrap().value,
+      ldtk_level_entity(world~, world_entity, "level-main").unwrap() ==
+      level_entity,
+      content="true",
+    )
+    inspect(
+      (world.query() : @ecs.Query[LdtkSpawnedLayerInstance]).to_array().length(),
+      content="3",
+    )
+    inspect(
+      (world.query() : @ecs.Query[LdtkSpawnedTileInstance]).to_array().length(),
       content="1",
     )
-    let spawned_enemy = ldtk_entity_by_iid(world, "entity-1").unwrap()
     inspect(
-      ldtk_entity_iids().get(spawned_enemy).unwrap().iid,
+      (world.query() : @ecs.Query[LdtkSpawnedIntGridCell]).to_array().length(),
+      content="1",
+    )
+    inspect(
+      (world.query() : @ecs.Query[LdtkSpawnedEntityInstance])
+      .to_array()
+      .length(),
+      content="1",
+    )
+    inspect(
+      (world.query() : @ecs.Query[LdtkEntityIid]).to_array().length(),
+      content="1",
+    )
+    inspect(
+      (world.query() : @ecs.Query[LdtkTileMetadata]).to_array().length(),
+      content="1",
+    )
+    inspect(
+      (world.query() : @ecs.Query[LdtkIntGridCell]).to_array().length(),
+      content="1",
+    )
+    inspect(
+      (world.query() : @ecs.Query[LdtkIntGridCollider]).to_array().length(),
+      content="0",
+    )
+    let tile_entity = (world.query() : @ecs.Query[LdtkSpawnedTileInstance]).to_array()[0].0
+    inspect(
+      (world.query() : @ecs.Query[@sprite.Sprite]).contains(tile_entity),
+      content="true",
+    )
+    inspect(
+      (world.query() : @ecs.Query[LdtkTileMetadata]).get(tile_entity).unwrap().tile_id,
+      content="0",
+    )
+    let int_grid_entity = (world.query() : @ecs.Query[LdtkSpawnedIntGridCell]).to_array()[0].0
+    inspect(
+      (world.query() : @ecs.Query[@sprite.Sprite]).contains(int_grid_entity),
+      content="true",
+    )
+    inspect(
+      (world.query() : @ecs.Query[LdtkIntGridCell])
+      .get(int_grid_entity)
+      .unwrap().value,
+      content="1",
+    )
+    let spawned_enemy = ldtk_entity_by_iid(world~, world_entity, "entity-1").unwrap()
+    inspect(
+      (world.query() : @ecs.Query[LdtkEntityIid]).get(spawned_enemy).unwrap().iid,
       content="entity-1",
     )
-    cleanup_ldtk_entity(world)
+    cleanup_ldtk_entity(world~, world_entity)
   })
 }
 
 ///|
 test "ldtk entity tile sprite registration inserts placeholder sprite from __tile" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let files : Map[String, Bytes] = Map([])
   files.set("assets/entity_tiles.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
-    add_ldtk_entity_tile_sprite("Enemy")
+    add_ldtk_entity_tile_sprite(world~, "Enemy")
     let entity_layer : LdtkLayerInstance = {
       iid: "layer-entities",
       identifier: "Entities",
@@ -901,10 +980,15 @@ test "ldtk entity tile sprite registration inserts placeholder sprite from __til
     }
     set_ldtk_settings(LdtkSettings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
-    let world = spawn_ldtk_world(project)
-    let enemy = ldtk_entity_by_iid(world, "enemy-1").unwrap()
-    inspect(@sprite.sprites().contains(enemy), content="true")
-    let sprite = @sprite.sprites().get(enemy).unwrap()
+    let world_entity = spawn_ldtk_world(world~, project)
+    let enemy = ldtk_entity_by_iid(world~, world_entity, "enemy-1").unwrap()
+    inspect(
+      (world.query() : @ecs.Query[@sprite.Sprite]).contains(enemy),
+      content="true",
+    )
+    let sprite = (world.query() : @ecs.Query[@sprite.Sprite])
+      .get(enemy)
+      .unwrap()
     guard sprite.rect is Some(tile_rect) else {
       fail("expected entity tile rect")
     }
@@ -922,13 +1006,14 @@ test "ldtk entity tile sprite registration inserts placeholder sprite from __til
     )
     let sprite_anchor = sprite.anchor.as_vec()
     inspect(sprite_anchor.x == -0.5 && sprite_anchor.y == 1.0, content="true")
-    cleanup_ldtk_entity(world)
+    cleanup_ldtk_entity(world~, world_entity)
   })
 }
 
 ///|
 test "ldtk tile source uses tileset spacing and padding" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let files : Map[String, Bytes] = Map([])
   files.set("assets/tiles.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
@@ -1010,17 +1095,20 @@ test "ldtk tile source uses tileset spacing and padding" {
     }
     set_ldtk_settings(LdtkSettings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
-    let world = spawn_ldtk_world(project)
-    let tile_entity = ldtk_spawned_tile_instances().to_array()[0].0
-    let src = ldtk_tile_metadata().get(tile_entity).unwrap().src
+    let world_entity = spawn_ldtk_world(world~, project)
+    let tile_entity = (world.query() : @ecs.Query[LdtkSpawnedTileInstance]).to_array()[0].0
+    let src = (world.query() : @ecs.Query[LdtkTileMetadata])
+      .get(tile_entity)
+      .unwrap().src
     inspect(src.x == 19.0 && src.y == 19.0, content="true")
-    cleanup_ldtk_entity(world)
+    cleanup_ldtk_entity(world~, world_entity)
   })
 }
 
 ///|
 test "ldtk tile render alpha multiplies layer opacity and tile alpha" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let files : Map[String, Bytes] = Map([])
   files.set("assets/tiles.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
@@ -1102,11 +1190,13 @@ test "ldtk tile render alpha multiplies layer opacity and tile alpha" {
     }
     set_ldtk_settings(LdtkSettings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
-    let world = spawn_ldtk_world(project)
-    let tile_entity = ldtk_spawned_tile_instances().to_array()[0].0
-    let sprite = @sprite.sprites().get(tile_entity).unwrap()
+    let world_entity = spawn_ldtk_world(world~, project)
+    let tile_entity = (world.query() : @ecs.Query[LdtkSpawnedTileInstance]).to_array()[0].0
+    let sprite = (world.query() : @ecs.Query[@sprite.Sprite])
+      .get(tile_entity)
+      .unwrap()
     inspect(sprite.color.a, content="0.2")
-    cleanup_ldtk_entity(world)
+    cleanup_ldtk_entity(world~, world_entity)
   })
 }
 
@@ -1158,7 +1248,8 @@ test "ldtk tileset custom data and enum tags resolve by tile id" {
 
 ///|
 test "ldtk spawned tile metadata includes custom data and enum tags" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let files : Map[String, Bytes] = Map([])
   files.set("assets/tiles.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
@@ -1240,19 +1331,22 @@ test "ldtk spawned tile metadata includes custom data and enum tags" {
     }
     set_ldtk_settings(LdtkSettings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
-    let world = spawn_ldtk_world(project)
-    let tile_entity = ldtk_spawned_tile_instances().to_array()[0].0
-    let metadata = ldtk_tile_metadata().get(tile_entity).unwrap()
+    let world_entity = spawn_ldtk_world(world~, project)
+    let tile_entity = (world.query() : @ecs.Query[LdtkSpawnedTileInstance]).to_array()[0].0
+    let metadata = (world.query() : @ecs.Query[LdtkTileMetadata])
+      .get(tile_entity)
+      .unwrap()
     inspect(metadata.custom_data.unwrap(), content="spawn")
     inspect(metadata.enum_tags.length(), content="1")
     inspect(metadata.enum_tags[0], content="Solid")
-    cleanup_ldtk_entity(world)
+    cleanup_ldtk_entity(world~, world_entity)
   })
 }
 
 ///|
 test "ldtk entity spawn hook applies by identifier" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [
     test_entity_layer([
       {
@@ -1291,18 +1385,19 @@ test "ldtk entity spawn hook applies by identifier" {
 
   set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
-  let enemy = ldtk_entity_by_iid(world, "entity-enemy").unwrap()
-  let npc = ldtk_entity_by_iid(world, "entity-npc").unwrap()
+  let world_entity = spawn_ldtk_world(world~, project)
+  let enemy = ldtk_entity_by_iid(world~, world_entity, "entity-enemy").unwrap()
+  let npc = ldtk_entity_by_iid(world~, world_entity, "entity-npc").unwrap()
   inspect(ldtk_respawns().contains(enemy), content="true")
   inspect(ldtk_respawns().contains(npc), content="false")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "ldtk entity spawn hooks support layer and default scopes" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [
     test_entity_layer_with_identifier("LayerA", [
       {
@@ -1369,19 +1464,20 @@ test "ldtk entity spawn hooks support layer and default scopes" {
 
   set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
 
   inspect(layer_identifier_hits.val, content="1")
   inspect(layer_hits.val, content="2")
   inspect(identifier_hits.val, content="2")
   inspect(default_hits.val, content="3")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "ldtk entity optional hook registration routes by scope" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [
     test_entity_layer_with_identifier("LayerA", [
       {
@@ -1436,7 +1532,7 @@ test "ldtk entity optional hook registration routes by scope" {
 
   set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
   inspect(scoped_hits.val, content="1")
   inspect(layer_hits.val, content="2")
   inspect(identifier_hits.val, content="1")
@@ -1454,12 +1550,13 @@ test "ldtk entity optional hook registration routes by scope" {
   inspect(ldtk_entity_spawn_hooks().to_array().length(), content="0")
   inspect(ldtk_entity_default_spawn_hook().val is None, content="true")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "ldtk typed entity registrations use most specific scope" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [
     test_entity_layer_with_identifier("LayerA", [
       {
@@ -1524,7 +1621,7 @@ test "ldtk typed entity registrations use most specific scope" {
 
   set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
 
   inspect(scoped_hits.val, content="1")
   inspect(identifier_hits.val, content="1")
@@ -1537,12 +1634,13 @@ test "ldtk typed entity registrations use most specific scope" {
   unregister_default_ldtk_entity()
   inspect(ldtk_entity_typed_registrations().to_array().length(), content="0")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "ldtk add entity registration composes handlers in same scope" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [
     test_entity_layer_with_identifier("LayerA", [
       {
@@ -1572,16 +1670,17 @@ test "ldtk add entity registration composes handlers in same scope" {
 
   set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
   inspect(first_hits.val, content="1")
   inspect(second_hits.val, content="1")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "ldtk add entity component helpers can build bundle-like sets" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [
     test_entity_layer_with_identifier("LayerA", [
       {
@@ -1614,35 +1713,32 @@ test "ldtk add entity component helpers can build bundle-like sets" {
       },
     ]),
   ])
-  let entity_scores : @ecs.ComponentStore[Int32] = ComponentStore(
-    @ecs.require_current_world(),
-  )
-  let entity_kinds : @ecs.ComponentStore[String] = ComponentStore(
-    @ecs.require_current_world(),
-  )
+  let entity_scores : @ecs.Query[EntityScore] = world.query()
+  let entity_kinds : @ecs.Query[EntityKind] = world.query()
 
-  add_ldtk_entity_component("Enemy", entity_scores, fn(_event) { 99 })
-  add_ldtk_entity_component("Enemy", entity_kinds, fn(event) {
-    event.instance.identifier
+  add_ldtk_entity_component("Enemy", fn(_event) { EntityScore(99) })
+  add_ldtk_entity_component("Enemy", fn(event) {
+    EntityKind(event.instance.identifier)
   })
 
   set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
 
-  let enemy = ldtk_entity_by_iid(world, "entity-enemy-a").unwrap()
-  let npc = ldtk_entity_by_iid(world, "entity-npc-a").unwrap()
-  inspect(entity_scores.get(enemy).unwrap(), content="99")
-  inspect(entity_kinds.get(enemy).unwrap(), content="Enemy")
+  let enemy = ldtk_entity_by_iid(world~, world_entity, "entity-enemy-a").unwrap()
+  let npc = ldtk_entity_by_iid(world~, world_entity, "entity-npc-a").unwrap()
+  inspect(entity_scores.get(enemy).unwrap().0, content="99")
+  inspect(entity_kinds.get(enemy).unwrap().0, content="Enemy")
   inspect(entity_scores.get(npc) is None, content="true")
   inspect(entity_kinds.get(npc) is None, content="true")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "ldtk intgrid spawn hooks apply by layer and cell value" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 2, 1, [1, 2]),
   ])
@@ -1656,11 +1752,13 @@ test "ldtk intgrid spawn hooks apply by layer and cell value" {
 
   set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
 
   let mut cell_value_1 : @ecs.Entity? = None
   let mut cell_value_2 : @ecs.Entity? = None
-  for (cell_entity, runtime) in ldtk_spawned_int_grid_cells().to_array() {
+  for
+    (cell_entity, runtime) in (
+      world.query() : @ecs.Query[LdtkSpawnedIntGridCell]).to_array() {
     if runtime.value == 1 {
       cell_value_1 = Some(cell_entity)
     } else if runtime.value == 2 {
@@ -1672,12 +1770,13 @@ test "ldtk intgrid spawn hooks apply by layer and cell value" {
   inspect(observed.get(value_1_entity).unwrap(), content="false")
   inspect(observed.get(value_2_entity).unwrap(), content="true")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "ldtk typed int cell registrations use most specific scope" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 2, 1, [1, 2]),
     test_int_grid_layer("Water", 1, 1, [2]),
@@ -1698,7 +1797,7 @@ test "ldtk typed int cell registrations use most specific scope" {
 
   set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
 
   inspect(scoped_hits.val, content="1")
   inspect(value_hits.val, content="1")
@@ -1711,32 +1810,31 @@ test "ldtk typed int cell registrations use most specific scope" {
   unregister_default_ldtk_int_cell()
   inspect(ldtk_int_cell_typed_registrations().to_array().length(), content="0")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "ldtk add int cell component helpers can compose per scope" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 2, 1, [1, 2]),
   ])
-  let cell_labels : @ecs.ComponentStore[String] = ComponentStore(
-    @ecs.require_current_world(),
-  )
-  let cell_values_x2 : @ecs.ComponentStore[Int32] = ComponentStore(
-    @ecs.require_current_world(),
-  )
+  let cell_labels : @ecs.Query[CellLabel] = world.query()
+  let cell_values_x2 : @ecs.Query[CellValue] = world.query()
 
-  add_ldtk_int_cell_component(2, cell_labels, fn(_event) { "solid" })
-  add_ldtk_int_cell_component(2, cell_values_x2, fn(event) { event.value * 2 })
+  add_ldtk_int_cell_component(2, fn(_event) { CellLabel("solid") })
+  add_ldtk_int_cell_component(2, fn(event) { CellValue(event.value * 2) })
 
   set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
 
   let mut value_1_entity : @ecs.Entity? = None
   let mut value_2_entity : @ecs.Entity? = None
-  for (cell_entity, runtime) in ldtk_spawned_int_grid_cells().to_array() {
+  for
+    (cell_entity, runtime) in (
+      world.query() : @ecs.Query[LdtkSpawnedIntGridCell]).to_array() {
     if runtime.value == 1 {
       value_1_entity = Some(cell_entity)
     } else if runtime.value == 2 {
@@ -1745,17 +1843,18 @@ test "ldtk add int cell component helpers can compose per scope" {
   }
   let cell_1 = value_1_entity.unwrap()
   let cell_2 = value_2_entity.unwrap()
-  inspect(cell_labels.get(cell_2).unwrap(), content="solid")
-  inspect(cell_values_x2.get(cell_2).unwrap(), content="4")
+  inspect(cell_labels.get(cell_2).unwrap().0, content="solid")
+  inspect(cell_values_x2.get(cell_2).unwrap().0, content="4")
   inspect(cell_labels.get(cell_1) is None, content="true")
   inspect(cell_values_x2.get(cell_1) is None, content="true")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "ldtk intgrid optional hook registration routes by scope" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 2, 1, [1, 2]),
   ])
@@ -1783,7 +1882,7 @@ test "ldtk intgrid optional hook registration routes by scope" {
 
   set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
   inspect(scoped_hits.val, content="1")
   inspect(layer_hits.val, content="2")
   inspect(value_hits.val, content="1")
@@ -1798,12 +1897,13 @@ test "ldtk intgrid optional hook registration routes by scope" {
   inspect(ldtk_int_grid_value_spawn_hooks().to_array().length(), content="0")
   inspect(ldtk_int_grid_default_spawn_hook().val is None, content="true")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "ldtk intgrid spawn hooks support value and default scopes" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 2, 1, [1, 2]),
     test_int_grid_layer("Water", 2, 1, [1, 2]),
@@ -1824,19 +1924,20 @@ test "ldtk intgrid spawn hooks support value and default scopes" {
 
   set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
 
   inspect(layer_hits.val, content="2")
   inspect(cell_hits.val, content="1")
   inspect(value_hits.val, content="2")
   inspect(default_hits.val, content="4")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "ldtk layer display order uses LDtk top-most first ordering" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project : LdtkProject = {
     source_path: None,
     external_levels: false,
@@ -1909,10 +2010,11 @@ test "ldtk layer display order uses LDtk top-most first ordering" {
   }
   set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
   let mut top_zindex = 0
   let mut bottom_zindex = 0
-  for (_, runtime) in ldtk_spawned_layer_instances().to_array() {
+  for
+    (_, runtime) in (world.query() : @ecs.Query[LdtkSpawnedLayerInstance]).to_array() {
     if runtime.layer.identifier == "Top" {
       top_zindex = runtime.zindex
     } else if runtime.layer.identifier == "Bottom" {
@@ -1921,12 +2023,13 @@ test "ldtk layer display order uses LDtk top-most first ordering" {
   }
   inspect(top_zindex > bottom_zindex, content="true")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "ldtk intgrid with tileset skips colorful fallback sprites" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let files : Map[String, Bytes] = Map([])
   files.set("assets/tiles.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
@@ -2027,14 +2130,25 @@ test "ldtk intgrid with tileset skips colorful fallback sprites" {
     }
     set_ldtk_settings(LdtkSettings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
-    let world = spawn_ldtk_world(project)
-    let int_grid_cell = ldtk_spawned_int_grid_cells().to_array()[0].0
-    inspect(@sprite.sprites().contains(int_grid_cell), content="false")
-    inspect(ldtk_spawned_tile_instances().to_array().length(), content="2")
+    let world_entity = spawn_ldtk_world(world~, project)
+    let int_grid_cell = (world.query() : @ecs.Query[LdtkSpawnedIntGridCell]).to_array()[0].0
+    inspect(
+      (world.query() : @ecs.Query[@sprite.Sprite]).contains(int_grid_cell),
+      content="false",
+    )
+    inspect(
+      (world.query() : @ecs.Query[LdtkSpawnedTileInstance]).to_array().length(),
+      content="2",
+    )
     let mut min_zindex = 999999
     let mut max_zindex = -999999
-    for (visual_tile, tile_instance) in ldtk_spawned_tile_instances().to_array() {
-      inspect(@sprite.sprites().contains(visual_tile), content="true")
+    for
+      (visual_tile, tile_instance) in (
+        world.query() : @ecs.Query[LdtkSpawnedTileInstance]).to_array() {
+      inspect(
+        (world.query() : @ecs.Query[@sprite.Sprite]).contains(visual_tile),
+        content="true",
+      )
       let zindex = tile_instance.zindex
       if zindex < min_zindex {
         min_zindex = zindex
@@ -2044,13 +2158,14 @@ test "ldtk intgrid with tileset skips colorful fallback sprites" {
       }
     }
     inspect(max_zindex > min_zindex, content="true")
-    cleanup_ldtk_entity(world)
+    cleanup_ldtk_entity(world~, world_entity)
   })
 }
 
 ///|
 test "ldtk settings intgrid invisible and layer exclusion apply at spawn" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let files : Map[String, Bytes] = Map([])
   files.set("assets/tiles.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
@@ -2175,37 +2290,50 @@ test "ldtk settings intgrid invisible and layer exclusion apply at spawn" {
       spawn_exclusions: { layer_identifiers: ["Entities"], },
     })
     set_ldtk_level_selection(ldtk_level_selection_index(0))
-    let world = spawn_ldtk_world(project)
-    inspect(ldtk_spawned_entity_instances().to_array().length(), content="0")
-    inspect(ldtk_spawned_int_grid_cells().to_array().length(), content="1")
-    let int_grid_entity = ldtk_spawned_int_grid_cells().to_array()[0].0
-    inspect(@sprite.sprites().contains(int_grid_entity), content="false")
-    cleanup_ldtk_entity(world)
+    let world_entity = spawn_ldtk_world(world~, project)
+    inspect(
+      (world.query() : @ecs.Query[LdtkSpawnedEntityInstance])
+      .to_array()
+      .length(),
+      content="0",
+    )
+    inspect(
+      (world.query() : @ecs.Query[LdtkSpawnedIntGridCell]).to_array().length(),
+      content="1",
+    )
+    let int_grid_entity = (world.query() : @ecs.Query[LdtkSpawnedIntGridCell]).to_array()[0].0
+    inspect(
+      (world.query() : @ecs.Query[@sprite.Sprite]).contains(int_grid_entity),
+      content="false",
+    )
+    cleanup_ldtk_entity(world~, world_entity)
   })
 }
 
 ///|
 test "ldtk transformed event is emitted on next sync tick" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [])
   set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let reader = @event.EventReader()
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
 
   let immediate = ldtk_level_event_bus.read(reader)
   inspect(count_transformed_events(immediate, "level-main"), content="0")
 
-  ldtk_world_sync_system(0.0)
+  ldtk_world_sync_system(world~, 0.0)
   let after_sync = ldtk_level_event_bus.read(reader)
   inspect(count_transformed_events(after_sync, "level-main"), content="1")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "ldtk level respawn keeps worldly entities and respawns level entities" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [
     test_entity_layer([
       {
@@ -2247,53 +2375,73 @@ test "ldtk level respawn keeps worldly entities and respawns level entities" {
   ])
   set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
 
-  let world_instance = ldtk_world_instances().get(world).unwrap()
+  let world_instance = (world.query() : @ecs.Query[LdtkWorldInstance])
+    .get(world_entity)
+    .unwrap()
   let level_entity_before = world_instance.spawned_levels
     .get("level-main")
     .unwrap()
-  let worldly_before = ldtk_worldly_entity(world, "entity-worldly").unwrap()
+  let worldly_before = ldtk_worldly_entity(
+    world~,
+    world_entity,
+    "entity-worldly",
+  ).unwrap()
   let local_before = spawned_entity_by_iid_in_level(
-    "entity-local", level_entity_before,
+    world~,
+    "entity-local",
+    level_entity_before,
   ).unwrap()
   inspect(
-    ldtk_entity_by_iid(world, "entity-worldly").unwrap() == worldly_before,
+    ldtk_entity_by_iid(world~, world_entity, "entity-worldly").unwrap() ==
+    worldly_before,
     content="true",
   )
-  inspect(worldly_count(world), content="1")
+  inspect(worldly_count(world~, world_entity), content="1")
 
   mark_ldtk_respawn(level_entity_before)
-  ldtk_world_sync_system(0.0)
+  ldtk_world_sync_system(world~, 0.0)
 
-  let updated_world_instance = ldtk_world_instances().get(world).unwrap()
+  let updated_world_instance = (world.query() : @ecs.Query[LdtkWorldInstance])
+    .get(world_entity)
+    .unwrap()
   let level_entity_after = updated_world_instance.spawned_levels
     .get("level-main")
     .unwrap()
   inspect(level_entity_after == level_entity_before, content="false")
   inspect(local_before.is_alive(), content="false")
   let local_after = spawned_entity_by_iid_in_level(
-    "entity-local", level_entity_after,
+    world~,
+    "entity-local",
+    level_entity_after,
   ).unwrap()
   inspect(local_after == local_before, content="false")
   inspect(
-    ldtk_entity_by_iid(world, "entity-local").unwrap() == local_after,
+    ldtk_entity_by_iid(world~, world_entity, "entity-local").unwrap() ==
+    local_after,
     content="true",
   )
-  let worldly_after = ldtk_worldly_entity(world, "entity-worldly").unwrap()
+  let worldly_after = ldtk_worldly_entity(
+    world~,
+    world_entity,
+    "entity-worldly",
+  ).unwrap()
   inspect(worldly_after == worldly_before, content="true")
   inspect(
-    ldtk_entity_by_iid(world, "entity-worldly").unwrap() == worldly_after,
+    ldtk_entity_by_iid(world~, world_entity, "entity-worldly").unwrap() ==
+    worldly_after,
     content="true",
   )
-  inspect(worldly_count(world), content="1")
+  inspect(worldly_count(world~, world_entity), content="1")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
-test "ldtk world respawn recreates worldly entities" {
-  reset_ldtk_runtime()
+test "ldtk world_entity respawn recreates worldly entities" {
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [
     test_entity_layer([
       {
@@ -2321,29 +2469,39 @@ test "ldtk world respawn recreates worldly entities" {
   ])
   set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
 
-  let worldly_before = ldtk_worldly_entity(world, "entity-worldly").unwrap()
-  inspect(worldly_count(world), content="1")
+  let worldly_before = ldtk_worldly_entity(
+    world~,
+    world_entity,
+    "entity-worldly",
+  ).unwrap()
+  inspect(worldly_count(world~, world_entity), content="1")
 
-  mark_ldtk_respawn(world)
-  ldtk_world_sync_system(0.0)
+  mark_ldtk_respawn(world_entity)
+  ldtk_world_sync_system(world~, 0.0)
 
-  let worldly_after = ldtk_worldly_entity(world, "entity-worldly").unwrap()
+  let worldly_after = ldtk_worldly_entity(
+    world~,
+    world_entity,
+    "entity-worldly",
+  ).unwrap()
   inspect(worldly_after == worldly_before, content="false")
   inspect(worldly_before.is_alive(), content="false")
   inspect(
-    ldtk_entity_by_iid(world, "entity-worldly").unwrap() == worldly_after,
+    ldtk_entity_by_iid(world~, world_entity, "entity-worldly").unwrap() ==
+    worldly_after,
     content="true",
   )
-  inspect(worldly_count(world), content="1")
+  inspect(worldly_count(world~, world_entity), content="1")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "ldtk intgrid physics spawns collider from matching cells" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let collider_reader = @event.EventReader()
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 1, 1, [1]),
@@ -2356,25 +2514,38 @@ test "ldtk intgrid physics spawns collider from matching cells" {
     values: [1],
   })
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
 
-  let cell_entity = ldtk_spawned_int_grid_cells().to_array()[0].0
-  inspect(ldtk_int_grid_colliders().contains(cell_entity), content="true")
-  inspect(@physics2d.colliders().contains(cell_entity), content="true")
-  inspect(@physics2d.shapes().contains(cell_entity), content="true")
-  inspect(@physics2d.areas().contains(cell_entity), content="false")
+  let cell_entity = (world.query() : @ecs.Query[LdtkSpawnedIntGridCell]).to_array()[0].0
+  inspect(
+    (world.query() : @ecs.Query[LdtkIntGridCollider]).contains(cell_entity),
+    content="true",
+  )
+  inspect(
+    (world.query() : @ecs.Query[@physics2d.Collider]).contains(cell_entity),
+    content="true",
+  )
+  inspect(
+    (world.query() : @ecs.Query[@physics2d.ColliderShape]).contains(cell_entity),
+    content="true",
+  )
+  inspect(
+    (world.query() : @ecs.Query[@physics2d.Area]).contains(cell_entity),
+    content="false",
+  )
   let collider_events = ldtk_int_grid_collider_spawned_event_bus.read(
     collider_reader,
   )
   inspect(collider_events.length(), content="1")
   inspect(collider_events[0].sensor, content="false")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "ldtk intgrid physics supports sensor mode" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let collider_reader = @event.EventReader()
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 1, 1, [1]),
@@ -2386,59 +2557,73 @@ test "ldtk intgrid physics supports sensor mode" {
     as_sensor: true,
   })
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
 
-  let cell_entity = ldtk_spawned_int_grid_cells().to_array()[0].0
-  inspect(ldtk_int_grid_colliders().contains(cell_entity), content="true")
-  inspect(@physics2d.areas().contains(cell_entity), content="true")
-  inspect(@physics2d.shapes().contains(cell_entity), content="true")
-  inspect(@physics2d.colliders().contains(cell_entity), content="false")
+  let cell_entity = (world.query() : @ecs.Query[LdtkSpawnedIntGridCell]).to_array()[0].0
+  inspect(
+    (world.query() : @ecs.Query[LdtkIntGridCollider]).contains(cell_entity),
+    content="true",
+  )
+  inspect(
+    (world.query() : @ecs.Query[@physics2d.Area]).contains(cell_entity),
+    content="true",
+  )
+  inspect(
+    (world.query() : @ecs.Query[@physics2d.ColliderShape]).contains(cell_entity),
+    content="true",
+  )
+  inspect(
+    (world.query() : @ecs.Query[@physics2d.Collider]).contains(cell_entity),
+    content="false",
+  )
   let collider_events = ldtk_int_grid_collider_spawned_event_bus.read(
     collider_reader,
   )
   inspect(collider_events.length(), content="1")
   inspect(collider_events[0].sensor, content="true")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "ldtk transformed remains delayed after level respawn" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [])
   set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let reader = @event.EventReader()
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
 
-  ldtk_world_sync_system(0.0)
+  ldtk_world_sync_system(world~, 0.0)
   let initial_events = ldtk_level_event_bus.read(reader)
   inspect(count_transformed_events(initial_events, "level-main"), content="1")
 
-  let level_entity = ldtk_level_entity(world, "level-main").unwrap()
+  let level_entity = ldtk_level_entity(world~, world_entity, "level-main").unwrap()
   mark_ldtk_respawn(level_entity)
-  ldtk_world_sync_system(0.0)
+  ldtk_world_sync_system(world~, 0.0)
   let respawn_tick_events = ldtk_level_event_bus.read(reader)
   inspect(
     count_transformed_events(respawn_tick_events, "level-main"),
     content="0",
   )
 
-  ldtk_world_sync_system(0.0)
+  ldtk_world_sync_system(world~, 0.0)
   let next_tick_events = ldtk_level_event_bus.read(reader)
   inspect(count_transformed_events(next_tick_events, "level-main"), content="1")
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
 }
 
 ///|
 test "despawn_ldtk_tree clears pending transformed levels before sync" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [])
   set_ldtk_settings(LdtkSettings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let reader = @event.EventReader()
-  let world = spawn_ldtk_world(project)
+  let world_entity = spawn_ldtk_world(world~, project)
 
   inspect(
     ldtk_pending_transformed_level_iids().contains("level-main"),
@@ -2447,26 +2632,27 @@ test "despawn_ldtk_tree clears pending transformed levels before sync" {
   let immediate_events = ldtk_level_event_bus.read(reader)
   inspect(count_transformed_events(immediate_events, "level-main"), content="0")
 
-  despawn_ldtk_tree(world)
+  despawn_ldtk_tree(world~, world_entity)
   try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
   inspect(
     ldtk_pending_transformed_level_iids().contains("level-main"),
     content="false",
   )
 
-  ldtk_world_sync_system(0.0)
+  ldtk_world_sync_system(world~, 0.0)
   let after_despawn_events = ldtk_level_event_bus.read(reader)
   inspect(
     count_transformed_events(after_despawn_events, "level-main"),
     content="0",
   )
 
-  reset_ldtk_runtime()
+  reset_ldtk_runtime(world~)
 }
 
 ///|
 test "despawn_ldtk_tree clears intgrid runtime maps and physics components" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 1, 1, [1]),
   ])
@@ -2476,36 +2662,72 @@ test "despawn_ldtk_tree clears intgrid runtime maps and physics components" {
     enabled: true,
   })
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
-  let level_entity = ldtk_level_entity(world, "level-main").unwrap()
-  let layer_entity = ldtk_spawned_layer_instances().to_array()[0].0
-  let cell_entity = ldtk_spawned_int_grid_cells().to_array()[0].0
-  inspect(ldtk_int_grid_colliders().contains(cell_entity), content="true")
-  inspect(@physics2d.colliders().contains(cell_entity), content="true")
+  let world_entity = spawn_ldtk_world(world~, project)
+  let level_entity = ldtk_level_entity(world~, world_entity, "level-main").unwrap()
+  let layer_entity = (world.query() : @ecs.Query[LdtkSpawnedLayerInstance]).to_array()[0].0
+  let cell_entity = (world.query() : @ecs.Query[LdtkSpawnedIntGridCell]).to_array()[0].0
+  inspect(
+    (world.query() : @ecs.Query[LdtkIntGridCollider]).contains(cell_entity),
+    content="true",
+  )
+  inspect(
+    (world.query() : @ecs.Query[@physics2d.Collider]).contains(cell_entity),
+    content="true",
+  )
 
-  despawn_ldtk_tree(world)
+  despawn_ldtk_tree(world~, world_entity)
   try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
 
-  inspect(ldtk_world_instances().contains(world), content="false")
-  inspect(ldtk_level_instances().contains(level_entity), content="false")
-  inspect(ldtk_level_iids().contains(level_entity), content="false")
   inspect(
-    ldtk_spawned_layer_instances().contains(layer_entity),
+    (world.query() : @ecs.Query[LdtkWorldInstance]).contains(world_entity),
     content="false",
   )
-  inspect(ldtk_grid_coords().contains(cell_entity), content="false")
-  inspect(ldtk_int_grid_cells().contains(cell_entity), content="false")
-  inspect(ldtk_int_grid_colliders().contains(cell_entity), content="false")
-  inspect(@physics2d.colliders().contains(cell_entity), content="false")
-  inspect(@physics2d.shapes().contains(cell_entity), content="false")
-  inspect(@physics2d.areas().contains(cell_entity), content="false")
+  inspect(
+    (world.query() : @ecs.Query[LdtkLevelInstance]).contains(level_entity),
+    content="false",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkLevelIid]).contains(level_entity),
+    content="false",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkSpawnedLayerInstance]).contains(
+      layer_entity,
+    ),
+    content="false",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkGridCoords]).contains(cell_entity),
+    content="false",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkIntGridCell]).contains(cell_entity),
+    content="false",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkIntGridCollider]).contains(cell_entity),
+    content="false",
+  )
+  inspect(
+    (world.query() : @ecs.Query[@physics2d.Collider]).contains(cell_entity),
+    content="false",
+  )
+  inspect(
+    (world.query() : @ecs.Query[@physics2d.ColliderShape]).contains(cell_entity),
+    content="false",
+  )
+  inspect(
+    (world.query() : @ecs.Query[@physics2d.Area]).contains(cell_entity),
+    content="false",
+  )
 
-  reset_ldtk_runtime()
+  reset_ldtk_runtime(world~)
 }
 
 ///|
 test "reset_ldtk_runtime clears runtime maps and intgrid physics components" {
-  reset_ldtk_runtime()
+  let world = @ecs.require_current_world()
+  reset_ldtk_runtime(world~)
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 1, 1, [1]),
   ])
@@ -2515,28 +2737,76 @@ test "reset_ldtk_runtime clears runtime maps and intgrid physics components" {
     enabled: true,
   })
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let world = spawn_ldtk_world(project)
-  let cell_entity = ldtk_spawned_int_grid_cells().to_array()[0].0
-  inspect(@physics2d.colliders().contains(cell_entity), content="true")
+  let world_entity = spawn_ldtk_world(world~, project)
+  let cell_entity = (world.query() : @ecs.Query[LdtkSpawnedIntGridCell]).to_array()[0].0
+  inspect(
+    (world.query() : @ecs.Query[@physics2d.Collider]).contains(cell_entity),
+    content="true",
+  )
 
-  reset_ldtk_runtime()
+  reset_ldtk_runtime(world~)
 
-  inspect(ldtk_world_instances().to_array().length(), content="0")
-  inspect(ldtk_level_instances().to_array().length(), content="0")
-  inspect(ldtk_layer_metadata().to_array().length(), content="0")
-  inspect(ldtk_level_backgrounds().to_array().length(), content="0")
-  inspect(ldtk_level_iids().to_array().length(), content="0")
-  inspect(ldtk_entity_iids().to_array().length(), content="0")
-  inspect(ldtk_grid_coords().to_array().length(), content="0")
-  inspect(ldtk_int_grid_cells().to_array().length(), content="0")
-  inspect(ldtk_tile_metadata().to_array().length(), content="0")
-  inspect(ldtk_int_grid_colliders().to_array().length(), content="0")
-  inspect(ldtk_worldly_entities().to_array().length(), content="0")
+  inspect(
+    (world.query() : @ecs.Query[LdtkWorldInstance]).to_array().length(),
+    content="0",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkLevelInstance]).to_array().length(),
+    content="0",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkLayerMetadata]).to_array().length(),
+    content="0",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkLevelBackground]).to_array().length(),
+    content="0",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkLevelIid]).to_array().length(),
+    content="0",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkEntityIid]).to_array().length(),
+    content="0",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkGridCoords]).to_array().length(),
+    content="0",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkIntGridCell]).to_array().length(),
+    content="0",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkTileMetadata]).to_array().length(),
+    content="0",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkIntGridCollider]).to_array().length(),
+    content="0",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkWorldly]).to_array().length(),
+    content="0",
+  )
   inspect(ldtk_respawns().to_array().length(), content="0")
-  inspect(ldtk_spawned_layer_instances().to_array().length(), content="0")
-  inspect(ldtk_spawned_tile_instances().to_array().length(), content="0")
-  inspect(ldtk_spawned_entity_instances().to_array().length(), content="0")
-  inspect(ldtk_spawned_int_grid_cells().to_array().length(), content="0")
+  inspect(
+    (world.query() : @ecs.Query[LdtkSpawnedLayerInstance]).to_array().length(),
+    content="0",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkSpawnedTileInstance]).to_array().length(),
+    content="0",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkSpawnedEntityInstance]).to_array().length(),
+    content="0",
+  )
+  inspect(
+    (world.query() : @ecs.Query[LdtkSpawnedIntGridCell]).to_array().length(),
+    content="0",
+  )
   inspect(ldtk_entity_spawn_hooks().to_array().length(), content="0")
   inspect(ldtk_entity_layer_spawn_hooks().to_array().length(), content="0")
   inspect(
@@ -2554,10 +2824,66 @@ test "reset_ldtk_runtime clears runtime maps and intgrid physics components" {
     ldtk_pending_transformed_level_iids().to_array().length(),
     content="0",
   )
-  inspect(@physics2d.colliders().contains(cell_entity), content="false")
-  inspect(@physics2d.shapes().contains(cell_entity), content="false")
-  inspect(@physics2d.areas().contains(cell_entity), content="false")
-  inspect(@physics2d.rigid_bodies().contains(cell_entity), content="false")
+  inspect(
+    (world.query() : @ecs.Query[@physics2d.Collider]).contains(cell_entity),
+    content="false",
+  )
+  inspect(
+    (world.query() : @ecs.Query[@physics2d.ColliderShape]).contains(cell_entity),
+    content="false",
+  )
+  inspect(
+    (world.query() : @ecs.Query[@physics2d.Area]).contains(cell_entity),
+    content="false",
+  )
+  inspect(
+    (world.query() : @ecs.Query[@physics2d.RigidBody]).contains(cell_entity),
+    content="false",
+  )
 
-  cleanup_ldtk_entity(world)
+  cleanup_ldtk_entity(world~, world_entity)
+}
+
+///|
+struct EntityScore(Int32)
+
+///|
+let key_entity_scores : @ecs.ComponentKey[EntityScore] = ComponentKey()
+
+///|
+impl @ecs.Component for EntityScore with fn component_key() {
+  key_entity_scores
+}
+
+///|
+struct EntityKind(String)
+
+///|
+let key_entity_kinds : @ecs.ComponentKey[EntityKind] = ComponentKey()
+
+///|
+impl @ecs.Component for EntityKind with fn component_key() {
+  key_entity_kinds
+}
+
+///|
+struct CellLabel(String)
+
+///|
+let key_cell_labels : @ecs.ComponentKey[CellLabel] = ComponentKey()
+
+///|
+impl @ecs.Component for CellLabel with fn component_key() {
+  key_cell_labels
+}
+
+///|
+struct CellValue(Int32)
+
+///|
+let key_cell_values_x2 : @ecs.ComponentKey[CellValue] = ComponentKey()
+
+///|
+impl @ecs.Component for CellValue with fn component_key() {
+  key_cell_values_x2
 }

@@ -65,12 +65,6 @@ fn collider_world_store() -> ColliderWorldStore {
 }
 
 ///|
-/// World collider components.
-pub fn colliders() -> @ecs.ComponentStore[Collider] {
-  @ecs.components()
-}
-
-///|
 /// Contact event emitted by the fixed-step physics system.
 pub struct ContactEvent {
   entity : @ecs.Entity

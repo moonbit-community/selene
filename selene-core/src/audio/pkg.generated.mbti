@@ -15,11 +15,7 @@ pub let audio_event_bus : @event.Events[AudioEvent]
 
 pub fn audio_event_playback_system(Double) -> Unit
 
-pub fn audio_playback_settings() -> @ecs.ComponentStore[PlaybackSettings]
-
-pub fn audio_playback_system(Double) -> Unit
-
-pub fn audio_players() -> @ecs.ComponentStore[AudioPlayer]
+pub fn audio_playback_system(world~ : @ecs.World, Double) -> Unit
 
 pub fn audio_sink(@ecs.Entity) -> AudioSink?
 

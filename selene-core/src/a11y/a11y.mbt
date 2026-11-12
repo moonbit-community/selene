@@ -72,8 +72,3 @@ pub fn A11y::on_action(
 pub fn A11y::on_click(self : A11y, callback : () -> Unit) -> Unit {
   self.on_action(fn(action, _data) { if action is Click { callback() } })
 }
-
-///|
-pub fn a11ys() -> @ecs.ComponentStore[A11y] {
-  @ecs.components()
-}

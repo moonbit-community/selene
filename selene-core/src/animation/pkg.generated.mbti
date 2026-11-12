@@ -12,11 +12,9 @@ import {
 }
 
 // Values
-pub fn animated_bys() -> @ecs.ComponentStore[AnimatedBy]
-
 pub fn animated_field(AnimatedFieldHandle) -> AnimatedField?
 
-pub fn animation_apply_system(Double) -> Unit
+pub fn animation_apply_system(world~ : @ecs.World, Double) -> Unit
 
 pub fn animation_clip_asset(AnimationClipHandle) -> AnimationClip?
 
@@ -26,21 +24,13 @@ pub fn animation_graph_asset(AnimationGraphHandle) -> AnimationGraph?
 
 pub let animation_graph_asset_events : @event.Events[@asset.AssetEvent[AnimationGraphHandle]]
 
-pub fn animation_graph_handles() -> @ecs.ComponentStore[AnimationGraphHandle]
+pub fn animation_player_system(world~ : @ecs.World, Double) -> Unit
 
-pub fn animation_player_system(Double) -> Unit
+pub fn animation_skinning_system(world~ : @ecs.World, Double) -> Unit
 
-pub fn animation_players() -> @ecs.ComponentStore[AnimationPlayer]
+pub fn animation_target_id_of(world~ : @ecs.World, @ecs.Entity) -> AnimationTargetId?
 
-pub fn animation_skinning_system(Double) -> Unit
-
-pub fn animation_target_id_of(@ecs.Entity) -> AnimationTargetId?
-
-pub fn animation_target_ids() -> @ecs.ComponentStore[AnimationTargetId]
-
-pub fn animation_transition_system(Double) -> Unit
-
-pub fn animation_transitions() -> @ecs.ComponentStore[AnimationTransitions]
+pub fn animation_transition_system(world~ : @ecs.World, Double) -> Unit
 
 pub fn bind_morph_mesh(@ecs.Entity, MorphMeshBinding3D) -> Unit
 
@@ -125,8 +115,8 @@ pub impl @ecs.Component for AnimatedBy
 pub(all) struct AnimatedField {
   name : String
   kind : AnimationValueKind
-  sample : (@ecs.Entity) -> AnimatedValue
-  apply : (@ecs.Entity, AnimatedValue) -> Unit
+  sample : (@ecs.World, @ecs.Entity) -> AnimatedValue
+  apply : (@ecs.World, @ecs.Entity, AnimatedValue) -> Unit
 }
 
 #derive(Eq, Hash, @debug.Debug)

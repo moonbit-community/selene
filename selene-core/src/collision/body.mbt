@@ -83,9 +83,3 @@ pub fn RigidBody::kinematic_position_based() -> RigidBody {
 pub fn RigidBody::kinematic_velocity_based() -> RigidBody {
   { ..RigidBody::dynamic(), body_type: KinematicVelocityBased, }
 }
-
-///|
-/// Explicit rigid-body descriptors for entities that participate in 2D physics.
-pub fn rigid_bodies() -> @ecs.ComponentStore[RigidBody] {
-  @ecs.components()
-}

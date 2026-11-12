@@ -71,16 +71,6 @@ pub impl Default for Camera2d with fn default() -> Camera2d {
 pub extend Camera2d with Default::{default}
 
 ///|
-pub fn cameras() -> @ecs.ComponentStore[Camera] {
-  @ecs.components()
-}
-
-///|
-pub fn camera2ds() -> @ecs.ComponentStore[Camera2d] {
-  @ecs.components()
-}
-
-///|
 fn full_screen_viewport_rect() -> @math.Rect {
   { position: @math.Vec2::zero(), size: @window.get_screen_size(), }
 }

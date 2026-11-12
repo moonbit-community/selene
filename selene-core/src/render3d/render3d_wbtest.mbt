@@ -1,5 +1,6 @@
 ///|
 test "render3d extract preserves mesh shadow toggles" {
+  let world = @ecs.require_current_world()
   let mesh = @render3d_types.MeshHandle(9901U)
   let material = @render3d_types.MaterialHandle(9902U)
   meshes.set(mesh, cube_mesh(Vec3(1.0, 1.0, 1.0)))
@@ -17,10 +18,10 @@ test "render3d extract preserves mesh shadow toggles" {
       @visibility.Visibility::Visible,
     ),
   )
-  @visibility.visibility_propagate_system(0.0)
-  @transform.transform_propagate_system(0.0)
+  @visibility.visibility_propagate_system(world~, 0.0)
+  @transform.transform_propagate_system(world~, 0.0)
 
-  render3d_extract_system(0.0)
+  render3d_extract_system(world~, 0.0)
 
   let frame = get_extracted_frame3d()
   inspect(frame.items.length(), content="1")
@@ -126,10 +127,11 @@ test "render3d directional defaults include Bevy-aligned cascade config" {
 
 ///|
 test "render3d extract preserves shadow map size resources" {
+  let world = @ecs.require_current_world()
   set_directional_light_shadow_map3d({ size: 1536, })
   set_point_light_shadow_map3d({ size: 768, })
 
-  render3d_extract_system(0.0)
+  render3d_extract_system(world~, 0.0)
 
   let frame = get_extracted_frame3d()
   inspect(frame.directional_shadow_map_size, content="1536")
@@ -177,6 +179,7 @@ test "render3d cubemap assets participate in dirty and release sync" {
 
 ///|
 test "render3d extracts skybox from active camera" {
+  let world = @ecs.require_current_world()
   let px = register_image_asset({ path: "sky/px.png", })
   let nx = register_image_asset({ path: "sky/nx.png", })
   let py = register_image_asset({ path: "sky/py.png", })
@@ -205,7 +208,7 @@ test "render3d extracts skybox from active camera" {
     }),
   )
 
-  render3d_extract_system(0.0)
+  render3d_extract_system(world~, 0.0)
 
   let frame = get_extracted_frame3d()
   inspect(frame.clear_color.r, content="8")

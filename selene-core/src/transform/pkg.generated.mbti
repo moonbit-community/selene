@@ -8,17 +8,15 @@ import {
 }
 
 // Values
-pub fn compute_global_transform(@ecs.Entity) -> GlobalTransform?
+pub fn compute_global_transform(world~ : @ecs.World, @ecs.Entity) -> GlobalTransform?
 
-pub fn global_transform(@ecs.Entity) -> GlobalTransform?
+pub fn global_transform(world~ : @ecs.World, @ecs.Entity) -> GlobalTransform?
 
-pub fn local_transform(@ecs.Entity) -> Transform?
+pub fn local_transform(world~ : @ecs.World, @ecs.Entity) -> Transform?
 
-pub fn set_local_transform(@ecs.Entity, Transform) -> Unit
+pub fn set_local_transform(world~ : @ecs.World, @ecs.Entity, Transform) -> Unit
 
-pub fn spatials() -> @ecs.ComponentStore[Spatial]
-
-pub fn transform_propagate_system(Double) -> Unit
+pub fn transform_propagate_system(world~ : @ecs.World, Double) -> Unit
 
 // Errors
 

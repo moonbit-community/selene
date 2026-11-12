@@ -37,11 +37,6 @@ pub extend ViewVisibility with @moonbitlang/core/debug.Debug::{to_repr}
 pub extend ViewVisibility with Eq::{not_equal, equal}
 
 ///|
-pub fn visibilities() -> @ecs.ComponentStore[Visibility] {
-  @ecs.components()
-}
-
-///|
 let visibility_state_key : @ecs.ResourceKey[VisibilityState] = ResourceKey()
 
 ///|
@@ -70,15 +65,19 @@ fn view_visibilities() -> @ecs.EntityTable[ViewVisibility] {
 
 ///|
 fn compute_inherited_visibility(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   cache : @ecs.EntityTable[InheritedVisibility],
 ) -> Bool {
   if cache.get(entity) is Some(visible) {
     return visible.visible
   }
-  let own_visible = visibilities().get(entity).unwrap_or(Visible) is Visible
+  let own_visible = (world.get_component(entity) : Visibility?).unwrap_or(
+      Visible,
+    )
+    is Visible
   let parent_visible = match entity.get_parent() {
-    Some(parent) => compute_inherited_visibility(parent, cache)
+    Some(parent) => compute_inherited_visibility(world~, parent, cache)
     None => true
   }
   let visible = own_visible && parent_visible
@@ -87,14 +86,21 @@ fn compute_inherited_visibility(
 }
 
 ///|
-pub fn visibility_propagate_system(_delta : Double) -> Unit {
+pub fn visibility_propagate_system(
+  world~ : @ecs.World,
+  _delta : Double,
+) -> Unit {
   let inherited_visibilities = inherited_visibilities()
   let view_visibilities = view_visibilities()
   inherited_visibilities.clear()
   view_visibilities.clear()
   for entity in @ecs.iter_entities() {
     guard entity.is_alive() else { continue }
-    let visible = compute_inherited_visibility(entity, inherited_visibilities)
+    let visible = compute_inherited_visibility(
+      world~,
+      entity,
+      inherited_visibilities,
+    )
     view_visibilities.set(entity, { visible, })
   }
   inherited_visibilities.retain((entity, _) => entity.is_alive())

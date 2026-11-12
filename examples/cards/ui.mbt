@@ -29,8 +29,12 @@ priv enum TouchAction {
 }
 
 ///|
-fn set_text(entity : @ecs.Entity, content : String) -> Unit {
-  guard @ui.texts().get(entity) is Some(text) else { return }
+fn set_text(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  content : String,
+) -> Unit {
+  guard (world.get_component(entity) : @ui.Text?) is Some(text) else { return }
   text.content = content
 }
 
@@ -66,9 +70,14 @@ fn with_display(node : @ui.Node, display : @ui.Display) -> @ui.Node {
 }
 
 ///|
-fn set_display(entity : @ecs.Entity, display : @ui.Display) -> Unit {
-  match @ui.nodes().get(entity) {
-    Some(node) => @ui.nodes().set(entity, with_display(node, display))
+fn set_display(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  display : @ui.Display,
+) -> Unit {
+  match (world.get_component(entity) : @ui.Node?) {
+    Some(node) =>
+      world.set_component(entity, (with_display(node, display) : @ui.Node))
     None => ()
   }
 }
@@ -117,7 +126,7 @@ fn spawn_button(
 
 ///|
 /// Setup UI elements
-fn setup_ui() -> Unit {
+fn setup_ui(world~ : @ecs.World) -> Unit {
   ignore(
     spawn_cards_entity(
       (
@@ -131,19 +140,28 @@ fn setup_ui() -> Unit {
     ),
   )
 
-  hide_action_buttons()
+  hide_action_buttons(world~)
 }
 
 ///|
 /// Show action buttons
-fn show_action_buttons() -> Unit {
+fn show_action_buttons(world~ : @ecs.World) -> Unit {
   let game = game_state()
   game.waiting_for_player = true
   let show_fold_and_raise = game.phase != River
-  set_display(game.call_button, Flex)
-  set_display(game.call_button_label, Flex)
-  set_display(game.fold_button, if show_fold_and_raise { Flex } else { None })
+  set_display(world~, game.call_button, Flex)
+  set_display(world~, game.call_button_label, Flex)
   set_display(
+    world~,
+    game.fold_button,
+    if show_fold_and_raise {
+      Flex
+    } else {
+      None
+    },
+  )
+  set_display(
+    world~,
     game.fold_button_label,
     if show_fold_and_raise {
       Flex
@@ -151,8 +169,17 @@ fn show_action_buttons() -> Unit {
       None
     },
   )
-  set_display(game.raise_button, if show_fold_and_raise { Flex } else { None })
   set_display(
+    world~,
+    game.raise_button,
+    if show_fold_and_raise {
+      Flex
+    } else {
+      None
+    },
+  )
+  set_display(
+    world~,
     game.raise_button_label,
     if show_fold_and_raise {
       Flex
@@ -163,15 +190,15 @@ fn show_action_buttons() -> Unit {
 
   let call_amount = game.current_bet - game.player.current_bet
   if call_amount == 0 {
-    set_text(game.call_button_label, "Check")
+    set_text(world~, game.call_button_label, "Check")
   } else {
-    set_text(game.call_button_label, "Call $" + call_amount.to_string())
+    set_text(world~, game.call_button_label, "Call $" + call_amount.to_string())
   }
 }
 
 ///|
 /// Hide action buttons
-fn hide_action_buttons() -> Unit {
+fn hide_action_buttons(world~ : @ecs.World) -> Unit {
   let game = game_state()
   game.waiting_for_player = false
   for
@@ -183,24 +210,24 @@ fn hide_action_buttons() -> Unit {
       game.raise_button,
       game.raise_button_label,
     ] {
-    set_display(entity, None)
+    set_display(world~, entity, None)
   }
 }
 
 ///|
 /// Handle fold button click
-fn on_fold_click() -> Unit {
+fn on_fold_click(world~ : @ecs.World) -> Unit {
   let game = game_state()
   let human = game.player
   human.has_folded = true
-  set_text(game.action_label, "You folded")
-  hide_action_buttons()
+  set_text(world~, game.action_label, "You folded")
+  hide_action_buttons(world~)
   game.phase = Showdown
 }
 
 ///|
 /// Handle call button click
-fn on_call_click() -> Unit {
+fn on_call_click(world~ : @ecs.World) -> Unit {
   let game = game_state()
   let human = game.player
   let call_amount = game.current_bet - human.current_bet
@@ -208,20 +235,24 @@ fn on_call_click() -> Unit {
   human.chips -= actual_amount
   human.current_bet += actual_amount
   if human.chips == 0 {
-    set_text(game.action_label, "You went All-In!")
+    set_text(world~, game.action_label, "You went All-In!")
   } else if call_amount == 0 {
-    set_text(game.action_label, "You checked")
+    set_text(world~, game.action_label, "You checked")
   } else {
-    set_text(game.action_label, "You called $" + actual_amount.to_string())
+    set_text(
+      world~,
+      game.action_label,
+      "You called $" + actual_amount.to_string(),
+    )
   }
-  hide_action_buttons()
-  advance_to_next_phase()
-  update_ui()
+  hide_action_buttons(world~)
+  advance_to_next_phase(world~)
+  update_ui(world~)
 }
 
 ///|
 /// Handle raise button click
-fn on_raise_click() -> Unit {
+fn on_raise_click(world~ : @ecs.World) -> Unit {
   let game = game_state()
   let human = game.player
   let min_raise = game.big_blind
@@ -231,13 +262,17 @@ fn on_raise_click() -> Unit {
   game.current_bet = human.current_bet
   game.magnification += 1
   if human.chips == 0 {
-    set_text(game.action_label, "You went All-In!")
+    set_text(world~, game.action_label, "You went All-In!")
   } else {
-    set_text(game.action_label, "You raised $" + raise_amount.to_string())
+    set_text(
+      world~,
+      game.action_label,
+      "You raised $" + raise_amount.to_string(),
+    )
   }
-  hide_action_buttons()
-  advance_to_next_phase()
-  update_ui()
+  hide_action_buttons(world~)
+  advance_to_next_phase(world~)
+  update_ui(world~)
 }
 
 ///|
@@ -255,17 +290,17 @@ fn touch_action_at(position : @math.Vec2, screen : @math.Vec2) -> TouchAction? {
 }
 
 ///|
-fn apply_touch_action(action : TouchAction) -> Unit {
+fn apply_touch_action(world~ : @ecs.World, action : TouchAction) -> Unit {
   let game = game_state()
   match action {
-    TouchFold => if game.phase != River { on_fold_click() }
-    TouchCall => on_call_click()
-    TouchRaise => if game.phase != River { on_raise_click() }
+    TouchFold => if game.phase != River { on_fold_click(world~) }
+    TouchCall => on_call_click(world~)
+    TouchRaise => if game.phase != River { on_raise_click(world~) }
   }
 }
 
 ///|
-fn handle_cards_touch_shortcuts() -> Bool {
+fn handle_cards_touch_shortcuts(world~ : @ecs.World) -> Bool {
   if !game_state().waiting_for_player {
     return false
   }
@@ -274,7 +309,7 @@ fn handle_cards_touch_shortcuts() -> Bool {
     if event.primary && event.phase == Ended {
       match touch_action_at(event.position, screen) {
         Some(action) => {
-          apply_touch_action(action)
+          apply_touch_action(world~, action)
           return true
         }
         None => ()
@@ -285,28 +320,28 @@ fn handle_cards_touch_shortcuts() -> Bool {
 }
 
 ///|
-fn cards_ui_pointer_system(_world : @ecs.World) -> Unit {
+fn cards_ui_pointer_system(world : @ecs.World) -> Unit {
   let game = game_state()
   let mut handled_ui_click = false
   for event in @ui.click_event_bus.read(cards_runtime().click_reader) {
     if event.entity == game.fold_button {
-      on_fold_click()
+      on_fold_click(world~)
       handled_ui_click = true
       continue
     }
     if event.entity == game.call_button {
-      on_call_click()
+      on_call_click(world~)
       handled_ui_click = true
       continue
     }
     if event.entity == game.raise_button {
-      on_raise_click()
+      on_raise_click(world~)
       handled_ui_click = true
       continue
     }
   }
   if !handled_ui_click {
-    ignore(handle_cards_touch_shortcuts())
+    ignore(handle_cards_touch_shortcuts(world~))
   }
 }
 
@@ -372,11 +407,12 @@ fn display_community_cards() -> Unit {
 
 ///|
 /// Update UI displays
-fn update_ui() -> Unit {
+fn update_ui(world~ : @ecs.World) -> Unit {
   let game = game_state()
-  set_text(game.blind_label, "Blind: $" + game.big_blind.to_string())
-  set_text(game.chips_label, "Chips: $" + game.player.chips.to_string())
+  set_text(world~, game.blind_label, "Blind: $" + game.big_blind.to_string())
+  set_text(world~, game.chips_label, "Chips: $" + game.player.chips.to_string())
   set_text(
+    world~,
     game.phase_label,
     match game.phase {
       PreFlop => "Pre-Flop"
@@ -388,11 +424,12 @@ fn update_ui() -> Unit {
     },
   )
   set_text(
+    world~,
     game.turns_label,
     "Turns: " + game.turns_remaining.to_string() + "/10",
   )
 
-  update_hand_strength()
+  update_hand_strength(world~)
 
   if game.phase == GameOver {
     let player = game.player
@@ -402,18 +439,18 @@ fn update_ui() -> Unit {
     } else {
       "Loss: $" + profit.to_string()
     }
-    set_text(game.hand_strength_label, profit_text)
+    set_text(world~, game.hand_strength_label, profit_text)
   }
 }
 
 ///|
 /// Update hand strength display based on current cards
-fn update_hand_strength() -> Unit {
+fn update_hand_strength(world~ : @ecs.World) -> Unit {
   let game = game_state()
   let player = game.player
 
   if player.hole_cards.length() + game.community_cards.length() < 5 {
-    set_text(game.hand_strength_label, "")
+    set_text(world~, game.hand_strength_label, "")
     return
   }
 
@@ -430,6 +467,7 @@ fn update_hand_strength() -> Unit {
     let hand_name = rank.hand_rank_to_string()
     let magnification = game.magnification
     set_text(
+      world~,
       game.hand_strength_label,
       "Hand: " + hand_name + " x " + magnification.to_string(),
     )

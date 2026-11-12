@@ -225,22 +225,25 @@ pub fn blur() -> Unit {
 }
 
 ///|
-fn is_interactive(entity : @ecs.Entity) -> Bool {
-  buttons().get(entity).map(fn(button) { button.enabled }).unwrap_or(false)
+fn is_interactive(world~ : @ecs.World, entity : @ecs.Entity) -> Bool {
+  (world.get_component(entity) : Button?)
+  .map(fn(button) { button.enabled })
+  .unwrap_or(false)
 }
 
 ///|
-fn is_focusable(entity : @ecs.Entity) -> Bool {
-  if is_interactive(entity) {
+fn is_focusable(world~ : @ecs.World, entity : @ecs.Entity) -> Bool {
+  let query_focusable : @ecs.Query[Focusable] = world.query()
+  if is_interactive(world~, entity) {
     true
   } else {
-    focusables().contains(entity)
+    query_focusable.contains(entity)
   }
 }
 
 ///|
-fn button_blocks_pointer(entity : @ecs.Entity) -> Bool {
-  focus_policies().get(entity).unwrap_or(Pass) == Block
+fn button_blocks_pointer(world~ : @ecs.World, entity : @ecs.Entity) -> Bool {
+  (world.get_component(entity) : FocusPolicy?).unwrap_or(Pass) == Block
 }
 
 ///|
@@ -262,16 +265,23 @@ fn interaction_state(
 }
 
 ///|
-fn focusable_entities() -> Array[@ecs.Entity] {
+fn focusable_entities(world~ : @ecs.World) -> Array[@ecs.Entity] {
+  let query_tab_index : @ecs.Query[TabIndex] = world.query()
   let entities : Array[@ecs.Entity] = []
   for entity in ui_stack() {
-    if is_focusable(entity) {
+    if is_focusable(world~, entity) {
       entities.push(entity)
     }
   }
   entities.sort_by(fn(lhs, rhs) {
-    let lt = tab_indexes().get(lhs).map(fn(value) { value.value }).unwrap_or(0)
-    let rt = tab_indexes().get(rhs).map(fn(value) { value.value }).unwrap_or(0)
+    let lt = query_tab_index
+      .get(lhs)
+      .map(fn(value) { value.value })
+      .unwrap_or(0)
+    let rt = query_tab_index
+      .get(rhs)
+      .map(fn(value) { value.value })
+      .unwrap_or(0)
     if lt != rt {
       lt - rt
     } else {
@@ -303,8 +313,8 @@ fn directional_score(
 }
 
 ///|
-fn move_focus(direction : UiNavigationDirection) -> Unit {
-  let entities = focusable_entities()
+fn move_focus(world~ : @ecs.World, direction : UiNavigationDirection) -> Unit {
+  let entities = focusable_entities(world~)
   if entities.is_empty() {
     blur()
     return
@@ -347,8 +357,8 @@ fn move_focus(direction : UiNavigationDirection) -> Unit {
 }
 
 ///|
-fn move_focus_by_tab(reverse : Bool) -> Unit {
-  let entities = focusable_entities()
+fn move_focus_by_tab(world~ : @ecs.World, reverse : Bool) -> Unit {
+  let entities = focusable_entities(world~)
   if entities.is_empty() {
     blur()
     return
@@ -420,10 +430,15 @@ fn normalized_cursor_position(
 }
 
 ///|
-fn update_relative_cursor_positions(position : @math.Vec2) -> Unit {
-  for entity, relative in relative_cursor_positions() {
+fn update_relative_cursor_positions(
+  world~ : @ecs.World,
+  position : @math.Vec2,
+) -> Unit {
+  let query_node : @ecs.Query[Node] = world.query()
+  let query_relative_cursor_position : @ecs.Query[RelativeCursorPosition] = world.query()
+  for entity, relative in query_relative_cursor_position {
     guard entity.is_alive() else { continue }
-    guard nodes().get(entity) is Some(node) else {
+    guard query_node.get(entity) is Some(node) else {
       relative.normalized = None
       relative.cursor_over = false
       continue
@@ -448,7 +463,10 @@ fn update_relative_cursor_positions(position : @math.Vec2) -> Unit {
 }
 
 ///|
-fn resolve_pointer_target(position : @math.Vec2) -> @ecs.Entity? {
+fn resolve_pointer_target(
+  world~ : @ecs.World,
+  position : @math.Vec2,
+) -> @ecs.Entity? {
   let candidates = ui_stack()
   let mut index = candidates.length() - 1
   while index >= 0 {
@@ -459,10 +477,10 @@ fn resolve_pointer_target(position : @math.Vec2) -> @ecs.Entity? {
     }
     if point_in_rect(position, transform.screen_rect) &&
       screen_clip_allows(entity, position) {
-      if is_interactive(entity) {
+      if is_interactive(world~, entity) {
         return Some(entity)
       }
-      if button_blocks_pointer(entity) {
+      if button_blocks_pointer(world~, entity) {
         return None
       }
     }
@@ -491,10 +509,14 @@ fn ui_node_at(position : @math.Vec2) -> @ecs.Entity? {
 }
 
 ///|
-fn scrollable_target_at(position : @math.Vec2) -> @ecs.Entity? {
+fn scrollable_target_at(
+  world~ : @ecs.World,
+  position : @math.Vec2,
+) -> @ecs.Entity? {
+  let query_node : @ecs.Query[Node] = world.query()
   let mut target = ui_node_at(position)
   while target is Some(entity) {
-    guard nodes().get(entity) is Some(node) else {
+    guard query_node.get(entity) is Some(node) else {
       target = entity.get_parent()
       continue
     }
@@ -507,10 +529,13 @@ fn scrollable_target_at(position : @math.Vec2) -> @ecs.Entity? {
 }
 
 ///|
-fn blocking_target_at(position : @math.Vec2) -> @ecs.Entity? {
+fn blocking_target_at(
+  world~ : @ecs.World,
+  position : @math.Vec2,
+) -> @ecs.Entity? {
   let mut target = ui_node_at(position)
   while target is Some(entity) {
-    if button_blocks_pointer(entity) {
+    if button_blocks_pointer(world~, entity) {
       return Some(entity)
     }
     target = entity.get_parent()
@@ -519,13 +544,16 @@ fn blocking_target_at(position : @math.Vec2) -> @ecs.Entity? {
 }
 
 ///|
-fn touch_capture_target_at(position : @math.Vec2) -> @ecs.Entity? {
-  match resolve_pointer_target(position) {
+fn touch_capture_target_at(
+  world~ : @ecs.World,
+  position : @math.Vec2,
+) -> @ecs.Entity? {
+  match resolve_pointer_target(world~, position) {
     Some(entity) => Some(entity)
     None =>
-      match scrollable_target_at(position) {
+      match scrollable_target_at(world~, position) {
         Some(entity) => Some(entity)
-        None => blocking_target_at(position)
+        None => blocking_target_at(world~, position)
       }
   }
 }
@@ -545,12 +573,13 @@ fn clear_invalid_pointer_captures(runtime : UiInteractionRuntime) -> Unit {
 
 ///|
 fn update_pointer_capture_for_event(
+  world~ : @ecs.World,
   runtime : UiInteractionRuntime,
   event : @inputs.PointerEvent,
 ) -> Unit {
   match event.phase {
     Down =>
-      if touch_capture_target_at(event.position) is Some(entity) {
+      if touch_capture_target_at(world~, event.position) is Some(entity) {
         runtime.pointer_captures.set(event.id, entity)
         runtime.consumed_pointers.add(event.id)
       }
@@ -567,7 +596,7 @@ fn update_pointer_capture_for_event(
 }
 
 ///|
-pub fn ui_input_capture_system(_delta : Double) -> Unit {
+pub fn ui_input_capture_system(world~ : @ecs.World, _delta : Double) -> Unit {
   let runtime = ui_interaction_runtime()
   runtime.consumed_pointers.clear()
   clear_invalid_pointer_captures(runtime)
@@ -577,13 +606,17 @@ pub fn ui_input_capture_system(_delta : Double) -> Unit {
     }
   }
   for event in @inputs.pointer_changes_this_frame() {
-    update_pointer_capture_for_event(runtime, event)
+    update_pointer_capture_for_event(world~, runtime, event)
   }
 }
 
 ///|
-fn apply_scroll_delta(entity : @ecs.Entity, delta : @math.Vec2) -> Unit {
-  guard nodes().get(entity) is Some(node) else { return }
+fn apply_scroll_delta(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  delta : @math.Vec2,
+) -> Unit {
+  guard (world.get_component(entity) : Node?) is Some(node) else { return }
   guard computed_ui_node(entity) is Some(computed) else { return }
   let scroll = scroll_positions().get_or_init(entity, ScrollPosition::zero)
   if node.overflow_x == Scroll {
@@ -601,23 +634,23 @@ fn apply_scroll_delta(entity : @ecs.Entity, delta : @math.Vec2) -> Unit {
 }
 
 ///|
-fn update_scroll(position : @math.Vec2) -> Unit {
+fn update_scroll(world~ : @ecs.World, position : @math.Vec2) -> Unit {
   let delta = @inputs.mouse_wheel.delta
   if delta.x == 0.0 && delta.y == 0.0 {
     return
   }
-  if scrollable_target_at(position) is Some(entity) {
-    apply_scroll_delta(entity, Vec2(delta.x * 16.0, delta.y * 16.0))
+  if scrollable_target_at(world~, position) is Some(entity) {
+    apply_scroll_delta(world~, entity, Vec2(delta.x * 16.0, delta.y * 16.0))
   }
 }
 
 ///|
-fn update_contact_drag_scroll() -> Unit {
+fn update_contact_drag_scroll(world~ : @ecs.World) -> Unit {
   for event in @inputs.pointer_changes_this_frame() {
     if event.source != PointerMouse && event.primary && event.phase == Move {
-      if scrollable_target_at(event.previous_position) is Some(entity) {
+      if scrollable_target_at(world~, event.previous_position) is Some(entity) {
         // Dragging content down should move the scroll offset up.
-        apply_scroll_delta(entity, Vec2(-event.delta.x, -event.delta.y))
+        apply_scroll_delta(world~, entity, Vec2(-event.delta.x, -event.delta.y))
       }
       return
     }
@@ -625,12 +658,12 @@ fn update_contact_drag_scroll() -> Unit {
 }
 
 ///|
-fn sanitize_focus() -> Unit {
+fn sanitize_focus(world~ : @ecs.World) -> Unit {
   match ui_interaction_runtime().focused_entity {
     Some(entity) =>
       if !entity.is_alive() ||
         !ui_geometry().contains(entity) ||
-        !is_focusable(entity) ||
+        !is_focusable(world~, entity) ||
         !@visibility.is_visible(entity) {
         blur()
       }
@@ -669,9 +702,12 @@ fn contact_pointer_changed_this_frame() -> Bool {
 }
 
 ///|
-fn update_hover_from_mouse(position : @math.Vec2) -> @ecs.Entity? {
+fn update_hover_from_mouse(
+  world~ : @ecs.World,
+  position : @math.Vec2,
+) -> @ecs.Entity? {
   let runtime = ui_interaction_runtime()
-  let hovered = resolve_pointer_target(position)
+  let hovered = resolve_pointer_target(world~, position)
   if runtime.hovered_entity != hovered {
     if runtime.hovered_entity is Some(previous) {
       pointer_leave_event_bus.send({ entity: previous, })
@@ -694,25 +730,26 @@ fn clear_touch_hover() -> Unit {
 }
 
 ///|
-pub fn ui_interaction_system(_delta : Double) -> Unit {
+pub fn ui_interaction_system(world~ : @ecs.World, _delta : Double) -> Unit {
+  let query_button : @ecs.Query[Button] = world.query()
   let runtime = ui_interaction_runtime()
-  sanitize_focus()
+  sanitize_focus(world~)
   let pointer_position = @inputs.primary_pointer_position()
-  update_relative_cursor_positions(pointer_position)
-  update_scroll(pointer_position)
-  update_contact_drag_scroll()
+  update_relative_cursor_positions(world~, pointer_position)
+  update_scroll(world~, pointer_position)
+  update_contact_drag_scroll(world~)
   let contact_active = active_primary_contact() ||
     contact_pointer_changed_this_frame()
   let visual_hover : @ecs.Entity? = if contact_active {
     clear_touch_hover()
     None
   } else {
-    update_hover_from_mouse(@inputs.mouse.pos)
+    update_hover_from_mouse(world~, @inputs.mouse.pos)
   }
 
   let pointer_down = primary_pointer_change(Down)
   if pointer_down is Some(event) {
-    let target_at_press = resolve_pointer_target(event.position)
+    let target_at_press = resolve_pointer_target(world~, event.position)
     if target_at_press is Some(target) {
       runtime.pressed_entity = Some(target)
       runtime.pressed_pointer = Some(event.id)
@@ -721,7 +758,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
         button: Left,
         position: event.position,
       })
-      if is_focusable(target) {
+      if is_focusable(world~, target) {
         focus(target)
       } else {
         blur()
@@ -740,7 +777,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
     runtime.pressed_entity is Some(pressed) &&
     runtime.pressed_pointer is Some(pointer) &&
     pointer == event.id {
-    let target_at_release = resolve_pointer_target(event.position)
+    let target_at_release = resolve_pointer_target(world~, event.position)
     pointer_up_event_bus.send({
       entity: pressed,
       button: Left,
@@ -749,7 +786,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
     if event.phase != Cancel &&
       target_at_release is Some(target) &&
       target == pressed &&
-      is_interactive(pressed) {
+      is_interactive(world~, pressed) {
       click_event_bus.send({ entity: pressed, button: Left, })
     }
     runtime.pressed_entity = None
@@ -757,7 +794,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
   }
 
   if @inputs.is_just_pressed(Tab) {
-    move_focus_by_tab(@inputs.is_pressed(ShiftLeft))
+    move_focus_by_tab(world~, @inputs.is_pressed(ShiftLeft))
     navigation_event_bus.send({
       entity: runtime.focused_entity,
       direction: if @inputs.is_pressed(ShiftLeft) {
@@ -769,7 +806,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
   }
   if @inputs.is_just_pressed(ArrowLeft) ||
     @inputs.is_gamepad_button_just_pressed(Gamepad(0), DPadLeft) {
-    move_focus(Left)
+    move_focus(world~, Left)
     navigation_event_bus.send({
       entity: runtime.focused_entity,
       direction: Left,
@@ -777,7 +814,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
   }
   if @inputs.is_just_pressed(ArrowRight) ||
     @inputs.is_gamepad_button_just_pressed(Gamepad(0), DPadRight) {
-    move_focus(Right)
+    move_focus(world~, Right)
     navigation_event_bus.send({
       entity: runtime.focused_entity,
       direction: Right,
@@ -785,12 +822,12 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
   }
   if @inputs.is_just_pressed(ArrowUp) ||
     @inputs.is_gamepad_button_just_pressed(Gamepad(0), DPadUp) {
-    move_focus(Up)
+    move_focus(world~, Up)
     navigation_event_bus.send({ entity: runtime.focused_entity, direction: Up, })
   }
   if @inputs.is_just_pressed(ArrowDown) ||
     @inputs.is_gamepad_button_just_pressed(Gamepad(0), DPadDown) {
-    move_focus(Down)
+    move_focus(world~, Down)
     navigation_event_bus.send({
       entity: runtime.focused_entity,
       direction: Down,
@@ -809,12 +846,12 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
       @inputs.is_gamepad_button_just_pressed(Gamepad(0), South)
     ) &&
     runtime.focused_entity is Some(target) &&
-    is_interactive(target) {
+    is_interactive(world~, target) {
     click_event_bus.send({ entity: target, button: Left, })
     navigation_event_bus.send({ entity: Some(target), direction: Activate, })
   }
 
-  for entity, _button in buttons() {
+  for entity, _button in query_button {
     if entity.is_alive() {
       interactions().set(entity, interaction_state(entity, visual_hover))
     }

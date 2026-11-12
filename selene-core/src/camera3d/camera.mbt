@@ -46,11 +46,6 @@ pub fn Camera3DComponent::Camera3DComponent() -> Camera3DComponent {
 }
 
 ///|
-pub fn cameras3d() -> @ecs.ComponentStore[Camera3DComponent] {
-  @ecs.components()
-}
-
-///|
 let active_camera3d_key : @ecs.ResourceKey[ActiveCamera3D?] = ResourceKey()
 
 ///|
@@ -64,9 +59,10 @@ pub fn set_active_camera3d(camera : ActiveCamera3D?) -> Unit {
 }
 
 ///|
-pub fn camera3d_extract_system(_delta : Double) -> Unit {
+pub fn camera3d_extract_system(world~ : @ecs.World, _delta : Double) -> Unit {
+  let query_camera3_d_component : @ecs.Query[Camera3DComponent] = world.query()
   let mut selected : (@ecs.Entity, Camera3DComponent)? = None
-  for entity, camera in cameras3d() {
+  for entity, camera in query_camera3_d_component {
     if !entity.is_alive() || !camera.enabled {
       continue
     }
@@ -78,7 +74,8 @@ pub fn camera3d_extract_system(_delta : Double) -> Unit {
   }
   match selected {
     Some((entity, camera)) => {
-      guard @transform.global_transform(entity) is Some(global_transform) else {
+      guard @transform.global_transform(world~, entity)
+        is Some(global_transform) else {
         set_active_camera3d(None)
         return
       }

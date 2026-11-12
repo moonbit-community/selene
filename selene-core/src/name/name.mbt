@@ -17,11 +17,6 @@ pub fn Name::Name(value : String) -> Name {
 }
 
 ///|
-pub fn names() -> @ecs.ComponentStore[Name] {
-  @ecs.components()
-}
-
-///|
-pub fn name_of(entity : @ecs.Entity) -> String? {
-  names().get(entity).map(fn(name) { name.value })
+pub fn name_of(world~ : @ecs.World, entity : @ecs.Entity) -> String? {
+  (world.get_component(entity) : Name?).map(fn(name) { name.value })
 }

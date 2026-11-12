@@ -7,9 +7,7 @@ import {
 }
 
 // Values
-pub fn name_of(@ecs.Entity) -> String?
-
-pub fn names() -> @ecs.ComponentStore[Name]
+pub fn name_of(world~ : @ecs.World, @ecs.Entity) -> String?
 
 // Errors
 

@@ -128,13 +128,3 @@ pub let animation_clip_asset_events : @event.Events[
 pub let animation_graph_asset_events : @event.Events[
   @asset.AssetEvent[AnimationGraphHandle],
 ] = Events()
-
-///|
-pub fn animation_players() -> @ecs.ComponentStore[AnimationPlayer] {
-  @ecs.components()
-}
-
-///|
-pub fn animation_graph_handles() -> @ecs.ComponentStore[AnimationGraphHandle] {
-  @ecs.components()
-}

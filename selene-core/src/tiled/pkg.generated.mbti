@@ -16,59 +16,37 @@ pub fn despawn_tiled_tree(@ecs.Entity) -> Unit
 
 pub fn encode_tiled_gid(TiledGid) -> Int32
 
-pub fn load_and_spawn_tiled_map(String, settings? : TiledSpawnSettings) -> @ecs.Entity
+pub fn load_and_spawn_tiled_map(world~ : @ecs.World, String, settings? : TiledSpawnSettings) -> @ecs.Entity
 
-pub fn load_and_spawn_tiled_world(String, settings? : TiledWorldSpawnSettings) -> @ecs.Entity
+pub fn load_and_spawn_tiled_world(world~ : @ecs.World, String, settings? : TiledWorldSpawnSettings) -> @ecs.Entity
 
 pub fn load_tiled_map(String) -> TiledMap
 
 pub fn load_tiled_world(String) -> TiledWorld
 
-pub fn replace_tiled_map(@ecs.Entity, TiledMap, settings? : TiledSpawnSettings) -> @ecs.Entity
+pub fn replace_tiled_map(world~ : @ecs.World, @ecs.Entity, TiledMap, settings? : TiledSpawnSettings) -> @ecs.Entity
 
-pub fn replace_tiled_world(@ecs.Entity, TiledWorld, settings? : TiledWorldSpawnSettings) -> @ecs.Entity
+pub fn replace_tiled_world(world~ : @ecs.World, @ecs.Entity, TiledWorld, settings? : TiledWorldSpawnSettings) -> @ecs.Entity
 
-pub fn spawn_tiled_map(TiledMap, settings? : TiledSpawnSettings, parent? : @ecs.Entity) -> @ecs.Entity
+pub fn spawn_tiled_map(world~ : @ecs.World, TiledMap, settings? : TiledSpawnSettings, parent? : @ecs.Entity) -> @ecs.Entity
 
-pub fn spawn_tiled_world(TiledWorld, settings? : TiledWorldSpawnSettings, parent? : @ecs.Entity) -> @ecs.Entity
-
-pub fn tiled_collider_origins() -> @ecs.ComponentStore[TiledColliderOrigin]
+pub fn spawn_tiled_world(world~ : @ecs.World, TiledWorld, settings? : TiledWorldSpawnSettings, parent? : @ecs.Entity) -> @ecs.Entity
 
 pub let tiled_collider_spawned_event_bus : @event.Events[TiledColliderSpawnedEvent]
 
-pub fn tiled_colliders(@ecs.Entity) -> TiledColliders?
-
-pub fn tiled_image_layer_instances() -> @ecs.ComponentStore[TiledImageLayerInstance]
+pub fn tiled_colliders(world~ : @ecs.World, @ecs.Entity) -> TiledColliders?
 
 pub let tiled_image_layer_spawned_event_bus : @event.Events[TiledImageLayerSpawnedEvent]
 
-pub fn tiled_layer_instances() -> @ecs.ComponentStore[TiledLayerInstance]
-
 pub let tiled_layer_spawned_event_bus : @event.Events[TiledLayerSpawnedEvent]
-
-pub fn tiled_map_instances() -> @ecs.ComponentStore[TiledMapInstance]
 
 pub let tiled_map_spawned_event_bus : @event.Events[TiledMapSpawnedEvent]
 
-pub fn tiled_map_storages() -> @ecs.ComponentStore[TiledMapStorage]
-
-pub fn tiled_object_instances() -> @ecs.ComponentStore[TiledObjectInstance]
-
 pub let tiled_object_spawned_event_bus : @event.Events[TiledObjectSpawnedEvent]
-
-pub fn tiled_parallax_layers() -> @ecs.ComponentStore[TiledParallaxLayer]
-
-pub fn tiled_properties() -> @ecs.ComponentStore[TiledProperties]
-
-pub fn tiled_tile_instances() -> @ecs.ComponentStore[TiledTileInstance]
 
 pub let tiled_tile_spawned_event_bus : @event.Events[TiledTileSpawnedEvent]
 
-pub fn tiled_world_chunking_system(Double) -> Unit
-
-pub fn tiled_world_instances() -> @ecs.ComponentStore[TiledWorldInstance]
-
-pub fn tiled_world_map_instances() -> @ecs.ComponentStore[TiledWorldMapInstance]
+pub fn tiled_world_chunking_system(world~ : @ecs.World, Double) -> Unit
 
 pub let tiled_world_map_spawned_event_bus : @event.Events[TiledWorldMapSpawnedEvent]
 

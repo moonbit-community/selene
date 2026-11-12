@@ -17,7 +17,7 @@ test "state-driven Survivors restart replaces entities and cancels old timers" {
 
   let previous_entities = []
   @ecs.run_schedule(world, _ => {
-    game_state().score = 200
+    game_state(world~).score = 200
     previous_entities.append(survivors_runtime().entities)
     @time.set_scale(0.0)
     survivors_timeout(0.0, () => old_callback_ran.val = true)

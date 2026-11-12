@@ -173,9 +173,9 @@ fn sorted_camera_entity_ids() -> Array[UInt32] {
 }
 
 ///|
-fn sorted_camera_entity_ids_by_pass_order() -> Array[UInt32] {
+fn sorted_camera_entity_ids_by_pass_order(world~ : @ecs.World) -> Array[UInt32] {
   let camera_order_by_entity_id : Map[UInt32, Int32] = Map([])
-  for camera_view in @camera.active_camera2d_views() {
+  for camera_view in @camera.active_camera2d_views(world~) {
     camera_order_by_entity_id.set(
       camera_view.entity.id(),
       camera_view.camera.order,
@@ -228,9 +228,11 @@ pub fn get_camera_world_commands_with_depth(
 }
 
 ///|
-pub fn get_world_commands_with_depth() -> Array[DrawCommandWithDepth2D] {
+pub fn get_world_commands_with_depth(
+  world~ : @ecs.World,
+) -> Array[DrawCommandWithDepth2D] {
   let commands : Array[DrawCommandWithDepth2D] = []
-  for camera_entity_id in sorted_camera_entity_ids_by_pass_order() {
+  for camera_entity_id in sorted_camera_entity_ids_by_pass_order(world~) {
     for command in get_camera_world_commands_with_depth(camera_entity_id) {
       commands.push(command)
     }
@@ -254,9 +256,11 @@ pub fn get_camera_ui_commands(
 }
 
 ///|
-pub fn get_ui_commands() -> Array[@render2d_types.DrawCommand2D] {
+pub fn get_ui_commands(
+  world~ : @ecs.World,
+) -> Array[@render2d_types.DrawCommand2D] {
   let commands : Array[@render2d_types.DrawCommand2D] = []
-  for camera_entity_id in sorted_camera_entity_ids_by_pass_order() {
+  for camera_entity_id in sorted_camera_entity_ids_by_pass_order(world~) {
     for command in get_camera_ui_commands(camera_entity_id) {
       commands.push(command)
     }
@@ -268,12 +272,12 @@ pub fn get_ui_commands() -> Array[@render2d_types.DrawCommand2D] {
 }
 
 ///|
-pub fn get_frame2d() -> @render2d_types.RenderFrame2D {
+pub fn get_frame2d(world~ : @ecs.World) -> @render2d_types.RenderFrame2D {
   {
     passes: [],
-    world_commands: get_world_commands_with_depth().map(fn(command) {
+    world_commands: get_world_commands_with_depth(world~).map(fn(command) {
       command.command
     }),
-    ui_commands: get_ui_commands(),
+    ui_commands: get_ui_commands(world~),
   }
 }

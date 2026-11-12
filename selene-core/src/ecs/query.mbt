@@ -4,18 +4,19 @@ pub(all) struct EntityFilter {
 }
 
 ///|
-pub(all) struct Query[T] {
-  world : World
+// Retain the columns rather than the World, so caching a Query in its World
+// does not create an owning reference cycle.
+struct Query[T] {
   storage : ComponentStore[T]
 }
 
 ///|
-pub(all) struct With[T] {
+struct With[T] {
   storage : ComponentStore[T]
 }
 
 ///|
-pub(all) struct Without[T] {
+struct Without[T] {
   storage : ComponentStore[T]
 }
 
@@ -34,8 +35,8 @@ pub(all) struct QueryDelta[T] {
 }
 
 ///|
-pub fn[T] query(world : World, storage : ComponentStore[T]) -> Query[T] {
-  { world, storage, }
+pub fn[T : Component] World::query(self : World) -> Query[T] {
+  { storage: components_in(self), }
 }
 
 ///|
@@ -58,30 +59,28 @@ pub fn[T] QueryDelta::empty() -> QueryDelta[T] {
 /// Reads changes for one World. Switching Worlds starts a fresh snapshot.
 pub fn[T : Eq] QueryReader::read(
   self : QueryReader[T],
-  world : World,
-  storage : ComponentStore[T],
+  query : Query[T],
 ) -> QueryDelta[T] {
-  if self.world_id != Some(world.id()) {
+  let storage = query.storage
+  if self.world_id != Some(storage.world_id) {
     self.reset()
-    self.world_id = Some(world.id())
+    self.world_id = Some(storage.world_id)
   }
   let added = []
   let removed = []
   let changed = []
 
-  if storage.belongs_to(world) {
-    for entity, component in storage {
-      match self.entries.get(entity) {
-        None => {
-          self.entries.set(entity, component)
-          added.push((entity, component))
-        }
-        Some(previous) if previous != component => {
-          self.entries.set(entity, component)
-          changed.push((entity, component))
-        }
-        Some(_) => ()
+  for entity, component in storage {
+    match self.entries.get(entity) {
+      None => {
+        self.entries.set(entity, component)
+        added.push((entity, component))
       }
+      Some(previous) if previous != component => {
+        self.entries.set(entity, component)
+        changed.push((entity, component))
+      }
+      Some(_) => ()
     }
   }
 
@@ -95,13 +94,13 @@ pub fn[T : Eq] QueryReader::read(
 }
 
 ///|
-pub fn[T] With::With(storage : ComponentStore[T]) -> With[T] {
-  { storage, }
+pub fn[T : Component] With::With(world : World) -> With[T] {
+  { storage: components_in(world), }
 }
 
 ///|
-pub fn[T] Without::Without(storage : ComponentStore[T]) -> Without[T] {
-  { storage, }
+pub fn[T : Component] Without::Without(world : World) -> Without[T] {
+  { storage: components_in(world), }
 }
 
 ///|
@@ -116,7 +115,11 @@ pub fn[T] With::to_filter(self : With[T]) -> EntityFilter {
 
 ///|
 pub fn[T] Without::to_filter(self : Without[T]) -> EntityFilter {
-  { predicate: fn(entity) { !self.storage.contains(entity) }, }
+  {
+    predicate: fn(entity) {
+      self.storage.world_id == entity.world_id && !self.storage.contains(entity)
+    },
+  }
 }
 
 ///|
@@ -128,9 +131,12 @@ pub fn[T] Query::for_each(
   require_filters~ : Array[EntityFilter] = [],
   reject_filters~ : Array[EntityFilter] = [],
 ) -> Unit {
-  guard self.storage.belongs_to(self.world) else { return }
   enter_query()
-  defer leave_query()
+  self.storage.storage.active_queries += 1
+  defer {
+    self.storage.storage.active_queries -= 1
+    leave_query()
+  }
   for entity, component in self.storage {
     let mut accepted = true
     for filter in require_filters {
@@ -181,4 +187,55 @@ pub fn[T] Query::single(
   } else {
     None
   }
+}
+
+///|
+pub fn[T] Query::get(self : Query[T], entity : Entity) -> T? {
+  self.storage.get(entity)
+}
+
+///|
+pub fn[T] Query::contains(self : Query[T], entity : Entity) -> Bool {
+  self.storage.contains(entity)
+}
+
+///|
+pub fn[T] Query::length(self : Query[T]) -> Int32 {
+  self.storage.length()
+}
+
+///|
+pub fn[T] Query::is_empty(self : Query[T]) -> Bool {
+  self.storage.is_empty()
+}
+
+///|
+/// Iterates in insertion order. Keep structural changes deferred until traversal ends.
+pub fn[T] Query::iter2(self : Query[T]) -> Iter2[Entity, T] {
+  self.storage.iter2()
+}
+
+///|
+pub fn[T] Query::keys(self : Query[T]) -> Iter[Entity] {
+  self.storage.keys()
+}
+
+///|
+pub fn[T] Query::values(self : Query[T]) -> Iter[T] {
+  self.storage.values()
+}
+
+///|
+pub fn[T] Query::to_array(self : Query[T]) -> Array[(Entity, T)] {
+  self.storage.to_array()
+}
+
+///|
+pub fn[T] Query::insertion_order(self : Query[T], entity : Entity) -> Int32 {
+  self.storage.insertion_order(entity)
+}
+
+///|
+pub fn[T] Query::order_span(self : Query[T]) -> Int32 {
+  self.storage.order_span()
 }

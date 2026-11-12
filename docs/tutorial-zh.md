@@ -205,7 +205,9 @@ priv struct PlayerController {
 
 启动时会先清理上一轮实体，再加载关卡并用 `world.insert_resource(...)`
 插入新的 `GameSession`。系统通过 `world.get_resource()` 读取会话，
-通过 `@ecs.components()` 访问玩家控制器。示例包对 `model.mbt` 应用以下生成规则。
+通过 `world.query()` 创建类型化的 `@ecs.Query[PlayerController]` 来访问玩家控制器。
+单实体读取和替换分别使用 `world.get_component(entity)` 和
+`world.set_component(entity, value)`。示例包对 `model.mbt` 应用以下生成规则。
 
 ```moonbit
 dev_build(rule: "selene_codegen", input: "model.mbt", output: "model.g.mbt")

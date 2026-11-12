@@ -1,11 +1,13 @@
 ///|
-pub fn animation_player_system(delta : Double) -> Unit {
-  let targets_by_player = collect_targets_by_player()
-  for (entity, player) in animation_players().to_array() {
+pub fn animation_player_system(world~ : @ecs.World, delta : Double) -> Unit {
+  let query_animation_graph_handle : @ecs.Query[AnimationGraphHandle] = world.query()
+  let query_animation_player : @ecs.Query[AnimationPlayer] = world.query()
+  let targets_by_player = collect_targets_by_player(world~)
+  for (entity, player) in query_animation_player.to_array() {
     if !entity.is_alive() {
       continue
     }
-    guard animation_graph_handles().get(entity) is Some(graph_handle) else {
+    guard query_animation_graph_handle.get(entity) is Some(graph_handle) else {
       continue
     }
     guard animation_graph_asset(graph_handle) is Some(graph) else { continue }
@@ -111,12 +113,14 @@ pub fn animation_player_system(delta : Double) -> Unit {
 }
 
 ///|
-pub fn animation_transition_system(delta : Double) -> Unit {
-  for entity, transitions in animation_transitions() {
+pub fn animation_transition_system(world~ : @ecs.World, delta : Double) -> Unit {
+  let query_animation_player : @ecs.Query[AnimationPlayer] = world.query()
+  let query_animation_transitions : @ecs.Query[AnimationTransitions] = world.query()
+  for entity, transitions in query_animation_transitions {
     if !entity.is_alive() {
       continue
     }
-    guard animation_players().get(entity) is Some(player) else { continue }
+    guard query_animation_player.get(entity) is Some(player) else { continue }
     let mut main_weight = 1.0
     transitions.fading.retain((node_index, fade) => {
       guard player.active_animations.get(node_index) is Some(active) else {
@@ -153,11 +157,13 @@ pub fn animation_transition_system(delta : Double) -> Unit {
 }
 
 ///|
-pub fn animation_apply_system(_delta : Double) -> Unit {
-  let targets_by_player = collect_targets_by_player()
-  for (player_entity, player) in animation_players().to_array() {
+pub fn animation_apply_system(world~ : @ecs.World, _delta : Double) -> Unit {
+  let query_animation_graph_handle : @ecs.Query[AnimationGraphHandle] = world.query()
+  let query_animation_player : @ecs.Query[AnimationPlayer] = world.query()
+  let targets_by_player = collect_targets_by_player(world~)
+  for (player_entity, player) in query_animation_player.to_array() {
     guard player_entity.is_alive() else { continue }
-    guard animation_graph_handles().get(player_entity) is Some(graph_handle) else {
+    guard query_animation_graph_handle.get(player_entity) is Some(graph_handle) else {
       continue
     }
     guard animation_graph_asset(graph_handle) is Some(graph) else { continue }
@@ -180,8 +186,14 @@ pub fn animation_apply_system(_delta : Double) -> Unit {
     }
     for key, buffer in buffers {
       guard animated_field(key.field) is Some(field) else { continue }
-      let value = resolve_sample_value(key.field, field, key.entity, buffer)
-      (field.apply)(key.entity, value)
+      let value = resolve_sample_value(
+        world,
+        key.field,
+        field,
+        key.entity,
+        buffer,
+      )
+      (field.apply)(world, key.entity, value)
     }
   }
 }
@@ -337,8 +349,7 @@ fn update_bound_mesh(
 }
 
 ///|
-pub fn animation_skinning_system(_delta : Double) -> Unit {
-  let world = @ecs.require_current_world()
+pub fn animation_skinning_system(world~ : @ecs.World, _delta : Double) -> Unit {
   morphed_meshes().retain((entity, _) => entity.is_valid_in(world))
   skinned_meshes().retain((entity, _) => entity.is_valid_in(world))
   for entity, binding in morphed_meshes() {
@@ -373,15 +384,16 @@ pub fn animation_skinning_system(_delta : Double) -> Unit {
     let joint_affines : Array[@math.Affine3] = []
     let mut missing_joint_transform = false
     for joint_index, joint_entity in binding.joint_entities {
-      guard @transform.global_transform(joint_entity) is Some(global_transform) else {
+      guard @transform.global_transform(world~, joint_entity)
+        is Some(global_transform) else {
         missing_joint_transform = true
         break
       }
-      let world = @math.Mat4::from_affine(global_transform.affine)
+      let joint_world = @math.Mat4::from_affine(global_transform.affine)
       let inverse_bind = binding.inverse_bind_matrices
         .get(joint_index)
         .unwrap_or(@math.Mat4::identity())
-      joint_affines.push((world * inverse_bind).affine_part())
+      joint_affines.push((joint_world * inverse_bind).affine_part())
     }
     if missing_joint_transform || joint_affines.length() == 0 {
       continue

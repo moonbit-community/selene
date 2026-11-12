@@ -4,11 +4,9 @@ test "typed spawn binds the layout to the explicit World" {
   let other = @ecs.World()
   let sprite = @sprite.Sprite()
   let transform = @transform.Transform::from_xyz(3.0, 4.0, 0.0)
-  let sprites : @ecs.ComponentStore[@sprite.Sprite] = @ecs.components_in(world)
-  let transforms : @ecs.ComponentStore[@transform.Spatial] = @ecs.components_in(
-    world,
-  )
-  let foreign : @ecs.ComponentStore[@sprite.Sprite] = @ecs.components_in(other)
+  let sprites : @ecs.Query[@sprite.Sprite] = world.query()
+  let transforms : @ecs.Query[@transform.Spatial] = world.query()
+  let foreign : @ecs.Query[@sprite.Sprite] = other.query()
   let empty = world.spawn(())
   let single = world.spawn(@ecs.Single(sprite))
   let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = world.prepare_spawn()
@@ -37,12 +35,10 @@ test "typed spawn binds the layout to the explicit World" {
 test "typed spawn can queue an entity from a query" {
   let world = @ecs.World()
   let first = world.spawn(@ecs.Single(@sprite.Sprite()))
-  let sprites : @ecs.ComponentStore[@sprite.Sprite] = @ecs.components_in(world)
-  let transforms : @ecs.ComponentStore[@transform.Spatial] = @ecs.components_in(
-    world,
-  )
+  let sprites : @ecs.Query[@sprite.Sprite] = world.query()
+  let transforms : @ecs.Query[@transform.Spatial] = world.query()
   let commands = @ecs.commands(world)
-  let query = @ecs.query(world, sprites)
+  let query = sprites
   let transform = @transform.Transform::from_xyz(3.0, 4.0, 0.0)
   let later = @transform.Transform::from_xyz(5.0, 6.0, 0.0)
   let spawned = []
@@ -50,7 +46,9 @@ test "typed spawn can queue an entity from a query" {
     query.for_each((entity, sprite) => {
       if entity == first {
         let pending = commands.spawn((sprite, @transform.Spatial(transform)))
-        commands.add(_ => transforms.set(pending, Spatial(later)))
+        commands.add(_ => {
+          world.set_component(pending, (Spatial(later) : @transform.Spatial))
+        })
         spawned.push(pending)
       }
     })
@@ -71,4 +69,35 @@ test "panic typed spawn rejects duplicate component columns" {
   let world = @ecs.World()
   let sprite = @sprite.Sprite()
   ignore(world.spawn((sprite, sprite)))
+}
+
+///|
+test "sprite traversal uses its explicit World even when another is active" {
+  let previous = @ecs.current_world()
+  defer (match previous {
+    Some(world) => @ecs.set_current_world(world)
+    None => @ecs.clear_current_world()
+  })
+  let first = @ecs.World()
+  let second = @ecs.World()
+  let entity = first.spawn(
+    (
+      @sprite.Sprite(),
+      @transform.Spatial(@transform.Transform::from_xyz(1.0, 0.0, 0.0)),
+    ),
+  )
+  ignore(
+    second.spawn(
+      (
+        @sprite.Sprite(),
+        @transform.Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)),
+      ),
+    ),
+  )
+  @ecs.set_current_world(second)
+  let observed = []
+  @sprite.for_each_sprite_transform(world=first, (entity, _, transform) => {
+    observed.push((entity, transform.translation().x))
+  })
+  assert_eq(observed, [(entity, 1.0)])
 }

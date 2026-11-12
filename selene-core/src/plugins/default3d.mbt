@@ -32,35 +32,35 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
 
   let app = add_system(
     app,
-    @inputs.advanced_key_system,
+    _ => @inputs.advanced_key_system(@time.delta()),
     PreUpdate,
     "Advanced Key System",
     in_set=input,
   )
   let app = add_system(
     app,
-    @inputs.advanced_mouse_system,
+    _ => @inputs.advanced_mouse_system(@time.delta()),
     PreUpdate,
     "Advanced Mouse System",
     in_set=input,
   )
   let app = add_system(
     app,
-    @inputs.advanced_touch_system,
+    _ => @inputs.advanced_touch_system(@time.delta()),
     PreUpdate,
     "Advanced Touch System",
     in_set=input,
   )
   let app = add_system(
     app,
-    @inputs.advanced_gamepad_system,
+    _ => @inputs.advanced_gamepad_system(@time.delta()),
     PreUpdate,
     "Advanced Gamepad System",
     in_set=input,
   )
   let app = add_system(
     app,
-    @inputs.advanced_pointer_system,
+    _ => @inputs.advanced_pointer_system(@time.delta()),
     PreUpdate,
     "Advanced Pointer System",
     in_set=pointer_input,
@@ -68,7 +68,7 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @ui.ui_input_capture_system,
+    world => @ui.ui_input_capture_system(world~, @time.delta()),
     PreUpdate,
     "UI Input Capture System",
     in_set=ui_input,
@@ -76,7 +76,7 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @touch_controls.touch_controls_system,
+    _ => @touch_controls.touch_controls_system(@time.delta()),
     PreUpdate,
     "Touch Controls System",
     in_set=touch_controls,
@@ -84,35 +84,35 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @input_action.input_action_system,
+    _ => @input_action.input_action_system(@time.delta()),
     PreUpdate,
     "Input Action System",
     after=[touch_controls],
   )
   let app = add_system(
     app,
-    @window.sync_mouse_lock_system,
+    _ => @window.sync_mouse_lock_system(@time.delta()),
     PreUpdate,
     "Sync Mouse Lock",
     after=[input],
   )
   let app = add_system(
     app,
-    @physics3d.physics_step_system,
+    world => @physics3d.physics_step_system(world~, @time.delta()),
     FixedUpdate,
     "Physics3D Step System",
     in_set=physics,
   )
   let app = add_system(
     app,
-    @animation.animation_player_system,
+    world => @animation.animation_player_system(world~, @time.delta()),
     PostUpdate,
     "Animation Player System",
     in_set=animation,
   )
   let app = add_system(
     app,
-    @animation.animation_transition_system,
+    world => @animation.animation_transition_system(world~, @time.delta()),
     PostUpdate,
     "Animation Transition System",
     in_set=animation,
@@ -120,7 +120,7 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @animation.animation_apply_system,
+    world => @animation.animation_apply_system(world~, @time.delta()),
     PostUpdate,
     "Animation Apply System",
     in_set=animation,
@@ -128,7 +128,7 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @transform.transform_propagate_system,
+    world => @transform.transform_propagate_system(world~, @time.delta()),
     PostUpdate,
     "Transform Propagation System (Frame)",
     in_set=transform,
@@ -136,7 +136,7 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @animation.animation_skinning_system,
+    world => @animation.animation_skinning_system(world~, @time.delta()),
     PostUpdate,
     "Animation Skinning System",
     in_set=transform,
@@ -144,7 +144,7 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @visibility.visibility_propagate_system,
+    world => @visibility.visibility_propagate_system(world~, @time.delta()),
     PostUpdate,
     "Visibility Propagation System",
     in_set=transform,
@@ -152,7 +152,7 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @ui.ui_layout_system,
+    world => @ui.ui_layout_system(world~, @time.delta()),
     PostUpdate,
     "UI Layout System",
     in_set=ui,
@@ -160,7 +160,7 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @ui.ui_interaction_system,
+    world => @ui.ui_interaction_system(world~, @time.delta()),
     PostUpdate,
     "UI Interaction System",
     in_set=ui,
@@ -168,7 +168,7 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @a11y.a11y_sync_system,
+    world => @a11y.a11y_sync_system(world~, @time.delta()),
     PostUpdate,
     "A11y Sync System",
     in_set=ui,
@@ -176,49 +176,49 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @render2d.begin_frame2d_system,
+    _ => @render2d.begin_frame2d_system(@time.delta()),
     RenderExtract,
     "Render2D Begin Frame",
     in_set=render_extract,
   )
   let app = add_system(
     app,
-    @ui.ui_extract_system,
+    _ => @ui.ui_extract_system(@time.delta()),
     RenderExtract,
     "UI Extract",
     in_set=render_extract,
   )
   let app = add_system(
     app,
-    @camera3d.camera3d_extract_system,
+    world => @camera3d.camera3d_extract_system(world~, @time.delta()),
     RenderExtract,
     "Camera3D Extract",
     in_set=render_extract,
   )
   let app = add_system(
     app,
-    @render3d.render3d_extract_system,
+    world => @render3d.render3d_extract_system(world~, @time.delta()),
     RenderExtract,
     "Render3D Extract",
     in_set=render_extract,
   )
   let app = add_system(
     app,
-    @audio.audio_event_playback_system,
+    _ => @audio.audio_event_playback_system(@time.delta()),
     PostUpdate,
     "Audio Event Playback System",
     in_set=audio,
   )
   let app = add_system(
     app,
-    @audio.audio_playback_system,
+    world => @audio.audio_playback_system(world~, @time.delta()),
     PostUpdate,
     "Audio Playback System",
     in_set=audio,
   )
   let app = add_system(
     app,
-    @render3d_pipeline.render3d_prepare_system,
+    _ => @render3d_pipeline.render3d_prepare_system(@time.delta()),
     RenderPrepare,
     "Render3D Prepare",
     in_set=render_prepare,
@@ -226,7 +226,7 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @sprite.render_sprite_system,
+    world => @sprite.render_sprite_system(world~, @time.delta()),
     RenderPrepare,
     "Render Sprite System",
     in_set=render_prepare,
@@ -234,7 +234,7 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @mesh2d.render_mesh2d_system,
+    world => @mesh2d.render_mesh2d_system(world~, @time.delta()),
     RenderPrepare,
     "Render Mesh2d System",
     in_set=render_prepare,
@@ -242,7 +242,7 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @text2d.render_text2d_system,
+    world => @text2d.render_text2d_system(world~, @time.delta()),
     RenderPrepare,
     "Render Text2d System",
     in_set=render_prepare,
@@ -250,7 +250,7 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @touch_controls.touch_controls_render_system,
+    _ => @touch_controls.touch_controls_render_system(@time.delta()),
     RenderPrepare,
     "Touch Controls Prepare",
     in_set=touch_controls_render,
@@ -258,7 +258,7 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @ui.ui_prepare_system,
+    world => @ui.ui_prepare_system(world~, @time.delta()),
     RenderPrepare,
     "UI Prepare",
     in_set=render_prepare,
@@ -266,11 +266,17 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @render_submit.render_submit_system,
+    world => @render_submit.render_submit_system(world~, @time.delta()),
     Render,
     "Render Submit",
     in_set=render_submit,
     after=[render_prepare],
   )
-  add_system(app, @time.timers_system, PostUpdate, "Timer System", in_set=time)
+  add_system(
+    app,
+    _ => @time.timers_system(@time.delta()),
+    PostUpdate,
+    "Timer System",
+    in_set=time,
+  )
 }

@@ -332,3 +332,18 @@ pub fn LockedAxes::LockedAxes() -> LockedAxes {
     lock_rotation_z: false,
   }
 }
+
+///|
+/// Per-collider Rapier flags.
+#selene.component
+pub(all) struct ActiveCollisionTypes(@collision.ActiveCollisionTypes)
+
+///|
+/// Per-collider Rapier flags.
+#selene.component
+pub(all) struct ActiveEvents(@collision.ActiveEvents)
+
+///|
+/// Per-collider Rapier flags.
+#selene.component
+pub(all) struct ActiveHooks(@collision.ActiveHooks)

@@ -43,16 +43,6 @@ pub extend AudioEvent with @moonbitlang/core/debug.Debug::{to_repr}
 pub extend AudioEvent with Eq::{not_equal, equal}
 
 ///|
-pub fn audio_players() -> @ecs.ComponentStore[AudioPlayer] {
-  @ecs.components()
-}
-
-///|
-pub fn audio_playback_settings() -> @ecs.ComponentStore[PlaybackSettings] {
-  @ecs.components()
-}
-
-///|
 pub fn AudioPlayer::AudioPlayer(source : AudioHandle) -> AudioPlayer {
   { source, }
 }

@@ -14,17 +14,19 @@
 
 ///|
 pub fn raycast(
+  world~ : @ecs.World,
   origin : @math.Vec2,
   direction : @math.Vec2,
   max_toi~ : Double = 1000.0,
   solid~ : Bool = true,
   query_filter~ : SpatialQueryFilter = SpatialQueryFilter(),
 ) -> RaycastHit? {
-  @collision.raycast(origin, direction, max_toi~, solid~, query_filter~)
+  @collision.raycast(world~, origin, direction, max_toi~, solid~, query_filter~)
 }
 
 ///|
 pub fn shape_cast(
+  world~ : @ecs.World,
   shape : CollisionShape,
   origin : @math.Vec2,
   rotation~ : Double = 0.0,
@@ -34,6 +36,7 @@ pub fn shape_cast(
   query_filter~ : SpatialQueryFilter = SpatialQueryFilter(),
 ) -> ShapeCastHit? {
   @collision.shape_cast(
+    world~,
     shape,
     origin,
     rotation~,
@@ -46,20 +49,22 @@ pub fn shape_cast(
 
 ///|
 pub fn intersect_point(
+  world~ : @ecs.World,
   point : @math.Vec2,
   query_filter~ : SpatialQueryFilter = SpatialQueryFilter(),
 ) -> Array[@ecs.Entity] {
-  @collision.intersect_point(point, query_filter~)
+  @collision.intersect_point(world~, point, query_filter~)
 }
 
 ///|
 pub fn intersect_shape(
+  world~ : @ecs.World,
   shape : CollisionShape,
   origin : @math.Vec2,
   rotation~ : Double = 0.0,
   query_filter~ : SpatialQueryFilter = SpatialQueryFilter(),
 ) -> Array[@ecs.Entity] {
-  @collision.intersect_shape(shape, origin, rotation~, query_filter~)
+  @collision.intersect_shape(world~, shape, origin, rotation~, query_filter~)
 }
 
 ///|
@@ -68,6 +73,9 @@ pub fn is_grounded(entity : @ecs.Entity) -> Bool {
 }
 
 ///|
-pub fn get_contains(area : @ecs.Entity) -> @set.Set[@ecs.Entity] {
-  @collision.get_contains(area)
+pub fn get_contains(
+  world~ : @ecs.World,
+  area : @ecs.Entity,
+) -> @set.Set[@ecs.Entity] {
+  @collision.get_contains(world~, area)
 }

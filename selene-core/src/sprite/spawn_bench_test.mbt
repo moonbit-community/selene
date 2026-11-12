@@ -97,10 +97,11 @@ test "sprite spawn paths" (b : @bench.T) {
         (Direct, "direct"),
         (Prepared, "prepared"),
       ] {
-      @ecs.set_current_world(spawn_sprite_population(size, mode, extra_columns))
+      let world = spawn_sprite_population(size, mode, extra_columns)
+      @ecs.set_current_world(world)
       assert_eq(@ecs.alive_entity_count(), size)
       let mut matched = 0
-      @sprite.for_each_sprite_transform((_, _, _) => matched += 1)
+      @sprite.for_each_sprite_transform(world~, (_, _, _) => matched += 1)
       assert_eq(matched, size)
       // Each sample starts with a fresh World, including plan preparation.
       b.bench(name="spawn/\{name}/n=\{size}/columns=\{columns}", count=10, () => {

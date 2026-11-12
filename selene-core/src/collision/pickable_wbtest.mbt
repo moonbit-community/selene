@@ -1,9 +1,9 @@
 ///|
-fn with_pickable_test_world(action : () -> Unit raise) -> Unit raise {
+fn with_pickable_test_world(action : (@ecs.World) -> Unit raise) -> Unit raise {
   let previous = @ecs.current_world().unwrap_or(@ecs.bootstrap_world())
   let world = @ecs.World()
   @ecs.set_current_world(world)
-  action()
+  action(world)
   @ecs.set_current_world(previous)
 }
 
@@ -24,45 +24,49 @@ fn reset_pickable_test_input() -> Unit {
 
 ///|
 fn spawn_pickable_camera(
+  world~ : @ecs.World,
   viewport : @math.Rect,
   order : Int32,
   layers : @visibility.RenderLayers,
 ) -> @ecs.Entity {
-  let camera_entity_draft = @ecs.require_current_world().spawn_draft()
-  camera_entity_draft.add_to(
-    @camera.cameras(),
-    Camera(order~, viewport=Some(@camera.CameraViewport::from_rect(viewport))),
+  let camera_entity_draft = world.spawn_draft()
+  camera_entity_draft.add(
+    (
+      Camera(order~, viewport=Some(@camera.CameraViewport::from_rect(viewport))) :
+      @camera.Camera),
   )
-  camera_entity_draft.add_to(@camera.camera2ds(), Camera2d())
-  camera_entity_draft.add_to(
-    @transform.spatials(),
-    Spatial(
-      @transform.Transform::from_xyz(
-        viewport.size.x * 0.5,
-        viewport.size.y * 0.5,
-        0.0,
-      ),
-    ),
+  camera_entity_draft.add((Camera2d() : @camera.Camera2d))
+  camera_entity_draft.add(
+    (
+      Spatial(
+        @transform.Transform::from_xyz(
+          viewport.size.x * 0.5,
+          viewport.size.y * 0.5,
+          0.0,
+        ),
+      ) : @transform.Spatial),
   )
-  camera_entity_draft.add_to(@visibility.render_layers(), layers)
+  camera_entity_draft.add((layers : @visibility.RenderLayers))
   let camera_entity = camera_entity_draft.spawn()
   camera_entity
 }
 
 ///|
 fn spawn_pickable_shape(
+  world~ : @ecs.World,
   position : @math.Vec2,
   shape : CollisionShape,
   layers~ : @visibility.RenderLayers = RenderLayers(),
 ) -> @ecs.Entity {
-  let entity_draft = @ecs.require_current_world().spawn_draft()
-  entity_draft.add_to(pickables(), Pickable())
-  entity_draft.add_to(shapes(), shape)
-  entity_draft.add_to(
-    @transform.spatials(),
-    Spatial(@transform.Transform::from_xyz(position.x, position.y, 0.0)),
+  let entity_draft = world.spawn_draft()
+  entity_draft.add((Pickable() : Pickable))
+  entity_draft.add((shape : CollisionShape))
+  entity_draft.add(
+    (
+      Spatial(@transform.Transform::from_xyz(position.x, position.y, 0.0)) :
+      @transform.Spatial),
   )
-  entity_draft.add_to(@visibility.render_layers(), layers)
+  entity_draft.add((layers : @visibility.RenderLayers))
   let entity = entity_draft.spawn()
   entity
 }
@@ -76,21 +80,23 @@ fn click_left_mouse(position : @math.Vec2) -> Unit {
 
 ///|
 test "pickable click respects top-most camera render layers" {
-  with_pickable_test_world(fn() raise {
+  with_pickable_test_world(fn(world) raise {
     reset_pickable_test_input()
     @window.configure_display(100.0, 100.0, 1.0)
     let viewport : @math.Rect = {
       position: @math.Vec2::zero(),
       size: Vec2(100.0, 100.0),
     }
-    ignore(spawn_pickable_camera(viewport, 0, @visibility.layer(0U)))
-    ignore(spawn_pickable_camera(viewport, 1, @visibility.layer(1U)))
+    ignore(spawn_pickable_camera(world~, viewport, 0, @visibility.layer(0U)))
+    ignore(spawn_pickable_camera(world~, viewport, 1, @visibility.layer(1U)))
     let hidden_entity = spawn_pickable_shape(
+      world~,
       Vec2(50.0, 50.0),
       Rect(size=Vec2(20.0, 20.0), offset=Vec2(-10.0, -10.0)),
       layers=@visibility.layer(0U),
     )
     let visible_entity = spawn_pickable_shape(
+      world~,
       Vec2(50.0, 50.0),
       Rect(size=Vec2(20.0, 20.0), offset=Vec2(-10.0, -10.0)),
       layers=@visibility.layer(1U),
@@ -98,7 +104,7 @@ test "pickable click respects top-most camera render layers" {
     click_left_mouse(Vec2(50.0, 50.0))
 
     let reader = @event.EventReader()
-    pickable_click_system(0.0)
+    pickable_click_system(world~, 0.0)
     let events = pointer_event_bus.read(reader)
     let visible_id = visible_entity.id()
     let left_events = events.filter(fn(event) { event.button is Left })
@@ -117,24 +123,26 @@ test "pickable click respects top-most camera render layers" {
 
 ///|
 test "pickable click supports ball shapes" {
-  with_pickable_test_world(fn() raise {
+  with_pickable_test_world(fn(world) raise {
     reset_pickable_test_input()
     @window.configure_display(100.0, 100.0, 1.0)
     ignore(
       spawn_pickable_camera(
+        world~,
         { position: @math.Vec2::zero(), size: Vec2(100.0, 100.0), },
         0,
         @visibility.layer(0U),
       ),
     )
     let entity = spawn_pickable_shape(
+      world~,
       Vec2(40.0, 40.0),
       Ball(radius=12.0, offset=@math.Vec2::zero()),
     )
     click_left_mouse(Vec2(48.0, 40.0))
 
     let reader = @event.EventReader()
-    pickable_click_system(0.0)
+    pickable_click_system(world~, 0.0)
     let events = pointer_event_bus.read(reader)
     let left_events = events.filter(fn(event) { event.button is Left })
 
@@ -148,8 +156,7 @@ test "pickable click supports ball shapes" {
 
 ///|
 test "pickable uses the sheared world plane and rejects a collapsed shape" {
-  with_pickable_test_world(fn() raise {
-    let world = @ecs.require_current_world()
+  with_pickable_test_world(fn(world) raise {
     let parent = world.spawn1(
       @transform.Spatial(@transform.Transform::from_scale(Vec3(3.0, 1.0, 1.0))),
     )
@@ -165,20 +172,24 @@ test "pickable uses the sheared world plane and rejects a collapsed shape" {
       ),
       parent~,
     )
-    @transform.transform_propagate_system(0.0)
-    let pose = @transform.global_transform(child).unwrap()
+    @transform.transform_propagate_system(world~, 0.0)
+    let pose = @transform.global_transform(world~, child).unwrap()
     let render = @camera.world_transform_2d(pose)
     let inside = render.transform_point(Vec2(9.0, 1.0))
     let outside = render.transform_point(Vec2(11.0, 1.0))
-    assert_true(hit_test_pickable(child, inside, inside, inside, None))
-    assert_false(hit_test_pickable(child, outside, outside, outside, None))
+    assert_true(hit_test_pickable(world~, child, inside, inside, inside, None))
+    assert_false(
+      hit_test_pickable(world~, child, outside, outside, outside, None),
+    )
     @transform.set_local_transform(
+      world~,
       parent,
       @transform.Transform::from_scale(Vec3(0.0, 1.0, 1.0)),
     )
     let inside_old_fallback = @math.Vec2(1.0, 1.0)
     assert_false(
       hit_test_pickable(
+        world~,
         child,
         inside_old_fallback,
         inside_old_fallback,

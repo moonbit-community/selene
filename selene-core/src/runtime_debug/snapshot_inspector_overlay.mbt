@@ -149,8 +149,12 @@ pub fn unregister_snapshot_provider(name : String) -> Unit {
 }
 
 ///|
-pub fn world_snapshot() -> WorldSnapshot {
-  let world = current_world()
+pub fn world_snapshot(world~ : @ecs.World) -> WorldSnapshot {
+  let query_visibility : @ecs.Query[@visibility.Visibility] = world.query()
+  let query_sprite : @ecs.Query[@sprite.Sprite] = world.query()
+  let query_rigid_body : @ecs.Query[@physics2d.RigidBody] = world.query()
+  let query_collider : @ecs.Query[@physics2d.Collider] = world.query()
+  let query_linear_velocity : @ecs.Query[@physics2d.LinearVelocity] = world.query()
   let entities : Array[EntitySnapshot] = []
   for entity in @ecs.iter_entities() {
     if !entity.is_alive() {
@@ -158,14 +162,14 @@ pub fn world_snapshot() -> WorldSnapshot {
     }
     entities.push({
       entity_id: entity.id(),
-      name: @name.name_of(entity),
-      transform: @transform.local_transform(entity),
-      global_transform: @transform.global_transform(entity),
-      visibility: @visibility.visibilities().get(entity),
-      sprite: @sprite.sprites().get(entity),
-      rigid_body2d: @physics2d.rigid_bodies().get(entity),
-      collider2d: @physics2d.colliders().get(entity),
-      linear_velocity2d: @physics2d.linear_velocities().get(entity),
+      name: @name.name_of(world~, entity),
+      transform: @transform.local_transform(world~, entity),
+      global_transform: @transform.global_transform(world~, entity),
+      visibility: query_visibility.get(entity),
+      sprite: query_sprite.get(entity),
+      rigid_body2d: query_rigid_body.get(entity),
+      collider2d: query_collider.get(entity),
+      linear_velocity2d: query_linear_velocity.get(entity),
     })
   }
   entities.sort_by(fn(lhs, rhs) {
@@ -240,9 +244,12 @@ fn sprite_destination_size(sprite : @sprite.Sprite) -> @math.Vec2? {
 }
 
 ///|
-pub fn sprite_inspector_entries() -> Array[SpriteInspectorEntry] {
+pub fn sprite_inspector_entries(
+  world~ : @ecs.World,
+) -> Array[SpriteInspectorEntry] {
+  let query_sprite : @ecs.Query[@sprite.Sprite] = world.query()
   let entries : Array[SpriteInspectorEntry] = []
-  for entity, sprite in @sprite.sprites() {
+  for entity, sprite in query_sprite {
     if !entity.is_alive() {
       continue
     }
@@ -253,19 +260,19 @@ pub fn sprite_inspector_entries() -> Array[SpriteInspectorEntry] {
     let source_rect = sprite_source_rect(sprite).map(debug_rect)
     let destination_size = sprite_destination_size(sprite).map(debug_vec2)
     let anchor = debug_vec2(sprite.anchor.as_vec())
-    let local_translation = @transform.local_transform(entity).map(fn(
+    let local_translation = @transform.local_transform(world~, entity).map(fn(
       transform,
     ) {
       debug_vec3(transform.translation)
     })
-    let world_translation = @transform.global_transform(entity).map(fn(
+    let world_translation = @transform.global_transform(world~, entity).map(fn(
       transform,
     ) {
       debug_vec3(transform.translation())
     })
     entries.push({
       entity_id: entity.id(),
-      entity_name: @name.name_of(entity),
+      entity_name: @name.name_of(world~, entity),
       visible: @visibility.is_visible(entity),
       image_path,
       source_rect,

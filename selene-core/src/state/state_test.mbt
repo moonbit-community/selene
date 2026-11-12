@@ -173,9 +173,9 @@ test "transition execution rejects reentry and query-time execution" {
     }
   })
   assert_true(rejected.val)
-  let store : @ecs.ComponentStore[Int32] = ComponentStore(world)
-  ignore(store.spawn_plan(world).spawn(1))
-  @ecs.query(world, store).for_each((_, _) => {
+  let store : @ecs.Query[QueryMarker] = world.query()
+  ignore(world.spawn1(QueryMarker::{ }))
+  store.for_each((_, _) => {
     try advance(world) catch {
       ActiveQuery => ()
       _ => abort("wrong query-time error")
@@ -201,4 +201,15 @@ test "panic requesting an uninitialized state fails" {
 ///|
 test "panic testing an uninitialized state fails" {
   ignore(@state.in_state(Phase::Playing)(World()))
+}
+
+///|
+struct QueryMarker {}
+
+///|
+let marker_key : @ecs.ComponentKey[QueryMarker] = ComponentKey()
+
+///|
+impl @ecs.Component for QueryMarker with fn component_key() {
+  marker_key
 }

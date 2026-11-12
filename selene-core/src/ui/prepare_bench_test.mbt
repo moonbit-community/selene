@@ -9,9 +9,9 @@ test "BENCH-UI prepare borders in paint order" (b : @bench.T) {
     let world = @ecs.World()
     @ecs.set_current_world(world)
     @window.configure_display(960.0, 540.0, 1.0)
-    let root = @ui.nodes()
-      .spawn_plan(world)
-      .spawn(Node(width=@ui.Val::px(960.0), height=@ui.Val::px(540.0)))
+    let root = world.spawn1(
+      (Node(width=@ui.Val::px(960.0), height=@ui.Val::px(540.0)) : @ui.Node),
+    )
     for i in 0..<512 {
       let node = @ui.Node(
         width=@ui.Val::px(80.0),
@@ -30,12 +30,12 @@ test "BENCH-UI prepare borders in paint order" (b : @bench.T) {
         ignore(world.spawn1(node, parent=root))
       }
     }
-    @ui.ui_layout_system(0.0)
+    @ui.ui_layout_system(world~, 0.0)
     @ui.ui_extract_system(0.0)
     let frame = () => {
       @render2d.begin_frame2d_system(0.0)
-      @ui.ui_prepare_system(0.0)
-      @render2d.get_frame2d().ui_commands.length()
+      @ui.ui_prepare_system(world~, 0.0)
+      @render2d.get_frame2d(world~).ui_commands.length()
     }
     assert_eq(frame(), 4 * (512 / stride))
     b.bench(name="ui-prepare/n=512/border-stride=\{stride}", count=20, () => {

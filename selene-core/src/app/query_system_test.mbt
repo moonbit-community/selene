@@ -24,11 +24,7 @@ test "a three-component query is constructed once per World" {
   let system = @ecs.query_system(
     world => {
       constructed.push(world.id())
-      @ecs.Query3(
-        @ecs.components_in(world),
-        @ecs.components_in(world),
-        @ecs.components_in(world),
-      )
+      world.query3()
     },
     fn(
       query : @ecs.Query3[@sprite.Sprite, @transform.Spatial, @sprite.Anchor],

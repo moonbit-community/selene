@@ -59,77 +59,72 @@ pub fn add_default_ldtk_entity_registration(
 }
 
 ///|
-pub fn[T] add_ldtk_entity_component_for_layer_optional(
+pub fn[T : @ecs.Component] add_ldtk_entity_component_for_layer_optional(
   layer_identifier : String?,
   entity_identifier : String?,
-  storage : @ecs.ComponentStore[T],
   make : (LdtkEntitySpawn) -> T,
 ) -> Unit {
   add_ldtk_entity_registration_for_layer_optional(
     layer_identifier,
     entity_identifier,
-    fn(event) { event.draft.add_to(storage, make(event)) },
+    fn(event) { event.draft.add(make(event)) },
   )
 }
 
 ///|
-pub fn[T] add_ldtk_entity_component_for_layer(
+pub fn[T : @ecs.Component] add_ldtk_entity_component_for_layer(
   layer_identifier : String,
   entity_identifier : String,
-  storage : @ecs.ComponentStore[T],
   make : (LdtkEntitySpawn) -> T,
 ) -> Unit {
   add_ldtk_entity_component_for_layer_optional(
     Some(layer_identifier),
     Some(entity_identifier),
-    storage,
     make,
   )
 }
 
 ///|
-pub fn[T] add_ldtk_entity_component(
+pub fn[T : @ecs.Component] add_ldtk_entity_component(
   entity_identifier : String,
-  storage : @ecs.ComponentStore[T],
   make : (LdtkEntitySpawn) -> T,
 ) -> Unit {
   add_ldtk_entity_component_for_layer_optional(
     None,
     Some(entity_identifier),
-    storage,
     make,
   )
 }
 
 ///|
-pub fn[T] add_default_ldtk_entity_component_for_layer(
+pub fn[T : @ecs.Component] add_default_ldtk_entity_component_for_layer(
   layer_identifier : String,
-  storage : @ecs.ComponentStore[T],
   make : (LdtkEntitySpawn) -> T,
 ) -> Unit {
   add_ldtk_entity_component_for_layer_optional(
     Some(layer_identifier),
     None,
-    storage,
     make,
   )
 }
 
 ///|
-pub fn[T] add_default_ldtk_entity_component(
-  storage : @ecs.ComponentStore[T],
+pub fn[T : @ecs.Component] add_default_ldtk_entity_component(
   make : (LdtkEntitySpawn) -> T,
 ) -> Unit {
-  add_ldtk_entity_component_for_layer_optional(None, None, storage, make)
+  add_ldtk_entity_component_for_layer_optional(None, None, make)
 }
 
 ///|
 pub fn ldtk_entity_tile_sprite(
+  world~ : @ecs.World,
   event : LdtkEntitySpawn,
   zindex~ : Int32 = event.zindex,
 ) -> @sprite.Sprite? {
   guard event.instance.tile is Some(tile) else { return None }
-  guard ldtk_entity_tile_image(event, tile) is Some(image) else { return None }
+  guard ldtk_entity_tile_image(world~, event, tile) is Some(image) else {
+    return None
+  }
   let source_width = if tile.w > 0 {
     tile.w.to_double()
   } else {
@@ -177,10 +172,11 @@ pub fn ldtk_entity_tile_sprite(
 
 ///|
 pub fn add_ldtk_entity_tile_sprite_to_draft(
+  world~ : @ecs.World,
   event : LdtkEntitySpawn,
   zindex~ : Int32 = event.zindex,
 ) -> Bool {
-  guard ldtk_entity_tile_sprite(event, zindex~) is Some(sprite) else {
+  guard ldtk_entity_tile_sprite(world~, event, zindex~) is Some(sprite) else {
     return false
   }
   let pose = event.spatial.pose()
@@ -195,6 +191,7 @@ pub fn add_ldtk_entity_tile_sprite_to_draft(
 
 ///|
 pub fn register_ldtk_entity_tile_sprite_for_layer_optional(
+  world~ : @ecs.World,
   layer_identifier : String?,
   entity_identifier : String?,
   zindex_offset~ : Int32 = 0,
@@ -204,6 +201,7 @@ pub fn register_ldtk_entity_tile_sprite_for_layer_optional(
   ) {
     ignore(
       add_ldtk_entity_tile_sprite_to_draft(
+        world~,
         event,
         zindex=event.zindex + zindex_offset,
       ),
@@ -213,11 +211,13 @@ pub fn register_ldtk_entity_tile_sprite_for_layer_optional(
 
 ///|
 pub fn register_ldtk_entity_tile_sprite_for_layer(
+  world~ : @ecs.World,
   layer_identifier : String,
   entity_identifier : String,
   zindex_offset~ : Int32 = 0,
 ) -> Unit {
   register_ldtk_entity_tile_sprite_for_layer_optional(
+    world~,
     Some(layer_identifier),
     Some(entity_identifier),
     zindex_offset~,
@@ -226,10 +226,12 @@ pub fn register_ldtk_entity_tile_sprite_for_layer(
 
 ///|
 pub fn register_ldtk_entity_tile_sprite(
+  world~ : @ecs.World,
   entity_identifier : String,
   zindex_offset~ : Int32 = 0,
 ) -> Unit {
   register_ldtk_entity_tile_sprite_for_layer_optional(
+    world~,
     None,
     Some(entity_identifier),
     zindex_offset~,
@@ -238,10 +240,12 @@ pub fn register_ldtk_entity_tile_sprite(
 
 ///|
 pub fn register_default_ldtk_entity_tile_sprite_for_layer(
+  world~ : @ecs.World,
   layer_identifier : String,
   zindex_offset~ : Int32 = 0,
 ) -> Unit {
   register_ldtk_entity_tile_sprite_for_layer_optional(
+    world~,
     Some(layer_identifier),
     None,
     zindex_offset~,
@@ -250,9 +254,11 @@ pub fn register_default_ldtk_entity_tile_sprite_for_layer(
 
 ///|
 pub fn register_default_ldtk_entity_tile_sprite(
+  world~ : @ecs.World,
   zindex_offset~ : Int32 = 0,
 ) -> Unit {
   register_ldtk_entity_tile_sprite_for_layer_optional(
+    world~,
     None,
     None,
     zindex_offset~,
@@ -261,6 +267,7 @@ pub fn register_default_ldtk_entity_tile_sprite(
 
 ///|
 pub fn add_ldtk_entity_tile_sprite_for_layer_optional(
+  world~ : @ecs.World,
   layer_identifier : String?,
   entity_identifier : String?,
   zindex_offset~ : Int32 = 0,
@@ -271,6 +278,7 @@ pub fn add_ldtk_entity_tile_sprite_for_layer_optional(
     fn(event) {
       ignore(
         add_ldtk_entity_tile_sprite_to_draft(
+          world~,
           event,
           zindex=event.zindex + zindex_offset,
         ),
@@ -281,11 +289,13 @@ pub fn add_ldtk_entity_tile_sprite_for_layer_optional(
 
 ///|
 pub fn add_ldtk_entity_tile_sprite_for_layer(
+  world~ : @ecs.World,
   layer_identifier : String,
   entity_identifier : String,
   zindex_offset~ : Int32 = 0,
 ) -> Unit {
   add_ldtk_entity_tile_sprite_for_layer_optional(
+    world~,
     Some(layer_identifier),
     Some(entity_identifier),
     zindex_offset~,
@@ -294,10 +304,12 @@ pub fn add_ldtk_entity_tile_sprite_for_layer(
 
 ///|
 pub fn add_ldtk_entity_tile_sprite(
+  world~ : @ecs.World,
   entity_identifier : String,
   zindex_offset~ : Int32 = 0,
 ) -> Unit {
   add_ldtk_entity_tile_sprite_for_layer_optional(
+    world~,
     None,
     Some(entity_identifier),
     zindex_offset~,
@@ -306,10 +318,12 @@ pub fn add_ldtk_entity_tile_sprite(
 
 ///|
 pub fn add_default_ldtk_entity_tile_sprite_for_layer(
+  world~ : @ecs.World,
   layer_identifier : String,
   zindex_offset~ : Int32 = 0,
 ) -> Unit {
   add_ldtk_entity_tile_sprite_for_layer_optional(
+    world~,
     Some(layer_identifier),
     None,
     zindex_offset~,
@@ -317,8 +331,16 @@ pub fn add_default_ldtk_entity_tile_sprite_for_layer(
 }
 
 ///|
-pub fn add_default_ldtk_entity_tile_sprite(zindex_offset~ : Int32 = 0) -> Unit {
-  add_ldtk_entity_tile_sprite_for_layer_optional(None, None, zindex_offset~)
+pub fn add_default_ldtk_entity_tile_sprite(
+  world~ : @ecs.World,
+  zindex_offset~ : Int32 = 0,
+) -> Unit {
+  add_ldtk_entity_tile_sprite_for_layer_optional(
+    world~,
+    None,
+    None,
+    zindex_offset~,
+  )
 }
 
 ///|

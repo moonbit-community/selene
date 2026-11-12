@@ -13,7 +13,7 @@ test "audio cleanup stops deleted loops only in the active World" {
   let parent = @ecs.require_current_world().spawn(())
   let child = @ecs.require_current_world().spawn((), parent~)
   attach_audio(child, AudioPlayer(clip), settings~)
-  audio_playback_system(0.0)
+  audio_playback_system(world=first, 0.0)
   assert_true(audio_sinks().contains(direct))
   assert_true(audio_sinks().contains(child))
   assert_true(direct.delete())
@@ -22,7 +22,7 @@ test "audio cleanup stops deleted loops only in the active World" {
   let second = @ecs.World()
   @ecs.set_current_world(second)
   let survivor = spawn_audio(clip, settings~)
-  audio_playback_system(0.0)
+  audio_playback_system(world=second, 0.0)
   let stopped = []
   cleanup_orphaned_audio(instance => stopped.push(instance))
   assert_true(stopped.is_empty())
@@ -54,7 +54,7 @@ test "audio cleanup retains old loop handles when the entity slot is reused" {
   @ecs.set_current_world(world)
   let clip = @asset.load_audio("audio-slot-reuse-test.ogg")
   let old = spawn_audio(clip, settings=PlaybackSettings::looped())
-  audio_playback_system(0.0)
+  audio_playback_system(world~, 0.0)
   ignore(old.delete())
   let replacement = spawn_audio(clip, settings=PlaybackSettings::looped())
   assert_eq(old.slot_index(), replacement.slot_index())
@@ -62,7 +62,7 @@ test "audio cleanup retains old loop handles when the entity slot is reused" {
   let stopped = []
   cleanup_orphaned_audio(instance => stopped.push(instance))
   assert_eq(stopped.length(), 1)
-  audio_playback_system(0.0)
+  audio_playback_system(world~, 0.0)
   assert_false(audio_sinks().contains(old))
   assert_true(audio_sinks().contains(replacement))
 }

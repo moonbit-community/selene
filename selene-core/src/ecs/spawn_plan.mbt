@@ -11,7 +11,7 @@ struct SpawnPlan[T] {
 
 ///|
 /// Prepares an explicitly selected component column for spawning in its World.
-pub fn[T] ComponentStore::spawn_plan(
+fn[T] ComponentStore::spawn_plan(
   self : ComponentStore[T],
   world : World,
 ) -> SpawnPlan[T] {

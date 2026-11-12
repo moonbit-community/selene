@@ -8,9 +8,7 @@ import {
 }
 
 // Values
-pub fn a11y_sync_system(Double) -> Unit
-
-pub fn a11ys() -> @ecs.ComponentStore[A11y]
+pub fn a11y_sync_system(world~ : @ecs.World, Double) -> Unit
 
 pub fn blur() -> Unit
 

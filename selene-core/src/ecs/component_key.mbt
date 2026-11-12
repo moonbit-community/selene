@@ -10,30 +10,11 @@ pub fn[T] ComponentKey::ComponentKey() -> ComponentKey[T] {
 }
 
 ///|
-pub fn[T] ComponentKey::store_in(
+fn[T] ComponentKey::store_in(
   self : ComponentKey[T],
   world : World,
 ) -> ComponentStore[T] {
   world.get_or_init(self.key)
-}
-
-///|
-pub fn[T] ComponentKey::store(self : ComponentKey[T]) -> ComponentStore[T] {
-  self.store_in(require_current_world())
-}
-
-///|
-pub fn[T] ComponentKey::get(self : ComponentKey[T], entity : Entity) -> T? {
-  self.store().get(entity)
-}
-
-///|
-pub fn[T] ComponentKey::set(
-  self : ComponentKey[T],
-  entity : Entity,
-  value : T,
-) -> Unit {
-  self.store().set(entity, value)
 }
 
 ///|
@@ -43,12 +24,25 @@ pub(open) trait Component {
 }
 
 ///|
-pub fn[T : Component] components_in(world : World) -> ComponentStore[T] {
+fn[T : Component] components_in(world : World) -> ComponentStore[T] {
   let key : ComponentKey[T] = Component::component_key()
   key.store_in(world)
 }
 
 ///|
-pub fn[T : Component] components() -> ComponentStore[T] {
-  components_in(require_current_world())
+/// Reads an existing component in this World. Foreign and stale handles return None.
+pub fn[T : Component] World::get_component(self : World, entity : Entity) -> T? {
+  let store : ComponentStore[T] = components_in(self)
+  store.get(entity)
+}
+
+///|
+/// Replaces an existing component; never changes an entity's component layout.
+pub fn[T : Component] World::set_component(
+  self : World,
+  entity : Entity,
+  value : T,
+) -> Unit {
+  let store : ComponentStore[T] = components_in(self)
+  store.set(entity, value)
 }

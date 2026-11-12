@@ -155,11 +155,6 @@ type PlayerBulletSpawnPlan = @ecs.SpawnPlan[
 ]
 
 ///|
-fn player_bullets() -> @ecs.ComponentStore[PlayerBulletState] {
-  @ecs.components()
-}
-
-///|
 fn player_bullet_visual() -> @sprite.Sprite {
   Sprite(
     image=Some(@asset.load_image("assets/survivors/icon/bullet.png")),
@@ -169,6 +164,7 @@ fn player_bullet_visual() -> @sprite.Sprite {
 
 ///|
 fn update_weapon_timers(
+  world~ : @ecs.World,
   weapon_instances : Array[WeaponType],
   delta : Double,
   attack_speed : Double,
@@ -199,7 +195,9 @@ fn update_weapon_timers(
       }
       let weapon_range = calculate_weapon_range(weapon_data, player_range)
       let nearest_enemy_pos = find_nearest_enemy_in_range(
-        player_pos, weapon_range,
+        world~,
+        player_pos,
+        weapon_range,
       )
       match nearest_enemy_pos {
         Some(enemy_pos) => {
@@ -274,8 +272,14 @@ fn shoot_weapon_bullet(
 }
 
 ///|
-fn start_bullet_despawn(bullet_entity : @ecs.Entity) -> Unit {
-  guard player_bullets().get(bullet_entity) is Some(bullet) else { return }
+fn start_bullet_despawn(
+  world~ : @ecs.World,
+  bullet_entity : @ecs.Entity,
+) -> Unit {
+  guard (world.get_component(bullet_entity) : PlayerBulletState?)
+    is Some(bullet) else {
+    return
+  }
   if !bullet.alive {
     return
   }
@@ -284,28 +288,32 @@ fn start_bullet_despawn(bullet_entity : @ecs.Entity) -> Unit {
 }
 
 ///|
-fn player_bullet_trigger_system(_world : @ecs.World) -> Unit {
+fn player_bullet_trigger_system(world : @ecs.World) -> Unit {
+  let query_player_bullet_state : @ecs.Query[PlayerBulletState] = world.query()
+  let query_enemy : @ecs.Query[Enemy] = world.query()
   for
     event in @physics2d.trigger_event_bus.read(
       survivors_runtime().player_bullet_trigger_event_reader,
     ) {
     guard event.entered else { continue }
-    guard player_bullets().get(event.area) is Some(bullet) else { continue }
+    guard query_player_bullet_state.get(event.area) is Some(bullet) else {
+      continue
+    }
     guard bullet.alive else { continue }
-    if enemies().get(event.other) is Some(enemy) {
+    if query_enemy.get(event.other) is Some(enemy) {
       enemy.health -= bullet.damage
       bullet.penetration_count += 1
       if enemy.health <= 0.0 {
         ignore(event.other.delete())
         let data = get_enemy_data(enemy.enemy_type)
-        set_score(game_state().score + data.points)
-        add_exp(data.points)
+        set_score(world~, game_state(world~).score + data.points)
+        add_exp(world~, data.points)
       }
       if bullet.penetration_count >= bullet.penetration_limit {
-        start_bullet_despawn(event.area)
+        start_bullet_despawn(world~, event.area)
       }
     } else {
-      start_bullet_despawn(event.area)
+      start_bullet_despawn(world~, event.area)
     }
   }
 }

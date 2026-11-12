@@ -15,26 +15,24 @@
 ///|
 fn add_system(
   app : @app.App,
-  system : (Double) -> Unit,
+  system : @ecs.System,
   schedule : @app.Schedule,
   name : String,
   in_set? : @app.SystemSet,
   before~ : Array[@app.SystemSet] = [],
   after~ : Array[@app.SystemSet] = [],
 ) -> @app.App {
-  let world_system = fn(_world) { system(@time.delta()) }
   match in_set {
     Some(set) =>
       app.add_system(
         schedule,
-        world_system,
+        system,
         system_name=name,
         in_set=set,
         before~,
         after~,
       )
-    None =>
-      app.add_system(schedule, world_system, system_name=name, before~, after~)
+    None => app.add_system(schedule, system, system_name=name, before~, after~)
   }
 }
 

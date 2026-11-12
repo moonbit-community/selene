@@ -10,21 +10,15 @@ import {
 }
 
 // Values
-pub fn active_camera2d_views() -> Array[Camera2dView]
+pub fn active_camera2d_views(world~ : @ecs.World) -> Array[Camera2dView]
 
-pub fn camera2d_view_for_screen_point(@math.Vec2) -> Camera2dView?
-
-pub fn camera2ds() -> @ecs.ComponentStore[Camera2d]
+pub fn camera2d_view_for_screen_point(world~ : @ecs.World, @math.Vec2) -> Camera2dView?
 
 pub fn camera_screen_transform(@transform.GlobalTransform, Camera2dView?) -> @math.Affine2
 
-pub fn cameras() -> @ecs.ComponentStore[Camera]
-
-pub fn orthographic_projections() -> @ecs.ComponentStore[OrthographicProjection]
-
 pub fn pixel_snapped_position(@math.Vec2) -> @math.Vec2
 
-pub fn primary_camera2d_view() -> Camera2dView?
+pub fn primary_camera2d_view(world~ : @ecs.World) -> Camera2dView?
 
 pub fn transformed_rect_bounds(@math.Vec2, @math.Rect, @math.Affine2) -> @math.Rect
 

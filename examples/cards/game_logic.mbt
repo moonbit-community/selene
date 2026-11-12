@@ -14,21 +14,21 @@
 
 ///|
 /// Start a new hand
-fn start_new_hand() -> Unit {
+fn start_new_hand(world~ : @ecs.World) -> Unit {
   let game = game_state()
   let player = game.player
 
   // Check if player has run out of chips (loses)
   if player.chips <= 0 {
     game.phase = GameOver
-    update_ui()
+    update_ui(world~)
     return
   }
 
   // Check if game is over (no turns remaining)
   if game.turns_remaining <= 0 {
     game.phase = GameOver
-    update_ui()
+    update_ui(world~)
     return
   }
 
@@ -36,14 +36,14 @@ fn start_new_hand() -> Unit {
   if player.chips < game.big_blind {
     // Not enough chips for the blind - game over
     game.phase = GameOver
-    update_ui()
+    update_ui(world~)
     return
   }
   game.hand_number += 1
   game.phase = PreFlop
   game.current_bet = game.big_blind
   game.community_cards.clear()
-  set_text(game.action_label, "")
+  set_text(world~, game.action_label, "")
   game.magnification = 1 // Reset magnification to 1 for new hand
 
   // Update blinds every 10 hands
@@ -67,7 +67,7 @@ fn start_new_hand() -> Unit {
 
   // Deal hole cards
   deal_hole_cards()
-  update_ui()
+  update_ui(world~)
 }
 
 ///|
@@ -85,16 +85,16 @@ fn deal_hole_cards() -> Unit {
 
 ///|
 /// Handle a betting round - single player just chooses action
-fn handle_betting_round() -> Unit {
+fn handle_betting_round(world~ : @ecs.World) -> Unit {
   // Show buttons for player to make choice
   if !game_state().waiting_for_player {
-    show_action_buttons()
+    show_action_buttons(world~)
   }
 }
 
 ///|
 /// Advance to next game phase
-fn advance_to_next_phase() -> Unit {
+fn advance_to_next_phase(world~ : @ecs.World) -> Unit {
   let game = game_state()
   match game.phase {
     PreFlop => {
@@ -132,7 +132,7 @@ fn advance_to_next_phase() -> Unit {
     River => game.phase = Showdown
     _ => ()
   }
-  update_ui()
+  update_ui(world~)
 }
 
 ///|
@@ -145,7 +145,7 @@ fn reset_betting_round() -> Unit {
 
 ///|
 /// Handle showdown phase
-fn handle_showdown() -> Unit {
+fn handle_showdown(world~ : @ecs.World) -> Unit {
   let game = game_state()
   let player = game.player
   if !player.has_folded {
@@ -174,9 +174,9 @@ fn handle_showdown() -> Unit {
     // Decrease turns remaining only if didn't fold
     game.turns_remaining -= 1
   }
-  update_ui()
+  update_ui(world~)
 
   // Small delay before next hand
   // For now, just start next hand immediately
-  start_new_hand()
+  start_new_hand(world~)
 }

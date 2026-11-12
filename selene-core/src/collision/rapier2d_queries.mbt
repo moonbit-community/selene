@@ -1,14 +1,21 @@
 ///|
-pub fn rigid_body_rotation(entity : @ecs.Entity) -> Double? {
-  entity_physics_snapshot(entity).map(fn(snapshot) { snapshot.rotation })
+pub fn rigid_body_rotation(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> Double? {
+  entity_physics_snapshot(world~, entity).map(fn(snapshot) { snapshot.rotation })
 }
 
 ///|
-pub fn set_rigid_body_rotation(entity : @ecs.Entity, rotation : Double) -> Unit {
-  set_entity_rotation(entity, rotation)
-  if world().entity_bodies.get(entity) is Some(handle) &&
-    world().bodies.get_mut(handle) is Some(body) {
-    match entity_rigid_body(entity).body_type {
+pub fn set_rigid_body_rotation(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  rotation : Double,
+) -> Unit {
+  set_entity_rotation(world~, entity, rotation)
+  if physics_world().entity_bodies.get(entity) is Some(handle) &&
+    physics_world().bodies.get_mut(handle) is Some(body) {
+    match entity_rigid_body(world~, entity).body_type {
       KinematicPositionBased => {
         body.set_rotation(to_physics_rotation(rotation), true) |> ignore
         body.set_next_kinematic_rotation(to_physics_rotation(rotation))
@@ -22,43 +29,48 @@ pub fn set_rigid_body_rotation(entity : @ecs.Entity, rotation : Double) -> Unit 
 }
 
 ///|
-pub fn rigid_body_linear_velocity(entity : @ecs.Entity) -> @math.Vec2? {
-  entity_physics_snapshot(entity).map(fn(snapshot) {
+pub fn rigid_body_linear_velocity(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> @math.Vec2? {
+  entity_physics_snapshot(world~, entity).map(fn(snapshot) {
     snapshot.linear_velocity.unwrap_or(@math.Vec2::zero())
   })
 }
 
 ///|
 pub fn set_rigid_body_linear_velocity(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   linear_velocity : @math.Vec2,
 ) -> Unit {
-  let body_type = entity_rigid_body(entity).body_type
+  let query_velocity : @ecs.Query[@velocity.Velocity] = world.query()
+  let body_type = entity_rigid_body(world~, entity).body_type
   match body_type {
     Fixed => {
-      if @velocity.velocities().contains(entity) {
-        @velocity.velocities().set(entity, @math.Vec2::zero())
+      if query_velocity.contains(entity) {
+        world.set_component(entity, (@math.Vec2::zero() : @velocity.Velocity))
       }
       pending_body_linear_velocities().remove(entity)
-      if world().entity_bodies.get(entity) is Some(handle) &&
-        world().bodies.get_mut(handle) is Some(body) {
+      if physics_world().entity_bodies.get(entity) is Some(handle) &&
+        physics_world().bodies.get_mut(handle) is Some(body) {
         body.set_linvel(@rapier_full.Vec2::zero(), false) |> ignore
       }
     }
     Dynamic =>
-      if world().entity_bodies.get(entity) is Some(handle) &&
-        world().bodies.get_mut(handle) is Some(body) {
+      if physics_world().entity_bodies.get(entity) is Some(handle) &&
+        physics_world().bodies.get_mut(handle) is Some(body) {
         body.set_linvel(to_physics_vec2(linear_velocity), true) |> ignore
       } else {
         pending_body_linear_velocities().set(entity, linear_velocity)
       }
     KinematicPositionBased | KinematicVelocityBased => {
-      let velocities = @velocity.velocities()
+      let velocities = query_velocity
       if body_type is KinematicPositionBased || velocities.contains(entity) {
-        velocities.set(entity, linear_velocity)
+        world.set_component(entity, (linear_velocity : @velocity.Velocity))
       }
-      if world().entity_bodies.get(entity) is Some(handle) &&
-        world().bodies.get_mut(handle) is Some(body) {
+      if physics_world().entity_bodies.get(entity) is Some(handle) &&
+        physics_world().bodies.get_mut(handle) is Some(body) {
         body.set_linvel(to_physics_vec2(linear_velocity), true) |> ignore
       } else {
         pending_body_linear_velocities().set(entity, linear_velocity)
@@ -68,28 +80,32 @@ pub fn set_rigid_body_linear_velocity(
 }
 
 ///|
-pub fn rigid_body_angular_velocity(entity : @ecs.Entity) -> Double? {
-  entity_physics_snapshot(entity).map(fn(snapshot) {
+pub fn rigid_body_angular_velocity(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> Double? {
+  entity_physics_snapshot(world~, entity).map(fn(snapshot) {
     snapshot.angular_velocity.unwrap_or(0.0)
   })
 }
 
 ///|
 pub fn set_rigid_body_angular_velocity(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   angular_velocity : Double,
 ) -> Unit {
-  match entity_rigid_body(entity).body_type {
+  match entity_rigid_body(world~, entity).body_type {
     Dynamic | KinematicVelocityBased =>
-      if world().entity_bodies.get(entity) is Some(handle) &&
-        world().bodies.get_mut(handle) is Some(body) {
+      if physics_world().entity_bodies.get(entity) is Some(handle) &&
+        physics_world().bodies.get_mut(handle) is Some(body) {
         body.set_angvel(Float::from_double(angular_velocity), true) |> ignore
       } else {
         pending_body_angular_velocities().set(entity, angular_velocity)
       }
     _ =>
-      if world().entity_bodies.get(entity) is Some(handle) &&
-        world().bodies.get_mut(handle) is Some(body) {
+      if physics_world().entity_bodies.get(entity) is Some(handle) &&
+        physics_world().bodies.get_mut(handle) is Some(body) {
         body.set_angvel(0.0F, false) |> ignore
       } else {
         pending_body_angular_velocities().remove(entity)
@@ -195,8 +211,8 @@ pub fn apply_torque_impulse(
 pub fn reset_forces(entity : @ecs.Entity, wake_up~ : Bool = true) -> Unit {
   pending_body_forces().remove(entity)
   pending_body_force_points().remove(entity)
-  if world().entity_bodies.get(entity) is Some(handle) &&
-    world().bodies.get_mut(handle) is Some(body) {
+  if physics_world().entity_bodies.get(entity) is Some(handle) &&
+    physics_world().bodies.get_mut(handle) is Some(body) {
     body.reset_forces(wake_up) |> ignore
   }
 }
@@ -205,8 +221,8 @@ pub fn reset_forces(entity : @ecs.Entity, wake_up~ : Bool = true) -> Unit {
 pub fn reset_torques(entity : @ecs.Entity, wake_up~ : Bool = true) -> Unit {
   pending_body_torques().remove(entity)
   pending_body_torque_impulses().remove(entity)
-  if world().entity_bodies.get(entity) is Some(handle) &&
-    world().bodies.get_mut(handle) is Some(body) {
+  if physics_world().entity_bodies.get(entity) is Some(handle) &&
+    physics_world().bodies.get_mut(handle) is Some(body) {
     body.reset_torques(wake_up) |> ignore
   }
 }

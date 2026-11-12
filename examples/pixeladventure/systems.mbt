@@ -32,17 +32,25 @@ fn player_is_frozen(result : GameResult?) -> Bool {
 }
 
 ///|
-fn set_ui_text(entity : @ecs.Entity, content : String) -> Unit {
-  guard @ui.texts().get(entity) is Some(text) else { return }
+fn set_ui_text(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  content : String,
+) -> Unit {
+  guard (world.get_component(entity) : @ui.Text?) is Some(text) else { return }
   if text.content != content {
     text.content = content
   }
 }
 
 ///|
-fn set_ui_text_color(entity : @ecs.Entity, color : String) -> Unit {
+fn set_ui_text_color(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  color : String,
+) -> Unit {
   let next_color = @ui.TextColor::from_css(color)
-  if @ui.text_colors().get(entity) is Some(current) {
+  if (world.get_component(entity) : @ui.TextColor?) is Some(current) {
     if current.color != next_color.color {
       current.color = next_color.color
     }
@@ -50,9 +58,14 @@ fn set_ui_text_color(entity : @ecs.Entity, color : String) -> Unit {
 }
 
 ///|
-fn set_ui_image(entity : @ecs.Entity, image : @ui.UiImage) -> Unit {
-  if @ui.ui_images().get(entity) is Some(current) && current != image {
-    @ui.ui_images().set(entity, image)
+fn set_ui_image(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  image : @ui.UiImage,
+) -> Unit {
+  if (world.get_component(entity) : @ui.UiImage?) is Some(current) &&
+    current != image {
+    world.set_component(entity, (image : @ui.UiImage))
   }
 }
 
@@ -125,6 +138,7 @@ fn build_sprite_animation_clip_asset(
 
 ///|
 fn play_player_animation(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   controller : PlayerController,
 ) -> Unit {
@@ -204,16 +218,24 @@ fn play_player_animation(
   if controller.active_animation == Some(key) {
     return
   }
-  @sprite.sprites().set(entity, sprite_animation_sprite(animation))
-  let player = @animation.animation_players().get(entity).unwrap()
-  let transitions = @animation.animation_transitions().get(entity).unwrap()
+  world.set_component(
+    entity,
+    (sprite_animation_sprite(animation) : @sprite.Sprite),
+  )
+  let player = (world.get_component(entity) : @animation.AnimationPlayer?).unwrap()
+  let transitions = (
+    world.get_component(entity) : @animation.AnimationTransitions?).unwrap()
   let duration = 0.0
   ignore(transitions.play(player, node, duration, repeat~))
   controller.active_animation = Some(key)
 }
 
 ///|
-fn play_bird_animation(entity : @ecs.Entity, bird : BirdController) -> Unit {
+fn play_bird_animation(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  bird : BirdController,
+) -> Unit {
   let (key, node, animation, repeat) = match (bird.is_hurt, bird.direction) {
     (false, Left) =>
       (
@@ -232,27 +254,35 @@ fn play_bird_animation(entity : @ecs.Entity, bird : BirdController) -> Unit {
   if bird.active_animation == Some(key) {
     return
   }
-  @sprite.sprites().set(entity, sprite_animation_sprite(animation))
-  let player = @animation.animation_players().get(entity).unwrap()
-  let transitions = @animation.animation_transitions().get(entity).unwrap()
+  world.set_component(
+    entity,
+    (sprite_animation_sprite(animation) : @sprite.Sprite),
+  )
+  let player = (world.get_component(entity) : @animation.AnimationPlayer?).unwrap()
+  let transitions = (
+    world.get_component(entity) : @animation.AnimationTransitions?).unwrap()
   let duration = 0.0
   ignore(transitions.play(player, node, duration, repeat~))
   bird.active_animation = Some(key)
 }
 
 ///|
-fn sprite_animation_finished(entity : @ecs.Entity) -> Bool {
-  @animation.animation_players()
-  .get(entity)
-  .map_or(false, fn(player) { player.all_finished() })
+fn sprite_animation_finished(world~ : @ecs.World, entity : @ecs.Entity) -> Bool {
+  (world.get_component(entity) : @animation.AnimationPlayer?).map_or(false, fn(
+    player,
+  ) {
+    player.all_finished()
+  })
 }
 
 ///|
-fn entity_rect(entity : @ecs.Entity) -> @math.Rect? {
-  guard @transform.local_transform(entity) is Some(transform) else {
+fn entity_rect(world~ : @ecs.World, entity : @ecs.Entity) -> @math.Rect? {
+  guard @transform.local_transform(world~, entity) is Some(transform) else {
     return None
   }
-  guard @physics2d.shapes().get(entity) is Some(shape) else { return None }
+  guard (world.get_component(entity) : @physics2d.ColliderShape?) is Some(shape) else {
+    return None
+  }
   let position = @math.Vec2(transform.translation.x, transform.translation.y)
   match shape {
     Rect(size~, offset~) => Some({ position: position + offset, size, })
@@ -317,6 +347,7 @@ fn classify_bird_contact(
 
 ///|
 fn apply_stomp_bounce(
+  world~ : @ecs.World,
   player_entity : @ecs.Entity,
   controller : PlayerController,
   player_rect : @math.Rect,
@@ -325,8 +356,10 @@ fn apply_stomp_bounce(
   let snap_delta_y = bird_rect.position.y -
     (player_rect.position.y + player_rect.size.y)
   if snap_delta_y < 0.0 {
-    guard! @transform.local_transform(player_entity) is Some(player_transform)
+    guard! @transform.local_transform(world~, player_entity)
+      is Some(player_transform)
     @transform.set_local_transform(
+      world~,
       player_entity,
       player_transform.with_translation(
         Vec3(
@@ -338,12 +371,15 @@ fn apply_stomp_bounce(
     )
   }
   controller.pending_bounce_velocity_y = Some(-BUMP_V)
-  let bounce_velocity = @physics2d.linear_velocities()
-    .get(player_entity)
-    .map_or(@math.Vec2(0.0, -BUMP_V), fn(velocity) {
-      Vec2(velocity.0.x, -BUMP_V)
-    })
-  @physics2d.linear_velocities().set(player_entity, bounce_velocity)
+  let bounce_velocity = (
+    world.get_component(player_entity) : @physics2d.LinearVelocity?).map_or(
+    @math.Vec2(0.0, -BUMP_V),
+    fn(velocity) { Vec2(velocity.0.x, -BUMP_V) },
+  )
+  world.set_component(
+    player_entity,
+    (bounce_velocity : @physics2d.LinearVelocity),
+  )
 }
 
 ///|
@@ -358,7 +394,11 @@ fn player_motion_base_velocity(
 }
 
 ///|
-fn hurt_player(session : GameSession, controller : PlayerController) -> Unit {
+fn hurt_player(
+  world~ : @ecs.World,
+  session : GameSession,
+  controller : PlayerController,
+) -> Unit {
   if controller.hurt_cooldown > 0.0 || player_is_frozen(session.result) {
     return
   }
@@ -366,7 +406,7 @@ fn hurt_player(session : GameSession, controller : PlayerController) -> Unit {
     Left => @math.Vec2(ATTACK_V, 0.0)
     Right => Vec2(-ATTACK_V, 0.0)
   }
-  @physics2d.linear_velocities().set(session.player, knockback)
+  world.set_component(session.player, (knockback : @physics2d.LinearVelocity))
   controller.state = Hit
   controller.hurt_cooldown = HURT_COOLDOWN
   session.health -= 1
@@ -379,7 +419,10 @@ fn hurt_player(session : GameSession, controller : PlayerController) -> Unit {
 ///|
 fn player_input_system(world : @ecs.World) -> Unit {
   guard (world.get_resource() : GameSession?) is Some(session) else { return }
-  guard players().get(session.player) is Some(controller) else { return }
+  guard (world.get_component(session.player) : PlayerController?)
+    is Some(controller) else {
+    return
+  }
   controller.move_direction = if @input_action.action_pressed(
       pixel_move_left_action(),
     ) {
@@ -396,7 +439,10 @@ fn player_input_system(world : @ecs.World) -> Unit {
 ///|
 fn player_controller_system(world : @ecs.World) -> Unit {
   guard (world.get_resource() : GameSession?) is Some(session) else { return }
-  guard players().get(session.player) is Some(controller) else { return }
+  guard (world.get_component(session.player) : PlayerController?)
+    is Some(controller) else {
+    return
+  }
   let jump_requested = controller.jump_requested
   controller.jump_requested = false
 
@@ -409,13 +455,16 @@ fn player_controller_system(world : @ecs.World) -> Unit {
   }
 
   if player_is_frozen(session.result) {
-    @physics2d.linear_velocities().set(session.player, @math.Vec2::zero())
+    world.set_component(
+      session.player,
+      (@math.Vec2::zero() : @physics2d.LinearVelocity),
+    )
     match session.result {
       Some(Win) => controller.state = Idle
       Some(GameOver) => controller.state = Hit
       None => ()
     }
-    play_player_animation(session.player, controller)
+    play_player_animation(world~, session.player, controller)
     return
   }
 
@@ -437,7 +486,7 @@ fn player_controller_system(world : @ecs.World) -> Unit {
     if grounded {
       new_velocity_x = 0.0
     }
-    if sprite_animation_finished(session.player) {
+    if sprite_animation_finished(world~, session.player) {
       controller.state = if grounded {
         Idle
       } else if velocity.y > 0.0 {
@@ -480,21 +529,25 @@ fn player_controller_system(world : @ecs.World) -> Unit {
   if new_velocity_y > MAX_FALL_V {
     new_velocity_y = MAX_FALL_V
   }
-  @physics2d.linear_velocities().set(
+  world.set_component(
     session.player,
-    Vec2(new_velocity_x, new_velocity_y),
+    (Vec2(new_velocity_x, new_velocity_y) : @physics2d.LinearVelocity),
   )
-  play_player_animation(session.player, controller)
+  play_player_animation(world~, session.player, controller)
 }
 
 ///|
 fn player_bird_contact_system(world : @ecs.World) -> Unit {
+  let query_player_controller : @ecs.Query[PlayerController] = world.query()
+  let query_bird_controller : @ecs.Query[BirdController] = world.query()
   guard (world.get_resource() : GameSession?) is Some(session) else { return }
   if player_is_frozen(session.result) {
     return
   }
-  guard players().get(session.player) is Some(controller) else { return }
-  guard entity_rect(session.player) is Some(player_rect) else { return }
+  guard query_player_controller.get(session.player) is Some(controller) else {
+    return
+  }
+  guard entity_rect(world~, session.player) is Some(player_rect) else { return }
 
   let fixed_delta = @time.fixed_delta()
   let player_resolved_velocity = @physics2d.resolved_velocity(session.player).map_or(
@@ -505,14 +558,14 @@ fn player_bird_contact_system(world : @ecs.World) -> Unit {
     player_resolved_velocity.scalar_mul(-fixed_delta),
   )
 
-  for bird_entity, bird in birds() {
+  for bird_entity, bird in query_bird_controller {
     if !bird_entity.is_alive() {
       continue
     }
     if bird.is_hurt {
       continue
     }
-    guard entity_rect(bird_entity) is Some(bird_rect) else { continue }
+    guard entity_rect(world~, bird_entity) is Some(bird_rect) else { continue }
     let bird_resolved_velocity = @physics2d.resolved_velocity(bird_entity).map_or(
       @math.Vec2::zero(),
       fn(v) { v.0 },
@@ -532,9 +585,15 @@ fn player_bird_contact_system(world : @ecs.World) -> Unit {
       Stomp => {
         bird.is_hurt = true
         controller.state = Jump
-        apply_stomp_bounce(session.player, controller, player_rect, bird_rect)
+        apply_stomp_bounce(
+          world~,
+          session.player,
+          controller,
+          player_rect,
+          bird_rect,
+        )
       }
-      Hurt => hurt_player(session, controller)
+      Hurt => hurt_player(world~, session, controller)
     }
     break
   }
@@ -542,18 +601,23 @@ fn player_bird_contact_system(world : @ecs.World) -> Unit {
 
 ///|
 fn bird_patrol_system(world : @ecs.World) -> Unit {
+  let query_collider : @ecs.Query[@physics2d.Collider] = world.query()
+  let query_bird_controller : @ecs.Query[BirdController] = world.query()
   let commands = @ecs.commands(world)
-  for bird_entity, bird in birds() {
+  for bird_entity, bird in query_bird_controller {
     if !bird_entity.is_alive() {
       continue
     }
     if bird.is_hurt {
-      @physics2d.linear_velocities().set(bird_entity, @math.Vec2::zero())
-      if @physics2d.colliders().get(bird_entity) is Some(collider) {
+      world.set_component(
+        bird_entity,
+        (@math.Vec2::zero() : @physics2d.LinearVelocity),
+      )
+      if query_collider.get(bird_entity) is Some(collider) {
         collider.active = false
       }
-      play_bird_animation(bird_entity, bird)
-      if sprite_animation_finished(bird_entity) {
+      play_bird_animation(world~, bird_entity, bird)
+      if sprite_animation_finished(world~, bird_entity) {
         commands.delete(bird_entity)
       }
       continue
@@ -577,38 +641,46 @@ fn bird_patrol_system(world : @ecs.World) -> Unit {
 
     match bird.direction {
       Left =>
-        @physics2d.linear_velocities().set(bird_entity, Vec2(-BIRD_SPEED, 0.0))
+        world.set_component(
+          bird_entity,
+          (Vec2(-BIRD_SPEED, 0.0) : @physics2d.LinearVelocity),
+        )
       Right =>
-        @physics2d.linear_velocities().set(bird_entity, Vec2(BIRD_SPEED, 0.0))
+        world.set_component(
+          bird_entity,
+          (Vec2(BIRD_SPEED, 0.0) : @physics2d.LinearVelocity),
+        )
     }
-    play_bird_animation(bird_entity, bird)
+    play_bird_animation(world~, bird_entity, bird)
   }
 }
 
 ///|
 fn trigger_system(world : @ecs.World) -> Unit {
+  let query_flag_tag : @ecs.Query[FlagTag] = world.query()
+  let query_apple_tag : @ecs.Query[AppleTag] = world.query()
   let commands = @ecs.commands(world)
   guard (world.get_resource() : GameSession?) is Some(session) else { return }
   if player_is_frozen(session.result) {
     return
   }
 
-  for flag_entity in flags().keys() {
+  for flag_entity in query_flag_tag.keys() {
     if !flag_entity.is_alive() {
       continue
     }
-    if @physics2d.get_contains(flag_entity).contains(session.player) {
+    if @physics2d.get_contains(world~, flag_entity).contains(session.player) {
       session.score += 100
       session.result = Some(Win)
       commands.delete(flag_entity)
     }
   }
 
-  for apple_entity in apples().keys() {
+  for apple_entity in query_apple_tag.keys() {
     if !apple_entity.is_alive() {
       continue
     }
-    if @physics2d.get_contains(apple_entity).contains(session.player) {
+    if @physics2d.get_contains(world~, apple_entity).contains(session.player) {
       session.score += 10
       play_sfx(coin_sound(), session.volume_on)
       commands.delete(apple_entity)
@@ -629,7 +701,8 @@ fn volume_button_system(world : @ecs.World) -> Unit {
 ///|
 fn pixeladventure_camera_follow_system(world : @ecs.World) -> Unit {
   guard (world.get_resource() : GameSession?) is Some(session) else { return }
-  guard @transform.local_transform(session.player) is Some(player_transform) else {
+  guard @transform.local_transform(world~, session.player)
+    is Some(player_transform) else {
     return
   }
   let half_width = VIEWPORT_WIDTH * 0.5
@@ -657,6 +730,7 @@ fn pixeladventure_camera_follow_system(world : @ecs.World) -> Unit {
     target_y
   }
   @transform.set_local_transform(
+    world~,
     session.camera,
     @transform.Transform::from_xyz(center_x, center_y, 0.0),
   )
@@ -665,9 +739,9 @@ fn pixeladventure_camera_follow_system(world : @ecs.World) -> Unit {
 ///|
 fn hud_sync_system(world : @ecs.World) -> Unit {
   guard (world.get_resource() : GameSession?) is Some(session) else { return }
-  set_ui_text(session.result_box, result_text(session.result))
-  set_ui_text_color(session.result_box, result_color(session.result))
-  set_ui_text(session.score_box, "Score: " + session.score.to_string())
-  set_ui_text(session.health_box, "HP: " + session.health.to_string())
-  set_ui_image(session.volume_button, volume_image(session.volume_on))
+  set_ui_text(world~, session.result_box, result_text(session.result))
+  set_ui_text_color(world~, session.result_box, result_color(session.result))
+  set_ui_text(world~, session.score_box, "Score: " + session.score.to_string())
+  set_ui_text(world~, session.health_box, "HP: " + session.health.to_string())
+  set_ui_image(world~, session.volume_button, volume_image(session.volume_on))
 }

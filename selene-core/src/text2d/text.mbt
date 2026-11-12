@@ -26,21 +26,6 @@ pub extend TextBounds with @moonbitlang/core/debug.Debug::{to_repr}
 pub extend TextBounds with Eq::{not_equal, equal}
 
 ///|
-pub fn text2ds() -> @ecs.ComponentStore[Text2d] {
-  @ecs.components()
-}
-
-///|
-pub fn text_bounds() -> @ecs.ComponentStore[TextBounds] {
-  @ecs.components()
-}
-
-///|
-pub fn text_anchors() -> @ecs.ComponentStore[@sprite.Anchor] {
-  @ecs.components()
-}
-
-///|
 pub fn Text2d::Text2d(blend_mode~ : @render.BlendMode2D = Alpha) -> Text2d {
   { blend_mode, }
 }

@@ -97,16 +97,17 @@ pub fn transform_translation_field() -> AnimatedFieldHandle {
       let handle = register_animated_field({
         name: "Transform.translation",
         kind: Vec3,
-        sample: fn(entity) {
-          let transform = @transform.local_transform(entity).unwrap_or_default()
+        sample: fn(world, entity) {
+          let transform = @transform.local_transform(world~, entity).unwrap_or_default()
           Vec3(transform.translation)
         },
-        apply: fn(entity, value) {
+        apply: fn(world, entity, value) {
           guard! value is Vec3(translation)
-          guard @transform.local_transform(entity) is Some(transform) else {
+          guard @transform.local_transform(world~, entity) is Some(transform) else {
             return
           }
           @transform.set_local_transform(
+            world~,
             entity,
             transform.with_translation(translation),
           )
@@ -126,19 +127,20 @@ pub fn transform_rotation_field() -> AnimatedFieldHandle {
       let handle = register_animated_field({
         name: "Transform.rotation",
         kind: Quat,
-        sample: fn(entity) {
-          let transform = @transform.local_transform(entity).unwrap_or_default()
+        sample: fn(world, entity) {
+          let transform = @transform.local_transform(world~, entity).unwrap_or_default()
           Quat(transform.rotation.to_quat())
         },
-        apply: fn(entity, value) {
+        apply: fn(world, entity, value) {
           guard! value is Quat(quat)
           guard @math.Rotation3::try_from_quat(quat) is Some(rotation) else {
             return
           }
-          guard @transform.local_transform(entity) is Some(transform) else {
+          guard @transform.local_transform(world~, entity) is Some(transform) else {
             return
           }
           @transform.set_local_transform(
+            world~,
             entity,
             transform.with_rotation(rotation),
           )
@@ -158,16 +160,20 @@ pub fn transform_scale_field() -> AnimatedFieldHandle {
       let handle = register_animated_field({
         name: "Transform.scale",
         kind: Vec3,
-        sample: fn(entity) {
-          let transform = @transform.local_transform(entity).unwrap_or_default()
+        sample: fn(world, entity) {
+          let transform = @transform.local_transform(world~, entity).unwrap_or_default()
           Vec3(transform.scale)
         },
-        apply: fn(entity, value) {
+        apply: fn(world, entity, value) {
           guard! value is Vec3(scale)
-          guard @transform.local_transform(entity) is Some(transform) else {
+          guard @transform.local_transform(world~, entity) is Some(transform) else {
             return
           }
-          @transform.set_local_transform(entity, transform.with_scale(scale))
+          @transform.set_local_transform(
+            world~,
+            entity,
+            transform.with_scale(scale),
+          )
         },
       })
       scale_field_ref.val = Some(handle)
@@ -216,8 +222,8 @@ pub fn morph_weights_field() -> AnimatedFieldHandle {
       let handle = register_animated_field({
         name: "Morph.weights",
         kind: Weights,
-        sample: fn(entity) { Weights(morph_weights_of(entity)) },
-        apply: fn(entity, value) {
+        sample: fn(_world, entity) { Weights(morph_weights_of(entity)) },
+        apply: fn(_world, entity, value) {
           guard! value is Weights(weights)
           set_target_morph_weights(entity, weights)
         },
@@ -236,8 +242,9 @@ pub fn texture_atlas_index_field() -> AnimatedFieldHandle {
       let handle = register_animated_field({
         name: "Sprite.texture_atlas.index",
         kind: Scalar,
-        sample: fn(entity) {
-          let index = @sprite.sprites()
+        sample: fn(world, entity) {
+          let query_sprite : @ecs.Query[@sprite.Sprite] = world.query()
+          let index = query_sprite
             .get(entity)
             .bind(fn(sprite) {
               sprite.texture_atlas.map(fn(texture_atlas) {
@@ -247,16 +254,17 @@ pub fn texture_atlas_index_field() -> AnimatedFieldHandle {
             .unwrap_or(0.0)
           Scalar(index)
         },
-        apply: fn(entity, value) {
+        apply: fn(world, entity, value) {
+          let query_sprite : @ecs.Query[@sprite.Sprite] = world.query()
           guard! value is Scalar(frame)
-          guard @sprite.sprites().get(entity) is Some(sprite) else { return }
+          guard query_sprite.get(entity) is Some(sprite) else { return }
           guard sprite.texture_atlas is Some(texture_atlas) else { return }
           let next_index = if frame < 0.0 { 0 } else { frame.round().to_int() }
           let updated_atlas = { ..texture_atlas, index: next_index, }
-          @sprite.sprites().set(entity, {
-            ..sprite,
-            texture_atlas: Some(updated_atlas),
-          })
+          world.set_component(
+            entity,
+            ({ ..sprite, texture_atlas: Some(updated_atlas), } : @sprite.Sprite),
+          )
         },
       })
       discrete_animated_fields.add(handle) |> ignore
@@ -267,11 +275,14 @@ pub fn texture_atlas_index_field() -> AnimatedFieldHandle {
 }
 
 ///|
-fn entity_name_path(entity : @ecs.Entity) -> Array[String]? {
+fn entity_name_path(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> Array[String]? {
   let segments : Array[String] = []
   let mut current : @ecs.Entity? = Some(entity)
   while current is Some(node) {
-    guard @name.name_of(node) is Some(name) else { return None }
+    guard @name.name_of(world~, node) is Some(name) else { return None }
     segments.push(name)
     current = node.get_parent()
   }
@@ -285,11 +296,14 @@ fn entity_name_path(entity : @ecs.Entity) -> Array[String]? {
 }
 
 ///|
-pub fn animation_target_id_of(entity : @ecs.Entity) -> AnimationTargetId? {
-  if animation_target_ids().get(entity) is Some(target) {
+pub fn animation_target_id_of(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> AnimationTargetId? {
+  if (world.get_component(entity) : AnimationTargetId?) is Some(target) {
     return Some(target)
   }
-  entity_name_path(entity).map(AnimationTargetId::from_names)
+  entity_name_path(world~, entity).map(AnimationTargetId::from_names)
 }
 
 ///|
