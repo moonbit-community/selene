@@ -3,7 +3,7 @@ fn[A, B] update_rows_for_bench(
   query : Query[(A, B)],
   update : (A, B) -> A,
 ) -> Unit {
-  query.for_each_batch(batch => {
+  query.batches(batch => {
     for row in 0..<batch.length() {
       let (a, b) = batch.get(row)
       batch.set(row, (update(a, b), b))
@@ -42,7 +42,7 @@ test "archetype batch reads and writes" (bench : @bench.T) {
     }
     let read_batches = () => {
       let mut sum = 0
-      query.for_each_batch(batch => {
+      query.batches(batch => {
         for row in 0..<batch.length() {
           let (x, y) = batch.get(row)
           sum += x + y
@@ -52,7 +52,7 @@ test "archetype batch reads and writes" (bench : @bench.T) {
     }
     let write_rows = () => update_rows_for_bench(query, (_, y) => y + 1)
     let write_batches = () => {
-      query.for_each_batch(batch => {
+      query.batches(batch => {
         for row in 0..<batch.length() {
           let (_, y) = batch.get(row)
           batch.set(row, (y + 1, y))

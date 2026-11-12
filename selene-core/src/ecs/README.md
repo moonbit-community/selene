@@ -23,7 +23,7 @@ priv struct Velocity {
 }
 
 fn move_entities(query : @ecs.Query[(Position, Velocity)]) -> Unit {
-  query.for_each_batch(batch => {
+  query.batches(batch => {
     let positions : @ecs.WriteColumn[Position] = batch.write_column()
     let velocities : @ecs.ReadColumn[Velocity] = batch.read_column()
     for row in 0..<batch.length() {
@@ -67,7 +67,7 @@ let position : @ecs.Single[Position]? = positions.get(player)
 
 `world.query1()` is shorthand for constructing `Query[Single[T]]`; the general
 `world.query()` also accepts that shape. All shapes provide `get`, `contains`,
-`single`, `length`, `for_each`, and `for_each_batch` with the same semantics.
+`single`, `length`, `for_each`, and `batches` with the same semantics.
 Their component storage and batch representations are private.
 
 For custom schedulers, `@ecs.query_system(callback)` produces a `System`.
@@ -190,7 +190,7 @@ for large hot loops, use typed columns to avoid forming a tuple for every row.
 See [measured row and column costs](BENCHMARKS.md) for native and Node.js results.
 
 ```moonbit
-moving.for_each_batch(batch => {
+moving.batches(batch => {
   let positions : @ecs.ReadColumn[Position] = batch.read_column()
   let velocities : @ecs.WriteColumn[Velocity] = batch.write_column()
   for row in 0..<batch.length() {
@@ -211,7 +211,7 @@ Reading a mutable component object does not make that object immutable. Batch
 objects and columns expire when their callback returns; accessing an escaped
 view aborts. They expose no raw arrays or persistent array views.
 
-`for_each` and `for_each_batch` reject immediate structural changes and schedule
+`for_each` and `batches` reject immediate structural changes and schedule
 flushes during traversal. Queue spawns and deletions through `Commands`.
 
 `iter()` returns `Iter[(Entity, Row)]`; `iter2()` returns `Iter2[Entity, Row]`.

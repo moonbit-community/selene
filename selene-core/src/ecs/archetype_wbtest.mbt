@@ -74,7 +74,7 @@ test "batch row replacement preserves alignment across tables" {
   let unmatched = a.spawn_plan(world).spawn(11)
   let query = make_query2(a, b)
   let batches = []
-  query.for_each_batch(batch => {
+  query.batches(batch => {
     batches.push(batch.length())
     for row in 0..<batch.length() {
       let (left, right) = batch.get(row)
@@ -93,7 +93,7 @@ test "batch row replacement preserves alignment across tables" {
     }
   })
   let entries = []
-  query.for_each_batch(batch => {
+  query.batches(batch => {
     for row in 0..<batch.length() {
       let (left, right) = batch.get(row)
       entries.push((batch.entity(row).id(), left, right))
@@ -161,7 +161,7 @@ test "three to five column queries follow new tables and recycled slots" {
   })
   assert_eq(three_values, [(10, "label", true), (11, "label", false)])
   let four_values = []
-  four.for_each_batch(batch => {
+  four.batches(batch => {
     for row in 0..<batch.length() {
       four_values.push(batch.get(row))
     }
@@ -174,7 +174,7 @@ test "three to five column queries follow new tables and recycled slots" {
   })
   assert_eq(five_values, [(10, "label", true, 40, 50)])
   five_values.clear()
-  five.for_each_batch(batch => {
+  five.batches(batch => {
     for row in 0..<batch.length() {
       let (a, b, c, d, e) = batch.get(row)
       batch.set(row, (a + d + e, b, c, d, e))

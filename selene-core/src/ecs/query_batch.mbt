@@ -29,7 +29,8 @@ fn require_batch(scope : Ref[Bool]) -> Unit {
 }
 
 ///|
-pub fn[T] Query::for_each_batch(
+/// Visits each matching archetype with a callback-scoped batch view.
+pub fn[T] Query::batches(
   self : Query[T],
   visit : (QueryBatch[T]) -> Unit,
 ) -> Unit {

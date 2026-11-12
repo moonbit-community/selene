@@ -107,7 +107,7 @@ test "unified query row and typed column traversal" (bench : @bench.T) {
     }
     let read_columns = () => {
       let mut sum = 0
-      query.for_each_batch(batch => {
+      query.batches(batch => {
         let a : ReadColumn[QueryBenchA] = batch.read_column()
         let b : ReadColumn[QueryBenchB] = batch.read_column()
         let c : ReadColumn[QueryBenchC] = batch.read_column()
@@ -135,7 +135,7 @@ test "unified query row and typed column traversal" (bench : @bench.T) {
       sum
     }
     let write_columns = () => {
-      query.for_each_batch(batch => {
+      query.batches(batch => {
         let a : ReadColumn[QueryBenchA] = batch.read_column()
         let b : WriteColumn[QueryBenchB] = batch.write_column()
         let c : ReadColumn[QueryBenchC] = batch.read_column()

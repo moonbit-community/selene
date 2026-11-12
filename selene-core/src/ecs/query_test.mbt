@@ -135,7 +135,7 @@ test "batch writes can select the second column or several columns" {
   let query : @ecs.Query[(Position, Speed)] = world.query()
   let visited = []
   let mirrored = []
-  query.for_each_batch(batch => {
+  query.batches(batch => {
     let positions : @ecs.WriteColumn[Position] = batch.write_column()
     let speeds : @ecs.WriteColumn[Speed] = batch.write_column()
     let observed : @ecs.ReadColumn[Position] = batch.read_column()
@@ -153,7 +153,7 @@ test "batch writes can select the second column or several columns" {
   assert_eq(world.get_component(unmatched), Some(Position(9)))
   assert_eq(other.get_component(foreign), Some(Position(7)))
   assert_eq(other.get_component(foreign), Some(Speed(8)))
-  query.for_each_batch(batch => {
+  query.batches(batch => {
     let speeds : @ecs.WriteColumn[Speed] = batch.write_column()
     for row in 0..<speeds.length() {
       speeds[row] = Speed(0)
@@ -181,7 +181,7 @@ test "filtered queries apply the same matching rules to every operation" {
   assert_eq(query.keys().collect(), [first])
   assert_eq(query.values().collect(), [(Position(1), Speed(2))])
   let batched = []
-  query.for_each_batch(batch => {
+  query.batches(batch => {
     for row in 0..<batch.length() {
       batched.push(batch.entity(row))
     }
@@ -332,7 +332,7 @@ test "panic an escaped read column expires after its callback" {
   ignore(world.spawn1(Position(1)))
   let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
   let saved : Ref[@ecs.ReadColumn[Position]?] = Ref(None)
-  query.for_each_batch(batch => saved.val = Some(batch.read_column()))
+  query.batches(batch => saved.val = Some(batch.read_column()))
   ignore(saved.val.unwrap()[0])
 }
 
@@ -342,7 +342,7 @@ test "panic an escaped write column expires after its callback" {
   ignore(world.spawn1(Position(1)))
   let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
   let saved : Ref[@ecs.WriteColumn[Position]?] = Ref(None)
-  query.for_each_batch(batch => saved.val = Some(batch.write_column()))
+  query.batches(batch => saved.val = Some(batch.write_column()))
   saved.val.unwrap()[0] = Position(9)
 }
 

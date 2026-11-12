@@ -42,6 +42,8 @@
 
 ### Changed
 
+- Rename query batch traversal to `query.batches(callback)`.
+
 - Require explicit World ownership for component access. Construct opaque
   queries with `world.query()` or the single-component `world.query1()`;
   use `world.get_component` and `world.set_component` for point access.

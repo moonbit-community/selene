@@ -92,9 +92,10 @@ class EcsPublicApiTests(unittest.TestCase):
             "joined_constructor": ("ignore(@ecs.Query2(world.query(), world.query()))", "Query2"),
             "draft_store": ("world.spawn_draft().add_to(world.query(), Position(1))", "add_to"),
             "old_query_factory": ("ignore(world.query2())", "query2"),
+            "old_batch_traversal": ("let query : @ecs.Query[@ecs.Single[Position]] = world.query1()\n  query.for_each_batch(_ => ())", "for_each_batch"),
             "old_first_column_write": ("let query : @ecs.Query[(Position, Position)] = world.query()\n  query.for_each_batch_mut_a(_ => ())", "for_each_batch_mut_a"),
-            "read_column_write": ("let query : @ecs.Query[@ecs.Single[Position]] = world.query1()\n  query.for_each_batch(batch => { let column : @ecs.ReadColumn[Position] = batch.read_column(); column.set(0, Position(1)) })", "set"),
-            "column_storage": ("let query : @ecs.Query[@ecs.Single[Position]] = world.query1()\n  query.for_each_batch(batch => { let column : @ecs.ReadColumn[Position] = batch.read_column(); ignore(column.values) })", "abstract type"),
+            "read_column_write": ("let query : @ecs.Query[@ecs.Single[Position]] = world.query1()\n  query.batches(batch => { let column : @ecs.ReadColumn[Position] = batch.read_column(); column.set(0, Position(1)) })", "set"),
+            "column_storage": ("let query : @ecs.Query[@ecs.Single[Position]] = world.query1()\n  query.batches(batch => { let column : @ecs.ReadColumn[Position] = batch.read_column(); ignore(column.values) })", "abstract type"),
             "store_spawn": ("let query : @ecs.Query[@ecs.Single[Position]] = world.query()\n  ignore(query.spawn_plan(world))", "spawn_plan"),
         }
         for name, (source, symbol) in cases.items():
@@ -125,7 +126,7 @@ class EcsPublicApiTests(unittest.TestCase):
             manifest.write_text(original)
 
     def test_structural_changes_are_rejected_in_query_callbacks(self):
-        for traversal in ("for_each((_, _) =>", "for_each_batch(_ =>"):
+        for traversal in ("for_each((_, _) =>", "batches(_ =>"):
             with self.subTest(traversal=traversal):
                 result = self.run_program("""
 fn main {
@@ -199,7 +200,7 @@ fn main {
   let world = @ecs.World()
   ignore(world.spawn((Position(1), Speed(2))))
   let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
-  query.for_each_batch(batch => {
+  query.batches(batch => {
     println("entered query callback")
     let speed : @ecs.WriteColumn[Speed] = batch.write_column()
     ignore(speed.length())

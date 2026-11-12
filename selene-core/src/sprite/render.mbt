@@ -7,7 +7,7 @@ pub fn for_each_sprite_transform(
   world~ : @ecs.World,
   visit : (@ecs.Entity, Sprite, @transform.GlobalTransform) -> Unit,
 ) -> Unit {
-  sprite_query(world).for_each_batch(batch => {
+  sprite_query(world).batches(batch => {
     let sprites : @ecs.ReadColumn[Sprite] = batch.read_column()
     let spatials : @ecs.ReadColumn[@transform.Spatial] = batch.read_column()
     for row in 0..<batch.length() {
