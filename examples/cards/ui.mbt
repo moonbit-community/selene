@@ -140,7 +140,7 @@ fn setup_ui(world~ : @ecs.World) -> Unit {
     ),
   )
 
-  hide_action_buttons(world~)
+  @ecs.commands(world).add(world => hide_action_buttons(world~))
 }
 
 ///|
@@ -350,11 +350,11 @@ fn cards_ui_pointer_system(world : @ecs.World) -> Unit {
 fn display_all_cards() -> Unit {
   let game = game_state()
   for entity in game.hole_card_entities {
-    entity.destroy()
+    @ecs.commands(@ecs.require_current_world()).despawn(entity)
   }
   game.hole_card_entities.clear()
   for entity in game.community_card_entities {
-    entity.destroy()
+    @ecs.commands(@ecs.require_current_world()).despawn(entity)
   }
   game.community_card_entities.clear()
 
@@ -366,7 +366,8 @@ fn display_all_cards() -> Unit {
   let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
   for j, card in player.hole_cards {
     let card_x = x_base + (j.to_double() - 0.5) * 30.0 - 30
-    let card_entity = plan.spawn(
+    let card_entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
+      plan,
       (
         Spatial(@transform.Transform::from_xyz(card_x, y_base, j.to_double())),
         card.to_sprite(),
@@ -384,7 +385,7 @@ fn display_all_cards() -> Unit {
 fn display_community_cards() -> Unit {
   let game = game_state()
   for entity in game.community_card_entities {
-    entity.destroy()
+    @ecs.commands(@ecs.require_current_world()).despawn(entity)
   }
   game.community_card_entities.clear()
   let center_x = VIEWPORT_WIDTH / 2.0
@@ -392,7 +393,8 @@ fn display_community_cards() -> Unit {
   let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
   for i, card in game.community_cards {
     let card_x = center_x + (i.to_double() - 2.5) * 30.0 - 15
-    let card_entity = plan.spawn(
+    let card_entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
+      plan,
       (
         Spatial(
           @transform.Transform::from_xyz(card_x, center_y, (10 + i).to_double()),

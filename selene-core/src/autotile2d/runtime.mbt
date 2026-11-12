@@ -75,7 +75,8 @@ fn apply_tile_visual(
   }
   guard visual is Some(visual) else { return None }
   let position = tile_position(source, solved.x, solved.y)
-  let tile_entity = plan.spawn(
+  let tile_entity = @ecs_runtime.spawn_prepared(
+    plan,
     (
       Spatial(@transform.Transform::from_xyz(position.x, position.y, context.z)),
       Sprite(
@@ -93,18 +94,18 @@ fn apply_tile_visual(
 ///|
 fn destroy_layer_tiles(state : RuntimeLayerState) -> Unit {
   for _, tile_entity in state.tile_entities {
-    ignore(tile_entity.delete())
+    ignore(@ecs_runtime.delete(tile_entity))
   }
 }
 
 ///|
-pub fn register_runtime_layer(
+fn register_runtime_layer_now(
   layer_entity : @ecs.Entity,
   source : AutoTileLayerSource,
   context~ : AutoTileRuntimeContext = AutoTileRuntimeContext(),
 ) -> Unit {
   let world = @ecs.require_current_world()
-  guard layer_entity.is_alive() else { return }
+  guard layer_entity.is_valid_in(@ecs.require_current_world()) else { return }
   let layers = runtime_layers()
   layers.retain((entity, _) => entity.is_valid_in(world))
   if layers.get(layer_entity) is Some(previous) {
@@ -135,7 +136,7 @@ fn apply_diff_to_runtime(
   for removed in diff.removed_tiles {
     let key = AutoTileGridPos::{ x: removed.x, y: removed.y, }
     if tile_entities.get(key) is Some(entity_) {
-      ignore(entity_.delete())
+      ignore(@ecs_runtime.delete(entity_))
       ignore(tile_entities.remove(key))
     }
   }
@@ -143,7 +144,7 @@ fn apply_diff_to_runtime(
   for changed in diff.changed_tiles {
     let key = AutoTileGridPos::{ x: changed.x, y: changed.y, }
     if tile_entities.get(key) is Some(entity_) {
-      ignore(entity_.delete())
+      ignore(@ecs_runtime.delete(entity_))
       ignore(tile_entities.remove(key))
     }
     if apply_tile_visual(
@@ -161,18 +162,73 @@ fn apply_diff_to_runtime(
 }
 
 ///|
-pub fn set_runtime_cell(
+fn set_runtime_cell_now(
   layer_entity : @ecs.Entity,
   x : Int32,
   y : Int32,
   terrain : Int32,
 ) -> Unit {
   let layers = runtime_layers()
-  guard layer_entity.is_alive() && layers.get(layer_entity) is Some(state) else {
+  guard layer_entity.is_valid_in(@ecs.require_current_world()) &&
+    layers.get(layer_entity) is Some(state) else {
     return
   }
   let diff = update_cell_and_resolve_diff(state.source, x, y, Some(terrain))
   layers.set(layer_entity, apply_diff_to_runtime(layer_entity, state, diff))
+}
+
+///|
+fn remove_runtime_cell_now(
+  layer_entity : @ecs.Entity,
+  x : Int32,
+  y : Int32,
+) -> Unit {
+  let layers = runtime_layers()
+  guard layer_entity.is_valid_in(@ecs.require_current_world()) &&
+    layers.get(layer_entity) is Some(state) else {
+    return
+  }
+  let diff = update_cell_and_resolve_diff(state.source, x, y, None)
+  layers.set(layer_entity, apply_diff_to_runtime(layer_entity, state, diff))
+}
+
+///|
+fn rebuild_runtime_layer_now(layer_entity : @ecs.Entity) -> Unit {
+  let layers = runtime_layers()
+  guard layer_entity.is_valid_in(@ecs.require_current_world()) &&
+    layers.get(layer_entity) is Some(state) else {
+    return
+  }
+  register_runtime_layer_now(layer_entity, state.source, context=state.context)
+}
+
+///|
+pub fn runtime_layer_source(layer_entity : @ecs.Entity) -> AutoTileLayerSource? {
+  guard layer_entity.is_valid_in(@ecs.require_current_world()) else { None }
+  runtime_layers().get(layer_entity).map(fn(state) { state.source })
+}
+
+///|
+pub fn register_runtime_layer(
+  layer_entity : @ecs.Entity,
+  source : AutoTileLayerSource,
+  context~ : AutoTileRuntimeContext = AutoTileRuntimeContext(),
+) -> Unit {
+  @ecs.commands(@ecs.require_current_world()).add(_ => {
+    register_runtime_layer_now(layer_entity, source, context~)
+  })
+}
+
+///|
+pub fn set_runtime_cell(
+  layer_entity : @ecs.Entity,
+  x : Int32,
+  y : Int32,
+  terrain : Int32,
+) -> Unit {
+  @ecs.commands(@ecs.require_current_world()).add(_ => {
+    set_runtime_cell_now(layer_entity, x, y, terrain)
+  })
 }
 
 ///|
@@ -181,25 +237,14 @@ pub fn remove_runtime_cell(
   x : Int32,
   y : Int32,
 ) -> Unit {
-  let layers = runtime_layers()
-  guard layer_entity.is_alive() && layers.get(layer_entity) is Some(state) else {
-    return
-  }
-  let diff = update_cell_and_resolve_diff(state.source, x, y, None)
-  layers.set(layer_entity, apply_diff_to_runtime(layer_entity, state, diff))
+  @ecs.commands(@ecs.require_current_world()).add(_ => {
+    remove_runtime_cell_now(layer_entity, x, y)
+  })
 }
 
 ///|
 pub fn rebuild_runtime_layer(layer_entity : @ecs.Entity) -> Unit {
-  let layers = runtime_layers()
-  guard layer_entity.is_alive() && layers.get(layer_entity) is Some(state) else {
-    return
-  }
-  register_runtime_layer(layer_entity, state.source, context=state.context)
-}
-
-///|
-pub fn runtime_layer_source(layer_entity : @ecs.Entity) -> AutoTileLayerSource? {
-  guard layer_entity.is_alive() else { None }
-  runtime_layers().get(layer_entity).map(fn(state) { state.source })
+  @ecs.commands(@ecs.require_current_world()).add(_ => {
+    rebuild_runtime_layer_now(layer_entity)
+  })
 }

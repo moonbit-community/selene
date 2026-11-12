@@ -7,18 +7,21 @@ test "typed spawn binds the layout to the explicit World" {
   let sprites : @ecs.Query[@ecs.Single[@sprite.Sprite]] = world.query()
   let transforms : @ecs.Query[@ecs.Single[@transform.Spatial]] = world.query()
   let foreign : @ecs.Query[@ecs.Single[@sprite.Sprite]] = other.query()
-  let empty = world.spawn(())
-  let single = world.spawn(@ecs.Single(sprite))
+  let empty = @ecs_runtime.spawn(world, ())
+  let single = @ecs_runtime.spawn(world, @ecs.Single(sprite))
   let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = world.prepare_spawn()
-  let prepared = plan.spawn((sprite, Spatial(transform)))
-  let reversed = world.spawn((@transform.Spatial(transform), sprite))
+  let prepared = @ecs_runtime.spawn_prepared(plan, (sprite, Spatial(transform)))
+  let reversed = @ecs_runtime.spawn(
+    world,
+    (@transform.Spatial(transform), sprite),
+  )
   assert_true(empty.belongs_to(world))
   assert_false(sprites.contains(empty))
   assert_true(sprites.contains(single))
   assert_false(transforms.contains(single))
   let pending = @ecs.commands(world).spawn(@ecs.Single(sprite))
   assert_false(sprites.contains(pending))
-  @ecs.run_schedule(world, _ => ())
+  @ecs_runtime.run_schedule(world, _ => ())
   assert_true(sprites.contains(pending))
   for entity in [prepared, reversed] {
     assert_true(@ecs.alive_in_world(world)(entity))
@@ -37,7 +40,7 @@ test "typed spawn binds the layout to the explicit World" {
 ///|
 test "typed spawn can queue an entity from a query" {
   let world = @ecs.World()
-  let first = world.spawn(@ecs.Single(@sprite.Sprite()))
+  let first = @ecs_runtime.spawn(world, @ecs.Single(@sprite.Sprite()))
   let sprites : @ecs.Query[@ecs.Single[@sprite.Sprite]] = world.query()
   let transforms : @ecs.Query[@ecs.Single[@transform.Spatial]] = world.query()
   let commands = @ecs.commands(world)
@@ -45,7 +48,7 @@ test "typed spawn can queue an entity from a query" {
   let transform = @transform.Transform::from_xyz(3.0, 4.0, 0.0)
   let later = @transform.Transform::from_xyz(5.0, 6.0, 0.0)
   let spawned = []
-  @ecs.run_schedule(world, _ => {
+  @ecs_runtime.run_schedule(world, _ => {
     for entity, row in query {
       let sprite = row.0
       if entity == first {
@@ -75,7 +78,7 @@ test "typed spawn can queue an entity from a query" {
 test "panic typed spawn rejects duplicate component columns" {
   let world = @ecs.World()
   let sprite = @sprite.Sprite()
-  ignore(world.spawn((sprite, sprite)))
+  ignore(@ecs_runtime.spawn(world, (sprite, sprite)))
 }
 
 ///|
@@ -87,14 +90,16 @@ test "sprite traversal uses its explicit World even when another is active" {
   })
   let first = @ecs.World()
   let second = @ecs.World()
-  let entity = first.spawn(
+  let entity = @ecs_runtime.spawn(
+    first,
     (
       @sprite.Sprite(),
       @transform.Spatial(@transform.Transform::from_xyz(1.0, 0.0, 0.0)),
     ),
   )
   ignore(
-    second.spawn(
+    @ecs_runtime.spawn(
+      second,
       (
         @sprite.Sprite(),
         @transform.Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)),

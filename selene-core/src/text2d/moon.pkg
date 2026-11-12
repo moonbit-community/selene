@@ -19,3 +19,7 @@ import {
 }
 
 formatter(ignore: [ "text.g.mbt" ])
+
+import {
+  "Milky2018/selene/internal/ecs_runtime",
+} for "wbtest"

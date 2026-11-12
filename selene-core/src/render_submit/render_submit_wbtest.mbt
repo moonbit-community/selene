@@ -46,7 +46,7 @@ test "build_frame2d keeps clear-only camera passes" {
         Spatial(@transform.Transform::from_xyz(0.0, 0.0, 0.0)) :
         @transform.Spatial),
     )
-    ignore(camera_entity_draft.spawn())
+    ignore(@ecs_runtime.spawn_draft(camera_entity_draft))
 
     let (frame, _) = build_frame2d(@camera.active_camera2d_views(world~))
     inspect(frame.passes.length(), content="1")
@@ -103,7 +103,7 @@ test "build_frame2d normalizes offscreen viewport and command coordinates" {
         Spatial(@transform.Transform::from_xyz(0.0, 0.0, 0.0)) :
         @transform.Spatial),
     )
-    let camera_entity = camera_entity_draft.spawn()
+    let camera_entity = @ecs_runtime.spawn_draft(camera_entity_draft)
     @render2d.push_rect_with_depth_to_camera(
       camera_entity.id(),
       0.0,
@@ -145,7 +145,7 @@ test "build_frame2d batches camera ui commands with clip barriers" {
         Spatial(@transform.Transform::from_xyz(0.0, 0.0, 0.0)) :
         @transform.Spatial),
     )
-    let camera_entity = camera_entity_draft.spawn()
+    let camera_entity = @ecs_runtime.spawn_draft(camera_entity_draft)
 
     @render2d.push_ui_clip_for_camera(
       { position: Vec2(0.0, 0.0), size: Vec2(20.0, 20.0), },
@@ -196,7 +196,7 @@ test "build_frame2d maps camera offscreen pass target" {
         Spatial(@transform.Transform::from_xyz(0.0, 0.0, 0.0)) :
         @transform.Spatial),
     )
-    ignore(camera_entity_draft.spawn())
+    ignore(@ecs_runtime.spawn_draft(camera_entity_draft))
 
     let (frame, _) = build_frame2d(@camera.active_camera2d_views(world~))
     inspect(frame.passes.length(), content="1")

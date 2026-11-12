@@ -17,3 +17,7 @@ import {
   "Milky2018/selene/visibility",
   "moonbitlang/core/cmp",
 }
+
+import {
+  "Milky2018/selene/internal/ecs_runtime",
+} for "wbtest"

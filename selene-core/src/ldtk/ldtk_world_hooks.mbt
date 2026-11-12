@@ -6,7 +6,7 @@ fn ldtk_despawn_level(
 ) -> Unit {
   ldtk_pending_transformed_level_iids().remove(level_iid)
   ldtk_level_event_bus.trigger(Despawned(level_iid), Some(level_entity))
-  despawn_ldtk_tree(world~, level_entity)
+  despawn_ldtk_tree_now(world~, level_entity)
   ldtk_respawns().remove(level_entity)
 }
 
@@ -29,7 +29,7 @@ fn ldtk_force_world_respawn(
     if worldly.world_entity != world_entity {
       continue
     }
-    despawn_ldtk_tree(world~, entity)
+    despawn_ldtk_tree_now(world~, entity)
   }
 }
 

@@ -11,9 +11,9 @@ fn make_sprite_fixture(size : Int32) -> Array[@ecs.Entity] {
   let pose = @transform.Transform::from_xyz(4.0, 0.0, 0.0)
   for i in 0..<size {
     let entity = if i % 4 == 0 {
-      world.spawn1(sprite)
+      @ecs_runtime.spawn1(world, sprite)
     } else {
-      plan.spawn((sprite, Spatial(pose)))
+      @ecs_runtime.spawn_prepared(plan, (sprite, Spatial(pose)))
     }
     entities.push(entity)
   }

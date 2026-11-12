@@ -24,7 +24,7 @@ fn phase(world : @ecs.World) -> Phase {
 
 ///|
 fn advance(world : @ecs.World) -> Unit raise @ecs.ScheduleError {
-  @state.advance(world, on_exit=_ => (), on_enter=_ => ())
+  @state_runtime.advance(world, on_exit=_ => (), on_enter=_ => ())
 }
 
 ///|
@@ -64,8 +64,8 @@ test "static setters request changes only in the scheduled World" {
   advance(first)
   advance(second)
 
-  @ecs.run_schedule(first, _ => Phase::set(Playing))
-  @ecs.run_schedule(second, _ => Phase::set(Paused))
+  @ecs_runtime.run_schedule(first, _ => Phase::set(Playing))
+  @ecs_runtime.run_schedule(second, _ => Phase::set(Paused))
   assert_eq(@ecs.require_current_world().id(), outer.id())
   assert_eq(phase(first), Menu)
   assert_eq(phase(second), Menu)
@@ -96,7 +96,7 @@ test "initial entry retains pending requests and identical requests do not reent
   let exits = []
   @state.initialize(world, Phase::Menu)
   @state.set_next(world, Phase::Playing)
-  @state.advance(
+  @state_runtime.advance(
     world,
     initial_only=true,
     on_exit=world => exits.push(phase(world)),
@@ -104,15 +104,17 @@ test "initial entry retains pending requests and identical requests do not reent
   )
   assert_eq(entries, [Menu])
   assert_true(exits.is_empty())
-  @state.advance(world, on_exit=world => exits.push(phase(world)), on_enter=world => {
+  @state_runtime.advance(world, on_exit=world => exits.push(phase(world)), on_enter=world => {
     entries.push(phase(world))
   })
   assert_eq(exits, [Menu])
   assert_eq(entries, [Menu, Playing])
   @state.set_next(world, Phase::Playing)
-  @state.advance(world, on_exit=_ => abort("same-value request exited"), on_enter=_ => {
-    abort("same-value request entered")
-  })
+  @state_runtime.advance(
+    world,
+    on_exit=_ => abort("same-value request exited"),
+    on_enter=_ => abort("same-value request entered"),
+  )
   assert_false(@state.is_entering(world, Phase::Playing))
   assert_false(@state.is_exiting(world, Phase::Menu))
 }
@@ -124,7 +126,7 @@ test "last request wins and lifecycle requests wait for another advance" {
   advance(world)
   @state.set_next(world, Phase::Paused)
   @state.set_next(world, Phase::Playing)
-  @state.advance(
+  @state_runtime.advance(
     world,
     on_exit=world => {
       try! assert_eq(phase(world), Menu)
@@ -146,7 +148,7 @@ test "exit command requests survive commit and apply at the next transition" {
   @state.initialize(world, Phase::Menu)
   advance(world)
   @state.set_next(world, Phase::Playing)
-  @state.advance(
+  @state_runtime.advance(
     world,
     on_exit=world => {
       @ecs.commands(world).add(world => @state.set_next(world, Phase::Paused))
@@ -163,7 +165,7 @@ test "transition execution rejects reentry and query-time execution" {
   let world = @ecs.World()
   @state.initialize(world, Phase::Menu)
   let rejected = Ref(false)
-  @state.advance(world, on_exit=_ => (), on_enter=world => {
+  @state_runtime.advance(world, on_exit=_ => (), on_enter=world => {
     @state.set_next(world, Phase::Playing)
     try advance(world) catch {
       ReentrantSchedule => rejected.val = true
@@ -174,7 +176,7 @@ test "transition execution rejects reentry and query-time execution" {
   })
   assert_true(rejected.val)
   let store : @ecs.Query[@ecs.Single[QueryMarker]] = world.query()
-  ignore(world.spawn1(QueryMarker::{ }))
+  ignore(@ecs_runtime.spawn1(world, QueryMarker::{ }))
   store.batches(_ => {
     try advance(world) catch {
       ActiveQuery => ()

@@ -265,7 +265,7 @@ pub fn spawn_tiled_map(
   settings~ : TiledSpawnSettings = TiledSpawnSettings(),
   parent? : @ecs.Entity,
 ) -> @ecs.Entity {
-  spawn_tiled_map_root(world~, map, settings, parent~)
+  spawn_tiled_map_root(world~, map, settings, parent~, deferred=true)
 }
 
 ///|
@@ -282,13 +282,14 @@ pub fn replace_tiled_map(
   let query_tiled_world_instance : @ecs.Query[@ecs.Single[TiledWorldInstance]] = world.query()
   let parent = root.get_parent()
   let world_map = query_tiled_world_map_instance.get(root).map(value => value.0)
-  ignore(root.delete())
+  @ecs.commands(world).delete(root)
   let replacement = spawn_tiled_map_root(
     world~,
     map,
     settings,
     parent~,
     world_map?,
+    deferred=true,
   )
   if world_map is Some(metadata) &&
     query_tiled_world_instance.get(metadata.world_entity).map(value => value.0)
@@ -310,6 +311,7 @@ fn spawn_tiled_map_root(
   settings : TiledSpawnSettings,
   parent~ : @ecs.Entity?,
   world_map? : TiledWorldMapInstance,
+  deferred~ : Bool = false,
 ) -> @ecs.Entity {
   let draft = world.spawn_draft()
   draft.add(tiled_spatial(settings.position, 0))
@@ -319,17 +321,29 @@ fn spawn_tiled_map_root(
   if world_map is Some(instance) {
     draft.add(instance)
   }
-  let root = draft.spawn(parent?)
-  let map_event = { map_entity: root, map, }
-  tiled_map_spawned_event_bus.trigger(map_event, Some(root))
-  if settings.map_hook is Some(map_hook) {
-    map_hook(map_event)
+  let root = if deferred {
+    @ecs.commands(world).spawn_draft(draft, parent?)
+  } else {
+    @ecs_runtime.spawn_draft(draft, parent?)
   }
-  ignore(
-    spawn_tiled_layers(world~, root, root, map, map.layers, settings, true, 0),
-  )
-  if settings.physics_settings is Some(physics_settings) {
-    spawn_tiled_map_physics(world~, root, map, physics_settings)
+  fn populate() {
+    guard root.is_valid_in(world) else { return }
+    let map_event = { map_entity: root, map, }
+    tiled_map_spawned_event_bus.trigger(map_event, Some(root))
+    if settings.map_hook is Some(map_hook) {
+      map_hook(map_event)
+    }
+    ignore(
+      spawn_tiled_layers(world~, root, root, map, map.layers, settings, true, 0),
+    )
+    if settings.physics_settings is Some(physics_settings) {
+      spawn_tiled_map_physics(world~, root, map, physics_settings)
+    }
+  }
+  if deferred {
+    @ecs.commands(world).add(_ => populate())
+  } else {
+    populate()
   }
   root
 }
@@ -379,7 +393,7 @@ fn spawn_tiled_layers(
     if layer.kind is ImageLayer(image_layer) {
       tiled_add_image_layer(draft, map_entity, map, layer, image_layer)
     }
-    let layer_entity = draft.spawn(parent=parent_entity)
+    let layer_entity = @ecs_runtime.spawn_draft(draft, parent=parent_entity)
     tiled_register_layer_entity(world~, map_entity, layer.id, layer_entity)
     let layer_event = {
       map_entity,
@@ -482,7 +496,7 @@ fn spawn_tiled_tile_layer(
     if build_tiled_tile_animation(map, tileset, cell.gid) is Some(animation) {
       tiled_add_sprite(draft, animation)
     }
-    let tile_entity = draft.spawn(parent=layer_entity)
+    let tile_entity = @ecs_runtime.spawn_draft(draft, parent=layer_entity)
     tiled_register_tile_entity(
       world~,
       map_entity,
@@ -555,7 +569,7 @@ fn spawn_tiled_object_layer(
     )
     draft.add(TiledObjectInstance::{ map_entity, layer_entity, layer, object, })
     tiled_add_properties(draft, object.properties)
-    let object_entity = draft.spawn(parent=layer_entity)
+    let object_entity = @ecs_runtime.spawn_draft(draft, parent=layer_entity)
     tiled_register_object_entity(world~, map_entity, object.id, object_entity)
     let object_event = {
       map_entity,

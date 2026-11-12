@@ -166,7 +166,7 @@ pub fn ldtk_entity_by_iid(
 }
 
 ///|
-pub fn ldtk_world_sync_system(world~ : @ecs.World, _delta : Double) -> Unit {
+fn ldtk_world_sync_now(world~ : @ecs.World, _delta : Double) -> Unit {
   let query_ldtk_world_instance : @ecs.Query[@ecs.Single[LdtkWorldInstance]] = world.query()
   ldtk_emit_pending_transformed_events()
   ldtk_cleanup_dead_runtime_entries()
@@ -217,19 +217,22 @@ fn spawn_ldtk_world_root(
   } else {
     LdtkLevelSet([])
   }
-  let world_entity = world.spawn(
+  let world_entity = @ecs.commands(world).spawn(
     (
       ldtk_spatial(settings.position, 0),
       LdtkWorldInstance::{ project, settings, level_set, spawned_levels: {}, },
     ),
     parent?,
   )
-  let world_event = { world_entity, project, }
-  ldtk_world_spawned_event_bus.trigger(world_event, Some(world_entity))
-  if settings.world_hook is Some(world_hook) {
-    world_hook(world_event)
-  }
-  ldtk_world_apply_level_set(world~, world_entity)
+  @ecs.commands(world).add(_ => {
+    guard world_entity.is_valid_in(world) else { return }
+    let world_event = { world_entity, project, }
+    ldtk_world_spawned_event_bus.trigger(world_event, Some(world_entity))
+    if settings.world_hook is Some(world_hook) {
+      world_hook(world_event)
+    }
+    ldtk_world_apply_level_set(world~, world_entity)
+  })
   world_entity
 }
 
@@ -282,7 +285,8 @@ fn ldtk_spawn_level_entity(
     indexed.level,
     ldtk_world_spawn_behavior(instance.settings),
   )
-  let level_entity = world.spawn(
+  let level_entity = @ecs_runtime.spawn(
+    world,
     (
       ldtk_spatial(level_offset, 0),
       LdtkLevelInstance::{
@@ -341,7 +345,8 @@ fn ldtk_spawn_level_background(
   let zindex = ldtk_level_zindex(world~, level_entity, instance.settings) - 1
   if level.bg_color is Some(bg_color) {
     ignore(
-      world.spawn(
+      @ecs_runtime.spawn(
+        world,
         (
           ldtk_spatial(@math.Vec2::zero(), zindex),
           @sprite.Sprite(
@@ -381,7 +386,8 @@ fn ldtk_spawn_level_background(
       image_size.y * image_transform.d.abs(),
     )
     ignore(
-      world.spawn(
+      @ecs_runtime.spawn(
+        world,
         (
           ldtk_spatial(@math.Vec2::zero(), zindex),
           @sprite.Sprite(
@@ -448,7 +454,8 @@ fn ldtk_spawn_level_layers(
       effective_visible,
       zindex: layer_zindex,
     }
-    let layer_entity = world.spawn(
+    let layer_entity = @ecs_runtime.spawn(
+      world,
       (
         ldtk_spatial(layer_offset, 0),
         if effective_visible {
@@ -587,7 +594,8 @@ fn ldtk_spawn_layer_tiles(
       flip_x=tile.flip_x,
       flip_y=tile.flip_y,
     )
-    let tile_entity = world.spawn(
+    let tile_entity = @ecs_runtime.spawn(
+      world,
       (
         ldtk_spatial(tile.px, zindex),
         runtime,
@@ -688,7 +696,7 @@ fn ldtk_spawn_int_grid_cells(
         ),
       )
     }
-    let cell_entity = draft.spawn(parent=layer_entity)
+    let cell_entity = @ecs_runtime.spawn_draft(draft, parent=layer_entity)
     let int_grid_event : LdtkIntGridCellSpawnedEvent = {
       world_entity: runtime.world_entity,
       level_entity: runtime.level_entity,
@@ -809,7 +817,7 @@ fn ldtk_spawn_layer_entities(
       instance: entity_instance,
       zindex,
     })
-    let entity = draft.spawn(parent=parent_entity)
+    let entity = @ecs_runtime.spawn_draft(draft, parent=parent_entity)
     let entity_event : LdtkEntitySpawnedEvent = {
       world_entity: runtime.world_entity,
       level_entity: runtime.level_entity,
@@ -845,4 +853,9 @@ fn ldtk_spawn_layer_entities(
       default_hook(entity_event)
     }
   }
+}
+
+///|
+pub fn ldtk_world_sync_system(world~ : @ecs.World, delta : Double) -> Unit {
+  @ecs.commands(world).add(world => ldtk_world_sync_now(world~, delta))
 }

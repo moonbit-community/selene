@@ -58,6 +58,7 @@ fn game_start(world : @ecs.World) -> Unit {
 
   // Start first hand
   start_new_hand(world~)
+  @ecs.commands(world).add(world => update_ui(world~))
 }
 
 ///|

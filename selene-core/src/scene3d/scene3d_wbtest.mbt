@@ -438,6 +438,7 @@ test "instantiate_scene_instance installs animation components without autoplay"
     scene,
     @transform.Transform::default(),
   )
+  try! @ecs_runtime.run_schedule(@ecs.require_current_world(), _ => ())
   inspect(instance.animations.contains("idle"), content="true")
   inspect(
     (world.query() : @ecs.Query[@ecs.Single[@animation.AnimationPlayer]]).contains(

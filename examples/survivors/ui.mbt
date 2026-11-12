@@ -138,7 +138,8 @@ fn spawn_panel_button(
 ) -> @ecs.Entity {
   let world = @ecs.require_current_world()
   let plan = world.prepare_spawn().combine(world.prepare_spawn())
-  let entity = plan.spawn(
+  let entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
+    plan,
     (
       (
         @ui.Node::absolute(offset, size~),
@@ -323,7 +324,7 @@ fn setup_level_up_ui(world~ : @ecs.World) -> Unit {
     )
     runtime.levelup_buttons.push(button)
 
-    let icon = world.spawn(
+    let icon = @ecs.commands(world).spawn(
       (
         @ui.Node::absolute(
           Vec2(LEVELUP_BUTTON_ICON_OFFSET_X, LEVELUP_BUTTON_ICON_OFFSET_Y),
@@ -341,7 +342,7 @@ fn setup_level_up_ui(world~ : @ecs.World) -> Unit {
     runtime.levelup_button_icons.push(icon)
   }
 
-  hide_level_up_ui(world~)
+  @ecs.commands(world).add(world => hide_level_up_ui(world~))
 }
 
 ///|
@@ -444,7 +445,7 @@ fn setup_game_over_ui(world~ : @ecs.World) -> Unit {
   )
   runtime.restart_button = Some(restart_button)
 
-  hide_game_over_ui(world~)
+  @ecs.commands(world).add(world => hide_game_over_ui(world~))
 }
 
 ///|

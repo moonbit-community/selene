@@ -45,7 +45,9 @@ pub fn[T : StateType] is_exiting(world : @ecs.World, value : T) -> Bool {
 /// Applies one frozen batch: exits and command flush, commit, then enters and
 /// command flush. Requests made by callbacks wait for the next batch.
 /// With initial_only, only initial entries are dispatched; requests are retained.
-pub fn advance(
+#doc(hidden)
+pub fn runtime_advance(
+  _access : @ecs_access.Access,
   world : @ecs.World,
   on_exit~ : @ecs.System,
   on_enter~ : @ecs.System,
@@ -64,7 +66,7 @@ pub fn advance(
   }
   let changed = Ref(false)
   let exiting = Ref(false)
-  @ecs.run_schedule(world, world => {
+  @ecs_runtime.run_schedule(world, world => {
     for entry in entries {
       match (entry.prepare)(world, initial_only) {
         Unchanged => ()
@@ -83,5 +85,5 @@ pub fn advance(
   for entry in entries {
     (entry.commit)(world)
   }
-  @ecs.run_schedule(world, on_enter)
+  @ecs_runtime.run_schedule(world, on_enter)
 }

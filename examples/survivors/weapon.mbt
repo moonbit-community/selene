@@ -242,7 +242,8 @@ fn shoot_weapon_bullet(
     penetration_limit: total_penetration,
   }
   let runtime = survivors_runtime()
-  let bullet_entity = runtime.player_bullet_plan.spawn(
+  let bullet_entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
+    runtime.player_bullet_plan,
     (
       player_bullet_visual(),
       Spatial(
@@ -268,7 +269,9 @@ fn shoot_weapon_bullet(
   // Calculate bullet duration based on weapon range
   let weapon_range = calculate_weapon_range(weapon_data, 0.0)
   let bullet_duration = weapon_range / weapon_data.bullet_speed
-  survivors_timeout(bullet_duration, fn() { ignore(bullet_entity.delete()) })
+  survivors_timeout(bullet_duration, fn() {
+    @ecs.commands(@ecs.require_current_world()).delete(bullet_entity)
+  })
 }
 
 ///|
@@ -284,7 +287,7 @@ fn start_bullet_despawn(
     return
   }
   bullet.alive = false
-  ignore(bullet_entity.delete())
+  @ecs.commands(@ecs.require_current_world()).delete(bullet_entity)
 }
 
 ///|
@@ -305,7 +308,7 @@ fn player_bullet_trigger_system(world : @ecs.World) -> Unit {
       enemy.health -= bullet.damage
       bullet.penetration_count += 1
       if enemy.health <= 0.0 {
-        ignore(event.other.delete())
+        @ecs.commands(@ecs.require_current_world()).delete(event.other)
         let data = get_enemy_data(enemy.enemy_type)
         set_score(world~, game_state(world~).score + data.points)
         add_exp(world~, data.points)

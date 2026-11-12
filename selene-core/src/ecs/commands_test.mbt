@@ -8,12 +8,12 @@ test "commands reserve and flush entities in the queue's world" {
   let first = @ecs.World()
   let second = @ecs.World()
   @ecs.set_current_world(first)
-  let active = first.spawn(())
+  let active = @ecs_runtime.spawn(first, ())
   let commands = @ecs.commands(second)
   let components : @ecs.Query[@ecs.Single[Position]] = second.query()
   let entity = commands.spawn1(Position(30))
   assert_eq(components.get(entity).map(value => value.0), None)
-  @ecs.run_schedule(second, _ => ())
+  @ecs_runtime.run_schedule(second, _ => ())
   assert_eq(@ecs.require_current_world().id(), first.id())
   assert_true(entity.belongs_to(second))
   assert_eq(components.get(entity).map(value => value.0), Some(Position(30)))
@@ -23,7 +23,7 @@ test "commands reserve and flush entities in the queue's world" {
   assert_true(entity.is_alive())
   @ecs.set_current_world(first)
   commands.despawn(entity)
-  @ecs.run_schedule(second, _ => ())
+  @ecs_runtime.run_schedule(second, _ => ())
   assert_true(active.is_alive())
   @ecs.set_current_world(second)
   assert_false(entity.is_alive())
@@ -55,7 +55,7 @@ test "deferred bundles initialize before later commands in the queue's world" {
   assert_false(alive(first))
   assert_eq(a.get(first).map(value => value.0), None)
   commands.add(world => world.set_component(first, Position(12)))
-  @ecs.run_schedule(world, _ => ())
+  @ecs_runtime.run_schedule(world, _ => ())
   assert_eq(@ecs.require_current_world().id(), active.id())
   assert_eq(a.get(first).map(value => value.0), Some(Position(12)))
   assert_eq(b.get(first).map(value => value.0), Some(Label("first")))
@@ -78,16 +78,16 @@ test "permanent commands recycle a slot and skip canceled initialization" {
   let queue = @ecs.commands(world)
   let components : @ecs.Query[@ecs.Single[Position]] = world.query()
   let pending = queue.spawn1(Position(99))
-  assert_true(pending.delete())
-  let entity = world.spawn1(Position(10))
+  assert_true(@ecs_runtime.delete(pending))
+  let entity = @ecs_runtime.spawn1(world, Position(10))
   assert_eq(entity.slot_index(), pending.slot_index())
-  @ecs.run_schedule(world, _ => ())
+  @ecs_runtime.run_schedule(world, _ => ())
   assert_eq(components.get(entity).map(value => value.0), Some(Position(10)))
   queue.delete(entity)
-  @ecs.run_schedule(world, _ => ())
+  @ecs_runtime.run_schedule(world, _ => ())
   assert_false(entity.is_valid_in(world))
   assert_eq(components.get(entity).map(value => value.0), None)
-  assert_eq(world.spawn(()).slot_index(), entity.slot_index())
+  assert_eq(@ecs_runtime.spawn(world, ()).slot_index(), entity.slot_index())
 }
 
 ///|
@@ -107,25 +107,25 @@ test "deferred children link in spawn order and cancel if their parent is delete
   queue.delete(deleted)
   let canceled = queue.spawn((), parent=deleted)
   assert_eq(first.get_parent(), None)
-  @ecs.run_schedule(world, _ => ())
+  @ecs_runtime.run_schedule(world, _ => ())
   assert_eq(parent.get_children(), [first, second])
   assert_eq(first.get_parent(), Some(parent))
   assert_true(second.is_alive())
   assert_false(canceled.is_valid_in(world))
-  let recycled = world.spawn(())
+  let recycled = @ecs_runtime.spawn(world, ())
   assert_eq(recycled.slot_index(), canceled.slot_index())
   assert_eq(recycled.get_parent(), None)
 }
 
 ///|
 test "panic immediate spawn rejects a parent in another World" {
-  let parent = @ecs.World().spawn(())
-  ignore(@ecs.World().spawn((), parent~))
+  let parent = @ecs_runtime.spawn(World(), ())
+  ignore(@ecs_runtime.spawn(World(), (), parent~))
 }
 
 ///|
 test "panic deferred spawn rejects a parent in another World" {
-  let parent = @ecs.World().spawn(())
+  let parent = @ecs_runtime.spawn(World(), ())
   ignore(@ecs.commands(World()).spawn((), parent~))
 }
 
@@ -137,13 +137,13 @@ test "despawning a newly initialized parent also suspends its pending child" {
   let parent = queue.spawn(())
   let child = queue.spawn1(Position(42), parent~)
   queue.despawn(parent)
-  @ecs.run_schedule(world, _ => ())
+  @ecs_runtime.run_schedule(world, _ => ())
   let alive = @ecs.alive_in_world(world)
   assert_false(alive(parent))
   assert_false(alive(child))
   assert_eq(values.get(child).map(value => value.0), Some(Position(42)))
 
-  @ecs.run_schedule(world, _ => parent.respawn())
+  @ecs_runtime.run_schedule(world, _ => @ecs_runtime.respawn(parent))
   assert_true(alive(parent))
   assert_true(alive(child))
   assert_eq(values.get(child).map(value => value.0), Some(Position(42)))
@@ -171,4 +171,49 @@ let key_tagged : @ecs.ComponentKey[Tagged] = ComponentKey()
 ///|
 impl @ecs.Component for Tagged with fn component_key() {
   key_tagged
+}
+
+///|
+test "draft commands preserve pending parent order and later value writes" {
+  let world = @ecs.World()
+  let other = @ecs.World()
+  let queue = @ecs.commands(world)
+  let parent = queue.spawn1(Position(1))
+  let draft = world.spawn_draft()
+  draft.add(Position(2))
+  let child = queue.spawn_draft(draft, parent~)
+  let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
+  assert_true(query.is_empty())
+  assert_false(world.is_alive(parent))
+  assert_false(world.is_alive(child))
+  queue.add(world => world.set_component(child, Position(3)))
+  @ecs_runtime.run_schedule(other, _ => ())
+  assert_true(query.is_empty())
+  @ecs_runtime.run_schedule(world, _ => ())
+  assert_eq(query.get(child), Some(Single(Position(3))))
+  assert_eq(world.get_parent(child), Some(parent))
+  assert_eq(world.get_children(parent), [child])
+  queue.despawn(parent)
+  assert_true(world.is_alive(child))
+  @ecs_runtime.run_schedule(world, _ => ())
+  assert_false(world.is_alive(child))
+  assert_true(query.contains(child))
+  queue.respawn(parent)
+  @ecs_runtime.run_schedule(world, _ => ())
+  assert_true(world.is_alive(child))
+  queue.delete(parent)
+  assert_true(child.is_valid_in(world))
+  @ecs_runtime.run_schedule(world, _ => ())
+  assert_false(parent.is_valid_in(world))
+  assert_false(child.is_valid_in(world))
+  assert_true(query.is_empty())
+}
+
+///|
+test "panic a draft cannot be queued in another World" {
+  let first = @ecs.World()
+  let second = @ecs.World()
+  let draft = first.spawn_draft()
+  draft.add(Position(1))
+  ignore(@ecs.commands(second).spawn_draft(draft))
 }

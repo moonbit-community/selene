@@ -107,7 +107,11 @@ pub fn instantiate_scene_instance(
   let parts : Map[String, @ecs.Entity] = Map([])
   let animation_nodes : Map[String, @animation.AnimationNodeIndex] = Map([])
   guard scene_templates.get(scene) is Some(template) else {
-    return { root: draft.spawn(parent?), parts, animations: animation_nodes, }
+    return {
+      root: @ecs.commands(world).spawn_draft(draft, parent?),
+      parts,
+      animations: animation_nodes,
+    }
   }
   if template.animations.length() > 0 {
     let graph = @animation.AnimationGraph()
@@ -119,26 +123,29 @@ pub fn instantiate_scene_instance(
     draft.add(@animation.AnimationPlayer())
     draft.add(@animation.AnimationTransitions())
   }
-  let root = draft.spawn(parent?)
-  let node_entities : Array[@ecs.Entity?] = Array::make(
-    template.nodes.length(),
-    None,
-  )
-  let pending_skin_bindings : Array[PendingSkinBinding] = []
-  for root_order, node_index in template.roots {
-    instantiate_scene_node(
-      template,
-      node_index,
-      root,
-      root,
-      node_entities,
-      pending_skin_bindings,
-      parts,
-      "root\{root_order}",
-      0,
+  let root = @ecs.commands(world).spawn_draft(draft, parent?)
+  @ecs.commands(world).add(_ => {
+    guard root.is_valid_in(world) else { return }
+    let node_entities : Array[@ecs.Entity?] = Array::make(
+      template.nodes.length(),
+      None,
     )
-  }
-  resolve_scene_skin_bindings(template, node_entities, pending_skin_bindings)
+    let pending_skin_bindings : Array[PendingSkinBinding] = []
+    for root_order, node_index in template.roots {
+      instantiate_scene_node(
+        template,
+        node_index,
+        root,
+        root,
+        node_entities,
+        pending_skin_bindings,
+        parts,
+        "root\{root_order}",
+        0,
+      )
+    }
+    resolve_scene_skin_bindings(template, node_entities, pending_skin_bindings)
+  })
   { root, parts, animations: animation_nodes, }
 }
 

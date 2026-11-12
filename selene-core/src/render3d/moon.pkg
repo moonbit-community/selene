@@ -12,3 +12,7 @@ import {
 }
 
 formatter(ignore: [ "mesh_renderer.g.mbt" ])
+
+import {
+  "Milky2018/selene/internal/ecs_runtime",
+} for "wbtest"

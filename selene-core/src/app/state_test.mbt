@@ -160,14 +160,14 @@ test "all exits see old states and all enters see committed states" {
 ///|
 test "exit commands flush before entry and entry commands before Update" {
   let world = @ecs.World()
-  let old = world.spawn(())
+  let old = @ecs_runtime.spawn(world, ())
   let spawned = Ref(None)
   let observed = []
   let app = @app.App()
     .with_world(world)
     .init_state(Phase::Menu)
     .add_on_exit(Phase::Menu, world => {
-      @ecs.commands(world).add(_ => ignore(old.delete()))
+      @ecs.commands(world).add(_ => ignore(@ecs_runtime.delete(old)))
     })
     .add_on_enter(Phase::Playing, world => {
       try! assert_false(old.is_valid_in(world))

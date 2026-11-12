@@ -141,7 +141,7 @@ pub fn spawn_tiled_world(
     })
   }
   let spawned_maps : Map[Int32, @ecs.Entity] = Map([])
-  let world_entity = world.spawn(
+  let world_entity = @ecs.commands(world).spawn(
     (
       tiled_spatial(settings.position, 0),
       TiledWorldInstance::{
@@ -153,20 +153,23 @@ pub fn spawn_tiled_world(
     ),
     parent?,
   )
-  let world_event = { world_entity, world: source_world, }
-  tiled_world_spawned_event_bus.trigger(world_event, Some(world_entity))
-  if settings.world_hook is Some(world_hook) {
-    world_hook(world_event)
-  }
-  if settings.chunking is Some(_) {
-    tiled_world_update_chunking(world~, world_entity)
-  } else {
-    for index, loaded_map in loaded_maps {
-      if loaded_map.spawnable {
-        tiled_world_spawn_loaded_map(world~, world_entity, index)
+  @ecs.commands(world).add(_ => {
+    guard world_entity.is_valid_in(world) else { return }
+    let world_event = { world_entity, world: source_world, }
+    tiled_world_spawned_event_bus.trigger(world_event, Some(world_entity))
+    if settings.world_hook is Some(world_hook) {
+      world_hook(world_event)
+    }
+    if settings.chunking is Some(_) {
+      tiled_world_update_chunking(world~, world_entity)
+    } else {
+      for index, loaded_map in loaded_maps {
+        if loaded_map.spawnable {
+          tiled_world_spawn_loaded_map(world~, world_entity, index)
+        }
       }
     }
-  }
+  })
   world_entity
 }
 
@@ -179,15 +182,12 @@ pub fn replace_tiled_world(
   settings~ : TiledWorldSpawnSettings = TiledWorldSpawnSettings(),
 ) -> @ecs.Entity {
   let parent = root.get_parent()
-  ignore(root.delete())
+  @ecs.commands(world).delete(root)
   spawn_tiled_world(world~, source_world, settings~, parent?)
 }
 
 ///|
-pub fn tiled_world_chunking_system(
-  world~ : @ecs.World,
-  _delta : Double,
-) -> Unit {
+fn tiled_world_chunking_now(world~ : @ecs.World, _delta : Double) -> Unit {
   let query_tiled_world_instance : @ecs.Query[@ecs.Single[TiledWorldInstance]] = world.query()
   for entity in query_tiled_world_instance.to_array().map(pair => pair.0) {
     if !entity.is_alive() {
@@ -244,7 +244,7 @@ fn tiled_world_update_chunking(
 
   for (idx, map_entity) in instance.spawned_maps.to_array() {
     if !visible.contains(idx) {
-      despawn_tiled_tree(map_entity)
+      ignore(@ecs_runtime.delete(map_entity))
       instance.spawned_maps.remove(idx)
     }
   }
@@ -1100,4 +1100,9 @@ fn tiled_world_map_bounds(
     loaded_map.world_map.x + width,
     loaded_map.world_map.y + height,
   )
+}
+
+///|
+pub fn tiled_world_chunking_system(world~ : @ecs.World, delta : Double) -> Unit {
+  @ecs.commands(world).add(world => tiled_world_chunking_now(world~, delta))
 }

@@ -42,7 +42,7 @@ fn set_test_ui_geometry(
 
 ///|
 fn cleanup_test_ui_entity(entity : @ecs.Entity) -> Unit {
-  ignore(entity.delete())
+  ignore(@ecs_runtime.delete(entity))
 }
 
 ///|
@@ -63,7 +63,8 @@ test "ui rounded backgrounds emit quarter-circle fill commands" {
   let world = @ecs.require_current_world()
   @render2d.begin_frame2d_system(0.0)
   let rect = test_rect(10.0, 20.0, 100.0, 60.0)
-  let entity = @ecs.require_current_world().spawn(
+  let entity = @ecs_runtime.spawn(
+    @ecs.require_current_world(),
     (BackgroundColor(rgba(20, 40, 60, 1.0)), BorderRadius::all(Val::px(12.0))),
   )
   set_test_ui_geometry(entity, test_global_node(rect, rect))
@@ -100,7 +101,8 @@ test "ui material nodes render gradient materials ahead of legacy background fil
   let handle = register_ui_material_asset(
     UiMaterialAsset::gradient(rgba(255, 0, 0, 1.0), rgba(0, 0, 255, 1.0)),
   )
-  let entity = @ecs.require_current_world().spawn(
+  let entity = @ecs_runtime.spawn(
+    @ecs.require_current_world(),
     (Node(), MaterialNode(handle), BackgroundColor(rgba(20, 40, 60, 1.0))),
   )
   set_test_ui_geometry(entity, test_global_node(rect, rect))
@@ -136,7 +138,8 @@ test "ui material assets can render through custom draw callbacks" {
       push_ui_rect_fill(context.content_rect, rgba(0, 200, 80, 1.0))
     }),
   )
-  let entity = @ecs.require_current_world().spawn(
+  let entity = @ecs_runtime.spawn(
+    @ecs.require_current_world(),
     (Node(), MaterialNode(handle)),
   )
   set_test_ui_geometry(entity, test_global_node(screen_rect, content_rect))
@@ -184,7 +187,8 @@ test "ui box shadows emit layered rounded shadow commands" {
   let world = @ecs.require_current_world()
   @render2d.begin_frame2d_system(0.0)
   let rect = test_rect(16.0, 24.0, 96.0, 48.0)
-  let entity = @ecs.require_current_world().spawn(
+  let entity = @ecs_runtime.spawn(
+    @ecs.require_current_world(),
     (
       BorderRadius::all(Val::px(8.0)),
       BoxShadow::single(
@@ -221,7 +225,8 @@ test "ui outlines resolve width and offset into outer bands" {
   let world = @ecs.require_current_world()
   @render2d.begin_frame2d_system(0.0)
   let rect = test_rect(20.0, 30.0, 100.0, 60.0)
-  let entity = @ecs.require_current_world().spawn1(
+  let entity = @ecs_runtime.spawn1(
+    @ecs.require_current_world(),
     Outline(Val::px(4.0), rgba(255, 200, 0, 1.0), offset=Val::px(2.0)),
   )
   set_test_ui_geometry(entity, test_global_node(rect, rect))
@@ -262,7 +267,8 @@ test "ui overflow clipping applies after node decorations" {
   @render2d.begin_frame2d_system(0.0)
   let screen_rect = test_rect(0.0, 0.0, 120.0, 80.0)
   let content_rect = test_rect(12.0, 10.0, 96.0, 54.0)
-  let entity = @ecs.require_current_world().spawn(
+  let entity = @ecs_runtime.spawn(
+    @ecs.require_current_world(),
     (
       Node(overflow_y=Scroll),
       BackgroundColor(rgba(32, 64, 96, 1.0)),
@@ -313,8 +319,15 @@ test "ui overflow clipping applies after node decorations" {
 test "ui override clip removes inherited clip from child rendering" {
   @render2d.begin_frame2d_system(0.0)
   let world = @ecs.require_current_world()
-  let parent = world.spawn1(Node(overflow_x=Hidden, overflow_y=Hidden))
-  let child = world.spawn((Node(), Text("Child"), OverrideClip()), parent~)
+  let parent = @ecs_runtime.spawn1(
+    world,
+    Node(overflow_x=Hidden, overflow_y=Hidden),
+  )
+  let child = @ecs_runtime.spawn(
+    world,
+    (Node(), Text("Child"), OverrideClip()),
+    parent~,
+  )
   set_test_ui_geometry(
     parent,
     test_global_node(
@@ -371,12 +384,16 @@ test "ui override clip removes inherited clip from child rendering" {
 test "ui stacking keeps a pause menu subtree above the HUD" {
   let world = @ecs.require_current_world()
   let node = Node(width=Val::px(100.0), height=Val::px(100.0))
-  let root = world.spawn1(node)
-  let hud = world.spawn1(node, parent=root)
-  let minimap = world.spawn((node, ZIndex(10)), parent=hud)
-  let pause_menu = world.spawn((node, ZIndex(1)), parent=root)
-  let dimmer = world.spawn((node, ZIndex(0)), parent=pause_menu)
-  let resume_button = world.spawn((node, ZIndex(20)), parent=pause_menu)
+  let root = @ecs_runtime.spawn1(world, node)
+  let hud = @ecs_runtime.spawn1(world, node, parent=root)
+  let minimap = @ecs_runtime.spawn(world, (node, ZIndex(10)), parent=hud)
+  let pause_menu = @ecs_runtime.spawn(world, (node, ZIndex(1)), parent=root)
+  let dimmer = @ecs_runtime.spawn(world, (node, ZIndex(0)), parent=pause_menu)
+  let resume_button = @ecs_runtime.spawn(
+    world,
+    (node, ZIndex(20)),
+    parent=pause_menu,
+  )
   let entities = [root, hud, minimap, pause_menu, dimmer, resume_button]
 
   ui_layout_system(world~, 0.0)
@@ -407,11 +424,11 @@ test "ui stacking keeps a pause menu subtree above the HUD" {
 test "global z index lifts a descendant out of its parent stack" {
   let world = @ecs.require_current_world()
   let node = Node(width=Val::px(100.0), height=Val::px(100.0))
-  let root = world.spawn1(node)
-  let hud = world.spawn1(node, parent=root)
-  let minimap = world.spawn((node, GlobalZIndex(2)), parent=hud)
-  let pause_menu = world.spawn((node, ZIndex(1)), parent=root)
-  let dimmer = world.spawn1(node, parent=pause_menu)
+  let root = @ecs_runtime.spawn1(world, node)
+  let hud = @ecs_runtime.spawn1(world, node, parent=root)
+  let minimap = @ecs_runtime.spawn(world, (node, GlobalZIndex(2)), parent=hud)
+  let pause_menu = @ecs_runtime.spawn(world, (node, ZIndex(1)), parent=root)
+  let dimmer = @ecs_runtime.spawn1(world, node, parent=pause_menu)
   let entities = [root, hud, minimap, pause_menu, dimmer]
 
   ui_layout_system(world~, 0.0)
@@ -438,8 +455,14 @@ test "global z index lifts a descendant out of its parent stack" {
 test "global z index orders separate UI roots before local z index" {
   let world = @ecs.require_current_world()
   let node = Node(width=Val::px(100.0), height=Val::px(100.0))
-  let local_front = world.spawn((node, ZIndex(100), GlobalZIndex(0)))
-  let global_front = world.spawn((node, ZIndex(0), GlobalZIndex(1)))
+  let local_front = @ecs_runtime.spawn(
+    world,
+    (node, ZIndex(100), GlobalZIndex(0)),
+  )
+  let global_front = @ecs_runtime.spawn(
+    world,
+    (node, ZIndex(0), GlobalZIndex(1)),
+  )
   let entities = [local_front, global_front]
 
   ui_layout_system(world~, 0.0)
@@ -461,9 +484,9 @@ test "global z index orders separate UI roots before local z index" {
 test "ui extraction reuses the stack snapshot produced by layout" {
   let world = @ecs.require_current_world()
   let node = Node(width=Val::px(100.0), height=Val::px(100.0))
-  let root = world.spawn1(node)
-  let first = world.spawn((node, ZIndex(0)), parent=root)
-  let second = world.spawn((node, ZIndex(1)), parent=root)
+  let root = @ecs_runtime.spawn1(world, node)
+  let first = @ecs_runtime.spawn(world, (node, ZIndex(0)), parent=root)
+  let second = @ecs_runtime.spawn(world, (node, ZIndex(1)), parent=root)
   let entities = [root, first, second]
 
   ui_layout_system(world~, 0.0)
@@ -501,7 +524,7 @@ test "ui prepare preserves clipped border paint order and sees material changes"
   })
   let world = @ecs.World()
   @ecs.set_current_world(world)
-  let parent = world.spawn(())
+  let parent = @ecs_runtime.spawn(world, ())
   let rect = test_rect(10.0, 20.0, 100.0, 80.0)
   let clip = test_rect(10.0, 20.0, 80.0, 60.0)
   let red = rgba(1, 0, 0, 1.0)
@@ -516,11 +539,13 @@ test "ui prepare preserves clipped border paint order and sees material changes"
     }),
   )
   calculated_clips().set(parent, CalculatedClip(clip))
-  let front = world.spawn(
+  let front = @ecs_runtime.spawn(
+    world,
     (Node(), MaterialNode(material), BorderColor(rgba(0, 0, 0, 0.0))),
     parent~,
   )
-  let back = world.spawn(
+  let back = @ecs_runtime.spawn(
+    world,
     (
       Node(),
       BorderColor(red),

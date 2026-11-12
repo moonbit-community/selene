@@ -182,7 +182,7 @@ fn survivors_runtime() -> SurvivorsRuntime {
 
 ///|
 fn[T : @ecs.Bundle] spawn_survivors_entity(values : T) -> @ecs.Entity {
-  let entity = @ecs.require_current_world().spawn(values)
+  let entity = @ecs.commands(@ecs.require_current_world()).spawn(values)
   survivors_runtime().entities.push(entity)
   entity
 }
@@ -211,7 +211,7 @@ fn reset_survivors_runtime() -> Unit {
       ignore(timer.cancel())
     }
     for entity in runtime.entities {
-      ignore(entity.delete())
+      @ecs.commands(@ecs.require_current_world()).delete(entity)
     }
   }
   world.insert_resource(SurvivorsRuntime(world))
@@ -584,7 +584,8 @@ fn game_start(world : @ecs.World) -> Unit {
   )
   @ui.set_ui_scale_mode(Viewport)
   configure_survivors_input()
-  survivors_camera_follow_system(world)
+  ignore(game_state(world~))
+  @ecs.commands(world).add(world => survivors_camera_follow_system(world))
   add_border(Vec2(MAP_WIDTH, MAP_HEIGHT))
   add_background(Vec2(MAP_WIDTH, MAP_HEIGHT))
   add_grass()

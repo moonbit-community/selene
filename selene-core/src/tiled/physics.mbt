@@ -501,7 +501,10 @@ fn spawn_tiled_physics_spec(
     layer: spec.layer,
   }
   draft.add(origin)
-  let collider_entity = draft.spawn(parent=spec.source_entity)
+  let collider_entity = @ecs_runtime.spawn_draft(
+    draft,
+    parent=spec.source_entity,
+  )
   let event = {
     collider_entity,
     origin,

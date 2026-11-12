@@ -1,3 +1,15 @@
 import {
   "Milky2018/selene/ecs",
 }
+
+import {
+  "Milky2018/selene/internal/ecs_runtime",
+}
+
+import {
+  "Milky2018/selene/internal/ecs_access",
+}
+
+import {
+  "Milky2018/selene/internal/state_runtime",
+} for "test"

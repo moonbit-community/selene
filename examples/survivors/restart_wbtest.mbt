@@ -3,7 +3,7 @@ test "state-driven Survivors restart replaces entities and cancels old timers" {
   use_survivors_test_assets()
   defer @asset.set_io(fn(_path) { None })
   let world = @ecs.World()
-  let other_entity = world.spawn(())
+  let other_entity = @ecs.commands(world).spawn(())
   let old_callback_ran = Ref(false)
   let app = @app.App()
     .with_world(world)
@@ -16,13 +16,12 @@ test "state-driven Survivors restart replaces entities and cancels old timers" {
   app.run_frames(1)
 
   let previous_entities = []
-  @ecs.run_schedule(world, _ => {
-    game_state(world~).score = 200
-    previous_entities.append(survivors_runtime().entities)
-    @time.set_scale(0.0)
-    survivors_timeout(0.0, () => old_callback_ran.val = true)
-    restart_game()
-  })
+  @ecs.set_current_world(world)
+  game_state(world~).score = 200
+  previous_entities.append(survivors_runtime().entities)
+  @time.set_scale(0.0)
+  survivors_timeout(0.0, () => old_callback_ran.val = true)
+  restart_game()
   let before : GamePhase = @state.current(world)
   assert_true(before == GameOver)
   app.run_frames(1)

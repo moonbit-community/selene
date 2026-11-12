@@ -9,7 +9,8 @@ test "BENCH-UI prepare borders in paint order" (b : @bench.T) {
     let world = @ecs.World()
     @ecs.set_current_world(world)
     @window.configure_display(960.0, 540.0, 1.0)
-    let root = world.spawn1(
+    let root = @ecs_runtime.spawn1(
+      world,
       (Node(width=@ui.Val::px(960.0), height=@ui.Val::px(540.0)) : @ui.Node),
     )
     for i in 0..<512 {
@@ -21,13 +22,14 @@ test "BENCH-UI prepare borders in paint order" (b : @bench.T) {
       )
       if i % stride == 0 {
         ignore(
-          world.spawn(
+          @ecs_runtime.spawn(
+            world,
             (node, @ui.BorderColor(@ui.rgba(255, 255, 255, 1.0))),
             parent=root,
           ),
         )
       } else {
-        ignore(world.spawn1(node, parent=root))
+        ignore(@ecs_runtime.spawn1(world, node, parent=root))
       }
     }
     @ui.ui_layout_system(world~, 0.0)

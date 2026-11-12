@@ -29,7 +29,7 @@
   construction and the same conditions and ordering options as World systems.
 - Add scoped `ReadColumn` and `WriteColumn` batch access, permitting writes to
   any declared component or several components without forming per-row tuples.
-- Added reusable spawn bundles, `World::spawn1`, `Commands::spawn1`, and a
+- Added reusable spawn bundles, `Commands::spawn1`, and a
   one-shot `SpawnDraft` for data-driven imports.
 - Added `parent=` to immediate and deferred spawns. The World keeps the
   relationship and sibling order with each entity slot.
@@ -41,6 +41,11 @@
   updates in long-running Worlds with a fixed live population.
 
 ### Changed
+
+- Restrict ECS execution to module-level internal packages. Public entity creation,
+  deletion, despawn, respawn, and imported-tree creation are deferred Commands;
+  immediate storage operations require an engine-only access capability. Keep
+  public ECS types in `ecs` and check App reentry before any driver side effects.
 
 - Use ordinary `for` loops for query row traversal and `query.batches(callback)`
   for scoped batch access. Remove `Query::for_each` and its per-shape traversal
@@ -122,9 +127,8 @@
 
 - Spawn entities with `World::spawn` or `Commands::spawn`. Pass `Single(value)`
   or call `spawn1(value)` for one component. Pass a flat tuple for multiple
-  components or `()` for an empty entity. Replace
-  `Entity()` and `commands.spawn()` with `world.spawn(())` and
-  `commands.spawn(())`. Use `World::prepare_spawn` to reuse a layout and
+  components or `()` for an empty entity. Use
+  `commands.spawn(())` for an empty entity. Use `World::prepare_spawn` to reuse a layout and
   `Commands::spawn_prepared` to queue it.
 - Spawn demo cameras, terrain, actors, and UI with their initial components.
   Reuse plans for repeated tile, card, enemy, projectile, and grid spawns.
@@ -241,6 +245,10 @@
 - Initialized the registry index before the pre-release CI compatibility check.
 
 ### Removed
+
+- Remove public immediate World/SpawnPlan/SpawnDraft creation, Entity lifecycle
+  mutation, raw `run_schedule`, and manual state-transition execution. Use Commands
+  and App scheduling rather than invoking internal execution helpers.
 
 - Remove public component stores, global component accessors, key data-access
   methods, store-based query constructors, and store-selected spawn APIs.

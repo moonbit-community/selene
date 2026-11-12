@@ -27,3 +27,11 @@ import {
 } for "test"
 
 formatter(ignore: [ "model.g.mbt", "visual.g.mbt" ])
+
+import {
+  "Milky2018/selene/internal/ecs_runtime",
+} for "wbtest"
+
+import {
+  "Milky2018/selene/internal/ecs_runtime",
+} for "test"

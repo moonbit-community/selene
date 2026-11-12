@@ -2,7 +2,7 @@
 /// Collects initial component values before an entity has a handle.
 struct SpawnDraft {
   world : World
-  columns : Array[(Int32, (Int32, Entity) -> Unit)]
+  mut columns : Array[(Int32, (Int32, Entity) -> Unit)]
   mut spawned : Bool
 }
 
@@ -36,23 +36,51 @@ fn[T] SpawnDraft::add_to(
 }
 
 ///|
-pub fn SpawnDraft::spawn(self : SpawnDraft, parent? : Entity) -> Entity {
+fn SpawnDraft::take_plan(self : SpawnDraft) -> SpawnPlan[Unit] {
   guard !self.spawned else { abort("spawn draft already used") }
   let signature = self.columns.map(column => column.0)
   signature.sort()
+  let columns = self.columns
   let plan : SpawnPlan[Unit] = {
     world_id: self.world.id(),
     entities: entity_store(world=self.world),
     signature,
     table: None,
     append: (table, entity, _) => {
-      for (_, append) in self.columns {
+      for (_, append) in columns {
         append(table, entity)
       }
     },
   }
-  let entity = plan.spawn((), parent?)
   self.spawned = true
-  self.columns.clear()
-  entity
+  self.columns = []
+  plan
+}
+
+///|
+fn SpawnDraft::spawn(self : SpawnDraft, parent? : Entity) -> Entity {
+  self.take_plan().spawn((), parent?)
+}
+
+///|
+#doc(hidden)
+pub fn SpawnDraft::runtime_spawn(
+  self : SpawnDraft,
+  _access : @ecs_access.Access,
+  parent? : Entity,
+) -> Entity {
+  self.spawn(parent?)
+}
+
+///|
+/// Reserves an entity and queues this draft's complete layout in its World.
+pub fn Commands::spawn_draft(
+  self : Commands,
+  draft : SpawnDraft,
+  parent? : Entity,
+) -> Entity {
+  guard draft.world.id() == self.world.id() else {
+    abort("spawn draft belongs to another World")
+  }
+  self.spawn_prepared(draft.take_plan(), (), parent?)
 }

@@ -7,10 +7,12 @@ test "shared animation fields use the execution World rather than the registrati
   })
   let first = @ecs.World()
   let second = @ecs.World()
-  let a = first.spawn1(
+  let a = @ecs_runtime.spawn1(
+    first,
     @transform.Spatial(@transform.Transform::from_xyz(1.0, 0.0, 0.0)),
   )
-  let b = second.spawn1(
+  let b = @ecs_runtime.spawn1(
+    second,
     @transform.Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)),
   )
   @ecs.set_current_world(first)

@@ -14,7 +14,7 @@ fn player_motion_at_refresh_rate(refresh : Int32) -> Array[@math.Vec2] raise {
     .add_system(Startup, world => {
       @inputs.apply_input_snapshot(snapshot)
       @input_action.input_action_system(0.0)
-      player_input_system(world)
+      @ecs.commands(world).add(world => player_input_system(world))
     })
     .add_system(FixedFirst, world => {
       if world.fixed_step_index() == 12U {
@@ -56,6 +56,7 @@ test "a jump press survives render frames without a physics step" {
     with_pixeladventure_test_world(fn(world) raise {
       @time.initialize(world)
       game_start(world)
+      flush_test_commands(world)
       let session : GameSession = world.resource()
       let pressed = @inputs.InputSnapshot()
       pressed.pressed_keys.add(ArrowUp)

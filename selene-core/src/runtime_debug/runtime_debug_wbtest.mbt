@@ -136,7 +136,8 @@ test "sprite inspector returns unified sprite debug entries" {
     }
     let local_transform = @transform.Transform::from_xyz(12.0, 34.0, 1.0)
     ignore(
-      @ecs.require_current_world().spawn(
+      @ecs_runtime.spawn(
+        @ecs.require_current_world(),
         (
           @name.Name("Sprite Debug"),
           @transform.Spatial(local_transform),

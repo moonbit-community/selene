@@ -15,3 +15,7 @@ import {
 }
 
 formatter(ignore: [ "ldtk_world_types.g.mbt" ])
+
+import {
+  "Milky2018/selene/internal/ecs_runtime",
+}

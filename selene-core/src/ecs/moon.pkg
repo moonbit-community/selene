@@ -1,8 +1,17 @@
 import {
   "moonbitlang/core/debug",
   "moonbitlang/core/set",
+  "Milky2018/selene/internal/ecs_access",
 }
 
 import {
   "moonbitlang/core/bench",
+} for "wbtest"
+
+import {
+  "Milky2018/selene/internal/ecs_runtime",
+} for "test"
+
+import {
+  "Milky2018/selene/internal/ecs_runtime",
 } for "wbtest"

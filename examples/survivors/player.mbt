@@ -157,7 +157,8 @@ fn spawn_player(world~ : @ecs.World) -> @ecs.Entity {
   )
   let (animation_controller, graph) = build_player_animation_controller()
   let plan = world.prepare_spawn().combine(world.prepare_spawn())
-  let entity = plan.spawn(
+  let entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
+    plan,
     (
       (
         sprite_animation_sprite(player_idle_right_animation),
@@ -184,12 +185,14 @@ fn spawn_player(world~ : @ecs.World) -> @ecs.Entity {
     ),
   )
   survivors_runtime().entities.push(entity)
-  play_player_animation_state(
-    world~,
-    entity,
-    player_idle_right_animation,
-    animation_controller.idle_right,
-  )
+  @ecs.commands(world).add(world => {
+    play_player_animation_state(
+      world~,
+      entity,
+      player_idle_right_animation,
+      animation_controller.idle_right,
+    )
+  })
   entity
 }
 

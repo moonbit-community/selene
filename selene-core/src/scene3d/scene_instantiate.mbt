@@ -155,7 +155,7 @@ fn instantiate_scene_node(
   } else {
     None
   }
-  let entity = draft.spawn(parent~)
+  let entity = @ecs_runtime.spawn_draft(draft, parent~)
   parts.set(entity_path, entity)
   node_entities[node_index] = Some(entity)
   if single_renderer is Some((renderer, skinned)) {
@@ -188,7 +188,8 @@ fn instantiate_scene_node(
           }
         None => template_renderer.renderer
       }
-      let primitive_entity = world.spawn(
+      let primitive_entity = @ecs_runtime.spawn(
+        world,
         (@transform.Spatial(@transform.Transform::identity()), renderer),
         parent=entity,
       )

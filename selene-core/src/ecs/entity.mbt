@@ -239,7 +239,7 @@ fn queue_entity_spawn(
 
 ///|
 /// Despawns this entity while retaining its slot and components for respawn.
-pub fn Entity::destroy(e : Entity) -> Unit {
+fn Entity::destroy(e : Entity) -> Unit {
   let world = require_current_world()
   guard e.belongs_to(world) else { return }
   let store = entity_store(world~)
@@ -262,7 +262,7 @@ pub fn Entity::destroy(e : Entity) -> Unit {
 }
 
 ///|
-pub fn Entity::respawn(e : Entity) -> Unit {
+fn Entity::respawn(e : Entity) -> Unit {
   let world = require_current_world()
   guard e.belongs_to(world) else { return }
   let store = entity_store(world~)
@@ -315,4 +315,22 @@ fn flush_entity_lifecycle(world : World) -> Unit {
 /// Tests live state in this World without consulting the active schedule.
 pub fn World::is_alive(self : World, entity : Entity) -> Bool {
   entity.belongs_to(self) && entity_store(world=self).is_alive(entity)
+}
+
+///|
+#doc(hidden)
+pub fn Entity::runtime_destroy(
+  self : Entity,
+  _access : @ecs_access.Access,
+) -> Unit {
+  self.destroy()
+}
+
+///|
+#doc(hidden)
+pub fn Entity::runtime_respawn(
+  self : Entity,
+  _access : @ecs_access.Access,
+) -> Unit {
+  self.respawn()
 }

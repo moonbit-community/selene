@@ -6,11 +6,13 @@ test "level up shows panel and buttons" {
   @time.initialize(@ecs.require_current_world())
   reset_survivors_runtime()
   setup_level_up_ui(world~)
+  flush_test_commands(world)
   game_state(world~).pending_level_ups.clear()
   game_state(world~).player_level = 1
   game_state(world~).exp = 0
 
   add_exp(world~, 16)
+  flush_test_commands(world)
   @ui.ui_layout_system(world~, 0.0)
   @ui.ui_extract_system(0.0)
   @ui.ui_prepare_system(world~, 0.0)
@@ -78,11 +80,13 @@ test "level up click resumes game" {
   @time.initialize(@ecs.require_current_world())
   reset_survivors_runtime()
   setup_level_up_ui(world~)
+  flush_test_commands(world)
   game_state(world~).pending_level_ups.clear()
   game_state(world~).player_level = 1
   game_state(world~).exp = 0
 
   add_exp(world~, 16)
+  flush_test_commands(world)
   @ui.click_event_bus.send({
     entity: survivors_runtime().levelup_buttons[0],
     button: Left,

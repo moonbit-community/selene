@@ -44,7 +44,7 @@ fn run_state_transitions(
   plan : RuntimePlan,
   initial_only~ : Bool = false,
 ) -> Unit {
-  try! @state.advance(
+  try! @state_runtime.advance(
     plan.world,
     initial_only~,
     on_exit=world => {

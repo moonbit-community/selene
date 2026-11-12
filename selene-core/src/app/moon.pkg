@@ -18,3 +18,11 @@ import {
   "Milky2018/selene/sprite",
   "Milky2018/selene/transform",
 } for "test"
+
+import {
+  "Milky2018/selene/internal/ecs_runtime",
+}
+
+import {
+  "Milky2018/selene/internal/state_runtime",
+}

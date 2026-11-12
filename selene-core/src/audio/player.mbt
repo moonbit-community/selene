@@ -80,7 +80,10 @@ pub fn spawn_audio(
   let plan = audio_spawn_plan.get_or_insert_with(world, world => {
     world.prepare_spawn()
   })
-  plan.spawn((AudioPlayer(source), normalize_settings(settings)))
+  @ecs.commands(world).spawn_prepared(
+    plan,
+    (AudioPlayer(source), normalize_settings(settings)),
+  )
 }
 
 ///|

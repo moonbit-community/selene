@@ -9,3 +9,7 @@ import {
 }
 
 supported_targets = "all"
+
+import {
+  "Milky2018/selene/internal/ecs_runtime",
+}

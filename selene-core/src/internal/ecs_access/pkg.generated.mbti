@@ -1,0 +1,24 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/internal/ecs_access"
+
+// Values
+pub fn acquire() -> Access
+
+pub fn enter_query() -> Unit
+
+pub fn leave_query() -> Unit
+
+pub fn query_active() -> Bool
+
+pub fn schedule_running() -> Bool
+
+pub fn set_schedule_running(Bool) -> Unit
+
+// Errors
+
+// Types and methods
+type Access
+
+// Type aliases
+
+// Traits

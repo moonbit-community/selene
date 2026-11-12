@@ -104,7 +104,7 @@ fn cards_runtime() -> CardsRuntime {
 
 ///|
 fn[T : @ecs.Bundle] spawn_cards_entity(values : T) -> @ecs.Entity {
-  let entity = @ecs.require_current_world().spawn(values)
+  let entity = @ecs.commands(@ecs.require_current_world()).spawn(values)
   cards_runtime().entities.push(entity)
   entity
 }
@@ -115,7 +115,7 @@ fn reset_cards_runtime() -> Unit {
   let previous : CardsRuntime? = world.get_resource()
   if previous is Some(state) {
     for entity in state.entities {
-      ignore(entity.delete())
+      @ecs.commands(@ecs.require_current_world()).delete(entity)
     }
   }
   world.insert_resource(CardsRuntime())

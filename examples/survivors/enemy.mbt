@@ -290,7 +290,8 @@ fn spawn_enemy_system(world : @ecs.World) -> Unit {
           offset=Vec2(-4.0, -4.0),
         )
         let runtime = survivors_runtime()
-        let enemy = runtime.enemy_plan.spawn(
+        let enemy = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
+          runtime.enemy_plan,
           (
             (
               Spatial(
@@ -319,13 +320,15 @@ fn spawn_enemy_system(world : @ecs.World) -> Unit {
           ),
         )
         runtime.entities.push(enemy)
-        play_enemy_animation_state(
-          world~,
-          enemy,
-          enemy_state,
-          data.right_animation,
-          right_node,
-        )
+        @ecs.commands(world).add(world => {
+          play_enemy_animation_state(
+            world~,
+            enemy,
+            enemy_state,
+            data.right_animation,
+            right_node,
+          )
+        })
       }
       None => () // No more enemies to spawn in this wave
     }
@@ -603,7 +606,8 @@ fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
       player_collision_group, wall_collision_group,
     ]),
   )
-  let bullet_entity = runtime.enemy_bullet_plan.spawn(
+  let bullet_entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
+    runtime.enemy_bullet_plan,
     (
       Sprite(
         color=@sprite.color_from_css("red"),
@@ -624,7 +628,7 @@ fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
   runtime.entities.push(bullet_entity)
   runtime.enemy_bullets.add(bullet_entity)
   survivors_timeout(5.0, fn() {
-    ignore(bullet_entity.delete())
+    @ecs.commands(@ecs.require_current_world()).delete(bullet_entity)
     runtime.enemy_bullets.remove(bullet_entity)
   })
 }
@@ -667,7 +671,7 @@ fn enemy_collision_system(world : @ecs.World) -> Unit {
     if event.other == game.player_entity {
       apply_player_damage(world~)
     }
-    ignore(event.area.delete())
+    @ecs.commands(@ecs.require_current_world()).delete(event.area)
     runtime.enemy_bullets.remove(event.area)
   }
 }

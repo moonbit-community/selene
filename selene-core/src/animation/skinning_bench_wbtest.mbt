@@ -9,13 +9,14 @@ test "CPU skinning with four joint influences" (b : @bench.T) {
       )
     })
     let indices = Some(Array::makei(4095, i => i))
-    let target = world.spawn(())
+    let target = @ecs_runtime.spawn(world, ())
     let mesh = @render3d.register_mesh_asset(
       @render3d.triangle_mesh(positions, indices~),
     )
     defer @render3d.release_mesh_asset(mesh)
     let joints = Array::makei(4, i => {
-      world.spawn1(
+      @ecs_runtime.spawn1(
+        world,
         @transform.Spatial({
           translation: Vec3(i.to_double(), 2.0, -1.0),
           rotation: @math.Rotation3::from_axis_angle(

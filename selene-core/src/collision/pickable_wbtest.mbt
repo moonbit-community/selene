@@ -47,7 +47,7 @@ fn spawn_pickable_camera(
       ) : @transform.Spatial),
   )
   camera_entity_draft.add((layers : @visibility.RenderLayers))
-  let camera_entity = camera_entity_draft.spawn()
+  let camera_entity = @ecs_runtime.spawn_draft(camera_entity_draft)
   camera_entity
 }
 
@@ -67,7 +67,7 @@ fn spawn_pickable_shape(
       @transform.Spatial),
   )
   entity_draft.add((layers : @visibility.RenderLayers))
-  let entity = entity_draft.spawn()
+  let entity = @ecs_runtime.spawn_draft(entity_draft)
   entity
 }
 
@@ -157,10 +157,12 @@ test "pickable click supports ball shapes" {
 ///|
 test "pickable uses the sheared world plane and rejects a collapsed shape" {
   with_pickable_test_world(fn(world) raise {
-    let parent = world.spawn1(
+    let parent = @ecs_runtime.spawn1(
+      world,
       @transform.Spatial(@transform.Transform::from_scale(Vec3(3.0, 1.0, 1.0))),
     )
-    let child = world.spawn(
+    let child = @ecs_runtime.spawn(
+      world,
       (
         Pickable(),
         CollisionShape::Rect(size=Vec2(10.0, 10.0), offset=@math.Vec2::zero()),

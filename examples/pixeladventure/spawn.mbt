@@ -168,7 +168,8 @@ fn spawn_player_entity(
     active_animation: None,
   }
   let plan = world.prepare_spawn().combine(world.prepare_spawn())
-  let entity = plan.spawn(
+  let entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
+    plan,
     (
       (
         @transform.Spatial(@transform.Transform::from_xyz(x, y, PLAYER_Z)),
@@ -191,7 +192,9 @@ fn spawn_player_entity(
     ),
   )
   pixeladventure_world_state().entities.push(entity)
-  play_player_animation(world~, entity, controller)
+  @ecs.commands(world).add(world => {
+    play_player_animation(world~, entity, controller)
+  })
   entity
 }
 
@@ -209,7 +212,8 @@ fn spawn_bird_entity(world~ : @ecs.World, x : Double, y : Double) -> Unit {
     active_animation: None,
   }
   let plan = world.prepare_spawn().combine(world.prepare_spawn())
-  let entity = plan.spawn(
+  let entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
+    plan,
     (
       (
         @transform.Spatial(@transform.Transform::from_xyz(x, y, PLAYER_Z)),
@@ -230,7 +234,7 @@ fn spawn_bird_entity(world~ : @ecs.World, x : Double, y : Double) -> Unit {
     ),
   )
   pixeladventure_world_state().entities.push(entity)
-  play_bird_animation(world~, entity, bird)
+  @ecs.commands(world).add(world => play_bird_animation(world~, entity, bird))
 }
 
 ///|
@@ -264,7 +268,8 @@ fn spawn_terrain_collider(
   size : @math.Vec2,
 ) -> Unit {
   let shape : @physics2d.ColliderShape = Rect(size~, offset=@math.Vec2::zero())
-  let terrain = plan.spawn(
+  let terrain = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
+    plan,
     (
       Spatial(@transform.Transform::from_xyz(pos.x, pos.y, 0.0)),
       shape,
@@ -307,7 +312,8 @@ fn[T : @ecs.Component] spawn_animated_item(
   ignore(player.play(nodes[0], repeat=Forever))
   let shape : @physics2d.ColliderShape = Rect(size~, offset=@math.Vec2::zero())
   let plan = world.prepare_spawn().combine(world.prepare_spawn())
-  let entity = plan.spawn(
+  let entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
+    plan,
     (
       (
         @transform.Spatial(@transform.Transform::from_xyz(x, y, ITEM_Z)),

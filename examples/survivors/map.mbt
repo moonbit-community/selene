@@ -65,7 +65,8 @@ fn add_grass() -> Unit {
     for y in 0..<(MAP_HEIGHT / 16.0).to_int() {
       if rand.double() < density {
         entities.push(
-          plan.spawn(
+          @ecs.commands(@ecs.require_current_world()).spawn_prepared(
+            plan,
             (
               grass_sprite(),
               Spatial(

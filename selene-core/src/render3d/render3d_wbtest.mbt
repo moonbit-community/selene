@@ -5,7 +5,8 @@ test "render3d extract preserves mesh shadow toggles" {
   let material = @render3d_types.MaterialHandle(9902U)
   meshes.set(mesh, cube_mesh(Vec3(1.0, 1.0, 1.0)))
   materials.set(material, StandardMaterial3D())
-  let entity = @ecs.require_current_world().spawn(
+  let entity = @ecs_runtime.spawn(
+    @ecs.require_current_world(),
     (
       Mesh3DRenderer::{
         mesh,
@@ -31,7 +32,7 @@ test "render3d extract preserves mesh shadow toggles" {
   meshes.remove(mesh)
   materials.remove(material)
   render3d_world_state().extracted_frame = RenderFrame3D()
-  ignore(entity.delete())
+  ignore(@ecs_runtime.delete(entity))
 }
 
 ///|
@@ -190,7 +191,7 @@ test "render3d extracts skybox from active camera" {
     cubemap_asset_six_faces(CubemapFaces3D(px, nx, py, ny, pz, nz)),
   )
   let skybox = Skybox3D(cubemap, brightness=0.75)
-  let camera_entity = @ecs.require_current_world().spawn1(skybox)
+  let camera_entity = @ecs_runtime.spawn1(@ecs.require_current_world(), skybox)
   @camera3d.set_active_camera3d(
     Some({
       entity: camera_entity,
@@ -233,7 +234,7 @@ test "render3d extracts skybox from active camera" {
   ignore(take_dirty_cubemap_assets())
   ignore(take_released_image_assets())
   ignore(take_released_cubemap_assets())
-  ignore(camera_entity.delete())
+  ignore(@ecs_runtime.delete(camera_entity))
 }
 
 ///|

@@ -161,8 +161,10 @@ pub fn[T : Bundle] World::prepare_spawn(self : World) -> SpawnPlan[T] {
 
 ///|
 /// Creates an entity directly in the archetype for the supplied components.
-pub fn[T : Bundle] World::spawn(
+#doc(hidden)
+pub fn[T : Bundle] World::runtime_spawn(
   self : World,
+  _access : @ecs_access.Access,
   values : T,
   parent? : Entity,
 ) -> Entity {
@@ -171,8 +173,10 @@ pub fn[T : Bundle] World::spawn(
 
 ///|
 /// Creates an entity with one component.
-pub fn[T : Component] World::spawn1(
+#doc(hidden)
+pub fn[T : Component] World::runtime_spawn1(
   self : World,
+  _access : @ecs_access.Access,
   value : T,
   parent? : Entity,
 ) -> Entity {

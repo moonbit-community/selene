@@ -43,7 +43,8 @@ fn load_level_scene(world~ : @ecs.World) -> LoadedLevelScene {
   for (x, y, count, atlas_x, atlas_y) in terrain_runs {
     for offset in 0..<count {
       let tile_x = x + offset
-      let entity = plan.spawn(
+      let entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
+        plan,
         (
           Spatial(
             @transform.Transform::from_xyz(

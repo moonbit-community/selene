@@ -1,0 +1,33 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/internal/ecs_runtime"
+
+import {
+  "Milky2018/selene/ecs",
+}
+
+// Values
+pub fn delete(@ecs.Entity) -> Bool
+
+pub fn destroy(@ecs.Entity) -> Unit
+
+pub fn require_idle() -> Unit raise @ecs.ScheduleError
+
+pub fn respawn(@ecs.Entity) -> Unit
+
+pub fn run_schedule(@ecs.World, (@ecs.World) -> Unit) -> Unit raise @ecs.ScheduleError
+
+pub fn[T : @ecs.Bundle] spawn(@ecs.World, T, parent? : @ecs.Entity) -> @ecs.Entity
+
+pub fn[T : @ecs.Component] spawn1(@ecs.World, T, parent? : @ecs.Entity) -> @ecs.Entity
+
+pub fn spawn_draft(@ecs.SpawnDraft, parent? : @ecs.Entity) -> @ecs.Entity
+
+pub fn[T] spawn_prepared(@ecs.SpawnPlan[T], T, parent? : @ecs.Entity) -> @ecs.Entity
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

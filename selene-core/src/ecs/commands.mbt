@@ -60,3 +60,9 @@ pub fn Commands::delete(self : Commands, entity : Entity) -> Unit {
 pub fn has_pending_commands(world : World) -> Bool {
   !queues.get_or_insert_with(world, _ => CommandQueue()).pending.is_empty()
 }
+
+///|
+/// Restores a retained entity and its descendants at the scheduler's flush.
+pub fn Commands::respawn(self : Commands, entity : Entity) -> Unit {
+  self.add(_ => entity.respawn())
+}

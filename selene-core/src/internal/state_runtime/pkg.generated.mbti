@@ -1,0 +1,17 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/internal/state_runtime"
+
+import {
+  "Milky2018/selene/ecs",
+}
+
+// Values
+pub fn advance(@ecs.World, on_exit~ : (@ecs.World) -> Unit, on_enter~ : (@ecs.World) -> Unit, initial_only? : Bool) -> Unit raise @ecs.ScheduleError
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

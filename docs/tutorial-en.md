@@ -224,14 +224,15 @@ Pass the initial components to the World when spawning a player.
 
 ```moonbit
 let world = @ecs.require_current_world()
-let player = world.spawn((
+let player = @ecs.commands(world).spawn((
   @transform.Spatial(@transform.Transform::from_xyz(100.0, 100.0, 0.0)),
   @physics2d.Velocity(@math.Vec2::zero()),
 ))
 ```
 
-The World writes both components into the final archetype together. Use
-`commands.spawn(...)` when spawning from inside a query.
+The scheduler writes both components into the final archetype together when it
+applies the command. The returned handle is pending until then. Public creation
+is deferred during both setup and queries.
 
 ### Player Character Implementation
 
@@ -278,7 +279,7 @@ let (graph, nodes) = @animation.AnimationGraph::from_clips([
 ])
 let player_animation = @animation.AnimationPlayer()
 ignore(player_animation.play(nodes[0], repeat=@animation.RepeatAnimation::Forever))
-let player = world.spawn((
+let player = @ecs.commands(world).spawn((
   @transform.Spatial(@transform.Transform::from_xyz(100.0, 100.0, 0.0)),
   @physics2d.Velocity(@math.Vec2::zero()),
   sprite,
@@ -319,7 +320,7 @@ let shape = @physics2d.CollisionShape::Rect(
 let collider = @physics2d.Collider(
   @physics2d.CollisionFilter(player_collision_group, [terrain_collision_group]),
 )
-let player = world.spawn((
+let player = @ecs.commands(world).spawn((
   @transform.Spatial(@transform.Transform::from_xyz(100.0, 100.0, 0.0)),
   @physics2d.Velocity(@math.Vec2::zero()),
   shape,
@@ -358,7 +359,7 @@ let area = @physics2d.Area(
     player_collision_group,
   ]),
 )
-let apple = world.spawn((spatial, sprite, shape, area, apple_tag))
+let apple = @ecs.commands(world).spawn((spatial, sprite, shape, area, apple_tag))
 
 fn map_trigger_system(_world : @ecs.World) -> Unit {
   for apple in apples.to_array() {
@@ -367,7 +368,7 @@ fn map_trigger_system(_world : @ecs.World) -> Unit {
       if session.volume_on {
         play_sfx(coin_sound, session.volume_on)
       }
-      ignore(apple.delete())
+      @ecs.commands(world).delete(apple)
     }
   }
 }
@@ -389,7 +390,7 @@ Current UI uses `@ui` component stores for text/buttons/images. Example score te
 
 ```moonbit
 fn spawn_score_box(world : @ecs.World) -> @ecs.Entity {
-  world.spawn((
+  @ecs.commands(world).spawn((
     @ui.Node::absolute(
       @math.Vec2(48.0, 16.0),
       size=@math.Vec2(432.0, 24.0),

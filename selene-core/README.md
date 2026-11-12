@@ -17,8 +17,8 @@ It includes app/runtime orchestration, ECS data flow, assets, scenes, animation,
 
 `window` provides engine-level operations over the platform interfaces. Input
 snapshots and queries remain in `inputs`. Application stages belong to `app`;
-standalone ECS code can execute systems through `ecs.run_schedule` without
-depending on an application or platform backend.
+The App driver owns ECS execution and command application; game code uses
+Commands for deferred structural changes.
 
 ## Install
 

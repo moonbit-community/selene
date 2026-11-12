@@ -6,8 +6,6 @@ import {
 }
 
 // Values
-pub fn advance(@ecs.World, on_exit~ : (@ecs.World) -> Unit, on_enter~ : (@ecs.World) -> Unit, initial_only? : Bool) -> Unit raise @ecs.ScheduleError
-
 pub fn[T : StateType] current(@ecs.World) -> T
 
 pub fn[T : StateType] in_state(T) -> (@ecs.World) -> Bool

@@ -23,6 +23,7 @@ test "level loading preserves gameplay entities and terrain" {
   with_pixeladventure_test_asset_io(fn() raise {
     with_pixeladventure_test_world(fn(world) raise {
       let loaded = load_level_scene(world~)
+      flush_test_commands(world)
       inspect(
         (world.query() : @ecs.Query[@ecs.Single[PlayerController]]).length(),
         content="1",
@@ -72,6 +73,7 @@ test "level flag retains its animated sprite" {
   with_pixeladventure_test_asset_io(fn() raise {
     with_pixeladventure_test_world(fn(world) raise {
       ignore(load_level_scene(world~))
+      flush_test_commands(world)
       let flag_entity = (world.query() : @ecs.Query[@ecs.Single[FlagTag]]).to_array()[0].0
       let flag_sprite = (world.query() : @ecs.Query[@ecs.Single[@sprite.Sprite]])
         .get(flag_entity)
@@ -100,8 +102,9 @@ test "level flag retains its animated sprite" {
 test "restarting Pixel Adventure replaces its session and game entities" {
   with_pixeladventure_test_asset_io(fn() raise {
     with_pixeladventure_test_world(fn(world) raise {
-      let other = @ecs.require_current_world().spawn(())
+      let other = @ecs.commands(@ecs.require_current_world()).spawn(())
       game_start(world)
+      flush_test_commands(world)
       let previous_session : GameSession = world.resource()
       previous_session.score = 100
       previous_session.health = 1
@@ -112,6 +115,7 @@ test "restarting Pixel Adventure replaces its session and game entities" {
       assert_false(previous_entities.is_empty())
 
       game_start(world)
+      flush_test_commands(world)
 
       assert_eq(@ecs.alive_entity_count(), entity_count)
       assert_true(other.is_alive())

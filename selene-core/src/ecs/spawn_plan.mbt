@@ -88,13 +88,16 @@ fn[T] SpawnPlan::append_row(
 
 ///|
 /// Creates a live entity and appends all bundle values to one archetype row.
-pub fn[T] SpawnPlan::spawn(
+fn[T] SpawnPlan::spawn(
   self : SpawnPlan[T],
   values : T,
   parent? : Entity,
 ) -> Entity {
   if parent is Some(parent) &&
-    (parent.world_id != self.world_id || !self.entities.is_alive(parent)) {
+    (
+      parent.world_id != self.world_id ||
+      !self.entities.accepts_deferred_child(parent)
+    ) {
     abort("parent must be alive in this World")
   }
   self.entities.archetypes.require_no_query()
@@ -117,4 +120,15 @@ fn[T] SpawnPlan::queue_spawn(
     abort("spawn plan belongs to another world")
   }
   queue_entity_spawn(world, parent, entity => self.append_row(entity, values))
+}
+
+///|
+#doc(hidden)
+pub fn[T] SpawnPlan::runtime_spawn(
+  self : SpawnPlan[T],
+  _access : @ecs_access.Access,
+  values : T,
+  parent? : Entity,
+) -> Entity {
+  self.spawn(values, parent?)
 }

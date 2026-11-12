@@ -208,7 +208,7 @@ fn pixeladventure_world_state() -> PixelAdventureWorldState {
 
 ///|
 fn[T : @ecs.Bundle] spawn_game_entity(values : T) -> @ecs.Entity {
-  let entity = @ecs.require_current_world().spawn(values)
+  let entity = @ecs.commands(@ecs.require_current_world()).spawn(values)
   pixeladventure_world_state().entities.push(entity)
   entity
 }
@@ -219,7 +219,7 @@ fn reset_pixeladventure_world_store() -> Unit {
   let previous : PixelAdventureWorldState? = world.get_resource()
   if previous is Some(state) {
     for entity in state.entities {
-      ignore(entity.delete())
+      @ecs.commands(@ecs.require_current_world()).delete(entity)
     }
   }
   world.insert_resource(PixelAdventureWorldState())

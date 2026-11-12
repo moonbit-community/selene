@@ -26,8 +26,8 @@ impl @ecs.Component for Speed with fn component_key() {
 test "component identity and point access are scoped to their World" {
   let first = @ecs.World()
   let second = @ecs.World()
-  let entity = first.spawn((Position(42), Speed(7)))
-  let other = second.spawn1(Position(99))
+  let entity = @ecs_runtime.spawn(first, (Position(42), Speed(7)))
+  let other = @ecs_runtime.spawn1(second, Position(99))
   assert_eq(first.get_component(entity), Some(Position(42)))
   assert_eq(first.get_component(entity), Some(Speed(7)))
   assert_eq(second.get_component(entity), (None : Position?))

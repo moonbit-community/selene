@@ -39,28 +39,29 @@ class EcsPublicApiTests(unittest.TestCase):
             'import { "Milky2018/selene/ecs" }\n'
         )
 
-    def compile(self, body):
+    def compile(self, body, *, strict=True):
         (self.consumer / "access.mbt").write_text(
             COMPONENT + "\npub fn exercise(world : @ecs.World) -> Unit {\n"
             + body + "\n}\n"
         )
         return subprocess.run(
             ["moon", "check", "--target", "wasm", "--no-mbti", "--output-json",
-             "--deny-warn", "--warn-list", "+73"],
+             *(["--deny-warn", "--warn-list", "+73"] if strict else [])],
             cwd=self.consumer, capture_output=True, text=True, timeout=120,
         )
 
     def test_world_and_query_access_compiles(self):
         result = self.compile("""
-  let entity = world.spawn1(Position(1))
+  let commands = @ecs.commands(world)
+  let entity = commands.spawn1(Position(1))
   let query : @ecs.Query[@ecs.Single[Position]] = world.query()
-  world.set_component(entity, Position(2))
+  commands.add(world => world.set_component(entity, Position(2)))
   ignore(query.get(entity))
   let pair : @ecs.Query[(Position, Position)] = world.query()
   for _, _ in pair {}
   let draft = world.spawn_draft()
   draft.add(Position(3))
-  ignore(draft.spawn())
+  ignore(commands.spawn_draft(draft))
 """)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
@@ -86,12 +87,21 @@ class EcsPublicApiTests(unittest.TestCase):
             "world_components": ("ignore(@ecs.components_in(world))", "components_in"),
             "key_store": ("ignore(position_key.store_in(world))", "store_in"),
             "key_current_store": ("ignore(position_key.store())", "store"),
-            "key_get": ("ignore(position_key.get(world.spawn(())))", "get"),
-            "key_set": ("position_key.set(world.spawn(()), Position(1))", "set"),
+            "key_get": ("ignore(position_key.get(@ecs.commands(world).spawn(())))", "get"),
+            "key_set": ("position_key.set(@ecs.commands(world).spawn(()), Position(1))", "set"),
             "query_storage": ("let query : @ecs.Query[@ecs.Single[Position]] = world.query()\n  ignore(query.storage)", "abstract type"),
             "joined_constructor": ("ignore(@ecs.Query2(world.query(), world.query()))", "Query2"),
             "draft_store": ("world.spawn_draft().add_to(world.query(), Position(1))", "add_to"),
             "old_query_factory": ("ignore(world.query2())", "query2"),
+            "immediate_spawn": ("ignore(world.spawn(()))", "spawn"),
+            "immediate_spawn1": ("ignore(world.spawn1(Position(1)))", "spawn1"),
+            "prepared_spawn": ("let plan : @ecs.SpawnPlan[@ecs.Single[Position]] = world.prepare_spawn()\n  ignore(plan.spawn(Single(Position(1))))", "spawn"),
+            "draft_spawn": ("ignore(world.spawn_draft().spawn())", "spawn"),
+            "immediate_delete": ("ignore(@ecs.commands(world).spawn(()).delete())", "delete"),
+            "immediate_destroy": ("@ecs.commands(world).spawn(()).destroy()", "destroy"),
+            "immediate_respawn": ("@ecs.commands(world).spawn(()).respawn()", "respawn"),
+            "raw_schedule": ("try! @ecs.run_schedule(world, _ => ())", "run_schedule"),
+            "forged_access": ("@ecs.runtime_flush({}, world)", "Access"),
             "old_row_callback": ("let query : @ecs.Query[@ecs.Single[Position]] = world.query1()\n  query.for_each((_, _) => ())", "for_each"),
             "old_batch_traversal": ("let query : @ecs.Query[@ecs.Single[Position]] = world.query1()\n  query.for_each_batch(_ => ())", "for_each_batch"),
             "old_first_column_write": ("let query : @ecs.Query[(Position, Position)] = world.query()\n  query.for_each_batch_mut_a(_ => ())", "for_each_batch_mut_a"),
@@ -116,7 +126,7 @@ class EcsPublicApiTests(unittest.TestCase):
         # inside an active query rather than poisoning the shared test process.
         manifest = self.consumer / "moon.pkg"
         original = manifest.read_text()
-        manifest.write_text(original + '\npkgtype(kind: "executable")\n')
+        manifest.write_text(original + '\nimport { "Milky2018/selene/app" }\npkgtype(kind: "executable")\n')
         (self.consumer / "access.mbt").write_text(COMPONENT + source)
         try:
             return subprocess.run(
@@ -126,26 +136,90 @@ class EcsPublicApiTests(unittest.TestCase):
         finally:
             manifest.write_text(original)
 
-    def test_structural_changes_are_rejected_in_batch_callbacks(self):
+    def test_app_driver_cannot_flush_during_batch_callbacks(self):
         result = self.run_program("""
 fn main {
   let world = @ecs.World()
-  ignore(world.spawn1(Position(1)))
+  ignore(@ecs.commands(world).spawn1(Position(1)))
+  let app = @app.App().with_world(world)
+  app.run_frames(1)
   let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
   query.batches(_ => {
     println("entered batch callback")
-    ignore(world.spawn1(Position(2)))
+    app.run_frames(1)
   })
 }
 """)
         output = result.stdout + result.stderr
         self.assertNotEqual(result.returncode, 0, output)
         self.assertIn("entered batch callback", output)
-        self.assertIn("queue structural changes outside an archetype query", output)
+        self.assertIn("App execution is forbidden inside a query batch", output)
+
+    def test_internal_execution_packages_cannot_be_imported(self):
+        manifest = self.consumer / "moon.pkg"
+        original = manifest.read_text()
+        for package in ("ecs_access", "ecs_runtime", "state_runtime"):
+            with self.subTest(package=package):
+                manifest.write_text(original + f'\nimport {{ "Milky2018/selene/internal/{package}" }}\n')
+                try:
+                    result = self.compile("ignore(world.id())", strict=False)
+                finally:
+                    manifest.write_text(original)
+                output = result.stdout + result.stderr
+                self.assertNotEqual(result.returncode, 0, output)
+                self.assertIn("internal", output)
+
+    def test_manual_state_execution_is_not_public(self):
+        manifest = self.consumer / "moon.pkg"
+        original = manifest.read_text()
+        manifest.write_text(original + '\nimport { "Milky2018/selene/state" }\n')
+        try:
+            result = self.compile("try! @state.advance(world, on_exit=_ => (), on_enter=_ => ())", strict=False)
+        finally:
+            manifest.write_text(original)
+        output = result.stdout + result.stderr
+        self.assertNotEqual(result.returncode, 0, output)
+        self.assertIn("advance not found", output)
+
+    def test_deferred_commands_do_not_invalidate_ordinary_or_batch_iteration(self):
+        result = self.run_program("""
+fn main {
+  let world = @ecs.World()
+  let commands = @ecs.commands(world)
+  ignore(commands.spawn1(Position(1)))
+  ignore(commands.spawn1(Position(2)))
+  let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
+  guard query.is_empty() else { abort("spawn was immediate") }
+  let app = @app.App().with_world(world)
+  app.run_frames(1)
+  let mut visited = 0
+  for entity, Single(position) in query {
+    visited += 1
+    commands.delete(entity)
+    ignore(commands.spawn1(Position(position.0 + 10)))
+  }
+  guard visited == 2 && query.length() == 2 else { abort("commands changed rows") }
+  app.run_frames(1)
+  let mut sum = 0
+  query.batches(batch => {
+    let values : @ecs.ReadColumn[Position] = batch.read_column()
+    for row in 0..<batch.length() {
+      sum += values[row].0
+      commands.delete(batch.entity(row))
+    }
+  })
+  guard sum == 23 && query.length() == 2 else { abort("batch changed rows") }
+  app.run_frames(1)
+  guard query.is_empty() else { abort("delete did not flush") }
+  println("deferred traversal passed")
+}
+""")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("deferred traversal passed", result.stdout)
 
     def test_query_for_loops_compile(self):
         result = self.compile("""
-  ignore(world.spawn1(Position(1)))
+  ignore(@ecs.commands(world).spawn1(Position(1)))
   let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
   for (entity, Single(position)) in query {
     world.set_component(entity, Position(position.0 + 1))
@@ -161,26 +235,30 @@ fn main {
     def test_query_iterators_reject_structural_invalidation(self):
         for iterator in ("iter", "iter2"):
             for operation in (
-                "ignore(world.spawn1(Position(3)))",
-                "ignore(world.spawn((Position(3), Speed(4))))",
-                "ignore(first.delete()); ignore(world.spawn1(Position(3)))",
+                "ignore(commands.spawn1(Position(3)))",
+                "ignore(commands.spawn((Position(3), Speed(4))))",
+                "commands.delete(first); app.run_frames(1); ignore(commands.spawn1(Position(3)))",
             ):
                 with self.subTest(iterator=iterator, operation=operation):
                     result = self.run_program("""
 pub(all) struct Speed(Int)
 let speed_key : @ecs.ComponentKey[Speed] = ComponentKey()
 impl @ecs.Component for Speed with fn component_key() { speed_key }
-fn main raise {
+fn main {
   let world = @ecs.World()
-  let first = world.spawn1(Position(1))
+  let commands = @ecs.commands(world)
+  let first = commands.spawn1(Position(1))
   ignore(first)
   let speeds : @ecs.Query[@ecs.Single[Speed]] = world.query1()
   ignore(speeds)
-  ignore(world.spawn1(Position(2)))
+  ignore(commands.spawn1(Position(2)))
+  let app = @app.App().with_world(world)
+  app.run_frames(1)
   let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
   let entries = query.""" + iterator + """()
   ignore(entries.next())
-  @ecs.run_schedule(world, _ => { """ + operation + """ })
+  """ + operation + """
+  app.run_frames(1)
   println("advancing invalidated iterator")
   ignore(entries.next())
 }
@@ -197,7 +275,8 @@ let speed_key : @ecs.ComponentKey[Speed] = ComponentKey()
 impl @ecs.Component for Speed with fn component_key() { speed_key }
 fn main {
   let world = @ecs.World()
-  ignore(world.spawn((Position(1), Speed(2))))
+  ignore(@ecs.commands(world).spawn((Position(1), Speed(2))))
+  @app.App().with_world(world).run_frames(1)
   let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
   query.batches(batch => {
     println("entered query callback")

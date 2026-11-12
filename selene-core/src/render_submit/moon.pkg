@@ -17,3 +17,7 @@ import {
   "Milky2018/selene/ecs",
   "Milky2018/selene/transform",
 } for "wbtest"
+
+import {
+  "Milky2018/selene/internal/ecs_runtime",
+} for "wbtest"

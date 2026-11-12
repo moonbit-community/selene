@@ -120,8 +120,8 @@ component references. Systems currently execute sequentially.
 
 ## Spawning entities
 
-Use `spawn1(value)` for one component, `spawn((a, b, ...))` for a flat tuple of
-two to eight components, or `spawn(())` for an empty entity. `@ecs.Single(value)`
+Use `commands.spawn1(value)` for one component, `commands.spawn((a, b, ...))`
+for a flat tuple of two to eight components, or `commands.spawn(())` for an empty entity. `@ecs.Single(value)`
 also wraps one component as a bundle. The World puts all initial values in one
 archetype row. An entity keeps that component layout until permanent deletion.
 Use a mutable value, such as an optional payload or an enabled flag, for state
@@ -130,12 +130,13 @@ that can change during the entity's lifetime.
 ```moonbit
 let position : Position = { x: 3.0, y: 4.0 }
 let velocity : Velocity = { x: 0.0, y: 0.0 }
-let marker = world.spawn1(position)
-let player = world.spawn((position, velocity))
-let empty = world.spawn(())
+let commands = @ecs.commands(world)
+let marker = commands.spawn1(position)
+let player = commands.spawn((position, velocity))
+let empty = commands.spawn(())
 ```
 
-Use `commands.spawn(values)` or `commands.spawn1(value)` during a query.
+All public structural operations are deferred, both in setup and during queries.
 The scheduler initializes the returned pending handle at the command flush.
 A later command in the same batch can overwrite one of its initialized values.
 
@@ -143,35 +144,34 @@ For repeated spawns, prepare the layout once in its owning World.
 
 ```moonbit
 let players : @ecs.SpawnPlan[(Position, Velocity)] = world.prepare_spawn()
-let player = players.spawn((position, velocity))
 let pending = commands.spawn_prepared(players, (position, velocity))
 ```
 
 Use `SpawnPlan::combine` to join plans for larger groups. A plan belongs to a single World and each component column may occur only once.
 
 For imports whose columns depend on data, collect the values with
-`world.spawn_draft()` and `draft.add(value)`, then call `draft.spawn()` once.
+`world.spawn_draft()` and `draft.add(value)`, then call `commands.spawn_draft(draft)` once.
 The draft infers each column from its component type and rejects duplicate
 columns. Component stores cannot be supplied by callers.
 
 ## Hierarchy and transforms
 
-Set a parent at spawn with `parent=`. This works for immediate and deferred
-spawns, including prepared layouts. A deferred child can name a pending parent
+Set a parent at spawn with `parent=`, including for prepared layouts. A deferred child can name a pending parent
 queued before it. If the parent is unavailable when the command runs, the
 scheduler cancels the child and recycles its slot.
 
 ```moonbit
-let room = world.spawn(())
-let player = world.spawn(
+let room = commands.spawn(())
+let player = commands.spawn(
   (@transform.Spatial(@transform.Transform::from_xyz(3.0, 4.0, 0.0)), velocity),
   parent=room,
 )
 ```
 
 `get_parent()` and `get_children()` read the hierarchy. Children are ordered by
-spawn. `destroy()` and `respawn()` preserve the subtree and its components.
-`delete()` invalidates the subtree's handles and recycles their slots. Spawn a
+spawn. `commands.despawn(entity)` and `commands.respawn(entity)` preserve the
+subtree and its components. `commands.delete(entity)` invalidates its handles
+and recycles its slots when the command is applied. Spawn a
 replacement to change a node's parent or component layout.
 
 `Spatial` holds the local pose and the cached world transform. Use
@@ -306,14 +306,20 @@ entry systems. Render stages consume the resulting state. See the
 
 The app passes its selected World to engine systems, including rendering,
 physics, transforms, and animation. Helpers that access components take an
-explicit `world~` argument. Engine packages follow the same access rules as
-game code.
+explicit `world~` argument. Component access remains World-bound in engine and
+game systems; engine-only structural execution is used when applying queued
+imports and commands.
 
-Standalone ECS code can run a schedule with `@ecs.run_schedule(world, system)`.
-The scheduler rejects nested schedules and schedules started during a query.
-Messages and observers live in `@event`. Queue an event operation with
-`commands.add(_ => events.trigger(message, target))` when it should run with
-deferred work.
+Scheduling and command application belong to the App driver. There is no public
+raw schedule/flush operation or immediate entity creation/deletion. Engine-only
+execution lives under `internal/ecs_runtime`; its access capability cannot be
+constructed or imported by external packages. Public types remain owned by `ecs`.
+
+Create initial entities in a Startup system using `@ecs.commands(world)`. Their
+components become available after that stage's flush. Use `commands.add(...)`
+for initialization that must run after an earlier spawn in the same batch.
+Public LDtk, Tiled, scene, audio, and autotile creation requests are also deferred;
+query imported trees after the scheduler applies their command batch.
 
 Timeouts belong to `time` and are stored in the active World. The default plugins
 advance them once per frame. Cancellation remains valid when another World is
