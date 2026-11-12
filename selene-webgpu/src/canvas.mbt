@@ -425,6 +425,7 @@ extern "js" fn webgpu_initialize_ffi(
   #|         img.src = path;
   #|         await img.decode();
   #|         const bitmap = await createImageBitmap(img);
+  #|         if (rec.state === 'cancelled') { bitmap.close(); return; }
   #|         rec.width = Math.max(1, bitmap.width);
   #|         rec.height = Math.max(1, bitmap.height);
   #|         rec.texture = rt.createImageTexture(bitmap, rec.width, rec.height);

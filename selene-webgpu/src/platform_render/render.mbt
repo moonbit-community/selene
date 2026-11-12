@@ -1,8 +1,12 @@
 ///|
 fn resolve_font_family(style : @render2d_types.TextStyle2D) -> String {
   match style.font {
-    Some(handle) => @asset.font_family(handle).unwrap_or(style.family)
-    None => style.family
+    Some(handle) => @impl.prepare_font(handle).unwrap_or(style.family)
+    None =>
+      match @asset.font_by_family(style.family) {
+        Some(handle) => @impl.prepare_font(handle).unwrap_or(style.family)
+        None => style.family
+      }
   }
 }
 
@@ -23,10 +27,7 @@ fn resolve_text_command(
 ///|
 fn submit_draw_command(command : @render2d_types.DrawCommand2D) -> Unit {
   match command {
-    Image(image) =>
-      if @asset.image_path(image.image) is Some(path) {
-        @impl.draw_image(image, path)
-      }
+    Image(image) => @impl.draw_image(image)
     Text(text) => @impl.draw_text(resolve_text_command(text))
     Rect(rect) => @impl.draw_rect(rect)
     Circle(circle) => @impl.draw_circle(circle)
@@ -83,9 +84,6 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
   for (handle, asset) in frame.assets3d.material_upserts {
     @impl.sync_material_asset(handle, asset)
   }
-  for (handle, asset) in frame.assets3d.image_upserts {
-    @impl.sync_image_asset(handle, asset)
-  }
   for (handle, asset) in frame.assets3d.cubemap_upserts {
     @impl.sync_cubemap_asset(handle, asset)
   }
@@ -94,9 +92,6 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
   }
   for handle in frame.assets3d.material_releases {
     @impl.release_material_asset(handle)
-  }
-  for handle in frame.assets3d.image_releases {
-    @impl.release_image_asset(handle)
   }
   for handle in frame.assets3d.cubemap_releases {
     @impl.release_cubemap_asset(handle)
@@ -137,14 +132,23 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
 }
 
 ///|
-pub fn register_font(family : String, path : String) -> Unit {
-  @impl.load_font(family, path)
+pub fn image_preparation_state(
+  handle : @asset_types.ImageHandle,
+) -> @asset_types.PreparationState {
+  @impl.image_preparation_state(handle)
+}
+
+///|
+pub fn font_preparation_state(
+  handle : @asset_types.FontHandle,
+) -> @asset_types.PreparationState {
+  @impl.font_preparation_state(handle)
 }
 
 ///|
 /// Exposes backend font readiness transitions to retained layout caches.
-pub fn font_metrics_revision(family : String) -> UInt32 {
-  @impl.font_metrics_revision(family)
+pub fn font_metrics_revision(style : @render2d_types.TextStyle2D) -> UInt32 {
+  @impl.font_metrics_revision(resolve_font_family(style))
 }
 
 ///|
@@ -199,21 +203,21 @@ pub fn render_offscreen_png(
 
 ///|
 pub fn image_region_is_fully_transparent(
-  path : String,
+  image : @asset_types.ImageHandle,
   rect : @math.Rect,
 ) -> Bool? {
-  ignore(path)
+  ignore(image)
   ignore(rect)
   None
 }
 
 ///|
 pub fn export_texture_region_png(
-  image_path : String,
+  image : @asset_types.ImageHandle,
   rect : @math.Rect,
   out_path : String,
 ) -> Bool {
-  ignore(image_path)
+  ignore(image)
   ignore(rect)
   ignore(out_path)
   false

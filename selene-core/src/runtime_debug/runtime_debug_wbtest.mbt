@@ -205,7 +205,8 @@ test "atlas overlay decoration appends highlight rects when enabled" {
 ///|
 test "frame metadata export includes draw commands and atlas overlay entries" {
   with_runtime_debug_world(fn(world) raise {
-    let image = @asset.load_image("assets/debug/metadata.png")
+    let image = @asset.images.add(@asset.Image::from_bytes(b"debug image"))
+    defer ignore(@asset.images.remove(image))
     let draw_image : @render2d_types.ImageDrawCommand2D = {
       image,
       destination: { position: Vec2(0.0, 0.0), size: Vec2(16.0, 16.0), },
@@ -237,6 +238,9 @@ test "frame metadata export includes draw commands and atlas overlay entries" {
     let metadata = capture_last_frame_metadata(world~).unwrap()
     inspect(metadata.draw2d.length(), content="1")
     inspect(metadata.atlas_overlay.length(), content="1")
+    assert_eq(metadata.draw2d[0].image, Some(image))
+    assert_eq(metadata.draw2d[0].texture_path, None)
+    assert_eq(metadata.atlas_overlay[0].image, image)
     let json_text = capture_last_frame_metadata_json(world~).unwrap()
     inspect(json_text.contains("\"frame_index\""), content="true")
     inspect(json_text.contains("\"atlas_overlay\""), content="true")
@@ -258,7 +262,9 @@ test "export sprite inspector regions only processes entries with image and sour
         entity_id: 1U,
         entity_name: Some("No Image"),
         visible: true,
+        image: None,
         image_path: None,
+        image_byte_length: None,
         source_rect: Some({ x: 0.0, y: 0.0, width: 8.0, height: 8.0, }),
         destination_size: None,
         anchor: { x: 0.0, y: 0.0, },
@@ -271,7 +277,9 @@ test "export sprite inspector regions only processes entries with image and sour
         entity_id: 2U,
         entity_name: Some("No Rect"),
         visible: true,
+        image: Some(@asset.images.add(@asset.Image::from_bytes(b"debug image"))),
         image_path: Some("assets/debug/export.png"),
+        image_byte_length: Some(11),
         source_rect: None,
         destination_size: None,
         anchor: { x: 0.0, y: 0.0, },
@@ -284,7 +292,9 @@ test "export sprite inspector regions only processes entries with image and sour
         entity_id: 3U,
         entity_name: Some("Valid"),
         visible: true,
+        image: Some(@asset.images.add(@asset.Image::from_bytes(b"debug image"))),
         image_path: Some("assets/debug/export.png"),
+        image_byte_length: Some(11),
         source_rect: Some({ x: 1.0, y: 2.0, width: 4.0, height: 5.0, }),
         destination_size: None,
         anchor: { x: 0.0, y: 0.0, },
@@ -311,7 +321,7 @@ test "export texture region png returns false for missing image path" {
   with_runtime_debug_world(fn(_world) raise {
     inspect(
       export_texture_region_png(
-        "/tmp/selene_runtime_debug_missing.png",
+        @asset.load_image("/tmp/selene_runtime_debug_missing.png"),
         { position: Vec2(0.0, 0.0), size: Vec2(1.0, 1.0), },
         "/tmp/selene_runtime_debug_missing_out.png",
       ),

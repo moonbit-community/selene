@@ -4,6 +4,7 @@ pub(all) struct DrawSubmission2DInfo {
   layer : String
   kind : String
   depth : Double?
+  image : @asset.ImageHandle?
   texture_path : String?
   uv_rect : @math.Rect?
   destination_rect : @math.Rect?
@@ -36,6 +37,7 @@ pub(all) struct DrawSubmission2DMetadataEntry {
   layer : String
   kind : String
   depth : Double?
+  image : @asset.ImageHandle?
   texture_path : String?
   source_rect : DebugRect?
   destination_rect : DebugRect?
@@ -130,6 +132,7 @@ fn draw2d_info(
         layer,
         kind: "Image",
         depth,
+        image: Some(image.image),
         texture_path: @asset.image_path(image.image),
         uv_rect,
         destination_rect: Some(image.destination),
@@ -147,6 +150,7 @@ fn draw2d_info(
         layer,
         kind: "Text",
         depth,
+        image: None,
         texture_path: None,
         uv_rect: None,
         destination_rect: Some(destination),
@@ -160,6 +164,7 @@ fn draw2d_info(
         layer,
         kind: "Rect",
         depth,
+        image: None,
         texture_path: None,
         uv_rect: None,
         destination_rect: Some(rect.rect),
@@ -176,6 +181,7 @@ fn draw2d_info(
         layer,
         kind: "Circle",
         depth,
+        image: None,
         texture_path: None,
         uv_rect: None,
         destination_rect: Some(destination),
@@ -189,6 +195,7 @@ fn draw2d_info(
         layer,
         kind: "GradientRect",
         depth,
+        image: None,
         texture_path: None,
         uv_rect: None,
         destination_rect: Some(gradient.rect),
@@ -201,6 +208,7 @@ fn draw2d_info(
         layer,
         kind: "PushClip",
         depth,
+        image: None,
         texture_path: None,
         uv_rect: None,
         destination_rect: Some(clip.rect),
@@ -213,6 +221,7 @@ fn draw2d_info(
         layer,
         kind: "PopClip",
         depth,
+        image: None,
         texture_path: None,
         uv_rect: None,
         destination_rect: None,
@@ -278,6 +287,7 @@ fn draw2d_metadata_entry(
     layer: item.layer,
     kind: item.kind,
     depth: item.depth,
+    image: item.image,
     texture_path: item.texture_path,
     source_rect: item.uv_rect.map(debug_rect),
     destination_rect: item.destination_rect.map(debug_rect),

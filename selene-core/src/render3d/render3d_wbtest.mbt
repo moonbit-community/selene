@@ -145,13 +145,12 @@ test "render3d extract preserves shadow map size resources" {
 
 ///|
 test "render3d cubemap assets participate in dirty and release sync" {
-  let px = register_image_asset({ path: "sky/px.png", })
-  let nx = register_image_asset({ path: "sky/nx.png", })
-  let py = register_image_asset({ path: "sky/py.png", })
-  let ny = register_image_asset({ path: "sky/ny.png", })
-  let pz = register_image_asset({ path: "sky/pz.png", })
-  let nz = register_image_asset({ path: "sky/nz.png", })
-  ignore(take_dirty_image_assets())
+  let px = @asset.images.add(@asset.Image::from_bytes(b"sky/px.png"))
+  let nx = @asset.images.add(@asset.Image::from_bytes(b"sky/nx.png"))
+  let py = @asset.images.add(@asset.Image::from_bytes(b"sky/py.png"))
+  let ny = @asset.images.add(@asset.Image::from_bytes(b"sky/ny.png"))
+  let pz = @asset.images.add(@asset.Image::from_bytes(b"sky/pz.png"))
+  let nz = @asset.images.add(@asset.Image::from_bytes(b"sky/nz.png"))
 
   let cubemap = register_cubemap_asset(
     cubemap_asset_six_faces(CubemapFaces3D(px, nx, py, ny, pz, nz)),
@@ -169,24 +168,23 @@ test "render3d cubemap assets participate in dirty and release sync" {
   release_cubemap_asset(cubemap)
   inspect(take_released_cubemap_assets().length(), content="1")
   inspect(cubemap_asset(cubemap) is None, content="true")
-  release_image_asset(px)
-  release_image_asset(nx)
-  release_image_asset(py)
-  release_image_asset(ny)
-  release_image_asset(pz)
-  release_image_asset(nz)
-  ignore(take_released_image_assets())
+  ignore(@asset.images.remove(px))
+  ignore(@asset.images.remove(nx))
+  ignore(@asset.images.remove(py))
+  ignore(@asset.images.remove(ny))
+  ignore(@asset.images.remove(pz))
+  ignore(@asset.images.remove(nz))
 }
 
 ///|
 test "render3d extracts skybox from active camera" {
   let world = @ecs.require_current_world()
-  let px = register_image_asset({ path: "sky/px.png", })
-  let nx = register_image_asset({ path: "sky/nx.png", })
-  let py = register_image_asset({ path: "sky/py.png", })
-  let ny = register_image_asset({ path: "sky/ny.png", })
-  let pz = register_image_asset({ path: "sky/pz.png", })
-  let nz = register_image_asset({ path: "sky/nz.png", })
+  let px = @asset.images.add(@asset.Image::from_bytes(b"sky/px.png"))
+  let nx = @asset.images.add(@asset.Image::from_bytes(b"sky/nx.png"))
+  let py = @asset.images.add(@asset.Image::from_bytes(b"sky/py.png"))
+  let ny = @asset.images.add(@asset.Image::from_bytes(b"sky/ny.png"))
+  let pz = @asset.images.add(@asset.Image::from_bytes(b"sky/pz.png"))
+  let nz = @asset.images.add(@asset.Image::from_bytes(b"sky/nz.png"))
   let cubemap = register_cubemap_asset(
     cubemap_asset_six_faces(CubemapFaces3D(px, nx, py, ny, pz, nz)),
   )
@@ -224,15 +222,13 @@ test "render3d extracts skybox from active camera" {
   @camera3d.set_active_camera3d(None)
   render3d_world_state().extracted_frame = RenderFrame3D()
   release_cubemap_asset(cubemap)
-  release_image_asset(px)
-  release_image_asset(nx)
-  release_image_asset(py)
-  release_image_asset(ny)
-  release_image_asset(pz)
-  release_image_asset(nz)
-  ignore(take_dirty_image_assets())
+  ignore(@asset.images.remove(px))
+  ignore(@asset.images.remove(nx))
+  ignore(@asset.images.remove(py))
+  ignore(@asset.images.remove(ny))
+  ignore(@asset.images.remove(pz))
+  ignore(@asset.images.remove(nz))
   ignore(take_dirty_cubemap_assets())
-  ignore(take_released_image_assets())
   ignore(take_released_cubemap_assets())
   ignore(@ecs_test.delete(camera_entity))
 }

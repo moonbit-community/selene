@@ -26,17 +26,15 @@ priv struct CosmicTextCacheEntry {
 }
 
 ///|
-let cosmic_font_system : Ref[@cosmic.FontSystem] = Ref(
-  @cosmic.FontSystem::new(),
-)
+priv struct CosmicFontRuntime {
+  system : @cosmic.FontSystem
+  mut swash : @cosmic.SwashCache
+  family : String
+}
 
 ///|
-let cosmic_swash_cache : Ref[@cosmic.SwashCache] = Ref(
-  @cosmic.SwashCache::new(),
-)
-
-///|
-let cosmic_loaded_families : @set.Set[String] = Set([])
+// Face ids and glyph cache keys are local to each resource's font system.
+let cosmic_fonts : Map[String, CosmicFontRuntime] = Map([])
 
 ///|
 let cosmic_text_cache : Map[String, CosmicTextCacheEntry] = Map([])
@@ -110,22 +108,15 @@ fn text_cache_key(command : @render2d_types.TextDrawCommand2D) -> String {
 }
 
 ///|
-fn ensure_font_loaded(family : String) -> Bool {
-  if cosmic_loaded_families.contains(family) {
-    return true
+fn prepare_cosmic_font(family : String, bytes : Bytes) -> Bool {
+  let system = @cosmic.FontSystem::new().load_font_data(bytes)
+  let entries = system.fonts()
+  guard entries.length() > 0 else { return false }
+  cosmic_fonts[family] = {
+    system,
+    swash: @cosmic.SwashCache::new(),
+    family: entries[0].family_name(),
   }
-  if webgpu_font_bytes_status(family) != 1 {
-    return false
-  }
-  let raw_bytes = webgpu_take_font_bytes(family)
-  if raw_bytes.is_empty() {
-    return false
-  }
-  let bytes = Bytes::from_iter(
-    raw_bytes.iter().map(fn(value) { saturating_byte(value) }),
-  )
-  cosmic_font_system.val = cosmic_font_system.val.load_font_data(bytes)
-  cosmic_loaded_families.add(family)
   cosmic_text_cache.clear()
   true
 }
@@ -135,7 +126,7 @@ fn measure_text_with_cosmic(
   style : @render2d_types.TextStyle2D,
   text : String,
 ) -> @smath.Vec2? {
-  guard ensure_font_loaded(style.family) else { return None }
+  guard cosmic_fonts.get(style.family) is Some(font) else { return None }
   let font_size = if style.size < 1.0 { 1.0 } else { style.size }
   if text == "" {
     return Some(Vec2(0.0, font_size))
@@ -144,13 +135,13 @@ fn measure_text_with_cosmic(
     Float::from_double(font_size),
     Float::from_double(font_size * 1.25),
   )
-  let attrs = @cosmic.Attrs::new().family(Name(style.family))
+  let attrs = @cosmic.Attrs::new().family(Name(font.family))
   let attrs_list = @cosmic.AttrsList::new(attrs)
   let buffer = @cosmic.Buffer::new(metrics)
     .set_wrap(None)
     .set_text(text, attrs_list, Advanced)
     .set_size(None, None)
-    .layout_all_with_font_system(cosmic_font_system.val)
+    .layout_all_with_font_system(font.system)
   let mut width = 0.0
   let mut height = 0.0
   for run in buffer.layout_runs() {
@@ -173,9 +164,10 @@ fn rasterize_with_cosmic(
   command : @render2d_types.TextDrawCommand2D,
 ) -> CosmicRasterImage? {
   let family = command.style.family
-  if !cosmic_loaded_families.contains(family) {
+  if !cosmic_fonts.contains(family) {
     return None
   }
+  let font = cosmic_fonts[family]
   let font_size = if command.style.size < 1.0 {
     1.0
   } else {
@@ -185,7 +177,7 @@ fn rasterize_with_cosmic(
     Float::from_double(font_size),
     Float::from_double(font_size * 1.25),
   )
-  let attrs = @cosmic.Attrs::new().family(Name(family))
+  let attrs = @cosmic.Attrs::new().family(Name(font.family))
   let attrs_list = @cosmic.AttrsList::new(attrs)
   let buffer = @cosmic.Buffer::new(metrics)
     .set_wrap(None)
@@ -197,8 +189,8 @@ fn rasterize_with_cosmic(
   let mut max_y = -1
   let points : Array[(Int32, Int32, Int32)] = []
   let (drawn_buffer, swash_cache) = buffer.draw(
-    cosmic_font_system.val,
-    cosmic_swash_cache.val,
+    font.system,
+    font.swash,
     to_cosmic_color(command.style.color),
     fn(x, y, _w, _h, color) {
       let (_, _, _, a) = color.as_rgba()
@@ -225,7 +217,7 @@ fn rasterize_with_cosmic(
     },
   )
   ignore(drawn_buffer)
-  cosmic_swash_cache.val = swash_cache
+  font.swash = swash_cache
   if points.is_empty() {
     return None
   }
@@ -250,8 +242,7 @@ fn draw_text_with_cosmic(command : @render2d_types.TextDrawCommand2D) -> Bool {
   if command.text == "" {
     return true
   }
-  if !ensure_font_loaded(command.style.family) &&
-    !cosmic_loaded_families.contains(command.style.family) {
+  if !cosmic_fonts.contains(command.style.family) {
     return false
   }
   let key = text_cache_key(command)

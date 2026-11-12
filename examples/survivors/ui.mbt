@@ -40,33 +40,6 @@ const LEVELUP_BUTTON_ICON_OFFSET_X = 8.0
 const LEVELUP_BUTTON_ICON_OFFSET_Y = 6.0
 
 ///|
-const POWERUP_ATTACK_ICON_PATH = "assets/survivors/icon/powerup_attack.png"
-
-///|
-const POWERUP_RANGE_ICON_PATH = "assets/survivors/icon/powerup_range.png"
-
-///|
-const POWERUP_SPEED_ICON_PATH = "assets/survivors/icon/powerup_speed.png"
-
-///|
-const POWERUP_COOLDOWN_ICON_PATH = "assets/survivors/icon/powerup_cooldown.png"
-
-///|
-const POWERUP_BANDANA_ICON_PATH = "assets/survivors/icon/powerup_bandana.png"
-
-///|
-const WEAPON_PISTOL_ICON_PATH = "assets/survivors/icon/weapon_pistol.png"
-
-///|
-const WEAPON_MINIGUN_ICON_PATH = "assets/survivors/icon/weapon_minigun.png"
-
-///|
-const WEAPON_SNIPERRIFLE_ICON_PATH = "assets/survivors/icon/weapon_sniperrifle.png"
-
-///|
-const WEAPON_SWORD_ICON_PATH = "assets/survivors/icon/weapon_sword.png"
-
-///|
 fn set_ui_text(
   texts~ : @ecs.Query[@ecs.Single[@ui.Text]],
   entity : @ecs.Entity,
@@ -101,7 +74,7 @@ fn spawn_text_entity(
       @ui.Node::absolute(offset, size~, border=@ui.UiRectValues::all(1.0)),
       @ui.ZIndex(zindex),
       @ui.Text(content),
-      @ui.TextFont::from_css(font),
+      game_text_font(font),
       @ui.TextColor::from_css(color),
       @ui.TextLayout(align~, baseline~),
     ),
@@ -154,7 +127,7 @@ fn spawn_panel_button(
       ),
       (
         @ui.Text(label),
-        @ui.TextFont::from_css(font),
+        game_text_font(font),
         @ui.TextColor::from_css("white"),
         @ui.TextLayout(align=Center, baseline=Center),
       ),
@@ -200,14 +173,14 @@ fn set_button_enabled(
 fn set_icon_image(
   ui~ : SurvivorsUi,
   entity : @ecs.Entity,
-  path : String,
+  image : @asset.ImageHandle,
 ) -> Unit {
   ui.images.set(
     entity,
     Single(
-      UiImage(
+      @ui.UiImage::from_image(
         Vec2(LEVELUP_BUTTON_ICON_SIZE, LEVELUP_BUTTON_ICON_SIZE),
-        path,
+        image,
         fit=Contain,
       ),
     ),
@@ -215,23 +188,23 @@ fn set_icon_image(
 }
 
 ///|
-fn powerup_icon_path(powerup_type : PowerupType) -> String {
+fn powerup_icon(powerup_type : PowerupType) -> @asset.ImageHandle {
   match powerup_type {
-    AttackLv1 | AttackLv2 | AttackLv3 => POWERUP_ATTACK_ICON_PATH
-    RangeLv1 | RangeLv2 => POWERUP_RANGE_ICON_PATH
-    SpeedLv1 | SpeedLv2 => POWERUP_SPEED_ICON_PATH
-    CooldownLv1 | CooldownLv2 => POWERUP_COOLDOWN_ICON_PATH
-    Bandana => POWERUP_BANDANA_ICON_PATH
+    AttackLv1 | AttackLv2 | AttackLv3 => powerup_attack_image
+    RangeLv1 | RangeLv2 => powerup_range_image
+    SpeedLv1 | SpeedLv2 => powerup_speed_image
+    CooldownLv1 | CooldownLv2 => powerup_cooldown_image
+    Bandana => powerup_bandana_image
   }
 }
 
 ///|
-fn weapon_icon_path(weapon_type : WeaponType) -> String {
+fn weapon_icon(weapon_type : WeaponType) -> @asset.ImageHandle {
   match weapon_type {
-    Pistol => WEAPON_PISTOL_ICON_PATH
-    Minigun => WEAPON_MINIGUN_ICON_PATH
-    SniperRifle => WEAPON_SNIPERRIFLE_ICON_PATH
-    Sword => WEAPON_SWORD_ICON_PATH
+    Pistol => weapon_pistol_image
+    Minigun => weapon_minigun_image
+    SniperRifle => weapon_sniperrifle_image
+    Sword => weapon_sword_image
   }
 }
 
@@ -334,9 +307,9 @@ fn setup_level_up_ui(ui~ : SurvivorsUi) -> Unit {
           size=Vec2(LEVELUP_BUTTON_ICON_SIZE, LEVELUP_BUTTON_ICON_SIZE),
         ),
         @ui.ZIndex(PANEL_TEXT_ZINDEX),
-        @ui.UiImage(
+        @ui.UiImage::from_image(
           Vec2(LEVELUP_BUTTON_ICON_SIZE, LEVELUP_BUTTON_ICON_SIZE),
-          POWERUP_RANGE_ICON_PATH,
+          powerup_range_image,
           fit=Contain,
         ),
       ),
@@ -381,7 +354,7 @@ fn update_selection_display(
         Single(@ui.BackgroundColor::from_css("rgba(13, 167, 170, 1)")),
       )
       set_ui_text(texts=ui.texts, button_entity, powerup.name)
-      set_icon_image(ui~, icon_entity, powerup_icon_path(powerup.powerup_type))
+      set_icon_image(ui~, icon_entity, powerup_icon(powerup.powerup_type))
     }
     WeaponSelection(weapon_type) => {
       ui.backgrounds.set(
@@ -389,7 +362,7 @@ fn update_selection_display(
         Single(@ui.BackgroundColor::from_css("rgba(255, 140, 0, 1)")),
       )
       set_ui_text(texts=ui.texts, button_entity, get_weapon_name(weapon_type))
-      set_icon_image(ui~, icon_entity, weapon_icon_path(weapon_type))
+      set_icon_image(ui~, icon_entity, weapon_icon(weapon_type))
     }
   }
 }

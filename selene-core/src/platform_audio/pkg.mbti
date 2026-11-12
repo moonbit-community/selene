@@ -1,16 +1,18 @@
 package "Milky2018/selene/platform_audio"
 
+import { "Milky2018/selene/asset_types" }
+
 type AudioInstance
 
 fn play_audio(
-  audio_path~ : String,
+  source~ : @asset_types.AudioHandle,
   volume~ : Double,
   speed~ : Double,
   loop_~ : Bool,
   paused~ : Bool
 ) -> AudioInstance
 
-fn preload(String) -> Unit
+fn preload(@asset_types.AudioHandle) -> Unit
 
 fn set_volume(instance~ : AudioInstance, volume~ : Double) -> Unit
 
@@ -25,3 +27,5 @@ fn stop(instance~ : AudioInstance) -> Unit
 fn is_finished(instance~ : AudioInstance) -> Bool
 
 fn tick() -> Unit
+
+fn preparation_state(@asset_types.AudioHandle) -> @asset_types.PreparationState

@@ -1,7 +1,5 @@
 ///|
 test "restarting Cards replaces only its entities in the current World" {
-  @asset.set_io(fn(_path) { Some(Bytes::from_array([1U.to_byte()])) })
-  defer @asset.set_io(fn(_path) { None })
   let first = @ecs.World()
   let second = @ecs.World()
   let other_world_card = Ref(None)
@@ -43,8 +41,6 @@ test "restarting Cards replaces only its entities in the current World" {
 
 ///|
 test "injected Cards gameplay refreshes its resource after restart and across Worlds" {
-  @asset.set_io(fn(_path) { Some(Bytes::from_array([1U.to_byte()])) })
-  defer @asset.set_io(fn(_path) { None })
   let first = @ecs.World()
   let second = @ecs.World()
   let app = cards_app()

@@ -1,6 +1,9 @@
 ///|
-fn webgpu_test_handle(id : Int32) -> @render3d_types.ImageHandle {
-  ImageHandle(id.reinterpret_as_uint())
+let test_images : @asset_types.Assets[@asset_types.Image] = Assets()
+
+///|
+fn webgpu_test_image() -> @render3d_types.ImageHandle {
+  test_images.reserve()
 }
 
 ///|
@@ -18,7 +21,12 @@ fn webgpu_test_sync_image(
   handle : @render3d_types.ImageHandle,
   path : String,
 ) -> Unit {
-  synced_image_assets.set(handle, { path, })
+  ignore(
+    test_images.insert(
+      handle,
+      @asset_types.Image::from_bytes(@utf8.encode(path)),
+    ),
+  )
 }
 
 ///|
@@ -379,7 +387,7 @@ test "render3d submission stats reuse retained static primitive instances" {
 
 ///|
 test "render3d submission stats keep textured primitives unbatched" {
-  let image = webgpu_test_handle(9110)
+  let image = webgpu_test_image()
   let mesh = webgpu_test_mesh_handle(9111)
   let material = webgpu_test_material_handle(9112)
   webgpu_test_sync_image(image, "wbtest://base")
@@ -401,7 +409,7 @@ test "render3d submission stats keep textured primitives unbatched" {
   inspect(stats.textured_triangle_commands, content="2")
   inspect(stats.uploaded_vertex_bytes, content="10080")
   inspect(stats.render_bind_group_creations, content="2")
-  release_image_asset(image)
+  ignore(test_images.remove(image))
   release_mesh_asset(mesh)
   release_material_asset(material)
 }
@@ -782,9 +790,9 @@ test "pack_light_uniform_data owns shader light layout in MoonBit" {
 ///|
 test "resolve_material_texture_bundle keeps independent UV channels when samplers match" {
   let sampler = @render3d_types.TextureSampler3D()
-  let base_handle = webgpu_test_handle(9000)
-  let emissive_handle = webgpu_test_handle(9001)
-  let occlusion_handle = webgpu_test_handle(9002)
+  let base_handle = webgpu_test_image()
+  let emissive_handle = webgpu_test_image()
+  let occlusion_handle = webgpu_test_image()
   webgpu_test_sync_image(base_handle, "wbtest://base")
   webgpu_test_sync_image(emissive_handle, "wbtest://emissive")
   webgpu_test_sync_image(occlusion_handle, "wbtest://occlusion")
@@ -818,8 +826,8 @@ test "resolve_material_texture_bundle keeps textures with independent sampler co
     wrap_u: ClampToEdge,
     wrap_v: ClampToEdge,
   }
-  let base_handle = webgpu_test_handle(9010)
-  let emissive_handle = webgpu_test_handle(9011)
+  let base_handle = webgpu_test_image()
+  let emissive_handle = webgpu_test_image()
   webgpu_test_sync_image(base_handle, "wbtest://base-repeat")
   webgpu_test_sync_image(emissive_handle, "wbtest://emissive-clamp")
   let material = {
@@ -858,7 +866,7 @@ test "resolve_material_texture_input applies bound texture transforms and falls 
     Some({ path: "wbtest://emissive", texcoord_set: 1, sampler_code: 3, }),
     fallback_uvs,
     transform_binding=Some({
-      ..TextureBinding3D(webgpu_test_handle(9020), texcoord_set=1),
+      ..TextureBinding3D(webgpu_test_image(), texcoord_set=1),
       transform: {
         offset: webgpu_test_uv(0.25, 0.5),
         scale: webgpu_test_uv(2.0, 1.0),

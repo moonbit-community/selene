@@ -70,7 +70,6 @@ fn survivors_app() -> @app.App {
 
 ///|
 pub fn run() -> Unit {
-  @asset.set_io(@embedded_assets.read, paths=@embedded_assets.paths())
   survivors_app().run()
 }
 
@@ -592,12 +591,6 @@ fn game_start(world : @ecs.World) -> Unit {
   reset_survivors_runtime()
   @time.initialize(@ecs.require_current_world())
   @time.set_scale(1.0)
-  ignore(
-    @asset.load_font(
-      "assets/survivors/fonts/ThaleahFat.ttf",
-      family="ThaleahFat",
-    ),
-  )
   @ui.set_ui_scale_mode(Viewport)
   configure_survivors_input()
   ignore(game_state(world~))

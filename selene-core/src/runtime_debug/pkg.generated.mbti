@@ -2,6 +2,7 @@
 package "Milky2018/selene/runtime_debug"
 
 import {
+  "Milky2018/selene/asset_types",
   "Milky2018/selene/collision",
   "Milky2018/selene/ecs",
   "Milky2018/selene/inputs",
@@ -49,7 +50,7 @@ pub fn deterministic_ordering_enabled() -> Bool
 
 pub fn export_sprite_inspector_regions(Array[SpriteInspectorEntry], String, file_naming? : (SpriteInspectorEntry, Int32) -> String) -> Int32
 
-pub fn export_texture_region_png(String, @math.Rect, String) -> Bool
+pub fn export_texture_region_png(@asset_types.Handle[@asset_types.Image], @math.Rect, String) -> Bool
 
 pub fn fixed_delta_override() -> Double?
 
@@ -101,7 +102,7 @@ pub fn validate_registered_texture_atlases(world~ : @ecs.World) -> Array[(@sprit
 
 pub fn validate_texture_atlas_layout(@sprite.TextureAtlasLayout) -> AtlasValidationReport
 
-pub fn validate_texture_atlas_layout_for_image(@sprite.TextureAtlasLayout, String?) -> AtlasValidationReport
+pub fn validate_texture_atlas_layout_for_image(@sprite.TextureAtlasLayout, @asset_types.Handle[@asset_types.Image]?) -> AtlasValidationReport
 
 pub fn world_snapshot(world~ : @ecs.World) -> WorldSnapshot
 
@@ -112,7 +113,8 @@ pub fn world_snapshot(world~ : @ecs.World) -> WorldSnapshot
 pub(all) struct AtlasOverlayEntry {
   entity_id : UInt32?
   layer : String
-  texture_path : String
+  image : @asset_types.Handle[@asset_types.Image]
+  texture_path : String?
   source_rect : DebugRect
   destination_rect : DebugRect?
 }
@@ -198,6 +200,7 @@ pub(all) struct DrawSubmission2DInfo {
   layer : String
   kind : String
   depth : Double?
+  image : @asset_types.Handle[@asset_types.Image]?
   texture_path : String?
   uv_rect : @math.Rect?
   destination_rect : @math.Rect?
@@ -211,6 +214,7 @@ pub(all) struct DrawSubmission2DMetadataEntry {
   layer : String
   kind : String
   depth : Double?
+  image : @asset_types.Handle[@asset_types.Image]?
   texture_path : String?
   source_rect : DebugRect?
   destination_rect : DebugRect?
@@ -319,7 +323,9 @@ pub(all) struct SpriteInspectorEntry {
   entity_id : UInt32
   entity_name : String?
   visible : Bool
+  image : @asset_types.Handle[@asset_types.Image]?
   image_path : String?
+  image_byte_length : Int32?
   source_rect : DebugRect?
   destination_size : DebugVec2?
   anchor : DebugVec2

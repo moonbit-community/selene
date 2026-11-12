@@ -4,15 +4,11 @@ pub(all) struct RenderAssetSync3D {
   material_upserts : Array[
     (@render3d_types.MaterialHandle, @render3d_types.StandardMaterial3D),
   ]
-  image_upserts : Array[
-    (@render3d_types.ImageHandle, @render3d_types.ImageAsset),
-  ]
   cubemap_upserts : Array[
     (@render3d_types.CubemapHandle, @render3d_types.CubemapAsset3D),
   ]
   mesh_releases : Array[@render3d_types.MeshHandle]
   material_releases : Array[@render3d_types.MaterialHandle]
-  image_releases : Array[@render3d_types.ImageHandle]
   cubemap_releases : Array[@render3d_types.CubemapHandle]
 }
 
@@ -28,11 +24,9 @@ pub fn RenderAssetSync3D::RenderAssetSync3D() -> RenderAssetSync3D {
   {
     mesh_upserts: [],
     material_upserts: [],
-    image_upserts: [],
     cubemap_upserts: [],
     mesh_releases: [],
     material_releases: [],
-    image_releases: [],
     cubemap_releases: [],
   }
 }

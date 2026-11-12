@@ -19,9 +19,6 @@ let meshes : Map[MeshHandle, MeshAsset] = Map([])
 let materials : Map[MaterialHandle, StandardMaterial3D] = Map([])
 
 ///|
-let images : Map[ImageHandle, ImageAsset] = Map([])
-
-///|
 let cubemaps : Map[CubemapHandle, CubemapAsset3D] = Map([])
 
 ///|
@@ -32,9 +29,6 @@ let next_mesh_id : Ref[UInt32] = Ref(0)
 
 ///|
 let next_material_id : Ref[UInt32] = Ref(0)
-
-///|
-let next_image_id : Ref[UInt32] = Ref(0)
 
 ///|
 let next_cubemap_id : Ref[UInt32] = Ref(0)
@@ -49,9 +43,6 @@ let dirty_mesh_assets : Map[MeshHandle, MeshAsset] = Map([])
 let dirty_material_assets : Map[MaterialHandle, StandardMaterial3D] = Map([])
 
 ///|
-let dirty_image_assets : Map[ImageHandle, ImageAsset] = Map([])
-
-///|
 let dirty_cubemap_assets : Map[CubemapHandle, CubemapAsset3D] = Map([])
 
 ///|
@@ -59,9 +50,6 @@ let released_mesh_assets : Array[MeshHandle] = []
 
 ///|
 let released_material_assets : Array[MaterialHandle] = []
-
-///|
-let released_image_assets : Array[ImageHandle] = []
 
 ///|
 let released_cubemap_assets : Array[CubemapHandle] = []
@@ -86,15 +74,6 @@ pub fn register_material_asset(material : StandardMaterial3D) -> MaterialHandle 
   next_material_id.val += 1
   materials.set(handle, material)
   dirty_material_assets.set(handle, material)
-  handle
-}
-
-///|
-pub fn register_image_asset(image : ImageAsset) -> ImageHandle {
-  let handle = @render3d_types.ImageHandle(next_image_id.val)
-  next_image_id.val += 1
-  images.set(handle, image)
-  dirty_image_assets.set(handle, image)
   handle
 }
 
@@ -128,12 +107,6 @@ pub fn update_material_asset(
 }
 
 ///|
-pub fn update_image_asset(handle : ImageHandle, image : ImageAsset) -> Unit {
-  images.set(handle, image)
-  dirty_image_assets.set(handle, image)
-}
-
-///|
 pub fn update_cubemap_asset(
   handle : CubemapHandle,
   cubemap : CubemapAsset3D,
@@ -154,13 +127,6 @@ pub fn release_material_asset(handle : MaterialHandle) -> Unit {
   materials.remove(handle)
   dirty_material_assets.remove(handle)
   released_material_assets.push(handle)
-}
-
-///|
-pub fn release_image_asset(handle : ImageHandle) -> Unit {
-  images.remove(handle)
-  dirty_image_assets.remove(handle)
-  released_image_assets.push(handle)
 }
 
 ///|
@@ -200,13 +166,6 @@ pub fn take_dirty_material_assets() -> Array[
 }
 
 ///|
-pub fn take_dirty_image_assets() -> Array[(ImageHandle, ImageAsset)] {
-  let values = dirty_image_assets.to_array()
-  dirty_image_assets.clear()
-  values
-}
-
-///|
 pub fn take_dirty_cubemap_assets() -> Array[(CubemapHandle, CubemapAsset3D)] {
   let values = dirty_cubemap_assets.to_array()
   dirty_cubemap_assets.clear()
@@ -224,13 +183,6 @@ pub fn take_released_mesh_assets() -> Array[MeshHandle] {
 pub fn take_released_material_assets() -> Array[MaterialHandle] {
   let values = released_material_assets.copy()
   released_material_assets.clear()
-  values
-}
-
-///|
-pub fn take_released_image_assets() -> Array[ImageHandle] {
-  let values = released_image_assets.copy()
-  released_image_assets.clear()
   values
 }
 

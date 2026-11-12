@@ -1,6 +1,5 @@
 ///|
 test "player animation controller remembers current node" {
-  use_survivors_test_assets()
   let world = @ecs.World()
   @ecs.set_current_world(world)
   @time.initialize(@ecs.require_current_world())
@@ -32,7 +31,6 @@ test "player animation controller remembers current node" {
 
 ///|
 test "replaying same player animation state does not reset atlas index" {
-  use_survivors_test_assets()
   let world = @ecs.World()
   @ecs.set_current_world(world)
   @time.initialize(@ecs.require_current_world())
@@ -78,7 +76,6 @@ test "replaying same player animation state does not reset atlas index" {
 
 ///|
 test "player run animation advances atlas indices in order" {
-  use_survivors_test_assets()
   let world = @ecs.World()
   @ecs.set_current_world(world)
   @time.initialize(@ecs.require_current_world())

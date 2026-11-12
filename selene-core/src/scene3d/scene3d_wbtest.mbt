@@ -78,11 +78,11 @@ fn scene3d_test_texture_sources() -> (
 ) {
   let sampler = @render3d.TextureSampler3D()
   let handles = [
-    @render3d.register_image_asset({ path: "wbtest://image0", }),
-    @render3d.register_image_asset({ path: "wbtest://image1", }),
-    @render3d.register_image_asset({ path: "wbtest://image2", }),
-    @render3d.register_image_asset({ path: "wbtest://image3", }),
-    @render3d.register_image_asset({ path: "wbtest://image4", }),
+    @asset.images.add(@asset.Image::from_bytes(b"wbtest://image0")),
+    @asset.images.add(@asset.Image::from_bytes(b"wbtest://image1")),
+    @asset.images.add(@asset.Image::from_bytes(b"wbtest://image2")),
+    @asset.images.add(@asset.Image::from_bytes(b"wbtest://image3")),
+    @asset.images.add(@asset.Image::from_bytes(b"wbtest://image4")),
   ]
   (
     [
@@ -626,4 +626,30 @@ test "canceled scene subtrees release their cloned meshes" {
     @render3d.release_material_asset(material)
     scene_templates.remove(scene)
   }
+}
+
+///|
+test "glTF data URIs and buffer-view images register their original bytes" {
+  @asset.set_io(fn(_) { abort("embedded glTF images must not read files") })
+  defer @asset.set_io(fn(_) { None })
+  let document : Json = {
+    "images": [
+      { "uri": "data:image/png;base64,aW1hZ2U=" },
+      { "bufferView": 0, "mimeType": "image/png" },
+    ],
+  }
+  let handles = parse_image_handles(
+    "scene.gltf",
+    json_object(document).unwrap(),
+    [Some(b"image")],
+    [Some(sparse_test_buffer_view(0, 5))],
+  )
+  assert_eq(handles.length(), 2)
+  let first = handles[0].unwrap()
+  let second = handles[1].unwrap()
+  defer ignore(@asset.images.remove(first))
+  defer ignore(@asset.images.remove(second))
+  assert_eq(first.get().unwrap().bytes, b"image")
+  assert_eq(second.get().unwrap().bytes, b"image")
+  assert_true(first != second)
 }

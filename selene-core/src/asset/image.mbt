@@ -2,9 +2,6 @@
 pub type ImageHandle = @asset_types.ImageHandle
 
 ///|
-let next_image_id : Ref[UInt32] = Ref(0)
-
-///|
 let images_by_path : Map[String, ImageHandle] = Map([])
 
 ///|
@@ -18,11 +15,10 @@ pub let image_asset_events : @event.Events[AssetEvent[ImageHandle]] = Events()
 
 ///|
 fn ensure_image_handle(path : String) -> ImageHandle {
-  if images_by_path.get(path) is Some(handle) {
+  if images_by_path.get(path) is Some(handle) && handle.is_alive() {
     return handle
   }
-  let handle = @asset_types.ImageHandle(next_image_id.val)
-  next_image_id.val += 1
+  let handle = images.reserve()
   images_by_path.set(path, handle)
   image_path_by_handle.set(handle, path)
   handle
@@ -39,7 +35,8 @@ pub fn load_image(path : String) -> ImageHandle {
     image_asset_events.send({ handle, kind: Added, })
   }
   image_states.set(handle, Loading)
-  if read_bytes(path) is Some(_) {
+  if read_bytes(path) is Some(bytes) {
+    ignore(images.insert(handle, Image::from_bytes(bytes)))
     image_states.set(handle, Loaded)
     image_asset_events.send({ handle, kind: Loaded, })
   } else {
@@ -57,15 +54,23 @@ pub fn image_path(handle : ImageHandle) -> String? {
 
 ///|
 pub fn image_load_state(handle : ImageHandle) -> LoadState {
-  image_states.get(handle).unwrap_or(NotLoaded)
+  if !handle.is_alive() {
+    NotLoaded
+  } else {
+    image_states
+    .get(handle)
+    .unwrap_or(if handle.get() is Some(_) { Loaded } else { NotLoaded })
+  }
 }
 
 ///|
 pub fn reload_image(handle : ImageHandle) -> Unit {
+  guard handle.is_alive() else { return }
   match image_path(handle) {
     Some(path) => {
       image_states.set(handle, Loading)
-      if read_bytes(path) is Some(_) {
+      if read_bytes(path) is Some(bytes) {
+        ignore(images.insert(handle, Image::from_bytes(bytes)))
         image_states.set(handle, Loaded)
         image_asset_events.send({ handle, kind: Modified, })
       } else {
@@ -80,6 +85,7 @@ pub fn reload_image(handle : ImageHandle) -> Unit {
 
 ///|
 pub fn remove_image(handle : ImageHandle) -> Unit {
+  ignore(images.remove(handle))
   if image_states.get(handle) is Some(_) {
     image_states.remove(handle)
     image_asset_events.send({ handle, kind: Removed, })

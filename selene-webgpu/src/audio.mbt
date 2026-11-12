@@ -22,14 +22,9 @@ const AUDIO_PLAY_STATE_BLOCKED = 2
 const AUDIO_PLAY_STATE_FAILED = 3
 
 ///|
-priv struct CachedAudioSource {
-  src : String
-  blob_owned : Bool
-}
-
-///|
 priv struct AudioPlayback {
   audio : Audio
+  source_url : String
   mut requested_paused : Bool
   mut last_play_attempt_activation_epoch : Int32
 }
@@ -44,13 +39,13 @@ let next_audio_instance : Ref[Int32] = Ref(1)
 let audio_user_activation_epoch : Ref[Int32] = Ref(0)
 
 ///|
-let cached_audio_sources : Map[String, CachedAudioSource] = Map([])
+let cached_audio_sources : Map[@asset_types.AudioHandle, String] = Map([])
 
 ///|
 let retired_blob_audio_sources : Array[String] = []
 
 ///|
-let preloaded_audio_templates : Map[String, Audio] = Map([])
+let preloaded_audio_templates : Map[@asset_types.AudioHandle, Audio] = Map([])
 
 ///|
 fn clamp_playback_speed(speed : Double) -> Double {
@@ -72,37 +67,6 @@ fn current_audio_activation_epoch() -> Int32 {
 }
 
 ///|
-fn audio_prefers_byte_backed_source(path : String) -> Bool {
-  if path.has_prefix("http://") || path.has_prefix("https://") {
-    return false
-  }
-  if path.has_prefix("data:") || path.has_prefix("blob:") {
-    return false
-  }
-  path.has_prefix("assets/")
-}
-
-///|
-fn browser_audio_mime_type(path : String) -> String {
-  if path.has_suffix(".ogg") || path.has_suffix(".oga") {
-    return "audio/ogg"
-  }
-  if path.has_suffix(".mp3") {
-    return "audio/mpeg"
-  }
-  if path.has_suffix(".wav") {
-    return "audio/wav"
-  }
-  if path.has_suffix(".flac") {
-    return "audio/flac"
-  }
-  if path.has_suffix(".aac") {
-    return "audio/aac"
-  }
-  "application/octet-stream"
-}
-
-///|
 fn should_retry_blocked_audio_playback(
   play_state : Int32,
   requested_paused : Bool,
@@ -115,80 +79,44 @@ fn should_retry_blocked_audio_playback(
 }
 
 ///|
-fn retire_cached_audio_source(entry : CachedAudioSource) -> Unit {
-  if entry.blob_owned {
-    retired_blob_audio_sources.push(entry.src)
+fn clear_cached_audio_source(source : @asset_types.AudioHandle) -> Unit {
+  if cached_audio_sources.get(source) is Some(url) {
+    retired_blob_audio_sources.push(url)
+    cached_audio_sources.remove(source)
   }
 }
 
 ///|
-fn clear_cached_audio_source(path : String, retire~ : Bool = true) -> Unit {
-  if cached_audio_sources.get(path) is Some(entry) {
-    if retire {
-      retire_cached_audio_source(entry)
-    } else if entry.blob_owned {
-      revoke_object_url(entry.src)
-    }
-    cached_audio_sources.remove(path)
+fn resolved_audio_source(source : @asset_types.AudioHandle) -> String {
+  if cached_audio_sources.get(source) is Some(url) {
+    return url
   }
-}
-
-///|
-fn resolved_audio_source(path : String, refresh~ : Bool = false) -> String {
-  if !refresh {
-    if cached_audio_sources.get(path) is Some(entry) {
-      return entry.src
-    }
-  } else {
-    clear_cached_audio_source(path)
-  }
-  let src = if audio_prefers_byte_backed_source(path) {
-    match get_asset_bytes(path) {
-      Some(bytes) => {
-        let blob_url = create_audio_object_url(
-          bytes,
-          browser_audio_mime_type(path),
-        )
-        cached_audio_sources.set(path, { src: blob_url, blob_owned: true, })
-        blob_url
-      }
-      None => {
-        let resolved = resolve_asset_path(path)
-        cached_audio_sources.set(path, { src: resolved, blob_owned: false, })
-        resolved
-      }
-    }
-  } else {
-    let resolved = resolve_asset_path(path)
-    cached_audio_sources.set(path, { src: resolved, blob_owned: false, })
-    resolved
-  }
+  guard source.get() is Some(asset) else { abort("Audio asset is unavailable") }
+  let src = create_object_url(asset.bytes, "application/octet-stream")
+  cached_audio_sources[source] = src
+  source.on_invalidate(fn() {
+    clear_preloaded_audio_template(source)
+    clear_cached_audio_source(source)
+  })
   src
 }
 
 ///|
-fn clear_preloaded_audio_template(path : String) -> Unit {
-  if preloaded_audio_templates.get(path) is Some(audio) {
+fn clear_preloaded_audio_template(source : @asset_types.AudioHandle) -> Unit {
+  if preloaded_audio_templates.get(source) is Some(audio) {
     audio.pause()
-    preloaded_audio_templates.remove(path)
+    preloaded_audio_templates.remove(source)
   }
 }
 
 ///|
-fn ensure_preloaded_audio_template(
-  path : String,
-  refresh~ : Bool = false,
-) -> Audio {
-  if !refresh {
-    if preloaded_audio_templates.get(path) is Some(audio) {
-      return audio
-    }
-  } else {
-    clear_preloaded_audio_template(path)
+fn ensure_preloaded_audio_template(source : @asset_types.AudioHandle) -> Audio {
+  if preloaded_audio_templates.get(source) is Some(audio) {
+    return audio
   }
-  let audio = Audio(resolved_audio_source(path, refresh~))
+  let audio = Audio(resolved_audio_source(source))
   audio.load()
-  preloaded_audio_templates.set(path, audio)
+  preloaded_audio_templates.set(source, audio)
   audio
 }
 
@@ -200,14 +128,22 @@ fn request_audio_playback(playback : AudioPlayback) -> Unit {
 }
 
 ///|
-fn create_audio_instance(path : String) -> (AudioInstance, AudioPlayback) {
+fn create_audio_instance(
+  source : @asset_types.AudioHandle,
+) -> (AudioInstance, AudioPlayback) {
   let id = next_audio_instance.val
   next_audio_instance.val += 1
-  let template = ensure_preloaded_audio_template(path)
+  let template = ensure_preloaded_audio_template(source)
   let audio = template.clone_audio()
   (
     id,
-    { audio, requested_paused: false, last_play_attempt_activation_epoch: -1, },
+    {
+      audio,
+      source_url: (
+        @js.Value::cast_from(template).get_with_string("src") : String),
+      requested_paused: false,
+      last_play_attempt_activation_epoch: -1,
+    },
   )
 }
 
@@ -223,10 +159,8 @@ fn reset_audio_runtime() -> Unit {
     template.set_current_time(0.0)
   }
   preloaded_audio_templates.clear()
-  for entry in cached_audio_sources.values() {
-    if entry.blob_owned {
-      revoke_object_url(entry.src)
-    }
+  for url in cached_audio_sources.values() {
+    revoke_object_url(url)
   }
   cached_audio_sources.clear()
   for src in retired_blob_audio_sources {
@@ -237,13 +171,13 @@ fn reset_audio_runtime() -> Unit {
 
 ///|
 pub fn play_audio(
-  audio_path~ : String,
+  source~ : @asset_types.AudioHandle,
   volume~ : Double,
   speed~ : Double,
   loop_~ : Bool,
   paused~ : Bool,
 ) -> AudioInstance {
-  let (instance, playback) = create_audio_instance(audio_path)
+  let (instance, playback) = create_audio_instance(source)
   playback.audio.set_volume(volume)
   playback.audio.set_loop(loop_)
   playback.audio.set_playback_rate(clamp_playback_speed(speed))
@@ -301,6 +235,7 @@ pub fn stop(instance~ : AudioInstance) -> Unit {
     playback.audio.set_current_time(0.0)
   }
   audio_instances.remove(instance)
+  collect_retired_audio_sources()
 }
 
 ///|
@@ -315,6 +250,7 @@ pub fn is_finished(instance~ : AudioInstance) -> Bool {
 
 ///|
 pub fn tick_audio() -> Unit {
+  defer collect_retired_audio_sources()
   let activation_epoch = current_audio_activation_epoch()
   audio_instances.retain((_instance, playback) => {
     let play_state = audio_play_state(playback.audio)
@@ -334,6 +270,38 @@ pub fn tick_audio() -> Unit {
 }
 
 ///|
-pub fn preload_audio(audio_path : String) -> Unit {
-  ignore(ensure_preloaded_audio_template(audio_path, refresh=true))
+pub fn preload_audio(source : @asset_types.AudioHandle) -> Unit {
+  ignore(ensure_preloaded_audio_template(source))
+}
+
+///|
+pub fn audio_preparation_state(
+  handle : @asset_types.AudioHandle,
+) -> @asset_types.PreparationState {
+  guard preloaded_audio_templates.get(handle) is Some(audio) else {
+    return Unprepared
+  }
+  let value = @js.Value::cast_from(audio)
+  let error : @js.Value = value.get_with_string("error")
+  if is_js_object(error) {
+    return Failed(error.get_with_string("message"))
+  }
+  let state : Int32 = value.get_with_string("readyState")
+  if state >= 2 {
+    Ready
+  } else {
+    Preparing
+  }
+}
+
+///|
+fn collect_retired_audio_sources() -> Unit {
+  retired_blob_audio_sources.retain(url => {
+    if audio_instances.values().any(playback => playback.source_url == url) {
+      true
+    } else {
+      revoke_object_url(url)
+      false
+    }
+  })
 }

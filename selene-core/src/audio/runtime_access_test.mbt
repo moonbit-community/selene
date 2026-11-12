@@ -8,7 +8,9 @@ test "audio control handles are read per entity without exposing sink storage" {
   let first = @ecs.World()
   let second = @ecs.World()
   @ecs.set_current_world(first)
-  let entity = @audio.spawn_audio(@asset.load_audio("audio-access-test.ogg"))
+  let entity = @audio.spawn_audio(
+    @asset.audios.add(@asset.Audio::from_bytes(b"test audio")),
+  )
   assert_true(@audio.audio_sink(entity) is None)
   try! @ecs.Schedule().run(@ecs.require_current_world())
   @audio.audio_playback_system(first.query(), first.query())

@@ -53,7 +53,7 @@ pub(all) enum HAlign {
 }
 
 pub(all) struct ImageDrawCommand2D {
-  image : @asset_types.ImageHandle
+  image : @asset_types.Handle[@asset_types.Image]
   destination : @math.Rect
   source : ImageRegion2D?
   transform : @math.Affine2
@@ -132,7 +132,7 @@ pub(all) struct TextDrawCommand2D {
 }
 
 pub(all) struct TextStyle2D {
-  font : @asset_types.FontHandle?
+  font : @asset_types.Handle[@asset_types.Font]?
   family : String
   size : Double
   color : @render.Color

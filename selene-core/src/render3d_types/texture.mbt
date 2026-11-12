@@ -85,18 +85,6 @@ pub extend TextureBinding3D with @moonbitlang/core/debug.Debug::{to_repr}
 pub extend TextureBinding3D with Eq::{not_equal, equal}
 
 ///|
-#derive(Eq, Debug)
-pub(all) struct ImageAsset {
-  path : String
-}
-
-///|
-pub extend ImageAsset with @moonbitlang/core/debug.Debug::{to_repr}
-
-///|
-pub extend ImageAsset with Eq::{not_equal, equal}
-
-///|
 pub fn TextureSampler3D::TextureSampler3D() -> TextureSampler3D {
   {
     wrap_u: Repeat,

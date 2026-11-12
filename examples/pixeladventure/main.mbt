@@ -42,6 +42,5 @@ fn pixeladventure_app() -> @app.App {
 
 ///|
 pub fn run() -> Unit {
-  @asset.set_io(@embedded_assets.read, paths=@embedded_assets.paths())
   pixeladventure_app().run()
 }

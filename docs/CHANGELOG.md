@@ -4,6 +4,14 @@
 
 ### Added
 
+- Add typed `Assets[T]` collections and `Handle[T]`, with independent resource
+  construction, registration, replacement, and removal. Embedded images, fonts,
+  and audio are used directly without hand-maintained path catalogues.
+- Expose backend preparation states separately from file-loader completion.
+- Share image resources and handles across Sprite, UI, autotile visuals, and
+  3D materials; remove
+  the separate 3D image registry and image synchronization records.
+
 - Expose registered asset paths for Tiled world pattern discovery without host
   directory scans.
 

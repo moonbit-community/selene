@@ -39,17 +39,7 @@ pub extend MaterialHandle with Eq::{not_equal, equal}
 pub extend MaterialHandle with Hash::{hash, hash_combine}
 
 ///|
-#derive(Eq, Debug, Hash)
-pub(all) struct ImageHandle(UInt32)
-
-///|
-pub extend ImageHandle with @moonbitlang/core/debug.Debug::{to_repr}
-
-///|
-pub extend ImageHandle with Eq::{not_equal, equal}
-
-///|
-pub extend ImageHandle with Hash::{hash, hash_combine}
+pub type ImageHandle = @asset_types.ImageHandle
 
 ///|
 #derive(Eq, Debug, Hash)

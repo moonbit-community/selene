@@ -8,49 +8,61 @@ import {
 }
 
 // Values
-pub let audio_asset_events : @event.Events[AssetEvent[@asset_types.AudioHandle]]
+pub let audio_asset_events : @event.Events[AssetEvent[@asset_types.Handle[@asset_types.Audio]]]
 
-pub fn audio_load_state(@asset_types.AudioHandle) -> LoadState
+pub fn audio_load_state(@asset_types.Handle[@asset_types.Audio]) -> LoadState
 
-pub fn audio_path(@asset_types.AudioHandle) -> String?
+pub fn audio_path(@asset_types.Handle[@asset_types.Audio]) -> String?
 
-pub let font_asset_events : @event.Events[AssetEvent[@asset_types.FontHandle]]
+pub fn audio_preparation_state(@asset_types.Handle[@asset_types.Audio]) -> @asset_types.PreparationState
 
-pub fn font_by_family(String) -> @asset_types.FontHandle?
+pub let audios : @asset_types.Assets[@asset_types.Audio]
 
-pub fn font_family(@asset_types.FontHandle) -> String?
+pub let font_asset_events : @event.Events[AssetEvent[@asset_types.Handle[@asset_types.Font]]]
 
-pub fn font_load_state(@asset_types.FontHandle) -> LoadState
+pub fn font_by_family(String) -> @asset_types.Handle[@asset_types.Font]?
 
-pub fn font_path(@asset_types.FontHandle) -> String?
+pub fn font_family(@asset_types.Handle[@asset_types.Font]) -> String?
 
-pub let image_asset_events : @event.Events[AssetEvent[@asset_types.ImageHandle]]
+pub fn font_load_state(@asset_types.Handle[@asset_types.Font]) -> LoadState
 
-pub fn image_load_state(@asset_types.ImageHandle) -> LoadState
+pub fn font_path(@asset_types.Handle[@asset_types.Font]) -> String?
 
-pub fn image_path(@asset_types.ImageHandle) -> String?
+pub fn font_preparation_state(@asset_types.Handle[@asset_types.Font]) -> @asset_types.PreparationState
 
-pub fn load_audio(String) -> @asset_types.AudioHandle
+pub let fonts : @asset_types.Assets[@asset_types.Font]
 
-pub fn load_font(String, family? : String) -> @asset_types.FontHandle
+pub let image_asset_events : @event.Events[AssetEvent[@asset_types.Handle[@asset_types.Image]]]
 
-pub fn load_image(String) -> @asset_types.ImageHandle
+pub fn image_load_state(@asset_types.Handle[@asset_types.Image]) -> LoadState
+
+pub fn image_path(@asset_types.Handle[@asset_types.Image]) -> String?
+
+pub fn image_preparation_state(@asset_types.Handle[@asset_types.Image]) -> @asset_types.PreparationState
+
+pub let images : @asset_types.Assets[@asset_types.Image]
+
+pub fn load_audio(String) -> @asset_types.Handle[@asset_types.Audio]
+
+pub fn load_font(String, family? : String) -> @asset_types.Handle[@asset_types.Font]
+
+pub fn load_image(String) -> @asset_types.Handle[@asset_types.Image]
 
 pub fn paths() -> Array[String]
 
 pub fn read_bytes(String) -> Bytes?
 
-pub fn reload_audio(@asset_types.AudioHandle) -> Unit
+pub fn reload_audio(@asset_types.Handle[@asset_types.Audio]) -> Unit
 
-pub fn reload_font(@asset_types.FontHandle) -> Unit
+pub fn reload_font(@asset_types.Handle[@asset_types.Font]) -> Unit
 
-pub fn reload_image(@asset_types.ImageHandle) -> Unit
+pub fn reload_image(@asset_types.Handle[@asset_types.Image]) -> Unit
 
-pub fn remove_audio(@asset_types.AudioHandle) -> Unit
+pub fn remove_audio(@asset_types.Handle[@asset_types.Audio]) -> Unit
 
-pub fn remove_font(@asset_types.FontHandle) -> Unit
+pub fn remove_font(@asset_types.Handle[@asset_types.Font]) -> Unit
 
-pub fn remove_image(@asset_types.ImageHandle) -> Unit
+pub fn remove_image(@asset_types.Handle[@asset_types.Image]) -> Unit
 
 pub fn set_io((String) -> Bytes?, paths? : Array[String]) -> Unit
 
@@ -90,10 +102,22 @@ pub fn LoadState::not_equal(Self, Self) -> Bool
 pub fn LoadState::to_repr(Self) -> @debug.Repr
 
 // Type aliases
-pub using @asset_types {type AudioHandle}
+pub using @asset_types {type Assets}
 
-pub using @asset_types {type FontHandle}
+pub using @asset_types {type Audio}
 
-pub using @asset_types {type ImageHandle}
+pub type AudioHandle = @asset_types.Handle[@asset_types.Audio]
+
+pub using @asset_types {type Font}
+
+pub type FontHandle = @asset_types.Handle[@asset_types.Font]
+
+pub using @asset_types {type Handle}
+
+pub using @asset_types {type Image}
+
+pub type ImageHandle = @asset_types.Handle[@asset_types.Image]
+
+pub using @asset_types {type PreparationState}
 
 // Traits

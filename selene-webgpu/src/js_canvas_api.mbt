@@ -121,10 +121,8 @@ pub fn set_embedded_assets(
 ) -> Unit {
   embedded_asset_lookup.val = lookup
   embedded_paths.val = paths.copy()
-  embedded_asset_urls.clear()
   embedded_asset_cache.clear()
   reported_asset_io_failures.clear()
-  reset_audio_runtime()
 }
 
 ///|

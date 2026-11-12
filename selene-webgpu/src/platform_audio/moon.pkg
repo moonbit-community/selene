@@ -1,4 +1,5 @@
 import {
+  "Milky2018/selene/asset_types",
   "moonbitlang/core/debug",
   "Milky2018/selene_webgpu" @impl,
 }

@@ -4,16 +4,26 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
 }
 
 ///|
-pub fn register_font(family : String, path : String) -> Unit {
-  ignore(family)
-  ignore(path)
+pub fn image_preparation_state(
+  handle : @asset_types.ImageHandle,
+) -> @asset_types.PreparationState {
+  ignore(handle)
+  Unprepared
+}
+
+///|
+pub fn font_preparation_state(
+  handle : @asset_types.FontHandle,
+) -> @asset_types.PreparationState {
+  ignore(handle)
+  Unprepared
 }
 
 ///|
 /// Returns a monotonically increasing revision whenever the backend's
 /// measurable glyph metrics for `family` change.
-pub fn font_metrics_revision(family : String) -> UInt32 {
-  ignore(family)
+pub fn font_metrics_revision(style : @render2d_types.TextStyle2D) -> UInt32 {
+  ignore(style)
   0U
 }
 
@@ -75,21 +85,21 @@ pub fn render_offscreen_png(
 
 ///|
 pub fn image_region_is_fully_transparent(
-  path : String,
+  image : @asset_types.ImageHandle,
   rect : @math.Rect,
 ) -> Bool? {
-  ignore(path)
+  ignore(image)
   ignore(rect)
   None
 }
 
 ///|
 pub fn export_texture_region_png(
-  image_path : String,
+  image : @asset_types.ImageHandle,
   rect : @math.Rect,
   out_path : String,
 ) -> Bool {
-  ignore(image_path)
+  ignore(image)
   ignore(rect)
   ignore(out_path)
   false

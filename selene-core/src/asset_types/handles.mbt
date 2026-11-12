@@ -1,38 +1,84 @@
 ///|
-#derive(Eq, Debug, Hash)
-pub(all) struct ImageHandle(UInt32)
+priv struct AssetEntry[T] {
+  mut value : T?
+  mut alive : Bool
+  invalidations : Array[() -> Unit]
+}
 
 ///|
-pub extend ImageHandle with @moonbitlang/core/debug.Debug::{to_repr}
+/// A typed identity. Copies refer to the same entry; removing it invalidates all copies.
+struct Handle[T] {
+  id : UInt32
+  owner : UInt32
+  entry : AssetEntry[T]
+}
 
 ///|
-pub extend ImageHandle with Eq::{not_equal, equal}
+pub fn[T] Handle::id(self : Handle[T]) -> UInt32 {
+  self.id
+}
 
 ///|
-pub extend ImageHandle with Hash::{hash, hash_combine}
+/// Reads the current asset without retaining its owning collection.
+pub fn[T] Handle::get(self : Handle[T]) -> T? {
+  self.entry.value
+}
 
 ///|
-#derive(Eq, Debug, Hash)
-pub(all) struct AudioHandle(UInt32)
+pub fn[T] Handle::is_alive(self : Handle[T]) -> Bool {
+  self.entry.alive
+}
 
 ///|
-pub extend AudioHandle with @moonbitlang/core/debug.Debug::{to_repr}
+/// Runs once when the entry is replaced or removed. Used to invalidate prepared resources.
+pub fn[T] Handle::on_invalidate(
+  self : Handle[T],
+  callback : () -> Unit,
+) -> Unit {
+  if self.entry.alive {
+    self.entry.invalidations.push(callback)
+  } else {
+    callback()
+  }
+}
 
 ///|
-pub extend AudioHandle with Eq::{not_equal, equal}
+pub impl[T] Eq for Handle[T] with fn equal(self, other) {
+  self.id == other.id
+}
 
 ///|
-pub extend AudioHandle with Hash::{hash, hash_combine}
+pub extend Handle with Eq::{equal, not_equal}
 
 ///|
-#derive(Eq, Debug, Hash)
-pub(all) struct FontHandle(UInt32)
+pub impl[T] Hash for Handle[T] with fn hash_combine(self, hasher) {
+  Hash::hash_combine(self.id, hasher)
+}
 
 ///|
-pub extend FontHandle with @moonbitlang/core/debug.Debug::{to_repr}
+pub extend Handle with Hash::{hash, hash_combine}
 
 ///|
-pub extend FontHandle with Eq::{not_equal, equal}
+pub impl[T] @debug.Debug for Handle[T] with fn to_repr(self) {
+  @debug.Repr::literal("Handle(\{self.id})")
+}
 
 ///|
-pub extend FontHandle with Hash::{hash, hash_combine}
+pub extend Handle with @debug.Debug::{to_repr}
+
+///|
+pub type ImageHandle = Handle[Image]
+
+///|
+pub type AudioHandle = Handle[Audio]
+
+///|
+pub type FontHandle = Handle[Font]
+
+///|
+pub impl[T] ToJson for Handle[T] with fn to_json(self) {
+  ToJson::to_json(self.id)
+}
+
+///|
+pub extend Handle with ToJson::{to_json}

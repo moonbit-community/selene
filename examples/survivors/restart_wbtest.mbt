@@ -1,7 +1,5 @@
 ///|
 test "state-driven Survivors restart replaces entities and cancels old timers" {
-  use_survivors_test_assets()
-  defer @asset.set_io(fn(_path) { None })
   let world = @ecs.World()
   let other_entity = @ecs.commands(world).spawn(())
   let old_callback_ran = Ref(false)
@@ -41,8 +39,6 @@ test "state-driven Survivors restart replaces entities and cancels old timers" {
 
 ///|
 test "injected Survivors gameplay fires and refreshes its parameters after a state restart" {
-  use_survivors_test_assets()
-  defer @asset.set_io(fn(_path) { None })
   let world = @ecs.World()
   let app = survivors_app().with_world(world).init_state(GamePhase::Playing)
   app.run_frames(1)

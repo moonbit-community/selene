@@ -37,7 +37,8 @@ jobs:
           cp page/index.html "$site/index.html"
           cp -R --parents \
             examples/index.html \
-            examples/*/index.html examples/*/screenshot.png examples/*/assets \
+            examples/*/index.html examples/*/screenshot.png \
+            examples/pixeladventure/assets/pixeladventure/arrowkey.png \
             _build/js/release/build/Milky2018/selene-examples-web/*/web/web.js \
             "$site"
 

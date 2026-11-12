@@ -1,5 +1,5 @@
 import {
-  "moonbitlang/core/encoding/base64",
+  "Milky2018/selene/asset_types",
   "moonbitlang/core/set",
   "moonbitlang/core/cmp",
   "moonbitlang/core/debug",
@@ -15,3 +15,7 @@ import {
 }
 
 supported_targets = "js"
+
+import {
+  "moonbitlang/core/encoding/utf8",
+} for "wbtest"

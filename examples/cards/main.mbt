@@ -30,7 +30,6 @@ fn cards_app() -> @app.App {
 
 ///|
 pub fn run() -> Unit {
-  @asset.set_io(@embedded_assets.read, paths=@embedded_assets.paths())
   cards_app().run()
 }
 
@@ -39,7 +38,6 @@ pub fn run() -> Unit {
 fn game_start(world : @ecs.World) -> Unit {
   reset_cards_runtime()
   // Load font
-  ignore(@asset.load_font("assets/cards/ThaleahFat.ttf", family="ThaleahFat"))
   @ui.set_ui_scale_mode(Viewport)
   ignore(
     spawn_cards_entity(

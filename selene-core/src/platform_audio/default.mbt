@@ -13,13 +13,13 @@ pub extend AudioInstance with Hash::{hash, hash_combine}
 
 ///|
 pub fn play_audio(
-  audio_path~ : String,
+  source~ : @asset_types.AudioHandle,
   volume~ : Double,
   speed~ : Double,
   loop_~ : Bool,
   paused~ : Bool,
 ) -> AudioInstance {
-  ignore(audio_path)
+  ignore(source)
   ignore(volume)
   ignore(speed)
   ignore(loop_)
@@ -28,8 +28,8 @@ pub fn play_audio(
 }
 
 ///|
-pub fn preload(path : String) -> Unit {
-  ignore(path)
+pub fn preload(source : @asset_types.AudioHandle) -> Unit {
+  ignore(source)
 }
 
 ///|
@@ -70,4 +70,12 @@ pub fn is_finished(instance~ : AudioInstance) -> Bool {
 ///|
 pub fn tick() -> Unit {
 
+}
+
+///|
+pub fn preparation_state(
+  handle : @asset_types.AudioHandle,
+) -> @asset_types.PreparationState {
+  ignore(handle)
+  Unprepared
 }

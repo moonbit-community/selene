@@ -62,7 +62,7 @@ fn spawn_text(
       @ui.Node::absolute(offset, size~),
       @ui.ZIndex(zindex),
       @ui.Text(content),
-      @ui.TextFont::from_css(font),
+      game_text_font(font),
       @ui.TextColor::from_css(color),
       @ui.TextLayout(align~, baseline~),
     ),

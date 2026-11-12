@@ -13,12 +13,6 @@
 // limitations under the License.
 
 ///|
-const FONT_FAMILY : String = "ThaleahFat"
-
-///|
-const FONT_PATH : String = "assets/pixeladventure/Fonts/ThaleahFat.ttf"
-
-///|
 const HUD_ZINDEX : Int32 = 100
 
 ///|
@@ -26,9 +20,6 @@ const BUTTON_ZINDEX : Int32 = 110
 
 ///|
 const PLAYFIELD_LEFT_INSET : Double = 48.0
-
-///|
-const FLAG_IDLE_PATH : String = "assets/pixeladventure/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png"
 
 ///|
 const PLAYER_Z : Double = 10.0
@@ -133,7 +124,7 @@ priv struct BirdAnimationNodes {
 ///|
 priv struct SpriteAnimationDef {
   name : String
-  image_path : String
+  image : @asset.ImageHandle
   layout : @sprite.TextureAtlasLayoutHandle
   fps : Double
   loop_ : Bool
@@ -232,7 +223,7 @@ fn ui_click_reader() -> @event.EventReader[@ui.UiClickEvent] {
 
 ///|
 fn SpriteAnimationDef::SpriteAnimationDef(
-  path : String,
+  image : @asset.ImageHandle,
   frame_count : Int32,
   loop_~ : Bool = true,
   fps~ : Double = 12.0,
@@ -241,8 +232,8 @@ fn SpriteAnimationDef::SpriteAnimationDef(
   anchor~ : @sprite.Anchor = Anchor(Vec2(-0.5, 0.5)),
 ) -> SpriteAnimationDef {
   {
-    name: path,
-    image_path: path,
+    name: "sprite-\{image.id()}",
+    image,
     layout: @sprite.register_texture_atlas_layout(
       @sprite.TextureAtlasLayout::from_grid(size, frame_count, 1),
     ),
@@ -258,7 +249,7 @@ fn SpriteAnimationDef::SpriteAnimationDef(
 ///|
 fn sprite_animation_sprite(animation : SpriteAnimationDef) -> @sprite.Sprite {
   Sprite(
-    image=Some(@asset.load_image(animation.image_path)),
+    image=Some(animation.image),
     texture_atlas=Some(TextureAtlas(animation.layout)),
     custom_size=Some(animation.size),
     anchor=animation.anchor,
@@ -268,96 +259,73 @@ fn sprite_animation_sprite(animation : SpriteAnimationDef) -> @sprite.Sprite {
 }
 
 ///|
-fn jump_sound() -> @audio.AudioHandle {
-  @asset.load_audio("assets/pixeladventure/sounds/jump.wav")
-}
-
-///|
-fn coin_sound() -> @audio.AudioHandle {
-  @asset.load_audio("assets/pixeladventure/sounds/coin.wav")
-}
-
-///|
-fn hurt_sound() -> @audio.AudioHandle {
-  @asset.load_audio("assets/pixeladventure/sounds/hurt.wav")
-}
-
-///|
 fn volume_on_ui_image() -> @ui.UiImage {
-  UiImage(
-    Vec2(21.0, 22.0),
-    "assets/pixeladventure/Menu/Buttons/Volume.png",
-    fit=Contain,
-  )
+  @ui.UiImage::from_image(Vec2(21.0, 22.0), volume_on_image, fit=Contain)
 }
 
 ///|
 fn volume_off_ui_image() -> @ui.UiImage {
-  UiImage(
-    Vec2(21.0, 22.0),
-    "assets/pixeladventure/Menu/Buttons/VolumeOff.png",
-    fit=Contain,
-  )
+  @ui.UiImage::from_image(Vec2(21.0, 22.0), volumeoff_image, fit=Contain)
 }
 
 ///|
 let player_idle_right_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/pixeladventure/Main Characters/Mask Dude/Idle (32x32).png", 11,
+  player_idle_image, 11,
 )
 
 ///|
 let player_idle_left_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/pixeladventure/Main Characters/Mask Dude/Idle (32x32).png",
+  player_idle_image,
   11,
   flip_x=true,
 )
 
 ///|
 let player_run_right_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/pixeladventure/Main Characters/Mask Dude/Run (32x32).png", 12,
+  player_run_image, 12,
 )
 
 ///|
 let player_run_left_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/pixeladventure/Main Characters/Mask Dude/Run (32x32).png",
+  player_run_image,
   12,
   flip_x=true,
 )
 
 ///|
 let player_fall_right_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/pixeladventure/Main Characters/Mask Dude/Fall (32x32).png", 1,
+  player_fall_image, 1,
 )
 
 ///|
 let player_fall_left_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/pixeladventure/Main Characters/Mask Dude/Fall (32x32).png",
+  player_fall_image,
   1,
   flip_x=true,
 )
 
 ///|
 let player_jump_right_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/pixeladventure/Main Characters/Mask Dude/Jump (32x32).png", 1,
+  player_jump_image, 1,
 )
 
 ///|
 let player_jump_left_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/pixeladventure/Main Characters/Mask Dude/Jump (32x32).png",
+  player_jump_image,
   1,
   flip_x=true,
 )
 
 ///|
 let player_hit_right_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/pixeladventure/Main Characters/Mask Dude/Hit (32x32).png",
+  player_hit_image,
   7,
   loop_=false,
 )
 
 ///|
 let player_hit_left_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/pixeladventure/Main Characters/Mask Dude/Hit (32x32).png",
+  player_hit_image,
   7,
   loop_=false,
   flip_x=true,
@@ -365,19 +333,19 @@ let player_hit_left_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let bird_fly_right_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/pixeladventure/Enemies/BlueBird/Flying (32x32).png",
+  bird_flying_image,
   9,
   flip_x=true,
 )
 
 ///|
 let bird_fly_left_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/pixeladventure/Enemies/BlueBird/Flying (32x32).png", 9,
+  bird_flying_image, 9,
 )
 
 ///|
 let bird_hit_right_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/pixeladventure/Enemies/BlueBird/Hit (32x32).png",
+  bird_hit_image,
   5,
   loop_=false,
   flip_x=true,
@@ -385,19 +353,19 @@ let bird_hit_right_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let bird_hit_left_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/pixeladventure/Enemies/BlueBird/Hit (32x32).png",
+  bird_hit_image,
   5,
   loop_=false,
 )
 
 ///|
 let apple_spin_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/pixeladventure/Items/Fruits/Apple.png", 17,
+  apple_image, 17,
 )
 
 ///|
 let flag_idle_animation : SpriteAnimationDef = SpriteAnimationDef(
-  FLAG_IDLE_PATH,
+  flag_idle_image,
   10,
   size=Vec2(64.0, 64.0),
 )

@@ -107,10 +107,10 @@ fn start_audio_sink(
   player : AudioPlayer,
   settings : PlaybackSettings,
 ) -> Unit {
-  guard @asset.audio_path(player.source) is Some(path) else { return }
+  guard player.source.get() is Some(_) else { return }
   let sink = {
     instance: @platform_audio.play_audio(
-      audio_path=path,
+      source=player.source,
       volume=if settings.muted {
         0.0
       } else {
