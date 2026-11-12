@@ -46,22 +46,22 @@ fn update_domain(domain : EventDomain) -> Unit {
 }
 
 ///|
-pub fn event_frame_update_system(_delta : Double) -> Unit {
+pub fn event_frame_update_system() -> Unit {
   update_domain(Frame)
 }
 
 ///|
-pub fn event_fixed_update_system(_delta : Double) -> Unit {
+pub fn event_fixed_update_system() -> Unit {
   update_domain(Fixed)
 }
 
 ///|
-pub fn event_render_update_system(_delta : Double) -> Unit {
+pub fn event_render_update_system() -> Unit {
   update_domain(Render)
 }
 
 ///|
-pub fn event_observer_dispatch_system(_delta : Double) -> Unit {
+pub fn event_observer_dispatch_system() -> Unit {
   for
     bus in registered_buses_key
     .get_in(@ecs.require_current_world())

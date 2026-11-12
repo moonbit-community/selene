@@ -254,8 +254,9 @@ let spawners : Array[@math.Vec2] = [
 ]
 
 ///|
-fn spawn_enemy_system(world : @ecs.World) -> Unit {
+fn start_enemy_spawner() -> Unit {
   fn spawn_enemy() -> Unit {
+    let world = @ecs.require_current_world()
     let game = game_state(world~)
     if (@state.current(@ecs.require_current_world()) : GamePhase) != Playing {
       return
@@ -322,7 +323,7 @@ fn spawn_enemy_system(world : @ecs.World) -> Unit {
         runtime.entities.push(enemy)
         @ecs.commands(world).add(world => {
           play_enemy_animation_state(
-            world~,
+            world.query(),
             enemy,
             enemy_state,
             data.right_animation,
@@ -380,8 +381,20 @@ fn create_enemy_animation_nodes(
 }
 
 ///|
+type EnemyActors = @ecs.Query[
+  (
+    Enemy,
+    @transform.Spatial,
+    @physics2d.LinearVelocity,
+    @sprite.Sprite,
+    @animation.AnimationPlayer,
+    @animation.AnimationTransitions,
+  ),
+]
+
+///|
 fn play_enemy_animation_state(
-  world~ : @ecs.World,
+  enemies : EnemyActors,
   entity : @ecs.Entity,
   state : Enemy,
   animation : SpriteAnimationDef,
@@ -390,13 +403,20 @@ fn play_enemy_animation_state(
   if state.current_node == Some(node) {
     return
   }
-  world.set_component(
+  let (_, spatial, velocity, _, player, transitions) = enemies
+    .get(entity)
+    .unwrap()
+  enemies.set(
     entity,
-    (sprite_animation_sprite(animation) : @sprite.Sprite),
+    (
+      state,
+      spatial,
+      velocity,
+      sprite_animation_sprite(animation),
+      player,
+      transitions,
+    ),
   )
-  let player = (world.get_component(entity) : @animation.AnimationPlayer?).unwrap()
-  let transitions = (
-    world.get_component(entity) : @animation.AnimationTransitions?).unwrap()
   let duration = 0.0
   ignore(transitions.play(player, node, duration))
   state.current_node = Some(node)
@@ -474,35 +494,36 @@ fn select_enemy_type_for_wave(
 }
 
 ///|
-fn enemy_ai_system(world : @ecs.World) -> Unit {
-  let query_enemy : @ecs.Query[@ecs.Single[Enemy]] = world.query()
-  let game = game_state(world~)
-  for e, Single(state) in query_enemy {
+fn enemy_ai_system(
+  enemies : EnemyActors,
+  spatials : @ecs.Query[@ecs.Single[@transform.Spatial]],
+  runtime : @ecs.Res[SurvivorsRuntime],
+) -> Unit {
+  guard runtime.get().game is Some(game) else { return }
+  guard spatials.get(game.player_entity) is Some(Single(player_spatial)) else {
+    return
+  }
+  let player_transform = player_spatial.pose()
+  let player_position = @math.Vec2(
+    player_transform.translation.x,
+    player_transform.translation.y,
+  )
+  for e, (state, spatial, _, sprite, player, transitions) in enemies {
     guard e.is_alive() else { continue }
-    guard @transform.local_transform(world~, game.player_entity)
-      is Some(player_transform) else {
-      return
-    }
-    guard @transform.local_transform(world~, e) is Some(enemy_transform) else {
-      continue
-    }
+    let enemy_transform = spatial.pose()
     let data = get_enemy_data(state.enemy_type)
-    let player_position = @math.Vec2(
-      player_transform.translation.x,
-      player_transform.translation.y,
-    )
     let position = @math.Vec2(
       enemy_transform.translation.x,
       enemy_transform.translation.y,
     )
     let dir = player_position - position
     let vel = dir.normalize_or_zero().scalar_mul(state.speed)
-    world.set_component(e, (vel : @physics2d.LinearVelocity))
+    enemies.set(e, (state, spatial, Velocity(vel), sprite, player, transitions))
 
     // Use the appropriate animation based on direction
     if vel.x >= 0.0 {
       play_enemy_animation_state(
-        world~,
+        enemies,
         e,
         state,
         data.right_animation,
@@ -510,7 +531,7 @@ fn enemy_ai_system(world : @ecs.World) -> Unit {
       )
     } else {
       play_enemy_animation_state(
-        world~,
+        enemies,
         e,
         state,
         data.left_animation,
@@ -521,23 +542,21 @@ fn enemy_ai_system(world : @ecs.World) -> Unit {
 }
 
 ///|
-fn devil_shooting_system(world : @ecs.World) -> Unit {
-  let query_enemy : @ecs.Query[@ecs.Single[Enemy]] = world.query()
-  let game = game_state(world~)
-  let delta = @time.delta()
-  for e, Single(state) in query_enemy {
-    guard e.is_alive() else { continue }
-    // Only Devil enemies shoot
-    if state.enemy_type != Devil {
-      continue
-    }
-    guard @transform.local_transform(world~, e) is Some(enemy_transform) else {
-      continue
-    }
-    guard @transform.local_transform(world~, game.player_entity)
-      is Some(player_transform) else {
-      return
-    }
+fn devil_shooting_system(
+  enemies : @ecs.Query[(Enemy, @transform.Spatial)],
+  spatials : @ecs.Query[@ecs.Single[@transform.Spatial]],
+  resource : @ecs.Res[SurvivorsRuntime],
+  commands : @ecs.Commands,
+  time : @time.Time,
+) -> Unit {
+  let runtime = resource.get()
+  guard runtime.game is Some(game) else { return }
+  guard spatials.get(game.player_entity) is Some(Single(player)) else { return }
+  let player_transform = player.pose()
+  let delta = time.delta()
+  for e, (state, spatial) in enemies {
+    guard e.is_alive() && state.enemy_type == Devil else { continue }
+    let enemy_transform = spatial.pose()
     let enemy_pos = @math.Vec2(
       enemy_transform.translation.x,
       enemy_transform.translation.y,
@@ -555,7 +574,7 @@ fn devil_shooting_system(world : @ecs.World) -> Unit {
     // Shoot when timer expires
     if state.shoot_timer <= 0.0 {
       state.shoot_timer = 5.0 // Reset cooldown
-      shoot_enemy_bullet(enemy_pos, player_pos)
+      shoot_enemy_bullet(runtime, commands, enemy_pos, player_pos)
     }
   }
 }
@@ -592,8 +611,12 @@ type EnemyBulletSpawnPlan = @ecs.SpawnPlan[
 ]
 
 ///|
-fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
-  let runtime = survivors_runtime()
+fn shoot_enemy_bullet(
+  runtime : SurvivorsRuntime,
+  commands : @ecs.Commands,
+  enemy_pos : @math.Vec2,
+  player_pos : @math.Vec2,
+) -> Unit {
   let velocity = @physics2d.Velocity(
     (player_pos - enemy_pos).normalize_or_zero().scalar_mul(120.0),
   )
@@ -606,7 +629,7 @@ fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
       player_collision_group, wall_collision_group,
     ]),
   )
-  let bullet_entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
+  let bullet_entity = commands.spawn_prepared(
     runtime.enemy_bullet_plan,
     (
       Sprite(
@@ -634,32 +657,34 @@ fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
 }
 
 ///|
-fn apply_player_damage(world~ : @ecs.World) -> Unit {
-  let game = game_state(world~)
+fn apply_player_damage(ui~ : SurvivorsUi) -> Unit {
+  let game = ui.game()
   if game.invincible {
     return
   }
   game.invincible = true
   let penalty = 250 * game.current_wave
   let new_score = (game.score - penalty).max(0)
-  set_score(world~, new_score)
-  trigger_damage_effect(world~)
+  set_score(ui~, new_score)
+  trigger_damage_effect(ui~)
   survivors_timeout(INVINCIBLE_TIME, fn() { game.invincible = false })
 }
 
 ///|
-fn enemy_collision_system(world : @ecs.World) -> Unit {
-  let query_enemy : @ecs.Query[@ecs.Single[Enemy]] = world.query()
-  let runtime = survivors_runtime()
-  let game = game_state(world~)
+fn enemy_collision_system(
+  enemies : @ecs.Query[@ecs.Single[Enemy]],
+  ui : SurvivorsUi,
+) -> Unit {
+  let runtime = ui.runtime
+  let game = ui.game()
   for
     event in @physics2d.contact_event_bus.read(
       runtime.enemy_contact_event_reader,
     ) {
     guard event.started else { continue }
     guard event.entity == game.player_entity else { continue }
-    if query_enemy.contains(event.other) {
-      apply_player_damage(world~)
+    if enemies.contains(event.other) {
+      apply_player_damage(ui~)
     }
   }
   for
@@ -669,9 +694,9 @@ fn enemy_collision_system(world : @ecs.World) -> Unit {
     guard event.entered else { continue }
     guard runtime.enemy_bullets.contains(event.area) else { continue }
     if event.other == game.player_entity {
-      apply_player_damage(world~)
+      apply_player_damage(ui~)
     }
-    @ecs.commands(@ecs.require_current_world()).delete(event.area)
+    ui.commands.delete(event.area)
     runtime.enemy_bullets.remove(event.area)
   }
 }

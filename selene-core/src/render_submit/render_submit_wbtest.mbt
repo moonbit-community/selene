@@ -84,7 +84,7 @@ test "build_frame2d keeps clear-only camera passes" {
 test "build_frame2d normalizes offscreen viewport and command coordinates" {
   with_render_submit_test_world(fn(world) raise {
     @window.configure_display(200.0, 120.0, 1.0)
-    @render2d.begin_frame2d_system(0.0)
+    @render2d.begin_frame2d_system()
     let camera_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     camera_entity_draft.add(
       (
@@ -136,7 +136,7 @@ test "build_frame2d normalizes offscreen viewport and command coordinates" {
 test "build_frame2d batches camera ui commands with clip barriers" {
   with_render_submit_test_world(fn(world) raise {
     @window.configure_display(200.0, 120.0, 1.0)
-    @render2d.begin_frame2d_system(0.0)
+    @render2d.begin_frame2d_system()
     let camera_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     camera_entity_draft.add((Camera() : @camera.Camera))
     camera_entity_draft.add((Camera2d() : @camera.Camera2d))

@@ -969,7 +969,7 @@ fn render_target_camera_id(entity : @ecs.Entity) -> UInt32? {
 }
 
 ///|
-pub fn ui_extract_system(_delta : Double) -> Unit {
+pub fn ui_extract_system() -> Unit {
   extracted_ui_entities().clear()
   extracted_ui_entities().append(ui_stack())
 }

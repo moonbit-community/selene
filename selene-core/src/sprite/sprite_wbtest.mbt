@@ -49,7 +49,7 @@ fn spawn_color_sprite(
 test "sprite rendering skips cameras whose viewport does not intersect the sprite" {
   with_sprite_test_world(fn(world) raise {
     @window.configure_display(100.0, 100.0, 1.0)
-    @render2d.begin_frame2d_system(0.0)
+    @render2d.begin_frame2d_system()
     let camera_entity = spawn_test_camera(world~, {
       position: @math.Vec2::zero(),
       size: Vec2(100.0, 100.0),
@@ -71,7 +71,7 @@ test "sprite rendering skips cameras whose viewport does not intersect the sprit
 test "sprite rendering keeps visible sprites inside the camera viewport" {
   with_sprite_test_world(fn(world) raise {
     @window.configure_display(100.0, 100.0, 1.0)
-    @render2d.begin_frame2d_system(0.0)
+    @render2d.begin_frame2d_system()
     let camera_entity = spawn_test_camera(world~, {
       position: @math.Vec2::zero(),
       size: Vec2(100.0, 100.0),
@@ -97,7 +97,7 @@ test "sprite draw ties keep spawn order after swap-removal" {
     let first = spawn_color_sprite(world~, Vec2(0.0, 0.0))
     let second = spawn_color_sprite(world~, Vec2(0.0, 0.0))
     assert_true(@ecs_test.delete(retired))
-    @render2d.begin_frame2d_system(0.0)
+    @render2d.begin_frame2d_system()
     render_sprite_system(world~, 0.0)
     let commands = @render2d.get_screen_world_commands_with_depth()
     assert_eq(commands.map(command => command.entity_id), [
@@ -111,7 +111,7 @@ test "sprite draw ties keep spawn order after swap-removal" {
 test "sprite world transform preserves shear from its parent" {
   with_sprite_test_world(fn(world) raise {
     @window.configure_display(100.0, 100.0, 1.0)
-    @render2d.begin_frame2d_system(0.0)
+    @render2d.begin_frame2d_system()
     let parent = @ecs_test.spawn1(
       world,
       @transform.Spatial(@transform.Transform::from_scale(Vec3(2.0, 1.0, 1.0))),

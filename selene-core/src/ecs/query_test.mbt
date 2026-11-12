@@ -402,3 +402,87 @@ test "panic keys rejects deletion before advancing linked order entries" {
   .run(world)
   ignore(keys.next())
 }
+
+///|
+test "query point writes replace matching rows without changing layouts or invalidating iterators" {
+  let world = @ecs.World()
+  let entity = @ecs.commands(world).spawn((Position(1), Speed(2)))
+  let other = @ecs.commands(world).spawn((Position(3), Speed(4)))
+  @ecs.Schedule().run(world)
+  let positions : @ecs.Query[@ecs.Single[Position]] = world.query1()
+  let pairs : @ecs.Query[(Position, Speed)] = world.query()
+  let entries = pairs.iter()
+  assert_eq(entries.next(), Some((entity, (Position(1), Speed(2)))))
+  pairs.set(other, (Position(30), Speed(40)))
+  assert_eq(entries.next(), Some((other, (Position(30), Speed(40)))))
+  positions.set(entity, Single(Position(10)))
+  assert_eq(pairs.get(entity), Some((Position(10), Speed(2))))
+  assert_eq(pairs.length(), 2)
+  assert_false(@ecs.has_pending_commands(world))
+}
+
+///|
+test "filtered point writes use their own World without changing the active World" {
+  let world = @ecs.World()
+  let other = @ecs.World()
+  let entity = @ecs.commands(world).spawn((Position(1), Speed(2)))
+  @ecs.Schedule().run(world)
+  let with_speed : @ecs.With[Speed] = With(world)
+  let positions : @ecs.Query[@ecs.Single[Position]] = world.query1(filters=[
+    with_speed.to_filter(),
+  ])
+  let previous = @ecs.current_world()
+  defer (match previous {
+    Some(world) => @ecs.set_current_world(world)
+    None => @ecs.clear_current_world()
+  })
+  @ecs.set_current_world(other)
+  positions.set(entity, Single(Position(9)))
+  assert_eq(positions.get(entity), Some(Single(Position(9))))
+  assert_eq(@ecs.require_current_world().id(), other.id())
+}
+
+///|
+test "panic a query cannot insert a missing component through a point write" {
+  let world = @ecs.World()
+  let entity = @ecs.commands(world).spawn1(Position(1))
+  @ecs.Schedule().run(world)
+  let speeds : @ecs.Query[@ecs.Single[Speed]] = world.query1()
+  speeds.set(entity, Single(Speed(2)))
+}
+
+///|
+test "panic a query cannot point-write a filtered-out entity" {
+  let world = @ecs.World()
+  let entity = @ecs.commands(world).spawn1(Position(1))
+  @ecs.Schedule().run(world)
+  let with_speed : @ecs.With[Speed] = With(world)
+  let positions : @ecs.Query[@ecs.Single[Position]] = world.query1(filters=[
+    with_speed.to_filter(),
+  ])
+  positions.set(entity, Single(Position(9)))
+}
+
+///|
+test "panic a query cannot point-write a foreign entity" {
+  let world = @ecs.World()
+  let other = @ecs.World()
+  let entity = @ecs.commands(other).spawn1(Position(1))
+  @ecs.Schedule().run(other)
+  let positions : @ecs.Query[@ecs.Single[Position]] = world.query1()
+  positions.set(entity, Single(Position(9)))
+}
+
+///|
+test "panic a query cannot point-write a recycled generation" {
+  let world = @ecs.World()
+  let commands = @ecs.commands(world)
+  let entity = commands.spawn1(Position(1))
+  @ecs.Schedule().run(world)
+  commands.delete(entity)
+  @ecs.Schedule().run(world)
+  ignore(commands.spawn1(Position(2)))
+  @ecs.Schedule().run(world)
+  let positions : @ecs.Query[@ecs.Single[Position]] = world.query1()
+  positions.set(entity, Single(Position(9)))
+}

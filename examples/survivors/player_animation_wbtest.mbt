@@ -14,7 +14,7 @@ test "player animation controller remembers current node" {
     .unwrap()
 
   play_player_animation_state(
-    world~,
+    world.query(),
     entity,
     player_idle_right_animation,
     controller.idle_right,
@@ -46,7 +46,7 @@ test "replaying same player animation state does not reset atlas index" {
     .unwrap()
 
   play_player_animation_state(
-    world~,
+    world.query(),
     entity,
     player_idle_right_animation,
     controller.idle_right,
@@ -61,7 +61,7 @@ test "replaying same player animation state does not reset atlas index" {
   world.set_component(entity, (sprite : @sprite.Sprite))
 
   play_player_animation_state(
-    world~,
+    world.query(),
     entity,
     player_idle_right_animation,
     controller.idle_right,
@@ -92,7 +92,7 @@ test "player run animation advances atlas indices in order" {
     .unwrap()
 
   play_player_animation_state(
-    world~,
+    world.query(),
     entity,
     player_run_right_animation,
     controller.run_right,

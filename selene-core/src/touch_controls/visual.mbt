@@ -106,7 +106,7 @@ fn render_buttons(
 }
 
 ///|
-pub fn touch_controls_render_system(_delta : Double) -> Unit {
+pub fn touch_controls_render_system() -> Unit {
   let runtime = store()
   if !runtime.visible {
     return

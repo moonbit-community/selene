@@ -10,7 +10,7 @@ import {
 }
 
 // Values
-pub fn begin_frame2d_system(Double) -> Unit
+pub fn begin_frame2d_system() -> Unit
 
 pub fn entity_sorting2d(world~ : @ecs.World, @ecs.Entity) -> Sorting2d
 

@@ -131,3 +131,20 @@ test "restarting Pixel Adventure replaces its session and game entities" {
     })
   })
 }
+
+///|
+test "injected trigger queries collect an apple and delete it at schedule completion" {
+  with_pixeladventure_test_asset_io(fn() raise {
+    with_pixeladventure_test_world(fn(world) raise {
+      game_start(world)
+      flush_test_commands(world)
+      let session : GameSession = world.resource()
+      let apples : @ecs.Query[(AppleTag, @physics2d.Area)] = world.query()
+      let (entity, (_, area)) = apples.iter().next().unwrap()
+      area.contains.add(session.player)
+      @ecs.Schedule().add_system(@ecs.args4(trigger_system)).run(world)
+      assert_eq(session.score, 10)
+      assert_false(entity.is_valid_in(world))
+    })
+  })
+}

@@ -40,3 +40,21 @@ test "restarting Cards replaces only its entities in the current World" {
   assert_eq(first_game.game.unwrap().player.chips, starting_chips.val)
   assert_eq(second_game.game.unwrap().player.chips, 275)
 }
+
+///|
+test "injected Cards gameplay refreshes its resource after restart and across Worlds" {
+  @asset.set_io(fn(_path) { Some(Bytes::from_array([1U.to_byte()])) })
+  defer @asset.set_io(fn(_path) { None })
+  let first = @ecs.World()
+  let second = @ecs.World()
+  let app = cards_app()
+  for world in [first, second, first] {
+    app.with_world(world).run_frames(1)
+    let runtime : CardsRuntime = world.resource()
+    let game = runtime.game.unwrap()
+    assert_true(game.waiting_for_player)
+    let nodes : @ecs.Query[@ecs.Single[@ui.Node]] = world.query1()
+    assert_true(nodes.get(game.call_button).unwrap().0.display == Flex)
+    game.player.chips = 0
+  }
+}

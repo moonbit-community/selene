@@ -96,7 +96,7 @@ pub fn scene_of(root : @ecs.Entity) -> SceneHandle? {
 }
 
 ///|
-pub fn scene_spawner_cleanup_system(_delta : Double) -> Unit {
+pub fn scene_spawner_cleanup_system() -> Unit {
   let world = @ecs.require_current_world()
   scene_instances().retain((entity, _) => entity.is_valid_in(world))
 }

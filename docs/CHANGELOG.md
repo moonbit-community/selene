@@ -4,6 +4,9 @@
 
 ### Added
 
+- Add `Query::set(entity, row)` for World-bound point writes that preserve
+  component layouts and iterator validity and reject non-matching rows.
+
 - Add `#selene.state` declarations and generated state identities. Worlds own
   state values and pending requests through resource storage. Applications can
   initialize states, use World-aware `in_state` conditions, and register typed
@@ -44,6 +47,15 @@
   updates in long-running Worlds with a fixed live population.
 
 ### Changed
+
+- Migrate ordinary gameplay, UI, camera, firing, collision-event, and animation
+  helpers in Cards, Pixel Adventure, and Survivors to injected queries,
+  resources, Commands, and clocks. Private named parameter views combine
+  concrete dependencies without retaining a World.
+- Use joined component rows in mesh and text rendering instead of
+  rebuilding single-component queries and looking up each required component.
+- Remove unused delta arguments from 18 engine systems and register them with
+  `args0` directly. Touch long-press processing retains its required delta.
 
 - Unify system registration under `add_system`, with explicit
   `add_exclusive_system` for complete World access. Remove the query-specific

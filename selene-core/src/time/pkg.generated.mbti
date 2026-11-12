@@ -22,7 +22,7 @@ pub fn initialize(@ecs.World) -> Unit
 
 pub fn raw_delta() -> Double
 
-pub fn realtime_timer_system(Double) -> Unit
+pub fn realtime_timer_system() -> Unit
 
 pub fn scale() -> Double
 

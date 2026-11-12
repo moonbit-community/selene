@@ -243,3 +243,50 @@ fn GameState::GameState() -> GameState {
     community_card_entities: [],
   }
 }
+
+///|
+priv struct CardsGame {
+  runtime : CardsRuntime
+  texts : @ecs.Query[@ecs.Single[@ui.Text]]
+  nodes : @ecs.Query[@ecs.Single[@ui.Node]]
+  commands : @ecs.Commands
+}
+
+///|
+fn CardsGame::CardsGame(world : @ecs.World) -> CardsGame {
+  {
+    runtime: world.resource(),
+    texts: world.query1(),
+    nodes: world.query1(),
+    commands: @ecs.commands(world),
+  }
+}
+
+///|
+impl @ecs.SystemParam for CardsGame with fn prepare(world) {
+  let fetch : (@ecs.World) -> (
+    @ecs.Res[CardsRuntime],
+    @ecs.Query[@ecs.Single[@ui.Text]],
+    @ecs.Query[@ecs.Single[@ui.Node]],
+    @ecs.Commands,
+  ) = @ecs.SystemParam::prepare(world)
+  world => {
+    let (runtime, texts, nodes, commands) = fetch(world)
+    { runtime: runtime.get(), texts, nodes, commands, }
+  }
+}
+
+///|
+fn CardsGame::game(self : CardsGame) -> GameState {
+  self.runtime.game.unwrap()
+}
+
+///|
+fn[T : @ecs.Bundle] CardsGame::spawn(
+  self : CardsGame,
+  values : T,
+) -> @ecs.Entity {
+  let entity = self.commands.spawn(values)
+  self.runtime.entities.push(entity)
+  entity
+}

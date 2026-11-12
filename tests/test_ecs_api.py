@@ -57,6 +57,7 @@ class EcsPublicApiTests(unittest.TestCase):
   let query : @ecs.Query[@ecs.Single[Position]] = world.query()
   commands.add(world => world.set_component(entity, Position(2)))
   ignore(query.get(entity))
+  query.set(entity, Single(Position(4)))
   let pair : @ecs.Query[(Position, Position)] = world.query()
   for _, _ in pair {}
   let draft = @ecs.commands(world).draft()

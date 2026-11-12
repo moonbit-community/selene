@@ -211,7 +211,7 @@ fn capture_new_starts(runtime : TouchControlsWorldStore) -> Unit {
 }
 
 ///|
-pub fn touch_controls_system(_delta : Double) -> Unit {
+pub fn touch_controls_system() -> Unit {
   let runtime = store()
   if !runtime.enabled {
     reset_runtime_values(runtime)

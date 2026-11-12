@@ -23,7 +23,7 @@ fn prepared_frame3d() -> @render3d.RenderFrame3D {
 }
 
 ///|
-pub fn render3d_prepare_system(_delta : Double) -> Unit {
+pub fn render3d_prepare_system() -> Unit {
   prepared_frame3d_key.insert_in(
     @ecs.require_current_world(),
     @render3d.get_extracted_frame3d(),

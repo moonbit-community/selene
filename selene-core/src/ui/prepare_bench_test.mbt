@@ -32,9 +32,9 @@ test "BENCH-UI prepare borders in paint order" (b : @bench.T) {
     }
     try! @ecs.Schedule().run(world)
     @ui.ui_layout_system(world~, 0.0)
-    @ui.ui_extract_system(0.0)
+    @ui.ui_extract_system()
     let frame = () => {
-      @render2d.begin_frame2d_system(0.0)
+      @render2d.begin_frame2d_system()
       @ui.ui_prepare_system(world~, 0.0)
       @render2d.get_frame2d(world~).ui_commands.length()
     }

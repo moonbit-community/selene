@@ -13,22 +13,16 @@ fn anchor_origin(anchor : @sprite.Anchor, size : @math.Vec2) -> @math.Vec2 {
 
 ///|
 pub fn render_text2d_system(world~ : @ecs.World, delta : Double) -> Unit {
-  let query_text : @ecs.Query[@ecs.Single[@ui.Text]] = world.query()
   let query_text_bounds : @ecs.Query[@ecs.Single[TextBounds]] = world.query()
-  let query_text2d : @ecs.Query[@ecs.Single[Text2d]] = world.query()
+  let texts : @ecs.Query[(Text2d, @ui.Text, @transform.Spatial)] = world.query()
   ignore(delta)
   text_layout_caches().retain((entity, _) => entity.is_alive())
   let camera_views = @camera.active_camera2d_views(world~)
   let camera_extract = @culling2d.CameraExtract2dContext(camera_views)
-  for entity, Single(text2d) in query_text2d {
+  for entity, (text2d, text, spatial) in texts {
     guard entity.is_alive() else { continue }
     guard @visibility.is_visible(entity) else { continue }
-    guard @transform.global_transform(world~, entity) is Some(global_transform) else {
-      continue
-    }
-    guard query_text.get(entity).map(value => value.0) is Some(text) else {
-      continue
-    }
+    let global_transform = spatial.global()
     guard @ui.text_style_for(world~, entity) is Some(style) else { continue }
     let layout = text2d_layout(world~, entity)
     let bounds = query_text_bounds.get(entity).map(value => value.0)

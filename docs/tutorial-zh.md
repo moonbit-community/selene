@@ -157,13 +157,13 @@ pub fn run() -> Unit {
   .add_plugin(@plugins.default_plugin)
   .add_exclusive_system(Startup, game_start)
   .add_system(Update, @ecs.args2(player_input_system))
-  .add_exclusive_system(FixedPreUpdate, player_controller_system)
-  .add_exclusive_system(Update, trigger_system)
-  .add_exclusive_system(Update, pixeladventure_camera_follow_system)
-  .add_exclusive_system(FixedPostUpdate, player_bird_contact_system)
-  .add_exclusive_system(FixedPostUpdate, bird_patrol_system)
+  .add_system(FixedPreUpdate, @ecs.args4(player_controller_system))
+  .add_system(Update, @ecs.args4(trigger_system))
+  .add_system(Update, @ecs.args2(pixeladventure_camera_follow_system))
+  .add_system(FixedPostUpdate, @ecs.args4(player_bird_contact_system))
+  .add_system(FixedPostUpdate, @ecs.args4(bird_patrol_system))
   .add_system(PostUpdate, volume_button_system)
-  .add_exclusive_system(PostUpdate, hud_sync_system)
+  .add_system(PostUpdate, @ecs.args4(hud_sync_system))
   .run()
 }
 ```
@@ -204,11 +204,10 @@ priv struct PlayerController {
 ```
 
 启动时会先清理上一轮实体，再加载关卡并用 `world.insert_resource(...)`
-插入新的 `GameSession`。玩家输入系统通过 `args2` 直接接收
-`Query[Single[PlayerController]]` 和可选的 `Res[GameSession]?`，音量系统直接接收会话资源。
-需要协调整个 World 的系统显式使用 `add_exclusive_system` 注册，其中的单实体读取和替换
-分别使用 `world.get_component(entity)` 和 `world.set_component(entity, value)`。
-示例包对 `model.mbt` 应用以下生成规则。
+插入新的 `GameSession`。常规游戏系统通过 `argsN` 接收查询、可选的
+`Res[GameSession]?`、Commands 和 Time。运动与动画辅助函数直接操作查询行，
+值类型组件通过 `query.set(entity, row)` 替换；相机与 HUD 也使用注入的查询。
+完整 World 访问保留在 Startup 的场景构建阶段。示例包对 `model.mbt` 应用以下生成规则。
 
 ```moonbit
 dev_build(rule: "selene_codegen", input: "model.mbt", output: "model.g.mbt")

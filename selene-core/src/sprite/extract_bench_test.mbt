@@ -34,14 +34,14 @@ test "sprite CPU extraction and transform propagation" (b : @bench.T) {
     let world = @ecs.World()
     @ecs.set_current_world(world)
     ignore(make_sprite_fixture(size))
-    @render2d.begin_frame2d_system(0.0)
+    @render2d.begin_frame2d_system()
     @sprite.render_sprite_system(world~, 0.0)
     assert_eq(
       @render2d.get_screen_world_commands_with_depth().length(),
       size - size / 4,
     )
     b.bench(name="sprite-extract/n=\{size}", count=10, () => {
-      @render2d.begin_frame2d_system(0.0)
+      @render2d.begin_frame2d_system()
       @sprite.render_sprite_system(world~, 0.0)
     })
     @transform.transform_propagate_system(world~, 0.0)

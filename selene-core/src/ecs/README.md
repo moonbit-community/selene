@@ -89,9 +89,24 @@ let position : @ecs.Single[Position]? = positions.get(player)
 ```
 
 `world.query1()` is shorthand for constructing `Query[Single[T]]`; the general
-`world.query()` also accepts that shape. All shapes provide `get`, `contains`,
+`world.query()` also accepts that shape. All shapes provide `get`, `set`, `contains`,
 `single`, `length`, ordinary `for` loops, and `batches` with the same semantics.
 Their component storage and batch representations are private.
+
+Use `query.set(entity, row)` to replace value components through the same
+World-bound query, including during ordinary iteration:
+
+```moonbit
+for entity, (position, velocity) in moving {
+  moving.set(entity, (Position::{ x: position.x + velocity.x, y: position.y + velocity.y }, velocity))
+}
+positions.set(player, Single(Position::{ x: 3.0, y: 4.0 }))
+```
+
+Point writes replace the whole declared row. Use a narrower query when replacing
+only one component. Writes never add components or change the entity's layout;
+they preserve iterator validity and abort for missing, foreign, deleted, or
+filtered-out rows. Use `batches` for loops that need direct column access.
 
 Outside a system, use an inferred cached query constructor:
 
@@ -133,7 +148,11 @@ The returned fetcher must not retain `world`: the World owns its prepared state.
 Cache queries or resource slots, and use the World supplied to the fetcher for
 operations that need it. Preparation is lazy and occurs only when conditions
 allow the system to run. Custom named parameter structs can also combine the
-built-in parameters through their `prepare` methods.
+built-in parameters through their `prepare` methods. For example, Cards combines
+its runtime resource, text/node queries, and Commands in a private `CardsGame`
+parameter; Survivors groups widget queries in `SurvivorsUi`. These views contain
+concrete handles rather than a World, and fetch the latest resource value on
+each execution so restarting a game does not retain the previous session.
 `QueryReader[Row]::read(query)` snapshots the same filtered row shape.
 
 For setup and systems that explicitly need the whole World, use point access:

@@ -174,7 +174,7 @@ fn sync_audio_sink(entity : @ecs.Entity, sink : AudioSink) -> Unit {
 }
 
 ///|
-pub fn audio_event_playback_system(_delta : Double) -> Unit {
+pub fn audio_event_playback_system() -> Unit {
   for event in @event.read(audio_event_reader, audio_event_bus) {
     let settings = normalize_settings(event.settings)
     match event.target {

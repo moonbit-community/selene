@@ -13,7 +13,7 @@ pub fn attach_audio(@ecs.Entity, AudioPlayer, settings? : PlaybackSettings) -> U
 
 pub let audio_event_bus : @event.Events[AudioEvent]
 
-pub fn audio_event_playback_system(Double) -> Unit
+pub fn audio_event_playback_system() -> Unit
 
 pub fn audio_playback_system(@ecs.Query[@ecs.Single[AudioPlayer]], @ecs.Query[@ecs.Single[PlaybackSettings]]) -> Unit
 

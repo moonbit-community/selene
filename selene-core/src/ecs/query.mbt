@@ -119,6 +119,23 @@ pub fn[T] Query::get(self : Query[T], entity : Entity) -> T? {
 }
 
 ///|
+/// Replaces the existing row selected by this query, without changing its layout.
+/// Aborts for missing, foreign, deleted, or filtered-out entities.
+pub fn[T] Query::set(self : Query[T], entity : Entity, value : T) -> Unit {
+  guard entity.world_id == self.world_id else {
+    abort("entity does not match this query")
+  }
+  guard self.storage.location(entity) is Some((id, row)) else {
+    abort("entity does not match this query")
+  }
+  self.refresh()
+  guard self.columns[id] is Some(column) else {
+    abort("entity does not match this query")
+  }
+  (column.write)(row, value)
+}
+
+///|
 pub fn[T] Query::contains(self : Query[T], entity : Entity) -> Bool {
   guard entity.world_id == self.world_id else { false }
   guard self.storage.location(entity) is Some((id, _)) else { false }

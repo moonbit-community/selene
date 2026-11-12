@@ -33,14 +33,14 @@ pub fn default_plugin(app : @app.App) -> @app.App {
 
   let app = add_system(
     app,
-    fn(time : @time.Time) { @inputs.advanced_key_system(time.delta()) },
+    @ecs.args0(@inputs.advanced_key_system),
     PreUpdate,
     "Advanced Key System",
     in_set=input,
   )
   let app = add_system(
     app,
-    fn(time : @time.Time) { @inputs.advanced_mouse_system(time.delta()) },
+    @ecs.args0(@inputs.advanced_mouse_system),
     PreUpdate,
     "Advanced Mouse System",
     in_set=input,
@@ -54,14 +54,14 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    fn(time : @time.Time) { @inputs.advanced_gamepad_system(time.delta()) },
+    @ecs.args0(@inputs.advanced_gamepad_system),
     PreUpdate,
     "Advanced Gamepad System",
     in_set=input,
   )
   let app = add_system(
     app,
-    fn(time : @time.Time) { @inputs.advanced_pointer_system(time.delta()) },
+    @ecs.args0(@inputs.advanced_pointer_system),
     PreUpdate,
     "Advanced Pointer System",
     in_set=pointer_input,
@@ -77,9 +77,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    fn(time : @time.Time) {
-      @touch_controls.touch_controls_system(time.delta())
-    },
+    @ecs.args0(@touch_controls.touch_controls_system),
     PreUpdate,
     "Touch Controls System",
     in_set=touch_controls,
@@ -87,14 +85,14 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    fn(time : @time.Time) { @input_action.input_action_system(time.delta()) },
+    @ecs.args0(@input_action.input_action_system),
     PreUpdate,
     "Input Action System",
     after=[touch_controls],
   )
   let app = add_system(
     app,
-    fn(time : @time.Time) { @window.sync_mouse_lock_system(time.delta()) },
+    @ecs.args0(@window.sync_mouse_lock_system),
     PreUpdate,
     "Sync Mouse Lock",
     after=[input],
@@ -129,7 +127,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    fn(time : @time.Time) { @audio.audio_event_playback_system(time.delta()) },
+    @ecs.args0(@audio.audio_event_playback_system),
     PostUpdate,
     "Audio Event Playback System",
     in_set=audio,
@@ -199,7 +197,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    fn(time : @time.Time) { @scene.scene_spawner_cleanup_system(time.delta()) },
+    @ecs.args0(@scene.scene_spawner_cleanup_system),
     PostUpdate,
     "Scene Spawner Cleanup System",
     in_set=transform,
@@ -231,14 +229,14 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    fn(time : @time.Time) { @render2d.begin_frame2d_system(time.delta()) },
+    @ecs.args0(@render2d.begin_frame2d_system),
     RenderExtract,
     "Render2D Begin Frame",
     in_set=render_extract,
   )
   let app = add_system(
     app,
-    fn(time : @time.Time) { @ui.ui_extract_system(time.delta()) },
+    @ecs.args0(@ui.ui_extract_system),
     RenderExtract,
     "UI Extract",
     in_set=render_extract,
@@ -269,9 +267,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    fn(time : @time.Time) {
-      @touch_controls.touch_controls_render_system(time.delta())
-    },
+    @ecs.args0(@touch_controls.touch_controls_render_system),
     RenderPrepare,
     "Touch Controls Prepare",
     in_set=touch_controls_render,

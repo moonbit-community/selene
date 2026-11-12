@@ -31,8 +31,8 @@ fn reset_interaction_test_state() -> Unit {
   @inputs.just_release_mouse.right_button = false
   @inputs.just_release_mouse.middle_button = false
   @inputs.clear_touch_state()
-  @inputs.advanced_mouse_system(0.0)
-  @inputs.advanced_pointer_system(0.0)
+  @inputs.advanced_mouse_system()
+  @inputs.advanced_pointer_system()
   pointer_down_event_bus.clear()
   pointer_up_event_bus.clear()
   pointer_enter_event_bus.clear()
@@ -123,8 +123,8 @@ fn apply_ui_touch_frame(
     touches: active,
     touch_changes: changes,
   })
-  @inputs.advanced_mouse_system(0.0)
-  @inputs.advanced_pointer_system(0.0)
+  @inputs.advanced_mouse_system()
+  @inputs.advanced_pointer_system()
 }
 
 ///|
@@ -138,8 +138,8 @@ fn apply_ui_mouse_frame(position : @math.Vec2, down : Bool) -> Unit {
       middle_button: false,
     },
   })
-  @inputs.advanced_mouse_system(0.0)
-  @inputs.advanced_pointer_system(0.0)
+  @inputs.advanced_mouse_system()
+  @inputs.advanced_pointer_system()
 }
 
 ///|

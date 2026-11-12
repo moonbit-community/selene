@@ -153,7 +153,7 @@ pub fn to_screen_rect(@math.Rect, UiLayoutSpace) -> @math.Rect
 
 pub fn transparent() -> @render.Color
 
-pub fn ui_extract_system(Double) -> Unit
+pub fn ui_extract_system() -> Unit
 
 pub fn ui_input_capture_system(world~ : @ecs.World, Double) -> Unit
 

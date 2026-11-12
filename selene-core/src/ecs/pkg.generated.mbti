@@ -132,6 +132,7 @@ pub fn[T] Query::keys(Self[T]) -> Iter[Entity]
 pub fn[T] Query::length(Self[T]) -> Int32
 pub fn[T] Query::order_span(Self[T]) -> Int32
 pub fn[T : QueryData] Query::prepare(World) -> (World) -> Self[T]
+pub fn[T] Query::set(Self[T], Entity, T) -> Unit
 pub fn[T] Query::single(Self[T]) -> (Entity, T)?
 pub fn[T] Query::to_array(Self[T]) -> Array[(Entity, T)]
 pub fn[T] Query::values(Self[T]) -> Iter[T]

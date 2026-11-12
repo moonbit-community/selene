@@ -61,7 +61,7 @@ fn test_entity_index(
 ///|
 test "ui rounded backgrounds emit quarter-circle fill commands" {
   let world = @ecs.require_current_world()
-  @render2d.begin_frame2d_system(0.0)
+  @render2d.begin_frame2d_system()
   let rect = test_rect(10.0, 20.0, 100.0, 60.0)
   let entity = @ecs_test.spawn(
     @ecs.require_current_world(),
@@ -96,7 +96,7 @@ test "ui rounded backgrounds emit quarter-circle fill commands" {
 ///|
 test "ui material nodes render gradient materials ahead of legacy background fills" {
   let world = @ecs.require_current_world()
-  @render2d.begin_frame2d_system(0.0)
+  @render2d.begin_frame2d_system()
   let rect = test_rect(8.0, 12.0, 80.0, 40.0)
   let handle = register_ui_material_asset(
     UiMaterialAsset::gradient(rgba(255, 0, 0, 1.0), rgba(0, 0, 255, 1.0)),
@@ -130,7 +130,7 @@ test "ui material nodes render gradient materials ahead of legacy background fil
 ///|
 test "ui material assets can render through custom draw callbacks" {
   let world = @ecs.require_current_world()
-  @render2d.begin_frame2d_system(0.0)
+  @render2d.begin_frame2d_system()
   let screen_rect = test_rect(4.0, 6.0, 120.0, 80.0)
   let content_rect = test_rect(12.0, 18.0, 64.0, 24.0)
   let handle = register_ui_material_asset(
@@ -185,7 +185,7 @@ test "ui border radii resolve percent values against node size" {
 ///|
 test "ui box shadows emit layered rounded shadow commands" {
   let world = @ecs.require_current_world()
-  @render2d.begin_frame2d_system(0.0)
+  @render2d.begin_frame2d_system()
   let rect = test_rect(16.0, 24.0, 96.0, 48.0)
   let entity = @ecs_test.spawn(
     @ecs.require_current_world(),
@@ -223,7 +223,7 @@ test "ui box shadows emit layered rounded shadow commands" {
 ///|
 test "ui outlines resolve width and offset into outer bands" {
   let world = @ecs.require_current_world()
-  @render2d.begin_frame2d_system(0.0)
+  @render2d.begin_frame2d_system()
   let rect = test_rect(20.0, 30.0, 100.0, 60.0)
   let entity = @ecs_test.spawn1(
     @ecs.require_current_world(),
@@ -264,7 +264,7 @@ test "ui outlines resolve width and offset into outer bands" {
 ///|
 test "ui overflow clipping applies after node decorations" {
   let world = @ecs.require_current_world()
-  @render2d.begin_frame2d_system(0.0)
+  @render2d.begin_frame2d_system()
   let screen_rect = test_rect(0.0, 0.0, 120.0, 80.0)
   let content_rect = test_rect(12.0, 10.0, 96.0, 54.0)
   let entity = @ecs_test.spawn(
@@ -317,7 +317,7 @@ test "ui overflow clipping applies after node decorations" {
 
 ///|
 test "ui override clip removes inherited clip from child rendering" {
-  @render2d.begin_frame2d_system(0.0)
+  @render2d.begin_frame2d_system()
   let world = @ecs.require_current_world()
   let parent = @ecs_test.spawn1(
     world,
@@ -397,7 +397,7 @@ test "ui stacking keeps a pause menu subtree above the HUD" {
   let entities = [root, hud, minimap, pause_menu, dimmer, resume_button]
 
   ui_layout_system(world~, 0.0)
-  ui_extract_system(0.0)
+  ui_extract_system()
 
   let mut minimap_index = -1
   let mut pause_menu_index = -1
@@ -432,7 +432,7 @@ test "global z index lifts a descendant out of its parent stack" {
   let entities = [root, hud, minimap, pause_menu, dimmer]
 
   ui_layout_system(world~, 0.0)
-  ui_extract_system(0.0)
+  ui_extract_system()
 
   let mut dimmer_index = -1
   let mut minimap_index = -1
@@ -460,7 +460,7 @@ test "global z index orders separate UI roots before local z index" {
   let entities = [local_front, global_front]
 
   ui_layout_system(world~, 0.0)
-  ui_extract_system(0.0)
+  ui_extract_system()
 
   assert_eq(
     test_entity_index(extracted_ui_entities(), local_front) <
@@ -485,11 +485,11 @@ test "ui extraction reuses the stack snapshot produced by layout" {
 
   ui_layout_system(world~, 0.0)
   world.set_component(first, (ZIndex(2) : ZIndex))
-  ui_extract_system(0.0)
+  ui_extract_system()
   let first_snapshot = extracted_ui_entities().copy()
 
   ui_layout_system(world~, 0.0)
-  ui_extract_system(0.0)
+  ui_extract_system()
   let second_snapshot = extracted_ui_entities().copy()
 
   assert_eq(
@@ -564,7 +564,7 @@ test "ui prepare preserves clipped border paint order and sees material changes"
   extracted_ui_entities().clear()
   defer extracted_ui_entities().clear()
   extracted_ui_entities().append([back, front])
-  @render2d.begin_frame2d_system(0.0)
+  @render2d.begin_frame2d_system()
   ui_prepare_system(world~, 0.0)
 
   let commands = StringBuilder()

@@ -3,7 +3,7 @@ test "pixeladventure touch controls feed platformer actions" {
   configure_pixeladventure_input()
   @inputs.set_virtual_button_pressed(pixel_move_right_button(), true)
   @inputs.set_virtual_button_pressed(pixel_jump_button(), true)
-  @input_action.input_action_system(0.0)
+  @input_action.input_action_system()
   inspect(
     @input_action.action_pressed(pixel_move_right_action()),
     content="true",

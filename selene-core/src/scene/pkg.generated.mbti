@@ -23,7 +23,7 @@ pub let scene_instance_ready_events : @event.Events[SceneInstanceReadyEvent]
 
 pub fn scene_of(@ecs.Entity) -> @render3d_types.SceneHandle?
 
-pub fn scene_spawner_cleanup_system(Double) -> Unit
+pub fn scene_spawner_cleanup_system() -> Unit
 
 // Errors
 

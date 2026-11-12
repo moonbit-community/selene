@@ -43,7 +43,7 @@ fn frame2d() -> RenderFrameState2D {
 }
 
 ///|
-pub fn begin_frame2d_system(_delta : Double) -> Unit {
+pub fn begin_frame2d_system() -> Unit {
   frame2d_key.insert_in(@ecs.require_current_world(), {
     screen_world_commands: [],
     screen_ui_commands: [],

@@ -82,7 +82,7 @@ pub fn is_mouse_locked() -> Bool {
 }
 
 ///|
-pub fn sync_mouse_lock_system(_delta : Double) -> Unit {
+pub fn sync_mouse_lock_system() -> Unit {
   mouse_lock_requested.val = next_mouse_lock_request(
     mouse_lock_enabled.val,
     mouse_lock_requested.val,

@@ -157,13 +157,13 @@ pub fn run() -> Unit {
   .add_plugin(@plugins.default_plugin)
   .add_exclusive_system(Startup, game_start)
   .add_system(Update, @ecs.args2(player_input_system))
-  .add_exclusive_system(FixedPreUpdate, player_controller_system)
-  .add_exclusive_system(Update, trigger_system)
-  .add_exclusive_system(Update, pixeladventure_camera_follow_system)
-  .add_exclusive_system(FixedPostUpdate, player_bird_contact_system)
-  .add_exclusive_system(FixedPostUpdate, bird_patrol_system)
+  .add_system(FixedPreUpdate, @ecs.args4(player_controller_system))
+  .add_system(Update, @ecs.args4(trigger_system))
+  .add_system(Update, @ecs.args2(pixeladventure_camera_follow_system))
+  .add_system(FixedPostUpdate, @ecs.args4(player_bird_contact_system))
+  .add_system(FixedPostUpdate, @ecs.args4(bird_patrol_system))
   .add_system(PostUpdate, volume_button_system)
-  .add_exclusive_system(PostUpdate, hud_sync_system)
+  .add_system(PostUpdate, @ecs.args4(hud_sync_system))
   .run()
 }
 ```
@@ -205,13 +205,12 @@ priv struct PlayerController {
 ```
 
 Startup cleans up the previous run, loads the level, and inserts the new
-`GameSession` with `world.insert_resource(...)`. Player input receives
-`Query[Single[PlayerController]]` and optional `Res[GameSession]?` directly through
-`args2`; the volume system receives the session resource directly. Systems that
-coordinate whole-World helpers use `add_exclusive_system` explicitly. Their point
-reads and value replacements use `world.get_component(entity)` and
-`world.set_component(entity, value)`. The package applies the generation rule to
-`model.mbt`.
+`GameSession` with `world.insert_resource(...)`. Ordinary gameplay systems
+receive their queries, optional `Res[GameSession]?`, Commands, and Time through
+`argsN`. Movement and animation helpers use query rows directly; value
+components are replaced through `query.set(entity, row)`. The camera and HUD
+also use injected queries. Complete World access remains in Startup for scene
+construction. The package applies the generation rule to `model.mbt`.
 
 ```moonbit
 dev_build(rule: "selene_codegen", input: "model.mbt", output: "model.g.mbt")

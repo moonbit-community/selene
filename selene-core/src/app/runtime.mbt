@@ -68,16 +68,16 @@ fn build_runtime_plan(
     })
   }
   let frame_events = @ecs.Schedule().add_exclusive_system(_ => {
-    @event.event_frame_update_system(@time.delta())
+    @event.event_frame_update_system()
   })
   let fixed_events = @ecs.Schedule().add_exclusive_system(_ => {
-    @event.event_fixed_update_system(@time.delta())
+    @event.event_fixed_update_system()
   })
   let observers = @ecs.Schedule().add_exclusive_system(_ => {
-    @event.event_observer_dispatch_system(@time.delta())
+    @event.event_observer_dispatch_system()
   })
   let render_events = @ecs.Schedule().add_exclusive_system(_ => {
-    @event.event_render_update_system(@time.delta())
+    @event.event_render_update_system()
   })
   {
     world: app.world,

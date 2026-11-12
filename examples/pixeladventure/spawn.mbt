@@ -70,8 +70,9 @@ fn game_start(world : @ecs.World) -> Unit {
     world_size: loaded_level.world_size,
   })
 
-  hud_sync_system(world)
-  pixeladventure_camera_follow_system(world)
+  let session : GameSession = world.resource()
+  sync_hud(world.query1(), world.query1(), world.query1(), session)
+  update_camera(world.query1(), session)
 }
 
 ///|
@@ -195,7 +196,7 @@ fn spawn_player_entity(
   )
   pixeladventure_world_state().entities.push(entity)
   @ecs.commands(world).add(world => {
-    play_player_animation(world~, entity, controller)
+    play_player_animation(world.query(), entity, controller)
   })
   entity
 }
@@ -238,7 +239,9 @@ fn spawn_bird_entity(world~ : @ecs.World, x : Double, y : Double) -> Unit {
     ),
   )
   pixeladventure_world_state().entities.push(entity)
-  @ecs.commands(world).add(world => play_bird_animation(world~, entity, bird))
+  @ecs.commands(world).add(world => {
+    play_bird_animation(world.query(), entity, bird)
+  })
 }
 
 ///|
