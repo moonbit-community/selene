@@ -262,9 +262,9 @@
   during a flush run in FIFO order at the next scheduler flush.
 - Isolated entity identity, deferred commands, and query snapshots across Worlds.
 
-- Initialized the registry index before the pre-release CI compatibility check.
-
 ### Removed
+
+- Remove the MoonBit pre-release CI compatibility job; CI uses the latest toolchain.
 
 - Remove public immediate World/SpawnPlan/SpawnDraft creation, Entity lifecycle
   mutation, raw command/lifecycle flushes, and manual state-transition execution.

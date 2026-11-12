@@ -40,8 +40,7 @@ See the [README](README.md) for package roles and tutorials.
   `feat: ...`, and describe the resulting behavior and validation in the PR.
 
 The [CI workflow](.github/workflows/build.yaml) defines the required checks.
-`latest` must pass without warnings; `pre-release` may retain deprecation
-warnings while the replacement syntax is unavailable on `latest`.
+The `latest` toolchain must pass without warnings.
 If you change `publish.mbtx`, also run:
 
 ```sh
