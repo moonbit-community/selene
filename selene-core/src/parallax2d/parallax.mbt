@@ -67,10 +67,11 @@ pub fn inherited_parallax2d(
   world~ : @ecs.World,
   entity : @ecs.Entity,
 ) -> Parallax2d? {
-  let query_parallax2d : @ecs.Query[Parallax2d] = world.query()
+  let query_parallax2d : @ecs.Query[@ecs.Single[Parallax2d]] = world.query()
   let mut current = Some(entity)
   while current is Some(current_entity) {
-    if query_parallax2d.get(current_entity) is Some(parallax) {
+    if query_parallax2d.get(current_entity).map(value => value.0)
+      is Some(parallax) {
       return Some(parallax)
     }
     current = current_entity.get_parent()

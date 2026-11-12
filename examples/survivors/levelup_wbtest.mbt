@@ -17,27 +17,30 @@ test "level up shows panel and buttons" {
 
   inspect(@time.scale(), content="0")
   inspect(
-    (world.query() : @ecs.Query[@ui.Node])
+    (world.query() : @ecs.Query[@ecs.Single[@ui.Node]])
     .get(game_state(world~).level_up_panel.panel_entity)
+    .map(value => value.0)
     .unwrap().active,
     content="true",
   )
   inspect(survivors_runtime().levelup_buttons.length(), content="3")
   inspect(survivors_runtime().levelup_button_icons.length(), content="3")
   inspect(
-    (world.query() : @ecs.Query[@ui.Node])
+    (world.query() : @ecs.Query[@ecs.Single[@ui.Node]])
     .get(survivors_runtime().levelup_buttons[0])
+    .map(value => value.0)
     .unwrap().active,
     content="true",
   )
   inspect(
-    (world.query() : @ecs.Query[@ui.Node])
+    (world.query() : @ecs.Query[@ecs.Single[@ui.Node]])
     .get(survivors_runtime().levelup_button_icons[0])
+    .map(value => value.0)
     .unwrap().active,
     content="true",
   )
   inspect(
-    (world.query() : @ecs.Query[@ui.UiImage]).contains(
+    (world.query() : @ecs.Query[@ecs.Single[@ui.UiImage]]).contains(
       survivors_runtime().levelup_button_icons[0],
     ),
     content="true",
@@ -88,14 +91,16 @@ test "level up click resumes game" {
 
   inspect(@time.scale(), content="1")
   inspect(
-    (world.query() : @ecs.Query[@ui.Node])
+    (world.query() : @ecs.Query[@ecs.Single[@ui.Node]])
     .get(game_state(world~).level_up_panel.panel_entity)
+    .map(value => value.0)
     .unwrap().active,
     content="false",
   )
   inspect(
-    (world.query() : @ecs.Query[@ui.Node])
+    (world.query() : @ecs.Query[@ecs.Single[@ui.Node]])
     .get(survivors_runtime().levelup_button_icons[0])
+    .map(value => value.0)
     .unwrap().active,
     content="false",
   )

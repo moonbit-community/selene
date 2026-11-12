@@ -1,11 +1,11 @@
 ///|
 fn sync_impulse_joints_to_rapier(world~ : @ecs.World) -> Unit {
-  let query_impulse_joint : @ecs.Query[ImpulseJoint] = world.query()
+  let query_impulse_joint : @ecs.Query[@ecs.Single[ImpulseJoint]] = world.query()
   let physics_world = physics3d_world()
   physics_world.impulse_joints = JointSet3DReal()
   physics_world.rope_joints = RopeJointSet3DReal()
   impulse_joint_handles().clear()
-  for entity, impulse_joint in query_impulse_joint {
+  for entity, Single(impulse_joint) in query_impulse_joint {
     if !entity.is_alive() || !impulse_joint.parent.is_alive() {
       continue
     }
@@ -101,11 +101,11 @@ fn sync_impulse_joints_to_rapier(world~ : @ecs.World) -> Unit {
 
 ///|
 fn sync_multibody_joints_to_rapier(world~ : @ecs.World) -> Unit {
-  let query_multibody_joint : @ecs.Query[MultibodyJoint] = world.query()
+  let query_multibody_joint : @ecs.Query[@ecs.Single[MultibodyJoint]] = world.query()
   let physics_world = physics3d_world()
   physics_world.multibody_joints = MultibodyJointSet3DReal()
   multibody_joint_handles().clear()
-  for entity, multibody_joint in query_multibody_joint {
+  for entity, Single(multibody_joint) in query_multibody_joint {
     if !entity.is_alive() || !multibody_joint.parent.is_alive() {
       continue
     }
@@ -134,16 +134,16 @@ fn sync_multibody_joints_to_rapier(world~ : @ecs.World) -> Unit {
 
 ///|
 fn sync_character_controllers(world~ : @ecs.World, delta : Double) -> Unit {
-  let query_collider : @ecs.Query[Collider] = world.query()
+  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
   let query_kinematic_character_controller : @ecs.Query[
-    KinematicCharacterController,
+    @ecs.Single[KinematicCharacterController],
   ] = world.query()
   if delta <= 0.0 {
     return
   }
   let physics_world = physics3d_world()
   let dt = Float::from_double(delta)
-  for entity, controller in query_kinematic_character_controller {
+  for entity, Single(controller) in query_kinematic_character_controller {
     if !entity.is_alive() {
       continue
     }
@@ -156,7 +156,7 @@ fn sync_character_controllers(world~ : @ecs.World, delta : Double) -> Unit {
       grounded: false,
       is_sliding_down_slope: false,
     }
-    guard query_collider.get(entity) is Some(shape) else {
+    guard query_collider.get(entity).map(value => value.0) is Some(shape) else {
       kinematic_character_controller_outputs().set(entity, output)
       controller_collisions().set(
         entity,

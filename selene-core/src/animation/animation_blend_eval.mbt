@@ -347,7 +347,7 @@ fn resolve_sample_value(
 fn collect_targets_by_player(
   world~ : @ecs.World,
 ) -> @ecs.EntityTable[Map[AnimationTargetId, @ecs.Entity]] {
-  let query_animated_by : @ecs.Query[AnimatedBy] = world.query()
+  let query_animated_by : @ecs.Query[@ecs.Single[AnimatedBy]] = world.query()
   let targets_by_player : @ecs.EntityTable[Map[AnimationTargetId, @ecs.Entity]] = EntityTable(
     @ecs.require_current_world(),
   )

@@ -20,7 +20,14 @@ pub impl Bundle for Unit with fn prepare(world) {
 
 ///|
 /// Wraps one component for use with the spawn API.
+#derive(Eq, Debug)
 pub(all) struct Single[T](T)
+
+///|
+pub extend Single with Eq::{equal, not_equal}
+
+///|
+pub extend Single with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub impl[T : Component] Bundle for Single[T] with fn prepare(world) {

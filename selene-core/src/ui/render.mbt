@@ -310,12 +310,17 @@ fn push_box_shadow(
   entity : @ecs.Entity,
   camera_entity_id~ : UInt32? = None,
 ) -> Unit {
-  let query_box_shadow : @ecs.Query[BoxShadow] = world.query()
-  let query_border_radius : @ecs.Query[BorderRadius] = world.query()
-  guard query_box_shadow.get(entity) is Some(shadow) else { return }
+  let query_box_shadow : @ecs.Query[@ecs.Single[BoxShadow]] = world.query()
+  let query_border_radius : @ecs.Query[@ecs.Single[BorderRadius]] = world.query()
+  guard query_box_shadow.get(entity).map(value => value.0) is Some(shadow) else {
+    return
+  }
   guard global_ui_node(entity) is Some(global) else { return }
   let base_radius = resolved_border_radius(
-    query_border_radius.get(entity).unwrap_or(BorderRadius::all(Val::px(0.0))),
+    query_border_radius
+    .get(entity)
+    .map(value => value.0)
+    .unwrap_or(BorderRadius::all(Val::px(0.0))),
     global.screen_rect.size,
   )
   let spread_basis = @cmp.minimum(
@@ -461,7 +466,7 @@ fn push_background(
   entity : @ecs.Entity,
   camera_entity_id~ : UInt32? = None,
 ) -> Unit {
-  let query_material_node : @ecs.Query[MaterialNode] = world.query()
+  let query_material_node : @ecs.Query[@ecs.Single[MaterialNode]] = world.query()
   guard !query_material_node.contains(entity) else { return }
   guard (world.get_component(entity) : BackgroundColor?) is Some(background) else {
     return
@@ -718,7 +723,7 @@ fn push_image(
   entity : @ecs.Entity,
   camera_entity_id~ : UInt32? = None,
 ) -> Unit {
-  let query_material_node : @ecs.Query[MaterialNode] = world.query()
+  let query_material_node : @ecs.Query[@ecs.Single[MaterialNode]] = world.query()
   guard !query_material_node.contains(entity) else { return }
   guard (world.get_component(entity) : UiImage?) is Some(image) else { return }
   guard global_ui_node(entity) is Some(transform) else { return }
@@ -821,8 +826,8 @@ fn push_text(
   entity : @ecs.Entity,
   camera_entity_id~ : UInt32? = None,
 ) -> Unit {
-  let query_text : @ecs.Query[Text] = world.query()
-  guard query_text.get(entity) is Some(_) else { return }
+  let query_text : @ecs.Query[@ecs.Single[Text]] = world.query()
+  guard query_text.get(entity).map(value => value.0) is Some(_) else { return }
   guard global_ui_node(entity) is Some(transform) else { return }
   guard render_text_style(world~, entity) is Some(style) else { return }
   let layout = text_layout(world~, entity)
@@ -876,7 +881,7 @@ fn inherited_clip_for_entity(
   world~ : @ecs.World,
   entity : @ecs.Entity,
 ) -> @math.Rect? {
-  let query_override_clip : @ecs.Query[OverrideClip] = world.query()
+  let query_override_clip : @ecs.Query[@ecs.Single[OverrideClip]] = world.query()
   if query_override_clip.contains(entity) {
     return None
   }

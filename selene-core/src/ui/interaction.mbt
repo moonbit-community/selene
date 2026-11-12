@@ -233,7 +233,7 @@ fn is_interactive(world~ : @ecs.World, entity : @ecs.Entity) -> Bool {
 
 ///|
 fn is_focusable(world~ : @ecs.World, entity : @ecs.Entity) -> Bool {
-  let query_focusable : @ecs.Query[Focusable] = world.query()
+  let query_focusable : @ecs.Query[@ecs.Single[Focusable]] = world.query()
   if is_interactive(world~, entity) {
     true
   } else {
@@ -266,7 +266,7 @@ fn interaction_state(
 
 ///|
 fn focusable_entities(world~ : @ecs.World) -> Array[@ecs.Entity] {
-  let query_tab_index : @ecs.Query[TabIndex] = world.query()
+  let query_tab_index : @ecs.Query[@ecs.Single[TabIndex]] = world.query()
   let entities : Array[@ecs.Entity] = []
   for entity in ui_stack() {
     if is_focusable(world~, entity) {
@@ -434,11 +434,13 @@ fn update_relative_cursor_positions(
   world~ : @ecs.World,
   position : @math.Vec2,
 ) -> Unit {
-  let query_node : @ecs.Query[Node] = world.query()
-  let query_relative_cursor_position : @ecs.Query[RelativeCursorPosition] = world.query()
-  for entity, relative in query_relative_cursor_position {
+  let query_node : @ecs.Query[@ecs.Single[Node]] = world.query()
+  let query_relative_cursor_position : @ecs.Query[
+    @ecs.Single[RelativeCursorPosition],
+  ] = world.query()
+  for entity, Single(relative) in query_relative_cursor_position {
     guard entity.is_alive() else { continue }
-    guard query_node.get(entity) is Some(node) else {
+    guard query_node.get(entity).map(value => value.0) is Some(node) else {
       relative.normalized = None
       relative.cursor_over = false
       continue
@@ -513,10 +515,10 @@ fn scrollable_target_at(
   world~ : @ecs.World,
   position : @math.Vec2,
 ) -> @ecs.Entity? {
-  let query_node : @ecs.Query[Node] = world.query()
+  let query_node : @ecs.Query[@ecs.Single[Node]] = world.query()
   let mut target = ui_node_at(position)
   while target is Some(entity) {
-    guard query_node.get(entity) is Some(node) else {
+    guard query_node.get(entity).map(value => value.0) is Some(node) else {
       target = entity.get_parent()
       continue
     }
@@ -731,7 +733,7 @@ fn clear_touch_hover() -> Unit {
 
 ///|
 pub fn ui_interaction_system(world~ : @ecs.World, _delta : Double) -> Unit {
-  let query_button : @ecs.Query[Button] = world.query()
+  let query_button : @ecs.Query[@ecs.Single[Button]] = world.query()
   let runtime = ui_interaction_runtime()
   sanitize_focus(world~)
   let pointer_position = @inputs.primary_pointer_position()
@@ -851,7 +853,7 @@ pub fn ui_interaction_system(world~ : @ecs.World, _delta : Double) -> Unit {
     navigation_event_bus.send({ entity: Some(target), direction: Activate, })
   }
 
-  for entity, _button in query_button {
+  for entity, Single(_button) in query_button {
     if entity.is_alive() {
       interactions().set(entity, interaction_state(entity, visual_hover))
     }

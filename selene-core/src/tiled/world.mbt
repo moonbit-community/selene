@@ -188,12 +188,13 @@ pub fn tiled_world_chunking_system(
   world~ : @ecs.World,
   _delta : Double,
 ) -> Unit {
-  let query_tiled_world_instance : @ecs.Query[TiledWorldInstance] = world.query()
+  let query_tiled_world_instance : @ecs.Query[@ecs.Single[TiledWorldInstance]] = world.query()
   for entity in query_tiled_world_instance.to_array().map(pair => pair.0) {
     if !entity.is_alive() {
       continue
     }
-    guard query_tiled_world_instance.get(entity) is Some(instance) else {
+    guard query_tiled_world_instance.get(entity).map(value => value.0)
+      is Some(instance) else {
       continue
     }
     if instance.settings.chunking is Some(_) {
@@ -207,8 +208,9 @@ fn tiled_world_update_chunking(
   world~ : @ecs.World,
   world_entity : @ecs.Entity,
 ) -> Unit {
-  let query_tiled_world_instance : @ecs.Query[TiledWorldInstance] = world.query()
-  guard query_tiled_world_instance.get(world_entity) is Some(instance) else {
+  let query_tiled_world_instance : @ecs.Query[@ecs.Single[TiledWorldInstance]] = world.query()
+  guard query_tiled_world_instance.get(world_entity).map(value => value.0)
+    is Some(instance) else {
     return
   }
   guard instance.settings.chunking is Some(margin) else { return }

@@ -289,18 +289,19 @@ fn start_bullet_despawn(
 
 ///|
 fn player_bullet_trigger_system(world : @ecs.World) -> Unit {
-  let query_player_bullet_state : @ecs.Query[PlayerBulletState] = world.query()
-  let query_enemy : @ecs.Query[Enemy] = world.query()
+  let query_player_bullet_state : @ecs.Query[@ecs.Single[PlayerBulletState]] = world.query()
+  let query_enemy : @ecs.Query[@ecs.Single[Enemy]] = world.query()
   for
     event in @physics2d.trigger_event_bus.read(
       survivors_runtime().player_bullet_trigger_event_reader,
     ) {
     guard event.entered else { continue }
-    guard query_player_bullet_state.get(event.area) is Some(bullet) else {
+    guard query_player_bullet_state.get(event.area).map(value => value.0)
+      is Some(bullet) else {
       continue
     }
     guard bullet.alive else { continue }
-    if query_enemy.get(event.other) is Some(enemy) {
+    if query_enemy.get(event.other).map(value => value.0) is Some(enemy) {
       enemy.health -= bullet.damage
       bullet.penetration_count += 1
       if enemy.health <= 0.0 {

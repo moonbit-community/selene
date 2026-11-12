@@ -44,7 +44,7 @@ pub fn set_rigid_body_linear_velocity(
   entity : @ecs.Entity,
   linear_velocity : @math.Vec2,
 ) -> Unit {
-  let query_velocity : @ecs.Query[@velocity.Velocity] = world.query()
+  let query_velocity : @ecs.Query[@ecs.Single[@velocity.Velocity]] = world.query()
   let body_type = entity_rigid_body(world~, entity).body_type
   match body_type {
     Fixed => {

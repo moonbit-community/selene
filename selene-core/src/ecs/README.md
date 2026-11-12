@@ -22,49 +22,80 @@ priv struct Velocity {
   y : Double
 }
 
-fn move_entities(query : @ecs.Query2[Position, Velocity]) -> Unit {
-  query.for_each_batch_mut_a((_, positions, velocities) => {
-    for i in 0..<positions.length() {
-      positions[i] = {
-        x: positions[i].x + velocities[i].x,
-        y: positions[i].y + velocities[i].y,
+fn move_entities(query : @ecs.Query[(Position, Velocity)]) -> Unit {
+  query.for_each_batch(batch => {
+    let positions : @ecs.WriteColumn[Position] = batch.write_column()
+    let velocities : @ecs.ReadColumn[Velocity] = batch.read_column()
+    for row in 0..<batch.length() {
+      positions[row] = Position::{
+        x: positions[row].x + velocities[row].x,
+        y: positions[row].y + velocities[row].y,
       }
     }
   })
 }
 ```
 
-Register the callback with a query constructor.
+Register the typed callback directly:
 
 ```moonbit
-app.add_system(Update, @ecs.query_system(
-  world => world.query2(),
-  move_entities,
-))
+app.add_query_system(Update, move_entities)
 ```
 
-`query_system` accepts the same constructor and callback shape for single- and
-multi-component queries. It constructs the query once per World. For callers
-outside a system, `@ecs.cache_query(make)` returns a World-to-query function
-with the same caching behavior. Use batch views within their callback and
-queue structural changes through `Commands`.
+The callback's parameter supplies the row shape. The scheduler constructs and
+caches that query separately for each World; no query factory is required at
+registration. `add_query_system` accepts the same schedules, conditions, names,
+and system-set ordering arguments as `add_system`. Use `add_system` for a
+callback that explicitly needs the entire World.
 
-For direct query construction, the expected type selects the components:
+There is one opaque `Query[Row]` type. `Single[T]` describes one component;
+flat tuples describe two to eight components. This uses the same single-value
+and tuple convention as spawn bundles, without generating additional code for
+each component. `Single` wraps the query row, not the stored component.
 
 ```moonbit
-let positions : @ecs.Query[Position] = world.query()
-let moving : @ecs.Query2[Position, Velocity] = world.query2()
-positions.for_each((entity, position) => update_position(entity, position))
-let position : Position? = positions.get(player)
+let positions : @ecs.Query[@ecs.Single[Position]] = world.query1()
+let moving : @ecs.Query[(Position, Velocity)] = world.query()
+positions.for_each((entity, row) => {
+  let Single(position) = row
+  update_position(entity, position)
+})
+moving.for_each((entity, row) => {
+  let (position, velocity) = row
+  update_movement(entity, position, velocity)
+})
+let position : @ecs.Single[Position]? = positions.get(player)
 ```
 
-`Query`, `Query2`, `Query3`, `Query4`, and `Query5` are opaque, World-bound
-access objects. Their storage is private. Query callbacks receive component
-values; they do not receive the World or a component store implicitly.
-`cache_query` and `query_system` cache queries separately for each World.
-`With[T](world)` and `Without[T](world)` filters also bind to that World.
-`QueryReader::read(query)` derives its World from the query rather than taking
-an independent World/store pair.
+`world.query1()` is shorthand for constructing `Query[Single[T]]`; the general
+`world.query()` also accepts that shape. All shapes provide `get`, `contains`,
+`single`, `length`, `for_each`, and `for_each_batch` with the same semantics.
+Their component storage and batch representations are private.
+
+For custom schedulers, `@ecs.query_system(callback)` produces a `System`.
+Outside a system, use an inferred cached query constructor:
+
+```moonbit
+let moving_query : (@ecs.World) -> @ecs.Query[(Position, Velocity)] =
+  @ecs.cache_query()
+```
+
+Filters are part of the query view, so point reads, counts, snapshots, row
+callbacks, and batch callbacks agree about which entities match:
+
+```moonbit
+let with_velocity : @ecs.With[Velocity] = With(world)
+let moving_positions : @ecs.Query[@ecs.Single[Position]] =
+  world.query1(filters=[with_velocity.to_filter()])
+```
+
+`Without[T](world)` excludes archetypes containing `T`. Filters must belong to
+the query's World; foreign filters are rejected. Matching happens once for each
+archetype, including new archetypes encountered later. `query.with_filters(...)`
+creates an independently cached view and copies its filter list. To filter a
+registered system, pass `filters=world => [...]` to `add_query_system`; that
+constructor runs only when the query is first needed in each World.
+`QueryReader[Row]::read(query)` snapshots the same filtered row shape.
 
 For setup and systems that explicitly need the whole World, use point access:
 
@@ -152,26 +183,47 @@ system needs the current world pose before propagation, use
 `@transform.compute_global_transform(world~, entity)`. A container without `Spatial`
 passes the parent's transform to its children.
 
-## Multi-component queries
+## Traversal and batch access
 
-Use `world.query2()`, `world.query3()`, `world.query4()`, or `world.query5()`.
-Keep the query for repeated use. It only matches newly created archetypes,
-then visits their aligned component columns in archetype order.
+All row shapes keep the existing archetype column layout. Queries cache matching
+archetypes and bind their columns once. They do not turn the World into an array
+of row tuples. `for_each` constructs the logical row supplied to its callback;
+for large hot loops, use typed columns to avoid forming a tuple for every row.
+See [measured row and column costs](BENCHMARKS.md) for native and Node.js results.
 
 ```moonbit
-let moving : @ecs.Query3[Position, Velocity, Health] = world.query3()
-moving.for_each((entity, position, velocity, hp) => {
-  update_moving_entity(entity, position, velocity, hp)
+moving.for_each_batch(batch => {
+  let positions : @ecs.ReadColumn[Position] = batch.read_column()
+  let velocities : @ecs.WriteColumn[Velocity] = batch.write_column()
+  for row in 0..<batch.length() {
+    let entity = batch.entity(row)
+    velocities[row] = next_velocity(entity, positions[row], velocities[row])
+  }
 })
 ```
 
-Use `for_each_batch` for column views that cannot replace array elements or `for_each_batch_mut_a`
-to update the first column in place. Views are valid during the callback.
-Queue entity spawns and permanent deletions through `Commands` for the next flush.
+A batch can read or write any component declared in its query, regardless of
+column order. Obtain several write columns to replace several component values
+in one loop. Requesting an undeclared component is rejected even when that
+component happens to exist on the same archetype. `batch.get(row)` and
+`batch.set(row, value)` access a complete logical row.
 
-If you already have an entity or a caller-defined traversal order, use
-`moving.get(entity)`. It locates one row and returns the matching tuple,
-or `None` for missing components, stale handles, or entities from another World.
+`ReadColumn` permits reading elements; `WriteColumn` also permits replacement.
+Reading a mutable component object does not make that object immutable. Batch
+objects and columns expire when their callback returns; accessing an escaped
+view aborts. They expose no raw arrays or persistent array views.
+
+`for_each` and `for_each_batch` reject immediate structural changes and schedule
+flushes during traversal. Queue spawns and deletions through `Commands`.
+
+`iter()` and `to_array()` collect a snapshot of rows. `keys()` captures matching
+entity handles in the first component's insertion order. `iter2()` and
+`values()` capture those handles and read their current values when advancing:
+deleted generations are skipped, replacements in recycled slots are not
+visited, and value updates made before a later step are visible. They do not
+retain a live archetype row between steps, so a schedule flush cannot invalidate
+the iterator. Prefer callback traversal when no handle snapshot is needed.
+Snapshots retain component objects, not deep copies of mutable values.
 
 ## Resources
 

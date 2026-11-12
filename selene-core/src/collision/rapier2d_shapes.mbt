@@ -96,7 +96,7 @@ fn collider_handle_key(
 
 ///|
 fn world_entity(world~ : @ecs.World, entity : @ecs.Entity) -> Bool {
-  let query_node : @ecs.Query[@ui.Node] = world.query()
+  let query_node : @ecs.Query[@ecs.Single[@ui.Node]] = world.query()
   !query_node.contains(entity)
 }
 
@@ -110,7 +110,7 @@ fn entity_collision_shape(
 
 ///|
 fn legacy_rigid_body(world~ : @ecs.World, entity : @ecs.Entity) -> RigidBody {
-  let query_velocity : @ecs.Query[@velocity.Velocity] = world.query()
+  let query_velocity : @ecs.Query[@ecs.Single[@velocity.Velocity]] = world.query()
   if query_velocity.contains(entity) {
     RigidBody::kinematic_position_based()
   } else {
@@ -171,7 +171,7 @@ fn entity_linear_velocity_for_body(
   entity : @ecs.Entity,
   body_type : RigidBodyType,
 ) -> @math.Vec2? {
-  let query_velocity : @ecs.Query[@velocity.Velocity] = world.query()
+  let query_velocity : @ecs.Query[@ecs.Single[@velocity.Velocity]] = world.query()
   match body_type {
     Dynamic =>
       if pending_body_linear_velocities().get(entity) is Some(velocity) {
@@ -185,7 +185,8 @@ fn entity_linear_velocity_for_body(
     KinematicVelocityBased =>
       if pending_body_linear_velocities().get(entity) is Some(velocity) {
         Some(velocity)
-      } else if query_velocity.get(entity) is Some(velocity) {
+      } else if query_velocity.get(entity).map(value => value.0)
+        is Some(velocity) {
         Some(velocity.0)
       } else if physics_world().entity_bodies.get(entity) is Some(handle) &&
         physics_world().bodies.get(handle) is Some(body) {
@@ -194,7 +195,10 @@ fn entity_linear_velocity_for_body(
         None
       }
     KinematicPositionBased =>
-      query_velocity.get(entity).map(fn(velocity) { velocity.0 })
+      query_velocity
+      .get(entity)
+      .map(value => value.0)
+      .map(fn(velocity) { velocity.0 })
     Fixed => None
   }
 }

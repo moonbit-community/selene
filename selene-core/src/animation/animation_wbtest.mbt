@@ -161,8 +161,10 @@ test "animation graph mask groups exclude masked targets during apply" {
       player_entity,
       (register_animation_graph_asset(unmasked_graph) : AnimationGraphHandle),
     )
-    let unmasked_player = (world.query() : @ecs.Query[AnimationPlayer])
+    let unmasked_player = (
+        world.query() : @ecs.Query[@ecs.Single[AnimationPlayer]])
       .get(player_entity)
+      .map(value => value.0)
       .unwrap()
     ignore(unmasked_player.stop_all())
     ignore(unmasked_player.start(unmasked_node, repeat=Never))
@@ -425,7 +427,7 @@ test "multiple animation fades are removed in one transition update" {
       )
     }
     ignore(@ecs.require_current_world().spawn((player, transitions)))
-    animation_transition_system(world~, 0.2)
+    animation_transition_system(world.query(), 0.2)
     assert_eq(player.playing_animations().length(), 1)
     let main = transitions.get_main_animation().unwrap()
     assert_true(player.is_playing_animation(main))

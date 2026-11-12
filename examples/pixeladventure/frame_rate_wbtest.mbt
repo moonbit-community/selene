@@ -19,8 +19,9 @@ fn player_motion_at_refresh_rate(refresh : Int32) -> Array[@math.Vec2] raise {
     .add_system(FixedFirst, world => {
       if world.fixed_step_index() == 12U {
         let session : GameSession = world.resource()
-        (world.query() : @ecs.Query[PlayerController])
+        (world.query() : @ecs.Query[@ecs.Single[PlayerController]])
         .get(session.player)
+        .map(value => value.0)
         .unwrap().jump_requested
         = true
       }
@@ -64,16 +65,20 @@ test "a jump press survives render frames without a physics step" {
       @inputs.apply_input_snapshot(InputSnapshot())
       @input_action.input_action_system(0.0)
       player_input_system(world)
-      let controller = (world.query() : @ecs.Query[PlayerController])
+      let controller = (
+          world.query() : @ecs.Query[@ecs.Single[PlayerController]])
         .get(session.player)
+        .map(value => value.0)
         .unwrap()
       assert_true(controller.jump_requested)
       @physics2d.grounded_entities().add(session.player)
       @time.use_fixed_delta(1.0 / 60.0)
       player_controller_system(world)
       assert_false(controller.jump_requested)
-      let velocity = (world.query() : @ecs.Query[@physics2d.LinearVelocity])
+      let velocity = (
+          world.query() : @ecs.Query[@ecs.Single[@physics2d.LinearVelocity]])
         .get(session.player)
+        .map(value => value.0)
         .unwrap()
       assert_true((velocity.0.y - (-JUMP_V + GRAVITY / 60.0)).abs() < 0.000001)
     })

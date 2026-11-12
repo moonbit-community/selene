@@ -937,8 +937,9 @@ test "kinematic character controller writes output and clears consumed translati
       content="true",
     )
     inspect(
-      (world.query() : @ecs.Query[KinematicCharacterController])
+      (world.query() : @ecs.Query[@ecs.Single[KinematicCharacterController]])
       .get(actor)
+      .map(value => value.0)
       .unwrap().translation
       is None,
       content="true",

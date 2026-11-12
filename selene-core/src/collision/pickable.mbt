@@ -283,7 +283,7 @@ fn dispatch_pointer_events(entity : @ecs.Entity) -> Unit {
 
 ///|
 pub fn pickable_click_system(world~ : @ecs.World, _delta : Double) -> Unit {
-  let query_pickable : @ecs.Query[Pickable] = world.query()
+  let query_pickable : @ecs.Query[@ecs.Single[Pickable]] = world.query()
   let mouse_screen = @inputs.mouse.pos
   let camera_view = @camera.camera2d_view_for_screen_point(world~, mouse_screen)
   let mouse_world = match camera_view {
@@ -291,7 +291,7 @@ pub fn pickable_click_system(world~ : @ecs.World, _delta : Double) -> Unit {
     None => @window.unscale_vec2(mouse_screen)
   }
   let mouse_virtual = @window.screen_to_ui_virtual(mouse_screen)
-  for entity, pickable in query_pickable {
+  for entity, Single(pickable) in query_pickable {
     guard entity.is_alive() else { continue }
     guard pickable.active else { continue }
     guard @visibility.is_visible(entity) else { continue }

@@ -21,23 +21,49 @@ test "a three-component query is constructed once per World" {
   }
   let observed = []
   let constructed = []
-  let system = @ecs.query_system(
-    world => {
-      constructed.push(world.id())
-      world.query3()
-    },
+  let app = @app.App().add_query_system(
+    Update,
     fn(
-      query : @ecs.Query3[@sprite.Sprite, @transform.Spatial, @sprite.Anchor],
+      query : @ecs.Query[(@sprite.Sprite, @transform.Spatial, @sprite.Anchor)],
     ) {
-      query.for_each((_, _, transform, _) => {
+      query.for_each((_, row) => {
+        let (_, transform, _) = row
         observed.push(transform.pose().translation.x)
       })
     },
+    filters=world => {
+      constructed.push(world.id())
+      []
+    },
   )
-
-  @app.App().with_world(first).add_system(Update, system).run_frames(1)
-  @app.App().with_world(second).add_system(Update, system).run_frames(1)
-  @app.App().with_world(first).add_system(Update, system).run_frames(1)
+  app.with_world(first).run_frames(1)
+  app.with_world(second).run_frames(1)
+  app.with_world(first).run_frames(1)
   assert_eq(observed, [1.0, 2.0, 1.0])
   assert_eq(constructed, [first.id(), second.id()])
+}
+
+///|
+test "single-component query systems honor conditions and system set ordering" {
+  let world = @ecs.World()
+  ignore(world.spawn1(@sprite.Sprite()))
+  let query_set = @app.SystemSet("query")
+  let world_set = @app.SystemSet("world")
+  let calls = []
+  let app = @app.App()
+    .add_system(Update, _ => calls.push(2), in_set=world_set)
+    .add_query_system(
+      Update,
+      fn(query : @ecs.Query[@ecs.Single[@sprite.Sprite]]) {
+        query.for_each((_, _) => calls.push(1))
+      },
+      in_set=query_set,
+      before=[world_set],
+      run_if=current => current.id() == world.id(),
+    )
+  app.with_world(world).run_frames(1)
+  assert_eq(calls, [1, 2])
+  calls.clear()
+  app.with_world(World()).run_frames(1)
+  assert_eq(calls, [2])
 }

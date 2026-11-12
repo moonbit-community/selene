@@ -1,8 +1,5 @@
 ///|
-let sprite_query : (@ecs.World) -> @ecs.Query2[Sprite, @transform.Spatial] = @ecs.cache_query(world => {
-    world.query2()
-  },
-)
+let sprite_query : (@ecs.World) -> @ecs.Query[(Sprite, @transform.Spatial)] = @ecs.cache_query()
 
 ///|
 /// Visits Sprites with a GlobalTransform in contiguous archetype rows.
@@ -10,15 +7,19 @@ pub fn for_each_sprite_transform(
   world~ : @ecs.World,
   visit : (@ecs.Entity, Sprite, @transform.GlobalTransform) -> Unit,
 ) -> Unit {
-  sprite_query(world).for_each((entity, sprite, spatial) => {
-    visit(entity, sprite, spatial.global())
+  sprite_query(world).for_each_batch(batch => {
+    let sprites : @ecs.ReadColumn[Sprite] = batch.read_column()
+    let spatials : @ecs.ReadColumn[@transform.Spatial] = batch.read_column()
+    for row in 0..<batch.length() {
+      visit(batch.entity(row), sprites[row], spatials[row].global())
+    }
   })
 }
 
 ///|
 pub fn render_sprite_system(world~ : @ecs.World, delta : Double) -> Unit {
-  let query_sorting2d : @ecs.Query[@render2d.Sorting2d] = world.query()
-  let sprites : @ecs.Query[Sprite] = world.query()
+  let query_sorting2d : @ecs.Query[@ecs.Single[@render2d.Sorting2d]] = world.query()
+  let sprites : @ecs.Query[@ecs.Single[Sprite]] = world.query()
   ignore(delta)
   let camera_views = @camera.active_camera2d_views(world~)
   let camera_extract = @culling2d.CameraExtract2dContext(camera_views)
@@ -30,7 +31,10 @@ pub fn render_sprite_system(world~ : @ecs.World, delta : Double) -> Unit {
     guard @visibility.is_visible(entity) else { return }
     guard sprite_size(sprite) is Some(size) else { return }
     let order = order_base + sprites.insertion_order(entity)
-    let sorting = query_sorting2d.get(entity).unwrap_or(Sorting2d())
+    let sorting = query_sorting2d
+      .get(entity)
+      .map(value => value.0)
+      .unwrap_or(Sorting2d())
     let depth = @render2d.sort_depth_for_transform(global_transform, sorting)
     let translation = global_transform.translation()
     let base_pos = @math.Vec2(translation.x, translation.y)

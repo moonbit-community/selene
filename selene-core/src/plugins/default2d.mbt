@@ -157,11 +157,10 @@ pub fn default_plugin(app : @app.App) -> @app.App {
     in_set=animation,
     after=[gameplay],
   )
-  let app = add_system(
-    app,
-    world => @animation.animation_transition_system(world~, @time.delta()),
+  let app = app.add_query_system(
     PostUpdate,
-    "Animation Transition System",
+    query => @animation.animation_transition_system(query, @time.delta()),
+    system_name="Animation Transition System",
     in_set=animation,
     after=[animation],
   )

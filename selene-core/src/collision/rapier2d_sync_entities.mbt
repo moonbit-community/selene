@@ -28,7 +28,7 @@ fn entity_has_command_linear_velocity(
   entity : @ecs.Entity,
   body_type : RigidBodyType,
 ) -> Bool {
-  let query_velocity : @ecs.Query[@velocity.Velocity] = world.query()
+  let query_velocity : @ecs.Query[@ecs.Single[@velocity.Velocity]] = world.query()
   match body_type {
     Dynamic => pending_body_linear_velocities().contains(entity)
     KinematicVelocityBased =>

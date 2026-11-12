@@ -1,13 +1,8 @@
 ///|
-pub(all) struct EntityFilter {
-  predicate : (Entity) -> Bool
-}
-
-///|
-// Retain the columns rather than the World, so caching a Query in its World
-// does not create an owning reference cycle.
-struct Query[T] {
-  storage : ComponentStore[T]
+/// A structural filter evaluated once for each archetype.
+struct EntityFilter {
+  world_id : UInt32
+  accepts : (Int32) -> Bool
 }
 
 ///|
@@ -21,76 +16,213 @@ struct Without[T] {
 }
 
 ///|
-struct QueryReader[T] {
-  mut world_id : UInt32?
-  // Historical values for change detection, separate from live components.
-  entries : Map[Entity, T]
+priv struct QueryColumn[T] {
+  read : (Int32) -> T
+  write : (Int32, T) -> Unit
+  visit_rows : (Array[Entity], (Entity, T) -> Unit) -> Unit
 }
 
 ///|
-pub(all) struct QueryDelta[T] {
-  added : Array[(Entity, T)]
-  removed : Array[Entity]
-  changed : Array[(Entity, T)]
+priv struct QueryComponent {
+  key_id : Int32
+  load : () -> Unit
 }
 
 ///|
-pub fn[T : Component] World::query(self : World) -> Query[T] {
-  { storage: components_in(self), }
+/// A World-bound query over one row shape, backed by separate component columns.
+/// It retains columns rather than its World so World-local caches cannot form a cycle.
+struct Query[T] {
+  world_id : UInt32
+  storage : ArchetypeWorld
+  order : ComponentOrder
+  bind : (Int32) -> QueryColumn[T]?
+  components : Array[QueryComponent]
+  columns : Array[QueryColumn[T]?]
+  matches : Array[(Int32, QueryColumn[T])]
 }
 
 ///|
-pub fn[T] QueryReader::QueryReader() -> QueryReader[T] {
-  { world_id: None, entries: Map([]), }
+fn[T] Query::Query(
+  world_id : UInt32,
+  storage : ArchetypeWorld,
+  order : ComponentOrder,
+  bind : (Int32) -> QueryColumn[T]?,
+  components : Array[QueryComponent],
+) -> Query[T] {
+  { world_id, storage, order, bind, components, columns: [], matches: [], }
 }
 
 ///|
-pub fn[T] QueryReader::reset(self : QueryReader[T]) -> Unit {
-  self.world_id = None
-  self.entries.clear()
-}
-
-///|
-pub fn[T] QueryDelta::empty() -> QueryDelta[T] {
-  { added: [], removed: [], changed: [], }
-}
-
-///|
-/// Reads changes for one World. Switching Worlds starts a fresh snapshot.
-pub fn[T : Eq] QueryReader::read(
-  self : QueryReader[T],
-  query : Query[T],
-) -> QueryDelta[T] {
-  let storage = query.storage
-  if self.world_id != Some(storage.world_id) {
-    self.reset()
-    self.world_id = Some(storage.world_id)
-  }
-  let added = []
-  let removed = []
-  let changed = []
-
-  for entity, component in storage {
-    match self.entries.get(entity) {
-      None => {
-        self.entries.set(entity, component)
-        added.push((entity, component))
-      }
-      Some(previous) if previous != component => {
-        self.entries.set(entity, component)
-        changed.push((entity, component))
-      }
-      Some(_) => ()
+fn[T] Query::refresh(self : Query[T]) -> Unit {
+  for id in self.columns.length()..<self.storage.tables.length() {
+    let column = (self.bind)(id)
+    self.columns.push(column)
+    if column is Some(column) {
+      self.matches.push((id, column))
     }
   }
+}
 
-  for entity in self.entries.keys().collect() {
-    if !storage.contains(entity) {
-      self.entries.remove(entity)
-      removed.push(entity)
+///|
+fn[T] Query::for_each_table(
+  self : Query[T],
+  visit : (Array[Entity], Int32, QueryColumn[T]) -> Unit,
+) -> Unit {
+  self.refresh()
+  enter_query()
+  self.storage.active_queries += 1
+  defer {
+    self.storage.active_queries -= 1
+    leave_query()
+  }
+  for (id, column) in self.matches {
+    let entities = self.storage.tables[id].entities
+    if !entities.is_empty() {
+      visit(entities, id, column)
     }
   }
-  { added, removed, changed, }
+}
+
+///|
+/// Creates a separately cached view with structural filters applied to all operations.
+pub fn[T] Query::with_filters(
+  self : Query[T],
+  filters : Array[EntityFilter],
+) -> Query[T] {
+  let filters = filters.copy()
+  for filter in filters {
+    guard filter.world_id == self.world_id else {
+      abort("query filter belongs to another World")
+    }
+  }
+  Query(
+    self.world_id,
+    self.storage,
+    self.order,
+    id => {
+      for filter in filters {
+        guard (filter.accepts)(id) else { return None }
+      }
+      (self.bind)(id)
+    },
+    self.components,
+  )
+}
+
+///|
+/// Reads one row. Missing, foreign, and deleted entities return None.
+pub fn[T] Query::get(self : Query[T], entity : Entity) -> T? {
+  guard entity.world_id == self.world_id else { None }
+  guard self.storage.location(entity) is Some((id, row)) else { None }
+  self.refresh()
+  guard self.columns[id] is Some(column) else { None }
+  Some((column.read)(row))
+}
+
+///|
+pub fn[T] Query::contains(self : Query[T], entity : Entity) -> Bool {
+  guard entity.world_id == self.world_id else { false }
+  guard self.storage.location(entity) is Some((id, _)) else { false }
+  self.refresh()
+  self.columns[id] is Some(_)
+}
+
+///|
+/// Visits rows in archetype order without collecting a result array.
+pub fn[T] Query::for_each(self : Query[T], visit : (Entity, T) -> Unit) -> Unit {
+  self.for_each_table((entities, _, column) => {
+    (column.visit_rows)(entities, visit)
+  })
+}
+
+///|
+/// Collects a snapshot. Structural changes after collection cannot invalidate traversal.
+/// Component objects inside the snapshot still have MoonBit reference semantics.
+pub fn[T] Query::iter(self : Query[T]) -> Array[(Entity, T)] {
+  let output = []
+  self.for_each((entity, value) => output.push((entity, value)))
+  output
+}
+
+///|
+pub fn[T] Query::to_array(self : Query[T]) -> Array[(Entity, T)] {
+  self.iter()
+}
+
+///|
+/// Captures entity handles in insertion order, then reads each current row.
+/// Deleted handles are skipped and newly spawned entities are not visited.
+/// No archetype array remains borrowed between iterator steps.
+pub fn[T] Query::iter2(self : Query[T]) -> Iter2[Entity, T] {
+  let entities = self.keys()
+  Iter2::new(() => {
+    while entities.next() is Some(entity) {
+      if self.get(entity) is Some(value) {
+        return Some((entity, value))
+      }
+    }
+    None
+  })
+}
+
+///|
+/// Captures matching handles, so later structural changes cannot invalidate it.
+pub fn[T] Query::keys(self : Query[T]) -> Iter[Entity] {
+  self.refresh()
+  let entities = []
+  let mut next = self.order.head
+  while next is Some(index) {
+    let entry = self.order.entries[index].unwrap()
+    next = entry.next
+    if self.contains(entry.entity) {
+      entities.push(entry.entity)
+    }
+  }
+  entities.iter()
+}
+
+///|
+pub fn[T] Query::values(self : Query[T]) -> Iter[T] {
+  let entries = self.iter2()
+  Iter::new(() => entries.next().map(entry => entry.1))
+}
+
+///|
+pub fn[T] Query::length(self : Query[T]) -> Int32 {
+  self.refresh()
+  let mut length = 0
+  for (id, _) in self.matches {
+    length += self.storage.tables[id].entities.length()
+  }
+  length
+}
+
+///|
+pub fn[T] Query::is_empty(self : Query[T]) -> Bool {
+  self.length() == 0
+}
+
+///|
+pub fn[T] Query::single(self : Query[T]) -> (Entity, T)? {
+  guard self.length() == 1 else { None }
+  let mut found = None
+  self.for_each((entity, value) => found = Some((entity, value)))
+  found
+}
+
+///|
+/// A stable insertion rank in the query's first component column.
+pub fn[T] Query::insertion_order(self : Query[T], entity : Entity) -> Int32 {
+  guard self.contains(entity) &&
+    self.order.entries.get(entity.slot) is Some(Some(entry)) else {
+    abort("entity does not match this query")
+  }
+  entry.rank
+}
+
+///|
+pub fn[T] Query::order_span(self : Query[T]) -> Int32 {
+  self.order.next_rank
 }
 
 ///|
@@ -104,138 +236,17 @@ pub fn[T : Component] Without::Without(world : World) -> Without[T] {
 }
 
 ///|
-pub fn EntityFilter::passes(self : EntityFilter, entity : Entity) -> Bool {
-  (self.predicate)(entity)
-}
-
-///|
 pub fn[T] With::to_filter(self : With[T]) -> EntityFilter {
-  { predicate: fn(entity) { self.storage.contains(entity) }, }
+  {
+    world_id: self.storage.world_id,
+    accepts: id => self.storage.column(id) is Some(_),
+  }
 }
 
 ///|
 pub fn[T] Without::to_filter(self : Without[T]) -> EntityFilter {
   {
-    predicate: fn(entity) {
-      self.storage.world_id == entity.world_id && !self.storage.contains(entity)
-    },
+    world_id: self.storage.world_id,
+    accepts: id => self.storage.column(id) is None,
   }
-}
-
-///|
-/// Visits matching entries in storage order without collecting a result array.
-/// Queue structural changes for the next flush when visiting entries.
-pub fn[T] Query::for_each(
-  self : Query[T],
-  visit : (Entity, T) -> Unit,
-  require_filters~ : Array[EntityFilter] = [],
-  reject_filters~ : Array[EntityFilter] = [],
-) -> Unit {
-  enter_query()
-  self.storage.storage.active_queries += 1
-  defer {
-    self.storage.storage.active_queries -= 1
-    leave_query()
-  }
-  for entity, component in self.storage {
-    let mut accepted = true
-    for filter in require_filters {
-      if !filter.passes(entity) {
-        accepted = false
-        break
-      }
-    }
-    if !accepted {
-      continue
-    }
-    for filter in reject_filters {
-      if filter.passes(entity) {
-        accepted = false
-        break
-      }
-    }
-    if accepted {
-      visit(entity, component)
-    }
-  }
-}
-
-///|
-pub fn[T] Query::iter(
-  self : Query[T],
-  require_filters~ : Array[EntityFilter] = [],
-  reject_filters~ : Array[EntityFilter] = [],
-) -> Array[(Entity, T)] {
-  let output = []
-  self.for_each(
-    (entity, component) => output.push((entity, component)),
-    require_filters~,
-    reject_filters~,
-  )
-  output
-}
-
-///|
-pub fn[T] Query::single(
-  self : Query[T],
-  require_filters~ : Array[EntityFilter] = [],
-  reject_filters~ : Array[EntityFilter] = [],
-) -> (Entity, T)? {
-  let matches = self.iter(require_filters~, reject_filters~)
-  if matches.length() == 1 {
-    Some(matches[0])
-  } else {
-    None
-  }
-}
-
-///|
-pub fn[T] Query::get(self : Query[T], entity : Entity) -> T? {
-  self.storage.get(entity)
-}
-
-///|
-pub fn[T] Query::contains(self : Query[T], entity : Entity) -> Bool {
-  self.storage.contains(entity)
-}
-
-///|
-pub fn[T] Query::length(self : Query[T]) -> Int32 {
-  self.storage.length()
-}
-
-///|
-pub fn[T] Query::is_empty(self : Query[T]) -> Bool {
-  self.storage.is_empty()
-}
-
-///|
-/// Iterates in insertion order. Keep structural changes deferred until traversal ends.
-pub fn[T] Query::iter2(self : Query[T]) -> Iter2[Entity, T] {
-  self.storage.iter2()
-}
-
-///|
-pub fn[T] Query::keys(self : Query[T]) -> Iter[Entity] {
-  self.storage.keys()
-}
-
-///|
-pub fn[T] Query::values(self : Query[T]) -> Iter[T] {
-  self.storage.values()
-}
-
-///|
-pub fn[T] Query::to_array(self : Query[T]) -> Array[(Entity, T)] {
-  self.storage.to_array()
-}
-
-///|
-pub fn[T] Query::insertion_order(self : Query[T], entity : Entity) -> Int32 {
-  self.storage.insertion_order(entity)
-}
-
-///|
-pub fn[T] Query::order_span(self : Query[T]) -> Int32 {
-  self.storage.order_span()
 }

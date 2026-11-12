@@ -356,7 +356,7 @@ fn remove_multibody_joint_physics(entity : @ecs.Entity) -> Unit {
 
 ///|
 fn sync_world_joints(world~ : @ecs.World) -> Unit {
-  let query_joint : @ecs.Query[Joint] = world.query()
+  let query_joint : @ecs.Query[@ecs.Single[Joint]] = world.query()
   let stale = physics_world().entity_joints
     .iter()
     .filter(pair => {
@@ -372,7 +372,7 @@ fn sync_world_joints(world~ : @ecs.World) -> Unit {
 
   for entity in @ecs.iter_entities() {
     guard world_entity(world~, entity) else { continue }
-    guard query_joint.get(entity) is Some(joint) else {
+    guard query_joint.get(entity).map(value => value.0) is Some(joint) else {
       remove_joint_physics(entity)
       continue
     }
@@ -401,7 +401,7 @@ fn sync_world_joints(world~ : @ecs.World) -> Unit {
 
 ///|
 fn sync_world_multibody_joints(world~ : @ecs.World) -> Unit {
-  let query_multibody_joint : @ecs.Query[MultibodyJoint] = world.query()
+  let query_multibody_joint : @ecs.Query[@ecs.Single[MultibodyJoint]] = world.query()
   let stale = physics_world().entity_multibody_joints
     .iter()
     .filter(pair => {
@@ -417,7 +417,7 @@ fn sync_world_multibody_joints(world~ : @ecs.World) -> Unit {
 
   for entity in @ecs.iter_entities() {
     guard world_entity(world~, entity) else { continue }
-    guard query_multibody_joint.get(entity) is Some(joint) else {
+    guard query_multibody_joint.get(entity).map(value => value.0) is Some(joint) else {
       remove_multibody_joint_physics(entity)
       continue
     }

@@ -162,9 +162,9 @@ pub fn validate_texture_atlas_layout_for_image(
 pub fn validate_registered_texture_atlases(
   world~ : @ecs.World,
 ) -> Array[(@sprite.TextureAtlasLayoutHandle, AtlasValidationReport)] {
-  let query_sprite : @ecs.Query[@sprite.Sprite] = world.query()
+  let query_sprite : @ecs.Query[@ecs.Single[@sprite.Sprite]] = world.query()
   let atlas_image_paths : Map[@sprite.TextureAtlasLayoutHandle, String] = Map([])
-  for _entity, sprite in query_sprite {
+  for _entity, Single(sprite) in query_sprite {
     guard sprite.texture_atlas is Some(atlas) else { continue }
     guard sprite.image is Some(image_handle) else { continue }
     guard @asset.image_path(image_handle) is Some(path) else { continue }

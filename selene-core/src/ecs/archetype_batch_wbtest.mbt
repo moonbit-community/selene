@@ -1,12 +1,12 @@
 ///|
 fn[A, B] update_rows_for_bench(
-  query : Query2[A, B],
+  query : Query[(A, B)],
   update : (A, B) -> A,
 ) -> Unit {
-  query.plan.for_each_table((entities, columns) => {
-    let (a, b) = columns
-    for row in 0..<entities.length() {
-      a[row] = update(a[row], b[row])
+  query.for_each_batch(batch => {
+    for row in 0..<batch.length() {
+      let (a, b) = batch.get(row)
+      batch.set(row, (update(a, b), b))
     }
   })
 }
@@ -31,26 +31,31 @@ test "archetype batch reads and writes" (bench : @bench.T) {
         ignore(pair.spawn((i, i + 1)))
       }
     }
-    let query = Query2(a, b)
+    let query = make_query2(a, b)
     let read_rows = () => {
       let mut sum = 0
-      query.for_each((_, x, y) => sum += x + y)
+      query.for_each((_, query_row) => {
+        let (x, y) = query_row
+        sum += x + y
+      })
       sum
     }
     let read_batches = () => {
       let mut sum = 0
-      query.for_each_batch((entities, x, y) => {
-        for row in 0..<entities.length() {
-          sum += x[row] + y[row]
+      query.for_each_batch(batch => {
+        for row in 0..<batch.length() {
+          let (x, y) = batch.get(row)
+          sum += x + y
         }
       })
       sum
     }
     let write_rows = () => update_rows_for_bench(query, (_, y) => y + 1)
     let write_batches = () => {
-      query.for_each_batch_mut_a((entities, x, y) => {
-        for row in 0..<entities.length() {
-          x[row] = y[row] + 1
+      query.for_each_batch(batch => {
+        for row in 0..<batch.length() {
+          let (_, y) = batch.get(row)
+          batch.set(row, (y + 1, y))
         }
       })
     }

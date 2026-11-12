@@ -31,13 +31,14 @@ test "BENCH-ECS three to five component joins" (bench : @bench.T) {
       }
     }
 
-    let two = Query2(a, b)
-    let three = Query3(a, b, c)
-    let four = Query4(a, b, c, d)
-    let five = Query5(a, b, c, d, e)
+    let two = make_query2(a, b)
+    let three = make_query3(a, b, c)
+    let four = make_query4(a, b, c, d)
+    let five = make_query5(a, b, c, d, e)
     let point3 = () => {
       let mut sum = 0
-      two.for_each((entity, a, b) => {
+      two.for_each((entity, query_row) => {
+        let (a, b) = query_row
         guard c.get(entity) is Some(c) else { return }
         sum += a + b + c
       })
@@ -45,7 +46,8 @@ test "BENCH-ECS three to five component joins" (bench : @bench.T) {
     }
     let point4 = () => {
       let mut sum = 0
-      two.for_each((entity, a, b) => {
+      two.for_each((entity, query_row) => {
+        let (a, b) = query_row
         guard c.get(entity) is Some(c) else { return }
         guard d.get(entity) is Some(d) else { return }
         sum += a + b + c + d
@@ -54,7 +56,8 @@ test "BENCH-ECS three to five component joins" (bench : @bench.T) {
     }
     let point5 = () => {
       let mut sum = 0
-      two.for_each((entity, a, b) => {
+      two.for_each((entity, query_row) => {
+        let (a, b) = query_row
         guard c.get(entity) is Some(c) else { return }
         guard d.get(entity) is Some(d) else { return }
         guard e.get(entity) is Some(e) else { return }
@@ -64,17 +67,26 @@ test "BENCH-ECS three to five component joins" (bench : @bench.T) {
     }
     let scan3 = () => {
       let mut sum = 0
-      three.for_each((_, a, b, c) => sum += a + b + c)
+      three.for_each((_, query_row) => {
+        let (a, b, c) = query_row
+        sum += a + b + c
+      })
       sum
     }
     let scan4 = () => {
       let mut sum = 0
-      four.for_each((_, a, b, c, d) => sum += a + b + c + d)
+      four.for_each((_, query_row) => {
+        let (a, b, c, d) = query_row
+        sum += a + b + c + d
+      })
       sum
     }
     let scan5 = () => {
       let mut sum = 0
-      five.for_each((_, a, b, c, d, e) => sum += a + b + c + d + e)
+      five.for_each((_, query_row) => {
+        let (a, b, c, d, e) = query_row
+        sum += a + b + c + d + e
+      })
       sum
     }
 
@@ -86,12 +98,12 @@ test "BENCH-ECS three to five component joins" (bench : @bench.T) {
       ] {
       assert_eq(point(), scan())
       bench.bench(
-        name="Query2+get/cols=\{columns}/stride=\{stride}",
+        name="point-lookup/cols=\{columns}/stride=\{stride}",
         count=15,
         () => bench.keep(point()),
       )
       bench.bench(
-        name="column-scan/cols=\{columns}/stride=\{stride}",
+        name="row-callback/cols=\{columns}/stride=\{stride}",
         count=15,
         () => bench.keep(scan()),
       )

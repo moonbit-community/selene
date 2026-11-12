@@ -239,7 +239,7 @@ fn ui_projection_snapshot(
   world~ : @ecs.World,
   entity : @ecs.Entity,
 ) -> UiProjectionSnapshot {
-  let query_override_clip : @ecs.Query[OverrideClip] = world.query()
+  let query_override_clip : @ecs.Query[@ecs.Single[OverrideClip]] = world.query()
   let overflow_clip_margin = (world.get_component(entity) : Node?)
     .map(fn(node) { node.overflow_clip_margin })
     .unwrap_or(OverflowClipMargin::content_box())
@@ -353,8 +353,10 @@ fn sync_layout_node(
   reachable : Set[@ecs.Entity],
   dirty : UiLayoutDirty,
 ) -> Int32? {
-  let query_node : @ecs.Query[Node] = world.query()
-  guard query_node.get(entity) is Some(node) else { return None }
+  let query_node : @ecs.Query[@ecs.Single[Node]] = world.query()
+  guard query_node.get(entity).map(value => value.0) is Some(node) else {
+    return None
+  }
   guard node.active else { return None }
   reachable.add(entity)
   let measure = ui_measure_snapshot(world~, entity)

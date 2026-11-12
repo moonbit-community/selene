@@ -538,13 +538,14 @@ fn player_controller_system(world : @ecs.World) -> Unit {
 
 ///|
 fn player_bird_contact_system(world : @ecs.World) -> Unit {
-  let query_player_controller : @ecs.Query[PlayerController] = world.query()
-  let query_bird_controller : @ecs.Query[BirdController] = world.query()
+  let query_player_controller : @ecs.Query[@ecs.Single[PlayerController]] = world.query()
+  let query_bird_controller : @ecs.Query[@ecs.Single[BirdController]] = world.query()
   guard (world.get_resource() : GameSession?) is Some(session) else { return }
   if player_is_frozen(session.result) {
     return
   }
-  guard query_player_controller.get(session.player) is Some(controller) else {
+  guard query_player_controller.get(session.player).map(value => value.0)
+    is Some(controller) else {
     return
   }
   guard entity_rect(world~, session.player) is Some(player_rect) else { return }
@@ -558,7 +559,7 @@ fn player_bird_contact_system(world : @ecs.World) -> Unit {
     player_resolved_velocity.scalar_mul(-fixed_delta),
   )
 
-  for bird_entity, bird in query_bird_controller {
+  for bird_entity, Single(bird) in query_bird_controller {
     if !bird_entity.is_alive() {
       continue
     }
@@ -601,10 +602,10 @@ fn player_bird_contact_system(world : @ecs.World) -> Unit {
 
 ///|
 fn bird_patrol_system(world : @ecs.World) -> Unit {
-  let query_collider : @ecs.Query[@physics2d.Collider] = world.query()
-  let query_bird_controller : @ecs.Query[BirdController] = world.query()
+  let query_collider : @ecs.Query[@ecs.Single[@physics2d.Collider]] = world.query()
+  let query_bird_controller : @ecs.Query[@ecs.Single[BirdController]] = world.query()
   let commands = @ecs.commands(world)
-  for bird_entity, bird in query_bird_controller {
+  for bird_entity, Single(bird) in query_bird_controller {
     if !bird_entity.is_alive() {
       continue
     }
@@ -613,7 +614,7 @@ fn bird_patrol_system(world : @ecs.World) -> Unit {
         bird_entity,
         (@math.Vec2::zero() : @physics2d.LinearVelocity),
       )
-      if query_collider.get(bird_entity) is Some(collider) {
+      if query_collider.get(bird_entity).map(value => value.0) is Some(collider) {
         collider.active = false
       }
       play_bird_animation(world~, bird_entity, bird)
@@ -657,8 +658,8 @@ fn bird_patrol_system(world : @ecs.World) -> Unit {
 
 ///|
 fn trigger_system(world : @ecs.World) -> Unit {
-  let query_flag_tag : @ecs.Query[FlagTag] = world.query()
-  let query_apple_tag : @ecs.Query[AppleTag] = world.query()
+  let query_flag_tag : @ecs.Query[@ecs.Single[FlagTag]] = world.query()
+  let query_apple_tag : @ecs.Query[@ecs.Single[AppleTag]] = world.query()
   let commands = @ecs.commands(world)
   guard (world.get_resource() : GameSession?) is Some(session) else { return }
   if player_is_frozen(session.result) {

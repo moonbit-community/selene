@@ -125,8 +125,8 @@ pub fn ldtk_worldly_entity(
   world_entity : @ecs.Entity,
   entity_iid : String,
 ) -> @ecs.Entity? {
-  let query_ldtk_worldly : @ecs.Query[LdtkWorldly] = world.query()
-  for (entity, worldly) in query_ldtk_worldly.to_array() {
+  let query_ldtk_worldly : @ecs.Query[@ecs.Single[LdtkWorldly]] = world.query()
+  for (entity, Single(worldly)) in query_ldtk_worldly.to_array() {
     if !entity.is_alive() {
       continue
     }
@@ -143,16 +143,19 @@ pub fn ldtk_entity_by_iid(
   world_entity : @ecs.Entity,
   entity_iid : String,
 ) -> @ecs.Entity? {
-  let query_ldtk_spawned_entity_instance : @ecs.Query[LdtkSpawnedEntityInstance] = world.query()
-  let query_ldtk_entity_iid : @ecs.Query[LdtkEntityIid] = world.query()
-  for (entity, iid_instance) in query_ldtk_entity_iid.to_array() {
+  let query_ldtk_spawned_entity_instance : @ecs.Query[
+    @ecs.Single[LdtkSpawnedEntityInstance],
+  ] = world.query()
+  let query_ldtk_entity_iid : @ecs.Query[@ecs.Single[LdtkEntityIid]] = world.query()
+  for (entity, Single(iid_instance)) in query_ldtk_entity_iid.to_array() {
     if !entity.is_alive() {
       continue
     }
     if iid_instance.iid != entity_iid {
       continue
     }
-    guard query_ldtk_spawned_entity_instance.get(entity) is Some(runtime) else {
+    guard query_ldtk_spawned_entity_instance.get(entity).map(value => value.0)
+      is Some(runtime) else {
       continue
     }
     if runtime.world_entity == world_entity {
@@ -164,7 +167,7 @@ pub fn ldtk_entity_by_iid(
 
 ///|
 pub fn ldtk_world_sync_system(world~ : @ecs.World, _delta : Double) -> Unit {
-  let query_ldtk_world_instance : @ecs.Query[LdtkWorldInstance] = world.query()
+  let query_ldtk_world_instance : @ecs.Query[@ecs.Single[LdtkWorldInstance]] = world.query()
   ldtk_emit_pending_transformed_events()
   ldtk_cleanup_dead_runtime_entries()
   let world_entities = query_ldtk_world_instance.to_array().map(pair => pair.0)
@@ -172,7 +175,8 @@ pub fn ldtk_world_sync_system(world~ : @ecs.World, _delta : Double) -> Unit {
     if !world_entity.is_alive() {
       continue
     }
-    guard query_ldtk_world_instance.get(world_entity) is Some(instance) else {
+    guard query_ldtk_world_instance.get(world_entity).map(value => value.0)
+      is Some(instance) else {
       continue
     }
     ldtk_cleanup_dead_spawned_levels(instance)
@@ -234,8 +238,9 @@ fn ldtk_world_apply_level_set(
   world~ : @ecs.World,
   world_entity : @ecs.Entity,
 ) -> Unit {
-  let query_ldtk_world_instance : @ecs.Query[LdtkWorldInstance] = world.query()
-  guard query_ldtk_world_instance.get(world_entity) is Some(instance) else {
+  let query_ldtk_world_instance : @ecs.Query[@ecs.Single[LdtkWorldInstance]] = world.query()
+  guard query_ldtk_world_instance.get(world_entity).map(value => value.0)
+    is Some(instance) else {
     return
   }
   let desired_iids = instance.level_set.iids

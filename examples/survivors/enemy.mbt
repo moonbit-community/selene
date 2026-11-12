@@ -472,9 +472,9 @@ fn select_enemy_type_for_wave(
 
 ///|
 fn enemy_ai_system(world : @ecs.World) -> Unit {
-  let query_enemy : @ecs.Query[Enemy] = world.query()
+  let query_enemy : @ecs.Query[@ecs.Single[Enemy]] = world.query()
   let game = game_state(world~)
-  for e, state in query_enemy {
+  for e, Single(state) in query_enemy {
     guard e.is_alive() else { continue }
     guard @transform.local_transform(world~, game.player_entity)
       is Some(player_transform) else {
@@ -519,10 +519,10 @@ fn enemy_ai_system(world : @ecs.World) -> Unit {
 
 ///|
 fn devil_shooting_system(world : @ecs.World) -> Unit {
-  let query_enemy : @ecs.Query[Enemy] = world.query()
+  let query_enemy : @ecs.Query[@ecs.Single[Enemy]] = world.query()
   let game = game_state(world~)
   let delta = @time.delta()
-  for e, state in query_enemy {
+  for e, Single(state) in query_enemy {
     guard e.is_alive() else { continue }
     // Only Devil enemies shoot
     if state.enemy_type != Devil {
@@ -645,7 +645,7 @@ fn apply_player_damage(world~ : @ecs.World) -> Unit {
 
 ///|
 fn enemy_collision_system(world : @ecs.World) -> Unit {
-  let query_enemy : @ecs.Query[Enemy] = world.query()
+  let query_enemy : @ecs.Query[@ecs.Single[Enemy]] = world.query()
   let runtime = survivors_runtime()
   let game = game_state(world~)
   for
@@ -674,7 +674,7 @@ fn enemy_collision_system(world : @ecs.World) -> Unit {
 
 ///|
 fn check_victory_system(world : @ecs.World) -> Unit {
-  let query_enemy : @ecs.Query[Enemy] = world.query()
+  let query_enemy : @ecs.Query[@ecs.Single[Enemy]] = world.query()
   let game = game_state(world~)
 
   // Only check after timer has reached 0 (all 10 waves completed)
@@ -684,7 +684,7 @@ fn check_victory_system(world : @ecs.World) -> Unit {
 
   // Count alive enemies
   let mut alive_count = 0
-  for e, _state in query_enemy {
+  for e, Single(_state) in query_enemy {
     if e.is_alive() {
       alive_count += 1
     }

@@ -24,15 +24,21 @@ test "level loading preserves gameplay entities and terrain" {
     with_pixeladventure_test_world(fn(world) raise {
       let loaded = load_level_scene(world~)
       inspect(
-        (world.query() : @ecs.Query[PlayerController]).length(),
+        (world.query() : @ecs.Query[@ecs.Single[PlayerController]]).length(),
         content="1",
       )
       inspect(
-        (world.query() : @ecs.Query[BirdController]).length(),
+        (world.query() : @ecs.Query[@ecs.Single[BirdController]]).length(),
         content="2",
       )
-      inspect((world.query() : @ecs.Query[AppleTag]).length(), content="7")
-      inspect((world.query() : @ecs.Query[FlagTag]).length(), content="1")
+      inspect(
+        (world.query() : @ecs.Query[@ecs.Single[AppleTag]]).length(),
+        content="7",
+      )
+      inspect(
+        (world.query() : @ecs.Query[@ecs.Single[FlagTag]]).length(),
+        content="1",
+      )
       let player_transform = @transform.local_transform(
         world~,
         loaded.player_entity,
@@ -42,13 +48,15 @@ test "level loading preserves gameplay entities and terrain" {
       inspect(player_transform.translation.z == PLAYER_Z, content="true")
       inspect(loaded.world_size == Vec2(928.0, 576.0), content="true")
       inspect(
-        (world.query() : @ecs.Query[@camera.Camera2d]).contains(
+        (world.query() : @ecs.Query[@ecs.Single[@camera.Camera2d]]).contains(
           loaded.camera_entity,
         ),
         content="true",
       )
       let mut terrain_count = 0
-      for _, sprite in (world.query() : @ecs.Query[@sprite.Sprite]) {
+      for
+        _, Single(sprite) in (
+          world.query() : @ecs.Query[@ecs.Single[@sprite.Sprite]]) {
         if sprite.image.bind(@asset.image_path) ==
           Some("assets/pixeladventure/Terrain/Terrain (16x16).png") {
           terrain_count += 1
@@ -64,9 +72,10 @@ test "level flag retains its animated sprite" {
   with_pixeladventure_test_asset_io(fn() raise {
     with_pixeladventure_test_world(fn(world) raise {
       ignore(load_level_scene(world~))
-      let flag_entity = (world.query() : @ecs.Query[FlagTag]).to_array()[0].0
-      let flag_sprite = (world.query() : @ecs.Query[@sprite.Sprite])
+      let flag_entity = (world.query() : @ecs.Query[@ecs.Single[FlagTag]]).to_array()[0].0
+      let flag_sprite = (world.query() : @ecs.Query[@ecs.Single[@sprite.Sprite]])
         .get(flag_entity)
+        .map(value => value.0)
         .unwrap()
       inspect(
         flag_sprite.image.bind(@asset.image_path) == Some(FLAG_IDLE_PATH),
@@ -78,7 +87,7 @@ test "level flag retains its animated sprite" {
         content="10",
       )
       inspect(
-        (world.query() : @ecs.Query[@animation.AnimationPlayer]).contains(
+        (world.query() : @ecs.Query[@ecs.Single[@animation.AnimationPlayer]]).contains(
           flag_entity,
         ),
         content="true",

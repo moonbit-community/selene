@@ -82,7 +82,7 @@ pub fn tiled_colliders(
   world~ : @ecs.World,
   source : @ecs.Entity,
 ) -> TiledColliders? {
-  let origins : @ecs.Query[TiledColliderOrigin] = world.query()
+  let origins : @ecs.Query[@ecs.Single[TiledColliderOrigin]] = world.query()
   let entities = source
     .get_children()
     .filter(entity => origins.contains(entity))
@@ -145,8 +145,11 @@ fn spawn_tiled_physics_layers(
   layers : Array[TiledLayer],
   settings : TiledPhysicsSettings,
 ) -> Unit {
-  let query_tiled_map_storage : @ecs.Query[TiledMapStorage] = world.query()
-  guard query_tiled_map_storage.get(map_entity) is Some(storage) else { return }
+  let query_tiled_map_storage : @ecs.Query[@ecs.Single[TiledMapStorage]] = world.query()
+  guard query_tiled_map_storage.get(map_entity).map(value => value.0)
+    is Some(storage) else {
+    return
+  }
   for layer in layers {
     match layer.kind {
       TileLayer(tile_layer) => {

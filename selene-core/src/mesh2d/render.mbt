@@ -5,19 +5,22 @@ fn centered_quad_transform(size : @math.Vec2) -> @math.Affine2 {
 
 ///|
 pub fn render_mesh2d_system(world~ : @ecs.World, delta : Double) -> Unit {
-  let query_mesh_material2d : @ecs.Query[@material2d.MeshMaterial2d] = world.query()
-  let query_mesh2d : @ecs.Query[Mesh2d] = world.query()
+  let query_mesh_material2d : @ecs.Query[
+    @ecs.Single[@material2d.MeshMaterial2d],
+  ] = world.query()
+  let query_mesh2d : @ecs.Query[@ecs.Single[Mesh2d]] = world.query()
   ignore(delta)
   let camera_views = @camera.active_camera2d_views(world~)
   let camera_extract = @culling2d.CameraExtract2dContext(camera_views)
-  for entity, mesh in query_mesh2d {
+  for entity, Single(mesh) in query_mesh2d {
     guard entity.is_alive() else { continue }
     guard @visibility.is_visible(entity) else { continue }
     guard @transform.global_transform(world~, entity) is Some(global_transform) else {
       continue
     }
     guard mesh2d_asset(mesh.mesh) is Some(mesh_asset) else { continue }
-    guard query_mesh_material2d.get(entity) is Some(material_node) else {
+    guard query_mesh_material2d.get(entity).map(value => value.0)
+      is Some(material_node) else {
       continue
     }
     let material = match material_node.material {

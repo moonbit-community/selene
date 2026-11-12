@@ -14,7 +14,7 @@
 
 ///|
 pub fn transform_propagate_system(world~ : @ecs.World, _delta : Double) -> Unit {
-  let spatials : @ecs.Query[Spatial] = world.query()
+  let spatials : @ecs.Query[@ecs.Single[Spatial]] = world.query()
   let is_alive = @ecs.alive_in_world(world)
   for entity in world.get_roots() {
     propagate_spatial(world, entity, None, spatials, is_alive)
@@ -26,10 +26,10 @@ fn propagate_spatial(
   world : @ecs.World,
   entity : @ecs.Entity,
   parent_global : GlobalTransform?,
-  spatials : @ecs.Query[Spatial],
+  spatials : @ecs.Query[@ecs.Single[Spatial]],
   is_alive : (@ecs.Entity) -> Bool,
 ) -> Unit {
-  let global = match spatials.get(entity) {
+  let global = match spatials.get(entity).map(value => value.0) {
     Some(spatial) => {
       let affine = spatial.pose.compute_affine()
       let global = match parent_global {

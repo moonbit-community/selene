@@ -373,7 +373,7 @@ fn move_with_kinematic_controller(
 
 ///|
 fn process_contact_events(world~ : @ecs.World) -> Unit {
-  let query_collider : @ecs.Query[Collider] = world.query()
+  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
   for event in physics_world().event_handler.take_collision_events() {
     guard entity_from_collider_handle(event.collider1()) is Some(entity1) else {
       continue
@@ -381,8 +381,12 @@ fn process_contact_events(world~ : @ecs.World) -> Unit {
     guard entity_from_collider_handle(event.collider2()) is Some(entity2) else {
       continue
     }
-    guard query_collider.get(entity1) is Some(collider1) else { continue }
-    guard query_collider.get(entity2) is Some(collider2) else { continue }
+    guard query_collider.get(entity1).map(value => value.0) is Some(collider1) else {
+      continue
+    }
+    guard query_collider.get(entity2).map(value => value.0) is Some(collider2) else {
+      continue
+    }
     guard collider1.active && collider2.active else { continue }
     let direction = estimate_direction(world~, entity1, entity2)
     let started = event.started()
@@ -426,9 +430,9 @@ fn update_area_contains(
 
 ///|
 fn prune_area_contains(world~ : @ecs.World) -> Unit {
-  let query_collider : @ecs.Query[Collider] = world.query()
-  let query_area : @ecs.Query[Area] = world.query()
-  for _entity, area in query_area {
+  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
+  let query_area : @ecs.Query[@ecs.Single[Area]] = world.query()
+  for _entity, Single(area) in query_area {
     let stale : Array[@ecs.Entity] = []
     for other in area.contains {
       if !area.active {
@@ -439,7 +443,7 @@ fn prune_area_contains(world~ : @ecs.World) -> Unit {
         stale.push(other)
         continue
       }
-      if query_collider.get(other) is None {
+      if query_collider.get(other).map(value => value.0) is None {
         stale.push(other)
       }
     }
@@ -463,13 +467,13 @@ fn clear_area_contains(area_entity : @ecs.Entity, area : Area) -> Unit {
 
 ///|
 fn process_trigger_events(world~ : @ecs.World) -> Unit {
-  let query_area : @ecs.Query[Area] = world.query()
+  let query_area : @ecs.Query[@ecs.Single[Area]] = world.query()
   let query_base = @rapier_collision.QueryPipeline::QueryPipeline(
     QueryFilter(),
     physics_world().bodies,
     physics_world().colliders,
   )
-  for area_entity, area in query_area {
+  for area_entity, Single(area) in query_area {
     guard area_entity.is_alive() else { continue }
     if !area.active {
       clear_area_contains(area_entity, area)
@@ -567,8 +571,8 @@ fn step_rapier_pipeline(delta : Double) -> Unit {
 
 ///|
 fn rapier_fixed_step(world~ : @ecs.World, delta : Double) -> Unit {
-  let query_collider : @ecs.Query[Collider] = world.query()
-  let query_velocity : @ecs.Query[@velocity.Velocity] = world.query()
+  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
+  let query_velocity : @ecs.Query[@ecs.Single[@velocity.Velocity]] = world.query()
   if delta <= 0.0 {
     grounded_entities().clear()
     resolved_velocities().clear()
@@ -589,13 +593,14 @@ fn rapier_fixed_step(world~ : @ecs.World, delta : Double) -> Unit {
     physics_world().bodies,
     physics_world().colliders,
   )
-  for entity, velocity in query_velocity {
+  for entity, Single(velocity) in query_velocity {
     guard entity.is_alive() else { continue }
     let body_type = entity_rigid_body(world~, entity).body_type
     guard body_type is KinematicPositionBased else { continue }
     let displacement = velocity.0.scalar_mul(delta)
     if physics_world().entity_colliders.get(entity) is Some(collider_handle) {
-      if query_collider.get(entity) is Some(collider) && collider.active {
+      if query_collider.get(entity).map(value => value.0) is Some(collider) &&
+        collider.active {
         move_with_kinematic_controller(
           world~,
           entity,

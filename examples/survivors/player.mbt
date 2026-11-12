@@ -333,10 +333,10 @@ fn find_nearest_enemy_in_range(
   player_pos : @math.Vec2,
   weapon_range : Double,
 ) -> @math.Vec2? {
-  let query_enemy : @ecs.Query[Enemy] = world.query()
+  let query_enemy : @ecs.Query[@ecs.Single[Enemy]] = world.query()
   let mut min = weapon_range
   let mut res : @math.Vec2? = None
-  for e, _enemy in query_enemy {
+  for e, Single(_enemy) in query_enemy {
     guard e.is_alive() else { continue }
     guard @transform.local_transform(world~, e) is Some(enemy_transform) else {
       continue

@@ -175,11 +175,11 @@ fn _is_visible_in_camera_frustum(
 
 ///|
 pub fn render3d_extract_system(world~ : @ecs.World, _delta : Double) -> Unit {
-  let query_skybox3_d : @ecs.Query[Skybox3D] = world.query()
-  let query_mesh3_d_renderer : @ecs.Query[Mesh3DRenderer] = world.query()
-  let query_directional_light3_d : @ecs.Query[DirectionalLight3D] = world.query()
-  let query_point_light3_d : @ecs.Query[PointLight3D] = world.query()
-  let query_spot_light3_d : @ecs.Query[SpotLight3D] = world.query()
+  let query_skybox3_d : @ecs.Query[@ecs.Single[Skybox3D]] = world.query()
+  let query_mesh3_d_renderer : @ecs.Query[@ecs.Single[Mesh3DRenderer]] = world.query()
+  let query_directional_light3_d : @ecs.Query[@ecs.Single[DirectionalLight3D]] = world.query()
+  let query_point_light3_d : @ecs.Query[@ecs.Single[PointLight3D]] = world.query()
+  let query_spot_light3_d : @ecs.Query[@ecs.Single[SpotLight3D]] = world.query()
   let state = render3d_world_state()
   let frame = RenderFrame3D()
   let mut active_camera_layers = @visibility.RenderLayers()
@@ -190,7 +190,7 @@ pub fn render3d_extract_system(world~ : @ecs.World, _delta : Double) -> Unit {
       world~,
       camera.entity,
     )
-    match query_skybox3_d.get(camera.entity) {
+    match query_skybox3_d.get(camera.entity).map(value => value.0) {
       Some(skybox) if cubemaps.get(skybox.cubemap) is Some(_) =>
         frame.skybox = Some(skybox)
       _ => ()
@@ -205,7 +205,7 @@ pub fn render3d_extract_system(world~ : @ecs.World, _delta : Double) -> Unit {
   }
 
   let items : Array[RenderItem3D] = []
-  for entity, renderer in query_mesh3_d_renderer {
+  for entity, Single(renderer) in query_mesh3_d_renderer {
     if !entity.is_alive() ||
       !renderer.visible ||
       !@visibility.is_visible(entity) {
@@ -243,7 +243,7 @@ pub fn render3d_extract_system(world~ : @ecs.World, _delta : Double) -> Unit {
   }
 
   let dir_lights : Array[DirectionalLight3D] = []
-  for entity, light in query_directional_light3_d {
+  for entity, Single(light) in query_directional_light3_d {
     if entity.is_alive() {
       guard @transform.global_transform(world~, entity)
         is Some(global_transform) else {
@@ -270,7 +270,7 @@ pub fn render3d_extract_system(world~ : @ecs.World, _delta : Double) -> Unit {
     }
   }
   let point_lights : Array[FramePointLight3D] = []
-  for entity, light in query_point_light3_d {
+  for entity, Single(light) in query_point_light3_d {
     if entity.is_alive() {
       guard @transform.global_transform(world~, entity)
         is Some(global_transform) else {
@@ -290,7 +290,7 @@ pub fn render3d_extract_system(world~ : @ecs.World, _delta : Double) -> Unit {
     }
   }
   let spot_lights : Array[FrameSpotLight3D] = []
-  for entity, light in query_spot_light3_d {
+  for entity, Single(light) in query_spot_light3_d {
     if entity.is_alive() {
       guard @transform.global_transform(world~, entity)
         is Some(global_transform) else {

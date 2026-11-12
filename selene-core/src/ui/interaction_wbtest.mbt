@@ -158,8 +158,10 @@ test "ui relative cursor positions use centered normalized coordinates" {
 
   ui_interaction_system(world~, 0.0)
 
-  let relative = (world.query() : @ecs.Query[RelativeCursorPosition])
+  let relative = (
+      world.query() : @ecs.Query[@ecs.Single[RelativeCursorPosition]])
     .get(entity)
+    .map(value => value.0)
     .unwrap()
   inspect(relative.mouse_over(), content="true")
   inspect(relative.normalized is Some(_), content="true")
@@ -607,8 +609,10 @@ test "ui relative cursor positions keep normalized values outside calculated cli
 
   ui_interaction_system(world~, 0.0)
 
-  let relative = (world.query() : @ecs.Query[RelativeCursorPosition])
+  let relative = (
+      world.query() : @ecs.Query[@ecs.Single[RelativeCursorPosition]])
     .get(entity)
+    .map(value => value.0)
     .unwrap()
   inspect(relative.mouse_over(), content="false")
   inspect(relative.normalized is Some(_), content="true")

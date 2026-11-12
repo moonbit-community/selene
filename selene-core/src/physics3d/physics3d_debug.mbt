@@ -9,8 +9,8 @@ let collider_wire_cache : Map[String, Array[ColliderWireSegment3D]] = Map([])
 
 ///|
 pub fn debug_colliders_system(world~ : @ecs.World, _delta : Double) -> Unit {
-  let query_collider : @ecs.Query[Collider] = world.query()
-  for entity, collider in query_collider {
+  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
+  for entity, Single(collider) in query_collider {
     guard entity.is_alive() else { continue }
     guard @transform.global_transform(world~, entity) is Some(global) else {
       continue
@@ -31,7 +31,7 @@ fn debug_collider_color(
   world~ : @ecs.World,
   entity : @ecs.Entity,
 ) -> @render.Color {
-  let query_sensor : @ecs.Query[Sensor] = world.query()
+  let query_sensor : @ecs.Query[@ecs.Single[Sensor]] = world.query()
   if !debug_collider_enabled(entity) {
     debug_disabled_color()
   } else if query_sensor.contains(entity) {

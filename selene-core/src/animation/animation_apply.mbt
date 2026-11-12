@@ -243,7 +243,7 @@ pub fn texture_atlas_index_field() -> AnimatedFieldHandle {
         name: "Sprite.texture_atlas.index",
         kind: Scalar,
         sample: fn(world, entity) {
-          let query_sprite : @ecs.Query[@sprite.Sprite] = world.query()
+          let query_sprite : @ecs.Query[@ecs.Single[@sprite.Sprite]] = world.query()
           let index = query_sprite
             .get(entity)
             .bind(fn(sprite) {
@@ -255,9 +255,11 @@ pub fn texture_atlas_index_field() -> AnimatedFieldHandle {
           Scalar(index)
         },
         apply: fn(world, entity, value) {
-          let query_sprite : @ecs.Query[@sprite.Sprite] = world.query()
+          let query_sprite : @ecs.Query[@ecs.Single[@sprite.Sprite]] = world.query()
           guard! value is Scalar(frame)
-          guard query_sprite.get(entity) is Some(sprite) else { return }
+          guard query_sprite.get(entity).map(value => value.0) is Some(sprite) else {
+            return
+          }
           guard sprite.texture_atlas is Some(texture_atlas) else { return }
           let next_index = if frame < 0.0 { 0 } else { frame.round().to_int() }
           let updated_atlas = { ..texture_atlas, index: next_index, }

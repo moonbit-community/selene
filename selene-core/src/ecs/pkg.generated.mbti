@@ -12,7 +12,7 @@ pub fn alive_in_world(World) -> (Entity) -> Bool
 
 pub fn bootstrap_world() -> World
 
-pub fn[Q] cache_query((World) -> Q) -> (World) -> Q
+pub fn[T : QueryData] cache_query(filters? : (World) -> Array[EntityFilter]) -> (World) -> Query[T]
 
 pub fn clear_current_world() -> Unit
 
@@ -26,7 +26,7 @@ pub fn has_pending_commands(World) -> Bool
 
 pub fn iter_entities() -> Iter[Entity]
 
-pub fn[Q] query_system((World) -> Q, (Q) -> Unit) -> (World) -> Unit
+pub fn[T : QueryData] query_system((Query[T]) -> Unit, filters? : (World) -> Array[EntityFilter]) -> (World) -> Unit
 
 pub fn require_current_world() -> World
 
@@ -71,10 +71,7 @@ pub fn Entity::respawn(Self) -> Unit
 pub fn Entity::slot_index(Self) -> Int32
 pub fn Entity::to_repr(Self) -> @debug.Repr
 
-pub(all) struct EntityFilter {
-  predicate : (Entity) -> Bool
-}
-pub fn EntityFilter::passes(Self, Entity) -> Bool
+type EntityFilter
 
 type EntityTable[T]
 pub fn[T] EntityTable::EntityTable(World) -> Self[T]
@@ -96,42 +93,28 @@ pub fn[T] EntityTable::values(Self[T]) -> Iter[T]
 
 type Query[T]
 pub fn[T] Query::contains(Self[T], Entity) -> Bool
-pub fn[T] Query::for_each(Self[T], (Entity, T) -> Unit, require_filters? : Array[EntityFilter], reject_filters? : Array[EntityFilter]) -> Unit
+pub fn[T] Query::for_each(Self[T], (Entity, T) -> Unit) -> Unit
+pub fn[T] Query::for_each_batch(Self[T], (QueryBatch[T]) -> Unit) -> Unit
 pub fn[T] Query::get(Self[T], Entity) -> T?
 pub fn[T] Query::insertion_order(Self[T], Entity) -> Int32
 pub fn[T] Query::is_empty(Self[T]) -> Bool
-pub fn[T] Query::iter(Self[T], require_filters? : Array[EntityFilter], reject_filters? : Array[EntityFilter]) -> Array[(Entity, T)]
+pub fn[T] Query::iter(Self[T]) -> Array[(Entity, T)]
 pub fn[T] Query::iter2(Self[T]) -> Iter2[Entity, T]
 pub fn[T] Query::keys(Self[T]) -> Iter[Entity]
 pub fn[T] Query::length(Self[T]) -> Int32
 pub fn[T] Query::order_span(Self[T]) -> Int32
-pub fn[T] Query::single(Self[T], require_filters? : Array[EntityFilter], reject_filters? : Array[EntityFilter]) -> (Entity, T)?
+pub fn[T] Query::single(Self[T]) -> (Entity, T)?
 pub fn[T] Query::to_array(Self[T]) -> Array[(Entity, T)]
 pub fn[T] Query::values(Self[T]) -> Iter[T]
+pub fn[T] Query::with_filters(Self[T], Array[EntityFilter]) -> Self[T]
 
-type Query2[A, B]
-pub fn[A, B] Query2::for_each(Self[A, B], (Entity, A, B) -> Unit) -> Unit
-pub fn[A, B] Query2::for_each_batch(Self[A, B], (ArrayView[Entity], ArrayView[A], ArrayView[B]) -> Unit) -> Unit
-pub fn[A, B] Query2::for_each_batch_mut_a(Self[A, B], (ArrayView[Entity], MutArrayView[A], ArrayView[B]) -> Unit) -> Unit
-pub fn[A, B] Query2::get(Self[A, B], Entity) -> (A, B)?
-
-type Query3[A, B, C]
-pub fn[A, B, C] Query3::for_each(Self[A, B, C], (Entity, A, B, C) -> Unit) -> Unit
-pub fn[A, B, C] Query3::for_each_batch(Self[A, B, C], (ArrayView[Entity], ArrayView[A], ArrayView[B], ArrayView[C]) -> Unit) -> Unit
-pub fn[A, B, C] Query3::for_each_batch_mut_a(Self[A, B, C], (ArrayView[Entity], MutArrayView[A], ArrayView[B], ArrayView[C]) -> Unit) -> Unit
-pub fn[A, B, C] Query3::get(Self[A, B, C], Entity) -> (A, B, C)?
-
-type Query4[A, B, C, D]
-pub fn[A, B, C, D] Query4::for_each(Self[A, B, C, D], (Entity, A, B, C, D) -> Unit) -> Unit
-pub fn[A, B, C, D] Query4::for_each_batch(Self[A, B, C, D], (ArrayView[Entity], ArrayView[A], ArrayView[B], ArrayView[C], ArrayView[D]) -> Unit) -> Unit
-pub fn[A, B, C, D] Query4::for_each_batch_mut_a(Self[A, B, C, D], (ArrayView[Entity], MutArrayView[A], ArrayView[B], ArrayView[C], ArrayView[D]) -> Unit) -> Unit
-pub fn[A, B, C, D] Query4::get(Self[A, B, C, D], Entity) -> (A, B, C, D)?
-
-type Query5[A, B, C, D, E]
-pub fn[A, B, C, D, E] Query5::for_each(Self[A, B, C, D, E], (Entity, A, B, C, D, E) -> Unit) -> Unit
-pub fn[A, B, C, D, E] Query5::for_each_batch(Self[A, B, C, D, E], (ArrayView[Entity], ArrayView[A], ArrayView[B], ArrayView[C], ArrayView[D], ArrayView[E]) -> Unit) -> Unit
-pub fn[A, B, C, D, E] Query5::for_each_batch_mut_a(Self[A, B, C, D, E], (ArrayView[Entity], MutArrayView[A], ArrayView[B], ArrayView[C], ArrayView[D], ArrayView[E]) -> Unit) -> Unit
-pub fn[A, B, C, D, E] Query5::get(Self[A, B, C, D, E], Entity) -> (A, B, C, D, E)?
+type QueryBatch[T]
+pub fn[T] QueryBatch::entity(Self[T], Int32) -> Entity
+pub fn[T] QueryBatch::get(Self[T], Int32) -> T
+pub fn[T] QueryBatch::length(Self[T]) -> Int32
+pub fn[T, C : Component] QueryBatch::read_column(Self[T]) -> ReadColumn[C]
+pub fn[T] QueryBatch::set(Self[T], Int32, T) -> Unit
+pub fn[T, C : Component] QueryBatch::write_column(Self[T]) -> WriteColumn[C]
 
 pub(all) struct QueryDelta[T] {
   added : Array[(Entity, T)]
@@ -145,14 +128,24 @@ pub fn[T] QueryReader::QueryReader() -> Self[T]
 pub fn[T : Eq] QueryReader::read(Self[T], Query[T]) -> QueryDelta[T]
 pub fn[T] QueryReader::reset(Self[T]) -> Unit
 
+type ReadColumn[T]
+#alias(op_get)
+pub fn[T] ReadColumn::get(Self[T], Int32) -> T
+pub fn[T] ReadColumn::length(Self[T]) -> Int32
+
 type ResourceKey[T]
 pub fn[T] ResourceKey::ResourceKey() -> Self[T]
 pub fn[T] ResourceKey::get_in(Self[T], World) -> T?
 pub fn[T] ResourceKey::get_or_insert_with(Self[T], World, (World) -> T) -> T
 pub fn[T] ResourceKey::insert_in(Self[T], World, T) -> Unit
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Single[T](T)
+pub fn[T : Eq] Single::equal(Self[T], Self[T]) -> Bool
+pub fn[T : Eq] Single::not_equal(Self[T], Self[T]) -> Bool
+pub fn[T : @debug.Debug] Single::to_repr(Self[T]) -> @debug.Repr
 pub impl[T : Component] Bundle for Single[T]
+pub impl[T : Component] QueryData for Single[T]
 
 type SpawnDraft
 pub fn[T : Component] SpawnDraft::add(Self, T) -> Unit
@@ -190,16 +183,20 @@ pub fn World::id(Self) -> UInt32
 pub fn[T : Resource] World::insert_resource(Self, T) -> Unit
 pub fn World::is_alive(Self, Entity) -> Bool
 pub fn[T : Bundle] World::prepare_spawn(Self) -> SpawnPlan[T]
-pub fn[T : Component] World::query(Self) -> Query[T]
-pub fn[A : Component, B : Component] World::query2(Self) -> Query2[A, B]
-pub fn[A : Component, B : Component, C : Component] World::query3(Self) -> Query3[A, B, C]
-pub fn[A : Component, B : Component, C : Component, D : Component] World::query4(Self) -> Query4[A, B, C, D]
-pub fn[A : Component, B : Component, C : Component, D : Component, E : Component] World::query5(Self) -> Query5[A, B, C, D, E]
+pub fn[T : QueryData] World::query(Self, filters? : Array[EntityFilter]) -> Query[T]
+pub fn[T : Component] World::query1(Self, filters? : Array[EntityFilter]) -> Query[Single[T]]
 pub fn[T : Resource] World::resource(Self) -> T
 pub fn[T : Component] World::set_component(Self, Entity, T) -> Unit
 pub fn[T : Bundle] World::spawn(Self, T, parent? : Entity) -> Entity
 pub fn[T : Component] World::spawn1(Self, T, parent? : Entity) -> Entity
 pub fn World::spawn_draft(Self) -> SpawnDraft
+
+type WriteColumn[T]
+#alias(op_get)
+pub fn[T] WriteColumn::get(Self[T], Int32) -> T
+pub fn[T] WriteColumn::length(Self[T]) -> Int32
+#alias(op_set)
+pub fn[T] WriteColumn::set(Self[T], Int32, T) -> Unit
 
 // Type aliases
 pub type System = (World) -> Unit
@@ -220,6 +217,17 @@ pub impl[A : Component, B : Component, C : Component, D : Component, E : Compone
 pub(open) trait Component {
   fn component_key() -> ComponentKey[Self]
 }
+
+pub(open) trait QueryData {
+  fn make_query(World) -> Query[Self]
+}
+pub impl[A : Component, B : Component] QueryData for (A, B)
+pub impl[A : Component, B : Component, C : Component] QueryData for (A, B, C)
+pub impl[A : Component, B : Component, C : Component, D : Component] QueryData for (A, B, C, D)
+pub impl[A : Component, B : Component, C : Component, D : Component, E : Component] QueryData for (A, B, C, D, E)
+pub impl[A : Component, B : Component, C : Component, D : Component, E : Component, F : Component] QueryData for (A, B, C, D, E, F)
+pub impl[A : Component, B : Component, C : Component, D : Component, E : Component, F : Component, G : Component] QueryData for (A, B, C, D, E, F, G)
+pub impl[A : Component, B : Component, C : Component, D : Component, E : Component, F : Component, G : Component, H : Component] QueryData for (A, B, C, D, E, F, G, H)
 
 pub(open) trait Resource {
   fn resource_key() -> ResourceKey[Self]

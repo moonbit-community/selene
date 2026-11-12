@@ -456,14 +456,17 @@ fn apply_layout_recursive(
   layout_space : UiLayoutSpace,
   projected : Set[@ecs.Entity],
 ) -> Unit {
-  let query_node : @ecs.Query[Node] = world.query()
-  let query_ui_target_camera : @ecs.Query[UiTargetCamera] = world.query()
-  let query_layout_config : @ecs.Query[LayoutConfig] = world.query()
-  let query_override_clip : @ecs.Query[OverrideClip] = world.query()
+  let query_node : @ecs.Query[@ecs.Single[Node]] = world.query()
+  let query_ui_target_camera : @ecs.Query[@ecs.Single[UiTargetCamera]] = world.query()
+  let query_layout_config : @ecs.Query[@ecs.Single[LayoutConfig]] = world.query()
+  let query_override_clip : @ecs.Query[@ecs.Single[OverrideClip]] = world.query()
   guard layout_nodes.get(entity) is Some(runtime_node) else { return }
   let node_id = runtime_node.node_id
-  guard query_node.get(entity) is Some(node) else { return }
-  let effective_layout_space = match query_ui_target_camera.get(entity) {
+  guard query_node.get(entity).map(value => value.0) is Some(node) else {
+    return
+  }
+  let effective_layout_space = match
+    query_ui_target_camera.get(entity).map(value => value.0) {
     Some(target) => ui_layout_space(world~, Some(target.camera))
     None => layout_space
   }

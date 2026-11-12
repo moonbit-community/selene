@@ -23,8 +23,12 @@
 - Added typed World-local storage and streaming ECS query traversal.
 - Added World-local archetypes with typed columns and cached joined queries.
 - Added zero-copy batch reads and in-place writes for archetype queries.
-- Added `Query3`, `Query4`, and `Query5` with cached archetype traversal and
-  zero-copy batches. `Query2` through `Query5` also support direct entity reads.
+- Add one opaque `Query[Row]` for `Single[T]` and two- through eight-component
+  tuples, with cached archetype traversal and uniform point, row, and batch access.
+- Add `App::add_query_system(schedule, callback)` with inferred, World-local query
+  construction and the same conditions and ordering options as World systems.
+- Add scoped `ReadColumn` and `WriteColumn` batch access, permitting writes to
+  any declared component or several components without forming per-row tuples.
 - Added reusable spawn bundles, `World::spawn1`, `Commands::spawn1`, and a
   one-shot `SpawnDraft` for data-driven imports.
 - Added `parent=` to immediate and deferred spawns. The World keeps the
@@ -39,7 +43,7 @@
 ### Changed
 
 - Require explicit World ownership for component access. Construct opaque
-  queries with `world.query()` or `world.query2()` through `world.query5()`;
+  queries with `world.query()` or the single-component `world.query1()`;
   use `world.get_component` and `world.set_component` for point access.
   Migrate engine systems, importers, and all examples to the same interfaces.
 - LDtk component registrations infer their column from the callback result;
@@ -197,8 +201,12 @@
 
 ### Fixed
 
-- Reject immediate structural changes during single-component query callbacks,
-  matching joined-query traversal, and keep `Without` filters World-bound.
+- Apply structural filters consistently to every query operation and cache
+  their matches per archetype. Reject foreign-World filters and undeclared batch
+  columns. Detect batch and column access after their callback has returned.
+- Protect callback traversals against structural changes; use entity-handle
+  snapshots for iterators so deletion, slot reuse, and schedule flushes cannot
+  invalidate live array traversal.
 
 - Preserve shortest-path, constant-speed rotation interpolation, including
   antipodal quaternion representations and small angles.
@@ -230,6 +238,8 @@
 
 - Remove public component stores, global component accessors, key data-access
   methods, store-based query constructors, and store-selected spawn APIs.
+- Remove the separate `Query2` through `Query5` types, numbered joined-query
+  constructors, and the first-column-only `for_each_batch_mut_a` method.
 
 - Remove manually held `State[T]` and `NextState[T]` objects, global state
   callback storage, frame-serial transition predicates, and condition-bearing

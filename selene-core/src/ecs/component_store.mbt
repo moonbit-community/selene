@@ -58,15 +58,6 @@ fn[T] ComponentStore::get(self : ComponentStore[T], entity : Entity) -> T? {
 }
 
 ///|
-fn[T] ComponentStore::contains(
-  self : ComponentStore[T],
-  entity : Entity,
-) -> Bool {
-  guard self.location(entity) is Some((id, _)) else { false }
-  self.column(id) is Some(_)
-}
-
-///|
 /// Overwrites a value in an existing row. Aborts if the entity has no such
 /// column, belongs to another World, or has no materialized row.
 fn[T] ComponentStore::set(
@@ -90,86 +81,4 @@ fn[T] ComponentStore::append_new(
 ) -> Unit {
   self.columns[id].unwrap().push(value)
   self.order.append(entity)
-}
-
-///|
-/// Visits entries in component insertion order, independently of row order.
-fn[T] ComponentStore::iter2(self : ComponentStore[T]) -> Iter2[Entity, T] {
-  let mut next = self.order.head
-  let length = self.order.length
-  let mut remaining = length
-  Iter2::new(
-    () => {
-      guard remaining > 0 && next is Some(index) else { None }
-      guard self.order.entries.get(index) is Some(Some(entry)) else { None }
-      next = entry.next
-      remaining -= 1
-      let (table, row) = self.storage.slots[index].location.unwrap()
-      Some((entry.entity, self.columns[table].unwrap()[row]))
-    },
-    size_hint=length,
-  )
-}
-
-///|
-fn[T] ComponentStore::iter(self : ComponentStore[T]) -> Iter[(Entity, T)] {
-  let entries = self.iter2()
-  Iter::new(() => entries.next())
-}
-
-///|
-fn[T] ComponentStore::keys(self : ComponentStore[T]) -> Iter[Entity] {
-  let mut next = self.order.head
-  let length = self.order.length
-  let mut remaining = length
-  Iter::new(
-    () => {
-      guard remaining > 0 && next is Some(index) else { None }
-      guard self.order.entries.get(index) is Some(Some(entry)) else { None }
-      next = entry.next
-      remaining -= 1
-      Some(entry.entity)
-    },
-    size_hint=length,
-  )
-}
-
-///|
-fn[T] ComponentStore::values(self : ComponentStore[T]) -> Iter[T] {
-  self.iter().map(pair => pair.1)
-}
-
-///|
-fn[T] ComponentStore::to_array(self : ComponentStore[T]) -> Array[(Entity, T)] {
-  self.iter().collect()
-}
-
-///|
-fn[T] ComponentStore::length(self : ComponentStore[T]) -> Int32 {
-  self.order.length
-}
-
-///|
-fn[T] ComponentStore::is_empty(self : ComponentStore[T]) -> Bool {
-  self.order.length == 0
-}
-
-///|
-/// A stable insertion rank for an entity that has this component.
-fn[T] ComponentStore::insertion_order(
-  self : ComponentStore[T],
-  entity : Entity,
-) -> Int32 {
-  guard self.world_id == entity.world_id &&
-    self.order.entries.get(entity.slot) is Some(Some(entry)) &&
-    entry.entity.generation == entity.generation else {
-    abort("entity does not have this component")
-  }
-  entry.rank
-}
-
-///|
-/// Upper bound of the insertion ranks of this store.
-fn[T] ComponentStore::order_span(self : ComponentStore[T]) -> Int32 {
-  self.order.next_rank
 }

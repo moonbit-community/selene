@@ -42,6 +42,7 @@ pub fn[T : @state.StateType] App::add_on_enter(Self, T, (@ecs.World) -> Unit) ->
 pub fn[T : @state.StateType] App::add_on_exit(Self, T, (@ecs.World) -> Unit) -> Self
 pub fn App::add_plugin(Self, (Self) -> Self) -> Self
 pub fn App::add_plugins(Self, Array[(Self) -> Self]) -> Self
+pub fn[T : @ecs.QueryData] App::add_query_system(Self, Schedule, (@ecs.Query[T]) -> Unit, filters? : (@ecs.World) -> Array[@ecs.EntityFilter], system_name? : String, in_set? : SystemSet, before? : Array[SystemSet], after? : Array[SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
 pub fn App::add_system(Self, Schedule, (@ecs.World) -> Unit, system_name? : String, in_set? : SystemSet, before? : Array[SystemSet], after? : Array[SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
 pub fn App::add_systems(Self, Schedule, Array[(@ecs.World) -> Unit], in_set? : SystemSet, before? : Array[SystemSet], after? : Array[SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
 pub fn[T : @state.StateType] App::init_state(Self, T) -> Self

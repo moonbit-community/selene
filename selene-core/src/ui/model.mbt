@@ -1077,7 +1077,7 @@ fn compare_ui_root_order(
 
 ///|
 pub fn is_ui_entity(world~ : @ecs.World, entity : @ecs.Entity) -> Bool {
-  let query_node : @ecs.Query[Node] = world.query()
+  let query_node : @ecs.Query[@ecs.Single[Node]] = world.query()
   query_node.contains(entity)
 }
 
@@ -1147,9 +1147,9 @@ pub fn to_screen_rect(rect : @math.Rect, space : UiLayoutSpace) -> @math.Rect {
 
 ///|
 fn top_level_ui_nodes(world~ : @ecs.World) -> Array[@ecs.Entity] {
-  let query_node : @ecs.Query[Node] = world.query()
+  let query_node : @ecs.Query[@ecs.Single[Node]] = world.query()
   let roots : Array[@ecs.Entity] = []
-  for entity, node in query_node {
+  for entity, Single(node) in query_node {
     guard entity.is_alive() else { continue }
     guard node.active && node.display != None else { continue }
     match entity.get_parent() {
@@ -1163,7 +1163,7 @@ fn top_level_ui_nodes(world~ : @ecs.World) -> Array[@ecs.Entity] {
 
 ///|
 fn ui_children(world~ : @ecs.World, entity : @ecs.Entity) -> Array[@ecs.Entity] {
-  let query_node : @ecs.Query[Node] = world.query()
+  let query_node : @ecs.Query[@ecs.Single[Node]] = world.query()
   let children : Array[@ecs.Entity] = []
   for child in entity.get_children() {
     if child.is_alive() && query_node.contains(child) {
@@ -1233,7 +1233,7 @@ fn compare_ui_stack_sibling(
 
 ///|
 fn rebuild_ui_stack(world~ : @ecs.World) -> Unit {
-  let query_global_z_index : @ecs.Query[GlobalZIndex] = world.query()
+  let query_global_z_index : @ecs.Query[@ecs.Single[GlobalZIndex]] = world.query()
   let ordered = ui_stack()
   ordered.clear()
   let roots : Array[@ecs.Entity] = []
@@ -1292,7 +1292,7 @@ pub fn set_scroll_position(
   entity : @ecs.Entity,
   position : ScrollPosition,
 ) -> Unit {
-  let query_node : @ecs.Query[Node] = world.query()
+  let query_node : @ecs.Query[@ecs.Single[Node]] = world.query()
   guard entity.is_valid_in(@ecs.require_current_world()) &&
     query_node.contains(entity) else {
     return

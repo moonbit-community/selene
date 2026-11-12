@@ -50,7 +50,7 @@ test "schedule rejects reentry and leaves the nested batch queued" {
 ///|
 test "schedule rejects streaming and archetype batch queries" {
   let world = @ecs.World()
-  let storage : @ecs.Query[CommandValue] = world.query()
+  let storage : @ecs.Query[@ecs.Single[CommandValue]] = world.query()
   ignore(world.spawn1(CommandValue(42)))
   let commands = @ecs.commands(world)
   let calls = []
@@ -66,14 +66,10 @@ test "schedule rejects streaming and archetype batch queries" {
     }
   })
   (
-    world.query5() :
-    @ecs.Query5[
-      CommandValue,
-      CommandValue,
-      CommandValue,
-      CommandValue,
-      CommandValue,
-    ]).for_each_batch((_, _, _, _, _, _) => {
+    world.query() :
+    @ecs.Query[
+      (CommandValue, CommandValue, CommandValue, CommandValue, CommandValue),
+    ]).for_each_batch(_ => {
     try @ecs.run_schedule(world, _ => calls.push(99)) catch {
       ActiveQuery => rejected.push(true)
       _ => rejected.push(false)
@@ -176,7 +172,7 @@ test "scaled and unscaled timeouts respect the World's time scale" {
 test "entities reserved during a command batch go live with the next batch" {
   let world = @ecs.World()
   let commands = @ecs.commands(world)
-  let storage : @ecs.Query[CommandValue] = world.query()
+  let storage : @ecs.Query[@ecs.Single[CommandValue]] = world.query()
   let bundle : @ecs.SpawnPlan[@ecs.Single[CommandValue]] = world.prepare_spawn()
   let spawned : Ref[(@ecs.Entity, @ecs.Entity)?] = Ref(None)
   let observed = []
@@ -193,15 +189,33 @@ test "entities reserved during a command batch go live with the next batch" {
   .with_world(world)
   .add_system(PreUpdate, _ => {
     let (empty, bundled) = spawned.val.unwrap()
-    observed.push((empty.is_alive(), bundled.is_alive(), storage.get(bundled)))
+    observed.push(
+      (
+        empty.is_alive(),
+        bundled.is_alive(),
+        storage.get(bundled).map(value => value.0),
+      ),
+    )
   })
   .add_system(Update, _ => {
     let (empty, bundled) = spawned.val.unwrap()
-    observed.push((empty.is_alive(), bundled.is_alive(), storage.get(bundled)))
+    observed.push(
+      (
+        empty.is_alive(),
+        bundled.is_alive(),
+        storage.get(bundled).map(value => value.0),
+      ),
+    )
   })
   .add_system(RenderExtract, _ => {
     let (empty, bundled) = spawned.val.unwrap()
-    observed.push((empty.is_alive(), bundled.is_alive(), storage.get(bundled)))
+    observed.push(
+      (
+        empty.is_alive(),
+        bundled.is_alive(),
+        storage.get(bundled).map(value => value.0),
+      ),
+    )
   })
   .run_frames(1, raw_delta=0.125, fixed_delta_override=Some(1.0))
   assert_eq(observed, [

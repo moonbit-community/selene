@@ -440,14 +440,15 @@ test "instantiate_scene_instance installs animation components without autoplay"
   )
   inspect(instance.animations.contains("idle"), content="true")
   inspect(
-    (world.query() : @ecs.Query[@animation.AnimationPlayer]).contains(
+    (world.query() : @ecs.Query[@ecs.Single[@animation.AnimationPlayer]]).contains(
       instance.root,
     ),
     content="true",
   )
   inspect(
-    (world.query() : @ecs.Query[@animation.AnimationPlayer])
+    (world.query() : @ecs.Query[@ecs.Single[@animation.AnimationPlayer]])
     .get(instance.root)
+    .map(value => value.0)
     .unwrap()
     .playing_animations()
     .length(),

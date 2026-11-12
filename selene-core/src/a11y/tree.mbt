@@ -122,9 +122,9 @@ fn get_a11y(world~ : @ecs.World, entity : @ecs.Entity) -> A11y? {
 
 ///|
 fn ui_children(world~ : @ecs.World, entity : @ecs.Entity) -> Array[@ecs.Entity] {
-  let query_node : @ecs.Query[@ui.Node] = world.query()
-  let query_global_z_index : @ecs.Query[@ui.GlobalZIndex] = world.query()
-  let query_z_index : @ecs.Query[@ui.ZIndex] = world.query()
+  let query_node : @ecs.Query[@ecs.Single[@ui.Node]] = world.query()
+  let query_global_z_index : @ecs.Query[@ecs.Single[@ui.GlobalZIndex]] = world.query()
+  let query_z_index : @ecs.Query[@ecs.Single[@ui.ZIndex]] = world.query()
   let children : Array[@ecs.Entity] = []
   for child in entity.get_children() {
     if child.is_alive() && query_node.contains(child) {
@@ -179,11 +179,11 @@ fn collect_semantic_descendants(
 
 ///|
 fn collect_ordered_semantic_entities(world~ : @ecs.World) -> Array[@ecs.Entity] {
-  let query_node : @ecs.Query[@ui.Node] = world.query()
-  let query_a11y : @ecs.Query[A11y] = world.query()
+  let query_node : @ecs.Query[@ecs.Single[@ui.Node]] = world.query()
+  let query_a11y : @ecs.Query[@ecs.Single[A11y]] = world.query()
   let ordered : Array[@ecs.Entity] = []
   let seen : @set.Set[@ecs.Entity] = Set([])
-  for entity, _node in query_node {
+  for entity, Single(_node) in query_node {
     guard entity.is_alive() else { continue }
     match entity.get_parent() {
       Some(parent) => if query_node.contains(parent) { continue }
@@ -268,7 +268,7 @@ fn effective_label(
 
 ///|
 fn is_clickable(world~ : @ecs.World, entity : @ecs.Entity, a11y : A11y) -> Bool {
-  let query_button : @ecs.Query[@ui.Button] = world.query()
+  let query_button : @ecs.Query[@ecs.Single[@ui.Button]] = world.query()
   query_button.contains(entity) || a11y.action_callbacks.length() > 0
 }
 

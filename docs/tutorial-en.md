@@ -206,8 +206,8 @@ priv struct PlayerController {
 
 Startup cleans up the previous run, loads the level, and inserts the new
 `GameSession` with `world.insert_resource(...)`. Systems read the session
-with `world.get_resource()` and obtain a typed `@ecs.Query[PlayerController]`
-from `world.query()`. Point reads and value replacement use
+with `world.get_resource()` and obtain a typed `@ecs.Query[@ecs.Single[PlayerController]]`
+from `world.query1()`. Point reads and value replacement use
 `world.get_component(entity)` and `world.set_component(entity, value)`. The package applies the generation rule to `model.mbt`.
 
 ```moonbit

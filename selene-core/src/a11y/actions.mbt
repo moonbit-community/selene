@@ -27,8 +27,10 @@ fn invoke_action_callbacks(
   action : @moon_accesskit.Action,
   data : @moon_accesskit.ActionData?,
 ) -> Unit {
-  let query_a11y : @ecs.Query[A11y] = world.query()
-  guard query_a11y.get(entity) is Some(a11y) else { return }
+  let query_a11y : @ecs.Query[@ecs.Single[A11y]] = world.query()
+  guard query_a11y.get(entity).map(value => value.0) is Some(a11y) else {
+    return
+  }
   for callback in a11y.action_callbacks {
     callback(action, data)
   }

@@ -271,7 +271,7 @@ fn set_entity_world_transform(
   entity : @ecs.Entity,
   world_transform : @transform.Transform,
 ) -> Bool {
-  let query_spatial : @ecs.Query[@transform.Spatial] = world.query()
+  let query_spatial : @ecs.Query[@ecs.Single[@transform.Spatial]] = world.query()
   if query_spatial.contains(entity) {
     let local_transform = match entity.get_parent() {
       Some(parent) => {
@@ -297,7 +297,7 @@ fn attached_rigid_body_entity(
   world~ : @ecs.World,
   entity : @ecs.Entity,
 ) -> @ecs.Entity? {
-  let query_rigid_body : @ecs.Query[RigidBody] = world.query()
+  let query_rigid_body : @ecs.Query[@ecs.Single[RigidBody]] = world.query()
   if query_rigid_body.contains(entity) {
     return Some(entity)
   }

@@ -150,11 +150,11 @@ pub fn unregister_snapshot_provider(name : String) -> Unit {
 
 ///|
 pub fn world_snapshot(world~ : @ecs.World) -> WorldSnapshot {
-  let query_visibility : @ecs.Query[@visibility.Visibility] = world.query()
-  let query_sprite : @ecs.Query[@sprite.Sprite] = world.query()
-  let query_rigid_body : @ecs.Query[@physics2d.RigidBody] = world.query()
-  let query_collider : @ecs.Query[@physics2d.Collider] = world.query()
-  let query_linear_velocity : @ecs.Query[@physics2d.LinearVelocity] = world.query()
+  let query_visibility : @ecs.Query[@ecs.Single[@visibility.Visibility]] = world.query()
+  let query_sprite : @ecs.Query[@ecs.Single[@sprite.Sprite]] = world.query()
+  let query_rigid_body : @ecs.Query[@ecs.Single[@physics2d.RigidBody]] = world.query()
+  let query_collider : @ecs.Query[@ecs.Single[@physics2d.Collider]] = world.query()
+  let query_linear_velocity : @ecs.Query[@ecs.Single[@physics2d.LinearVelocity]] = world.query()
   let entities : Array[EntitySnapshot] = []
   for entity in @ecs.iter_entities() {
     if !entity.is_alive() {
@@ -165,11 +165,11 @@ pub fn world_snapshot(world~ : @ecs.World) -> WorldSnapshot {
       name: @name.name_of(world~, entity),
       transform: @transform.local_transform(world~, entity),
       global_transform: @transform.global_transform(world~, entity),
-      visibility: query_visibility.get(entity),
-      sprite: query_sprite.get(entity),
-      rigid_body2d: query_rigid_body.get(entity),
-      collider2d: query_collider.get(entity),
-      linear_velocity2d: query_linear_velocity.get(entity),
+      visibility: query_visibility.get(entity).map(value => value.0),
+      sprite: query_sprite.get(entity).map(value => value.0),
+      rigid_body2d: query_rigid_body.get(entity).map(value => value.0),
+      collider2d: query_collider.get(entity).map(value => value.0),
+      linear_velocity2d: query_linear_velocity.get(entity).map(value => value.0),
     })
   }
   entities.sort_by(fn(lhs, rhs) {
@@ -247,9 +247,9 @@ fn sprite_destination_size(sprite : @sprite.Sprite) -> @math.Vec2? {
 pub fn sprite_inspector_entries(
   world~ : @ecs.World,
 ) -> Array[SpriteInspectorEntry] {
-  let query_sprite : @ecs.Query[@sprite.Sprite] = world.query()
+  let query_sprite : @ecs.Query[@ecs.Single[@sprite.Sprite]] = world.query()
   let entries : Array[SpriteInspectorEntry] = []
-  for entity, sprite in query_sprite {
+  for entity, Single(sprite) in query_sprite {
     if !entity.is_alive() {
       continue
     }

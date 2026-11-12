@@ -276,10 +276,12 @@ pub fn replace_tiled_map(
   map : TiledMap,
   settings~ : TiledSpawnSettings = TiledSpawnSettings(),
 ) -> @ecs.Entity {
-  let query_tiled_world_map_instance : @ecs.Query[TiledWorldMapInstance] = world.query()
-  let query_tiled_world_instance : @ecs.Query[TiledWorldInstance] = world.query()
+  let query_tiled_world_map_instance : @ecs.Query[
+    @ecs.Single[TiledWorldMapInstance],
+  ] = world.query()
+  let query_tiled_world_instance : @ecs.Query[@ecs.Single[TiledWorldInstance]] = world.query()
   let parent = root.get_parent()
-  let world_map = query_tiled_world_map_instance.get(root)
+  let world_map = query_tiled_world_map_instance.get(root).map(value => value.0)
   ignore(root.delete())
   let replacement = spawn_tiled_map_root(
     world~,
@@ -289,7 +291,8 @@ pub fn replace_tiled_map(
     world_map?,
   )
   if world_map is Some(metadata) &&
-    query_tiled_world_instance.get(metadata.world_entity) is Some(instance) {
+    query_tiled_world_instance.get(metadata.world_entity).map(value => value.0)
+    is Some(instance) {
     for (index, entity) in instance.spawned_maps.to_array() {
       if entity == root {
         instance.spawned_maps.set(index, replacement)

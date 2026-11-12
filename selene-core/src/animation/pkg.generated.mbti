@@ -30,7 +30,7 @@ pub fn animation_skinning_system(world~ : @ecs.World, Double) -> Unit
 
 pub fn animation_target_id_of(world~ : @ecs.World, @ecs.Entity) -> AnimationTargetId?
 
-pub fn animation_transition_system(world~ : @ecs.World, Double) -> Unit
+pub fn animation_transition_system(@ecs.Query[(AnimationTransitions, AnimationPlayer)], Double) -> Unit
 
 pub fn bind_morph_mesh(@ecs.Entity, MorphMeshBinding3D) -> Unit
 

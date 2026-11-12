@@ -17,7 +17,11 @@ test "retained UI layout stays clean until measured content changes" {
   assert_false(runtime.tree.dirty(root.node_id))
   assert_eq(computed_ui_node(entity).unwrap().size.x, initial_width)
 
-  (world.query() : @ecs.Query[Text]).get(entity).unwrap().content = "A much longer label"
+  (world.query() : @ecs.Query[@ecs.Single[Text]])
+  .get(entity)
+  .map(value => value.0)
+  .unwrap().content
+  = "A much longer label"
   ui_layout_system(world~, 0.0)
   assert_true(computed_ui_node(entity).unwrap().size.x > initial_width)
   assert_false(runtime.tree.dirty(root.node_id))
@@ -138,7 +142,10 @@ test "retained UI projection changes do not rebuild layout or stacking" {
   assert_eq(runtime.projection_revision, projection_revision + 1U)
   assert_eq(runtime.stacking_revision, stacking_revision)
 
-  let node = (world.query() : @ecs.Query[Node]).get(root).unwrap()
+  let node = (world.query() : @ecs.Query[@ecs.Single[Node]])
+    .get(root)
+    .map(value => value.0)
+    .unwrap()
   world.set_component(
     root,
     (
@@ -186,7 +193,10 @@ test "retained UI compares normalized Chicle styles" {
   let projection_revision = runtime.projection_revision
   let stacking_revision = runtime.stacking_revision
 
-  let node = (world.query() : @ecs.Query[Node]).get(entity).unwrap()
+  let node = (world.query() : @ecs.Query[@ecs.Single[Node]])
+    .get(entity)
+    .map(value => value.0)
+    .unwrap()
   world.set_component(
     entity,
     ({ ..node, margin: UiRectValues::all(-8.0), } : Node),
@@ -197,7 +207,10 @@ test "retained UI compares normalized Chicle styles" {
   assert_eq(runtime.stacking_revision, stacking_revision)
   assert_false(runtime.tree.dirty(root.node_id))
 
-  let node = (world.query() : @ecs.Query[Node]).get(entity).unwrap()
+  let node = (world.query() : @ecs.Query[@ecs.Single[Node]])
+    .get(entity)
+    .map(value => value.0)
+    .unwrap()
   world.set_component(entity, ({ ..node, width: Val::px(120.0), } : Node))
   ui_layout_system(world~, 0.0)
   assert_eq(runtime.layout_revision, layout_revision + 1U)

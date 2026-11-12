@@ -15,16 +15,17 @@ fn ldtk_force_world_respawn(
   world~ : @ecs.World,
   world_entity : @ecs.Entity,
 ) -> Unit {
-  let query_ldtk_world_instance : @ecs.Query[LdtkWorldInstance] = world.query()
-  let query_ldtk_worldly : @ecs.Query[LdtkWorldly] = world.query()
-  guard query_ldtk_world_instance.get(world_entity) is Some(instance) else {
+  let query_ldtk_world_instance : @ecs.Query[@ecs.Single[LdtkWorldInstance]] = world.query()
+  let query_ldtk_worldly : @ecs.Query[@ecs.Single[LdtkWorldly]] = world.query()
+  guard query_ldtk_world_instance.get(world_entity).map(value => value.0)
+    is Some(instance) else {
     return
   }
   for (level_iid, level_entity) in instance.spawned_levels.to_array() {
     ldtk_despawn_level(world~, level_iid, level_entity)
     instance.spawned_levels.remove(level_iid)
   }
-  for (entity, worldly) in query_ldtk_worldly.to_array() {
+  for (entity, Single(worldly)) in query_ldtk_worldly.to_array() {
     if worldly.world_entity != world_entity {
       continue
     }
@@ -37,8 +38,9 @@ fn ldtk_force_level_respawns(
   world~ : @ecs.World,
   world_entity : @ecs.Entity,
 ) -> Unit {
-  let query_ldtk_world_instance : @ecs.Query[LdtkWorldInstance] = world.query()
-  guard query_ldtk_world_instance.get(world_entity) is Some(instance) else {
+  let query_ldtk_world_instance : @ecs.Query[@ecs.Single[LdtkWorldInstance]] = world.query()
+  guard query_ldtk_world_instance.get(world_entity).map(value => value.0)
+    is Some(instance) else {
     return
   }
   for (level_iid, level_entity) in instance.spawned_levels.to_array() {

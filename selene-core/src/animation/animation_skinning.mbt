@@ -1,13 +1,16 @@
 ///|
 pub fn animation_player_system(world~ : @ecs.World, delta : Double) -> Unit {
-  let query_animation_graph_handle : @ecs.Query[AnimationGraphHandle] = world.query()
-  let query_animation_player : @ecs.Query[AnimationPlayer] = world.query()
+  let query_animation_graph_handle : @ecs.Query[
+    @ecs.Single[AnimationGraphHandle],
+  ] = world.query()
+  let query_animation_player : @ecs.Query[@ecs.Single[AnimationPlayer]] = world.query()
   let targets_by_player = collect_targets_by_player(world~)
-  for (entity, player) in query_animation_player.to_array() {
+  for (entity, Single(player)) in query_animation_player.to_array() {
     if !entity.is_alive() {
       continue
     }
-    guard query_animation_graph_handle.get(entity) is Some(graph_handle) else {
+    guard query_animation_graph_handle.get(entity).map(value => value.0)
+      is Some(graph_handle) else {
       continue
     }
     guard animation_graph_asset(graph_handle) is Some(graph) else { continue }
@@ -113,14 +116,13 @@ pub fn animation_player_system(world~ : @ecs.World, delta : Double) -> Unit {
 }
 
 ///|
-pub fn animation_transition_system(world~ : @ecs.World, delta : Double) -> Unit {
-  let query_animation_player : @ecs.Query[AnimationPlayer] = world.query()
-  let query_animation_transitions : @ecs.Query[AnimationTransitions] = world.query()
-  for entity, transitions in query_animation_transitions {
-    if !entity.is_alive() {
-      continue
-    }
-    guard query_animation_player.get(entity) is Some(player) else { continue }
+pub fn animation_transition_system(
+  query : @ecs.Query[(AnimationTransitions, AnimationPlayer)],
+  delta : Double,
+) -> Unit {
+  query.for_each((entity, row) => {
+    let (transitions, player) = row
+    guard entity.is_alive() else { return }
     let mut main_weight = 1.0
     transitions.fading.retain((node_index, fade) => {
       guard player.active_animations.get(node_index) is Some(active) else {
@@ -153,17 +155,20 @@ pub fn animation_transition_system(world~ : @ecs.World, delta : Double) -> Unit 
         main_weight
       }
     }
-  }
+  })
 }
 
 ///|
 pub fn animation_apply_system(world~ : @ecs.World, _delta : Double) -> Unit {
-  let query_animation_graph_handle : @ecs.Query[AnimationGraphHandle] = world.query()
-  let query_animation_player : @ecs.Query[AnimationPlayer] = world.query()
+  let query_animation_graph_handle : @ecs.Query[
+    @ecs.Single[AnimationGraphHandle],
+  ] = world.query()
+  let query_animation_player : @ecs.Query[@ecs.Single[AnimationPlayer]] = world.query()
   let targets_by_player = collect_targets_by_player(world~)
-  for (player_entity, player) in query_animation_player.to_array() {
+  for (player_entity, Single(player)) in query_animation_player.to_array() {
     guard player_entity.is_alive() else { continue }
-    guard query_animation_graph_handle.get(player_entity) is Some(graph_handle) else {
+    guard query_animation_graph_handle.get(player_entity).map(value => value.0)
+      is Some(graph_handle) else {
       continue
     }
     guard animation_graph_asset(graph_handle) is Some(graph) else { continue }

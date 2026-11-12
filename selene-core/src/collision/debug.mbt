@@ -36,15 +36,15 @@ fn rgba(r : UInt32, g : UInt32, b : UInt32, a : Double) -> @render.Color {
 /// if the collision shape is not a rectangle.
 ///
 pub fn debug_collide_system(world~ : @ecs.World, _delta : Double) -> Unit {
-  let query_collider : @ecs.Query[Collider] = world.query()
-  let query_collision_shape : @ecs.Query[CollisionShape] = world.query()
-  let query_area : @ecs.Query[Area] = world.query()
-  let query_pickable : @ecs.Query[Pickable] = world.query()
+  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
+  let query_collision_shape : @ecs.Query[@ecs.Single[CollisionShape]] = world.query()
+  let query_area : @ecs.Query[@ecs.Single[Area]] = world.query()
+  let query_pickable : @ecs.Query[@ecs.Single[Pickable]] = world.query()
   let camera_view = @camera.primary_camera2d_view(world~)
-  for e, collide in query_collider {
+  for e, Single(collide) in query_collider {
     guard e.is_alive() else { continue }
     guard collide.active else { continue }
-    guard! query_collision_shape.get(e) is Some(shape)
+    guard! query_collision_shape.get(e).map(value => value.0) is Some(shape)
     guard! shape is Rect(size~, offset~)
     guard debug_entity_global_transform(world~, e) is Some(global) else {
       continue
@@ -59,10 +59,12 @@ pub fn debug_collide_system(world~ : @ecs.World, _delta : Double) -> Unit {
       stroke_color: None,
     })
   }
-  for e, area in query_area {
+  for e, Single(area) in query_area {
     guard e.is_alive() else { continue }
     guard area.active else { continue }
-    guard query_collision_shape.get(e) is Some(shape) else { continue }
+    guard query_collision_shape.get(e).map(value => value.0) is Some(shape) else {
+      continue
+    }
     guard! shape is Rect(size~, offset~)
     guard debug_entity_global_transform(world~, e) is Some(global) else {
       continue
@@ -77,9 +79,11 @@ pub fn debug_collide_system(world~ : @ecs.World, _delta : Double) -> Unit {
       stroke_color: None,
     })
   }
-  for e, _pickable in query_pickable {
+  for e, Single(_pickable) in query_pickable {
     guard e.is_alive() else { continue }
-    guard query_collision_shape.get(e) is Some(shape) else { continue }
+    guard query_collision_shape.get(e).map(value => value.0) is Some(shape) else {
+      continue
+    }
     guard! shape is Rect(size~, offset~)
     guard debug_entity_global_transform(world~, e) is Some(global) else {
       continue

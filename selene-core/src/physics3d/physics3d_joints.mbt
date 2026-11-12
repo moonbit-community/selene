@@ -136,7 +136,7 @@ pub fn set_rigid_body_angular_velocity(
 
 ///|
 fn rigid_body_desc(world~ : @ecs.World, entity : @ecs.Entity) -> RigidBodyDesc {
-  let query_ccd : @ecs.Query[Ccd] = world.query()
+  let query_ccd : @ecs.Query[@ecs.Single[Ccd]] = world.query()
   {
     body_type: (world.get_component(entity) : RigidBody?).unwrap_or(Dynamic),
     velocity: (world.get_component(entity) : Velocity?).unwrap_or(
@@ -162,7 +162,7 @@ fn collider_desc(
   entity : @ecs.Entity,
   shape : Collider,
 ) -> ColliderDesc {
-  let query_sensor : @ecs.Query[Sensor] = world.query()
+  let query_sensor : @ecs.Query[@ecs.Single[Sensor]] = world.query()
   {
     shape,
     sensor: query_sensor.contains(entity),
@@ -422,8 +422,8 @@ pub fn RapierContext::project_point(
 
 ///|
 fn ensure_bodies_and_colliders(world~ : @ecs.World) -> Unit {
-  let query_rigid_body : @ecs.Query[RigidBody] = world.query()
-  let query_collider : @ecs.Query[Collider] = world.query()
+  let query_rigid_body : @ecs.Query[@ecs.Single[RigidBody]] = world.query()
+  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
   for entity, _ in query_rigid_body {
     if !entity.is_alive() {
       continue
@@ -431,7 +431,7 @@ fn ensure_bodies_and_colliders(world~ : @ecs.World) -> Unit {
     ensure_rigid_body(world~, entity)
   }
 
-  for entity, collider in query_collider {
+  for entity, Single(collider) in query_collider {
     if !entity.is_alive() {
       continue
     }
@@ -441,8 +441,8 @@ fn ensure_bodies_and_colliders(world~ : @ecs.World) -> Unit {
 
 ///|
 fn sync_components_to_rapier(world~ : @ecs.World) -> Unit {
-  let query_rigid_body : @ecs.Query[RigidBody] = world.query()
-  let query_collider : @ecs.Query[Collider] = world.query()
+  let query_rigid_body : @ecs.Query[@ecs.Single[RigidBody]] = world.query()
+  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
   let physics_world = physics3d_world()
   for entity, _ in query_rigid_body {
     if !entity.is_alive() {
@@ -475,7 +475,7 @@ fn sync_components_to_rapier(world~ : @ecs.World) -> Unit {
     }
   }
 
-  for entity, collider in query_collider {
+  for entity, Single(collider) in query_collider {
     if !entity.is_alive() {
       continue
     }
@@ -489,7 +489,7 @@ fn sync_components_to_rapier(world~ : @ecs.World) -> Unit {
 
 ///|
 fn sync_rapier_to_components(world~ : @ecs.World) -> Unit {
-  let query_velocity : @ecs.Query[Velocity] = world.query()
+  let query_velocity : @ecs.Query[@ecs.Single[Velocity]] = world.query()
   let physics_world = physics3d_world()
   for entity, handle in body_handles() {
     if !entity.is_alive() {

@@ -19,7 +19,7 @@ fn compare_camera2d_views(lhs : Camera2dView, rhs : Camera2dView) -> Int32 {
 
 ///|
 fn camera2d_view(world~ : @ecs.World, entity : @ecs.Entity) -> Camera2dView? {
-  let query_camera2d : @ecs.Query[Camera2d] = world.query()
+  let query_camera2d : @ecs.Query[@ecs.Single[Camera2d]] = world.query()
   guard entity.is_alive() else { return None }
   guard (world.get_component(entity) : Camera?) is Some(camera) else {
     return None
@@ -46,9 +46,9 @@ fn camera2d_view(world~ : @ecs.World, entity : @ecs.Entity) -> Camera2dView? {
 
 ///|
 pub fn active_camera2d_views(world~ : @ecs.World) -> Array[Camera2dView] {
-  let query_camera : @ecs.Query[Camera] = world.query()
+  let query_camera : @ecs.Query[@ecs.Single[Camera]] = world.query()
   let views : Array[Camera2dView] = []
-  for entity, camera in query_camera {
+  for entity, Single(camera) in query_camera {
     guard camera.is_active else { continue }
     guard camera2d_view(world~, entity) is Some(view) else { continue }
     views.push(view)

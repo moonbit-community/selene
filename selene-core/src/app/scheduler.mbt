@@ -40,6 +40,30 @@ pub fn App::add_system(
 }
 
 ///|
+/// Registers a query system, constructing and caching its declared row per World.
+pub fn[T : @ecs.QueryData] App::add_query_system(
+  self : App,
+  schedule : Schedule,
+  run : (@ecs.Query[T]) -> Unit,
+  filters~ : (@ecs.World) -> Array[@ecs.EntityFilter] = _ => [],
+  system_name? : String,
+  in_set? : SystemSet,
+  before~ : Array[SystemSet] = [],
+  after~ : Array[SystemSet] = [],
+  run_if? : RunCondition,
+) -> App {
+  self.add_system(
+    schedule,
+    @ecs.query_system(run, filters~),
+    system_name?,
+    in_set?,
+    before~,
+    after~,
+    run_if?,
+  )
+}
+
+///|
 pub fn App::add_systems(
   self : App,
   schedule : Schedule,

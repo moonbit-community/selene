@@ -45,10 +45,10 @@ fn interaction_groups(
 
 ///|
 fn cleanup_world_components(world~ : @ecs.World) -> Unit {
-  let query_collider : @ecs.Query[Collider] = world.query()
-  let query_rigid_body : @ecs.Query[RigidBody] = world.query()
-  let query_impulse_joint : @ecs.Query[ImpulseJoint] = world.query()
-  let query_multibody_joint : @ecs.Query[MultibodyJoint] = world.query()
+  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
+  let query_rigid_body : @ecs.Query[@ecs.Single[RigidBody]] = world.query()
+  let query_impulse_joint : @ecs.Query[@ecs.Single[ImpulseJoint]] = world.query()
+  let query_multibody_joint : @ecs.Query[@ecs.Single[MultibodyJoint]] = world.query()
   let physics_world = physics3d_world()
   let collider_handles = collider_handles()
   let body_handles = body_handles()

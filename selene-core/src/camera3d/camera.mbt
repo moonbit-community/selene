@@ -60,9 +60,9 @@ pub fn set_active_camera3d(camera : ActiveCamera3D?) -> Unit {
 
 ///|
 pub fn camera3d_extract_system(world~ : @ecs.World, _delta : Double) -> Unit {
-  let query_camera3_d_component : @ecs.Query[Camera3DComponent] = world.query()
+  let query_camera3_d_component : @ecs.Query[@ecs.Single[Camera3DComponent]] = world.query()
   let mut selected : (@ecs.Entity, Camera3DComponent)? = None
-  for entity, camera in query_camera3_d_component {
+  for entity, Single(camera) in query_camera3_d_component {
     if !entity.is_alive() || !camera.enabled {
       continue
     }
