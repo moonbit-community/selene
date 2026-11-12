@@ -45,7 +45,7 @@ pub fn box_shadows() -> @ecs.ComponentStore[BoxShadow]
 
 pub fn buttons() -> @ecs.ComponentStore[Button]
 
-pub fn calculated_clips() -> Map[@ecs.Entity, CalculatedClip]
+pub fn calculated_clip(@ecs.Entity) -> CalculatedClip?
 
 pub let click_event_bus : @event.Events[UiClickEvent]
 
@@ -78,8 +78,6 @@ pub fn focus_policies() -> @ecs.ComponentStore[FocusPolicy]
 pub fn focusables() -> @ecs.ComponentStore[Focusable]
 
 pub fn focused_entity() -> @ecs.Entity?
-
-pub fn focuseds() -> Map[@ecs.Entity, Focused]
 
 pub fn get_ui_scale_mode() -> UiScaleMode
 
@@ -127,7 +125,9 @@ pub fn grid_span(Int32) -> GridPlacement
 
 pub fn hovered_entity() -> @ecs.Entity?
 
-pub fn interactions() -> Map[@ecs.Entity, Interaction]
+pub fn interaction(@ecs.Entity) -> Interaction
+
+pub fn is_focused(@ecs.Entity) -> Bool
 
 pub fn is_pointer_consumed(@inputs.PointerId) -> Bool
 
@@ -169,7 +169,9 @@ pub fn release_ui_material_asset(UiMaterialHandle) -> Unit
 
 pub fn rgba(Int32, Int32, Int32, Double) -> @render.Color
 
-pub fn scroll_positions() -> Map[@ecs.Entity, ScrollPosition]
+pub fn scroll_position(@ecs.Entity) -> ScrollPosition?
+
+pub fn set_scroll_position(@ecs.Entity, ScrollPosition) -> Unit
 
 pub fn set_ui_scale_mode(UiScaleMode) -> Unit
 
@@ -361,11 +363,6 @@ pub(all) struct Focusable {
 }
 pub fn Focusable::Focusable() -> Self
 pub impl @ecs.Component for Focusable
-
-pub(all) struct Focused {
-  _tag : Unit
-}
-pub fn Focused::Focused() -> Self
 
 pub(all) struct GlobalUiNode {
   logical_rect : @math.Rect

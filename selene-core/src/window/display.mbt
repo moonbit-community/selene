@@ -20,12 +20,11 @@ priv struct DisplayState {
 }
 
 ///|
-let display_world_states : Map[UInt32, DisplayState] = Map([])
+let display_state_key : @ecs.ResourceKey[DisplayState] = ResourceKey()
 
 ///|
 fn display_state() -> DisplayState {
-  let world_id = @ecs.require_current_world().id()
-  display_world_states.get_or_init(world_id, () => {
+  display_state_key.get_or_insert_with(@ecs.require_current_world(), _ => {
     viewport_size: Vec2(512.0, 256.0),
     screen_size: Vec2(512.0, 256.0),
     zoom: 1.0,

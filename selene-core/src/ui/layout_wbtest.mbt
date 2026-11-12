@@ -402,11 +402,11 @@ test "ui layout clamps scroll positions to overflowing content" {
     Node(width=Val::px(100.0), height=Val::px(300.0), flex_shrink=0.0),
     parent~,
   )
-  scroll_positions().set(parent, { x: 80.0, y: 1000.0, })
+  set_scroll_position(parent, { x: 80.0, y: 1000.0, })
 
   ui_layout_system(0.0)
 
-  let scroll = scroll_positions().get(parent).unwrap()
+  let scroll = scroll_position(parent).unwrap()
   debug_inspect([scroll.x, scroll.y], content="[0, 200]")
   let initial = computed_ui_node(parent).unwrap()
   assert_eq(initial.max_scroll_position, Vec2(0.0, 200.0))
@@ -419,7 +419,7 @@ test "ui layout clamps scroll positions to overflowing content" {
   ui_layout_system(0.0)
   let resized = computed_ui_node(parent).unwrap()
   debug_inspect(
-    [resized.max_scroll_position.y, scroll_positions().get(parent).unwrap().y],
+    [resized.max_scroll_position.y, scroll_position(parent).unwrap().y],
     content="[50, 50]",
   )
 
@@ -430,7 +430,7 @@ test "ui layout clamps scroll positions to overflowing content" {
   ui_layout_system(0.0)
   let shrunk = computed_ui_node(parent).unwrap()
   debug_inspect(
-    [shrunk.max_scroll_position.y, scroll_positions().get(parent).unwrap().y],
+    [shrunk.max_scroll_position.y, scroll_position(parent).unwrap().y],
     content="[0, 0]",
   )
 
@@ -438,7 +438,7 @@ test "ui layout clamps scroll positions to overflowing content" {
     child,
     Node(width=Val::px(100.0), height=Val::px(300.0), flex_shrink=0.0),
   )
-  scroll_positions().set(parent, { x: 0.0, y: 70.0, })
+  set_scroll_position(parent, { x: 0.0, y: 70.0, })
   nodes().set(
     parent,
     Node::absolute(Vec2(0.0, 0.0), size=Vec2(100.0, 100.0), overflow_y=Hidden),
@@ -446,7 +446,7 @@ test "ui layout clamps scroll positions to overflowing content" {
   ui_layout_system(0.0)
   let disabled = computed_ui_node(parent).unwrap()
   debug_inspect(
-    [disabled.max_scroll_position.y, scroll_positions().get(parent).unwrap().y],
+    [disabled.max_scroll_position.y, scroll_position(parent).unwrap().y],
     content="[0, 0]",
   )
 
@@ -469,7 +469,7 @@ test "ui scrolling preserves nested border and padding offsets" {
     Node(width=Val::px(84.0), height=Val::px(300.0), flex_shrink=0.0),
     parent~,
   )
-  scroll_positions().set(parent, { x: 0.0, y: 20.0, })
+  set_scroll_position(parent, { x: 0.0, y: 20.0, })
 
   ui_layout_system(0.0)
 

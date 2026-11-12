@@ -23,12 +23,12 @@ pub extend SceneInstanceReadyEvent with @moonbitlang/core/debug.Debug::{to_repr}
 pub extend SceneInstanceReadyEvent with Eq::{not_equal, equal}
 
 ///|
-let scene_instances_key : @ecs.ResourceKey[Map[@ecs.Entity, SceneHandle]] = ResourceKey()
+let scene_instances_key : @ecs.ResourceKey[@ecs.EntityTable[SceneHandle]] = ResourceKey()
 
 ///|
-fn scene_instances() -> Map[@ecs.Entity, SceneHandle] {
-  scene_instances_key.get_or_insert_with(@ecs.require_current_world(), _ => {
-    Map([])
+fn scene_instances() -> @ecs.EntityTable[SceneHandle] {
+  scene_instances_key.get_or_insert_with(@ecs.require_current_world(), world => {
+    EntityTable(world)
   })
 }
 

@@ -1,19 +1,20 @@
 ///|
 fn ldtk_emit_pending_transformed_events() -> Unit {
-  for (iid, _) in ldtk_pending_transformed_level_iids().to_array() {
+  for iid in ldtk_pending_transformed_level_iids() {
     ldtk_level_event_bus.trigger(Transformed(iid), None)
-    ldtk_pending_transformed_level_iids().remove(iid)
   }
+  ldtk_pending_transformed_level_iids().clear()
 }
 
 ///|
 fn ldtk_cleanup_dead_spawned_levels(instance : LdtkWorldInstance) -> Unit {
-  for (level_iid, level_entity) in instance.spawned_levels.to_array() {
-    if !level_entity.is_alive() {
-      instance.spawned_levels.remove(level_iid)
-      ldtk_pending_transformed_level_iids().remove(level_iid)
+  instance.spawned_levels.retain((level_iid, level_entity) => {
+    if level_entity.is_alive() {
+      return true
     }
-  }
+    ldtk_pending_transformed_level_iids().remove(level_iid)
+    false
+  })
 }
 
 ///|

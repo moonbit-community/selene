@@ -1,27 +1,15 @@
 ///|
-fn cell_key(x : Int32, y : Int32) -> String {
-  x.to_string() + "," + y.to_string()
-}
-
-///|
-fn pos_of_key(key : String) -> AutoTileGridPos {
-  let comma = key.find(",").unwrap_or(-1)
-  if comma <= 0 || comma + 1 >= key.length() {
-    return { x: 0, y: 0, }
-  }
-  let x = @string.parse_int(key[:comma], base=10) catch { _ => 0 }
-  let y = @string.parse_int(key[comma + 1:], base=10) catch { _ => 0 }
-  { x, y, }
-}
-
-///|
-fn neighbor_terrain(cells : Map[String, Int32], x : Int32, y : Int32) -> Int32? {
-  cells.get(cell_key(x, y))
+fn neighbor_terrain(
+  cells : Map[AutoTileGridPos, Int32],
+  x : Int32,
+  y : Int32,
+) -> Int32? {
+  cells.get({ x, y, })
 }
 
 ///|
 fn bitmask4(
-  cells : Map[String, Int32],
+  cells : Map[AutoTileGridPos, Int32],
   x : Int32,
   y : Int32,
   terrain : Int32,
@@ -38,7 +26,7 @@ fn bitmask4(
 
 ///|
 fn bitmask8(
-  cells : Map[String, Int32],
+  cells : Map[AutoTileGridPos, Int32],
   x : Int32,
   y : Int32,
   terrain : Int32,
@@ -71,7 +59,7 @@ fn bitmask8(
 
 ///|
 fn wang_key(
-  cells : Map[String, Int32],
+  cells : Map[AutoTileGridPos, Int32],
   x : Int32,
   y : Int32,
 ) -> AutoTileWangRule {
@@ -101,7 +89,7 @@ fn palette_for_terrain(
 ///|
 fn solved_tile_for(
   source : AutoTileLayerSource,
-  cells : Map[String, Int32],
+  cells : Map[AutoTileGridPos, Int32],
   x : Int32,
   y : Int32,
   terrain : Int32,
@@ -164,38 +152,37 @@ fn solved_tile_for(
 }
 
 ///|
-fn sorted_cell_keys(cells : Map[String, Int32]) -> Array[String] {
-  let keys : Array[String] = []
+fn sorted_cell_keys(
+  cells : Map[AutoTileGridPos, Int32],
+) -> Array[AutoTileGridPos] {
+  let keys : Array[AutoTileGridPos] = []
   for key, _ in cells {
     keys.push(key)
   }
   keys.sort_by(fn(left, right) {
-    let l = pos_of_key(left)
-    let r = pos_of_key(right)
-    if l.y == r.y {
-      l.x.compare(r.x)
+    if left.y == right.y {
+      left.x.compare(right.x)
     } else {
-      l.y.compare(r.y)
+      left.y.compare(right.y)
     }
   })
   keys
 }
 
 ///|
-fn cells_map_of(source : AutoTileLayerSource) -> Map[String, Int32] {
-  let cells : Map[String, Int32] = Map([])
+fn cells_map_of(source : AutoTileLayerSource) -> Map[AutoTileGridPos, Int32] {
+  let cells : Map[AutoTileGridPos, Int32] = Map([])
   for cell in source.cells {
-    cells.set(cell_key(cell.x, cell.y), cell.terrain)
+    cells.set({ x: cell.x, y: cell.y, }, cell.terrain)
   }
   cells
 }
 
 ///|
-fn cells_array_of(map : Map[String, Int32]) -> Array[AutoTileCell] {
+fn cells_array_of(map : Map[AutoTileGridPos, Int32]) -> Array[AutoTileCell] {
   let cells : Array[AutoTileCell] = []
-  for key in sorted_cell_keys(map) {
-    let pos = pos_of_key(key)
-    let terrain = map.get(key).unwrap_or(0)
+  for pos in sorted_cell_keys(map) {
+    let terrain = map.get(pos).unwrap_or(0)
     cells.push({ x: pos.x, y: pos.y, terrain, })
   }
   cells
@@ -204,12 +191,11 @@ fn cells_array_of(map : Map[String, Int32]) -> Array[AutoTileCell] {
 ///|
 fn solve_from_cells(
   source : AutoTileLayerSource,
-  cells : Map[String, Int32],
+  cells : Map[AutoTileGridPos, Int32],
 ) -> Array[AutoTileSolvedTile] {
   let solved : Array[AutoTileSolvedTile] = []
-  for key in sorted_cell_keys(cells) {
-    let pos = pos_of_key(key)
-    let terrain = cells.get(key).unwrap_or(0)
+  for pos in sorted_cell_keys(cells) {
+    let terrain = cells.get(pos).unwrap_or(0)
     solved.push(solved_tile_for(source, cells, pos.x, pos.y, terrain))
   }
   solved
@@ -223,11 +209,11 @@ pub fn solve_autotile_layer(
 }
 
 ///|
-fn affected_keys(x : Int32, y : Int32) -> Array[String] {
-  let keys : Array[String] = []
+fn affected_keys(x : Int32, y : Int32) -> Array[AutoTileGridPos] {
+  let keys : Array[AutoTileGridPos] = []
   for dy in -1..<=1 {
     for dx in -1..<=1 {
-      keys.push(cell_key(x + dx, y + dy))
+      keys.push({ x: x + dx, y: y + dy, })
     }
   }
   keys
@@ -236,15 +222,14 @@ fn affected_keys(x : Int32, y : Int32) -> Array[String] {
 ///|
 fn solved_map_of(
   source : AutoTileLayerSource,
-  cells : Map[String, Int32],
-  keys : Array[String],
-) -> Map[String, AutoTileSolvedTile] {
-  let solved : Map[String, AutoTileSolvedTile] = Map([])
+  cells : Map[AutoTileGridPos, Int32],
+  keys : Array[AutoTileGridPos],
+) -> Map[AutoTileGridPos, AutoTileSolvedTile] {
+  let solved : Map[AutoTileGridPos, AutoTileSolvedTile] = Map([])
   for key in keys {
     if cells.contains(key) {
-      let pos = pos_of_key(key)
       let terrain = cells.get(key).unwrap_or(0)
-      solved.set(key, solved_tile_for(source, cells, pos.x, pos.y, terrain))
+      solved.set(key, solved_tile_for(source, cells, key.x, key.y, terrain))
     }
   }
   solved
@@ -280,11 +265,11 @@ pub fn update_cell_and_resolve_diff(
   terrain : Int32?,
 ) -> AutoTileDiff {
   let before_cells = cells_map_of(source)
-  let after_cells : Map[String, Int32] = Map([])
+  let after_cells : Map[AutoTileGridPos, Int32] = Map([])
   for key, value in before_cells {
     after_cells.set(key, value)
   }
-  let target_key = cell_key(x, y)
+  let target_key = AutoTileGridPos::{ x, y, }
   match terrain {
     Some(value) => after_cells.set(target_key, value)
     None => ignore(after_cells.remove(target_key))
@@ -302,7 +287,7 @@ pub fn update_cell_and_resolve_diff(
       Some(left) =>
         match after {
           Some(right) => if left != right { changed.push(right) }
-          None => removed.push(pos_of_key(key))
+          None => removed.push(key)
         }
       None =>
         match after {

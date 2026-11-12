@@ -1,18 +1,15 @@
 ///|
-let touch_control_stores : Map[UInt32, TouchControlsWorldStore] = Map([])
+let touch_control_store_key : @ecs.ResourceKey[TouchControlsWorldStore] = ResourceKey()
 
 ///|
 fn store() -> TouchControlsWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  touch_control_stores.get_or_init(world_id, fn() {
-    {
-      sticks: Map([]),
-      buttons: Map([]),
-      stick_runtimes: Map([]),
-      button_runtimes: Map([]),
-      enabled: true,
-      visible: true,
-    }
+  touch_control_store_key.get_or_insert_with(@ecs.require_current_world(), _ => {
+    sticks: Map([]),
+    buttons: Map([]),
+    stick_runtimes: Map([]),
+    button_runtimes: Map([]),
+    enabled: true,
+    visible: true,
   })
 }
 

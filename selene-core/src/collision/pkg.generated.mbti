@@ -75,7 +75,7 @@ pub fn reset_forces(@ecs.Entity, wake_up? : Bool) -> Unit
 
 pub fn reset_torques(@ecs.Entity, wake_up? : Bool) -> Unit
 
-pub fn resolved_velocities() -> Map[@ecs.Entity, @velocity.Velocity]
+pub fn resolved_velocity(@ecs.Entity) -> @velocity.Velocity?
 
 pub fn rigid_bodies() -> @ecs.ComponentStore[RigidBody]
 

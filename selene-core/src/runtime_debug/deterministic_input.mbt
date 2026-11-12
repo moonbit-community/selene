@@ -22,16 +22,16 @@ pub(all) enum InputInjectionEvent {
 }
 
 ///|
-let deterministic_mode_by_world : Map[UInt32, DeterministicModeConfig] = Map([])
+let deterministic_mode_key : @ecs.ResourceKey[DeterministicModeConfig] = ResourceKey()
 
 ///|
-let rng_state_by_world : Map[UInt32, UInt32] = Map([])
+let rng_state_key : @ecs.ResourceKey[UInt32] = ResourceKey()
 
 ///|
-let queued_inputs_by_world : Map[UInt32, Array[@inputs.InputSnapshot]] = Map([])
+let queued_inputs_key : @ecs.ResourceKey[Array[@inputs.InputSnapshot]] = ResourceKey()
 
 ///|
-let staged_input_by_world : Map[UInt32, @inputs.InputSnapshot] = Map([])
+let staged_input_key : @ecs.ResourceKey[@inputs.InputSnapshot] = ResourceKey()
 
 ///|
 fn DeterministicModeConfig::DeterministicModeConfig() -> DeterministicModeConfig {
@@ -45,23 +45,21 @@ fn DeterministicModeConfig::DeterministicModeConfig() -> DeterministicModeConfig
 
 ///|
 pub fn set_deterministic_mode(config : DeterministicModeConfig) -> Unit {
-  let world_id = current_world_id()
-  deterministic_mode_by_world.set(world_id, config)
-  rng_state_by_world.set(world_id, config.rng_seed)
+  deterministic_mode_key.insert_in(current_world(), config)
+  rng_state_key.insert_in(current_world(), config.rng_seed)
 }
 
 ///|
 pub fn deterministic_mode() -> DeterministicModeConfig {
-  deterministic_mode_by_world.get_or_init(current_world_id(), () => {
+  deterministic_mode_key.get_or_insert_with(current_world(), _ => {
     DeterministicModeConfig()
   })
 }
 
 ///|
 pub fn clear_deterministic_mode() -> Unit {
-  let world_id = current_world_id()
-  deterministic_mode_by_world.remove(world_id)
-  rng_state_by_world.remove(world_id)
+  deterministic_mode_key.insert_in(current_world(), DeterministicModeConfig())
+  rng_state_key.insert_in(current_world(), 0U)
 }
 
 ///|
@@ -81,20 +79,19 @@ pub fn deterministic_ordering_enabled() -> Bool {
 
 ///|
 pub fn set_atlas_overlay_enabled(enabled : Bool) -> Unit {
-  atlas_overlay_enabled_by_world.set(current_world_id(), enabled)
+  atlas_overlay_enabled_key.insert_in(current_world(), enabled)
 }
 
 ///|
 pub fn atlas_overlay_enabled() -> Bool {
-  atlas_overlay_enabled_by_world.get(current_world_id()).unwrap_or(false)
+  atlas_overlay_enabled_key.get_in(current_world()).unwrap_or(false)
 }
 
 ///|
 pub fn set_rng_seed(seed : UInt32) -> Unit {
-  let world_id = current_world_id()
   let mode = deterministic_mode()
-  deterministic_mode_by_world.set(world_id, { ..mode, rng_seed: seed, })
-  rng_state_by_world.set(world_id, seed)
+  deterministic_mode_key.insert_in(current_world(), { ..mode, rng_seed: seed, })
+  rng_state_key.insert_in(current_world(), seed)
 }
 
 ///|
@@ -104,8 +101,7 @@ pub fn rng_seed() -> UInt32 {
 
 ///|
 pub fn next_deterministic_u32() -> UInt32 {
-  let world_id = current_world_id()
-  let mut x = rng_state_by_world.get_or_init(world_id, () => {
+  let mut x = rng_state_key.get_or_insert_with(current_world(), _ => {
     deterministic_mode().rng_seed
   })
   if x == 0U {
@@ -114,7 +110,7 @@ pub fn next_deterministic_u32() -> UInt32 {
   x = x ^ (x << 13)
   x = x ^ (x >> 17)
   x = x ^ (x << 5)
-  rng_state_by_world.set(world_id, x)
+  rng_state_key.insert_in(current_world(), x)
   x
 }
 
@@ -173,12 +169,12 @@ fn copy_snapshot(snapshot : @inputs.InputSnapshot) -> @inputs.InputSnapshot {
 
 ///|
 fn staged_snapshot() -> @inputs.InputSnapshot {
-  staged_input_by_world.get_or_init(current_world_id(), () => InputSnapshot())
+  staged_input_key.get_or_insert_with(current_world(), _ => InputSnapshot())
 }
 
 ///|
 fn queued_inputs() -> Array[@inputs.InputSnapshot] {
-  queued_inputs_by_world.get_or_init(current_world_id(), () => [])
+  queued_inputs_key.get_or_insert_with(current_world(), _ => [])
 }
 
 ///|
@@ -241,6 +237,6 @@ pub fn consume_injected_input_or(
   for index in 1..<queue.length() {
     tail.push(queue[index])
   }
-  queued_inputs_by_world.set(current_world_id(), tail)
+  queued_inputs_key.insert_in(current_world(), tail)
   copy_snapshot(head)
 }

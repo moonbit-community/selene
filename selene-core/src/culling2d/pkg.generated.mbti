@@ -23,7 +23,7 @@ pub fn CameraExtract2dContext::camera_views_for_bounds(Self, @math.Rect, @visibi
 
 pub(all) struct SpatialGrid2d {
   cell_size : Double
-  buckets : Map[String, Array[UInt32]]
+  buckets : Map[(Int32, Int32), Array[UInt32]]
 }
 pub fn SpatialGrid2d::SpatialGrid2d(Array[SpatialGridEntry2d], cell_size? : Double) -> Self
 pub fn SpatialGrid2d::query(Self, @math.Rect) -> Array[UInt32]

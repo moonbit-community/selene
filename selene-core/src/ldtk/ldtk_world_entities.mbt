@@ -185,15 +185,9 @@ pub fn clear_ldtk_entity_default_spawn_hook() -> Unit {
 
 ///|
 pub fn clear_ldtk_entity_spawn_hooks() -> Unit {
-  for (key, _) in ldtk_entity_spawn_hooks().to_array() {
-    ldtk_entity_spawn_hooks().remove(key)
-  }
-  for (key, _) in ldtk_entity_layer_spawn_hooks().to_array() {
-    ldtk_entity_layer_spawn_hooks().remove(key)
-  }
-  for (key, _) in ldtk_entity_layer_identifier_spawn_hooks().to_array() {
-    ldtk_entity_layer_identifier_spawn_hooks().remove(key)
-  }
+  ldtk_entity_spawn_hooks().clear()
+  ldtk_entity_layer_spawn_hooks().clear()
+  ldtk_entity_layer_identifier_spawn_hooks().clear()
   ldtk_entity_default_spawn_hook().val = None
 }
 

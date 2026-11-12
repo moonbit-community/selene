@@ -2,13 +2,13 @@
 /// Collects initial component values before an entity has a handle.
 struct SpawnDraft {
   world : World
-  columns : Map[Int32, (Int32, Entity) -> Unit]
+  columns : Array[(Int32, (Int32, Entity) -> Unit)]
   mut spawned : Bool
 }
 
 ///|
 pub fn World::spawn_draft(self : World) -> SpawnDraft {
-  { world: self, columns: Map([]), spawned: false, }
+  { world: self, columns: [], spawned: false, }
 }
 
 ///|
@@ -27,18 +27,18 @@ pub fn[T] SpawnDraft::add_to(
   guard store.belongs_to(self.world) else {
     abort("spawn draft component belongs to another World")
   }
-  guard !self.columns.contains(store.component) else {
+  guard !self.columns.any(column => column.0 == store.component) else {
     abort("duplicate component in spawn draft")
   }
-  self.columns.set(store.component, (table, entity) => {
-    store.append_new(table, entity, value)
-  })
+  self.columns.push(
+    (store.component, (table, entity) => store.append_new(table, entity, value)),
+  )
 }
 
 ///|
 pub fn SpawnDraft::spawn(self : SpawnDraft, parent? : Entity) -> Entity {
   guard !self.spawned else { abort("spawn draft already used") }
-  let signature = self.columns.keys().collect()
+  let signature = self.columns.map(column => column.0)
   signature.sort()
   let plan : SpawnPlan[Unit] = {
     world_id: self.world.id(),
@@ -46,7 +46,7 @@ pub fn SpawnDraft::spawn(self : SpawnDraft, parent? : Entity) -> Entity {
     signature,
     table: None,
     append: (table, entity, _) => {
-      for _, append in self.columns {
+      for (_, append) in self.columns {
         append(table, entity)
       }
     },

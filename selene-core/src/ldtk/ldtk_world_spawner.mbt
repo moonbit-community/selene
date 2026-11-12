@@ -1,5 +1,5 @@
 ///|
-pub fn ldtk_pending_transformed_level_iids() -> Map[String, Bool] {
+pub fn ldtk_pending_transformed_level_iids() -> @set.Set[String] {
   ldtk_world_store().ldtk_pending_transformed_level_iids
 }
 
@@ -120,9 +120,7 @@ pub fn unregister_default_ldtk_entity() -> Unit {
 
 ///|
 pub fn clear_ldtk_entity_registrations() -> Unit {
-  for (key, _) in ldtk_entity_typed_registrations().to_array() {
-    ldtk_entity_typed_registrations().remove(key)
-  }
+  ldtk_entity_typed_registrations().clear()
 }
 
 ///|
@@ -209,4 +207,12 @@ pub fn unregister_default_ldtk_int_cell_for_layer(
 ///|
 pub fn unregister_default_ldtk_int_cell() -> Unit {
   unregister_ldtk_int_cell_for_layer_optional(None, None)
+}
+
+///|
+/// Whether an entity in the active World has a pending respawn request. Use mark_ldtk_respawn
+/// and clear_ldtk_respawn to update requests.
+pub fn is_ldtk_respawn_requested(entity : @ecs.Entity) -> Bool {
+  entity.is_valid_in(@ecs.require_current_world()) &&
+  ldtk_respawns().get(entity).map_or(false, request => request.requested)
 }

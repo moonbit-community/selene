@@ -261,9 +261,8 @@ pub(all) struct AnimationGraphNode {
 ///|
 pub(all) struct AnimationGraph {
   root : AnimationNodeIndex
-  nodes : Map[AnimationNodeIndex, AnimationGraphNode]
+  nodes : Array[AnimationGraphNode]
   mask_groups : Map[AnimationTargetId, UInt32]
-  mut next_node : UInt32
 }
 
 ///|

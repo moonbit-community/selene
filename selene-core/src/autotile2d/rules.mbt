@@ -250,7 +250,7 @@ pub fn AutoTileSolvedTile::AutoTileSolvedTile(
 }
 
 ///|
-#derive(Debug, Eq, ToJson, FromJson)
+#derive(Debug, Eq, Hash, ToJson, FromJson)
 pub struct AutoTileGridPos {
   x : Int32
   y : Int32
@@ -304,3 +304,6 @@ pub fn AutoTileDiff::AutoTileDiff(
 ) -> AutoTileDiff {
   { source, changed_tiles, removed_tiles, }
 }
+
+///|
+pub extend AutoTileGridPos with Hash::{hash, hash_combine}

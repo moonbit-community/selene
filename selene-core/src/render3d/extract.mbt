@@ -21,12 +21,11 @@ priv struct Render3DWorldState {
 }
 
 ///|
-let render3d_world_states : Map[UInt32, Render3DWorldState] = Map([])
+let render3d_world_state_key : @ecs.ResourceKey[Render3DWorldState] = ResourceKey()
 
 ///|
 fn render3d_world_state() -> Render3DWorldState {
-  let world_id = @ecs.require_current_world().id()
-  render3d_world_states.get_or_init(world_id, () => {
+  render3d_world_state_key.get_or_insert_with(@ecs.require_current_world(), _ => {
     ambient_light: None,
     directional_shadow_map: DirectionalLightShadowMap3D(),
     point_shadow_map: PointLightShadowMap3D(),

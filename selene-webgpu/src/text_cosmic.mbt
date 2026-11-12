@@ -36,7 +36,7 @@ let cosmic_swash_cache : Ref[@cosmic.SwashCache] = Ref(
 )
 
 ///|
-let cosmic_loaded_families : Map[String, Bool] = Map([])
+let cosmic_loaded_families : @set.Set[String] = Set([])
 
 ///|
 let cosmic_text_cache : Map[String, CosmicTextCacheEntry] = Map([])
@@ -125,7 +125,7 @@ fn ensure_font_loaded(family : String) -> Bool {
     raw_bytes.iter().map(fn(value) { saturating_byte(value) }),
   )
   cosmic_font_system.val = cosmic_font_system.val.load_font_data(bytes)
-  cosmic_loaded_families.set(family, true)
+  cosmic_loaded_families.add(family)
   cosmic_text_cache.clear()
   true
 }

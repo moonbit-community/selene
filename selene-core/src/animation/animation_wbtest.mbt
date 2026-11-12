@@ -410,3 +410,27 @@ test "skinning blends four affine joints and ignores inactive influences" {
     assert_true(deformed.positions[0].distance(expected) < 1.0e-12)
   })
 }
+
+///|
+test "multiple animation fades are removed in one transition update" {
+  with_animation_test_world(fn() raise {
+    let player = AnimationPlayer()
+    let transitions = AnimationTransitions()
+    for index in 1..<=4 {
+      ignore(
+        transitions.play(
+          player,
+          AnimationNodeIndex(index.reinterpret_as_uint()),
+          0.1,
+        ),
+      )
+    }
+    ignore(@ecs.require_current_world().spawn((player, transitions)))
+    animation_transition_system(0.2)
+    assert_eq(player.playing_animations().length(), 1)
+    let main = transitions.get_main_animation().unwrap()
+    assert_true(player.is_playing_animation(main))
+    assert_eq(player.animation(main).unwrap().weight(), 1.0)
+    assert_true(transitions.fading.is_empty())
+  })
+}

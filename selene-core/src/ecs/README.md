@@ -273,3 +273,41 @@ The generator formats its own output. Commit the generated file alongside its
 input and include it when publishing.
 MoonBit runs `dev_build` during local development. Consumers compile the
 generated sources included in the published package.
+
+## Runtime data outside components
+
+Use a World resource for subsystem state, including caches and event readers.
+Do not keep a global `Map[WorldId, State]`: the World should own its data.
+
+Engine subsystems keep entity-indexed runtime caches inside those resources.
+Game code accesses individual results or control handles rather than mutable
+cache containers:
+
+```moonbit
+let interaction = @ui.interaction(entity)
+let clip = @ui.calculated_clip(entity)
+let position = @ui.scroll_position(entity) // a snapshot
+@ui.set_scroll_position(entity, { x: 0.0, y: 100.0 })
+@ui.focus(entity)
+
+if @audio.audio_sink(entity) is Some(sink) {
+  sink.set_volume(0.5)
+  sink.pause()
+}
+```
+
+Scroll position updates are applied and clamped during layout. Readers return
+copies of mutable value data, including scroll positions and character contact
+arrays. Audio sinks are opaque control handles with playback operations.
+Visibility and character motion readers return results from the latest
+propagation or physics pass. LDtk respawn requests use `mark_ldtk_respawn`,
+`clear_ldtk_respawn`, and `is_ldtk_respawn_requested`.
+
+The underlying entity tables can retain deleted generations until the owning
+subsystem releases external resources. Public readers reject deleted handles
+and do not expose those cleanup records.
+
+Prefer direct iteration for reads. Use `Map::retain` for simple filtering, and
+queue entity deletions through `Commands` while traversing components. Collect a
+snapshot only when callbacks or structural changes require a stable set of
+entries. A snapshot preserves entries, not a deep copy of mutable values.

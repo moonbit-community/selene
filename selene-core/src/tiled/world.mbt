@@ -415,22 +415,22 @@ fn parse_tiled_world_patterns(
 
 ///|
 fn tiled_world_collect_maps(world : TiledWorld) -> Array[TiledWorldMap] {
-  let resolved_paths : Map[String, Bool] = Map([])
+  let resolved_paths : @set.Set[String] = Set([])
   let maps : Array[TiledWorldMap] = []
   for world_map in world.maps {
     let resolved = world.resolve_map_path(world_map.file_name)
-    if resolved_paths.get(resolved) is Some(_) {
+    if resolved_paths.contains(resolved) {
       continue
     }
-    resolved_paths.set(resolved, true)
+    resolved_paths.add(resolved)
     maps.push(world_map)
   }
   for world_map in tiled_world_expand_patterns(world) {
     let resolved = world.resolve_map_path(world_map.file_name)
-    if resolved_paths.get(resolved) is Some(_) {
+    if resolved_paths.contains(resolved) {
       continue
     }
-    resolved_paths.set(resolved, true)
+    resolved_paths.add(resolved)
     maps.push(world_map)
   }
   maps

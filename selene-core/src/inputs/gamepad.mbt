@@ -188,12 +188,11 @@ priv struct GamepadWorldStore {
 }
 
 ///|
-let gamepad_world_stores : Map[UInt32, GamepadWorldStore] = Map([])
+let gamepad_world_store_key : @ecs.ResourceKey[GamepadWorldStore] = ResourceKey()
 
 ///|
 fn gamepad_world_store() -> GamepadWorldStore {
-  let world_id = @ecs.require_current_world().id()
-  gamepad_world_stores.get_or_init(world_id, () => {
+  gamepad_world_store_key.get_or_insert_with(@ecs.require_current_world(), _ => {
     connected_gamepads: Set([]),
     pressed_gamepad_buttons: Set([]),
     gamepad_axis_values: Map([]),

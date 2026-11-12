@@ -15,23 +15,23 @@ pub fn animated_bys() -> @ecs.ComponentStore[AnimatedBy] {
 
 ///|
 let skinned_meshes_key : @ecs.ResourceKey[
-  Map[@ecs.Entity, SkinnedMeshBinding3D],
+  @ecs.EntityTable[SkinnedMeshBinding3D],
 ] = ResourceKey()
 
 ///|
-fn skinned_meshes() -> Map[@ecs.Entity, SkinnedMeshBinding3D] {
-  skinned_meshes_key.get_or_insert_with(@ecs.require_current_world(), _ => {
-    Map([])
+fn skinned_meshes() -> @ecs.EntityTable[SkinnedMeshBinding3D] {
+  skinned_meshes_key.get_or_insert_with(@ecs.require_current_world(), world => {
+    EntityTable(world)
   })
 }
 
 ///|
-let morphed_meshes_key : @ecs.ResourceKey[Map[@ecs.Entity, MorphMeshBinding3D]] = ResourceKey()
+let morphed_meshes_key : @ecs.ResourceKey[@ecs.EntityTable[MorphMeshBinding3D]] = ResourceKey()
 
 ///|
-fn morphed_meshes() -> Map[@ecs.Entity, MorphMeshBinding3D] {
-  morphed_meshes_key.get_or_insert_with(@ecs.require_current_world(), _ => {
-    Map([])
+fn morphed_meshes() -> @ecs.EntityTable[MorphMeshBinding3D] {
+  morphed_meshes_key.get_or_insert_with(@ecs.require_current_world(), world => {
+    EntityTable(world)
   })
 }
 
@@ -59,9 +59,8 @@ pub fn AnimationClip::AnimationClip(name : String) -> AnimationClip {
 ///|
 pub fn AnimationGraph::AnimationGraph() -> AnimationGraph {
   let root = AnimationNodeIndex(0U)
-  let nodes : Map[AnimationNodeIndex, AnimationGraphNode] = Map([])
-  nodes.set(root, { node_type: Blend, mask: 0U, children: [], })
-  { root, nodes, mask_groups: Map([]), next_node: 1U, }
+  let nodes = [{ node_type: Blend, mask: 0U, children: [], }]
+  { root, nodes, mask_groups: Map([]), }
 }
 
 ///|

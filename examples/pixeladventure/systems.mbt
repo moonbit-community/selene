@@ -419,9 +419,10 @@ fn player_controller_system(world : @ecs.World) -> Unit {
     return
   }
 
-  let resolved_velocity = @physics2d.resolved_velocities()
-    .get(session.player)
-    .map_or(@math.Vec2::zero(), fn(velocity) { velocity.0 })
+  let resolved_velocity = @physics2d.resolved_velocity(session.player).map_or(
+    @math.Vec2::zero(),
+    fn(velocity) { velocity.0 },
+  )
   let grounded = @physics2d.is_grounded(session.player)
   let velocity = player_motion_base_velocity(
     resolved_velocity,
@@ -496,25 +497,26 @@ fn player_bird_contact_system(world : @ecs.World) -> Unit {
   guard entity_rect(session.player) is Some(player_rect) else { return }
 
   let fixed_delta = @time.fixed_delta()
-  let player_resolved_velocity = @physics2d.resolved_velocities()
-    .get(session.player)
-    .map_or(@math.Vec2::zero(), fn(v) { v.0 })
+  let player_resolved_velocity = @physics2d.resolved_velocity(session.player).map_or(
+    @math.Vec2::zero(),
+    fn(v) { v.0 },
+  )
   let player_prev_rect = player_rect.shift(
     player_resolved_velocity.scalar_mul(-fixed_delta),
   )
 
-  for (bird_entity, _) in birds().to_array() {
+  for bird_entity, bird in birds() {
     if !bird_entity.is_alive() {
       continue
     }
-    guard birds().get(bird_entity) is Some(bird) else { continue }
     if bird.is_hurt {
       continue
     }
     guard entity_rect(bird_entity) is Some(bird_rect) else { continue }
-    let bird_resolved_velocity = @physics2d.resolved_velocities()
-      .get(bird_entity)
-      .map_or(@math.Vec2::zero(), fn(v) { v.0 })
+    let bird_resolved_velocity = @physics2d.resolved_velocity(bird_entity).map_or(
+      @math.Vec2::zero(),
+      fn(v) { v.0 },
+    )
     let bird_prev_rect = bird_rect.shift(
       bird_resolved_velocity.scalar_mul(-fixed_delta),
     )
@@ -539,12 +541,12 @@ fn player_bird_contact_system(world : @ecs.World) -> Unit {
 }
 
 ///|
-fn bird_patrol_system(_world : @ecs.World) -> Unit {
-  for (bird_entity, _) in birds().to_array() {
+fn bird_patrol_system(world : @ecs.World) -> Unit {
+  let commands = @ecs.commands(world)
+  for bird_entity, bird in birds() {
     if !bird_entity.is_alive() {
       continue
     }
-    guard birds().get(bird_entity) is Some(bird) else { continue }
     if bird.is_hurt {
       @physics2d.linear_velocities().set(bird_entity, @math.Vec2::zero())
       if @physics2d.colliders().get(bird_entity) is Some(collider) {
@@ -552,14 +554,16 @@ fn bird_patrol_system(_world : @ecs.World) -> Unit {
       }
       play_bird_animation(bird_entity, bird)
       if sprite_animation_finished(bird_entity) {
-        ignore(bird_entity.delete())
+        commands.delete(bird_entity)
       }
       continue
     }
 
-    let resolved_x = @physics2d.resolved_velocities()
-      .get(bird_entity)
-      .map_or(0.0, fn(v) { v.0.x })
+    let resolved_x = @physics2d.resolved_velocity(bird_entity).map_or(0.0, fn(
+      v,
+    ) {
+      v.0.x
+    })
     let blocked = match bird.direction {
       Left => resolved_x > -BIRD_SPEED * 0.5
       Right => resolved_x < BIRD_SPEED * 0.5
@@ -583,30 +587,31 @@ fn bird_patrol_system(_world : @ecs.World) -> Unit {
 
 ///|
 fn trigger_system(world : @ecs.World) -> Unit {
+  let commands = @ecs.commands(world)
   guard (world.get_resource() : GameSession?) is Some(session) else { return }
   if player_is_frozen(session.result) {
     return
   }
 
-  for (flag_entity, _) in flags().to_array() {
+  for flag_entity in flags().keys() {
     if !flag_entity.is_alive() {
       continue
     }
     if @physics2d.get_contains(flag_entity).contains(session.player) {
       session.score += 100
       session.result = Some(Win)
-      ignore(flag_entity.delete())
+      commands.delete(flag_entity)
     }
   }
 
-  for (apple_entity, _) in apples().to_array() {
+  for apple_entity in apples().keys() {
     if !apple_entity.is_alive() {
       continue
     }
     if @physics2d.get_contains(apple_entity).contains(session.player) {
       session.score += 10
       play_sfx(coin_sound(), session.volume_on)
-      ignore(apple_entity.delete())
+      commands.delete(apple_entity)
     }
   }
 }

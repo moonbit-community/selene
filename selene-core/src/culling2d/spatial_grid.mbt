@@ -7,7 +7,7 @@ pub(all) struct SpatialGridEntry2d {
 ///|
 pub(all) struct SpatialGrid2d {
   cell_size : Double
-  buckets : Map[String, Array[UInt32]]
+  buckets : Map[(Int32, Int32), Array[UInt32]]
 }
 
 ///|
@@ -37,24 +37,19 @@ fn rect_cell_bounds(
 }
 
 ///|
-fn bucket_key(x : Int32, y : Int32) -> String {
-  x.to_string() + ":" + y.to_string()
-}
-
-///|
 pub fn SpatialGrid2d::SpatialGrid2d(
   entries : Array[SpatialGridEntry2d],
   cell_size~ : Double = 256.0,
 ) -> SpatialGrid2d {
   let effective_size = effective_cell_size(cell_size)
-  let buckets : Map[String, Array[UInt32]] = Map([])
+  let buckets : Map[(Int32, Int32), Array[UInt32]] = Map([])
   for entry in entries {
     let bounds = entry.bounds
     guard bounds.size.x > 0.0 && bounds.size.y > 0.0 else { continue }
     let (min_x, min_y, max_x, max_y) = rect_cell_bounds(bounds, effective_size)
     for x in min_x..<(max_x + 1) {
       for y in min_y..<(max_y + 1) {
-        buckets.get_or_init(bucket_key(x, y), fn() { [] }).push(entry.id)
+        buckets.get_or_init((x, y), fn() { [] }).push(entry.id)
       }
     }
   }
@@ -73,7 +68,7 @@ pub fn SpatialGrid2d::query(
   let (min_x, min_y, max_x, max_y) = rect_cell_bounds(region, self.cell_size)
   for x in min_x..<(max_x + 1) {
     for y in min_y..<(max_y + 1) {
-      match self.buckets.get(bucket_key(x, y)) {
+      match self.buckets.get((x, y)) {
         Some(ids) =>
           for id in ids {
             unique.add(id)

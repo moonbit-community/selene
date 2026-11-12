@@ -1,0 +1,41 @@
+///|
+test "UI runtime access uses operations and copies scroll positions" {
+  let previous = @ecs.current_world()
+  defer (match previous {
+    Some(world) => @ecs.set_current_world(world)
+    None => @ecs.clear_current_world()
+  })
+  let first = @ecs.World()
+  let second = @ecs.World()
+  @ecs.set_current_world(first)
+  let entity = first.spawn1(@ui.Node())
+  assert_true(@ui.scroll_position(entity) is None)
+  assert_true(@ui.calculated_clip(entity) is None)
+  assert_eq(@ui.interaction(entity), None)
+  let requested : @ui.ScrollPosition = { x: 10.0, y: 20.0, }
+  @ui.set_scroll_position(entity, requested)
+  requested.x = 99.0
+  let snapshot = @ui.scroll_position(entity).unwrap()
+  assert_eq(snapshot.x, 10.0)
+  snapshot.y = 99.0
+  assert_eq(@ui.scroll_position(entity).unwrap().y, 20.0)
+  @ui.focus(entity)
+  assert_true(@ui.is_focused(entity))
+  @ui.blur()
+  assert_false(@ui.is_focused(entity))
+  @ecs.set_current_world(second)
+  assert_true(@ui.scroll_position(entity) is None)
+  @ui.set_scroll_position(entity, { x: 100.0, y: 100.0, })
+  @ui.focus(entity)
+  assert_true(@ui.focused_entity() is None)
+  assert_false(@ui.is_focused(entity))
+  @ecs.set_current_world(first)
+  assert_eq(@ui.scroll_position(entity).unwrap().x, 10.0)
+  assert_true(entity.delete())
+  let replacement = first.spawn1(@ui.Node())
+  assert_eq(entity.slot_index(), replacement.slot_index())
+  assert_true(@ui.scroll_position(entity) is None)
+  assert_true(@ui.scroll_position(replacement) is None)
+  @ui.focus(entity)
+  assert_false(@ui.is_focused(replacement))
+}

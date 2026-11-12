@@ -63,7 +63,11 @@ test "retained UI layout updates replaced subtrees" {
 ///|
 test "retained UI stacking changes do not reproject or relayout" {
   let entity = @ecs.require_current_world().spawn(
-    (Node(width=Val::px(100.0), height=Val::px(100.0)), ZIndex(0)),
+    (
+      Node(width=Val::px(100.0), height=Val::px(100.0)),
+      ZIndex(0),
+      @visibility.Visibility::Visible,
+    ),
   )
   ui_layout_system(0.0)
   let runtime = ui_layout_runtime()
@@ -77,14 +81,14 @@ test "retained UI stacking changes do not reproject or relayout" {
   assert_eq(runtime.projection_revision, projection_revision)
   assert_eq(runtime.stacking_revision, stacking_revision + 1U)
 
-  @visibility.view_visibilities().set(entity, { visible: false, })
+  @visibility.visibilities().set(entity, Hidden)
+  @visibility.visibility_propagate_system(0.0)
   ui_layout_system(0.0)
   assert_eq(runtime.layout_revision, layout_revision)
   assert_eq(runtime.projection_revision, projection_revision)
   assert_eq(runtime.stacking_revision, stacking_revision + 2U)
   assert_false(ui_stack().contains(entity))
 
-  ignore(@visibility.view_visibilities().remove(entity))
   cleanup_layout_test_entity(entity)
   ui_layout_system(0.0)
 }
@@ -123,7 +127,7 @@ test "retained UI projection changes do not rebuild layout or stacking" {
   let projection_revision = runtime.projection_revision
   let stacking_revision = runtime.stacking_revision
 
-  scroll_positions().set(root, { x: 10.0, y: 0.0, })
+  set_scroll_position(root, { x: 10.0, y: 0.0, })
   ui_layout_system(0.0)
   assert_eq(runtime.layout_revision, layout_revision)
   assert_eq(runtime.projection_revision, projection_revision + 1U)
@@ -189,4 +193,32 @@ test "retained UI compares normalized Chicle styles" {
 
   cleanup_layout_test_entity(entity)
   ui_layout_system(0.0)
+}
+
+///|
+test "layout frees the old Chicle node when a deleted entity slot is reused" {
+  let previous = @ecs.current_world()
+  defer (match previous {
+    Some(world) => @ecs.set_current_world(world)
+    None => @ecs.clear_current_world()
+  })
+  let world = @ecs.World()
+  @ecs.set_current_world(world)
+  let old = world.spawn1(Node(width=Val::px(10.0)))
+  ui_layout_system(0.0)
+  let runtime = ui_layout_runtime()
+  let old_node = runtime.nodes.get(old).unwrap().node_id
+  ignore(old.delete())
+  let replacement = world.spawn1(Node(width=Val::px(30.0)))
+  assert_eq(old.slot_index(), replacement.slot_index())
+  ui_layout_system(0.0)
+  assert_true(computed_ui_node(old) is None)
+  assert_eq(computed_ui_node(replacement).unwrap().size.x, 30.0)
+  assert_false(runtime.nodes.contains(old))
+  assert_eq(runtime.nodes.length(), 1)
+  try runtime.tree.dirty(old_node) catch {
+    _ => ()
+  } noraise {
+    _ => fail("deleted Chicle node was not released")
+  }
 }

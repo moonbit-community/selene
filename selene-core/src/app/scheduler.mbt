@@ -155,7 +155,7 @@ fn sort_systems_by_set(
 
   let processed : @set.Set[String] = Set([])
   let sorted_keys : Array[String] = []
-  while processed.to_array().length() < group_keys.length() {
+  while processed.length() < group_keys.length() {
     let mut progressed = false
     for key in sorted_candidates {
       if processed.contains(key) {

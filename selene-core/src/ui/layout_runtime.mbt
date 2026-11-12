@@ -44,6 +44,7 @@ priv struct UiChicleStyleSnapshot {
 
 ///|
 priv struct UiLayoutNodeRuntime {
+  node_id : Int32
   mut source_node : Node
   mut chicle_style : UiChicleStyleSnapshot
   mut measure : UiMeasureSnapshot
@@ -71,9 +72,8 @@ priv struct UiLayoutRootRuntime {
 ///|
 priv struct UiLayoutRuntime {
   tree : @tree.ChicleTree[@ecs.Entity]
-  node_ids : Map[@ecs.Entity, Int32]
-  nodes : Map[@ecs.Entity, UiLayoutNodeRuntime]
-  roots : Map[@ecs.Entity, UiLayoutRootRuntime]
+  nodes : @ecs.EntityTable[UiLayoutNodeRuntime]
+  roots : @ecs.EntityTable[UiLayoutRootRuntime]
   mut layout_revision : UInt32
   mut projection_revision : UInt32
   mut stacking_revision : UInt32
@@ -87,16 +87,14 @@ priv struct UiLayoutDirty {
 }
 
 ///|
-let ui_layout_runtimes : Map[UInt32, UiLayoutRuntime] = Map([])
+let ui_layout_runtime_key : @ecs.ResourceKey[UiLayoutRuntime] = ResourceKey()
 
 ///|
 fn ui_layout_runtime() -> UiLayoutRuntime {
-  let world_id = @ecs.require_current_world().id()
-  ui_layout_runtimes.get_or_init(world_id, () => {
+  ui_layout_runtime_key.get_or_insert_with(@ecs.require_current_world(), world => {
     tree: ChicleTree(),
-    node_ids: Map([]),
-    nodes: Map([]),
-    roots: Map([]),
+    nodes: EntityTable(world),
+    roots: EntityTable(world),
     layout_revision: 0U,
     projection_revision: 0U,
     stacking_revision: 0U,
@@ -338,7 +336,7 @@ fn sync_layout_node(
   let stack = ui_stack_snapshot(entity, node)
   let (node_id, state) = match runtime.nodes.get(entity) {
     Some(state) => {
-      let node_id = runtime.node_ids.get(entity).unwrap()
+      let node_id = state.node_id
       if node != state.source_node {
         let chicle_style = chicle_style_snapshot(node)
         if chicle_style != state.chicle_style {
@@ -369,6 +367,7 @@ fn sync_layout_node(
         entity,
       )
       let state = {
+        node_id,
         source_node: clone_layout_node(node),
         chicle_style: chicle_style_snapshot(node),
         measure,
@@ -376,7 +375,6 @@ fn sync_layout_node(
         stack,
         children: [],
       }
-      runtime.node_ids.set(entity, node_id)
       runtime.nodes.set(entity, state)
       dirty.layout = true
       dirty.projection = true
@@ -421,10 +419,9 @@ fn remove_stale_layout_nodes(
     }
   }
   for entity in stale {
-    if runtime.node_ids.get(entity) is Some(node_id) {
-      remove_chicle_node(runtime, node_id)
+    if runtime.nodes.get(entity) is Some(state) {
+      remove_chicle_node(runtime, state.node_id)
     }
-    runtime.node_ids.remove(entity)
     runtime.nodes.remove(entity)
     dirty.layout = true
     dirty.projection = true
@@ -439,7 +436,8 @@ fn sync_layout_roots(
   dirty : UiLayoutDirty,
 ) -> Unit {
   for root in roots {
-    guard runtime.node_ids.get(root) is Some(root_node_id) else { continue }
+    guard runtime.nodes.get(root) is Some(root_node) else { continue }
+    let root_node_id = root_node.node_id
     let snapshot = ui_root_snapshot(root)
     match runtime.roots.get(root) {
       Some(root_runtime) => {
@@ -545,7 +543,7 @@ fn project_layout(
     apply_layout_recursive(
       root,
       runtime.tree,
-      runtime.node_ids,
+      runtime.nodes,
       @math.Vec2::zero(),
       None,
       true,

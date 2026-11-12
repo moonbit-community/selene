@@ -43,19 +43,13 @@ struct EventWorldStore[T] {
 pub struct Events[T] {
   id : UInt32
   domain : EventDomain
-  stores : Map[UInt32, EventWorldStore[T]]
+  store_key : @ecs.ResourceKey[EventWorldStore[T]]
   marker : T?
 }
 
 ///|
-fn current_world_id() -> UInt32 {
-  @ecs.require_current_world().id()
-}
-
-///|
 fn[T] world_store(events : Events[T]) -> EventWorldStore[T] {
-  let world_id = current_world_id()
-  events.stores.get_or_init(world_id, () => {
+  events.store_key.get_or_insert_with(@ecs.require_current_world(), _ => {
     next_event_id: 0,
     next_observer_id: 0,
     older: [],
@@ -67,7 +61,12 @@ fn[T] world_store(events : Events[T]) -> EventWorldStore[T] {
 
 ///|
 pub fn[T] Events::Events(domain~ : EventDomain = Frame) -> Events[T] {
-  { id: allocate_event_bus_id(), domain, stores: Map([]), marker: None, }
+  {
+    id: allocate_event_bus_id(),
+    domain,
+    store_key: ResourceKey(),
+    marker: None,
+  }
 }
 
 ///|
@@ -75,8 +74,7 @@ pub fn[T] Events::register_to_world(
   self : Events[T],
   world : @ecs.World,
 ) -> Unit {
-  let world_id = world.id()
-  let buses = registered_buses_by_world.get(world_id).unwrap_or([])
+  let buses = registered_buses_key.get_or_insert_with(world, _ => [])
   for bus in buses {
     if bus.id == self.id {
       return
@@ -88,7 +86,6 @@ pub fn[T] Events::register_to_world(
     update: fn() { self.update() },
     dispatch: fn() { self.dispatch_observers() },
   })
-  registered_buses_by_world.set(world_id, buses)
 }
 
 ///|
@@ -167,10 +164,11 @@ pub fn[T] Events::update(self : Events[T]) -> Unit {
 }
 
 ///|
+/// Subscription changes made by a callback take effect on the next trigger.
 pub fn[T] Events::dispatch_observers(self : Events[T]) -> Unit {
   let store = world_store(self)
   for item in store.observer_queue {
-    for _handle, observer in store.observers {
+    for observer in store.observers.values().collect() {
       let deliver = match observer.target {
         None => true
         Some(entity) =>

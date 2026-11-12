@@ -36,17 +36,17 @@ pub fn AutoTileRuntimeContext::AutoTileRuntimeContext(
 ///|
 priv struct RuntimeLayerState {
   source : AutoTileLayerSource
-  tile_entities : Map[String, @ecs.Entity]
+  tile_entities : Map[AutoTileGridPos, @ecs.Entity]
   context : AutoTileRuntimeContext
 }
 
 ///|
-let runtime_layers_key : @ecs.ResourceKey[Map[@ecs.Entity, RuntimeLayerState]] = ResourceKey()
+let runtime_layers_key : @ecs.ResourceKey[@ecs.EntityTable[RuntimeLayerState]] = ResourceKey()
 
 ///|
-fn runtime_layers() -> Map[@ecs.Entity, RuntimeLayerState] {
+fn runtime_layers() -> @ecs.EntityTable[RuntimeLayerState] {
   let world = @ecs.require_current_world()
-  runtime_layers_key.get_or_insert_with(world, _ => Map([]))
+  runtime_layers_key.get_or_insert_with(world, world => EntityTable(world))
 }
 
 ///|
@@ -113,7 +113,7 @@ pub fn register_runtime_layer(
   let state : RuntimeLayerState = { source, tile_entities: Map([]), context, }
   let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
   for solved in solve_autotile_layer(source) {
-    let key = cell_key(solved.x, solved.y)
+    let key = AutoTileGridPos::{ x: solved.x, y: solved.y, }
     if apply_tile_visual(plan, layer_entity, source, solved, context)
       is Some(tile_entity) {
       state.tile_entities.set(key, tile_entity)
@@ -128,12 +128,12 @@ fn apply_diff_to_runtime(
   state : RuntimeLayerState,
   diff : AutoTileDiff,
 ) -> RuntimeLayerState {
-  let tile_entities : Map[String, @ecs.Entity] = Map([])
+  let tile_entities : Map[AutoTileGridPos, @ecs.Entity] = Map([])
   for key, value in state.tile_entities {
     tile_entities.set(key, value)
   }
   for removed in diff.removed_tiles {
-    let key = cell_key(removed.x, removed.y)
+    let key = AutoTileGridPos::{ x: removed.x, y: removed.y, }
     if tile_entities.get(key) is Some(entity_) {
       ignore(entity_.delete())
       ignore(tile_entities.remove(key))
@@ -141,7 +141,7 @@ fn apply_diff_to_runtime(
   }
   let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
   for changed in diff.changed_tiles {
-    let key = cell_key(changed.x, changed.y)
+    let key = AutoTileGridPos::{ x: changed.x, y: changed.y, }
     if tile_entities.get(key) is Some(entity_) {
       ignore(entity_.delete())
       ignore(tile_entities.remove(key))

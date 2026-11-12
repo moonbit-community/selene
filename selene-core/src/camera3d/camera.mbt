@@ -51,21 +51,16 @@ pub fn cameras3d() -> @ecs.ComponentStore[Camera3DComponent] {
 }
 
 ///|
-let active_cameras3d_by_world : Map[UInt32, ActiveCamera3D?] = Map([])
-
-///|
-fn current_world_id() -> UInt32 {
-  @ecs.require_current_world().id()
-}
+let active_camera3d_key : @ecs.ResourceKey[ActiveCamera3D?] = ResourceKey()
 
 ///|
 pub fn get_active_camera3d() -> ActiveCamera3D? {
-  active_cameras3d_by_world.get(current_world_id()).unwrap_or(None)
+  active_camera3d_key.get_in(@ecs.require_current_world()).unwrap_or(None)
 }
 
 ///|
 pub fn set_active_camera3d(camera : ActiveCamera3D?) -> Unit {
-  active_cameras3d_by_world.set(current_world_id(), camera)
+  active_camera3d_key.insert_in(@ecs.require_current_world(), camera)
 }
 
 ///|

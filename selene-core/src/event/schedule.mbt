@@ -21,7 +21,7 @@ priv struct RegisteredBus {
 }
 
 ///|
-let registered_buses_by_world : Map[UInt32, Array[RegisteredBus]] = Map([])
+let registered_buses_key : @ecs.ResourceKey[Array[RegisteredBus]] = ResourceKey()
 
 ///|
 let next_event_bus_id : Ref[UInt32] = { val: 1U, }
@@ -35,8 +35,10 @@ fn allocate_event_bus_id() -> UInt32 {
 
 ///|
 fn update_domain(domain : EventDomain) -> Unit {
-  let world_id = current_world_id()
-  for bus in registered_buses_by_world.get(world_id).unwrap_or([]) {
+  for
+    bus in registered_buses_key
+    .get_in(@ecs.require_current_world())
+    .unwrap_or([]) {
     if bus.domain == domain {
       (bus.update)()
     }
@@ -60,8 +62,10 @@ pub fn event_render_update_system(_delta : Double) -> Unit {
 
 ///|
 pub fn event_observer_dispatch_system(_delta : Double) -> Unit {
-  let world_id = current_world_id()
-  for bus in registered_buses_by_world.get(world_id).unwrap_or([]) {
+  for
+    bus in registered_buses_key
+    .get_in(@ecs.require_current_world())
+    .unwrap_or([]) {
     (bus.dispatch)()
   }
 }

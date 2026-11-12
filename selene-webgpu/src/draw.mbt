@@ -267,7 +267,7 @@ let webgpu_resource_frame : Ref[Int32] = Ref(0)
 let primitive_mesh_resource_last_seen : Map[String, Int32] = Map([])
 
 ///|
-let uploaded_primitive_mesh_resources : Map[String, Bool] = Map([])
+let uploaded_primitive_mesh_resources : @set.Set[String] = Set([])
 
 ///|
 fn Render3DSubmissionStats::Render3DSubmissionStats() -> Render3DSubmissionStats {
@@ -1481,7 +1481,7 @@ fn ensure_lit_primitive_mesh_resource(
       receive_shadows,
     )
     webgpu_upload_lit_primitive_mesh_resource(marked_key, vertices)
-    uploaded_primitive_mesh_resources.set(marked_key, true)
+    uploaded_primitive_mesh_resources.add(marked_key)
   }
   marked_key
 }
@@ -1490,13 +1490,14 @@ fn ensure_lit_primitive_mesh_resource(
 fn prune_stale_primitive_mesh_resources() -> Unit {
   let min_live_frame = webgpu_resource_frame.val -
     WEBGPU_PRIMITIVE_MESH_RESOURCE_TTL_FRAMES
-  for (key, last_seen) in primitive_mesh_resource_last_seen.to_array() {
-    if last_seen < min_live_frame {
-      ignore(primitive_mesh_resource_last_seen.remove(key))
-      ignore(uploaded_primitive_mesh_resources.remove(key))
-      webgpu_release_primitive_mesh_resource(key)
+  primitive_mesh_resource_last_seen.retain((key, last_seen) => {
+    if last_seen >= min_live_frame {
+      return true
     }
-  }
+    ignore(uploaded_primitive_mesh_resources.remove(key))
+    webgpu_release_primitive_mesh_resource(key)
+    false
+  })
 }
 
 ///|
@@ -1509,12 +1510,13 @@ fn mark_retained_instance_buffer_key(key : String) -> String {
 fn prune_stale_retained_instance_buffers3d() -> Unit {
   let min_live_frame = webgpu_resource_frame.val -
     WEBGPU_PRIMITIVE_MESH_RESOURCE_TTL_FRAMES
-  for (key, last_seen) in retained_render3d_instance_last_seen.to_array() {
-    if last_seen < min_live_frame {
-      ignore(retained_render3d_instance_last_seen.remove(key))
-      webgpu_release_retained_instance_buffer_3d(key)
+  retained_render3d_instance_last_seen.retain((key, last_seen) => {
+    if last_seen >= min_live_frame {
+      return true
     }
-  }
+    webgpu_release_retained_instance_buffer_3d(key)
+    false
+  })
 }
 
 ///|

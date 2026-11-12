@@ -46,35 +46,35 @@ let visibility_state_key : @ecs.ResourceKey[VisibilityState] = ResourceKey()
 
 ///|
 priv struct VisibilityState {
-  inherited : Map[@ecs.Entity, InheritedVisibility]
-  view : Map[@ecs.Entity, ViewVisibility]
+  inherited : @ecs.EntityTable[InheritedVisibility]
+  view : @ecs.EntityTable[ViewVisibility]
 }
 
 ///|
 fn visibility_state() -> VisibilityState {
-  visibility_state_key.get_or_insert_with(@ecs.require_current_world(), _ => {
-    inherited: {},
-    view: {},
+  visibility_state_key.get_or_insert_with(@ecs.require_current_world(), world => {
+    inherited: EntityTable(world),
+    view: EntityTable(world),
   })
 }
 
 ///|
-pub fn inherited_visibilities() -> Map[@ecs.Entity, InheritedVisibility] {
+fn inherited_visibilities() -> @ecs.EntityTable[InheritedVisibility] {
   visibility_state().inherited
 }
 
 ///|
-pub fn view_visibilities() -> Map[@ecs.Entity, ViewVisibility] {
+fn view_visibilities() -> @ecs.EntityTable[ViewVisibility] {
   visibility_state().view
 }
 
 ///|
 fn compute_inherited_visibility(
   entity : @ecs.Entity,
-  cache : Map[@ecs.Entity, Bool],
+  cache : @ecs.EntityTable[InheritedVisibility],
 ) -> Bool {
   if cache.get(entity) is Some(visible) {
-    return visible
+    return visible.visible
   }
   let own_visible = visibilities().get(entity).unwrap_or(Visible) is Visible
   let parent_visible = match entity.get_parent() {
@@ -82,7 +82,7 @@ fn compute_inherited_visibility(
     None => true
   }
   let visible = own_visible && parent_visible
-  cache.set(entity, visible)
+  cache.set(entity, { visible, })
   visible
 }
 
@@ -92,16 +92,29 @@ pub fn visibility_propagate_system(_delta : Double) -> Unit {
   let view_visibilities = view_visibilities()
   inherited_visibilities.clear()
   view_visibilities.clear()
-  let cache : Map[@ecs.Entity, Bool] = Map([])
   for entity in @ecs.iter_entities() {
     guard entity.is_alive() else { continue }
-    let visible = compute_inherited_visibility(entity, cache)
-    inherited_visibilities.set(entity, { visible, })
+    let visible = compute_inherited_visibility(entity, inherited_visibilities)
     view_visibilities.set(entity, { visible, })
   }
+  inherited_visibilities.retain((entity, _) => entity.is_alive())
 }
 
 ///|
 pub fn is_visible(entity : @ecs.Entity) -> Bool {
   view_visibilities().get(entity).map(fn(v) { v.visible }).unwrap_or(true)
+}
+
+///|
+/// Reads inherited visibility produced by the latest propagation pass.
+pub fn inherited_visibility(entity : @ecs.Entity) -> InheritedVisibility? {
+  guard entity.is_valid_in(@ecs.require_current_world()) else { None }
+  inherited_visibilities().get(entity)
+}
+
+///|
+/// Reads view visibility produced by the latest propagation pass.
+pub fn view_visibility(entity : @ecs.Entity) -> ViewVisibility? {
+  guard entity.is_valid_in(@ecs.require_current_world()) else { None }
+  view_visibilities().get(entity)
 }

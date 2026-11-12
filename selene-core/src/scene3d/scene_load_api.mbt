@@ -120,7 +120,10 @@ pub fn instantiate_scene_instance(
     draft.add(@animation.AnimationTransitions())
   }
   let root = draft.spawn(parent?)
-  let node_entities : Map[Int32, @ecs.Entity] = Map([])
+  let node_entities : Array[@ecs.Entity?] = Array::make(
+    template.nodes.length(),
+    None,
+  )
   let pending_skin_bindings : Array[PendingSkinBinding] = []
   for root_order, node_index in template.roots {
     instantiate_scene_node(

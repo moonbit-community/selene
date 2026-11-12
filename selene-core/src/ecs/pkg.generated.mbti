@@ -104,6 +104,24 @@ pub(all) struct EntityFilter {
 }
 pub fn EntityFilter::passes(Self, Entity) -> Bool
 
+type EntityTable[T]
+pub fn[T] EntityTable::EntityTable(World) -> Self[T]
+pub fn[T] EntityTable::clear(Self[T]) -> Unit
+pub fn[T] EntityTable::contains(Self[T], Entity) -> Bool
+pub fn[T] EntityTable::get(Self[T], Entity) -> T?
+pub fn[T] EntityTable::get_or_init(Self[T], Entity, () -> T) -> T
+pub fn[T] EntityTable::is_empty(Self[T]) -> Bool
+pub fn[T] EntityTable::iter(Self[T]) -> Iter[(Entity, T)]
+pub fn[T] EntityTable::iter2(Self[T]) -> Iter2[Entity, T]
+pub fn[T] EntityTable::keys(Self[T]) -> Iter[Entity]
+pub fn[T] EntityTable::length(Self[T]) -> Int32
+pub fn[T] EntityTable::remove(Self[T], Entity) -> Unit
+pub fn[T] EntityTable::remove_and_get(Self[T], Entity) -> T?
+pub fn[T] EntityTable::retain(Self[T], (Entity, T) -> Bool) -> Unit
+pub fn[T] EntityTable::set(Self[T], Entity, T) -> Unit
+pub fn[T] EntityTable::to_array(Self[T]) -> Array[(Entity, T)]
+pub fn[T] EntityTable::values(Self[T]) -> Iter[T]
+
 pub(all) struct Query[T] {
   world : World
   storage : ComponentStore[T]
