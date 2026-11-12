@@ -1,4 +1,5 @@
 import {
+  "Milky2018/selene-examples/survivors/embedded_assets",
   "Milky2018/selene/state",
   "Milky2018/selene/render2d_types",
   "Milky2018/selene/app",

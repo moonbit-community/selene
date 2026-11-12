@@ -52,7 +52,7 @@ extern "js" fn webgpu_take_font_bytes_ffi(font : String) -> FixedArray[Int32] =
   #| }
 
 ///|
-extern "js" fn resolve_asset_path(path : String) -> String =
+extern "js" fn resolve_external_asset_path(path : String) -> String =
   #| (path) => {
   #|   if (
   #|     path.startsWith("http://") ||

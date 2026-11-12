@@ -36,6 +36,8 @@ pub fn load_font(String, family? : String) -> @asset_types.FontHandle
 
 pub fn load_image(String) -> @asset_types.ImageHandle
 
+pub fn paths() -> Array[String]
+
 pub fn read_bytes(String) -> Bytes?
 
 pub fn reload_audio(@asset_types.AudioHandle) -> Unit
@@ -50,7 +52,7 @@ pub fn remove_font(@asset_types.FontHandle) -> Unit
 
 pub fn remove_image(@asset_types.ImageHandle) -> Unit
 
-pub fn set_io((String) -> Bytes?) -> Unit
+pub fn set_io((String) -> Bytes?, paths? : Array[String]) -> Unit
 
 // Errors
 

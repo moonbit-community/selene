@@ -111,7 +111,6 @@ import {
   "Milky2018/selene/transform",
   "Milky2018/selene/ui",
   "moonbitlang/core/json",
-  "moonbitlang/x/fs",
 }
 ```
 

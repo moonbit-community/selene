@@ -8,7 +8,6 @@ import {
   "Milky2018/xml@0.6.1",
   "moonbit-community/flate@0.10.0",
   "gmlewis/base64@0.16.14",
-  "moonbitlang/x@0.5.7",
   "Milky2018/zstd@0.1.4",
   "Milky2018/chicle@0.6.3",
 }

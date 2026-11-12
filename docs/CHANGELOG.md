@@ -4,6 +4,9 @@
 
 ### Added
 
+- Expose registered asset paths for Tiled world pattern discovery without host
+  directory scans.
+
 - Add `Query::set(entity, row)` for World-bound point writes that preserve
   component layouts and iterator validity and reject non-matching rows.
 
@@ -48,6 +51,9 @@
 
 ### Changed
 
+- Embed example game assets with `moonbit-community/embed` through `dev_build`
+  and route WebGPU image, font, and audio loading through the embedded data.
+  Remove the network preloader, asset manifests, and `moonbitlang/x` dependency.
 - Migrate ordinary gameplay, UI, camera, firing, collision-event, and animation
   helpers in Cards, Pixel Adventure, and Survivors to injected queries,
   resources, Commands, and clocks. Private named parameter views combine

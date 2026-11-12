@@ -1,4 +1,5 @@
 import {
+  "Milky2018/selene-examples/pixeladventure/embedded_assets",
   "Milky2018/selene/render2d_types",
   "Milky2018/selene/app",
   "Milky2018/selene/animation",
@@ -17,7 +18,6 @@ import {
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "Milky2018/selene/touch_controls",
-  "moonbitlang/x/fs",
 }
 
 supported_targets = "all"

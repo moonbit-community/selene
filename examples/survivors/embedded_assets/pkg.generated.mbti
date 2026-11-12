@@ -1,0 +1,68 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene-examples/survivors/embedded_assets"
+
+// Values
+pub let assets : AssetsFixture
+
+pub fn paths() -> Array[String]
+
+pub fn read(String) -> Bytes?
+
+// Errors
+
+// Types and methods
+pub struct AssetsFixture {
+  survivors : SurvivorsFixture
+}
+
+pub struct EnemyFixture {
+  orc_png : Bytes
+  devil_png : Bytes
+  skull_png : Bytes
+  pirate_png : Bytes
+  creeper_png : Bytes
+  teleman_png : Bytes
+  icecream_png : Bytes
+}
+
+pub struct FontsFixture {
+  thaleahfat_ttf : Bytes
+}
+
+pub struct IconFixture {
+  bullet_png : Bytes
+  weapon_sword_png : Bytes
+  powerup_range_png : Bytes
+  powerup_speed_png : Bytes
+  weapon_pistol_png : Bytes
+  powerup_attack_png : Bytes
+  weapon_minigun_png : Bytes
+  powerup_bandana_png : Bytes
+  powerup_cooldown_png : Bytes
+  weapon_sniperrifle_png : Bytes
+}
+
+pub struct SurvivorsFixture {
+  icon : IconFixture
+  enemy : EnemyFixture
+  fonts : FontsFixture
+  tilesets : TilesetsFixture
+  whiteboy : WhiteboyFixture
+}
+
+pub struct TilesetsFixture {
+  grass_png : Bytes
+  decor_16x16_png : Bytes
+}
+
+pub struct WhiteboyFixture {
+  run_png : Bytes
+  hurt_png : Bytes
+  idle_png : Bytes
+  walk_png : Bytes
+  death_png : Bytes
+}
+
+// Type aliases
+
+// Traits

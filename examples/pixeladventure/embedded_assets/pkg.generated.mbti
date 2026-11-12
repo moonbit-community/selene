@@ -1,0 +1,97 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene-examples/pixeladventure/embedded_assets"
+
+// Values
+pub let assets : AssetsFixture
+
+pub fn paths() -> Array[String]
+
+pub fn read(String) -> Bytes?
+
+// Errors
+
+// Types and methods
+pub struct AssetsFixture {
+  pixeladventure : PixeladventureFixture
+}
+
+pub struct BackgroundFixture {
+  gray_png : Bytes
+}
+
+pub struct BluebirdFixture {
+  hit_32x32_png : Bytes
+  flying_32x32_png : Bytes
+}
+
+pub struct ButtonsFixture {
+  volume_png : Bytes
+  volumeoff_png : Bytes
+}
+
+pub struct CheckpointFixture {
+  checkpoint_flag_idle_64x64_png : Bytes
+}
+
+pub struct CheckpointsFixture {
+  checkpoint : CheckpointFixture
+}
+
+pub struct EnemiesFixture {
+  bluebird : BluebirdFixture
+}
+
+pub struct FontsFixture {
+  thaleahfat_ttf : Bytes
+}
+
+pub struct FruitsFixture {
+  apple_png : Bytes
+}
+
+pub struct ItemsFixture {
+  fruits : FruitsFixture
+  checkpoints : CheckpointsFixture
+}
+
+pub struct MainCharactersFixture {
+  mask_dude : MaskDudeFixture
+}
+
+pub struct MaskDudeFixture {
+  hit_32x32_png : Bytes
+  run_32x32_png : Bytes
+  fall_32x32_png : Bytes
+  idle_32x32_png : Bytes
+  jump_32x32_png : Bytes
+}
+
+pub struct MenuFixture {
+  buttons : ButtonsFixture
+}
+
+pub struct PixeladventureFixture {
+  menu : MenuFixture
+  fonts : FontsFixture
+  items : ItemsFixture
+  sounds : SoundsFixture
+  enemies : EnemiesFixture
+  terrain : TerrainFixture
+  background : BackgroundFixture
+  arrowkey_png : Bytes
+  main_characters : MainCharactersFixture
+}
+
+pub struct SoundsFixture {
+  coin_wav : Bytes
+  hurt_wav : Bytes
+  jump_wav : Bytes
+}
+
+pub struct TerrainFixture {
+  terrain_16x16_png : Bytes
+}
+
+// Type aliases
+
+// Traits

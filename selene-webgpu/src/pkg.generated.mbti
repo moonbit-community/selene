@@ -28,6 +28,8 @@ pub fn draw_rect(@render2d_types.RectDrawCommand2D) -> Unit
 
 pub fn draw_text(@render2d_types.TextDrawCommand2D) -> Unit
 
+pub fn embedded_asset_paths() -> Array[String]
+
 pub fn font_metrics_revision(String) -> UInt32
 
 pub fn frame_begin(@render.Color) -> Unit
@@ -88,7 +90,7 @@ pub fn request_close() -> Unit
 
 pub fn reset_clip_stack() -> Unit
 
-pub fn set_embedded_assets((String) -> Bytes?) -> Unit
+pub fn set_embedded_assets((String) -> Bytes?, paths? : Array[String]) -> Unit
 
 pub fn set_loop(instance~ : Int32, loop_~ : Bool) -> Unit
 

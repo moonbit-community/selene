@@ -36,7 +36,7 @@ jobs:
           mkdir -p "$site"
           cp page/index.html "$site/index.html"
           cp -R --parents \
-            examples/index.html examples/preload-assets.js \
+            examples/index.html \
             examples/*/index.html examples/*/screenshot.png examples/*/assets \
             _build/js/release/build/Milky2018/selene-examples-web/*/web/web.js \
             "$site"

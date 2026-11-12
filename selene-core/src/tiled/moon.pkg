@@ -23,7 +23,6 @@ import {
   "moonbitlang/core/encoding/utf8" @encoding/utf8,
   "moonbitlang/core/math" @cmath,
   "moonbitlang/core/string",
-  "moonbitlang/x/fs",
 }
 
 formatter(ignore: [ "ecs.g.mbt", "physics.g.mbt", "world.g.mbt" ])

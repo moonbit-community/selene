@@ -70,6 +70,7 @@ fn survivors_app() -> @app.App {
 
 ///|
 pub fn run() -> Unit {
+  @asset.set_io(@embedded_assets.read, paths=@embedded_assets.paths())
   survivors_app().run()
 }
 
