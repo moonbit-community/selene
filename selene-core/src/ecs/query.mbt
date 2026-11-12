@@ -19,7 +19,6 @@ struct Without[T] {
 priv struct QueryColumn[T] {
   read : (Int32) -> T
   write : (Int32, T) -> Unit
-  visit_rows : (Array[Entity], (Entity, T) -> Unit) -> Unit
 }
 
 ///|
@@ -128,14 +127,6 @@ pub fn[T] Query::contains(self : Query[T], entity : Entity) -> Bool {
 }
 
 ///|
-/// Visits rows in archetype order without collecting a result array.
-pub fn[T] Query::for_each(self : Query[T], visit : (Entity, T) -> Unit) -> Unit {
-  self.for_each_table((entities, _, column) => {
-    (column.visit_rows)(entities, visit)
-  })
-}
-
-///|
 /// Lazily visits rows in archetype order without collecting a snapshot.
 /// Structural row changes invalidate the iterator; value writes do not.
 pub fn[T] Query::iter(self : Query[T]) -> Iter[(Entity, T)] {
@@ -235,9 +226,7 @@ pub fn[T] Query::is_empty(self : Query[T]) -> Bool {
 ///|
 pub fn[T] Query::single(self : Query[T]) -> (Entity, T)? {
   guard self.length() == 1 else { None }
-  let mut found = None
-  self.for_each((entity, value) => found = Some((entity, value)))
-  found
+  self.iter().next()
 }
 
 ///|

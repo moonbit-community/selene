@@ -34,10 +34,9 @@ test "archetype batch reads and writes" (bench : @bench.T) {
     let query = make_query2(a, b)
     let read_rows = () => {
       let mut sum = 0
-      query.for_each((_, query_row) => {
-        let (x, y) = query_row
+      for _, (x, y) in query {
         sum += x + y
-      })
+      }
       sum
     }
     let read_batches = () => {

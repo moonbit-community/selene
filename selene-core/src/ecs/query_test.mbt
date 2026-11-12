@@ -7,10 +7,10 @@ test "query traversal and reader snapshots are scoped to their World" {
   let query : @ecs.Query[@ecs.Single[Position]] = first.query()
   let other : @ecs.Query[@ecs.Single[Position]] = second.query()
   let visited = []
-  query.for_each((entity, query_row) => {
+  for entity, query_row in query {
     let value = query_row.0
     visited.push((entity, value))
-  })
+  }
   assert_eq(visited, [(first_entity, Position(10))])
   assert_eq(query.iter().collect(), [(first_entity, Single(Position(10)))])
   assert_eq(query.get(second_entity).map(value => value.0), None)
@@ -64,10 +64,9 @@ test "multi-column queries are constructed from the owning World" {
   assert_eq(two.get(one), None)
   assert_eq(five.get(foreign), None)
   let visited = []
-  five.for_each((entity, query_row) => {
-    let (a, b, _, _, _) = query_row
+  for entity, (a, b, _, _, _) in five {
     visited.push((entity, a, b))
-  })
+  }
   assert_eq(visited, [(both, Position(2), Speed(3))])
   world.set_component(both, Speed(4))
   assert_eq(two.get(both), Some((Position(2), Speed(4))))

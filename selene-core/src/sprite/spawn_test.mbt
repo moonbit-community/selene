@@ -46,7 +46,7 @@ test "typed spawn can queue an entity from a query" {
   let later = @transform.Transform::from_xyz(5.0, 6.0, 0.0)
   let spawned = []
   @ecs.run_schedule(world, _ => {
-    query.for_each((entity, row) => {
+    for entity, row in query {
       let sprite = row.0
       if entity == first {
         let pending = commands.spawn((sprite, @transform.Spatial(transform)))
@@ -55,7 +55,7 @@ test "typed spawn can queue an entity from a query" {
         })
         spawned.push(pending)
       }
-    })
+    }
     guard spawned is [pending] else { abort("expected one pending entity") }
     guard !@ecs.alive_in_world(world)(pending) else {
       abort("entity is already alive")

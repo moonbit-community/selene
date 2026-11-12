@@ -42,7 +42,7 @@ pub fn[T : Eq] QueryReader::read(
   let removed = []
   let changed = []
 
-  query.for_each((entity, component) => {
+  for entity, component in query {
     match self.entries.get(entity) {
       None => {
         self.entries.set(entity, component)
@@ -54,7 +54,7 @@ pub fn[T : Eq] QueryReader::read(
       }
       Some(_) => ()
     }
-  })
+  }
 
   for entity in self.entries.keys().collect() {
     if !query.contains(entity) {

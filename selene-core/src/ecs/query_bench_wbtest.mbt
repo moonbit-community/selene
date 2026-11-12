@@ -99,10 +99,9 @@ test "unified query row and typed column traversal" (bench : @bench.T) {
     ] = world.query()
     let read_rows = () => {
       let mut sum = 0
-      query.for_each((_, row) => {
-        let (a, b, c, d, e) = row
+      for _, (a, b, c, d, e) in query {
         sum += a.0 + b.0 + c.0 + d.0 + e.0
-      })
+      }
       sum
     }
     let read_columns = () => {

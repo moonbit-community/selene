@@ -120,9 +120,8 @@ pub fn animation_transition_system(
   query : @ecs.Query[(AnimationTransitions, AnimationPlayer)],
   delta : Double,
 ) -> Unit {
-  query.for_each((entity, row) => {
-    let (transitions, player) = row
-    guard entity.is_alive() else { return }
+  for entity, (transitions, player) in query {
+    guard entity.is_alive() else { continue }
     let mut main_weight = 1.0
     transitions.fading.retain((node_index, fade) => {
       guard player.active_animations.get(node_index) is Some(active) else {
@@ -155,7 +154,7 @@ pub fn animation_transition_system(
         main_weight
       }
     }
-  })
+  }
 }
 
 ///|

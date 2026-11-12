@@ -46,11 +46,6 @@ fn[T] make_query1(
       Some({
         read: row => Single(values[row]),
         write: (row, value) => values[row] = value.0,
-        visit_rows: (entities, visit) => {
-          for row in 0..<entities.length() {
-            visit(entities[row], Single(values[row]))
-          }
-        },
       })
     },
     components,
@@ -86,11 +81,6 @@ fn[A, B] make_query2(
       guard b.column(id) is Some(column_b) else { return None }
       Some({
         read: row => (column_a[row], column_b[row]),
-        visit_rows: (entities, visit) => {
-          for row in 0..<entities.length() {
-            visit(entities[row], (column_a[row], column_b[row]))
-          }
-        },
         write: (row, value) => {
           column_a[row] = value.0
           column_b[row] = value.1
@@ -133,11 +123,6 @@ fn[A, B, C] make_query3(
       guard c.column(id) is Some(column_c) else { return None }
       Some({
         read: row => (column_a[row], column_b[row], column_c[row]),
-        visit_rows: (entities, visit) => {
-          for row in 0..<entities.length() {
-            visit(entities[row], (column_a[row], column_b[row], column_c[row]))
-          }
-        },
         write: (row, value) => {
           column_a[row] = value.0
           column_b[row] = value.1
@@ -192,14 +177,6 @@ fn[A, B, C, D] make_query4(
       Some({
         read: row => {
           (column_a[row], column_b[row], column_c[row], column_d[row])
-        },
-        visit_rows: (entities, visit) => {
-          for row in 0..<entities.length() {
-            visit(
-              entities[row],
-              (column_a[row], column_b[row], column_c[row], column_d[row]),
-            )
-          }
         },
         write: (row, value) => {
           column_a[row] = value.0
@@ -272,20 +249,6 @@ fn[A, B, C, D, E] make_query5(
             column_d[row],
             column_e[row],
           )
-        },
-        visit_rows: (entities, visit) => {
-          for row in 0..<entities.length() {
-            visit(
-              entities[row],
-              (
-                column_a[row],
-                column_b[row],
-                column_c[row],
-                column_d[row],
-                column_e[row],
-              ),
-            )
-          }
         },
         write: (row, value) => {
           column_a[row] = value.0
@@ -368,21 +331,6 @@ fn[A, B, C, D, E, F] make_query6(
             column_e[row],
             column_f[row],
           )
-        },
-        visit_rows: (entities, visit) => {
-          for row in 0..<entities.length() {
-            visit(
-              entities[row],
-              (
-                column_a[row],
-                column_b[row],
-                column_c[row],
-                column_d[row],
-                column_e[row],
-                column_f[row],
-              ),
-            )
-          }
         },
         write: (row, value) => {
           column_a[row] = value.0
@@ -475,22 +423,6 @@ fn[A, B, C, D, E, F, G] make_query7(
             column_f[row],
             column_g[row],
           )
-        },
-        visit_rows: (entities, visit) => {
-          for row in 0..<entities.length() {
-            visit(
-              entities[row],
-              (
-                column_a[row],
-                column_b[row],
-                column_c[row],
-                column_d[row],
-                column_e[row],
-                column_f[row],
-                column_g[row],
-              ),
-            )
-          }
         },
         write: (row, value) => {
           column_a[row] = value.0
@@ -593,23 +525,6 @@ fn[A, B, C, D, E, F, G, H] make_query8(
             column_g[row],
             column_h[row],
           )
-        },
-        visit_rows: (entities, visit) => {
-          for row in 0..<entities.length() {
-            visit(
-              entities[row],
-              (
-                column_a[row],
-                column_b[row],
-                column_c[row],
-                column_d[row],
-                column_e[row],
-                column_f[row],
-                column_g[row],
-                column_h[row],
-              ),
-            )
-          }
         },
         write: (row, value) => {
           column_a[row] = value.0

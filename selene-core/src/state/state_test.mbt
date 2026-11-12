@@ -175,7 +175,7 @@ test "transition execution rejects reentry and query-time execution" {
   assert_true(rejected.val)
   let store : @ecs.Query[@ecs.Single[QueryMarker]] = world.query()
   ignore(world.spawn1(QueryMarker::{ }))
-  store.for_each((_, _) => {
+  store.batches(_ => {
     try advance(world) catch {
       ActiveQuery => ()
       _ => abort("wrong query-time error")

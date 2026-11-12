@@ -57,7 +57,7 @@ class EcsPublicApiTests(unittest.TestCase):
   world.set_component(entity, Position(2))
   ignore(query.get(entity))
   let pair : @ecs.Query[(Position, Position)] = world.query()
-  pair.for_each((_, _) => ())
+  for _, _ in pair {}
   let draft = world.spawn_draft()
   draft.add(Position(3))
   ignore(draft.spawn())
@@ -71,7 +71,7 @@ class EcsPublicApiTests(unittest.TestCase):
         try:
             result = self.compile("""
   fn move_entities(query : @ecs.Query[(Position, Position)]) -> Unit {
-    query.for_each((_, _) => ())
+    for _, _ in query {}
   }
   ignore(@app.App().with_world(world).add_query_system(Update, move_entities))
 """)
@@ -92,6 +92,7 @@ class EcsPublicApiTests(unittest.TestCase):
             "joined_constructor": ("ignore(@ecs.Query2(world.query(), world.query()))", "Query2"),
             "draft_store": ("world.spawn_draft().add_to(world.query(), Position(1))", "add_to"),
             "old_query_factory": ("ignore(world.query2())", "query2"),
+            "old_row_callback": ("let query : @ecs.Query[@ecs.Single[Position]] = world.query1()\n  query.for_each((_, _) => ())", "for_each"),
             "old_batch_traversal": ("let query : @ecs.Query[@ecs.Single[Position]] = world.query1()\n  query.for_each_batch(_ => ())", "for_each_batch"),
             "old_first_column_write": ("let query : @ecs.Query[(Position, Position)] = world.query()\n  query.for_each_batch_mut_a(_ => ())", "for_each_batch_mut_a"),
             "read_column_write": ("let query : @ecs.Query[@ecs.Single[Position]] = world.query1()\n  query.batches(batch => { let column : @ecs.ReadColumn[Position] = batch.read_column(); column.set(0, Position(1)) })", "set"),
@@ -125,24 +126,22 @@ class EcsPublicApiTests(unittest.TestCase):
         finally:
             manifest.write_text(original)
 
-    def test_structural_changes_are_rejected_in_query_callbacks(self):
-        for traversal in ("for_each((_, _) =>", "batches(_ =>"):
-            with self.subTest(traversal=traversal):
-                result = self.run_program("""
+    def test_structural_changes_are_rejected_in_batch_callbacks(self):
+        result = self.run_program("""
 fn main {
   let world = @ecs.World()
   ignore(world.spawn1(Position(1)))
   let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
-  query.""" + traversal + """ {
-    println("entered query callback")
+  query.batches(_ => {
+    println("entered batch callback")
     ignore(world.spawn1(Position(2)))
   })
 }
 """)
-                output = result.stdout + result.stderr
-                self.assertNotEqual(result.returncode, 0, output)
-                self.assertIn("entered query callback", output)
-                self.assertIn("queue structural changes outside an archetype query", output)
+        output = result.stdout + result.stderr
+        self.assertNotEqual(result.returncode, 0, output)
+        self.assertIn("entered batch callback", output)
+        self.assertIn("queue structural changes outside an archetype query", output)
 
     def test_query_for_loops_compile(self):
         result = self.compile("""

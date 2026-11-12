@@ -94,7 +94,6 @@ pub fn[T] EntityTable::values(Self[T]) -> Iter[T]
 type Query[T]
 pub fn[T] Query::batches(Self[T], (QueryBatch[T]) -> Unit) -> Unit
 pub fn[T] Query::contains(Self[T], Entity) -> Bool
-pub fn[T] Query::for_each(Self[T], (Entity, T) -> Unit) -> Unit
 pub fn[T] Query::get(Self[T], Entity) -> T?
 pub fn[T] Query::insertion_order(Self[T], Entity) -> Int32
 pub fn[T] Query::is_empty(Self[T]) -> Bool

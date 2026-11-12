@@ -26,10 +26,9 @@ test "a three-component query is constructed once per World" {
     fn(
       query : @ecs.Query[(@sprite.Sprite, @transform.Spatial, @sprite.Anchor)],
     ) {
-      query.for_each((_, row) => {
-        let (_, transform, _) = row
+      for _, (_, transform, _) in query {
         observed.push(transform.pose().translation.x)
-      })
+      }
     },
     filters=world => {
       constructed.push(world.id())
@@ -55,7 +54,9 @@ test "single-component query systems honor conditions and system set ordering" {
     .add_query_system(
       Update,
       fn(query : @ecs.Query[@ecs.Single[@sprite.Sprite]]) {
-        query.for_each((_, _) => calls.push(1))
+        for _, _ in query {
+          calls.push(1)
+        }
       },
       in_set=query_set,
       before=[world_set],

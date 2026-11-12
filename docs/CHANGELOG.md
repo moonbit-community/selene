@@ -42,7 +42,9 @@
 
 ### Changed
 
-- Rename query batch traversal to `query.batches(callback)`.
+- Use ordinary `for` loops for query row traversal and `query.batches(callback)`
+  for scoped batch access. Remove `Query::for_each` and its per-shape traversal
+  closures.
 
 - Require explicit World ownership for component access. Construct opaque
   queries with `world.query()` or the single-component `world.query1()`;

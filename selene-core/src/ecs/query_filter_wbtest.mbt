@@ -24,7 +24,9 @@ test "structural filters run once per archetype rather than once per row" {
   let scanned = matched.val
   assert_eq(scanned, 2)
   for _ in 0..<3 {
-    query.for_each((_, _) => ())
+    for _, _ in query {
+
+    }
     assert_true(query.get(entity) is Some(_))
   }
   assert_eq(matched.val, scanned)

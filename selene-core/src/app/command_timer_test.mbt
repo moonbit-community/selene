@@ -48,7 +48,7 @@ test "schedule rejects reentry and leaves the nested batch queued" {
 }
 
 ///|
-test "schedule rejects streaming and archetype batch queries" {
+test "schedule rejects query batch callbacks" {
   let world = @ecs.World()
   let storage : @ecs.Query[@ecs.Single[CommandValue]] = world.query()
   ignore(world.spawn1(CommandValue(42)))
@@ -57,7 +57,7 @@ test "schedule rejects streaming and archetype batch queries" {
   let rejected = []
   commands.add(_ => calls.push(1))
 
-  storage.for_each((_, _) => {
+  storage.batches(_ => {
     try @ecs.run_schedule(world, _ => calls.push(99)) catch {
       ActiveQuery => rejected.push(true)
       _ => rejected.push(false)

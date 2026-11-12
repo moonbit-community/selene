@@ -67,7 +67,7 @@ let position : @ecs.Single[Position]? = positions.get(player)
 
 `world.query1()` is shorthand for constructing `Query[Single[T]]`; the general
 `world.query()` also accepts that shape. All shapes provide `get`, `contains`,
-`single`, `length`, `for_each`, and `batches` with the same semantics.
+`single`, `length`, ordinary `for` loops, and `batches` with the same semantics.
 Their component storage and batch representations are private.
 
 For custom schedulers, `@ecs.query_system(callback)` produces a `System`.
@@ -78,8 +78,8 @@ let moving_query : (@ecs.World) -> @ecs.Query[(Position, Velocity)] =
   @ecs.cache_query()
 ```
 
-Filters are part of the query view, so point reads, counts, snapshots, row
-callbacks, and batch callbacks agree about which entities match:
+Filters are part of the query view, so point reads, counts, snapshots, ordinary
+iteration, and batch callbacks agree about which entities match:
 
 ```moonbit
 let with_velocity : @ecs.With[Velocity] = With(world)
@@ -185,7 +185,7 @@ passes the parent's transform to its children.
 
 All row shapes keep the existing archetype column layout. Queries cache matching
 archetypes and bind their columns once. They do not turn the World into an array
-of row tuples. `for_each` constructs the logical row supplied to its callback;
+of row tuples. Ordinary iteration constructs each logical row on demand;
 for large hot loops, use typed columns to avoid forming a tuple for every row.
 See [measured row and column costs](BENCHMARKS.md) for native and Node.js results.
 
@@ -211,8 +211,8 @@ Reading a mutable component object does not make that object immutable. Batch
 objects and columns expire when their callback returns; accessing an escaped
 view aborts. They expose no raw arrays or persistent array views.
 
-`for_each` and `batches` reject immediate structural changes and schedule
-flushes during traversal. Queue spawns and deletions through `Commands`.
+`batches` rejects immediate structural changes and schedule flushes inside its
+callback. Queue spawns and deletions through `Commands`.
 
 `iter()` returns `Iter[(Entity, Row)]`; `iter2()` returns `Iter2[Entity, Row]`.
 Both read archetype rows lazily, without collecting entity handles or results.

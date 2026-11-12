@@ -7,10 +7,9 @@ test "a cached query sees new tables and repairs swapped rows after deletion" {
   let plan = a.spawn_plan(world).combine(b.spawn_plan(world))
   let matches = () => {
     let result = []
-    query.for_each((entity, query_row) => {
-      let (x, y) = query_row
+    for entity, (x, y) in query {
       result.push((entity.id(), x, y))
-    })
+    }
     result
   }
   assert_true(matches().is_empty())
@@ -46,19 +45,17 @@ test "archetype signatures support more than 64 components and isolate worlds" {
   assert_eq(entity.id(), foreign.id())
   let query = make_query2(stores[0], stores[69])
   let result = []
-  query.for_each((_, query_row) => {
-    let (first, last) = query_row
+  for _, (first, last) in query {
     result.push((first, last))
-  })
+  }
   assert_eq(result, [(0, 69)])
   assert_eq(stores[35].get(entity), Some(35))
   assert_eq(stores[69].get(entity), Some(69))
   assert_eq(stores[0].get(foreign), None)
   result.clear()
-  query.for_each((_, query_row) => {
-    let (first, last) = query_row
+  for _, (first, last) in query {
     result.push((first, last))
-  })
+  }
   assert_eq(result, [(0, 69)])
 }
 
@@ -155,10 +152,9 @@ test "three to five column queries follow new tables and recycled slots" {
   let second = four_plan.spawn((((11, "label"), false), 40))
 
   let three_values = []
-  three.for_each((_, query_row) => {
-    let (value, label, flag) = query_row
+  for _, (value, label, flag) in three {
     three_values.push((value, label, flag))
-  })
+  }
   assert_eq(three_values, [(10, "label", true), (11, "label", false)])
   let four_values = []
   four.batches(batch => {
@@ -168,10 +164,9 @@ test "three to five column queries follow new tables and recycled slots" {
   })
   assert_eq(four_values, [(10, "label", true, 40), (11, "label", false, 40)])
   let five_values = []
-  five.for_each((_, query_row) => {
-    let (value, label, flag, fourth, fifth) = query_row
+  for _, (value, label, flag, fourth, fifth) in five {
     five_values.push((value, label, flag, fourth, fifth))
-  })
+  }
   assert_eq(five_values, [(10, "label", true, 40, 50)])
   five_values.clear()
   five.batches(batch => {
@@ -193,10 +188,9 @@ test "three to five column queries follow new tables and recycled slots" {
   assert_eq(replacement.slot_index(), first.slot_index())
   assert_eq(five.get(first), None)
   assert_eq(five.get(replacement), Some((20, "new", true, 42, 52)))
-  five.for_each((_, query_row) => {
-    let (value, label, flag, fourth, fifth) = query_row
+  for _, (value, label, flag, fourth, fifth) in five {
     five_values.push((value, label, flag, fourth, fifth))
-  })
+  }
   assert_eq(five_values, [(20, "new", true, 42, 52)])
 }
 
