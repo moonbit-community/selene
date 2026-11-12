@@ -20,9 +20,9 @@ import {
 } for "test"
 
 import {
-  "Milky2018/selene/internal/ecs_runtime",
+  "Milky2018/selene/internal/state_runtime",
 }
 
 import {
-  "Milky2018/selene/internal/state_runtime",
-}
+  "Milky2018/selene/internal/ecs_test",
+} for "test"

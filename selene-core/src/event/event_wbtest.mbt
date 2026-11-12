@@ -77,8 +77,8 @@ test "events: trigger dispatches observers while send does not" {
 ///|
 test "events: entity observer only receives targeted trigger" {
   let events : Events[Int32] = Events()
-  let target = @ecs_runtime.spawn(@ecs.require_current_world(), ())
-  let other = @ecs_runtime.spawn(@ecs.require_current_world(), ())
+  let target = @ecs_test.spawn(@ecs.require_current_world(), ())
+  let other = @ecs_test.spawn(@ecs.require_current_world(), ())
   let received : Array[Int32] = []
   events.observe_entity(target, fn(item) { received.push(item.event) })
   |> ignore

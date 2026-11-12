@@ -70,11 +70,7 @@ pub fn[T : StateType] initialize(world : @ecs.World, initial : T) -> Unit {
     entered: false,
     transition: None,
   })
-  let registry = registry_key.get_or_insert_with(world, _ => {
-    entries: [],
-    transitioning: false,
-  })
-  registry.entries.push({
+  @state_runtime.register(world, {
     prepare: (world, initial_only) => {
       let data : StateData[T] = state_data(world)
       if !data.entered {

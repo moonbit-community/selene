@@ -251,17 +251,17 @@ test "runtime layer cell updates keep source state in sync" {
     [AutoTilePaletteEntry(1, "base", bitmask4_rules=[mask_rule(0, "m0")])],
     [AutoTileCell(0, 0, 1)],
   )
-  let layer = @ecs_runtime.spawn(@ecs.require_current_world(), ())
+  let layer = @ecs_test.spawn(@ecs.require_current_world(), ())
   register_runtime_layer(layer, source)
-  try! @ecs_runtime.run_schedule(@ecs.require_current_world(), _ => ())
+  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
   inspect(runtime_layer_source(layer) is Some(_), content="true")
   set_runtime_cell(layer, 1, 0, 1)
-  try! @ecs_runtime.run_schedule(@ecs.require_current_world(), _ => ())
+  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
   let source_after_add = runtime_layer_source(layer).unwrap()
   inspect(source_after_add.cells.length(), content="2")
   remove_runtime_cell(layer, 1, 0)
-  try! @ecs_runtime.run_schedule(@ecs.require_current_world(), _ => ())
+  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
   let source_after_remove = runtime_layer_source(layer).unwrap()
   inspect(source_after_remove.cells.length(), content="1")
-  @ecs_runtime.destroy(layer)
+  @ecs_test.destroy(layer)
 }

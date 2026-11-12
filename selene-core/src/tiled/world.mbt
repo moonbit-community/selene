@@ -187,7 +187,10 @@ pub fn replace_tiled_world(
 }
 
 ///|
-fn tiled_world_chunking_now(world~ : @ecs.World, _delta : Double) -> Unit {
+pub fn tiled_world_chunking_system(
+  world~ : @ecs.World,
+  _delta : Double,
+) -> Unit {
   let query_tiled_world_instance : @ecs.Query[@ecs.Single[TiledWorldInstance]] = world.query()
   for entity in query_tiled_world_instance.to_array().map(pair => pair.0) {
     if !entity.is_alive() {
@@ -244,7 +247,7 @@ fn tiled_world_update_chunking(
 
   for (idx, map_entity) in instance.spawned_maps.to_array() {
     if !visible.contains(idx) {
-      ignore(@ecs_runtime.delete(map_entity))
+      @ecs.commands(world).delete(map_entity)
       instance.spawned_maps.remove(idx)
     }
   }
@@ -334,10 +337,13 @@ fn tiled_world_spawn_loaded_map(
     resolved_map_path: loaded_map.resolved_map_path,
   }
   instance.spawned_maps.set(index, map_entity)
-  tiled_world_map_spawned_event_bus.trigger(world_map_event, Some(map_entity))
-  if instance.settings.world_map_hook is Some(world_map_hook) {
-    world_map_hook(world_map_event)
-  }
+  @ecs.commands(world).add(_ => {
+    guard map_entity.is_valid_in(world) else { return }
+    tiled_world_map_spawned_event_bus.trigger(world_map_event, Some(map_entity))
+    if instance.settings.world_map_hook is Some(world_map_hook) {
+      world_map_hook(world_map_event)
+    }
+  })
 }
 
 ///|
@@ -1100,9 +1106,4 @@ fn tiled_world_map_bounds(
     loaded_map.world_map.x + width,
     loaded_map.world_map.y + height,
   )
-}
-
-///|
-pub fn tiled_world_chunking_system(world~ : @ecs.World, delta : Double) -> Unit {
-  @ecs.commands(world).add(world => tiled_world_chunking_now(world~, delta))
 }

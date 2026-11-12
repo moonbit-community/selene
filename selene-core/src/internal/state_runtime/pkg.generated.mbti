@@ -8,9 +8,22 @@ import {
 // Values
 pub fn advance(@ecs.World, on_exit~ : (@ecs.World) -> Unit, on_enter~ : (@ecs.World) -> Unit, initial_only? : Bool) -> Unit raise @ecs.ScheduleError
 
+pub fn register(@ecs.World, StateEntry) -> Unit
+
 // Errors
 
 // Types and methods
+pub(all) struct StateEntry {
+  prepare : (@ecs.World, Bool) -> TransitionKind
+  commit : (@ecs.World) -> Unit
+  finish : (@ecs.World) -> Unit
+}
+
+pub(all) enum TransitionKind {
+  Unchanged
+  Initial
+  Changed
+}
 
 // Type aliases
 

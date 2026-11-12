@@ -21,5 +21,5 @@ import {
 formatter(ignore: [ "text.g.mbt" ])
 
 import {
-  "Milky2018/selene/internal/ecs_runtime",
+  "Milky2018/selene/internal/ecs_test",
 } for "wbtest"

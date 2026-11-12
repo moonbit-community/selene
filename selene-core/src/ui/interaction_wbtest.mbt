@@ -11,7 +11,7 @@ fn with_ui_interaction_test_world(
 
 ///|
 fn cleanup_interaction_test_entity(entity : @ecs.Entity) -> Unit {
-  ignore(@ecs_runtime.delete(entity))
+  ignore(@ecs_test.delete(entity))
 }
 
 ///|
@@ -63,9 +63,9 @@ fn spawn_interaction_test_node(
 ) -> @ecs.Entity {
   let node = Node(overflow_y~)
   let entity = if interactive {
-    @ecs_runtime.spawn(world, (node, Button(), ZIndex(zindex)), parent?)
+    @ecs_test.spawn(world, (node, Button(), ZIndex(zindex)), parent?)
   } else {
-    @ecs_runtime.spawn(world, (node, ZIndex(zindex)), parent?)
+    @ecs_test.spawn(world, (node, ZIndex(zindex)), parent?)
   }
   set_test_ui_geometry(entity, interaction_test_global_node(rect))
   rebuild_ui_stack(world~)
@@ -146,7 +146,7 @@ fn apply_ui_mouse_frame(position : @math.Vec2, down : Bool) -> Unit {
 test "ui relative cursor positions use centered normalized coordinates" {
   let world = @ecs.require_current_world()
   reset_interaction_test_state()
-  let entity = @ecs_runtime.spawn(
+  let entity = @ecs_test.spawn(
     @ecs.require_current_world(),
     (Node(), RelativeCursorPosition()),
   )
@@ -222,16 +222,16 @@ test "ui pointer picks the pause menu dimmer above the HUD" {
 test "ui focus candidates only include nodes in the layout stack" {
   with_ui_interaction_test_world(fn(world) raise {
     reset_interaction_test_state()
-    let root = @ecs_runtime.spawn1(
+    let root = @ecs_test.spawn1(
       world,
       Node(width=Val::px(100.0), height=Val::px(100.0)),
     )
-    let visible = @ecs_runtime.spawn(
+    let visible = @ecs_test.spawn(
       world,
       (Node(width=Val::px(50.0), height=Val::px(50.0)), Focusable()),
       parent=root,
     )
-    let hidden = @ecs_runtime.spawn(
+    let hidden = @ecs_test.spawn(
       world,
       (Node(display=None), Focusable()),
       parent=root,
@@ -403,11 +403,11 @@ test "ui touch release outside pressed target does not click" {
 test "ui touch drag scrolls non-button scrollable panels" {
   with_ui_interaction_test_world(fn(world) raise {
     reset_interaction_test_state()
-    let entity = @ecs_runtime.spawn1(
+    let entity = @ecs_test.spawn1(
       @ecs.require_current_world(),
       Node::absolute(Vec2(0.0, 0.0), size=Vec2(100.0, 100.0), overflow_y=Scroll),
     )
-    let child = @ecs_runtime.spawn1(
+    let child = @ecs_test.spawn1(
       @ecs.require_current_world(),
       Node(width=Val::px(100.0), height=Val::px(200.0), flex_shrink=0.0),
       parent=entity,
@@ -436,11 +436,11 @@ test "ui touch drag scrolls non-button scrollable panels" {
 test "ui scroll deltas stop at the computed content bounds" {
   with_ui_interaction_test_world(fn(world) raise {
     reset_interaction_test_state()
-    let entity = @ecs_runtime.spawn1(
+    let entity = @ecs_test.spawn1(
       @ecs.require_current_world(),
       Node::absolute(Vec2(0.0, 0.0), size=Vec2(100.0, 100.0), overflow_y=Scroll),
     )
-    let child = @ecs_runtime.spawn1(
+    let child = @ecs_test.spawn1(
       @ecs.require_current_world(),
       Node(width=Val::px(100.0), height=Val::px(220.0), flex_shrink=0.0),
       parent=entity,
@@ -606,7 +606,7 @@ test "ui input capture leaves gameplay touches unconsumed" {
 test "ui relative cursor positions keep normalized values outside calculated clip" {
   let world = @ecs.require_current_world()
   reset_interaction_test_state()
-  let entity = @ecs_runtime.spawn(
+  let entity = @ecs_test.spawn(
     @ecs.require_current_world(),
     (Node(), RelativeCursorPosition()),
   )

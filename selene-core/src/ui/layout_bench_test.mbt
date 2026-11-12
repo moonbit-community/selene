@@ -2,8 +2,7 @@
 fn build_retained_layout_benchmark() -> Array[@ecs.Entity] {
   let world = @ecs.require_current_world()
   let entities : Array[@ecs.Entity] = []
-  let root = @ecs_runtime.spawn1(
-    world,
+  let root = @ecs.commands(world).spawn1(
     @ui.Node(
       width=@ui.Val::px(960.0),
       height=@ui.Val::px(540.0),
@@ -13,8 +12,7 @@ fn build_retained_layout_benchmark() -> Array[@ecs.Entity] {
     ),
   )
   entities.push(root)
-  let grid = @ecs_runtime.spawn1(
-    world,
+  let grid = @ecs.commands(world).spawn1(
     @ui.Node(
       width=@ui.Val::px(720.0),
       height=@ui.Val::percent(100.0),
@@ -35,8 +33,7 @@ fn build_retained_layout_benchmark() -> Array[@ecs.Entity] {
   entities.push(grid)
   for structural_index in 0..<24 {
     entities.push(
-      @ecs_runtime.spawn1(
-        world,
+      @ecs.commands(world).spawn1(
         @ui.Node(
           width=@ui.Val::px(8.0 + (structural_index % 3).to_double()),
           height=@ui.Val::px(8.0),
@@ -47,8 +44,7 @@ fn build_retained_layout_benchmark() -> Array[@ecs.Entity] {
     )
   }
   for slot_index in 0..<96 {
-    let slot = @ecs_runtime.spawn1(
-      world,
+    let slot = @ecs.commands(world).spawn1(
       @ui.Node(
         height=@ui.Val::px(76.0),
         padding=@ui.UiRectValues::all(4.0),
@@ -59,8 +55,7 @@ fn build_retained_layout_benchmark() -> Array[@ecs.Entity] {
     )
     entities.push(slot)
     entities.push(
-      @ecs_runtime.spawn1(
-        world,
+      @ecs.commands(world).spawn1(
         @ui.Node(width=@ui.Val::px(40.0), height=@ui.Val::px(40.0)),
         parent=slot,
       ),
@@ -71,8 +66,7 @@ fn build_retained_layout_benchmark() -> Array[@ecs.Entity] {
         (slot_index + 1).to_string(),
       ] {
       entities.push(
-        @ecs_runtime.spawn(
-          world,
+        @ecs.commands(world).spawn(
           (
             @ui.Node(width=@ui.Val::percent(100.0)),
             @ui.Text(text),
@@ -83,6 +77,7 @@ fn build_retained_layout_benchmark() -> Array[@ecs.Entity] {
       )
     }
   }
+  try! @ecs.run_schedule(world, _ => ())
   entities
 }
 
@@ -112,8 +107,9 @@ test "BENCH-UI retained static layout" (b : @bench.T) {
 
   for entity in entities {
     if entity.is_alive() {
-      @ecs_runtime.destroy(entity)
+      @ecs.commands(world).despawn(entity)
     }
   }
+  try! @ecs.run_schedule(world, _ => ())
   @ui.ui_layout_system(world~, 0.0)
 }

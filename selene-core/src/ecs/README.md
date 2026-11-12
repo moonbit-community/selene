@@ -307,19 +307,41 @@ entry systems. Render stages consume the resulting state. See the
 The app passes its selected World to engine systems, including rendering,
 physics, transforms, and animation. Helpers that access components take an
 explicit `world~` argument. Component access remains World-bound in engine and
-game systems; engine-only structural execution is used when applying queued
-imports and commands.
+game systems. Engine importers queue structural changes through the same
+`Commands` interface as application code.
 
-Scheduling and command application belong to the App driver. There is no public
-raw schedule/flush operation or immediate entity creation/deletion. Engine-only
-execution lives under `internal/ecs_runtime`; its access capability cannot be
-constructed or imported by external packages. Public types remain owned by `ecs`.
+Apps and custom schedulers use the same complete execution boundary:
+
+```moonbit
+let world = @ecs.World()
+let commands = @ecs.commands(world)
+let player = commands.spawn1(Position::{ x: 0.0, y: 0.0 })
+try! @ecs.run_schedule(world, world => {
+  // Run systems against this World. Pending spawns initialize after this callback.
+  ignore(world.id())
+})
+// The pending entity is now materialized.
+ignore(world.get_component(player) : Position?)
+```
+
+`run_schedule` selects the World for the callback and its command batch, then
+restores the previous active World. It rejects nested execution, including for a
+different World, and execution inside any query batch callback. App drivers check
+these same conditions before changing platform or World state. Ordinary lazy row
+iterators instead detect structural invalidation on their next advance.
+
+Immediate creation/deletion and bare command/lifecycle flushes are private to
+`ecs`. Public types and traits remain owned by `ecs`, and World storage stays
+private. There are no access tokens or public `runtime_*` execution bridges.
 
 Create initial entities in a Startup system using `@ecs.commands(world)`. Their
 components become available after that stage's flush. Use `commands.add(...)`
 for initialization that must run after an earlier spawn in the same batch.
 Public LDtk, Tiled, scene, audio, and autotile creation requests are also deferred;
-query imported trees after the scheduler applies their command batch.
+query imported trees after the scheduler applies their command batches. Tiled
+worlds select their maps after the root initializes; those maps and their
+subtrees are queued for the next synchronization point. This follows the same
+frozen-batch rule as commands added by any other command callback.
 
 Timeouts belong to `time` and are stored in the active World. The default plugins
 advance them once per frame. Cancellation remains valid when another World is

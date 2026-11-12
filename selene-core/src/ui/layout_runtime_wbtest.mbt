@@ -5,7 +5,7 @@ test "retained UI layout stays clean until measured content changes" {
   entity_draft.add((Node() : Node))
   entity_draft.add((Text("A") : Text))
   entity_draft.add((TextFont(size=16.0) : TextFont))
-  let entity = @ecs_runtime.spawn_draft(entity_draft)
+  let entity = @ecs_test.spawn_draft(entity_draft)
 
   ui_layout_system(world~, 0.0)
   let initial_width = computed_ui_node(entity).unwrap().size.x
@@ -33,21 +33,21 @@ test "retained UI layout stays clean until measured content changes" {
 ///|
 test "retained UI layout updates replaced subtrees" {
   let world = @ecs.require_current_world()
-  let root = @ecs_runtime.spawn1(
+  let root = @ecs_test.spawn1(
     @ecs.require_current_world(),
     Node(width=Val::px(300.0), height=Val::px(100.0), flex_direction=Row),
   )
-  let left = @ecs_runtime.spawn1(
+  let left = @ecs_test.spawn1(
     @ecs.require_current_world(),
     Node(width=Val::px(100.0), height=Val::px(100.0)),
     parent=root,
   )
-  let right = @ecs_runtime.spawn1(
+  let right = @ecs_test.spawn1(
     @ecs.require_current_world(),
     Node(width=Val::px(100.0), height=Val::px(100.0)),
     parent=root,
   )
-  let child = @ecs_runtime.spawn1(
+  let child = @ecs_test.spawn1(
     @ecs.require_current_world(),
     Node(width=Val::px(20.0), height=Val::px(20.0)),
     parent=left,
@@ -56,8 +56,8 @@ test "retained UI layout updates replaced subtrees" {
   ui_layout_system(world~, 0.0)
   assert_eq(computed_ui_node(child).unwrap().position.x, 0.0)
 
-  assert_true(@ecs_runtime.delete(child))
-  let child = @ecs_runtime.spawn1(
+  assert_true(@ecs_test.delete(child))
+  let child = @ecs_test.spawn1(
     world,
     Node(width=Val::px(20.0), height=Val::px(20.0)),
     parent=right,
@@ -75,7 +75,7 @@ test "retained UI layout updates replaced subtrees" {
 ///|
 test "retained UI stacking changes do not reproject or relayout" {
   let world = @ecs.require_current_world()
-  let entity = @ecs_runtime.spawn(
+  let entity = @ecs_test.spawn(
     @ecs.require_current_world(),
     (
       Node(width=Val::px(100.0), height=Val::px(100.0)),
@@ -120,8 +120,8 @@ test "retained UI projection changes do not rebuild layout or stacking" {
   camera_draft.add(
     (Spatial(@transform.Transform::default()) : @transform.Spatial),
   )
-  let camera = @ecs_runtime.spawn_draft(camera_draft)
-  let root = @ecs_runtime.spawn(
+  let camera = @ecs_test.spawn_draft(camera_draft)
+  let root = @ecs_test.spawn(
     @ecs.require_current_world(),
     (
       Node(
@@ -133,7 +133,7 @@ test "retained UI projection changes do not rebuild layout or stacking" {
       UiTargetCamera(camera),
     ),
   )
-  let child = @ecs_runtime.spawn1(
+  let child = @ecs_test.spawn1(
     @ecs.require_current_world(),
     Node(width=Val::px(200.0), height=Val::px(100.0)),
     parent=root,
@@ -180,14 +180,14 @@ test "retained UI projection changes do not rebuild layout or stacking" {
 
   cleanup_layout_test_entity(child)
   cleanup_layout_test_entity(root)
-  ignore(@ecs_runtime.delete(camera))
+  ignore(@ecs_test.delete(camera))
   ui_layout_system(world~, 0.0)
 }
 
 ///|
 test "retained UI compares normalized Chicle styles" {
   let world = @ecs.require_current_world()
-  let entity = @ecs_runtime.spawn1(
+  let entity = @ecs_test.spawn1(
     world,
     Node(
       width=Val::px(100.0),
@@ -239,12 +239,12 @@ test "layout frees the old Chicle node when a deleted entity slot is reused" {
   })
   let world = @ecs.World()
   @ecs.set_current_world(world)
-  let old = @ecs_runtime.spawn1(world, Node(width=Val::px(10.0)))
+  let old = @ecs_test.spawn1(world, Node(width=Val::px(10.0)))
   ui_layout_system(world~, 0.0)
   let runtime = ui_layout_runtime()
   let old_node = runtime.nodes.get(old).unwrap().node_id
-  ignore(@ecs_runtime.delete(old))
-  let replacement = @ecs_runtime.spawn1(world, Node(width=Val::px(30.0)))
+  ignore(@ecs_test.delete(old))
+  let replacement = @ecs_test.spawn1(world, Node(width=Val::px(30.0)))
   assert_eq(old.slot_index(), replacement.slot_index())
   ui_layout_system(world~, 0.0)
   assert_true(computed_ui_node(old) is None)

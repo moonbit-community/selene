@@ -20,7 +20,7 @@ fn spawn_test_body(
   shape~ : CollisionShape = collision_test_shape(),
   collider~ : Collider = Collider(collision_test_filter()),
 ) -> @ecs.Entity {
-  @ecs_runtime.spawn(
+  @ecs_test.spawn(
     @ecs.require_current_world(),
     (test_spatial(position), shape, collider, body),
   )
@@ -38,10 +38,10 @@ fn collision_test_cleanup(
   entities : Array[@ecs.Entity],
 ) -> Unit {
   for entity in entities {
-    ignore(@ecs_runtime.delete(entity))
+    ignore(@ecs_test.delete(entity))
   }
   rapier_fixed_step(world~, 0.016)
-  try! @ecs_runtime.run_schedule(@ecs.require_current_world(), _ => ())
+  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
   configure_physics(
     gravity=@math.Vec2::zero(),
     pixels_per_meter=100.0,
@@ -159,11 +159,11 @@ test "explicit body type overrides legacy velocity heuristic" {
   let shape = collision_test_shape()
   let collider = Collider(collision_test_filter())
   let velocity = @velocity.Velocity(Vec2(120.0, 0.0))
-  let fixed_entity = @ecs_runtime.spawn(
+  let fixed_entity = @ecs_test.spawn(
     world,
     (spatial(), shape, collider, velocity, RigidBody::fixed()),
   )
-  let kinematic_entity = @ecs_runtime.spawn(
+  let kinematic_entity = @ecs_test.spawn(
     world,
     (
       spatial(),
@@ -396,7 +396,7 @@ test "impulse joints insert and accept all supported joint kinds" {
     { ..RigidBody::dynamic(), lock_rotation: false, },
     position=Vec2(32.0, 0.0),
   )
-  let joint_entity = @ecs_runtime.spawn1(
+  let joint_entity = @ecs_test.spawn1(
     @ecs.require_current_world(),
     Joint::fixed(body_a, body_b),
   )
@@ -476,7 +476,7 @@ test "impulse joints are removed when endpoints disappear" {
   )
   let body_a = spawn_test_body(RigidBody::dynamic())
   let body_b = spawn_test_body(RigidBody::dynamic(), position=Vec2(32.0, 0.0))
-  let joint_entity = @ecs_runtime.spawn1(
+  let joint_entity = @ecs_test.spawn1(
     @ecs.require_current_world(),
     Joint::fixed(body_a, body_b),
   )
@@ -485,7 +485,7 @@ test "impulse joints are removed when endpoints disappear" {
   rapier_fixed_step(world~, 0.016)
   inspect(joint_handle(joint_entity) is Some(_), content="true")
 
-  ignore(@ecs_runtime.delete(body_b))
+  ignore(@ecs_test.delete(body_b))
 
   rapier_fixed_step(world~, 0.016)
 
@@ -506,7 +506,7 @@ test "multibody joints insert, expose handles, and rebuild chains" {
   let parent = spawn_test_body(body)
   let shape = collision_test_shape()
   let collider = Collider(collision_test_filter())
-  let child = @ecs_runtime.spawn(
+  let child = @ecs_test.spawn(
     ecs_world,
     (
       test_spatial(Vec2(32.0, 0.0)),
@@ -523,7 +523,7 @@ test "multibody joints insert, expose handles, and rebuild chains" {
       ),
     ),
   )
-  let grandchild = @ecs_runtime.spawn(
+  let grandchild = @ecs_test.spawn(
     ecs_world,
     (
       test_spatial(Vec2(64.0, 0.0)),
@@ -637,7 +637,7 @@ test "multibody joints are removed when endpoints disappear" {
     max_ccd_substeps=1,
   )
   let parent = spawn_test_body(RigidBody::dynamic())
-  let child = @ecs_runtime.spawn(
+  let child = @ecs_test.spawn(
     @ecs.require_current_world(),
     (
       test_spatial(Vec2(32.0, 0.0)),
@@ -656,7 +656,7 @@ test "multibody joints are removed when endpoints disappear" {
     content="true",
   )
 
-  ignore(@ecs_runtime.delete(parent))
+  ignore(@ecs_test.delete(parent))
 
   rapier_fixed_step(world~, 0.016)
 

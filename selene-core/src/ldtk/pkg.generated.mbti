@@ -379,6 +379,7 @@ pub struct LdtkEntityReference {
 pub fn LdtkEntityReference::LdtkEntityReference() -> Self
 
 pub struct LdtkEntitySpawn {
+  project : LdtkProject
   draft : @ecs.SpawnDraft
   spatial : @transform.Spatial
   world_entity : @ecs.Entity

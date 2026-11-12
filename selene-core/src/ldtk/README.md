@@ -18,7 +18,9 @@ Only the highest-priority scope is selected. Within the same selected scope, `ad
 
 Declare each custom component with `#selene.component` and generate its
 companion. Registration callbacks return initial component values; the importer
-adds them to the spawn draft in its owning World.
+adds them to the spawn draft in its owning World. The registration context also
+provides `event.project`; parent entities are still pending during construction,
+so use this initial data instead of querying their components.
 
 ```moonbit
 ///|

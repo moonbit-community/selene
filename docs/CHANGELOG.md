@@ -31,7 +31,7 @@
   any declared component or several components without forming per-row tuples.
 - Added reusable spawn bundles, `Commands::spawn1`, and a
   one-shot `SpawnDraft` for data-driven imports.
-- Added `parent=` to immediate and deferred spawns. The World keeps the
+- Added `parent=` to deferred spawns. The World keeps the
   relationship and sibling order with each entity slot.
 - Added permanent entity deletion with generation-checked slot recycling,
   including through deferred commands. Destroyed entities remain recoverable
@@ -42,10 +42,11 @@
 
 ### Changed
 
-- Restrict ECS execution to module-level internal packages. Public entity creation,
-  deletion, despawn, respawn, and imported-tree creation are deferred Commands;
-  immediate storage operations require an engine-only access capability. Keep
-  public ECS types in `ecs` and check App reentry before any driver side effects.
+- Keep `World`, `Entity`, queries, and public traits in `ecs`, with private storage.
+  Expose complete `run_schedule` execution for Apps and custom schedulers, with
+  reentry and active-batch checks and one frozen FIFO command batch. Engine
+  importers use the same deferred Commands as applications; no access capability
+  or public privileged execution bridge is required.
 
 - Use ordinary `for` loops for query row traversal and `query.batches(callback)`
   for scoped batch access. Remove `Query::for_each` and its per-shape traversal
@@ -209,6 +210,11 @@
 
 ### Fixed
 
+- Preserve importer initialization and hook order with deferred-only spawning.
+  Build LDtk registration sprites from their initial project data, deduplicate
+  pending worldly entities across a level batch, and release cloned scene meshes
+  when a queued subtree cannot spawn.
+
 - Apply structural filters consistently to every query operation and cache
   their matches per archetype. Reject foreign-World filters and undeclared batch
   columns. Detect batch and column access after their callback has returned.
@@ -247,8 +253,9 @@
 ### Removed
 
 - Remove public immediate World/SpawnPlan/SpawnDraft creation, Entity lifecycle
-  mutation, raw `run_schedule`, and manual state-transition execution. Use Commands
-  and App scheduling rather than invoking internal execution helpers.
+  mutation, raw command/lifecycle flushes, and manual state-transition execution.
+  Use Commands with App scheduling or complete `@ecs.run_schedule` execution.
+  Remove the `Access` capability and public `runtime_*` execution bridges.
 
 - Remove public component stores, global component accessors, key data-access
   methods, store-based query constructors, and store-selected spawn APIs.

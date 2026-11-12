@@ -62,6 +62,10 @@ class EcsPublicApiTests(unittest.TestCase):
   let draft = world.spawn_draft()
   draft.add(Position(3))
   ignore(commands.spawn_draft(draft))
+  try! @ecs.run_schedule(world, world => {
+    ignore(world.id())
+    commands.delete(entity)
+  })
 """)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
@@ -100,8 +104,17 @@ class EcsPublicApiTests(unittest.TestCase):
             "immediate_delete": ("ignore(@ecs.commands(world).spawn(()).delete())", "delete"),
             "immediate_destroy": ("@ecs.commands(world).spawn(()).destroy()", "destroy"),
             "immediate_respawn": ("@ecs.commands(world).spawn(()).respawn()", "respawn"),
-            "raw_schedule": ("try! @ecs.run_schedule(world, _ => ())", "run_schedule"),
-            "forged_access": ("@ecs.runtime_flush({}, world)", "Access"),
+            "raw_flush": ("@ecs.flush_commands(world)", "flush_commands"),
+            "lifecycle_flush": ("@ecs.flush_entity_lifecycle(world)", "flush_entity_lifecycle"),
+            "world_storage": ("ignore(world.storage)", "storage"),
+            "runtime_flush": ("@ecs.runtime_flush({}, world)", "runtime_flush"),
+            "runtime_spawn": ("ignore(world.runtime_spawn({}, ()))", "runtime_spawn"),
+            "runtime_spawn1": ("ignore(world.runtime_spawn1({}, Position(1)))", "runtime_spawn1"),
+            "runtime_prepared_spawn": ("let plan : @ecs.SpawnPlan[@ecs.Single[Position]] = world.prepare_spawn()\n  ignore(plan.runtime_spawn({}, Single(Position(1))))", "runtime_spawn"),
+            "runtime_draft_spawn": ("ignore(world.spawn_draft().runtime_spawn({}))", "runtime_spawn"),
+            "runtime_delete": ("ignore(@ecs.commands(world).spawn(()).runtime_delete({}))", "runtime_delete"),
+            "runtime_destroy": ("@ecs.commands(world).spawn(()).runtime_destroy({})", "runtime_destroy"),
+            "runtime_respawn": ("@ecs.commands(world).spawn(()).runtime_respawn({})", "runtime_respawn"),
             "old_row_callback": ("let query : @ecs.Query[@ecs.Single[Position]] = world.query1()\n  query.for_each((_, _) => ())", "for_each"),
             "old_batch_traversal": ("let query : @ecs.Query[@ecs.Single[Position]] = world.query1()\n  query.for_each_batch(_ => ())", "for_each_batch"),
             "old_first_column_write": ("let query : @ecs.Query[(Position, Position)] = world.query()\n  query.for_each_batch_mut_a(_ => ())", "for_each_batch_mut_a"),
@@ -158,7 +171,7 @@ fn main {
     def test_internal_execution_packages_cannot_be_imported(self):
         manifest = self.consumer / "moon.pkg"
         original = manifest.read_text()
-        for package in ("ecs_access", "ecs_runtime", "state_runtime"):
+        for package in ("ecs_test", "state_runtime"):
             with self.subTest(package=package):
                 manifest.write_text(original + f'\nimport {{ "Milky2018/selene/internal/{package}" }}\n')
                 try:
@@ -174,12 +187,17 @@ fn main {
         original = manifest.read_text()
         manifest.write_text(original + '\nimport { "Milky2018/selene/state" }\n')
         try:
-            result = self.compile("try! @state.advance(world, on_exit=_ => (), on_enter=_ => ())", strict=False)
+            for source, symbol in (
+                ("try! @state.advance(world, on_exit=_ => (), on_enter=_ => ())", "advance"),
+                ("try! @state.runtime_advance({}, world, on_exit=_ => (), on_enter=_ => ())", "runtime_advance"),
+            ):
+                with self.subTest(symbol=symbol):
+                    result = self.compile(source, strict=False)
+                    output = result.stdout + result.stderr
+                    self.assertNotEqual(result.returncode, 0, output)
+                    self.assertIn(symbol + " not found", output)
         finally:
             manifest.write_text(original)
-        output = result.stdout + result.stderr
-        self.assertNotEqual(result.returncode, 0, output)
-        self.assertIn("advance not found", output)
 
     def test_deferred_commands_do_not_invalidate_ordinary_or_batch_iteration(self):
         result = self.run_program("""

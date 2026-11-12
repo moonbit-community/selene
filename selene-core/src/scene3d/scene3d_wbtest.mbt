@@ -438,7 +438,7 @@ test "instantiate_scene_instance installs animation components without autoplay"
     scene,
     @transform.Transform::default(),
   )
-  try! @ecs_runtime.run_schedule(@ecs.require_current_world(), _ => ())
+  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
   inspect(instance.animations.contains("idle"), content="true")
   inspect(
     (world.query() : @ecs.Query[@ecs.Single[@animation.AnimationPlayer]]).contains(
@@ -555,4 +555,75 @@ test "glTF accepts Float32 rounded rotations while rejecting actual shear" {
     fail("matrix fixture must be an array")
   }
   assert_true(parse_matrix_transform(values) is None)
+}
+
+///|
+test "canceled scene subtrees release their cloned meshes" {
+  let previous = @ecs.current_world()
+  defer (match previous {
+    Some(world) => @ecs.set_current_world(world)
+    None => @ecs.clear_current_world()
+  })
+  for renderer_count in [1, 2] {
+    let world = @ecs.World()
+    @ecs.set_current_world(world)
+    let mesh = @render3d.register_mesh_asset(
+      @render3d.triangle_mesh([@math.Vec3::zero()]),
+    )
+    let material = @render3d.register_material_asset(StandardMaterial3D())
+    let scene = @render3d.register_scene_path("wbtest://canceled-scene")
+    let skinned : SkinnedPrimitiveTemplate = {
+      base_positions: [@math.Vec3::zero()],
+      indices: None,
+      topology: TriangleList,
+      base_normals: [],
+      uv_sets: [],
+      colors: None,
+      tangents: None,
+      morph_targets: [],
+      morph_weights: [],
+      influences: [],
+    }
+    scene_templates.set(scene, {
+      ..SceneTemplate(),
+      roots: [0],
+      nodes: [
+        {
+          ..SceneNodeTemplate(),
+          renderers: Array::make(renderer_count, {
+            renderer: {
+              mesh,
+              material,
+              visible: true,
+              cast_shadows: true,
+              receive_shadows: true,
+            },
+            skinned: Some(skinned),
+          }),
+        },
+      ],
+    })
+    ignore(@render3d.take_dirty_mesh_assets())
+    ignore(@render3d.take_released_mesh_assets())
+    let parent = @ecs.commands(world).spawn(())
+    @ecs.commands(world).delete(parent)
+    let instance = instantiate_scene_instance(
+      scene,
+      @transform.Transform::identity(),
+      parent~,
+    )
+    let cloned = @render3d.take_dirty_mesh_assets().map(pair => pair.0)
+    assert_eq(cloned.length(), renderer_count)
+    @ecs.run_schedule(world, _ => ())
+    assert_false(instance.root.is_valid_in(world))
+    let released = @render3d.take_released_mesh_assets()
+    for handle in cloned {
+      assert_true(released.contains(handle))
+      assert_true(@render3d.mesh_asset(handle) is None)
+    }
+    assert_true(@render3d.mesh_asset(mesh) is Some(_))
+    @render3d.release_mesh_asset(mesh)
+    @render3d.release_material_asset(material)
+    scene_templates.remove(scene)
+  }
 }

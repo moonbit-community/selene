@@ -29,5 +29,5 @@ import {
 formatter(ignore: [ "ecs.g.mbt", "physics.g.mbt", "world.g.mbt" ])
 
 import {
-  "Milky2018/selene/internal/ecs_runtime",
-}
+  "Milky2018/selene/internal/ecs_test",
+} for "wbtest"

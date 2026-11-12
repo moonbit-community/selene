@@ -14,7 +14,3 @@ import {
   "moonbitlang/core/cmp",
   "moonbitlang/core/string",
 }
-
-import {
-  "Milky2018/selene/internal/ecs_runtime",
-}

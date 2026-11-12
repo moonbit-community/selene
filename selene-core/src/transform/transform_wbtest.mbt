@@ -1,17 +1,17 @@
 ///|
 test "spatial propagation passes through nonspatial parents" {
   let world = @ecs.require_current_world()
-  let parent = @ecs_runtime.spawn1(
+  let parent = @ecs_test.spawn1(
     world,
     Spatial(Transform::from_xyz(10.0, 0.0, 0.0)),
   )
-  let container = @ecs_runtime.spawn(world, (), parent~)
-  let child = @ecs_runtime.spawn1(
+  let container = @ecs_test.spawn(world, (), parent~)
+  let child = @ecs_test.spawn1(
     world,
     Spatial(Transform::from_xyz(2.0, 0.0, 0.0)),
     parent=container,
   )
-  defer ignore(@ecs_runtime.delete(parent))
+  defer ignore(@ecs_test.delete(parent))
 
   let child_global = compute_global_transform(world~, child).unwrap()
   assert_eq(child_global.translation().x, 12.0)
@@ -23,21 +23,21 @@ test "spatial propagation passes through nonspatial parents" {
 ///|
 test "spatial propagation replaces the cached pose across despawn and respawn" {
   let world = @ecs.require_current_world()
-  let entity = @ecs_runtime.spawn1(
+  let entity = @ecs_test.spawn1(
     world,
     Spatial(Transform::from_xyz(1.0, 0.0, 0.0)),
   )
-  defer ignore(@ecs_runtime.delete(entity))
+  defer ignore(@ecs_test.delete(entity))
   transform_propagate_system(world~, 0.0)
   assert_eq(global_transform(world~, entity).unwrap().translation().x, 1.0)
   set_local_transform(world~, entity, Transform::from_xyz(2.0, 0.0, 0.0))
   transform_propagate_system(world~, 0.0)
   assert_eq(global_transform(world~, entity).unwrap().translation().x, 2.0)
-  @ecs_runtime.destroy(entity)
-  try! @ecs_runtime.run_schedule(world, _ => ())
+  @ecs_test.destroy(entity)
+  try! @ecs.run_schedule(world, _ => ())
   assert_true(global_transform(world~, entity) is None)
-  @ecs_runtime.respawn(entity)
-  try! @ecs_runtime.run_schedule(world, _ => ())
+  @ecs.commands(@ecs.require_current_world()).respawn(entity)
+  try! @ecs.run_schedule(world, _ => ())
   transform_propagate_system(world~, 0.0)
   assert_eq(global_transform(world~, entity).unwrap().translation().x, 2.0)
 }

@@ -64,8 +64,8 @@ test "static setters request changes only in the scheduled World" {
   advance(first)
   advance(second)
 
-  @ecs_runtime.run_schedule(first, _ => Phase::set(Playing))
-  @ecs_runtime.run_schedule(second, _ => Phase::set(Paused))
+  @ecs.run_schedule(first, _ => Phase::set(Playing))
+  @ecs.run_schedule(second, _ => Phase::set(Paused))
   assert_eq(@ecs.require_current_world().id(), outer.id())
   assert_eq(phase(first), Menu)
   assert_eq(phase(second), Menu)
@@ -176,7 +176,7 @@ test "transition execution rejects reentry and query-time execution" {
   })
   assert_true(rejected.val)
   let store : @ecs.Query[@ecs.Single[QueryMarker]] = world.query()
-  ignore(@ecs_runtime.spawn1(world, QueryMarker::{ }))
+  ignore(@ecs_test.spawn1(world, QueryMarker::{ }))
   store.batches(_ => {
     try advance(world) catch {
       ActiveQuery => ()

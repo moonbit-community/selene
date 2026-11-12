@@ -31,7 +31,7 @@ test "schedule rejects reentry and leaves the nested batch queued" {
   commands.add(_ => {
     commands.add(_ => calls.push(2))
     rejected.val = try {
-      @ecs_runtime.run_schedule(world, _ => calls.push(99))
+      @ecs.run_schedule(world, _ => calls.push(99))
       false
     } catch {
       ReentrantSchedule => true
@@ -40,10 +40,10 @@ test "schedule rejects reentry and leaves the nested batch queued" {
     calls.push(1)
   })
 
-  @ecs_runtime.run_schedule(world, _ => ())
+  @ecs.run_schedule(world, _ => ())
   assert_true(rejected.val)
   assert_eq(calls, [1])
-  @ecs_runtime.run_schedule(world, _ => ())
+  @ecs.run_schedule(world, _ => ())
   assert_eq(calls, [1, 2])
 }
 
@@ -51,14 +51,14 @@ test "schedule rejects reentry and leaves the nested batch queued" {
 test "schedule rejects query batch callbacks" {
   let world = @ecs.World()
   let storage : @ecs.Query[@ecs.Single[CommandValue]] = world.query()
-  ignore(@ecs_runtime.spawn1(world, CommandValue(42)))
+  ignore(@ecs_test.spawn1(world, CommandValue(42)))
   let commands = @ecs.commands(world)
   let calls = []
   let rejected = []
   commands.add(_ => calls.push(1))
 
   storage.batches(_ => {
-    try @ecs_runtime.run_schedule(world, _ => calls.push(99)) catch {
+    try @ecs.run_schedule(world, _ => calls.push(99)) catch {
       ActiveQuery => rejected.push(true)
       _ => rejected.push(false)
     } noraise {
@@ -70,7 +70,7 @@ test "schedule rejects query batch callbacks" {
     @ecs.Query[
       (CommandValue, CommandValue, CommandValue, CommandValue, CommandValue),
     ]).batches(_ => {
-    try @ecs_runtime.run_schedule(world, _ => calls.push(99)) catch {
+    try @ecs.run_schedule(world, _ => calls.push(99)) catch {
       ActiveQuery => rejected.push(true)
       _ => rejected.push(false)
     } noraise {
@@ -79,7 +79,7 @@ test "schedule rejects query batch callbacks" {
   })
   assert_eq(rejected, [true, true])
   assert_true(calls.is_empty())
-  @ecs_runtime.run_schedule(world, _ => ())
+  @ecs.run_schedule(world, _ => ())
   assert_eq(calls, [1])
 }
 

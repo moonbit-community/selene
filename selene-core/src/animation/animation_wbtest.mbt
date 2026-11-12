@@ -96,7 +96,7 @@ test "texture atlas index field resolves as a discrete value instead of a weight
     let layout = @sprite.register_texture_atlas_layout(
       @sprite.TextureAtlasLayout::from_grid(Vec2(16.0, 16.0), 6, 1),
     )
-    let entity = @ecs_runtime.spawn1(
+    let entity = @ecs_test.spawn1(
       @ecs.require_current_world(),
       @sprite.Sprite::from_atlas_image(image, TextureAtlas(layout, index=1)),
     )
@@ -139,11 +139,11 @@ test "animation graph mask groups exclude masked targets during apply" {
     let masked_node = masked_graph.add_clip_with_mask(masked_clip, [1])
     masked_graph.add_target_to_mask_group(target_id, 1)
     let masked_player = AnimationPlayer()
-    let player_entity = @ecs_runtime.spawn(
+    let player_entity = @ecs_test.spawn(
       world,
       (masked_player, register_animation_graph_asset(masked_graph)),
     )
-    let target_entity = @ecs_runtime.spawn(
+    let target_entity = @ecs_test.spawn(
       world,
       (
         @transform.Spatial(@transform.Transform::identity()),
@@ -193,7 +193,7 @@ test "animation event descriptors dispatch typed events to readers and observers
     let clip_handle = register_animation_clip_asset(clip)
     let (graph, nodes) = AnimationGraph::from_clips([clip_handle])
     let player = AnimationPlayer()
-    let player_entity = @ecs_runtime.spawn(
+    let player_entity = @ecs_test.spawn(
       @ecs.require_current_world(),
       (player, register_animation_graph_asset(graph)),
     )
@@ -231,11 +231,11 @@ test "animation asset queues report dirty and released handles" {
 ///|
 test "skinning uses the joint world affine for positions and normals" {
   with_animation_test_world(fn(world) raise {
-    let parent = @ecs_runtime.spawn1(
+    let parent = @ecs_test.spawn1(
       world,
       @transform.Spatial(@transform.Transform::from_scale(Vec3(2.0, 1.0, 1.0))),
     )
-    let joint = @ecs_runtime.spawn1(
+    let joint = @ecs_test.spawn1(
       world,
       @transform.Spatial(
         @transform.Transform::from_rotation(
@@ -245,7 +245,7 @@ test "skinning uses the joint world affine for positions and normals" {
       parent~,
     )
     let point = @math.Vec3(3.0, 5.0, 0.0)
-    let target = @ecs_runtime.spawn(world, ())
+    let target = @ecs_test.spawn(world, ())
     let mesh = @render3d.register_mesh_asset(@render3d.triangle_mesh([point]))
     defer @render3d.release_mesh_asset(mesh)
     bind_skinned_mesh(target, {
@@ -325,11 +325,11 @@ test "linear rotation sampling follows the shortest arc at constant speed" {
 test "skinning blends four affine joints and ignores inactive influences" {
   with_animation_test_world(fn(world) raise {
     let point = @math.Vec3(3.0, 5.0, 7.0)
-    let target = @ecs_runtime.spawn(world, ())
+    let target = @ecs_test.spawn(world, ())
     let mesh = @render3d.register_mesh_asset(@render3d.triangle_mesh([point]))
     defer @render3d.release_mesh_asset(mesh)
     let joints = Array::makei(4, i => {
-      @ecs_runtime.spawn1(
+      @ecs_test.spawn1(
         world,
         @transform.Spatial({
           translation: Vec3(i.to_double(), 2.0, -1.0),
@@ -433,9 +433,7 @@ test "multiple animation fades are removed in one transition update" {
         ),
       )
     }
-    ignore(
-      @ecs_runtime.spawn(@ecs.require_current_world(), (player, transitions)),
-    )
+    ignore(@ecs_test.spawn(@ecs.require_current_world(), (player, transitions)))
     animation_transition_system(world.query(), 0.2)
     assert_eq(player.playing_animations().length(), 1)
     let main = transitions.get_main_animation().unwrap()

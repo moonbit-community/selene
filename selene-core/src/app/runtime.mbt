@@ -25,7 +25,7 @@ pub(all) struct RuntimePlan {
 
 ///|
 fn setup_runtime_world(app : App) -> Unit {
-  @ecs_runtime.require_idle() catch {
+  @ecs.check_schedule_idle() catch {
     ActiveQuery => abort("App execution is forbidden inside a query batch")
     ReentrantSchedule => abort("App execution is not reentrant")
   }
@@ -161,7 +161,7 @@ fn build_runtime_plan(
 fn startup_runtime(plan : RuntimePlan) -> Unit {
   @ecs.set_current_world(plan.world)
   @time.set_delta(0.0)
-  try! @ecs_runtime.run_schedule(plan.world, world => {
+  try! @ecs.run_schedule(plan.world, world => {
     run_stage(plan.startup_systems, world)
   })
   for validate in plan.state_validations {
@@ -184,7 +184,7 @@ fn run_fixed_step_once(plan : RuntimePlan) -> Unit {
   plan.world.advance_fixed_step()
   @time.use_fixed_delta(plan.fixed_dt)
   let fixed_delta = @time.delta()
-  try! @ecs_runtime.run_schedule(plan.world, world => {
+  try! @ecs.run_schedule(plan.world, world => {
     @event.event_fixed_update_system(fixed_delta)
     run_stage(plan.fixed_first, world)
     run_stage(plan.fixed_pre, world)
@@ -218,7 +218,7 @@ fn run_game_frame(
   @inputs.apply_input_snapshot(injected_or_polled)
   accumulator.val += @time.delta()
 
-  try! @ecs_runtime.run_schedule(plan.world, world => {
+  try! @ecs.run_schedule(plan.world, world => {
     @event.event_frame_update_system(@time.delta())
     run_stage(plan.frame_first, world)
     run_stage(plan.frame_pre, world)
@@ -237,7 +237,7 @@ fn run_game_frame(
 
   @time.use_frame_delta()
   let delta = @time.delta()
-  try! @ecs_runtime.run_schedule(plan.world, world => {
+  try! @ecs.run_schedule(plan.world, world => {
     run_stage(plan.frame_update, world)
     run_stage(plan.frame_post, world)
     @event.event_observer_dispatch_system(delta)

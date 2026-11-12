@@ -8,12 +8,12 @@ test "commands reserve and flush entities in the queue's world" {
   let first = @ecs.World()
   let second = @ecs.World()
   @ecs.set_current_world(first)
-  let active = @ecs_runtime.spawn(first, ())
+  let active = @ecs_test.spawn(first, ())
   let commands = @ecs.commands(second)
   let components : @ecs.Query[@ecs.Single[Position]] = second.query()
   let entity = commands.spawn1(Position(30))
   assert_eq(components.get(entity).map(value => value.0), None)
-  @ecs_runtime.run_schedule(second, _ => ())
+  @ecs.run_schedule(second, _ => ())
   assert_eq(@ecs.require_current_world().id(), first.id())
   assert_true(entity.belongs_to(second))
   assert_eq(components.get(entity).map(value => value.0), Some(Position(30)))
@@ -23,7 +23,7 @@ test "commands reserve and flush entities in the queue's world" {
   assert_true(entity.is_alive())
   @ecs.set_current_world(first)
   commands.despawn(entity)
-  @ecs_runtime.run_schedule(second, _ => ())
+  @ecs.run_schedule(second, _ => ())
   assert_true(active.is_alive())
   @ecs.set_current_world(second)
   assert_false(entity.is_alive())
@@ -55,7 +55,7 @@ test "deferred bundles initialize before later commands in the queue's world" {
   assert_false(alive(first))
   assert_eq(a.get(first).map(value => value.0), None)
   commands.add(world => world.set_component(first, Position(12)))
-  @ecs_runtime.run_schedule(world, _ => ())
+  @ecs.run_schedule(world, _ => ())
   assert_eq(@ecs.require_current_world().id(), active.id())
   assert_eq(a.get(first).map(value => value.0), Some(Position(12)))
   assert_eq(b.get(first).map(value => value.0), Some(Label("first")))
@@ -67,7 +67,7 @@ test "deferred bundles initialize before later commands in the queue's world" {
 }
 
 ///|
-test "permanent commands recycle a slot and skip canceled initialization" {
+test "permanent commands remove pending entities and recycle their slots" {
   let previous = @ecs.current_world()
   defer (match previous {
     Some(world) => @ecs.set_current_world(world)
@@ -78,16 +78,16 @@ test "permanent commands recycle a slot and skip canceled initialization" {
   let queue = @ecs.commands(world)
   let components : @ecs.Query[@ecs.Single[Position]] = world.query()
   let pending = queue.spawn1(Position(99))
-  assert_true(@ecs_runtime.delete(pending))
-  let entity = @ecs_runtime.spawn1(world, Position(10))
+  assert_true(@ecs_test.delete(pending))
+  let entity = @ecs_test.spawn1(world, Position(10))
   assert_eq(entity.slot_index(), pending.slot_index())
-  @ecs_runtime.run_schedule(world, _ => ())
+  @ecs.run_schedule(world, _ => ())
   assert_eq(components.get(entity).map(value => value.0), Some(Position(10)))
   queue.delete(entity)
-  @ecs_runtime.run_schedule(world, _ => ())
+  @ecs.run_schedule(world, _ => ())
   assert_false(entity.is_valid_in(world))
   assert_eq(components.get(entity).map(value => value.0), None)
-  assert_eq(@ecs_runtime.spawn(world, ()).slot_index(), entity.slot_index())
+  assert_eq(@ecs_test.spawn(world, ()).slot_index(), entity.slot_index())
 }
 
 ///|
@@ -107,25 +107,19 @@ test "deferred children link in spawn order and cancel if their parent is delete
   queue.delete(deleted)
   let canceled = queue.spawn((), parent=deleted)
   assert_eq(first.get_parent(), None)
-  @ecs_runtime.run_schedule(world, _ => ())
+  @ecs.run_schedule(world, _ => ())
   assert_eq(parent.get_children(), [first, second])
   assert_eq(first.get_parent(), Some(parent))
   assert_true(second.is_alive())
   assert_false(canceled.is_valid_in(world))
-  let recycled = @ecs_runtime.spawn(world, ())
+  let recycled = @ecs_test.spawn(world, ())
   assert_eq(recycled.slot_index(), canceled.slot_index())
   assert_eq(recycled.get_parent(), None)
 }
 
 ///|
-test "panic immediate spawn rejects a parent in another World" {
-  let parent = @ecs_runtime.spawn(World(), ())
-  ignore(@ecs_runtime.spawn(World(), (), parent~))
-}
-
-///|
 test "panic deferred spawn rejects a parent in another World" {
-  let parent = @ecs_runtime.spawn(World(), ())
+  let parent = @ecs_test.spawn(World(), ())
   ignore(@ecs.commands(World()).spawn((), parent~))
 }
 
@@ -137,13 +131,15 @@ test "despawning a newly initialized parent also suspends its pending child" {
   let parent = queue.spawn(())
   let child = queue.spawn1(Position(42), parent~)
   queue.despawn(parent)
-  @ecs_runtime.run_schedule(world, _ => ())
+  @ecs.run_schedule(world, _ => ())
   let alive = @ecs.alive_in_world(world)
   assert_false(alive(parent))
   assert_false(alive(child))
   assert_eq(values.get(child).map(value => value.0), Some(Position(42)))
 
-  @ecs_runtime.run_schedule(world, _ => @ecs_runtime.respawn(parent))
+  @ecs.run_schedule(world, _ => {
+    @ecs.commands(@ecs.require_current_world()).respawn(parent)
+  })
   assert_true(alive(parent))
   assert_true(alive(child))
   assert_eq(values.get(child).map(value => value.0), Some(Position(42)))
@@ -187,23 +183,23 @@ test "draft commands preserve pending parent order and later value writes" {
   assert_false(world.is_alive(parent))
   assert_false(world.is_alive(child))
   queue.add(world => world.set_component(child, Position(3)))
-  @ecs_runtime.run_schedule(other, _ => ())
+  @ecs.run_schedule(other, _ => ())
   assert_true(query.is_empty())
-  @ecs_runtime.run_schedule(world, _ => ())
+  @ecs.run_schedule(world, _ => ())
   assert_eq(query.get(child), Some(Single(Position(3))))
   assert_eq(world.get_parent(child), Some(parent))
   assert_eq(world.get_children(parent), [child])
   queue.despawn(parent)
   assert_true(world.is_alive(child))
-  @ecs_runtime.run_schedule(world, _ => ())
+  @ecs.run_schedule(world, _ => ())
   assert_false(world.is_alive(child))
   assert_true(query.contains(child))
   queue.respawn(parent)
-  @ecs_runtime.run_schedule(world, _ => ())
+  @ecs.run_schedule(world, _ => ())
   assert_true(world.is_alive(child))
   queue.delete(parent)
   assert_true(child.is_valid_in(world))
-  @ecs_runtime.run_schedule(world, _ => ())
+  @ecs.run_schedule(world, _ => ())
   assert_false(parent.is_valid_in(world))
   assert_false(child.is_valid_in(world))
   assert_true(query.is_empty())

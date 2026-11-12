@@ -6,5 +6,5 @@ import {
 formatter(ignore: [ "visibility.g.mbt", "layers.g.mbt" ])
 
 import {
-  "Milky2018/selene/internal/ecs_runtime",
+  "Milky2018/selene/internal/ecs_test",
 } for "test"

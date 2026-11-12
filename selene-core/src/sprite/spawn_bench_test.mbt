@@ -29,14 +29,13 @@ fn spawn_sprite_population(
           draft.add(@visibility.Visibility::Visible)
           draft.add(anchor)
         }
-        ignore(@ecs_runtime.spawn_draft(draft))
+        ignore(@ecs.commands(world).spawn_draft(draft))
       }
     Direct =>
       if extra_columns {
         for _ in 0..<size {
           ignore(
-            @ecs_runtime.spawn(
-              world,
+            @ecs.commands(world).spawn(
               (
                 sprite,
                 make_spatial(),
@@ -48,7 +47,7 @@ fn spawn_sprite_population(
         }
       } else {
         for _ in 0..<size {
-          ignore(@ecs_runtime.spawn(world, (sprite, make_spatial())))
+          ignore(@ecs.commands(world).spawn((sprite, make_spatial())))
         }
       }
     Prepared =>
@@ -63,7 +62,7 @@ fn spawn_sprite_population(
         ] = world.prepare_spawn()
         for _ in 0..<size {
           ignore(
-            @ecs_runtime.spawn_prepared(
+            @ecs.commands(world).spawn_prepared(
               plan,
               (
                 sprite,
@@ -77,10 +76,13 @@ fn spawn_sprite_population(
       } else {
         let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = world.prepare_spawn()
         for _ in 0..<size {
-          ignore(@ecs_runtime.spawn_prepared(plan, (sprite, make_spatial())))
+          ignore(
+            @ecs.commands(world).spawn_prepared(plan, (sprite, make_spatial())),
+          )
         }
       }
   }
+  try! @ecs.run_schedule(world, _ => ())
   world
 }
 

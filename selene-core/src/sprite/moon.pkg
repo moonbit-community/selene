@@ -23,9 +23,9 @@ import {
 formatter(ignore: [ "anchor.g.mbt", "sprite.g.mbt" ])
 
 import {
-  "Milky2018/selene/internal/ecs_runtime",
-} for "wbtest"
+  "Milky2018/selene/internal/ecs_test",
+} for "test"
 
 import {
-  "Milky2018/selene/internal/ecs_runtime",
-} for "test"
+  "Milky2018/selene/internal/ecs_test",
+} for "wbtest"

@@ -10,7 +10,7 @@ test "a three-component query is constructed once per World" {
   @ecs.set_current_world(second)
   for (world, x) in [(first, 1.0), (second, 2.0)] {
     ignore(
-      @ecs_runtime.spawn(
+      @ecs_test.spawn(
         world,
         (
           @sprite.Sprite(),
@@ -46,7 +46,7 @@ test "a three-component query is constructed once per World" {
 ///|
 test "single-component query systems honor conditions and system set ordering" {
   let world = @ecs.World()
-  ignore(@ecs_runtime.spawn1(world, @sprite.Sprite()))
+  ignore(@ecs_test.spawn1(world, @sprite.Sprite()))
   let query_set = @app.SystemSet("query")
   let world_set = @app.SystemSet("world")
   let calls = []

@@ -6,7 +6,7 @@ fn ldtk_despawn_level(
 ) -> Unit {
   ldtk_pending_transformed_level_iids().remove(level_iid)
   ldtk_level_event_bus.trigger(Despawned(level_iid), Some(level_entity))
-  despawn_ldtk_tree_now(world~, level_entity)
+  despawn_ldtk_tree(world~, level_entity)
   ldtk_respawns().remove(level_entity)
 }
 
@@ -29,7 +29,7 @@ fn ldtk_force_world_respawn(
     if worldly.world_entity != world_entity {
       continue
     }
-    despawn_ldtk_tree_now(world~, entity)
+    despawn_ldtk_tree(world~, entity)
   }
 }
 
@@ -133,18 +133,15 @@ fn ldtk_entity_tile_image(
   event : LdtkEntitySpawn,
   tile : LdtkTilesetRect,
 ) -> @asset.ImageHandle? {
-  guard (world.get_component(event.world_entity) : LdtkWorldInstance?)
-    is Some(instance) else {
-    return None
-  }
+  guard event.world_entity.belongs_to(world) else { return None }
   if tile.tileset_uid is Some(uid) {
-    guard instance.project.tileset_by_uid(uid) is Some(tileset) else {
+    guard event.project.tileset_by_uid(uid) is Some(tileset) else {
       return None
     }
     guard tileset.rel_path is Some(path) else { return None }
-    return Some(@asset.load_image(instance.project.resolve_path(path)))
+    return Some(@asset.load_image(event.project.resolve_path(path)))
   }
-  ldtk_layer_tileset_image(instance.project, event.layer)
+  ldtk_layer_tileset_image(event.project, event.layer)
 }
 
 ///|
@@ -323,20 +320,6 @@ fn ldtk_level_offset(
     UseWorldTranslation(_) =>
       Vec2(level.world_x.to_double(), level.world_y.to_double())
   }
-}
-
-///|
-fn ldtk_level_zindex(
-  world~ : @ecs.World,
-  level_entity : @ecs.Entity,
-  settings : LdtkWorldSpawnSettings,
-) -> Int32 {
-  guard (world.get_component(level_entity) : LdtkLevelInstance?)
-    is Some(level_instance) else {
-    return settings.zindex
-  }
-  settings.zindex +
-  ldtk_level_order_key(level_instance.indices) * settings.level_z_step
 }
 
 ///|

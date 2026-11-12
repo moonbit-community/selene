@@ -1,7 +1,6 @@
 import {
   "moonbitlang/core/debug",
   "moonbitlang/core/set",
-  "Milky2018/selene/internal/ecs_access",
 }
 
 import {
@@ -9,9 +8,5 @@ import {
 } for "wbtest"
 
 import {
-  "Milky2018/selene/internal/ecs_runtime",
+  "Milky2018/selene/internal/ecs_test",
 } for "test"
-
-import {
-  "Milky2018/selene/internal/ecs_runtime",
-} for "wbtest"

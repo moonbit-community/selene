@@ -58,21 +58,6 @@ fn SpawnDraft::take_plan(self : SpawnDraft) -> SpawnPlan[Unit] {
 }
 
 ///|
-fn SpawnDraft::spawn(self : SpawnDraft, parent? : Entity) -> Entity {
-  self.take_plan().spawn((), parent?)
-}
-
-///|
-#doc(hidden)
-pub fn SpawnDraft::runtime_spawn(
-  self : SpawnDraft,
-  _access : @ecs_access.Access,
-  parent? : Entity,
-) -> Entity {
-  self.spawn(parent?)
-}
-
-///|
 /// Reserves an entity and queues this draft's complete layout in its World.
 pub fn Commands::spawn_draft(
   self : Commands,

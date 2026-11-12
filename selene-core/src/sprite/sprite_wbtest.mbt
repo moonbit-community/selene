@@ -19,7 +19,7 @@ fn spawn_test_camera(world~ : @ecs.World, viewport : @math.Rect) -> @ecs.Entity 
   camera_entity_draft.add(
     (Spatial(@transform.Transform::from_xyz(0.0, 0.0, 0.0)) : @transform.Spatial),
   )
-  let camera_entity = @ecs_runtime.spawn_draft(camera_entity_draft)
+  let camera_entity = @ecs_test.spawn_draft(camera_entity_draft)
   camera_entity
 }
 
@@ -41,7 +41,7 @@ fn spawn_color_sprite(
       Spatial(@transform.Transform::from_xyz(position.x, position.y, 0.0)) :
       @transform.Spatial),
   )
-  let entity = @ecs_runtime.spawn_draft(entity_draft)
+  let entity = @ecs_test.spawn_draft(entity_draft)
   entity
 }
 
@@ -96,7 +96,7 @@ test "sprite draw ties keep spawn order after swap-removal" {
     let retired = spawn_color_sprite(world~, Vec2(0.0, 0.0))
     let first = spawn_color_sprite(world~, Vec2(0.0, 0.0))
     let second = spawn_color_sprite(world~, Vec2(0.0, 0.0))
-    assert_true(@ecs_runtime.delete(retired))
+    assert_true(@ecs_test.delete(retired))
     @render2d.begin_frame2d_system(0.0)
     render_sprite_system(world~, 0.0)
     let commands = @render2d.get_screen_world_commands_with_depth()
@@ -112,11 +112,11 @@ test "sprite world transform preserves shear from its parent" {
   with_sprite_test_world(fn(world) raise {
     @window.configure_display(100.0, 100.0, 1.0)
     @render2d.begin_frame2d_system(0.0)
-    let parent = @ecs_runtime.spawn1(
+    let parent = @ecs_test.spawn1(
       world,
       @transform.Spatial(@transform.Transform::from_scale(Vec3(2.0, 1.0, 1.0))),
     )
-    let child = @ecs_runtime.spawn(
+    let child = @ecs_test.spawn(
       world,
       (
         Sprite(

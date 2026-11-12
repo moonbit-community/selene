@@ -1,6 +1,6 @@
 ///|
 fn cleanup_layout_test_entity(entity : @ecs.Entity) -> Unit {
-  ignore(@ecs_runtime.delete(entity))
+  ignore(@ecs_test.delete(entity))
 }
 
 ///|
@@ -80,7 +80,7 @@ test "ui wrapped text contributes lines to auto height" {
   entity_draft.add((Text("hello world") : Text))
   entity_draft.add((TextFont(size=16.0) : TextFont))
   entity_draft.add((TextLayout(wrap=WordWrap) : TextLayout))
-  let entity = @ecs_runtime.spawn_draft(entity_draft)
+  let entity = @ecs_test.spawn_draft(entity_draft)
 
   let measured = measure_node(
     world~,
@@ -135,7 +135,7 @@ test "ui layout uses wrapped text height in the computed node" {
   entity_draft.add((Text("hello world") : Text))
   entity_draft.add((TextFont(size=16.0) : TextFont))
   entity_draft.add((TextLayout(wrap=WordWrap) : TextLayout))
-  let entity = @ecs_runtime.spawn_draft(entity_draft)
+  let entity = @ecs_test.spawn_draft(entity_draft)
 
   ui_layout_system(world~, 0.0)
 
@@ -260,7 +260,7 @@ test "ui nodes map style-only grid and flex fields into chicle style" {
 ///|
 test "ui layout uses overflow clip margins from the requested visual box" {
   let world = @ecs.require_current_world()
-  let entity = @ecs_runtime.spawn1(
+  let entity = @ecs_test.spawn1(
     world,
     Node::absolute(
       Vec2(10.0, 20.0),
@@ -287,7 +287,7 @@ test "ui layout uses overflow clip margins from the requested visual box" {
 ///|
 test "ui layout projects nested border and padding offsets exactly once" {
   let world = @ecs.require_current_world()
-  let parent = @ecs_runtime.spawn1(
+  let parent = @ecs_test.spawn1(
     @ecs.require_current_world(),
     Node::absolute(
       Vec2(10.0, 20.0),
@@ -296,7 +296,7 @@ test "ui layout projects nested border and padding offsets exactly once" {
       border=UiRectValues::all(2.0),
     ),
   )
-  let child = @ecs_runtime.spawn1(
+  let child = @ecs_test.spawn1(
     @ecs.require_current_world(),
     Node(
       width=Val::px(40.0),
@@ -306,7 +306,7 @@ test "ui layout projects nested border and padding offsets exactly once" {
     ),
     parent~,
   )
-  let grandchild = @ecs_runtime.spawn1(
+  let grandchild = @ecs_test.spawn1(
     @ecs.require_current_world(),
     Node(width=Val::px(10.0), height=Val::px(10.0)),
     parent=child,
@@ -382,14 +382,14 @@ test "ui target camera layouts use the camera viewport as screen-space origin" {
   camera_draft.add(
     (Spatial(@transform.Transform::default()) : @transform.Spatial),
   )
-  let camera = @ecs_runtime.spawn_draft(camera_draft)
+  let camera = @ecs_test.spawn_draft(camera_draft)
 
   let entity_draft = @ecs.require_current_world().spawn_draft()
   entity_draft.add(
     (Node::absolute(Vec2(4.0, 6.0), size=Vec2(20.0, 10.0)) : Node),
   )
   entity_draft.add((UiTargetCamera(camera) : UiTargetCamera))
-  let entity = @ecs_runtime.spawn_draft(entity_draft)
+  let entity = @ecs_test.spawn_draft(entity_draft)
 
   ui_layout_system(world~, 0.0)
 
@@ -399,17 +399,17 @@ test "ui target camera layouts use the camera viewport as screen-space origin" {
   inspect(global.target_camera == Some(camera), content="true")
 
   cleanup_layout_test_entity(entity)
-  ignore(@ecs_runtime.delete(camera))
+  ignore(@ecs_test.delete(camera))
 }
 
 ///|
 test "ui layout clamps scroll positions to overflowing content" {
   let world = @ecs.require_current_world()
-  let parent = @ecs_runtime.spawn1(
+  let parent = @ecs_test.spawn1(
     @ecs.require_current_world(),
     Node::absolute(Vec2(0.0, 0.0), size=Vec2(100.0, 100.0), overflow_y=Scroll),
   )
-  let child = @ecs_runtime.spawn1(
+  let child = @ecs_test.spawn1(
     @ecs.require_current_world(),
     Node(width=Val::px(100.0), height=Val::px(300.0), flex_shrink=0.0),
     parent~,
@@ -473,7 +473,7 @@ test "ui layout clamps scroll positions to overflowing content" {
 ///|
 test "ui scrolling preserves nested border and padding offsets" {
   let world = @ecs.require_current_world()
-  let parent = @ecs_runtime.spawn1(
+  let parent = @ecs_test.spawn1(
     @ecs.require_current_world(),
     Node::absolute(
       Vec2(10.0, 20.0),
@@ -483,7 +483,7 @@ test "ui scrolling preserves nested border and padding offsets" {
       overflow_y=Scroll,
     ),
   )
-  let child = @ecs_runtime.spawn1(
+  let child = @ecs_test.spawn1(
     @ecs.require_current_world(),
     Node(width=Val::px(84.0), height=Val::px(300.0), flex_shrink=0.0),
     parent~,
@@ -500,7 +500,7 @@ test "ui scrolling preserves nested border and padding offsets" {
 ///|
 test "ui override clip ignores inherited clipping rectangles" {
   let world = @ecs.require_current_world()
-  let parent = @ecs_runtime.spawn1(
+  let parent = @ecs_test.spawn1(
     @ecs.require_current_world(),
     Node::absolute(
       Vec2(0.0, 0.0),
@@ -509,7 +509,7 @@ test "ui override clip ignores inherited clipping rectangles" {
       overflow_y=Hidden,
     ),
   )
-  let child = @ecs_runtime.spawn(
+  let child = @ecs_test.spawn(
     @ecs.require_current_world(),
     (Node::absolute(Vec2(90.0, 20.0), size=Vec2(80.0, 40.0)), OverrideClip()),
     parent~,

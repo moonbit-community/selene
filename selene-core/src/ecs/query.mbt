@@ -68,11 +68,11 @@ fn[T] Query::for_each_table(
   visit : (Array[Entity], Int32, QueryColumn[T]) -> Unit,
 ) -> Unit {
   self.refresh()
-  @ecs_access.enter_query()
+  enter_query()
   self.storage.active_queries += 1
   defer {
     self.storage.active_queries -= 1
-    @ecs_access.leave_query()
+    leave_query()
   }
   for (id, column) in self.matches {
     let entities = self.storage.tables[id].entities

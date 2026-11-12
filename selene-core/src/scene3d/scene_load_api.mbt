@@ -124,26 +124,26 @@ pub fn instantiate_scene_instance(
     draft.add(@animation.AnimationTransitions())
   }
   let root = @ecs.commands(world).spawn_draft(draft, parent?)
+  let node_entities : Array[@ecs.Entity?] = Array::make(
+    template.nodes.length(),
+    None,
+  )
+  let pending_skin_bindings : Array[PendingSkinBinding] = []
+  for root_order, node_index in template.roots {
+    instantiate_scene_node(
+      template,
+      node_index,
+      root,
+      root,
+      node_entities,
+      pending_skin_bindings,
+      parts,
+      "root\{root_order}",
+      0,
+    )
+  }
   @ecs.commands(world).add(_ => {
     guard root.is_valid_in(world) else { return }
-    let node_entities : Array[@ecs.Entity?] = Array::make(
-      template.nodes.length(),
-      None,
-    )
-    let pending_skin_bindings : Array[PendingSkinBinding] = []
-    for root_order, node_index in template.roots {
-      instantiate_scene_node(
-        template,
-        node_index,
-        root,
-        root,
-        node_entities,
-        pending_skin_bindings,
-        parts,
-        "root\{root_order}",
-        0,
-      )
-    }
     resolve_scene_skin_bindings(template, node_entities, pending_skin_bindings)
   })
   { root, parts, animations: animation_nodes, }

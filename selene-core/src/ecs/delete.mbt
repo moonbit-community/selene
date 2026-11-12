@@ -32,12 +32,3 @@ fn Entity::delete(self : Entity) -> Bool {
   }
   true
 }
-
-///|
-#doc(hidden)
-pub fn Entity::runtime_delete(
-  self : Entity,
-  _access : @ecs_access.Access,
-) -> Bool {
-  self.delete()
-}

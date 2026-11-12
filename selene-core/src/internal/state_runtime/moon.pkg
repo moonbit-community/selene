@@ -1,5 +1,3 @@
 import {
   "Milky2018/selene/ecs",
-  "Milky2018/selene/state",
-  "Milky2018/selene/internal/ecs_access",
 }
