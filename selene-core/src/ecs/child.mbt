@@ -79,3 +79,32 @@ pub fn get_roots() -> Iter[Entity] {
     slot.parent is None
   })
 }
+
+///|
+pub fn World::get_parent(self : World, child : Entity) -> Entity? {
+  guard child.belongs_to(self) else { None }
+  guard entity_store(world=self).archetypes.slot(child) is Some(slot) else {
+    None
+  }
+  slot.parent
+}
+
+///|
+pub fn World::get_children(self : World, parent : Entity) -> Array[Entity] {
+  guard parent.belongs_to(self) else { [] }
+  guard entity_store(world=self).archetypes.slot(parent) is Some(slot) else {
+    []
+  }
+  slot.children.map_or([], children => children.copy())
+}
+
+///|
+pub fn World::get_roots(self : World) -> Iter[Entity] {
+  let store = entity_store(world=self)
+  store.all_entities
+  .iter()
+  .filter(entity => {
+    guard store.is_alive(entity) else { false }
+    store.archetypes.slot(entity).unwrap().parent is None
+  })
+}

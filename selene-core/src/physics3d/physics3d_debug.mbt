@@ -8,11 +8,14 @@ priv struct ColliderWireSegment3D {
 let collider_wire_cache : Map[String, Array[ColliderWireSegment3D]] = Map([])
 
 ///|
-pub fn debug_colliders_system(_delta : Double) -> Unit {
-  for entity, collider in colliders() {
+pub fn debug_colliders_system(world~ : @ecs.World, _delta : Double) -> Unit {
+  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
+  for entity, Single(collider) in query_collider {
     guard entity.is_alive() else { continue }
-    guard @transform.global_transform(entity) is Some(global) else { continue }
-    let color = debug_collider_color(entity)
+    guard @transform.global_transform(world~, entity) is Some(global) else {
+      continue
+    }
+    let color = debug_collider_color(world~, entity)
     for segment in collider_wire_segments(collider) {
       @render3d_pipeline.push_line3d({
         start: global.transform_point(segment.start),
@@ -24,13 +27,17 @@ pub fn debug_colliders_system(_delta : Double) -> Unit {
 }
 
 ///|
-fn debug_collider_color(entity : @ecs.Entity) -> @render.Color {
+fn debug_collider_color(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> @render.Color {
+  let query_sensor : @ecs.Query[@ecs.Single[Sensor]] = world.query()
   if !debug_collider_enabled(entity) {
     debug_disabled_color()
-  } else if sensors().contains(entity) {
+  } else if query_sensor.contains(entity) {
     debug_sensor_color()
   } else {
-    match rigid_bodies().get(entity) {
+    match (world.get_component(entity) : RigidBody?) {
       Some(Dynamic) => debug_dynamic_color()
       Some(Fixed) => debug_fixed_color()
       Some(KinematicPositionBased) | Some(KinematicVelocityBased) =>

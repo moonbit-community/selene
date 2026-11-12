@@ -996,11 +996,6 @@ fn ui_model_world_store() -> UiModelWorldStore {
 }
 
 ///|
-pub fn nodes() -> @ecs.ComponentStore[Node] {
-  @ecs.components()
-}
-
-///|
 priv struct UiGeometry {
   computed : ComputedUiNode
   global : GlobalUiNode
@@ -1022,28 +1017,8 @@ pub fn global_ui_node(entity : @ecs.Entity) -> GlobalUiNode? {
 }
 
 ///|
-pub fn ui_target_cameras() -> @ecs.ComponentStore[UiTargetCamera] {
-  @ecs.components()
-}
-
-///|
 fn calculated_clips() -> @ecs.EntityTable[CalculatedClip] {
   ui_model_world_store().calculated_clips
-}
-
-///|
-pub fn layout_configs() -> @ecs.ComponentStore[LayoutConfig] {
-  @ecs.components()
-}
-
-///|
-pub fn z_indexes() -> @ecs.ComponentStore[ZIndex] {
-  @ecs.components()
-}
-
-///|
-pub fn global_zindexes() -> @ecs.ComponentStore[GlobalZIndex] {
-  @ecs.components()
 }
 
 ///|
@@ -1052,35 +1027,8 @@ fn scroll_positions() -> @ecs.EntityTable[ScrollPosition] {
 }
 
 ///|
-pub fn tab_indexes() -> @ecs.ComponentStore[TabIndex] {
-  @ecs.components()
-}
-
-///|
-pub fn focus_policies() -> @ecs.ComponentStore[FocusPolicy] {
-  @ecs.components()
-}
-
-///|
-pub fn focusables() -> @ecs.ComponentStore[Focusable] {
-  @ecs.components()
-}
-
-///|
 fn focuseds() -> @ecs.EntityTable[Focused] {
   ui_model_world_store().focuseds
-}
-
-///|
-pub fn override_clips() -> @ecs.ComponentStore[OverrideClip] {
-  @ecs.components()
-}
-
-///|
-pub fn relative_cursor_positions() -> @ecs.ComponentStore[
-  RelativeCursorPosition,
-] {
-  @ecs.components()
 }
 
 ///|
@@ -1094,24 +1042,32 @@ fn ui_stack() -> Array[@ecs.Entity] {
 }
 
 ///|
-fn global_zindex_value(entity : @ecs.Entity) -> Int32 {
-  global_zindexes().get(entity).map(fn(value) { value.value }).unwrap_or(0)
+fn global_zindex_value(world~ : @ecs.World, entity : @ecs.Entity) -> Int32 {
+  (world.get_component(entity) : GlobalZIndex?)
+  .map(fn(value) { value.value })
+  .unwrap_or(0)
 }
 
 ///|
-fn zindex_value(entity : @ecs.Entity) -> Int32 {
-  z_indexes().get(entity).map(fn(value) { value.value }).unwrap_or(0)
+fn zindex_value(world~ : @ecs.World, entity : @ecs.Entity) -> Int32 {
+  (world.get_component(entity) : ZIndex?)
+  .map(fn(value) { value.value })
+  .unwrap_or(0)
 }
 
 ///|
-fn compare_ui_root_order(lhs : @ecs.Entity, rhs : @ecs.Entity) -> Int32 {
-  let lg = global_zindex_value(lhs)
-  let rg = global_zindex_value(rhs)
+fn compare_ui_root_order(
+  world~ : @ecs.World,
+  lhs : @ecs.Entity,
+  rhs : @ecs.Entity,
+) -> Int32 {
+  let lg = global_zindex_value(world~, lhs)
+  let rg = global_zindex_value(world~, rhs)
   if lg != rg {
     return lg - rg
   }
-  let lz = zindex_value(lhs)
-  let rz = zindex_value(rhs)
+  let lz = zindex_value(world~, lhs)
+  let rz = zindex_value(world~, rhs)
   if lz != rz {
     lz - rz
   } else {
@@ -1120,8 +1076,9 @@ fn compare_ui_root_order(lhs : @ecs.Entity, rhs : @ecs.Entity) -> Int32 {
 }
 
 ///|
-pub fn is_ui_entity(entity : @ecs.Entity) -> Bool {
-  nodes().contains(entity)
+pub fn is_ui_entity(world~ : @ecs.World, entity : @ecs.Entity) -> Bool {
+  let query_node : @ecs.Query[@ecs.Single[Node]] = world.query()
+  query_node.contains(entity)
 }
 
 ///|
@@ -1130,13 +1087,16 @@ fn full_screen_ui_viewport() -> @math.Rect {
 }
 
 ///|
-pub fn ui_layout_space(target_camera : @ecs.Entity?) -> UiLayoutSpace {
+pub fn ui_layout_space(
+  world~ : @ecs.World,
+  target_camera : @ecs.Entity?,
+) -> UiLayoutSpace {
   match target_camera {
     Some(target_camera) => {
-      if !(@transform.global_transform(target_camera) is Some(_)) {
+      if !(@transform.global_transform(world~, target_camera) is Some(_)) {
         return UiLayoutSpace(full_screen_ui_viewport())
       }
-      for view in @camera.active_camera2d_views() {
+      for view in @camera.active_camera2d_views(world~) {
         if view.entity == target_camera {
           return UiLayoutSpace(view.viewport, target_camera=Some(view.entity))
         }
@@ -1186,25 +1146,27 @@ pub fn to_screen_rect(rect : @math.Rect, space : UiLayoutSpace) -> @math.Rect {
 }
 
 ///|
-fn top_level_ui_nodes() -> Array[@ecs.Entity] {
+fn top_level_ui_nodes(world~ : @ecs.World) -> Array[@ecs.Entity] {
+  let query_node : @ecs.Query[@ecs.Single[Node]] = world.query()
   let roots : Array[@ecs.Entity] = []
-  for entity, node in nodes() {
+  for entity, Single(node) in query_node {
     guard entity.is_alive() else { continue }
     guard node.active && node.display != None else { continue }
     match entity.get_parent() {
-      Some(parent) => if !nodes().contains(parent) { roots.push(entity) }
+      Some(parent) => if !query_node.contains(parent) { roots.push(entity) }
       None => roots.push(entity)
     }
   }
-  roots.sort_by(compare_ui_root_order)
+  roots.sort_by((a, b) => compare_ui_root_order(world~, a, b))
   roots
 }
 
 ///|
-fn ui_children(entity : @ecs.Entity) -> Array[@ecs.Entity] {
+fn ui_children(world~ : @ecs.World, entity : @ecs.Entity) -> Array[@ecs.Entity] {
+  let query_node : @ecs.Query[@ecs.Single[Node]] = world.query()
   let children : Array[@ecs.Entity] = []
   for child in entity.get_children() {
-    if child.is_alive() && nodes().contains(child) {
+    if child.is_alive() && query_node.contains(child) {
       children.push(child)
     }
   }
@@ -1212,22 +1174,28 @@ fn ui_children(entity : @ecs.Entity) -> Array[@ecs.Entity] {
 }
 
 ///|
-fn is_stacked_ui_entity(entity : @ecs.Entity) -> Bool {
+fn is_stacked_ui_entity(world~ : @ecs.World, entity : @ecs.Entity) -> Bool {
   guard entity.is_alive() &&
     ui_geometry().contains(entity) &&
-    nodes().get(entity) is Some(node) else {
+    (world.get_component(entity) : Node?) is Some(node) else {
     return false
   }
   node.active && node.display != None && @visibility.is_visible(entity)
 }
 
 ///|
-fn compare_ui_stack_root(lhs : @ecs.Entity, rhs : @ecs.Entity) -> Int32 {
-  let global_order = global_zindex_value(lhs).compare(global_zindex_value(rhs))
+fn compare_ui_stack_root(
+  world~ : @ecs.World,
+  lhs : @ecs.Entity,
+  rhs : @ecs.Entity,
+) -> Int32 {
+  let global_order = global_zindex_value(world~, lhs).compare(
+    global_zindex_value(world~, rhs),
+  )
   if global_order != 0 {
     return global_order
   }
-  let local_order = zindex_value(lhs).compare(zindex_value(rhs))
+  let local_order = zindex_value(world~, lhs).compare(zindex_value(world~, rhs))
   if local_order != 0 {
     return local_order
   }
@@ -1243,8 +1211,12 @@ fn compare_ui_stack_root(lhs : @ecs.Entity, rhs : @ecs.Entity) -> Int32 {
 }
 
 ///|
-fn compare_ui_stack_sibling(lhs : @ecs.Entity, rhs : @ecs.Entity) -> Int32 {
-  let local_order = zindex_value(lhs).compare(zindex_value(rhs))
+fn compare_ui_stack_sibling(
+  world~ : @ecs.World,
+  lhs : @ecs.Entity,
+  rhs : @ecs.Entity,
+) -> Int32 {
+  let local_order = zindex_value(world~, lhs).compare(zindex_value(world~, rhs))
   if local_order != 0 {
     return local_order
   }
@@ -1260,33 +1232,34 @@ fn compare_ui_stack_sibling(lhs : @ecs.Entity, rhs : @ecs.Entity) -> Int32 {
 }
 
 ///|
-fn rebuild_ui_stack() -> Unit {
+fn rebuild_ui_stack(world~ : @ecs.World) -> Unit {
+  let query_global_z_index : @ecs.Query[@ecs.Single[GlobalZIndex]] = world.query()
   let ordered = ui_stack()
   ordered.clear()
   let roots : Array[@ecs.Entity] = []
   for entity, _ in ui_geometry() {
-    guard is_stacked_ui_entity(entity) else { continue }
+    guard is_stacked_ui_entity(world~, entity) else { continue }
     let hierarchy_root = match entity.get_parent() {
-      Some(parent) => !is_stacked_ui_entity(parent)
+      Some(parent) => !is_stacked_ui_entity(world~, parent)
       None => true
     }
-    if hierarchy_root || global_zindexes().contains(entity) {
+    if hierarchy_root || query_global_z_index.contains(entity) {
       roots.push(entity)
     }
   }
-  roots.sort_by(compare_ui_stack_root)
+  roots.sort_by((a, b) => compare_ui_stack_root(world~, a, b))
   let pending : Array[@ecs.Entity] = []
   for root in roots {
     pending.push(root)
     while pending.pop() is Some(entity) {
       ordered.push(entity)
       let children : Array[@ecs.Entity] = []
-      for child in ui_children(entity) {
-        guard !global_zindexes().contains(child) else { continue }
-        guard is_stacked_ui_entity(child) else { continue }
+      for child in ui_children(world~, entity) {
+        guard !query_global_z_index.contains(child) else { continue }
+        guard is_stacked_ui_entity(world~, child) else { continue }
         children.push(child)
       }
-      children.sort_by(compare_ui_stack_sibling)
+      children.sort_by((a, b) => compare_ui_stack_sibling(world~, a, b))
       let mut index = children.length() - 1
       while index >= 0 {
         pending.push(children[index])
@@ -1315,11 +1288,13 @@ pub fn scroll_position(entity : @ecs.Entity) -> ScrollPosition? {
 /// Requests a scroll position for a UI node in the active World. The next
 /// layout pass clamps it to the node's scroll bounds. Copies the input value.
 pub fn set_scroll_position(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   position : ScrollPosition,
 ) -> Unit {
+  let query_node : @ecs.Query[@ecs.Single[Node]] = world.query()
   guard entity.is_valid_in(@ecs.require_current_world()) &&
-    nodes().contains(entity) else {
+    query_node.contains(entity) else {
     return
   }
   scroll_positions().set(entity, { ..position, })

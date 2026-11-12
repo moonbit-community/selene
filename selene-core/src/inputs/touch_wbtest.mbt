@@ -121,7 +121,7 @@ test "input snapshot carries active touches and changes" {
 ///|
 test "primary touch mirrors mouse left button for compatibility" {
   apply_input_snapshot(InputSnapshot())
-  advanced_mouse_system(0.0)
+  advanced_mouse_system()
   let id = TouchId(9)
   let active : Map[TouchId, TouchPoint] = Map([])
   active.set(id, test_touch_point(id, Vec2(30.0, 40.0), true))
@@ -130,24 +130,24 @@ test "primary touch mirrors mouse left button for compatibility" {
     touches: active,
     touch_changes: [test_touch_event(id, Started, Vec2(30.0, 40.0), true)],
   })
-  advanced_mouse_system(0.0)
+  advanced_mouse_system()
   inspect(mouse.left_button, content="true")
   inspect(is_mouse_just_pressed(Left), content="true")
   apply_input_snapshot({
     ..InputSnapshot(),
     touch_changes: [test_touch_event(id, Ended, Vec2(30.0, 40.0), true)],
   })
-  advanced_mouse_system(0.0)
+  advanced_mouse_system()
   inspect(mouse.left_button, content="false")
   inspect(is_mouse_just_released(Left), content="true")
   apply_input_snapshot(InputSnapshot())
-  advanced_mouse_system(0.0)
+  advanced_mouse_system()
 }
 
 ///|
 test "pen contacts preserve their pointer source without mirrored mouse events" {
   apply_input_snapshot(InputSnapshot())
-  advanced_mouse_system(0.0)
+  advanced_mouse_system()
   clear_touch_state()
   let id = TouchId(12)
   let position = @math.Vec2(15.0, 25.0)
@@ -173,8 +173,8 @@ test "pen contacts preserve their pointer source without mirrored mouse events" 
     touches: active_touch_map([point]),
     touch_changes: [event],
   })
-  advanced_mouse_system(0.0)
-  advanced_pointer_system(0.0)
+  advanced_mouse_system()
+  advanced_pointer_system()
   inspect(pointer_changes_this_frame().length(), content="1")
   inspect(pointer_changes_this_frame()[0].source == PointerPen, content="true")
   inspect(
@@ -182,8 +182,8 @@ test "pen contacts preserve their pointer source without mirrored mouse events" 
     content="true",
   )
   apply_input_snapshot(InputSnapshot())
-  advanced_mouse_system(0.0)
-  advanced_pointer_system(0.0)
+  advanced_mouse_system()
+  advanced_pointer_system()
   clear_touch_state()
 }
 
@@ -194,8 +194,8 @@ test "mouse produces unified pointer down move and up events" {
   last_mouse.left_button = false
   mouse.pos = Vec2(10.0, 20.0)
   mouse.left_button = true
-  advanced_mouse_system(0.0)
-  advanced_pointer_system(0.0)
+  advanced_mouse_system()
+  advanced_pointer_system()
   inspect(pointer_changes_this_frame().length(), content="2")
   inspect(pointer_changes_this_frame()[0].phase == Down, content="true")
   inspect(
@@ -205,21 +205,21 @@ test "mouse produces unified pointer down move and up events" {
   inspect(pointer_changes_this_frame()[1].phase == Move, content="true")
 
   mouse.pos = Vec2(14.0, 23.0)
-  advanced_mouse_system(0.0)
-  advanced_pointer_system(0.0)
+  advanced_mouse_system()
+  advanced_pointer_system()
   inspect(pointer_changes_this_frame().length(), content="1")
   inspect(pointer_changes_this_frame()[0].phase == Move, content="true")
   inspect(pointer_changes_this_frame()[0].delta.x, content="4")
   inspect(pointer_changes_this_frame()[0].delta.y, content="3")
 
   mouse.left_button = false
-  advanced_mouse_system(0.0)
-  advanced_pointer_system(0.0)
+  advanced_mouse_system()
+  advanced_pointer_system()
   inspect(pointer_changes_this_frame().length(), content="1")
   inspect(pointer_changes_this_frame()[0].phase == Up, content="true")
   apply_input_snapshot(InputSnapshot())
-  advanced_mouse_system(0.0)
-  advanced_pointer_system(0.0)
+  advanced_mouse_system()
+  advanced_pointer_system()
 }
 
 ///|

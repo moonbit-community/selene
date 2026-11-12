@@ -28,7 +28,7 @@ pub fn scale_vec2(@math.Vec2) -> @math.Vec2
 
 pub fn screen_to_ui_virtual(@math.Vec2) -> @math.Vec2
 
-pub fn sync_mouse_lock_system(Double) -> Unit
+pub fn sync_mouse_lock_system() -> Unit
 
 pub fn ui_virtual_to_screen(@math.Vec2) -> @math.Vec2
 

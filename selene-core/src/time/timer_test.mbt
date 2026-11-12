@@ -45,6 +45,6 @@ test "scaled and realtime timer ticks advance only their own clock" {
 
   @time.timer_system(@time.delta())
   assert_eq(calls, [1])
-  @time.realtime_timer_system(0.0)
+  @time.realtime_timer_system()
   assert_eq(calls, [1, 2])
 }

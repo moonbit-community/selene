@@ -99,8 +99,8 @@ pub extend WeightKeyframe with Eq::{not_equal, equal}
 pub(all) struct AnimatedField {
   name : String
   kind : AnimationValueKind
-  sample : (@ecs.Entity) -> AnimatedValue
-  apply : (@ecs.Entity, AnimatedValue) -> Unit
+  sample : (@ecs.World, @ecs.Entity) -> AnimatedValue
+  apply : (@ecs.World, @ecs.Entity, AnimatedValue) -> Unit
 }
 
 ///|

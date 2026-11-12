@@ -57,7 +57,10 @@ pub fn instantiate_scene(
     parent?,
   )
   scene_instances().set(instance.root, scene)
-  scene_instance_ready_events.send({ scene, root: instance.root, })
+  @ecs.commands(@ecs.require_current_world()).add(world => {
+    guard instance.root.is_valid_in(world) else { return }
+    scene_instance_ready_events.send({ scene, root: instance.root, })
+  })
   instance
 }
 
@@ -74,7 +77,7 @@ pub fn SceneSpawner::spawn(
 
 ///|
 pub fn despawn_scene(root : @ecs.Entity) -> Unit {
-  ignore(root.delete())
+  @ecs.commands(@ecs.require_current_world()).delete(root)
   scene_instances().remove(root)
 }
 
@@ -82,7 +85,7 @@ pub fn despawn_scene(root : @ecs.Entity) -> Unit {
 pub fn despawn_all_scenes() -> Unit {
   let roots = scene_instances().keys().collect()
   for root in roots {
-    ignore(root.delete())
+    @ecs.commands(@ecs.require_current_world()).delete(root)
   }
   scene_instances().clear()
 }
@@ -93,7 +96,7 @@ pub fn scene_of(root : @ecs.Entity) -> SceneHandle? {
 }
 
 ///|
-pub fn scene_spawner_cleanup_system(_delta : Double) -> Unit {
+pub fn scene_spawner_cleanup_system() -> Unit {
   let world = @ecs.require_current_world()
   scene_instances().retain((entity, _) => entity.is_valid_in(world))
 }

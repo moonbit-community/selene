@@ -14,6 +14,14 @@ for package imports and `dev_build` configuration.
 Use `--check source.mbt ...` to verify the generated companions without writing
 files. CI can pass all tracked MoonBit sources to detect missing companions.
 
+The component marker generates a `ComponentKey` and a `Component`
+implementation. The key identifies the component across Worlds; it exposes no
+storage or data access. Obtain component data through `world.query1()` for a single component,
+`world.query()` for a tuple row, or `world.get_component(entity)`. The generator does not emit
+global store accessors. Existing generated companions need no regeneration
+for this access-model change. Query construction is implemented generically for
+`Single[T]` and tuple shapes, rather than generated separately for each component.
+
 The resource marker generates a type identity. Initialize its value explicitly
 with `world.insert_resource(value)` or `app.insert_resource(value)`. Read it
 with `world.resource()`, or use `world.get_resource()` to handle a missing value.

@@ -16,22 +16,26 @@
 const ZOOM : Double = 2.0
 
 ///|
-pub fn run() -> Unit {
+fn cards_app() -> @app.App {
   @app.App()
   .with_viewport_width(VIEWPORT_WIDTH)
   .with_viewport_height(VIEWPORT_HEIGHT)
   .with_zoom(ZOOM)
   .add_plugin(@plugins.default_plugin)
   // .add_plugin(@plugins.debug_plugin)
-  .add_system(Startup, game_start)
+  .add_exclusive_system(Startup, game_start)
   .add_system(PostUpdate, cards_ui_pointer_system)
   .add_system(Update, game_update_system)
-  .run()
+}
+
+///|
+pub fn run() -> Unit {
+  cards_app().run()
 }
 
 ///|
 /// Game initialization
-fn game_start(_world : @ecs.World) -> Unit {
+fn game_start(world : @ecs.World) -> Unit {
   reset_cards_runtime()
   // Load font
   ignore(@asset.load_font("assets/cards/ThaleahFat.ttf", family="ThaleahFat"))
@@ -54,18 +58,21 @@ fn game_start(_world : @ecs.World) -> Unit {
   )
 
   // Setup UI
-  setup_ui()
+  ignore(game_state())
+  let ctx = CardsGame(world)
+  setup_ui(ctx~)
 
   // Start first hand
-  start_new_hand()
+  start_new_hand(ctx~)
+  @ecs.commands(world).add(_ => update_ui(ctx~))
 }
 
 ///|
 /// Main game update system
-fn game_update_system(_world : @ecs.World) -> Unit {
-  match game_state().phase {
-    PreFlop | Flop | Turn | River => handle_betting_round()
-    Showdown => handle_showdown()
+fn game_update_system(ctx : CardsGame) -> Unit {
+  match ctx.game().phase {
+    PreFlop | Flop | Turn | River => handle_betting_round(ctx~)
+    Showdown => handle_showdown(ctx~)
     GameOver => ()
   }
 }

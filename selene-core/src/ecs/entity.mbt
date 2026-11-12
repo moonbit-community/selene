@@ -166,18 +166,6 @@ fn EntityWorldStore::allocate(
 }
 
 ///|
-fn EntityWorldStore::spawn(
-  self : EntityWorldStore,
-  world_id : UInt32,
-) -> Entity {
-  let entity = self.allocate(world_id, Alive)
-  self.archetypes.slots[entity.slot].materialized = true
-  self.all_entities.add(entity)
-  self.alive_count += 1
-  entity
-}
-
-///|
 /// A stable World-local ID. The ID stays unique when a storage slot is reused.
 pub fn Entity::id(self : Entity) -> UInt32 {
   self.value
@@ -239,7 +227,7 @@ fn queue_entity_spawn(
 
 ///|
 /// Despawns this entity while retaining its slot and components for respawn.
-pub fn Entity::destroy(e : Entity) -> Unit {
+fn Entity::destroy(e : Entity) -> Unit {
   let world = require_current_world()
   guard e.belongs_to(world) else { return }
   let store = entity_store(world~)
@@ -262,7 +250,7 @@ pub fn Entity::destroy(e : Entity) -> Unit {
 }
 
 ///|
-pub fn Entity::respawn(e : Entity) -> Unit {
+fn Entity::respawn(e : Entity) -> Unit {
   let world = require_current_world()
   guard e.belongs_to(world) else { return }
   let store = entity_store(world~)
@@ -309,4 +297,10 @@ fn flush_entity_lifecycle(world : World) -> Unit {
       Alive | Destroyed => ()
     }
   }
+}
+
+///|
+/// Tests live state in this World without consulting the active schedule.
+pub fn World::is_alive(self : World, entity : Entity) -> Bool {
+  entity.belongs_to(self) && entity_store(world=self).is_alive(entity)
 }

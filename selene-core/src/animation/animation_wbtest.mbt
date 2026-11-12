@@ -1,10 +1,10 @@
 ///|
-fn with_animation_test_world(action : () -> Unit raise) -> Unit raise {
+fn with_animation_test_world(action : (@ecs.World) -> Unit raise) -> Unit raise {
   let previous = @ecs.current_world().unwrap_or(@ecs.bootstrap_world())
   let world = @ecs.World()
   @ecs.set_current_world(world)
   @asset.set_io(fn(_path) { Some(Bytes::from_array([1U.to_byte()])) })
-  action()
+  action(world)
   @asset.set_io(fn(_path) { None })
   @ecs.set_current_world(previous)
 }
@@ -38,7 +38,7 @@ fn animation_test_translation_clip(
 test "animation player play preserves active animation state while start restarts it" {
   let player = AnimationPlayer()
   let node = AnimationNodeIndex(1U)
-  with_animation_test_world(fn() raise {
+  with_animation_test_world(fn(_world) raise {
     let active = player.start(node)
     ignore(active.seek_to(2.5))
     ignore(active.set_speed(3.0))
@@ -56,7 +56,7 @@ test "animation player bulk controls update all active animations" {
   let player = AnimationPlayer()
   let node_a = AnimationNodeIndex(1U)
   let node_b = AnimationNodeIndex(2U)
-  with_animation_test_world(fn() raise {
+  with_animation_test_world(fn(_world) raise {
     ignore(player.start(node_a))
     ignore(player.start(node_b))
     ignore(player.pause_all())
@@ -77,7 +77,7 @@ test "animation transitions track the main animation and return the active anima
   let transitions = AnimationTransitions()
   let first = AnimationNodeIndex(1U)
   let second = AnimationNodeIndex(2U)
-  with_animation_test_world(fn() raise {
+  with_animation_test_world(fn(_world) raise {
     let first_active = transitions.play(player, first, 0.0)
     inspect(transitions.get_main_animation() == Some(first), content="true")
     inspect(first_active.weight(), content="1")
@@ -91,17 +91,18 @@ test "animation transitions track the main animation and return the active anima
 
 ///|
 test "texture atlas index field resolves as a discrete value instead of a weighted blend" {
-  with_animation_test_world(fn() raise {
+  with_animation_test_world(fn(world) raise {
     let image = @asset.load_image("animation/test.png")
     let layout = @sprite.register_texture_atlas_layout(
       @sprite.TextureAtlasLayout::from_grid(Vec2(16.0, 16.0), 6, 1),
     )
-    let entity = @ecs.require_current_world().spawn1(
+    let entity = @ecs_test.spawn1(
+      @ecs.require_current_world(),
       @sprite.Sprite::from_atlas_image(image, TextureAtlas(layout, index=1)),
     )
     let handle = texture_atlas_index_field()
     let field = animated_field(handle).unwrap()
-    let resolved = resolve_sample_value(handle, field, entity, {
+    let resolved = resolve_sample_value(world, handle, field, entity, {
       normal: [(Scalar(0.0), 0.25), (Scalar(5.0), 0.75)],
       additive: [(Scalar(3.0), 1.0)],
     })
@@ -131,18 +132,19 @@ test "step scalar sampling switches at an interior keyframe boundary" {
 
 ///|
 test "animation graph mask groups exclude masked targets during apply" {
-  with_animation_test_world(fn() raise {
-    let world = @ecs.require_current_world()
+  with_animation_test_world(fn(world) raise {
     let target_id = AnimationTargetId("masked")
     let masked_clip = animation_test_translation_clip("masked", target_id, 10.0)
     let masked_graph = AnimationGraph()
     let masked_node = masked_graph.add_clip_with_mask(masked_clip, [1])
     masked_graph.add_target_to_mask_group(target_id, 1)
     let masked_player = AnimationPlayer()
-    let player_entity = world.spawn(
+    let player_entity = @ecs_test.spawn(
+      world,
       (masked_player, register_animation_graph_asset(masked_graph)),
     )
-    let target_entity = world.spawn(
+    let target_entity = @ecs_test.spawn(
+      world,
       (
         @transform.Spatial(@transform.Transform::identity()),
         target_id,
@@ -150,24 +152,28 @@ test "animation graph mask groups exclude masked targets during apply" {
       ),
     )
     ignore(masked_player.start(masked_node, repeat=Never))
-    animation_apply_system(0.0)
+    animation_apply_system(world~, 0.0)
     inspect(
-      @transform.local_transform(target_entity).unwrap().translation.x,
+      @transform.local_transform(world~, target_entity).unwrap().translation.x,
       content="0",
     )
 
     let unmasked_graph = AnimationGraph()
     let unmasked_node = unmasked_graph.add_clip(masked_clip)
-    animation_graph_handles().set(
+    world.set_component(
       player_entity,
-      register_animation_graph_asset(unmasked_graph),
+      (register_animation_graph_asset(unmasked_graph) : AnimationGraphHandle),
     )
-    let unmasked_player = animation_players().get(player_entity).unwrap()
+    let unmasked_player = (
+        world.query() : @ecs.Query[@ecs.Single[AnimationPlayer]])
+      .get(player_entity)
+      .map(value => value.0)
+      .unwrap()
     ignore(unmasked_player.stop_all())
     ignore(unmasked_player.start(unmasked_node, repeat=Never))
-    animation_apply_system(0.0)
+    animation_apply_system(world~, 0.0)
     inspect(
-      @transform.local_transform(target_entity).unwrap().translation.x,
+      @transform.local_transform(world~, target_entity).unwrap().translation.x,
       content="10",
     )
   })
@@ -175,7 +181,7 @@ test "animation graph mask groups exclude masked targets during apply" {
 
 ///|
 test "animation event descriptors dispatch typed events to readers and observers" {
-  with_animation_test_world(fn() raise {
+  with_animation_test_world(fn(world) raise {
     let events : @event.Events[Int32] = Events()
     let reader : @event.EventReader[Int32] = EventReader()
     let observed : Array[Int32] = []
@@ -187,7 +193,8 @@ test "animation event descriptors dispatch typed events to readers and observers
     let clip_handle = register_animation_clip_asset(clip)
     let (graph, nodes) = AnimationGraph::from_clips([clip_handle])
     let player = AnimationPlayer()
-    let player_entity = @ecs.require_current_world().spawn(
+    let player_entity = @ecs_test.spawn(
+      @ecs.require_current_world(),
       (player, register_animation_graph_asset(graph)),
     )
     events.observe_entity(player_entity, fn(trigger) {
@@ -195,7 +202,7 @@ test "animation event descriptors dispatch typed events to readers and observers
     })
     |> ignore
     ignore(player.start(nodes[0], repeat=Never))
-    animation_player_system(1.0)
+    animation_player_system(world~, 1.0)
     let reader_events = events.read(reader)
     inspect(reader_events.length(), content="1")
     inspect(reader_events[0], content="7")
@@ -207,7 +214,7 @@ test "animation event descriptors dispatch typed events to readers and observers
 
 ///|
 test "animation asset queues report dirty and released handles" {
-  with_animation_test_world(fn() raise {
+  with_animation_test_world(fn(_world) raise {
     ignore(take_dirty_animation_clip_assets())
     ignore(take_dirty_animation_graph_assets())
     let clip_handle = register_animation_clip_asset(AnimationClip("dirty"))
@@ -223,12 +230,13 @@ test "animation asset queues report dirty and released handles" {
 
 ///|
 test "skinning uses the joint world affine for positions and normals" {
-  with_animation_test_world(fn() raise {
-    let world = @ecs.require_current_world()
-    let parent = world.spawn1(
+  with_animation_test_world(fn(world) raise {
+    let parent = @ecs_test.spawn1(
+      world,
       @transform.Spatial(@transform.Transform::from_scale(Vec3(2.0, 1.0, 1.0))),
     )
-    let joint = world.spawn1(
+    let joint = @ecs_test.spawn1(
+      world,
       @transform.Spatial(
         @transform.Transform::from_rotation(
           @math.Rotation3::from_axis_angle(@math.Vec3::z_axis(), 0.7),
@@ -237,7 +245,7 @@ test "skinning uses the joint world affine for positions and normals" {
       parent~,
     )
     let point = @math.Vec3(3.0, 5.0, 0.0)
-    let target = world.spawn(())
+    let target = @ecs_test.spawn(world, ())
     let mesh = @render3d.register_mesh_asset(@render3d.triangle_mesh([point]))
     defer @render3d.release_mesh_asset(mesh)
     bind_skinned_mesh(target, {
@@ -267,12 +275,12 @@ test "skinning uses the joint world affine for positions and normals" {
       joint_entities: [joint],
       inverse_bind_matrices: [@math.Mat4::identity()],
     })
-    @transform.transform_propagate_system(0.0)
-    animation_skinning_system(0.0)
+    @transform.transform_propagate_system(world~, 0.0)
+    animation_skinning_system(world~, 0.0)
     guard @render3d.mesh_asset(mesh).unwrap().primitive is Triangles(deformed) else {
       fail("expected a skinned triangle mesh")
     }
-    let affine = @transform.global_transform(joint).unwrap().affine
+    let affine = @transform.global_transform(world~, joint).unwrap().affine
     assert_true(
       deformed.positions[0].distance(affine.transform_point(point)) < 1.0e-10,
     )
@@ -315,14 +323,14 @@ test "linear rotation sampling follows the shortest arc at constant speed" {
 
 ///|
 test "skinning blends four affine joints and ignores inactive influences" {
-  with_animation_test_world(fn() raise {
-    let world = @ecs.require_current_world()
+  with_animation_test_world(fn(world) raise {
     let point = @math.Vec3(3.0, 5.0, 7.0)
-    let target = world.spawn(())
+    let target = @ecs_test.spawn(world, ())
     let mesh = @render3d.register_mesh_asset(@render3d.triangle_mesh([point]))
     defer @render3d.release_mesh_asset(mesh)
     let joints = Array::makei(4, i => {
-      world.spawn1(
+      @ecs_test.spawn1(
+        world,
         @transform.Spatial({
           translation: Vec3(i.to_double(), 2.0, -1.0),
           rotation: @math.Rotation3::from_axis_angle(
@@ -361,8 +369,8 @@ test "skinning blends four affine joints and ignores inactive influences" {
       inverse_bind_matrices: [],
     }
     bind_skinned_mesh(target, binding)
-    @transform.transform_propagate_system(0.0)
-    animation_skinning_system(0.0)
+    @transform.transform_propagate_system(world~, 0.0)
+    animation_skinning_system(world~, 0.0)
     guard @render3d.mesh_asset(mesh).unwrap().primitive is Triangles(deformed) else {
       fail("expected a skinned mesh")
     }
@@ -370,7 +378,7 @@ test "skinning blends four affine joints and ignores inactive influences" {
     let mut position = @math.Vec3::zero()
     let mut tangent = @math.Vec3::zero()
     for i, joint in joints {
-      let affine = @transform.global_transform(joint).unwrap().affine
+      let affine = @transform.global_transform(world~, joint).unwrap().affine
       position += affine.transform_point(point).scalar_mul(weights[i])
       tangent += affine.y_axis.scalar_mul(weights[i])
     }
@@ -399,11 +407,11 @@ test "skinning blends four affine joints and ignores inactive influences" {
         },
       ],
     })
-    animation_skinning_system(0.0)
+    animation_skinning_system(world~, 0.0)
     guard @render3d.mesh_asset(mesh).unwrap().primitive is Triangles(deformed) else {
       fail("expected a skinned mesh")
     }
-    let expected = @transform.global_transform(joints[0])
+    let expected = @transform.global_transform(world~, joints[0])
       .unwrap()
       .transform_point(point)
       .scalar_mul(0.75)
@@ -413,7 +421,7 @@ test "skinning blends four affine joints and ignores inactive influences" {
 
 ///|
 test "multiple animation fades are removed in one transition update" {
-  with_animation_test_world(fn() raise {
+  with_animation_test_world(fn(world) raise {
     let player = AnimationPlayer()
     let transitions = AnimationTransitions()
     for index in 1..<=4 {
@@ -425,8 +433,8 @@ test "multiple animation fades are removed in one transition update" {
         ),
       )
     }
-    ignore(@ecs.require_current_world().spawn((player, transitions)))
-    animation_transition_system(0.2)
+    ignore(@ecs_test.spawn(@ecs.require_current_world(), (player, transitions)))
+    animation_transition_system(world.query(), 0.2)
     assert_eq(player.playing_animations().length(), 1)
     let main = transitions.get_main_animation().unwrap()
     assert_true(player.is_playing_animation(main))

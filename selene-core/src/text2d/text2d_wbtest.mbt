@@ -1,9 +1,9 @@
 ///|
-fn with_text2d_test_world(action : () -> Unit raise) -> Unit raise {
+fn with_text2d_test_world(action : (@ecs.World) -> Unit raise) -> Unit raise {
   let previous = @ecs.current_world().unwrap_or(@ecs.bootstrap_world())
   let world = @ecs.World()
   @ecs.set_current_world(world)
-  action()
+  action(world)
   @ecs.set_current_world(previous)
 }
 
@@ -21,8 +21,8 @@ fn text2d_test_style() -> @render2d_types.TextStyle2D {
 
 ///|
 test "text2d layout cache reuses identical inputs" {
-  with_text2d_test_world(fn() raise {
-    let entity = @ecs.require_current_world().spawn(())
+  with_text2d_test_world(fn(world) raise {
+    let entity = @ecs_test.spawn(world, ())
     let style = text2d_test_style()
     let layout = @ui.TextLayout(wrap=WordWrap, overflow=Ellipsis)
     let bounds = Some(TextBounds(60.0, 100.0))
@@ -40,8 +40,8 @@ test "text2d layout cache reuses identical inputs" {
 
 ///|
 test "text2d layout cache invalidates when text changes" {
-  with_text2d_test_world(fn() raise {
-    let entity = @ecs.require_current_world().spawn(())
+  with_text2d_test_world(fn(world) raise {
+    let entity = @ecs_test.spawn(world, ())
     let style = text2d_test_style()
     let layout = @ui.TextLayout(wrap=WordWrap, overflow=Ellipsis)
     let bounds = Some(TextBounds(60.0, 100.0))

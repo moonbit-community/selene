@@ -10,23 +10,23 @@ import {
 }
 
 // Values
-pub fn begin_frame2d_system(Double) -> Unit
+pub fn begin_frame2d_system() -> Unit
 
-pub fn entity_sorting2d(@ecs.Entity) -> Sorting2d
+pub fn entity_sorting2d(world~ : @ecs.World, @ecs.Entity) -> Sorting2d
 
 pub fn get_camera_ui_commands(UInt32) -> Array[@render2d_types.DrawCommand2D]
 
 pub fn get_camera_world_commands_with_depth(UInt32) -> Array[DrawCommandWithDepth2D]
 
-pub fn get_frame2d() -> @render2d_types.RenderFrame2D
+pub fn get_frame2d(world~ : @ecs.World) -> @render2d_types.RenderFrame2D
 
 pub fn get_screen_ui_commands() -> Array[@render2d_types.DrawCommand2D]
 
 pub fn get_screen_world_commands_with_depth() -> Array[DrawCommandWithDepth2D]
 
-pub fn get_ui_commands() -> Array[@render2d_types.DrawCommand2D]
+pub fn get_ui_commands(world~ : @ecs.World) -> Array[@render2d_types.DrawCommand2D]
 
-pub fn get_world_commands_with_depth() -> Array[DrawCommandWithDepth2D]
+pub fn get_world_commands_with_depth(world~ : @ecs.World) -> Array[DrawCommandWithDepth2D]
 
 pub fn pop_ui_clip() -> Unit
 
@@ -101,8 +101,6 @@ pub fn push_world_command(Double, UInt32?, @render2d_types.DrawCommand2D, camera
 pub fn reserve_world_command_order(Int32) -> Int32
 
 pub fn sort_depth_for_transform(@transform.GlobalTransform, Sorting2d) -> Double
-
-pub fn sorting2ds() -> @ecs.ComponentStore[Sorting2d]
 
 // Errors
 

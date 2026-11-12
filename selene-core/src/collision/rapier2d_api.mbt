@@ -50,32 +50,35 @@ fn entity_multibody_joint_config_keys() -> @ecs.EntityTable[
 
 ///|
 pub fn rigid_body_handle(entity : @ecs.Entity) -> RigidBodyHandle? {
-  world().entity_bodies.get(entity)
+  physics_world().entity_bodies.get(entity)
 }
 
 ///|
 pub fn collider_handle(entity : @ecs.Entity) -> ColliderHandle? {
-  world().entity_colliders.get(entity)
+  physics_world().entity_colliders.get(entity)
 }
 
 ///|
 pub fn joint_handle(entity : @ecs.Entity) -> JointHandle? {
-  world().entity_joints.get(entity)
+  physics_world().entity_joints.get(entity)
 }
 
 ///|
 pub fn multibody_joint_handle(entity : @ecs.Entity) -> MultibodyJointHandle? {
-  world().entity_multibody_joints.get(entity)
+  physics_world().entity_multibody_joints.get(entity)
 }
 
 ///|
 pub fn multibody_link(entity : @ecs.Entity) -> MultibodyLinkId? {
-  guard world().entity_bodies.get(entity) is Some(handle) else { return None }
-  world().multibody_joints.rigid_body_link(handle)
+  guard physics_world().entity_bodies.get(entity) is Some(handle) else {
+    return None
+  }
+  physics_world().multibody_joints.rigid_body_link(handle)
 }
 
 ///|
 pub fn raycast(
+  world~ : @ecs.World,
   origin : @math.Vec2,
   direction : @math.Vec2,
   max_toi~ : Double = 1000.0,
@@ -85,7 +88,7 @@ pub fn raycast(
   if vec2_length_squared(direction) <= EPSILON {
     return None
   }
-  refresh_query_world()
+  refresh_query_world(world~)
   let query = make_query_pipeline(query_filter)
   let normalized = direction.normalize_or_zero()
   let ray = @rapier_collision.Ray::Ray(
@@ -94,8 +97,8 @@ pub fn raycast(
   )
   match
     query.cast_ray_and_get_normal(
-      world().bodies,
-      world().colliders,
+      physics_world().bodies,
+      physics_world().colliders,
       ray,
       Float::from_double(to_physics_scalar(max_toi)),
       solid,
@@ -119,6 +122,7 @@ pub fn raycast(
 
 ///|
 pub fn shape_cast(
+  world~ : @ecs.World,
   shape : CollisionShape,
   origin : @math.Vec2,
   rotation~ : Double = 0.0,
@@ -134,7 +138,7 @@ pub fn shape_cast(
     is Some((rapier_shape, translation)) else {
     return None
   }
-  refresh_query_world()
+  refresh_query_world(world~)
   let query = make_query_pipeline(query_filter)
   let options = @rapier_collision.ShapeCastOptions::ShapeCastOptions(
     Float::from_double(to_physics_scalar(max_toi)),
@@ -142,8 +146,8 @@ pub fn shape_cast(
   )
   match
     query.cast_shape(
-      world().bodies,
-      world().colliders,
+      physics_world().bodies,
+      physics_world().colliders,
       query_shape_isometry(origin, rotation, translation),
       to_physics_direction(direction.normalize_or_zero()),
       rapier_shape,
@@ -164,15 +168,16 @@ pub fn shape_cast(
 
 ///|
 pub fn intersect_point(
+  world~ : @ecs.World,
   point : @math.Vec2,
   query_filter~ : SpatialQueryFilter = SpatialQueryFilter(),
 ) -> Array[@ecs.Entity] {
-  refresh_query_world()
+  refresh_query_world(world~)
   let query = make_query_pipeline(query_filter)
   intersecting_entities(
     query.intersect_point(
-      world().bodies,
-      world().colliders,
+      physics_world().bodies,
+      physics_world().colliders,
       to_physics_vec2(point),
     ),
   )
@@ -180,6 +185,7 @@ pub fn intersect_point(
 
 ///|
 pub fn intersect_shape(
+  world~ : @ecs.World,
   shape : CollisionShape,
   origin : @math.Vec2,
   rotation~ : Double = 0.0,
@@ -189,12 +195,12 @@ pub fn intersect_shape(
     is Some((rapier_shape, translation)) else {
     return []
   }
-  refresh_query_world()
+  refresh_query_world(world~)
   let query = make_query_pipeline(query_filter)
   intersecting_entities(
     query.intersect_shape(
-      world().bodies,
-      world().colliders,
+      physics_world().bodies,
+      physics_world().colliders,
       query_shape_isometry(origin, rotation, translation),
       rapier_shape,
     ),
@@ -202,24 +208,28 @@ pub fn intersect_shape(
 }
 
 ///|
-pub fn rigid_body_translation(entity : @ecs.Entity) -> @math.Vec2? {
-  if world().entity_bodies.get(entity) is Some(handle) &&
-    world().bodies.get(handle) is Some(body) {
+pub fn rigid_body_translation(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> @math.Vec2? {
+  if physics_world().entity_bodies.get(entity) is Some(handle) &&
+    physics_world().bodies.get(handle) is Some(body) {
     Some(from_physics_vec2(body.translation()))
   } else {
-    entity_translation(entity)
+    entity_translation(world~, entity)
   }
 }
 
 ///|
 pub fn set_rigid_body_translation(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   translation : @math.Vec2,
 ) -> Unit {
-  set_entity_translation(entity, translation)
-  if world().entity_bodies.get(entity) is Some(handle) &&
-    world().bodies.get_mut(handle) is Some(body) {
-    match entity_rigid_body(entity).body_type {
+  set_entity_translation(world~, entity, translation)
+  if physics_world().entity_bodies.get(entity) is Some(handle) &&
+    physics_world().bodies.get_mut(handle) is Some(body) {
+    match entity_rigid_body(world~, entity).body_type {
       KinematicPositionBased => {
         body.set_translation(to_physics_vec2(translation), true) |> ignore
         body.set_next_kinematic_translation(to_physics_vec2(translation))

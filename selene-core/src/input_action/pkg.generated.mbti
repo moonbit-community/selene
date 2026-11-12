@@ -24,7 +24,7 @@ pub fn clear_all_action_bindings() -> Unit
 
 pub let input_action_event_bus : @event.Events[ActionEvent]
 
-pub fn input_action_system(Double) -> Unit
+pub fn input_action_system() -> Unit
 
 // Errors
 

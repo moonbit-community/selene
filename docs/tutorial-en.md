@@ -155,15 +155,15 @@ pub fn run() -> Unit {
   .with_image_smooth(false)
   .with_zoom(2.0)
   .add_plugin(@plugins.default_plugin)
-  .add_system(Startup, game_start)
-  .add_system(Update, player_input_system)
-  .add_system(FixedPreUpdate, player_controller_system)
-  .add_system(Update, trigger_system)
-  .add_system(Update, pixeladventure_camera_follow_system)
-  .add_system(FixedPostUpdate, player_bird_contact_system)
-  .add_system(FixedPostUpdate, bird_patrol_system)
+  .add_exclusive_system(Startup, game_start)
+  .add_system(Update, @ecs.args2(player_input_system))
+  .add_system(FixedPreUpdate, @ecs.args4(player_controller_system))
+  .add_system(Update, @ecs.args4(trigger_system))
+  .add_system(Update, @ecs.args2(pixeladventure_camera_follow_system))
+  .add_system(FixedPostUpdate, @ecs.args4(player_bird_contact_system))
+  .add_system(FixedPostUpdate, @ecs.args4(bird_patrol_system))
   .add_system(PostUpdate, volume_button_system)
-  .add_system(PostUpdate, hud_sync_system)
+  .add_system(PostUpdate, @ecs.args4(hud_sync_system))
   .run()
 }
 ```
@@ -205,9 +205,12 @@ priv struct PlayerController {
 ```
 
 Startup cleans up the previous run, loads the level, and inserts the new
-`GameSession` with `world.insert_resource(...)`. Systems read the session
-with `world.get_resource()` and access player controllers through
-`@ecs.components()`. The package applies the generation rule to `model.mbt`.
+`GameSession` with `world.insert_resource(...)`. Ordinary gameplay systems
+receive their queries, optional `Res[GameSession]?`, Commands, and Time through
+`argsN`. Movement and animation helpers use query rows directly; value
+components are replaced through `query.set(entity, row)`. The camera and HUD
+also use injected queries. Complete World access remains in Startup for scene
+construction. The package applies the generation rule to `model.mbt`.
 
 ```moonbit
 dev_build(rule: "selene_codegen", input: "model.mbt", output: "model.g.mbt")
@@ -223,14 +226,15 @@ Pass the initial components to the World when spawning a player.
 
 ```moonbit
 let world = @ecs.require_current_world()
-let player = world.spawn((
+let player = @ecs.commands(world).spawn((
   @transform.Spatial(@transform.Transform::from_xyz(100.0, 100.0, 0.0)),
   @physics2d.Velocity(@math.Vec2::zero()),
 ))
 ```
 
-The World writes both components into the final archetype together. Use
-`commands.spawn(...)` when spawning from inside a query.
+The scheduler writes both components into the final archetype together when it
+applies the command. The returned handle is pending until then. Public creation
+is deferred during both setup and queries.
 
 ### Player Character Implementation
 
@@ -277,7 +281,7 @@ let (graph, nodes) = @animation.AnimationGraph::from_clips([
 ])
 let player_animation = @animation.AnimationPlayer()
 ignore(player_animation.play(nodes[0], repeat=@animation.RepeatAnimation::Forever))
-let player = world.spawn((
+let player = @ecs.commands(world).spawn((
   @transform.Spatial(@transform.Transform::from_xyz(100.0, 100.0, 0.0)),
   @physics2d.Velocity(@math.Vec2::zero()),
   sprite,
@@ -318,7 +322,7 @@ let shape = @physics2d.CollisionShape::Rect(
 let collider = @physics2d.Collider(
   @physics2d.CollisionFilter(player_collision_group, [terrain_collision_group]),
 )
-let player = world.spawn((
+let player = @ecs.commands(world).spawn((
   @transform.Spatial(@transform.Transform::from_xyz(100.0, 100.0, 0.0)),
   @physics2d.Velocity(@math.Vec2::zero()),
   shape,
@@ -357,7 +361,7 @@ let area = @physics2d.Area(
     player_collision_group,
   ]),
 )
-let apple = world.spawn((spatial, sprite, shape, area, apple_tag))
+let apple = @ecs.commands(world).spawn((spatial, sprite, shape, area, apple_tag))
 
 fn map_trigger_system(_world : @ecs.World) -> Unit {
   for apple in apples.to_array() {
@@ -366,7 +370,7 @@ fn map_trigger_system(_world : @ecs.World) -> Unit {
       if session.volume_on {
         play_sfx(coin_sound, session.volume_on)
       }
-      ignore(apple.delete())
+      @ecs.commands(world).delete(apple)
     }
   }
 }
@@ -388,7 +392,7 @@ Current UI uses `@ui` component stores for text/buttons/images. Example score te
 
 ```moonbit
 fn spawn_score_box(world : @ecs.World) -> @ecs.Entity {
-  world.spawn((
+  @ecs.commands(world).spawn((
     @ui.Node::absolute(
       @math.Vec2(48.0, 16.0),
       size=@math.Vec2(432.0, 24.0),

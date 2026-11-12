@@ -11,7 +11,7 @@ struct SpawnPlan[T] {
 
 ///|
 /// Prepares an explicitly selected component column for spawning in its World.
-pub fn[T] ComponentStore::spawn_plan(
+fn[T] ComponentStore::spawn_plan(
   self : ComponentStore[T],
   world : World,
 ) -> SpawnPlan[T] {
@@ -84,24 +84,6 @@ fn[T] SpawnPlan::append_row(
   }
   storage.append_entity(id, entity)
   (self.append)(id, entity, values)
-}
-
-///|
-/// Creates a live entity and appends all bundle values to one archetype row.
-pub fn[T] SpawnPlan::spawn(
-  self : SpawnPlan[T],
-  values : T,
-  parent? : Entity,
-) -> Entity {
-  if parent is Some(parent) &&
-    (parent.world_id != self.world_id || !self.entities.is_alive(parent)) {
-    abort("parent must be alive in this World")
-  }
-  self.entities.archetypes.require_no_query()
-  let entity = self.entities.spawn(self.world_id)
-  self.append_row(entity, values)
-  self.entities.link_child(entity, parent)
-  entity
 }
 
 ///|

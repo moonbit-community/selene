@@ -1,20 +1,30 @@
 ///|
 test "player animation controller remembers current node" {
   use_survivors_test_assets()
-  @ecs.set_current_world(World())
+  let world = @ecs.World()
+  @ecs.set_current_world(world)
   @time.initialize(@ecs.require_current_world())
   reset_survivors_runtime()
-  let entity = spawn_player()
-  let controller = player_animation_controllers().get(entity).unwrap()
+  let entity = spawn_player(world~)
+  flush_test_commands(world)
+  let controller = (
+      world.query() : @ecs.Query[@ecs.Single[PlayerAnimationController]])
+    .get(entity)
+    .map(value => value.0)
+    .unwrap()
 
   play_player_animation_state(
+    world.query(),
     entity,
     player_idle_right_animation,
     controller.idle_right,
   )
 
   inspect(
-    player_animation_controllers().get(entity).unwrap().current ==
+    (world.query() : @ecs.Query[@ecs.Single[PlayerAnimationController]])
+    .get(entity)
+    .map(value => value.0)
+    .unwrap().current ==
     Some(controller.idle_right),
     content="true",
   )
@@ -23,31 +33,45 @@ test "player animation controller remembers current node" {
 ///|
 test "replaying same player animation state does not reset atlas index" {
   use_survivors_test_assets()
-  @ecs.set_current_world(World())
+  let world = @ecs.World()
+  @ecs.set_current_world(world)
   @time.initialize(@ecs.require_current_world())
   reset_survivors_runtime()
-  let entity = spawn_player()
-  let controller = player_animation_controllers().get(entity).unwrap()
+  let entity = spawn_player(world~)
+  flush_test_commands(world)
+  let controller = (
+      world.query() : @ecs.Query[@ecs.Single[PlayerAnimationController]])
+    .get(entity)
+    .map(value => value.0)
+    .unwrap()
 
   play_player_animation_state(
+    world.query(),
     entity,
     player_idle_right_animation,
     controller.idle_right,
   )
 
-  let sprite = @sprite.sprites().get(entity).unwrap()
+  let sprite = (world.query() : @ecs.Query[@ecs.Single[@sprite.Sprite]])
+    .get(entity)
+    .map(value => value.0)
+    .unwrap()
   let atlas = sprite.texture_atlas.unwrap()
   atlas.index = 2
-  @sprite.sprites().set(entity, sprite)
+  world.set_component(entity, (sprite : @sprite.Sprite))
 
   play_player_animation_state(
+    world.query(),
     entity,
     player_idle_right_animation,
     controller.idle_right,
   )
 
   inspect(
-    @sprite.sprites().get(entity).unwrap().texture_atlas.unwrap().index,
+    (world.query() : @ecs.Query[@ecs.Single[@sprite.Sprite]])
+    .get(entity)
+    .map(value => value.0)
+    .unwrap().texture_atlas.unwrap().index,
     content="2",
   )
 }
@@ -55,13 +79,20 @@ test "replaying same player animation state does not reset atlas index" {
 ///|
 test "player run animation advances atlas indices in order" {
   use_survivors_test_assets()
-  @ecs.set_current_world(World())
+  let world = @ecs.World()
+  @ecs.set_current_world(world)
   @time.initialize(@ecs.require_current_world())
   reset_survivors_runtime()
-  let entity = spawn_player()
-  let controller = player_animation_controllers().get(entity).unwrap()
+  let entity = spawn_player(world~)
+  flush_test_commands(world)
+  let controller = (
+      world.query() : @ecs.Query[@ecs.Single[PlayerAnimationController]])
+    .get(entity)
+    .map(value => value.0)
+    .unwrap()
 
   play_player_animation_state(
+    world.query(),
     entity,
     player_run_right_animation,
     controller.run_right,
@@ -69,15 +100,21 @@ test "player run animation advances atlas indices in order" {
 
   let indices : Array[Int32] = []
   indices.push(
-    @sprite.sprites().get(entity).unwrap().texture_atlas.unwrap().index,
+    (world.query() : @ecs.Query[@ecs.Single[@sprite.Sprite]])
+    .get(entity)
+    .map(value => value.0)
+    .unwrap().texture_atlas.unwrap().index,
   )
   let step = 1.0 / player_run_right_animation.fps
   for _ in 0..<4 {
-    @animation.animation_player_system(step)
-    @animation.animation_transition_system(step)
-    @animation.animation_apply_system(0.0)
+    @animation.animation_player_system(world~, step)
+    @animation.animation_transition_system(world.query(), step)
+    @animation.animation_apply_system(world~, 0.0)
     indices.push(
-      @sprite.sprites().get(entity).unwrap().texture_atlas.unwrap().index,
+      (world.query() : @ecs.Query[@ecs.Single[@sprite.Sprite]])
+      .get(entity)
+      .map(value => value.0)
+      .unwrap().texture_atlas.unwrap().index,
     )
   }
 

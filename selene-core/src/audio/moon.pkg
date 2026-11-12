@@ -7,3 +7,11 @@ import {
 }
 
 formatter(ignore: [ "player.g.mbt", "playback_settings.g.mbt" ])
+
+import {
+  "Milky2018/selene/internal/ecs_test",
+} for "test"
+
+import {
+  "Milky2018/selene/internal/ecs_test",
+} for "wbtest"

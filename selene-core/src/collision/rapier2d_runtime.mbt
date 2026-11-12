@@ -127,7 +127,7 @@ fn physics_world_runtime() -> PhysicsWorldRuntime {
 }
 
 ///|
-fn world() -> PhysicsWorld {
+fn physics_world() -> PhysicsWorld {
   physics_world_runtime().world
 }
 

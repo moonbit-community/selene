@@ -281,12 +281,13 @@ fn apply_additive_value(
 
 ///|
 fn resolve_sample_value(
+  world : @ecs.World,
   field_handle : AnimatedFieldHandle,
   field : AnimatedField,
   entity : @ecs.Entity,
   buffer : AnimationSampleBuffer,
 ) -> AnimatedValue {
-  let base = (field.sample)(entity)
+  let base = (field.sample)(world, entity)
   if discrete_animated_fields.contains(field_handle) {
     return select_discrete_value(buffer.normal, base)
   }
@@ -343,18 +344,21 @@ fn resolve_sample_value(
 }
 
 ///|
-fn collect_targets_by_player() -> @ecs.EntityTable[
-  Map[AnimationTargetId, @ecs.Entity],
-] {
+fn collect_targets_by_player(
+  world~ : @ecs.World,
+) -> @ecs.EntityTable[Map[AnimationTargetId, @ecs.Entity]] {
+  let query_animated_by : @ecs.Query[@ecs.Single[AnimatedBy]] = world.query()
   let targets_by_player : @ecs.EntityTable[Map[AnimationTargetId, @ecs.Entity]] = EntityTable(
     @ecs.require_current_world(),
   )
   for entity in @ecs.iter_entities() {
     guard entity.is_alive() else { continue }
-    let player = animated_bys()
+    let player = query_animated_by
       .get(entity)
       .map_or(entity, fn(binding) { binding.player })
-    guard animation_target_id_of(entity) is Some(target_id) else { continue }
+    guard animation_target_id_of(world~, entity) is Some(target_id) else {
+      continue
+    }
     targets_by_player
     .get_or_init(player, fn() { Map([]) })
     .set(target_id, entity)

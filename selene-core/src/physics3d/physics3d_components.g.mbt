@@ -44,3 +44,48 @@ pub impl @ecs.Component for KinematicCharacterController with fn component_key()
 #deprecated("Use the typed Selene API.", skip_current_package=true)
 #doc(hidden)
 pub extend KinematicCharacterController with @ecs.Component::{ component_key }
+
+///|
+let selene_component_key_ActiveCollisionTypes : @ecs.ComponentKey[
+  ActiveCollisionTypes,
+] = ComponentKey()
+
+///|
+pub impl @ecs.Component for ActiveCollisionTypes with fn component_key() {
+  selene_component_key_ActiveCollisionTypes
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend ActiveCollisionTypes with @ecs.Component::{ component_key }
+
+///|
+let selene_component_key_ActiveEvents : @ecs.ComponentKey[ActiveEvents] = ComponentKey(
+
+)
+
+///|
+pub impl @ecs.Component for ActiveEvents with fn component_key() {
+  selene_component_key_ActiveEvents
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend ActiveEvents with @ecs.Component::{ component_key }
+
+///|
+let selene_component_key_ActiveHooks : @ecs.ComponentKey[ActiveHooks] = ComponentKey(
+
+)
+
+///|
+pub impl @ecs.Component for ActiveHooks with fn component_key() {
+  selene_component_key_ActiveHooks
+}
+
+///|
+#deprecated("Use the typed Selene API.", skip_current_package=true)
+#doc(hidden)
+pub extend ActiveHooks with @ecs.Component::{ component_key }

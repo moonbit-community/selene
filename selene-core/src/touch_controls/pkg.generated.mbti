@@ -27,9 +27,9 @@ pub fn spawn_mobile_platformer_controls(@inputs.VirtualButton, @inputs.VirtualBu
 
 pub fn spawn_twin_stick_controls(@inputs.VirtualAxis, @inputs.VirtualAxis) -> Unit
 
-pub fn touch_controls_render_system(Double) -> Unit
+pub fn touch_controls_render_system() -> Unit
 
-pub fn touch_controls_system(Double) -> Unit
+pub fn touch_controls_system() -> Unit
 
 // Errors
 

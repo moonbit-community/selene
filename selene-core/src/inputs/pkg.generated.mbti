@@ -11,13 +11,13 @@ import {
 // Values
 pub fn active_touches() -> Map[TouchId, TouchPoint]
 
-pub fn advanced_gamepad_system(Double) -> Unit
+pub fn advanced_gamepad_system() -> Unit
 
-pub fn advanced_key_system(Double) -> Unit
+pub fn advanced_key_system() -> Unit
 
-pub fn advanced_mouse_system(Double) -> Unit
+pub fn advanced_mouse_system() -> Unit
 
-pub fn advanced_pointer_system(Double) -> Unit
+pub fn advanced_pointer_system() -> Unit
 
 pub fn advanced_touch_system(Double) -> Unit
 

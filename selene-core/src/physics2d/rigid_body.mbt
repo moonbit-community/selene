@@ -18,52 +18,71 @@ pub fn rigid_body_handle(entity : @ecs.Entity) -> RigidBodyHandle? {
 }
 
 ///|
-pub fn rigid_body_translation(entity : @ecs.Entity) -> @math.Vec2? {
-  @collision.rigid_body_translation(entity)
+pub fn rigid_body_translation(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> @math.Vec2? {
+  @collision.rigid_body_translation(world~, entity)
 }
 
 ///|
 pub fn set_rigid_body_translation(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   translation : @math.Vec2,
 ) -> Unit {
-  @collision.set_rigid_body_translation(entity, translation)
+  @collision.set_rigid_body_translation(world~, entity, translation)
 }
 
 ///|
-pub fn rigid_body_rotation(entity : @ecs.Entity) -> Double? {
-  @collision.rigid_body_rotation(entity)
+pub fn rigid_body_rotation(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> Double? {
+  @collision.rigid_body_rotation(world~, entity)
 }
 
 ///|
-pub fn set_rigid_body_rotation(entity : @ecs.Entity, rotation : Double) -> Unit {
-  @collision.set_rigid_body_rotation(entity, rotation)
+pub fn set_rigid_body_rotation(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  rotation : Double,
+) -> Unit {
+  @collision.set_rigid_body_rotation(world~, entity, rotation)
 }
 
 ///|
-pub fn rigid_body_linear_velocity(entity : @ecs.Entity) -> @math.Vec2? {
-  @collision.rigid_body_linear_velocity(entity)
+pub fn rigid_body_linear_velocity(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> @math.Vec2? {
+  @collision.rigid_body_linear_velocity(world~, entity)
 }
 
 ///|
 pub fn set_rigid_body_linear_velocity(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   linear_velocity : @math.Vec2,
 ) -> Unit {
-  @collision.set_rigid_body_linear_velocity(entity, linear_velocity)
+  @collision.set_rigid_body_linear_velocity(world~, entity, linear_velocity)
 }
 
 ///|
-pub fn rigid_body_angular_velocity(entity : @ecs.Entity) -> Double? {
-  @collision.rigid_body_angular_velocity(entity)
+pub fn rigid_body_angular_velocity(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> Double? {
+  @collision.rigid_body_angular_velocity(world~, entity)
 }
 
 ///|
 pub fn set_rigid_body_angular_velocity(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   angular_velocity : Double,
 ) -> Unit {
-  @collision.set_rigid_body_angular_velocity(entity, angular_velocity)
+  @collision.set_rigid_body_angular_velocity(world~, entity, angular_velocity)
 }
 
 ///|

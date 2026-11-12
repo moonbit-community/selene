@@ -29,15 +29,15 @@ fn pixeladventure_app() -> @app.App {
   .with_image_smooth(false)
   .with_zoom(ZOOM)
   .add_plugin(@plugins.default_plugin)
-  .add_system(Startup, game_start)
-  .add_system(Update, player_input_system)
-  .add_system(FixedPreUpdate, player_controller_system)
-  .add_system(Update, trigger_system)
-  .add_system(Update, pixeladventure_camera_follow_system)
-  .add_system(FixedPostUpdate, player_bird_contact_system)
-  .add_system(FixedPostUpdate, bird_patrol_system)
+  .add_exclusive_system(Startup, game_start)
+  .add_system(Update, @ecs.args2(player_input_system))
+  .add_system(FixedPreUpdate, @ecs.args4(player_controller_system))
+  .add_system(Update, @ecs.args4(trigger_system))
+  .add_system(Update, @ecs.args2(pixeladventure_camera_follow_system))
+  .add_system(FixedPostUpdate, @ecs.args4(player_bird_contact_system))
+  .add_system(FixedPostUpdate, @ecs.args4(bird_patrol_system))
   .add_system(PostUpdate, volume_button_system)
-  .add_system(PostUpdate, hud_sync_system)
+  .add_system(PostUpdate, @ecs.args4(hud_sync_system))
 }
 
 ///|

@@ -38,33 +38,45 @@ fn quat_rotation_z(value : @math.Rotation3) -> Double {
 }
 
 ///|
-fn entity_transform(entity : @ecs.Entity) -> @transform.Transform? {
-  @transform.local_transform(entity)
+fn entity_transform(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> @transform.Transform? {
+  @transform.local_transform(world~, entity)
 }
 
 ///|
-fn entity_translation(entity : @ecs.Entity) -> @math.Vec2? {
-  entity_transform(entity).map(fn(transform) {
+fn entity_translation(world~ : @ecs.World, entity : @ecs.Entity) -> @math.Vec2? {
+  entity_transform(world~, entity).map(fn(transform) {
     Vec2(transform.translation.x, transform.translation.y)
   })
 }
 
 ///|
 fn set_entity_translation(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   translation : @math.Vec2,
 ) -> Unit {
-  guard @transform.local_transform(entity) is Some(current) else { return }
-  @transform.set_local_transform(entity, {
+  guard @transform.local_transform(world~, entity) is Some(current) else {
+    return
+  }
+  @transform.set_local_transform(world~, entity, {
     ..current,
     translation: Vec3(translation.x, translation.y, current.translation.z),
   })
 }
 
 ///|
-fn set_entity_rotation(entity : @ecs.Entity, rotation : Double) -> Unit {
-  guard @transform.local_transform(entity) is Some(current) else { return }
-  @transform.set_local_transform(entity, {
+fn set_entity_rotation(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  rotation : Double,
+) -> Unit {
+  guard @transform.local_transform(world~, entity) is Some(current) else {
+    return
+  }
+  @transform.set_local_transform(world~, entity, {
     ..current,
     rotation: @math.Rotation3::from_axis_angle(@math.Vec3::z_axis(), rotation),
   })
@@ -83,18 +95,23 @@ fn collider_handle_key(
 }
 
 ///|
-fn world_entity(entity : @ecs.Entity) -> Bool {
-  !@ui.nodes().contains(entity)
+fn world_entity(world~ : @ecs.World, entity : @ecs.Entity) -> Bool {
+  let query_node : @ecs.Query[@ecs.Single[@ui.Node]] = world.query()
+  !query_node.contains(entity)
 }
 
 ///|
-fn entity_collision_shape(entity : @ecs.Entity) -> CollisionShape? {
-  shapes().get(entity)
+fn entity_collision_shape(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> CollisionShape? {
+  (world.get_component(entity) : CollisionShape?)
 }
 
 ///|
-fn legacy_rigid_body(entity : @ecs.Entity) -> RigidBody {
-  if @velocity.velocities().contains(entity) {
+fn legacy_rigid_body(world~ : @ecs.World, entity : @ecs.Entity) -> RigidBody {
+  let query_velocity : @ecs.Query[@ecs.Single[@velocity.Velocity]] = world.query()
+  if query_velocity.contains(entity) {
     RigidBody::kinematic_position_based()
   } else {
     RigidBody::fixed()
@@ -102,13 +119,18 @@ fn legacy_rigid_body(entity : @ecs.Entity) -> RigidBody {
 }
 
 ///|
-fn entity_rigid_body(entity : @ecs.Entity) -> RigidBody {
-  rigid_bodies().get(entity).unwrap_or_else(fn() { legacy_rigid_body(entity) })
+fn entity_rigid_body(world~ : @ecs.World, entity : @ecs.Entity) -> RigidBody {
+  (world.get_component(entity) : RigidBody?).unwrap_or_else(fn() {
+    legacy_rigid_body(world~, entity)
+  })
 }
 
 ///|
-fn entity_collision_config(entity : @ecs.Entity) -> EntityCollisionConfig? {
-  if areas().get(entity) is Some(area) {
+fn entity_collision_config(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> EntityCollisionConfig? {
+  if (world.get_component(entity) : Area?) is Some(area) {
     Some({
       filter: area.filter,
       sensor: true,
@@ -116,7 +138,7 @@ fn entity_collision_config(entity : @ecs.Entity) -> EntityCollisionConfig? {
       friction: 0.0,
       restitution: 0.0,
     })
-  } else if colliders().get(entity) is Some(collider) {
+  } else if (world.get_component(entity) : Collider?) is Some(collider) {
     Some({
       filter: collider.filter,
       sensor: false,
@@ -130,13 +152,13 @@ fn entity_collision_config(entity : @ecs.Entity) -> EntityCollisionConfig? {
 }
 
 ///|
-fn entity_rotation(entity : @ecs.Entity) -> Double {
+fn entity_rotation(world~ : @ecs.World, entity : @ecs.Entity) -> Double {
   if pending_body_rotations().get(entity) is Some(rotation) {
     rotation
-  } else if world().entity_bodies.get(entity) is Some(handle) &&
-    world().bodies.get(handle) is Some(body) {
+  } else if physics_world().entity_bodies.get(entity) is Some(handle) &&
+    physics_world().bodies.get(handle) is Some(body) {
     from_physics_rotation(body.rotation())
-  } else if entity_transform(entity) is Some(transform) {
+  } else if entity_transform(world~, entity) is Some(transform) {
     quat_rotation_z(transform.rotation)
   } else {
     0.0
@@ -145,15 +167,17 @@ fn entity_rotation(entity : @ecs.Entity) -> Double {
 
 ///|
 fn entity_linear_velocity_for_body(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   body_type : RigidBodyType,
 ) -> @math.Vec2? {
+  let query_velocity : @ecs.Query[@ecs.Single[@velocity.Velocity]] = world.query()
   match body_type {
     Dynamic =>
       if pending_body_linear_velocities().get(entity) is Some(velocity) {
         Some(velocity)
-      } else if world().entity_bodies.get(entity) is Some(handle) &&
-        world().bodies.get(handle) is Some(body) {
+      } else if physics_world().entity_bodies.get(entity) is Some(handle) &&
+        physics_world().bodies.get(handle) is Some(body) {
         Some(from_physics_vec2(body.linvel()))
       } else {
         None
@@ -161,16 +185,20 @@ fn entity_linear_velocity_for_body(
     KinematicVelocityBased =>
       if pending_body_linear_velocities().get(entity) is Some(velocity) {
         Some(velocity)
-      } else if @velocity.velocities().get(entity) is Some(velocity) {
+      } else if query_velocity.get(entity).map(value => value.0)
+        is Some(velocity) {
         Some(velocity.0)
-      } else if world().entity_bodies.get(entity) is Some(handle) &&
-        world().bodies.get(handle) is Some(body) {
+      } else if physics_world().entity_bodies.get(entity) is Some(handle) &&
+        physics_world().bodies.get(handle) is Some(body) {
         Some(from_physics_vec2(body.linvel()))
       } else {
         None
       }
     KinematicPositionBased =>
-      @velocity.velocities().get(entity).map(fn(velocity) { velocity.0 })
+      query_velocity
+      .get(entity)
+      .map(value => value.0)
+      .map(fn(velocity) { velocity.0 })
     Fixed => None
   }
 }

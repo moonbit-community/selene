@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/internal/state_runtime"
+
+import {
+  "Milky2018/selene/ecs",
+}
+
+// Values
+pub fn advance(@ecs.World, on_exit~ : @ecs.Schedule, on_enter~ : @ecs.Schedule, initial_only? : Bool) -> Unit raise @ecs.ScheduleError
+
+pub fn register(@ecs.World, StateEntry) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) struct StateEntry {
+  prepare : (@ecs.World, Bool) -> TransitionKind
+  commit : (@ecs.World) -> Unit
+  finish : (@ecs.World) -> Unit
+}
+
+pub(all) enum TransitionKind {
+  Unchanged
+  Initial
+  Changed
+}
+
+// Type aliases
+
+// Traits

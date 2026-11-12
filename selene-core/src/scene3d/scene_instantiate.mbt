@@ -75,21 +75,25 @@ fn bind_instantiated_morph_mesh(
   binding : SkinnedPrimitiveTemplate,
   morph_weights : Array[Double],
 ) -> Unit {
-  @animation.bind_morph_mesh(entity, {
-    target_entity,
-    mesh,
-    base_positions: binding.base_positions,
-    indices: binding.indices,
-    topology: binding.topology,
-    base_normals: binding.base_normals,
-    uv_sets: binding.uv_sets,
-    colors: binding.colors,
-    tangents: binding.tangents,
-    morph_targets: to_animation_morph_targets(binding.morph_targets),
-    morph_weights: resolve_morph_weights(
-      binding.morph_targets.length(),
-      morph_weights,
-    ),
+  let world = @ecs.require_current_world()
+  @ecs.commands(world).add(_ => {
+    guard entity.is_valid_in(world) else { return }
+    @animation.bind_morph_mesh(entity, {
+      target_entity,
+      mesh,
+      base_positions: binding.base_positions,
+      indices: binding.indices,
+      topology: binding.topology,
+      base_normals: binding.base_normals,
+      uv_sets: binding.uv_sets,
+      colors: binding.colors,
+      tangents: binding.tangents,
+      morph_targets: to_animation_morph_targets(binding.morph_targets),
+      morph_weights: resolve_morph_weights(
+        binding.morph_targets.length(),
+        morph_weights,
+      ),
+    })
   })
 }
 
@@ -111,7 +115,7 @@ fn instantiate_scene_node(
   guard node_index >= 0 && node_index < template.nodes.length() else { return }
   let node = template.nodes[node_index]
   let world = @ecs.require_current_world()
-  let draft = world.spawn_draft()
+  let draft = @ecs.commands(world).draft()
   let base_name = node.name.unwrap_or("node\{node_index}")
   let path_base = "\{parent_path}/\{base_name}"
   let entity_name = if parts.contains(path_base) {
@@ -155,10 +159,17 @@ fn instantiate_scene_node(
   } else {
     None
   }
-  let entity = draft.spawn(parent~)
+  let entity = @ecs.commands(world).spawn_draft(draft, parent~)
   parts.set(entity_path, entity)
   node_entities[node_index] = Some(entity)
   if single_renderer is Some((renderer, skinned)) {
+    if skinned is Some(_) {
+      @ecs.commands(world).add(_ => {
+        if !entity.is_valid_in(world) {
+          @render3d.release_mesh_asset(renderer.mesh)
+        }
+      })
+    }
     if node.skin_index is Some(skin_index) &&
       skinned is Some(skinned) &&
       skinned.influences.length() > 0 {
@@ -188,11 +199,18 @@ fn instantiate_scene_node(
           }
         None => template_renderer.renderer
       }
-      let primitive_entity = world.spawn(
+      let primitive_entity = @ecs.commands(world).spawn(
         (@transform.Spatial(@transform.Transform::identity()), renderer),
         parent=entity,
       )
       parts.set("\{entity_path}/primitive\{primitive_index}", primitive_entity)
+      if template_renderer.skinned is Some(_) {
+        @ecs.commands(world).add(_ => {
+          if !primitive_entity.is_valid_in(world) {
+            @render3d.release_mesh_asset(renderer.mesh)
+          }
+        })
+      }
       if node.skin_index is Some(skin_index) &&
         template_renderer.skinned is Some(skinned) &&
         skinned.influences.length() > 0 {

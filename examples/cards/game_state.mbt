@@ -104,7 +104,7 @@ fn cards_runtime() -> CardsRuntime {
 
 ///|
 fn[T : @ecs.Bundle] spawn_cards_entity(values : T) -> @ecs.Entity {
-  let entity = @ecs.require_current_world().spawn(values)
+  let entity = @ecs.commands(@ecs.require_current_world()).spawn(values)
   cards_runtime().entities.push(entity)
   entity
 }
@@ -115,7 +115,7 @@ fn reset_cards_runtime() -> Unit {
   let previous : CardsRuntime? = world.get_resource()
   if previous is Some(state) {
     for entity in state.entities {
-      ignore(entity.delete())
+      @ecs.commands(@ecs.require_current_world()).delete(entity)
     }
   }
   world.insert_resource(CardsRuntime())
@@ -242,4 +242,51 @@ fn GameState::GameState() -> GameState {
     hole_card_entities: [],
     community_card_entities: [],
   }
+}
+
+///|
+priv struct CardsGame {
+  runtime : CardsRuntime
+  texts : @ecs.Query[@ecs.Single[@ui.Text]]
+  nodes : @ecs.Query[@ecs.Single[@ui.Node]]
+  commands : @ecs.Commands
+}
+
+///|
+fn CardsGame::CardsGame(world : @ecs.World) -> CardsGame {
+  {
+    runtime: world.resource(),
+    texts: world.query1(),
+    nodes: world.query1(),
+    commands: @ecs.commands(world),
+  }
+}
+
+///|
+impl @ecs.SystemParam for CardsGame with fn prepare(world) {
+  let fetch : (@ecs.World) -> (
+    @ecs.Res[CardsRuntime],
+    @ecs.Query[@ecs.Single[@ui.Text]],
+    @ecs.Query[@ecs.Single[@ui.Node]],
+    @ecs.Commands,
+  ) = @ecs.SystemParam::prepare(world)
+  world => {
+    let (runtime, texts, nodes, commands) = fetch(world)
+    { runtime: runtime.get(), texts, nodes, commands, }
+  }
+}
+
+///|
+fn CardsGame::game(self : CardsGame) -> GameState {
+  self.runtime.game.unwrap()
+}
+
+///|
+fn[T : @ecs.Bundle] CardsGame::spawn(
+  self : CardsGame,
+  values : T,
+) -> @ecs.Entity {
+  let entity = self.commands.spawn(values)
+  self.runtime.entities.push(entity)
+  entity
 }

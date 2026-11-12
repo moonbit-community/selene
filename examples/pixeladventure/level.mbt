@@ -9,7 +9,7 @@ priv struct LoadedLevelScene {
 }
 
 ///|
-fn load_level_scene() -> LoadedLevelScene {
+fn load_level_scene(world~ : @ecs.World) -> LoadedLevelScene {
   let camera_entity = spawn_game_entity(
     (
       @transform.Spatial(@transform.Transform::identity()),
@@ -18,8 +18,8 @@ fn load_level_scene() -> LoadedLevelScene {
       @camera.OrthographicProjection(),
     ),
   )
-  let player_entity = spawn_player_entity(80.0, 496.0)
-  spawn_flag_entity(64.0, 80.0)
+  let player_entity = spawn_player_entity(world~, 80.0, 496.0)
+  spawn_flag_entity(world~, 64.0, 80.0)
   for
     (x, y) in [
       (160.0, 384.0),
@@ -30,20 +30,23 @@ fn load_level_scene() -> LoadedLevelScene {
       (848.0, 208.0),
       (448.0, 208.0),
     ] {
-    spawn_apple_entity(x, y)
+    spawn_apple_entity(world~, x, y)
   }
-  spawn_bird_entity(240.0, 50.0)
-  spawn_bird_entity(752.0, 210.0)
+  spawn_bird_entity(world~, 240.0, 50.0)
+  spawn_bird_entity(world~, 752.0, 210.0)
   let terrain_image = @asset.load_image(
     "assets/pixeladventure/Terrain/Terrain (16x16).png",
   )
   let rows : Map[Int32, Array[Int32]] = Map([])
-  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
+  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.commands(
+    world,
+  ).prepare_spawn()
   let entities = pixeladventure_world_state().entities
   for (x, y, count, atlas_x, atlas_y) in terrain_runs {
     for offset in 0..<count {
       let tile_x = x + offset
-      let entity = plan.spawn(
+      let entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
+        plan,
         (
           Spatial(
             @transform.Transform::from_xyz(
@@ -74,7 +77,7 @@ fn load_level_scene() -> LoadedLevelScene {
 ///|
 fn build_terrain_colliders(rows : Map[Int32, Array[Int32]]) -> Unit {
   let tile_size_d = TERRAIN_TILE_SIZE.to_double()
-  let plan : TerrainSpawnPlan = @ecs.require_current_world().prepare_spawn()
+  let plan : TerrainSpawnPlan = @ecs.commands(@ecs.require_current_world()).prepare_spawn()
   for y, columns in rows {
     columns.sort()
     let mut cursor = 0

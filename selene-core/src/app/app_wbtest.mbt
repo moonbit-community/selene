@@ -1,31 +1,49 @@
 ///|
+let plugin_calls : Array[String] = []
+
+///|
 fn plugin_add_startup_system(app : App) -> App {
-  app.add_system(Startup, fn(_world) { () }, system_name="plugin_startup")
+  app.add_system(
+    Startup,
+    fn(_ : Unit) { plugin_calls.push("plugin_startup") },
+    system_name="plugin_startup",
+  )
 }
 
 ///|
 fn plugin_a(app : App) -> App {
-  app.add_system(Startup, fn(_world) { () }, system_name="plugin_a")
+  app.add_system(
+    Startup,
+    fn(_ : Unit) { plugin_calls.push("plugin_a") },
+    system_name="plugin_a",
+  )
 }
 
 ///|
 fn plugin_b(app : App) -> App {
-  app.add_system(Startup, fn(_world) { () }, system_name="plugin_b")
+  app.add_system(
+    Startup,
+    fn(_ : Unit) { plugin_calls.push("plugin_b") },
+    system_name="plugin_b",
+  )
 }
 
 ///|
 test "app: add_plugin applies plugin immediately" {
+  plugin_calls.clear()
   let app = App().add_plugin(plugin_add_startup_system)
   inspect(app.systems.length(), content="1")
-  inspect(app.systems[0].name, content="plugin_startup")
+  app.run_frames(1)
+  assert_eq(plugin_calls, ["plugin_startup"])
 }
 
 ///|
 test "app: add_plugins preserves plugin order" {
+  plugin_calls.clear()
   let app = App().add_plugins([plugin_a, plugin_b])
   inspect(app.systems.length(), content="2")
-  inspect(app.systems[0].name, content="plugin_a")
-  inspect(app.systems[1].name, content="plugin_b")
+  app.run_frames(1)
+  assert_eq(plugin_calls, ["plugin_a", "plugin_b"])
 }
 
 ///|
@@ -43,14 +61,14 @@ test "app: add_message registers buses to final world" {
 
   @ecs.set_current_world(world_b)
   events.send(1)
-  @event.event_frame_update_system(0.0)
-  @event.event_frame_update_system(0.0)
+  @event.event_frame_update_system()
+  @event.event_frame_update_system()
   inspect(events.read(reader_b).length(), content="0")
 
   @ecs.set_current_world(world_a)
   events.send(2)
-  @event.event_frame_update_system(0.0)
-  @event.event_frame_update_system(0.0)
+  @event.event_frame_update_system()
+  @event.event_frame_update_system()
   let reader_events = events.read(reader_a)
   inspect(reader_events.length(), content="1")
   inspect(reader_events[0], content="2")
@@ -69,10 +87,10 @@ test "app: run_frames advances startup/update/fixed/render schedules determinist
   let app = App()
     .with_world(world)
     .with_fixed_hz(30)
-    .add_system(Startup, fn(_world) { startup_count.val += 1 })
-    .add_system(Update, fn(_world) { update_count.val += 1 })
-    .add_system(FixedUpdate, fn(_world) { fixed_count.val += 1 })
-    .add_system(Render, fn(_world) { render_count.val += 1 })
+    .add_system(Startup, fn(_ : Unit) { startup_count.val += 1 })
+    .add_system(Update, fn(_ : Unit) { update_count.val += 1 })
+    .add_system(FixedUpdate, fn(_ : Unit) { fixed_count.val += 1 })
+    .add_system(Render, fn(_ : Unit) { render_count.val += 1 })
   app.run_frames(2, raw_delta=1.0 / 30.0)
 
   inspect(startup_count.val, content="1")
@@ -89,12 +107,12 @@ test "app: headless frames service platform maintenance around game and render" 
     .with_world(world)
     .add_system(
       Update,
-      fn(_world) { trace.val = trace.val + "g" },
+      fn(_ : Unit) { trace.val = trace.val + "g" },
       system_name="update_trace",
     )
     .add_system(
       Render,
-      fn(_world) { trace.val = trace.val + "r" },
+      fn(_ : Unit) { trace.val = trace.val + "r" },
       system_name="render_trace",
     )
   setup_runtime_world(app)
@@ -118,9 +136,9 @@ test "app: step_fixed advances only fixed schedule after startup" {
 
   let app = App()
     .with_world(world)
-    .add_system(Startup, fn(_world) { startup_count.val += 1 })
-    .add_system(Update, fn(_world) { update_count.val += 1 })
-    .add_system(FixedUpdate, fn(_world) { fixed_count.val += 1 })
+    .add_system(Startup, fn(_ : Unit) { startup_count.val += 1 })
+    .add_system(Update, fn(_ : Unit) { update_count.val += 1 })
+    .add_system(FixedUpdate, fn(_ : Unit) { fixed_count.val += 1 })
   app.step_fixed(3)
 
   inspect(startup_count.val, content="1")
@@ -143,12 +161,12 @@ test "app: deterministic ordering sorts systems by name when enabled" {
     .with_world(world)
     .add_system(
       Update,
-      fn(_world) { order.val = order.val + "b" },
+      fn(_ : Unit) { order.val = order.val + "b" },
       system_name="b",
     )
     .add_system(
       Update,
-      fn(_world) { order.val = order.val + "a" },
+      fn(_ : Unit) { order.val = order.val + "a" },
       system_name="a",
     )
   app.run_frames(1, raw_delta=1.0 / 60.0)
@@ -170,12 +188,12 @@ test "app: deterministic ordering keeps insertion order when disabled" {
     .with_world(world)
     .add_system(
       Update,
-      fn(_world) { order.val = order.val + "b" },
+      fn(_ : Unit) { order.val = order.val + "b" },
       system_name="b",
     )
     .add_system(
       Update,
-      fn(_world) { order.val = order.val + "a" },
+      fn(_ : Unit) { order.val = order.val + "a" },
       system_name="a",
     )
   app.run_frames(1, raw_delta=1.0 / 60.0)
@@ -204,7 +222,7 @@ test "app: run_frames_capture accepts selected frame indexes" {
     .with_world(world)
     .add_system(
       Render,
-      fn(_world) { rendered_frames.push(rendered_frames.length()) },
+      fn(_ : Unit) { rendered_frames.push(rendered_frames.length()) },
       system_name="render_frame_counter",
     )
   let captures = app.run_frames_capture_with(
@@ -230,7 +248,7 @@ test "app: render frame does not perform platform service work implicitly" {
     .with_world(world)
     .add_system(
       Render,
-      fn(_world) { trace.val = trace.val + "r" },
+      fn(_ : Unit) { trace.val = trace.val + "r" },
       system_name="render_trace",
     )
   setup_runtime_world(app)
@@ -255,8 +273,8 @@ test "render limits do not determine headless simulation time" {
     let mut elapsed = 0.0
     let mut fixed_steps = 0
     let app = { ..App().with_world(world).with_fixed_hz(60), max_fps: cap, }
-      .add_system(Update, _ => elapsed += @time.delta())
-      .add_system(FixedUpdate, _ => fixed_steps += 1)
+      .add_system(Update, fn(_ : Unit) { elapsed += @time.delta() })
+      .add_system(FixedUpdate, fn(_ : Unit) { fixed_steps += 1 })
     app.run_frames(60, raw_delta=0.0)
     assert_true((elapsed - 1.0).abs() < 0.000001)
     assert_eq(fixed_steps, 60)

@@ -4,29 +4,27 @@ fn centered_quad_transform(size : @math.Vec2) -> @math.Affine2 {
 }
 
 ///|
-pub fn render_mesh2d_system(delta : Double) -> Unit {
+pub fn render_mesh2d_system(world~ : @ecs.World, delta : Double) -> Unit {
+  let meshes : @ecs.Query[
+    (Mesh2d, @material2d.MeshMaterial2d, @transform.Spatial),
+  ] = world.query()
   ignore(delta)
-  let camera_views = @camera.active_camera2d_views()
+  let camera_views = @camera.active_camera2d_views(world~)
   let camera_extract = @culling2d.CameraExtract2dContext(camera_views)
-  for entity, mesh in mesh2ds() {
+  for entity, (mesh, material_node, spatial) in meshes {
     guard entity.is_alive() else { continue }
     guard @visibility.is_visible(entity) else { continue }
-    guard @transform.global_transform(entity) is Some(global_transform) else {
-      continue
-    }
+    let global_transform = spatial.global()
     guard mesh2d_asset(mesh.mesh) is Some(mesh_asset) else { continue }
-    guard @material2d.mesh_material2ds().get(entity) is Some(material_node) else {
-      continue
-    }
     let material = match material_node.material {
       Color(handle) => @material2d.color_material(handle)
     }
     guard material is Some(material) else { continue }
-    let sorting = @render2d.entity_sorting2d(entity)
+    let sorting = @render2d.entity_sorting2d(world~, entity)
     let depth = @render2d.sort_depth_for_transform(global_transform, sorting)
     let translation = global_transform.translation()
     let base_pos = @math.Vec2(translation.x, translation.y)
-    let parallax = @parallax2d.inherited_parallax2d(entity)
+    let parallax = @parallax2d.inherited_parallax2d(world~, entity)
     if camera_views.is_empty() {
       let screen_pos = @parallax2d.parallax_world_position(
         base_pos,
@@ -56,8 +54,9 @@ pub fn render_mesh2d_system(delta : Double) -> Unit {
       @camera.world_transform_2d(global_transform),
     )
     let camera_views_for_entity = camera_extract.camera_views_for_bounds(
+      world~,
       world_bounds,
-      @visibility.entity_render_layers(entity),
+      @visibility.entity_render_layers(world~, entity),
       @parallax2d.parallax_depends_on_camera(parallax),
     )
     if camera_views_for_entity.is_empty() {

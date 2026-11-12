@@ -36,15 +36,19 @@ priv struct PlayerAnimationController {
 }
 
 ///|
-fn player_animation_controllers() -> @ecs.ComponentStore[
-  PlayerAnimationController,
-] {
-  @ecs.components()
-}
+type PlayerActors = @ecs.Query[
+  (
+    PlayerAnimationController,
+    @physics2d.LinearVelocity,
+    @sprite.Sprite,
+    @animation.AnimationPlayer,
+    @animation.AnimationTransitions,
+  ),
+]
 
 ///|
-fn player_input_vector() -> @math.Vec2 {
-  if !game_state().level_up_panel.available_selections.is_empty() {
+fn player_input_vector(game : GameState) -> @math.Vec2 {
+  if !game.level_up_panel.available_selections.is_empty() {
     return @math.Vec2::zero()
   }
   let input = @math.Vec2(
@@ -132,34 +136,45 @@ fn build_player_animation_controller() -> (
 
 ///|
 fn play_player_animation_state(
+  players : PlayerActors,
   entity : @ecs.Entity,
   animation : SpriteAnimationDef,
   node : @animation.AnimationNodeIndex,
 ) -> Unit {
-  guard player_animation_controllers().get(entity) is Some(controller) else {
+  guard players.get(entity)
+    is Some((controller, velocity, _, player, transitions)) else {
     return
   }
   if controller.current == Some(node) {
     return
   }
-  @sprite.sprites().set(entity, sprite_animation_sprite(animation))
-  let player = @animation.animation_players().get(entity).unwrap()
-  let transitions = @animation.animation_transitions().get(entity).unwrap()
+  players.set(
+    entity,
+    (
+      controller,
+      velocity,
+      sprite_animation_sprite(animation),
+      player,
+      transitions,
+    ),
+  )
   let duration = 0.0
   ignore(transitions.play(player, node, duration))
   controller.current = Some(node)
 }
 
 ///|
-fn spawn_player() -> @ecs.Entity {
+fn spawn_player(world~ : @ecs.World) -> @ecs.Entity {
   let shape : @physics2d.ColliderShape = Rect(
     size=Vec2(PLAYER_SIZE, PLAYER_SIZE),
     offset=Vec2(-PLAYER_SIZE / 2.0, -PLAYER_SIZE / 2.0),
   )
   let (animation_controller, graph) = build_player_animation_controller()
-  let world = @ecs.require_current_world()
-  let plan = world.prepare_spawn().combine(world.prepare_spawn())
-  let entity = plan.spawn(
+  let plan = @ecs.commands(world)
+    .prepare_spawn()
+    .combine(@ecs.commands(world).prepare_spawn())
+  let entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
+    plan,
     (
       (
         sprite_animation_sprite(player_idle_right_animation),
@@ -186,18 +201,25 @@ fn spawn_player() -> @ecs.Entity {
     ),
   )
   survivors_runtime().entities.push(entity)
-  play_player_animation_state(
-    entity,
-    player_idle_right_animation,
-    animation_controller.idle_right,
-  )
+  @ecs.commands(world).add(world => {
+    play_player_animation_state(
+      world.query(),
+      entity,
+      player_idle_right_animation,
+      animation_controller.idle_right,
+    )
+  })
   entity
 }
 
 ///|
-fn player_update_system(_world : @ecs.World) -> Unit {
-  let game = game_state()
-  let delta = @time.delta()
+fn player_update_system(
+  players : PlayerActors,
+  runtime : @ecs.Res[SurvivorsRuntime],
+  time : @time.Time,
+) -> Unit {
+  guard runtime.get().game is Some(game) else { return }
+  let delta = time.delta()
   if delta == 0 {
     return
   }
@@ -207,8 +229,7 @@ fn player_update_system(_world : @ecs.World) -> Unit {
   } else {
     game.player_stats.speed
   }
-  let vel = player_input_vector().normalize_or_zero().scalar_mul(speed)
-  @physics2d.linear_velocities().set(entity, vel)
+  let vel = player_input_vector(game).normalize_or_zero().scalar_mul(speed)
   if vel.x > 0.0 {
     game.player_direction = Right
   } else if vel.x < 0.0 {
@@ -218,54 +239,67 @@ fn player_update_system(_world : @ecs.World) -> Unit {
   } else if vel.y < 0.0 {
     game.player_direction = Up
   }
-  guard player_animation_controllers().get(entity) is Some(animation_controller) else {
+  guard players.get(entity)
+    is Some((animation_controller, _, sprite, player, transitions)) else {
     return
   }
+  players.set(
+    entity,
+    (animation_controller, Velocity(vel), sprite, player, transitions),
+  )
   match (vel == @math.Vec2::zero(), game.player_direction) {
     (true, Left) =>
       play_player_animation_state(
+        players,
         entity,
         player_idle_left_animation,
         animation_controller.idle_left,
       )
     (true, Right) =>
       play_player_animation_state(
+        players,
         entity,
         player_idle_right_animation,
         animation_controller.idle_right,
       )
     (true, Up) =>
       play_player_animation_state(
+        players,
         entity,
         player_idle_up_animation,
         animation_controller.idle_up,
       )
     (true, Down) =>
       play_player_animation_state(
+        players,
         entity,
         player_idle_down_animation,
         animation_controller.idle_down,
       )
     (false, Left) =>
       play_player_animation_state(
+        players,
         entity,
         player_run_left_animation,
         animation_controller.run_left,
       )
     (false, Right) =>
       play_player_animation_state(
+        players,
         entity,
         player_run_right_animation,
         animation_controller.run_right,
       )
     (false, Up) =>
       play_player_animation_state(
+        players,
         entity,
         player_run_up_animation,
         animation_controller.run_up,
       )
     (false, Down) =>
       play_player_animation_state(
+        players,
         entity,
         player_run_down_animation,
         animation_controller.run_down,
@@ -274,12 +308,18 @@ fn player_update_system(_world : @ecs.World) -> Unit {
 }
 
 ///|
-fn player_shooting_system(_world : @ecs.World) -> Unit {
-  let game = game_state()
-  let delta = @time.delta()
-  guard @transform.local_transform(game.player_entity) is Some(player_transform) else {
-    return
-  }
+fn player_shooting_system(
+  spatials : @ecs.Query[@ecs.Single[@transform.Spatial]],
+  enemies : @ecs.Query[(Enemy, @transform.Spatial)],
+  resource : @ecs.Res[SurvivorsRuntime],
+  commands : @ecs.Commands,
+  time : @time.Time,
+) -> Unit {
+  let runtime = resource.get()
+  guard runtime.game is Some(game) else { return }
+  guard spatials.get(game.player_entity) is Some(Single(player)) else { return }
+  let player_transform = player.pose()
+  let delta = time.delta()
   let player_pos = @math.Vec2(
     player_transform.translation.x,
     player_transform.translation.y,
@@ -307,6 +347,9 @@ fn player_shooting_system(_world : @ecs.World) -> Unit {
     game.player_stats.penetration
   }
   update_weapon_timers(
+    runtime,
+    commands,
+    enemies,
     game.player_stats.weapon_instances,
     delta,
     attack_speed,
@@ -319,16 +362,15 @@ fn player_shooting_system(_world : @ecs.World) -> Unit {
 
 ///|
 fn find_nearest_enemy_in_range(
+  enemies : @ecs.Query[(Enemy, @transform.Spatial)],
   player_pos : @math.Vec2,
   weapon_range : Double,
 ) -> @math.Vec2? {
   let mut min = weapon_range
   let mut res : @math.Vec2? = None
-  for e, _enemy in enemies() {
+  for e, (_, spatial) in enemies {
     guard e.is_alive() else { continue }
-    guard @transform.local_transform(e) is Some(enemy_transform) else {
-      continue
-    }
+    let enemy_transform = spatial.pose()
     let enemy_pos = @math.Vec2(
       enemy_transform.translation.x,
       enemy_transform.translation.y,

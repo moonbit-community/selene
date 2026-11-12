@@ -1,17 +1,17 @@
 ///|
-fn with_runtime_debug_world(action : () -> Unit raise) -> Unit raise {
+fn with_runtime_debug_world(action : (@ecs.World) -> Unit raise) -> Unit raise {
   let previous = @ecs.current_world().unwrap_or(@ecs.bootstrap_world())
   let world = @ecs.World()
   @ecs.set_current_world(world)
   @asset.set_io(fn(_path) { Some(Bytes::from_array([1U.to_byte()])) })
-  action()
+  action(world)
   @asset.set_io(fn(_path) { None })
   @ecs.set_current_world(previous)
 }
 
 ///|
 test "deterministic rng is reproducible with the same seed" {
-  with_runtime_debug_world(fn() raise {
+  with_runtime_debug_world(fn(_world) raise {
     set_deterministic_mode({
       rng_seed: 123U,
       fixed_delta_override: None,
@@ -30,7 +30,7 @@ test "deterministic rng is reproducible with the same seed" {
 
 ///|
 test "input queue supports event injection and fallback polling" {
-  with_runtime_debug_world(fn() raise {
+  with_runtime_debug_world(fn(_world) raise {
     clear_queued_inputs()
     queue_input_event(KeyDown(Space))
     let injected = consume_injected_input_or(fn() { InputSnapshot() })
@@ -47,7 +47,7 @@ test "input queue supports event injection and fallback polling" {
 
 ///|
 test "frame metrics track fixed update and render phases" {
-  with_runtime_debug_world(fn() raise {
+  with_runtime_debug_world(fn(_world) raise {
     begin_frame_metrics()
     note_fixed_step(0.016)
     note_update(0.032, 7)
@@ -63,7 +63,7 @@ test "frame metrics track fixed update and render phases" {
 
 ///|
 test "atlas validation reports overlaps and out-of-bounds regions" {
-  with_runtime_debug_world(fn() raise {
+  with_runtime_debug_world(fn(_world) raise {
     let rect_a : @math.Rect = {
       position: Vec2(0.0, 0.0),
       size: Vec2(8.0, 8.0),
@@ -98,7 +98,7 @@ test "atlas validation reports overlaps and out-of-bounds regions" {
 
 ///|
 test "render submission keeps entity ids and exposes offscreen capture API" {
-  with_runtime_debug_world(fn() raise {
+  with_runtime_debug_world(fn(_world) raise {
     let world_command : @render2d.DrawCommandWithDepth2D = {
       depth: 1.0,
       order: 0,
@@ -128,7 +128,7 @@ test "render submission keeps entity ids and exposes offscreen capture API" {
 
 ///|
 test "sprite inspector returns unified sprite debug entries" {
-  with_runtime_debug_world(fn() raise {
+  with_runtime_debug_world(fn(world) raise {
     let image = @asset.load_image("assets/debug/sprite.png")
     let source_rect : @math.Rect = {
       position: Vec2(2.0, 4.0),
@@ -136,7 +136,8 @@ test "sprite inspector returns unified sprite debug entries" {
     }
     let local_transform = @transform.Transform::from_xyz(12.0, 34.0, 1.0)
     ignore(
-      @ecs.require_current_world().spawn(
+      @ecs_test.spawn(
+        @ecs.require_current_world(),
         (
           @name.Name("Sprite Debug"),
           @transform.Spatial(local_transform),
@@ -149,7 +150,7 @@ test "sprite inspector returns unified sprite debug entries" {
         ),
       ),
     )
-    let entries = sprite_inspector_entries()
+    let entries = sprite_inspector_entries(world~)
     inspect(entries.length(), content="1")
     inspect(entries[0].entity_name == Some("Sprite Debug"), content="true")
     inspect(
@@ -163,7 +164,7 @@ test "sprite inspector returns unified sprite debug entries" {
 
 ///|
 test "atlas overlay decoration appends highlight rects when enabled" {
-  with_runtime_debug_world(fn() raise {
+  with_runtime_debug_world(fn(_world) raise {
     let image = @asset.load_image("assets/debug/atlas.png")
     let draw_image : @render2d_types.ImageDrawCommand2D = {
       image,
@@ -203,7 +204,7 @@ test "atlas overlay decoration appends highlight rects when enabled" {
 
 ///|
 test "frame metadata export includes draw commands and atlas overlay entries" {
-  with_runtime_debug_world(fn() raise {
+  with_runtime_debug_world(fn(world) raise {
     let image = @asset.load_image("assets/debug/metadata.png")
     let draw_image : @render2d_types.ImageDrawCommand2D = {
       image,
@@ -233,10 +234,10 @@ test "frame metadata export includes draw commands and atlas overlay entries" {
       assets3d: RenderAssetSync3D(),
     }
     record_render_submission(frame, [world_command])
-    let metadata = capture_last_frame_metadata().unwrap()
+    let metadata = capture_last_frame_metadata(world~).unwrap()
     inspect(metadata.draw2d.length(), content="1")
     inspect(metadata.atlas_overlay.length(), content="1")
-    let json_text = capture_last_frame_metadata_json().unwrap()
+    let json_text = capture_last_frame_metadata_json(world~).unwrap()
     inspect(json_text.contains("\"frame_index\""), content="true")
     inspect(json_text.contains("\"atlas_overlay\""), content="true")
     inspect(
@@ -250,7 +251,7 @@ test "frame metadata export includes draw commands and atlas overlay entries" {
 
 ///|
 test "export sprite inspector regions only processes entries with image and source rect" {
-  with_runtime_debug_world(fn() raise {
+  with_runtime_debug_world(fn(_world) raise {
     let naming_calls = Ref(0)
     let entries : Array[SpriteInspectorEntry] = [
       {
@@ -307,7 +308,7 @@ test "export sprite inspector regions only processes entries with image and sour
 
 ///|
 test "export texture region png returns false for missing image path" {
-  with_runtime_debug_world(fn() raise {
+  with_runtime_debug_world(fn(_world) raise {
     inspect(
       export_texture_region_png(
         "/tmp/selene_runtime_debug_missing.png",

@@ -3,10 +3,10 @@ test "entity side tables preserve insertion order across removal and reuse" {
   let world = @ecs.World()
   let table : @ecs.EntityTable[Int32] = EntityTable(world)
   let entities = [
-    world.spawn(()),
-    world.spawn(()),
-    world.spawn(()),
-    world.spawn(()),
+    @ecs_test.spawn(world, ()),
+    @ecs_test.spawn(world, ()),
+    @ecs_test.spawn(world, ()),
+    @ecs_test.spawn(world, ()),
   ]
   for index, entity in entities {
     table.set(entity, index)
@@ -42,14 +42,14 @@ test "entity side tables distinguish Worlds and generations while retaining orph
   let first = @ecs.World()
   let second = @ecs.World()
   @ecs.set_current_world(first)
-  let old = first.spawn(())
-  let other = second.spawn(())
+  let old = @ecs_test.spawn(first, ())
+  let other = @ecs_test.spawn(second, ())
   let table : @ecs.EntityTable[Int32] = EntityTable(first)
   table.set(old, 42)
   assert_eq(table.get(other), None)
   assert_eq(table.remove_and_get(other), None)
-  assert_true(old.delete())
-  let replacement = first.spawn(())
+  assert_true(@ecs_test.delete(old))
+  let replacement = @ecs_test.spawn(first, ())
   assert_eq(replacement.slot_index(), old.slot_index())
   assert_eq(table.get(replacement), None)
   // External resource cleanup must still be able to read the deleted handle.
@@ -57,8 +57,8 @@ test "entity side tables distinguish Worlds and generations while retaining orph
   table.set(replacement, 100)
   table.remove(old)
   assert_eq(table.get(replacement), Some(100))
-  assert_true(replacement.delete())
-  let newest = first.spawn(())
+  assert_true(@ecs_test.delete(replacement))
+  let newest = @ecs_test.spawn(first, ())
   table.set(newest, 200)
   assert_eq(table.get(replacement), Some(100))
   assert_eq(table.get(newest), Some(200))
@@ -82,7 +82,7 @@ test "panic entity side tables reject writes from a different World" {
   let first = @ecs.World()
   let second = @ecs.World()
   let table : @ecs.EntityTable[Int32] = EntityTable(first)
-  table.set(second.spawn(()), 1)
+  table.set(@ecs_test.spawn(second, ()), 1)
 }
 
 ///|
@@ -94,9 +94,9 @@ test "panic stale entity side table writes cannot replace a newer generation" {
   })
   let world = @ecs.World()
   @ecs.set_current_world(world)
-  let old = world.spawn(())
-  ignore(old.delete())
-  let replacement = world.spawn(())
+  let old = @ecs_test.spawn(world, ())
+  ignore(@ecs_test.delete(old))
+  let replacement = @ecs_test.spawn(world, ())
   let table : @ecs.EntityTable[Int32] = EntityTable(world)
   table.set(replacement, 2)
   table.set(old, 1)
@@ -114,10 +114,10 @@ test "multiple orphan generations survive slot reuse until explicitly released" 
   let table : @ecs.EntityTable[Int32] = EntityTable(world)
   let generations = []
   for value in 0..<4 {
-    let entity = world.spawn(())
+    let entity = @ecs_test.spawn(world, ())
     table.set(entity, value)
     generations.push(entity)
-    ignore(entity.delete())
+    ignore(@ecs_test.delete(entity))
   }
   assert_eq(generations[0].slot_index(), generations[3].slot_index())
   assert_eq(table.remove_and_get(generations[1]), Some(1))
@@ -126,7 +126,7 @@ test "multiple orphan generations survive slot reuse until explicitly released" 
   assert_eq(table.get(generations[2]), Some(2))
   debug_inspect(table.values().collect(), content="[0, 2]")
   table.clear()
-  let entity = world.spawn(())
+  let entity = @ecs_test.spawn(world, ())
   table.set(entity, 4)
   assert_eq(table.length(), 1)
   assert_eq(table.get(generations[0]), None)

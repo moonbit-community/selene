@@ -29,11 +29,11 @@ pub fn capture_frame_png() -> Bytes?
 
 pub fn capture_frame_png_to_file(String) -> Bool
 
-pub fn capture_last_frame_metadata() -> FrameCaptureMetadata?
+pub fn capture_last_frame_metadata(world~ : @ecs.World) -> FrameCaptureMetadata?
 
-pub fn capture_last_frame_metadata_json(indent? : Int32) -> String?
+pub fn capture_last_frame_metadata_json(world~ : @ecs.World, indent? : Int32) -> String?
 
-pub fn capture_last_frame_with_metadata(Int32, Int32, indent? : Int32) -> FrameCaptureArtifact?
+pub fn capture_last_frame_with_metadata(world~ : @ecs.World, Int32, Int32, indent? : Int32) -> FrameCaptureArtifact?
 
 pub fn clear_deterministic_mode() -> Unit
 
@@ -93,17 +93,17 @@ pub fn set_deterministic_mode(DeterministicModeConfig) -> Unit
 
 pub fn set_rng_seed(UInt32) -> Unit
 
-pub fn sprite_inspector_entries() -> Array[SpriteInspectorEntry]
+pub fn sprite_inspector_entries(world~ : @ecs.World) -> Array[SpriteInspectorEntry]
 
 pub fn unregister_snapshot_provider(String) -> Unit
 
-pub fn validate_registered_texture_atlases() -> Array[(@sprite.TextureAtlasLayoutHandle, AtlasValidationReport)]
+pub fn validate_registered_texture_atlases(world~ : @ecs.World) -> Array[(@sprite.TextureAtlasLayoutHandle, AtlasValidationReport)]
 
 pub fn validate_texture_atlas_layout(@sprite.TextureAtlasLayout) -> AtlasValidationReport
 
 pub fn validate_texture_atlas_layout_for_image(@sprite.TextureAtlasLayout, String?) -> AtlasValidationReport
 
-pub fn world_snapshot() -> WorldSnapshot
+pub fn world_snapshot(world~ : @ecs.World) -> WorldSnapshot
 
 // Errors
 

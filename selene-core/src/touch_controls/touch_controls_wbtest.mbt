@@ -1,9 +1,11 @@
 ///|
-fn with_touch_controls_test_world(action : () -> Unit raise) -> Unit raise {
+fn with_touch_controls_test_world(
+  action : (@ecs.World) -> Unit raise,
+) -> Unit raise {
   let previous = @ecs.current_world().unwrap_or(@ecs.bootstrap_world())
   let world = @ecs.World()
   @ecs.set_current_world(world)
-  action()
+  action(world)
   @ecs.set_current_world(previous)
 }
 
@@ -43,6 +45,7 @@ fn touch_event(
 
 ///|
 fn apply_touch_frame(
+  world~ : @ecs.World,
   active_touch : @inputs.TouchPoint?,
   changes : Array[@inputs.TouchEvent],
 ) -> Unit {
@@ -56,12 +59,12 @@ fn apply_touch_frame(
     touches: active,
     touch_changes: changes,
   })
-  @ui.ui_input_capture_system(0.0)
+  @ui.ui_input_capture_system(world~, 0.0)
 }
 
 ///|
 test "floating stick writes virtual axes and consumes its touch" {
-  with_touch_controls_test_world(fn() raise {
+  with_touch_controls_test_world(fn(world) raise {
     clear_controls()
     @inputs.clear_virtual_controls()
     @window.configure_display(400.0, 300.0, 1.0)
@@ -80,21 +83,23 @@ test "floating stick writes virtual axes and consumes its touch" {
     )
     let id = @inputs.TouchId(7)
     let start = @math.Vec2(100.0, 225.0)
-    apply_touch_frame(Some(touch_point(id, start)), [
+    apply_touch_frame(world~, Some(touch_point(id, start)), [
       touch_event(id, Started, start),
     ])
-    touch_controls_system(0.0)
+    touch_controls_system()
     inspect(@ui.is_touch_consumed(id), content="true")
     inspect(@inputs.virtual_axis_value(axis_x), content="0")
     let moved = @math.Vec2(150.0, 225.0)
-    apply_touch_frame(Some(touch_point(id, moved, previous_position=start)), [
-      touch_event(id, Moved, moved, previous_position=start),
-    ])
-    touch_controls_system(0.0)
+    apply_touch_frame(
+      world~,
+      Some(touch_point(id, moved, previous_position=start)),
+      [touch_event(id, Moved, moved, previous_position=start)],
+    )
+    touch_controls_system()
     inspect(@inputs.virtual_axis_value(axis_x), content="1")
     inspect(@inputs.virtual_axis_value(axis_y), content="0")
-    apply_touch_frame(None, [touch_event(id, Ended, moved)])
-    touch_controls_system(0.0)
+    apply_touch_frame(world~, None, [touch_event(id, Ended, moved)])
+    touch_controls_system()
     inspect(@inputs.virtual_axis_value(axis_x), content="0")
     clear_controls()
     @inputs.clear_virtual_controls()
@@ -103,7 +108,7 @@ test "floating stick writes virtual axes and consumes its touch" {
 
 ///|
 test "button control writes virtual button only for unconsumed touches" {
-  with_touch_controls_test_world(fn() raise {
+  with_touch_controls_test_world(fn(world) raise {
     clear_controls()
     @inputs.clear_virtual_controls()
     @window.configure_display(400.0, 300.0, 1.0)
@@ -118,13 +123,13 @@ test "button control writes virtual button only for unconsumed touches" {
     )
     let id = @inputs.TouchId(9)
     let start = @math.Vec2(320.0, 240.0)
-    apply_touch_frame(Some(touch_point(id, start)), [
+    apply_touch_frame(world~, Some(touch_point(id, start)), [
       touch_event(id, Started, start),
     ])
-    touch_controls_system(0.0)
+    touch_controls_system()
     inspect(@inputs.is_virtual_button_pressed(button), content="true")
-    apply_touch_frame(None, [touch_event(id, Ended, start)])
-    touch_controls_system(0.0)
+    apply_touch_frame(world~, None, [touch_event(id, Ended, start)])
+    touch_controls_system()
     inspect(@inputs.is_virtual_button_pressed(button), content="false")
     clear_controls()
     @inputs.clear_virtual_controls()

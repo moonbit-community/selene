@@ -16,9 +16,8 @@ test "App resources are available before Startup and retain their configured val
   let first = @ecs.World()
   let second = @ecs.World()
   let observed = []
-  let read_settings = (world : @ecs.World) => {
-    let settings : Settings = world.resource()
-    observed.push(settings.value)
+  let read_settings = (settings : @ecs.Res[Settings]) => {
+    observed.push(settings.get().value)
   }
   @app.App()
   .with_world(first)

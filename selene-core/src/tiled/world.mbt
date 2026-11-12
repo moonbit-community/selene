@@ -1,6 +1,9 @@
 ///|
-fn tiled_world_entity_translation_2d(entity : @ecs.Entity) -> @math.Vec2? {
-  @transform.local_transform(entity).map(fn(transform) {
+fn tiled_world_entity_translation_2d(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> @math.Vec2? {
+  @transform.local_transform(world~, entity).map(fn(transform) {
     Vec2(transform.translation.x, transform.translation.y)
   })
 }
@@ -71,16 +74,6 @@ pub(all) struct TiledWorldSpawnSettings {
 }
 
 ///|
-pub fn tiled_world_instances() -> @ecs.ComponentStore[TiledWorldInstance] {
-  @ecs.components()
-}
-
-///|
-pub fn tiled_world_map_instances() -> @ecs.ComponentStore[TiledWorldMapInstance] {
-  @ecs.components()
-}
-
-///|
 pub fn TiledWorld::TiledWorld() -> TiledWorld {
   { only_show_adjacent_maps: false, maps: [], patterns: [], source_path: None, }
 }
@@ -117,21 +110,23 @@ pub fn load_tiled_world(path : String) -> TiledWorld {
 
 ///|
 pub fn load_and_spawn_tiled_world(
+  world~ : @ecs.World,
   path : String,
   settings~ : TiledWorldSpawnSettings = TiledWorldSpawnSettings(),
 ) -> @ecs.Entity {
-  spawn_tiled_world(load_tiled_world(path), settings~)
+  spawn_tiled_world(world~, load_tiled_world(path), settings~)
 }
 
 ///|
 pub fn spawn_tiled_world(
-  world : TiledWorld,
+  world~ : @ecs.World,
+  source_world : TiledWorld,
   settings~ : TiledWorldSpawnSettings = TiledWorldSpawnSettings(),
   parent? : @ecs.Entity,
 ) -> @ecs.Entity {
-  let loaded_maps_raw = tiled_world_load_maps(world)
+  let loaded_maps_raw = tiled_world_load_maps(source_world)
   let focus_path = settings.focus_map_path.map(path => {
-    world.resolve_map_path(path)
+    source_world.resolve_map_path(path)
   })
   let loaded_maps : Array[TiledWorldLoadedMap] = []
   for index, loaded_map in loaded_maps_raw {
@@ -141,73 +136,93 @@ pub fn spawn_tiled_world(
       resolved_map_path: loaded_map.resolved_map_path,
       map: loaded_map.map,
       spawnable: tiled_world_should_spawn_map(
-        loaded_maps_raw, loaded_map, focus_path, world,
+        loaded_maps_raw, loaded_map, focus_path, source_world,
       ),
     })
   }
   let spawned_maps : Map[Int32, @ecs.Entity] = Map([])
-  let world_entity = @ecs.require_current_world().spawn(
+  let world_entity = @ecs.commands(world).spawn(
     (
       tiled_spatial(settings.position, 0),
-      TiledWorldInstance::{ world, settings, loaded_maps, spawned_maps, },
+      TiledWorldInstance::{
+        world: source_world,
+        settings,
+        loaded_maps,
+        spawned_maps,
+      },
     ),
     parent?,
   )
-  let world_event = { world_entity, world, }
-  tiled_world_spawned_event_bus.trigger(world_event, Some(world_entity))
-  if settings.world_hook is Some(world_hook) {
-    world_hook(world_event)
-  }
-  if settings.chunking is Some(_) {
-    tiled_world_update_chunking(world_entity)
-  } else {
-    for index, loaded_map in loaded_maps {
-      if loaded_map.spawnable {
-        tiled_world_spawn_loaded_map(world_entity, index)
+  @ecs.commands(world).add(_ => {
+    guard world_entity.is_valid_in(world) else { return }
+    let world_event = { world_entity, world: source_world, }
+    tiled_world_spawned_event_bus.trigger(world_event, Some(world_entity))
+    if settings.world_hook is Some(world_hook) {
+      world_hook(world_event)
+    }
+    if settings.chunking is Some(_) {
+      tiled_world_update_chunking(world~, world_entity)
+    } else {
+      for index, loaded_map in loaded_maps {
+        if loaded_map.spawnable {
+          tiled_world_spawn_loaded_map(world~, world_entity, index)
+        }
       }
     }
-  }
+  })
   world_entity
 }
 
 ///|
 /// Replaces a previously imported world under the same parent.
 pub fn replace_tiled_world(
+  world~ : @ecs.World,
   root : @ecs.Entity,
-  world : TiledWorld,
+  source_world : TiledWorld,
   settings~ : TiledWorldSpawnSettings = TiledWorldSpawnSettings(),
 ) -> @ecs.Entity {
   let parent = root.get_parent()
-  ignore(root.delete())
-  spawn_tiled_world(world, settings~, parent?)
+  @ecs.commands(world).delete(root)
+  spawn_tiled_world(world~, source_world, settings~, parent?)
 }
 
 ///|
-pub fn tiled_world_chunking_system(_delta : Double) -> Unit {
-  for entity in tiled_world_instances().to_array().map(pair => pair.0) {
+pub fn tiled_world_chunking_system(
+  world~ : @ecs.World,
+  _delta : Double,
+) -> Unit {
+  let query_tiled_world_instance : @ecs.Query[@ecs.Single[TiledWorldInstance]] = world.query()
+  for entity in query_tiled_world_instance.to_array().map(pair => pair.0) {
     if !entity.is_alive() {
       continue
     }
-    guard tiled_world_instances().get(entity) is Some(instance) else {
+    guard query_tiled_world_instance.get(entity).map(value => value.0)
+      is Some(instance) else {
       continue
     }
     if instance.settings.chunking is Some(_) {
-      tiled_world_update_chunking(entity)
+      tiled_world_update_chunking(world~, entity)
     }
   }
 }
 
 ///|
-fn tiled_world_update_chunking(world_entity : @ecs.Entity) -> Unit {
-  guard tiled_world_instances().get(world_entity) is Some(instance) else {
+fn tiled_world_update_chunking(
+  world~ : @ecs.World,
+  world_entity : @ecs.Entity,
+) -> Unit {
+  let query_tiled_world_instance : @ecs.Query[@ecs.Single[TiledWorldInstance]] = world.query()
+  guard query_tiled_world_instance.get(world_entity).map(value => value.0)
+    is Some(instance) else {
     return
   }
   guard instance.settings.chunking is Some(margin) else { return }
-  let (view_min, view_max) = tiled_camera_view_bounds()
+  let (view_min, view_max) = tiled_camera_view_bounds(world~)
   let view_min = view_min - margin
   let view_max = view_max + margin
 
-  guard tiled_world_entity_translation_2d(world_entity) is Some(world_pos) else {
+  guard tiled_world_entity_translation_2d(world~, world_entity)
+    is Some(world_pos) else {
     return
   }
   let world_origin = world_pos
@@ -232,7 +247,7 @@ fn tiled_world_update_chunking(world_entity : @ecs.Entity) -> Unit {
 
   for (idx, map_entity) in instance.spawned_maps.to_array() {
     if !visible.contains(idx) {
-      despawn_tiled_tree(map_entity)
+      @ecs.commands(world).delete(map_entity)
       instance.spawned_maps.remove(idx)
     }
   }
@@ -241,13 +256,13 @@ fn tiled_world_update_chunking(world_entity : @ecs.Entity) -> Unit {
     if instance.spawned_maps.contains(idx) {
       continue
     }
-    tiled_world_spawn_loaded_map(world_entity, idx)
+    tiled_world_spawn_loaded_map(world~, world_entity, idx)
   }
 }
 
 ///|
-fn tiled_camera_view_bounds() -> (@math.Vec2, @math.Vec2) {
-  let camera_views = @camera.active_camera2d_views()
+fn tiled_camera_view_bounds(world~ : @ecs.World) -> (@math.Vec2, @math.Vec2) {
+  let camera_views = @camera.active_camera2d_views(world~)
   if camera_views.is_empty() {
     return (@math.Vec2::zero(), @window.get_viewport_size())
   }
@@ -276,10 +291,12 @@ fn tiled_camera_view_bounds() -> (@math.Vec2, @math.Vec2) {
 
 ///|
 fn tiled_world_spawn_loaded_map(
+  world~ : @ecs.World,
   world_entity : @ecs.Entity,
   index : Int32,
 ) -> Unit {
-  guard tiled_world_instances().get(world_entity) is Some(instance) else {
+  guard (world.get_component(world_entity) : TiledWorldInstance?)
+    is Some(instance) else {
     return
   }
   if index < 0 || index >= instance.loaded_maps.length() {
@@ -302,6 +319,7 @@ fn tiled_world_spawn_loaded_map(
     index * instance.settings.map_z_step,
   }
   let map_entity = spawn_tiled_map_root(
+    world~,
     loaded_map.map,
     map_settings,
     parent=Some(world_entity),
@@ -319,10 +337,13 @@ fn tiled_world_spawn_loaded_map(
     resolved_map_path: loaded_map.resolved_map_path,
   }
   instance.spawned_maps.set(index, map_entity)
-  tiled_world_map_spawned_event_bus.trigger(world_map_event, Some(map_entity))
-  if instance.settings.world_map_hook is Some(world_map_hook) {
-    world_map_hook(world_map_event)
-  }
+  @ecs.commands(world).add(_ => {
+    guard map_entity.is_valid_in(world) else { return }
+    tiled_world_map_spawned_event_bus.trigger(world_map_event, Some(map_entity))
+    if instance.settings.world_map_hook is Some(world_map_hook) {
+      world_map_hook(world_map_event)
+    }
+  })
 }
 
 ///|
@@ -414,19 +435,19 @@ fn parse_tiled_world_patterns(
 }
 
 ///|
-fn tiled_world_collect_maps(world : TiledWorld) -> Array[TiledWorldMap] {
+fn tiled_world_collect_maps(source_world : TiledWorld) -> Array[TiledWorldMap] {
   let resolved_paths : @set.Set[String] = Set([])
   let maps : Array[TiledWorldMap] = []
-  for world_map in world.maps {
-    let resolved = world.resolve_map_path(world_map.file_name)
+  for world_map in source_world.maps {
+    let resolved = source_world.resolve_map_path(world_map.file_name)
     if resolved_paths.contains(resolved) {
       continue
     }
     resolved_paths.add(resolved)
     maps.push(world_map)
   }
-  for world_map in tiled_world_expand_patterns(world) {
-    let resolved = world.resolve_map_path(world_map.file_name)
+  for world_map in tiled_world_expand_patterns(source_world) {
+    let resolved = source_world.resolve_map_path(world_map.file_name)
     if resolved_paths.contains(resolved) {
       continue
     }
@@ -437,16 +458,18 @@ fn tiled_world_collect_maps(world : TiledWorld) -> Array[TiledWorldMap] {
 }
 
 ///|
-fn tiled_world_expand_patterns(world : TiledWorld) -> Array[TiledWorldMap] {
-  if world.patterns.length() == 0 {
+fn tiled_world_expand_patterns(
+  source_world : TiledWorld,
+) -> Array[TiledWorldMap] {
+  if source_world.patterns.length() == 0 {
     return []
   }
-  let file_names = tiled_world_scan_directory_files(world)
+  let file_names = tiled_world_scan_directory_files(source_world)
   if file_names.length() == 0 {
     return []
   }
   let maps : Array[TiledWorldMap] = []
-  for pattern in world.patterns {
+  for pattern in source_world.patterns {
     for map in tiled_world_expand_pattern(pattern, file_names) {
       maps.push(map)
     }
@@ -479,13 +502,13 @@ fn tiled_world_expand_pattern(
 }
 
 ///|
-fn tiled_world_scan_directory_files(world : TiledWorld) -> Array[String] {
-  guard world.source_path is Some(source_path) else { return [] }
+fn tiled_world_scan_directory_files(source_world : TiledWorld) -> Array[String] {
+  guard source_world.source_path is Some(source_path) else { return [] }
   let directory = tiled_world_directory_path(source_path)
   let entries = @fs.read_dir(directory) catch { _ => return [] }
   let file_names : Array[String] = []
   for entry in entries {
-    let resolved = world.resolve_map_path(entry)
+    let resolved = source_world.resolve_map_path(entry)
     if (@fs.is_file(resolved) catch { _ => false }) {
       file_names.push(entry)
     }
@@ -1017,10 +1040,12 @@ fn tiled_world_capture_int(source : String) -> Int32? {
 }
 
 ///|
-fn tiled_world_load_maps(world : TiledWorld) -> Array[LoadedTiledWorldMap] {
+fn tiled_world_load_maps(
+  source_world : TiledWorld,
+) -> Array[LoadedTiledWorldMap] {
   let loaded_maps : Array[LoadedTiledWorldMap] = []
-  for world_map in tiled_world_collect_maps(world) {
-    let resolved_map_path = world.resolve_map_path(world_map.file_name)
+  for world_map in tiled_world_collect_maps(source_world) {
+    let resolved_map_path = source_world.resolve_map_path(world_map.file_name)
     let map = load_tiled_map(resolved_map_path)
     loaded_maps.push({ world_map, resolved_map_path, map, })
   }
@@ -1032,9 +1057,9 @@ fn tiled_world_should_spawn_map(
   loaded_maps : Array[LoadedTiledWorldMap],
   candidate : LoadedTiledWorldMap,
   focus_path : String?,
-  world : TiledWorld,
+  source_world : TiledWorld,
 ) -> Bool {
-  if !world.only_show_adjacent_maps {
+  if !source_world.only_show_adjacent_maps {
     return true
   }
   guard focus_path is Some(target_path) else { return true }

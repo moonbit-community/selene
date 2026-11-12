@@ -7,8 +7,8 @@ fn entity_angular_velocity_for_body(
     Dynamic | KinematicVelocityBased =>
       if pending_body_angular_velocities().get(entity) is Some(angular_velocity) {
         Some(angular_velocity)
-      } else if world().entity_bodies.get(entity) is Some(handle) &&
-        world().bodies.get(handle) is Some(body) {
+      } else if physics_world().entity_bodies.get(entity) is Some(handle) &&
+        physics_world().bodies.get(handle) is Some(body) {
         Some(body.angvel().to_double())
       } else {
         None
@@ -24,15 +24,17 @@ fn entity_has_command_rotation(entity : @ecs.Entity) -> Bool {
 
 ///|
 fn entity_has_command_linear_velocity(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   body_type : RigidBodyType,
 ) -> Bool {
+  let query_velocity : @ecs.Query[@ecs.Single[@velocity.Velocity]] = world.query()
   match body_type {
     Dynamic => pending_body_linear_velocities().contains(entity)
     KinematicVelocityBased =>
       pending_body_linear_velocities().contains(entity) ||
-      @velocity.velocities().contains(entity)
-    KinematicPositionBased => @velocity.velocities().contains(entity)
+      query_velocity.contains(entity)
+    KinematicPositionBased => query_velocity.contains(entity)
     Fixed => false
   }
 }
@@ -50,24 +52,38 @@ fn entity_has_command_angular_velocity(
 }
 
 ///|
-fn entity_physics_snapshot(entity : @ecs.Entity) -> EntityPhysicsSnapshot? {
-  guard entity_translation(entity) is Some(position) else { return None }
-  guard entity_collision_shape(entity) is Some(shape) else { return None }
-  guard entity_collision_config(entity) is Some(collision) else { return None }
-  let body = entity_rigid_body(entity)
+fn entity_physics_snapshot(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> EntityPhysicsSnapshot? {
+  guard entity_translation(world~, entity) is Some(position) else {
+    return None
+  }
+  guard entity_collision_shape(world~, entity) is Some(shape) else {
+    return None
+  }
+  guard entity_collision_config(world~, entity) is Some(collision) else {
+    return None
+  }
+  let body = entity_rigid_body(world~, entity)
   Some({
     position,
-    rotation: entity_rotation(entity),
+    rotation: entity_rotation(world~, entity),
     shape,
     collision,
     body,
-    linear_velocity: entity_linear_velocity_for_body(entity, body.body_type),
+    linear_velocity: entity_linear_velocity_for_body(
+      world~,
+      entity,
+      body.body_type,
+    ),
     angular_velocity: entity_angular_velocity_for_body(entity, body.body_type),
   })
 }
 
 ///|
 fn entity_physics_config_key(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   snapshot : EntityPhysicsSnapshot,
 ) -> EntityPhysicsConfigKey {
@@ -87,6 +103,7 @@ fn entity_physics_config_key(
     collision: snapshot.collision,
     body: snapshot.body,
     linear_velocity: if entity_has_command_linear_velocity(
+        world~,
         entity,
         snapshot.body.body_type,
       ) {
@@ -106,10 +123,10 @@ fn entity_physics_config_key(
 }
 
 ///|
-fn should_have_physics(entity : @ecs.Entity) -> Bool {
+fn should_have_physics(world~ : @ecs.World, entity : @ecs.Entity) -> Bool {
   entity.is_alive() &&
-  world_entity(entity) &&
-  entity_physics_snapshot(entity) is Some(_)
+  world_entity(world~, entity) &&
+  entity_physics_snapshot(world~, entity) is Some(_)
 }
 
 ///|

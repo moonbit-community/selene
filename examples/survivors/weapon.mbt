@@ -155,11 +155,6 @@ type PlayerBulletSpawnPlan = @ecs.SpawnPlan[
 ]
 
 ///|
-fn player_bullets() -> @ecs.ComponentStore[PlayerBulletState] {
-  @ecs.components()
-}
-
-///|
 fn player_bullet_visual() -> @sprite.Sprite {
   Sprite(
     image=Some(@asset.load_image("assets/survivors/icon/bullet.png")),
@@ -169,6 +164,9 @@ fn player_bullet_visual() -> @sprite.Sprite {
 
 ///|
 fn update_weapon_timers(
+  runtime : SurvivorsRuntime,
+  commands : @ecs.Commands,
+  enemies : @ecs.Query[(Enemy, @transform.Spatial)],
   weapon_instances : Array[WeaponType],
   delta : Double,
   attack_speed : Double,
@@ -177,7 +175,6 @@ fn update_weapon_timers(
   player_penetration : Int32,
   player_pos : @math.Vec2,
 ) -> Unit {
-  let runtime = survivors_runtime()
   // Initialize timers array if needed
   while runtime.weapon_timers.length() < weapon_instances.length() {
     runtime.weapon_timers.push(0.0)
@@ -199,7 +196,7 @@ fn update_weapon_timers(
       }
       let weapon_range = calculate_weapon_range(weapon_data, player_range)
       let nearest_enemy_pos = find_nearest_enemy_in_range(
-        player_pos, weapon_range,
+        enemies, player_pos, weapon_range,
       )
       match nearest_enemy_pos {
         Some(enemy_pos) => {
@@ -208,7 +205,8 @@ fn update_weapon_timers(
           )
           let total_penetration = weapon_data.penetration + player_penetration
           shoot_weapon_bullet(
-            player_pos, enemy_pos, weapon_data, weapon_damage, total_penetration,
+            runtime, commands, player_pos, enemy_pos, weapon_data, weapon_damage,
+            total_penetration,
           )
         }
         None => ()
@@ -219,6 +217,8 @@ fn update_weapon_timers(
 
 ///|
 fn shoot_weapon_bullet(
+  runtime : SurvivorsRuntime,
+  commands : @ecs.Commands,
   player_pos : @math.Vec2,
   target_pos : @math.Vec2,
   weapon_data : WeaponData,
@@ -243,8 +243,8 @@ fn shoot_weapon_bullet(
     damage,
     penetration_limit: total_penetration,
   }
-  let runtime = survivors_runtime()
-  let bullet_entity = runtime.player_bullet_plan.spawn(
+  let bullet_entity = commands.spawn_prepared(
+    runtime.player_bullet_plan,
     (
       player_bullet_visual(),
       Spatial(
@@ -270,42 +270,53 @@ fn shoot_weapon_bullet(
   // Calculate bullet duration based on weapon range
   let weapon_range = calculate_weapon_range(weapon_data, 0.0)
   let bullet_duration = weapon_range / weapon_data.bullet_speed
-  survivors_timeout(bullet_duration, fn() { ignore(bullet_entity.delete()) })
+  survivors_timeout(bullet_duration, fn() {
+    @ecs.commands(@ecs.require_current_world()).delete(bullet_entity)
+  })
 }
 
 ///|
-fn start_bullet_despawn(bullet_entity : @ecs.Entity) -> Unit {
-  guard player_bullets().get(bullet_entity) is Some(bullet) else { return }
+fn start_bullet_despawn(
+  commands : @ecs.Commands,
+  bullet_entity : @ecs.Entity,
+  bullet : PlayerBulletState,
+) -> Unit {
   if !bullet.alive {
     return
   }
   bullet.alive = false
-  ignore(bullet_entity.delete())
+  commands.delete(bullet_entity)
 }
 
 ///|
-fn player_bullet_trigger_system(_world : @ecs.World) -> Unit {
+fn player_bullet_trigger_system(
+  bullets : @ecs.Query[@ecs.Single[PlayerBulletState]],
+  enemies : @ecs.Query[@ecs.Single[Enemy]],
+  ui : SurvivorsUi,
+) -> Unit {
   for
     event in @physics2d.trigger_event_bus.read(
-      survivors_runtime().player_bullet_trigger_event_reader,
+      ui.runtime.player_bullet_trigger_event_reader,
     ) {
     guard event.entered else { continue }
-    guard player_bullets().get(event.area) is Some(bullet) else { continue }
+    guard bullets.get(event.area).map(value => value.0) is Some(bullet) else {
+      continue
+    }
     guard bullet.alive else { continue }
-    if enemies().get(event.other) is Some(enemy) {
+    if enemies.get(event.other).map(value => value.0) is Some(enemy) {
       enemy.health -= bullet.damage
       bullet.penetration_count += 1
       if enemy.health <= 0.0 {
-        ignore(event.other.delete())
+        ui.commands.delete(event.other)
         let data = get_enemy_data(enemy.enemy_type)
-        set_score(game_state().score + data.points)
-        add_exp(data.points)
+        set_score(ui~, ui.game().score + data.points)
+        add_exp(ui~, data.points)
       }
       if bullet.penetration_count >= bullet.penetration_limit {
-        start_bullet_despawn(event.area)
+        start_bullet_despawn(ui.commands, event.area, bullet)
       }
     } else {
-      start_bullet_despawn(event.area)
+      start_bullet_despawn(ui.commands, event.area, bullet)
     }
   }
 }

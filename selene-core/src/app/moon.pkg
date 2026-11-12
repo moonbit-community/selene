@@ -1,5 +1,4 @@
 import {
-  "moonbitlang/core/debug",
   "Milky2018/selene/window",
   "Milky2018/selene/ecs",
   "Milky2018/selene/event",
@@ -10,11 +9,17 @@ import {
   "Milky2018/selene/runtime_debug",
   "Milky2018/selene/state",
   "Milky2018/selene/time",
-  "moonbitlang/core/cmp",
-  "moonbitlang/core/set",
 }
 
 import {
   "Milky2018/selene/sprite",
   "Milky2018/selene/transform",
+} for "test"
+
+import {
+  "Milky2018/selene/internal/state_runtime",
+}
+
+import {
+  "Milky2018/selene/internal/ecs_test",
 } for "test"

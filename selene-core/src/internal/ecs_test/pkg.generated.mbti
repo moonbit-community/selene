@@ -1,0 +1,25 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/internal/ecs_test"
+
+import {
+  "Milky2018/selene/ecs",
+}
+
+// Values
+pub fn delete(@ecs.Entity) -> Bool
+
+pub fn destroy(@ecs.Entity) -> Unit
+
+pub fn[T : @ecs.Bundle] spawn(@ecs.World, T, parent? : @ecs.Entity) -> @ecs.Entity
+
+pub fn[T : @ecs.Component] spawn1(@ecs.World, T, parent? : @ecs.Entity) -> @ecs.Entity
+
+pub fn spawn_draft(@ecs.SpawnDraft, world? : @ecs.World, parent? : @ecs.Entity) -> @ecs.Entity
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

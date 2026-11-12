@@ -18,14 +18,17 @@ fn compare_camera2d_views(lhs : Camera2dView, rhs : Camera2dView) -> Int32 {
 }
 
 ///|
-fn camera2d_view(entity : @ecs.Entity) -> Camera2dView? {
+fn camera2d_view(world~ : @ecs.World, entity : @ecs.Entity) -> Camera2dView? {
+  let query_camera2d : @ecs.Query[@ecs.Single[Camera2d]] = world.query()
   guard entity.is_alive() else { return None }
-  guard cameras().get(entity) is Some(camera) else { return None }
-  guard camera2ds().contains(entity) else { return None }
-  guard @transform.global_transform(entity) is Some(global_transform) else {
+  guard (world.get_component(entity) : Camera?) is Some(camera) else {
     return None
   }
-  let projection = orthographic_projections().get(entity).unwrap_or_default()
+  guard query_camera2d.contains(entity) else { return None }
+  guard @transform.global_transform(world~, entity) is Some(global_transform) else {
+    return None
+  }
+  let projection = (world.get_component(entity) : OrthographicProjection?).unwrap_or_default()
   let viewport = camera.viewport_rect()
   let viewport_to_world = viewport_to_world_affine(
     global_transform, projection, viewport,
@@ -42,11 +45,12 @@ fn camera2d_view(entity : @ecs.Entity) -> Camera2dView? {
 }
 
 ///|
-pub fn active_camera2d_views() -> Array[Camera2dView] {
+pub fn active_camera2d_views(world~ : @ecs.World) -> Array[Camera2dView] {
+  let query_camera : @ecs.Query[@ecs.Single[Camera]] = world.query()
   let views : Array[Camera2dView] = []
-  for entity, camera in cameras() {
+  for entity, Single(camera) in query_camera {
     guard camera.is_active else { continue }
-    guard camera2d_view(entity) is Some(view) else { continue }
+    guard camera2d_view(world~, entity) is Some(view) else { continue }
     views.push(view)
   }
   views.sort_by(compare_camera2d_views)
@@ -54,8 +58,8 @@ pub fn active_camera2d_views() -> Array[Camera2dView] {
 }
 
 ///|
-pub fn primary_camera2d_view() -> Camera2dView? {
-  let views = active_camera2d_views()
+pub fn primary_camera2d_view(world~ : @ecs.World) -> Camera2dView? {
+  let views = active_camera2d_views(world~)
   if views.is_empty() {
     None
   } else {
@@ -64,8 +68,11 @@ pub fn primary_camera2d_view() -> Camera2dView? {
 }
 
 ///|
-pub fn camera2d_view_for_screen_point(point : @math.Vec2) -> Camera2dView? {
-  let views = active_camera2d_views()
+pub fn camera2d_view_for_screen_point(
+  world~ : @ecs.World,
+  point : @math.Vec2,
+) -> Camera2dView? {
+  let views = active_camera2d_views(world~)
   let mut index = views.length() - 1
   while index >= 0 {
     let view = views[index]

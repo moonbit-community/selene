@@ -24,7 +24,7 @@ fn phase(world : @ecs.World) -> Phase {
 
 ///|
 fn advance(world : @ecs.World) -> Unit raise @ecs.ScheduleError {
-  @state.advance(world, on_exit=_ => (), on_enter=_ => ())
+  @state_runtime.advance(world, on_exit=Schedule(), on_enter=Schedule())
 }
 
 ///|
@@ -42,10 +42,10 @@ test "state identity is shared while values and requests are World-local" {
   advance(second)
   assert_eq(phase(first), Menu)
   assert_eq(phase(second), Paused)
-  assert_false(playing(first))
+  assert_false(condition_matches(playing, first))
   advance(first)
-  assert_true(playing(first))
-  assert_false(playing(second))
+  assert_true(condition_matches(playing, first))
+  assert_false(condition_matches(playing, second))
 }
 
 ///|
@@ -64,8 +64,8 @@ test "static setters request changes only in the scheduled World" {
   advance(first)
   advance(second)
 
-  @ecs.run_schedule(first, _ => Phase::set(Playing))
-  @ecs.run_schedule(second, _ => Phase::set(Paused))
+  @ecs.Schedule().add_exclusive_system(_ => Phase::set(Playing)).run(first)
+  @ecs.Schedule().add_exclusive_system(_ => Phase::set(Paused)).run(second)
   assert_eq(@ecs.require_current_world().id(), outer.id())
   assert_eq(phase(first), Menu)
   assert_eq(phase(second), Menu)
@@ -96,23 +96,39 @@ test "initial entry retains pending requests and identical requests do not reent
   let exits = []
   @state.initialize(world, Phase::Menu)
   @state.set_next(world, Phase::Playing)
-  @state.advance(
+  @state_runtime.advance(
     world,
     initial_only=true,
-    on_exit=world => exits.push(phase(world)),
-    on_enter=world => entries.push(phase(world)),
+    on_exit=@ecs.Schedule().add_exclusive_system(world => {
+      exits.push(phase(world))
+    }),
+    on_enter=@ecs.Schedule().add_exclusive_system(world => {
+      entries.push(phase(world))
+    }),
   )
   assert_eq(entries, [Menu])
   assert_true(exits.is_empty())
-  @state.advance(world, on_exit=world => exits.push(phase(world)), on_enter=world => {
-    entries.push(phase(world))
-  })
+  @state_runtime.advance(
+    world,
+    on_exit=@ecs.Schedule().add_exclusive_system(world => {
+      exits.push(phase(world))
+    }),
+    on_enter=@ecs.Schedule().add_exclusive_system(world => {
+      entries.push(phase(world))
+    }),
+  )
   assert_eq(exits, [Menu])
   assert_eq(entries, [Menu, Playing])
   @state.set_next(world, Phase::Playing)
-  @state.advance(world, on_exit=_ => abort("same-value request exited"), on_enter=_ => {
-    abort("same-value request entered")
-  })
+  @state_runtime.advance(
+    world,
+    on_exit=@ecs.Schedule().add_exclusive_system(_ => {
+      abort("same-value request exited")
+    }),
+    on_enter=@ecs.Schedule().add_exclusive_system(_ => {
+      abort("same-value request entered")
+    }),
+  )
   assert_false(@state.is_entering(world, Phase::Playing))
   assert_false(@state.is_exiting(world, Phase::Menu))
 }
@@ -124,16 +140,16 @@ test "last request wins and lifecycle requests wait for another advance" {
   advance(world)
   @state.set_next(world, Phase::Paused)
   @state.set_next(world, Phase::Playing)
-  @state.advance(
+  @state_runtime.advance(
     world,
-    on_exit=world => {
+    on_exit=@ecs.Schedule().add_exclusive_system(world => {
       try! assert_eq(phase(world), Menu)
       @state.set_next(world, Phase::Menu)
-    },
-    on_enter=world => {
+    }),
+    on_enter=@ecs.Schedule().add_exclusive_system(world => {
       try! assert_eq(phase(world), Playing)
       @state.set_next(world, Phase::Paused)
-    },
+    }),
   )
   assert_eq(phase(world), Playing)
   advance(world)
@@ -146,12 +162,12 @@ test "exit command requests survive commit and apply at the next transition" {
   @state.initialize(world, Phase::Menu)
   advance(world)
   @state.set_next(world, Phase::Playing)
-  @state.advance(
+  @state_runtime.advance(
     world,
-    on_exit=world => {
+    on_exit=@ecs.Schedule().add_exclusive_system(world => {
       @ecs.commands(world).add(world => @state.set_next(world, Phase::Paused))
-    },
-    on_enter=_ => (),
+    }),
+    on_enter=Schedule(),
   )
   assert_eq(phase(world), Playing)
   advance(world)
@@ -163,19 +179,23 @@ test "transition execution rejects reentry and query-time execution" {
   let world = @ecs.World()
   @state.initialize(world, Phase::Menu)
   let rejected = Ref(false)
-  @state.advance(world, on_exit=_ => (), on_enter=world => {
-    @state.set_next(world, Phase::Playing)
-    try advance(world) catch {
-      ReentrantSchedule => rejected.val = true
-      _ => abort("wrong reentry error")
-    } noraise {
-      _ => abort("nested transition succeeded")
-    }
-  })
+  @state_runtime.advance(
+    world,
+    on_exit=Schedule(),
+    on_enter=@ecs.Schedule().add_exclusive_system(world => {
+      @state.set_next(world, Phase::Playing)
+      try advance(world) catch {
+        ReentrantSchedule => rejected.val = true
+        _ => abort("wrong reentry error")
+      } noraise {
+        _ => abort("nested transition succeeded")
+      }
+    }),
+  )
   assert_true(rejected.val)
-  let store : @ecs.ComponentStore[Int32] = ComponentStore(world)
-  ignore(store.spawn_plan(world).spawn(1))
-  @ecs.query(world, store).for_each((_, _) => {
+  let store : @ecs.Query[@ecs.Single[QueryMarker]] = world.query()
+  ignore(@ecs_test.spawn1(world, QueryMarker::{ }))
+  store.batches(_ => {
     try advance(world) catch {
       ActiveQuery => ()
       _ => abort("wrong query-time error")
@@ -199,6 +219,24 @@ test "panic requesting an uninitialized state fails" {
 }
 
 ///|
-test "panic testing an uninitialized state fails" {
-  ignore(@state.in_state(Phase::Playing)(World()))
+struct QueryMarker {}
+
+///|
+let marker_key : @ecs.ComponentKey[QueryMarker] = ComponentKey()
+
+///|
+impl @ecs.Component for QueryMarker with fn component_key() {
+  marker_key
+}
+
+///|
+fn condition_matches(
+  condition : @ecs.Condition,
+  world : @ecs.World,
+) -> Bool raise @ecs.ScheduleError {
+  let matched = Ref(false)
+  @ecs.Schedule()
+  .add_system(fn(_ : Unit) { matched.val = true }, run_if=condition)
+  .run(world)
+  matched.val
 }

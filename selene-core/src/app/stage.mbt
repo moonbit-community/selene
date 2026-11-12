@@ -24,7 +24,8 @@
 /// * `RenderExtract`/`RenderPrepare`/`Render`/`RenderCleanup` : Render pipeline
 ///   stages executed once per frame.
 ///
-pub(all) enum Schedule {
+#derive(Eq)
+pub(all) enum Stage {
   Startup
   First
   PreUpdate
@@ -41,3 +42,6 @@ pub(all) enum Schedule {
   Render
   RenderCleanup
 }
+
+///|
+pub extend Stage with Eq::{equal, not_equal}

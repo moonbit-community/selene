@@ -155,15 +155,15 @@ pub fn run() -> Unit {
   .with_image_smooth(false)
   .with_zoom(2.0)
   .add_plugin(@plugins.default_plugin)
-  .add_system(Startup, game_start)
-  .add_system(Update, player_input_system)
-  .add_system(FixedPreUpdate, player_controller_system)
-  .add_system(Update, trigger_system)
-  .add_system(Update, pixeladventure_camera_follow_system)
-  .add_system(FixedPostUpdate, player_bird_contact_system)
-  .add_system(FixedPostUpdate, bird_patrol_system)
+  .add_exclusive_system(Startup, game_start)
+  .add_system(Update, @ecs.args2(player_input_system))
+  .add_system(FixedPreUpdate, @ecs.args4(player_controller_system))
+  .add_system(Update, @ecs.args4(trigger_system))
+  .add_system(Update, @ecs.args2(pixeladventure_camera_follow_system))
+  .add_system(FixedPostUpdate, @ecs.args4(player_bird_contact_system))
+  .add_system(FixedPostUpdate, @ecs.args4(bird_patrol_system))
   .add_system(PostUpdate, volume_button_system)
-  .add_system(PostUpdate, hud_sync_system)
+  .add_system(PostUpdate, @ecs.args4(hud_sync_system))
   .run()
 }
 ```
@@ -204,8 +204,10 @@ priv struct PlayerController {
 ```
 
 启动时会先清理上一轮实体，再加载关卡并用 `world.insert_resource(...)`
-插入新的 `GameSession`。系统通过 `world.get_resource()` 读取会话，
-通过 `@ecs.components()` 访问玩家控制器。示例包对 `model.mbt` 应用以下生成规则。
+插入新的 `GameSession`。常规游戏系统通过 `argsN` 接收查询、可选的
+`Res[GameSession]?`、Commands 和 Time。运动与动画辅助函数直接操作查询行，
+值类型组件通过 `query.set(entity, row)` 替换；相机与 HUD 也使用注入的查询。
+完整 World 访问保留在 Startup 的场景构建阶段。示例包对 `model.mbt` 应用以下生成规则。
 
 ```moonbit
 dev_build(rule: "selene_codegen", input: "model.mbt", output: "model.g.mbt")
@@ -221,14 +223,14 @@ formatter(ignore: ["model.g.mbt"])
 
 ```moonbit
 let world = @ecs.require_current_world()
-let player = world.spawn((
+let player = @ecs.commands(world).spawn((
   @transform.Spatial(@transform.Transform::from_xyz(100.0, 100.0, 0.0)),
   @physics2d.Velocity(@math.Vec2::zero()),
 ))
 ```
 
-两个组件会一起写入最终的 archetype。在查询中生成实体时，使用
-`commands.spawn(...)` 延迟到调度器 flush。
+调度器应用命令时，两个组件会一起写入最终的 archetype。在此之前返回的是
+pending handle；初始化和查询期间的公开创建操作都通过 Commands 延迟执行。
 
 ### 玩家角色实现
 
@@ -275,7 +277,7 @@ let (graph, nodes) = @animation.AnimationGraph::from_clips([
 ])
 let player_animation = @animation.AnimationPlayer()
 ignore(player_animation.play(nodes[0], repeat=@animation.RepeatAnimation::Forever))
-let player = world.spawn((
+let player = @ecs.commands(world).spawn((
   @transform.Spatial(@transform.Transform::from_xyz(100.0, 100.0, 0.0)),
   @physics2d.Velocity(@math.Vec2::zero()),
   sprite,
@@ -316,7 +318,7 @@ let shape = @physics2d.CollisionShape::Rect(
 let collider = @physics2d.Collider(
   @physics2d.CollisionFilter(player_collision_group, [terrain_collision_group]),
 )
-let player = world.spawn((
+let player = @ecs.commands(world).spawn((
   @transform.Spatial(@transform.Transform::from_xyz(100.0, 100.0, 0.0)),
   @physics2d.Velocity(@math.Vec2::zero()),
   shape,
@@ -355,7 +357,7 @@ let area = @physics2d.Area(
     player_collision_group,
   ]),
 )
-let apple = world.spawn((spatial, sprite, shape, area, apple_tag))
+let apple = @ecs.commands(world).spawn((spatial, sprite, shape, area, apple_tag))
 
 fn map_trigger_system(_world : @ecs.World) -> Unit {
   for apple in apples.to_array() {
@@ -364,7 +366,7 @@ fn map_trigger_system(_world : @ecs.World) -> Unit {
       if session.volume_on {
         play_sfx(coin_sound, session.volume_on)
       }
-      ignore(apple.delete())
+      @ecs.commands(world).delete(apple)
     }
   }
 }
@@ -386,7 +388,7 @@ fn play_sfx(sound : @audio.AudioHandle, enabled : Bool) -> Unit {
 
 ```moonbit
 fn spawn_score_box(world : @ecs.World) -> @ecs.Entity {
-  world.spawn((
+  @ecs.commands(world).spawn((
     @ui.Node::absolute(
       @math.Vec2(48.0, 16.0),
       size=@math.Vec2(432.0, 24.0),

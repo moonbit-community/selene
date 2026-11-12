@@ -69,9 +69,9 @@ fn to_rapier_query_filter(
     Kinematic => filter.exclude_dynamic().exclude_fixed()
   }
   if query_filter.exclude_entity is Some(entity) {
-    if world().entity_colliders.get(entity) is Some(handle) {
+    if physics_world().entity_colliders.get(entity) is Some(handle) {
       filter = filter.exclude_collider(handle)
-    } else if world().entity_bodies.get(entity) is Some(handle) {
+    } else if physics_world().entity_bodies.get(entity) is Some(handle) {
       filter = filter.exclude_rigid_body(handle)
     }
   }
@@ -84,8 +84,8 @@ fn make_query_pipeline(
 ) -> @rapier_collision.QueryPipeline {
   QueryPipeline(
     to_rapier_query_filter(query_filter),
-    world().bodies,
-    world().colliders,
+    physics_world().bodies,
+    physics_world().colliders,
   )
 }
 
@@ -104,9 +104,9 @@ fn intersecting_entities(
 }
 
 ///|
-fn refresh_query_world() -> Unit {
-  sync_world_entities()
-  world().bodies.propagate_modified_body_positions_to_colliders()
+fn refresh_query_world(world~ : @ecs.World) -> Unit {
+  sync_world_entities(world~)
+  physics_world().bodies.propagate_modified_body_positions_to_colliders()
 }
 
 ///|
@@ -144,8 +144,8 @@ fn apply_force_now(
   force : @math.Vec2,
   wake_up : Bool,
 ) -> Bool {
-  if world().entity_bodies.get(entity) is Some(handle) &&
-    world().bodies.get_mut(handle) is Some(body) {
+  if physics_world().entity_bodies.get(entity) is Some(handle) &&
+    physics_world().bodies.get_mut(handle) is Some(body) {
     body.add_force(to_physics_vec2(force), wake_up) |> ignore
     true
   } else {
@@ -160,8 +160,8 @@ fn apply_force_at_point_now(
   point : @math.Vec2,
   wake_up : Bool,
 ) -> Bool {
-  if world().entity_bodies.get(entity) is Some(handle) &&
-    world().bodies.get_mut(handle) is Some(body) {
+  if physics_world().entity_bodies.get(entity) is Some(handle) &&
+    physics_world().bodies.get_mut(handle) is Some(body) {
     body.add_force_at_point(
       to_physics_vec2(force),
       to_physics_vec2(point),
@@ -180,8 +180,8 @@ fn apply_torque_now(
   torque : Double,
   wake_up : Bool,
 ) -> Bool {
-  if world().entity_bodies.get(entity) is Some(handle) &&
-    world().bodies.get_mut(handle) is Some(body) {
+  if physics_world().entity_bodies.get(entity) is Some(handle) &&
+    physics_world().bodies.get_mut(handle) is Some(body) {
     body.add_torque(Float::from_double(torque), wake_up) |> ignore
     true
   } else {
@@ -195,8 +195,8 @@ fn apply_impulse_now(
   impulse : @math.Vec2,
   wake_up : Bool,
 ) -> Bool {
-  if world().entity_bodies.get(entity) is Some(handle) &&
-    world().bodies.get_mut(handle) is Some(body) {
+  if physics_world().entity_bodies.get(entity) is Some(handle) &&
+    physics_world().bodies.get_mut(handle) is Some(body) {
     body.apply_impulse(to_physics_vec2(impulse), wake_up) |> ignore
     true
   } else {
@@ -211,8 +211,8 @@ fn apply_impulse_at_point_now(
   point : @math.Vec2,
   wake_up : Bool,
 ) -> Bool {
-  if world().entity_bodies.get(entity) is Some(handle) &&
-    world().bodies.get_mut(handle) is Some(body) {
+  if physics_world().entity_bodies.get(entity) is Some(handle) &&
+    physics_world().bodies.get_mut(handle) is Some(body) {
     body.apply_impulse_at_point(
       to_physics_vec2(impulse),
       to_physics_vec2(point),
@@ -231,8 +231,8 @@ fn apply_torque_impulse_now(
   impulse : Double,
   wake_up : Bool,
 ) -> Bool {
-  if world().entity_bodies.get(entity) is Some(handle) &&
-    world().bodies.get_mut(handle) is Some(body) {
+  if physics_world().entity_bodies.get(entity) is Some(handle) &&
+    physics_world().bodies.get_mut(handle) is Some(body) {
     body.apply_torque_impulse(Float::from_double(impulse), wake_up) |> ignore
     true
   } else {

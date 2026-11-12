@@ -247,8 +247,3 @@ fn ldtk_world_store() -> LdtkWorldStore {
     LdtkWorldStore(world)
   })
 }
-
-///|
-pub fn ldtk_world_instances() -> @ecs.ComponentStore[LdtkWorldInstance] {
-  @ecs.components()
-}

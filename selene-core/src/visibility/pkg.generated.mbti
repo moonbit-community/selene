@@ -7,7 +7,7 @@ import {
 }
 
 // Values
-pub fn entity_render_layers(@ecs.Entity) -> RenderLayers
+pub fn entity_render_layers(world~ : @ecs.World, @ecs.Entity) -> RenderLayers
 
 pub fn inherited_visibility(@ecs.Entity) -> InheritedVisibility?
 
@@ -19,13 +19,9 @@ pub fn layers(UInt32) -> RenderLayers
 
 pub fn matches(RenderLayers, RenderLayers) -> Bool
 
-pub fn render_layers() -> @ecs.ComponentStore[RenderLayers]
-
 pub fn view_visibility(@ecs.Entity) -> ViewVisibility?
 
-pub fn visibilities() -> @ecs.ComponentStore[Visibility]
-
-pub fn visibility_propagate_system(Double) -> Unit
+pub fn visibility_propagate_system(world~ : @ecs.World, Double) -> Unit
 
 // Errors
 

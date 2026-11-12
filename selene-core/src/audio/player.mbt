@@ -43,16 +43,6 @@ pub extend AudioEvent with @moonbitlang/core/debug.Debug::{to_repr}
 pub extend AudioEvent with Eq::{not_equal, equal}
 
 ///|
-pub fn audio_players() -> @ecs.ComponentStore[AudioPlayer] {
-  @ecs.components()
-}
-
-///|
-pub fn audio_playback_settings() -> @ecs.ComponentStore[PlaybackSettings] {
-  @ecs.components()
-}
-
-///|
 pub fn AudioPlayer::AudioPlayer(source : AudioHandle) -> AudioPlayer {
   { source, }
 }
@@ -88,9 +78,12 @@ pub fn spawn_audio(
 ) -> @ecs.Entity {
   let world = @ecs.require_current_world()
   let plan = audio_spawn_plan.get_or_insert_with(world, world => {
-    world.prepare_spawn()
+    @ecs.commands(world).prepare_spawn()
   })
-  plan.spawn((AudioPlayer(source), normalize_settings(settings)))
+  @ecs.commands(world).spawn_prepared(
+    plan,
+    (AudioPlayer(source), normalize_settings(settings)),
+  )
 }
 
 ///|

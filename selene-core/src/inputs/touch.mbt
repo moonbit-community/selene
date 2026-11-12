@@ -352,7 +352,7 @@ fn push_pointer_change(event : PointerEvent) -> Unit {
 }
 
 ///|
-pub fn advanced_pointer_system(_delta : Double) -> Unit {
+pub fn advanced_pointer_system() -> Unit {
   pointer_changes.clear()
   let mut contact_owns_primary = primary_touch() is Some(_)
   for event in touch_changes {
@@ -700,9 +700,9 @@ fn update_pinch(cancelled : Bool) -> Unit {
 }
 
 ///|
-pub fn advanced_touch_system(_delta : Double) -> Unit {
+pub fn advanced_touch_system(delta : Double) -> Unit {
   touch_gesture_changes.clear()
-  update_long_press(_delta)
+  update_long_press(delta)
   let mut cancelled = false
   for event in touch_changes {
     if event.phase == Cancelled {

@@ -234,48 +234,6 @@ pub fn TiledMapStorage::tile_entities(
 }
 
 ///|
-pub fn tiled_map_instances() -> @ecs.ComponentStore[TiledMapInstance] {
-  @ecs.components()
-}
-
-///|
-pub fn tiled_layer_instances() -> @ecs.ComponentStore[TiledLayerInstance] {
-  @ecs.components()
-}
-
-///|
-pub fn tiled_tile_instances() -> @ecs.ComponentStore[TiledTileInstance] {
-  @ecs.components()
-}
-
-///|
-pub fn tiled_object_instances() -> @ecs.ComponentStore[TiledObjectInstance] {
-  @ecs.components()
-}
-
-///|
-pub fn tiled_image_layer_instances() -> @ecs.ComponentStore[
-  TiledImageLayerInstance,
-] {
-  @ecs.components()
-}
-
-///|
-pub fn tiled_properties() -> @ecs.ComponentStore[TiledProperties] {
-  @ecs.components()
-}
-
-///|
-pub fn tiled_map_storages() -> @ecs.ComponentStore[TiledMapStorage] {
-  @ecs.components()
-}
-
-///|
-pub fn tiled_parallax_layers() -> @ecs.ComponentStore[TiledParallaxLayer] {
-  @ecs.components()
-}
-
-///|
 pub fn TiledSpawnSettings::TiledSpawnSettings() -> TiledSpawnSettings {
   {
     position: @math.Vec2::zero(),
@@ -293,34 +251,48 @@ pub fn TiledSpawnSettings::TiledSpawnSettings() -> TiledSpawnSettings {
 
 ///|
 pub fn load_and_spawn_tiled_map(
+  world~ : @ecs.World,
   path : String,
   settings~ : TiledSpawnSettings = TiledSpawnSettings(),
 ) -> @ecs.Entity {
-  spawn_tiled_map(load_tiled_map(path), settings~)
+  spawn_tiled_map(world~, load_tiled_map(path), settings~)
 }
 
 ///|
 pub fn spawn_tiled_map(
+  world~ : @ecs.World,
   map : TiledMap,
   settings~ : TiledSpawnSettings = TiledSpawnSettings(),
   parent? : @ecs.Entity,
 ) -> @ecs.Entity {
-  spawn_tiled_map_root(map, settings, parent~)
+  spawn_tiled_map_root(world~, map, settings, parent~)
 }
 
 ///|
 /// Replaces a previously imported map under the same parent.
 pub fn replace_tiled_map(
+  world~ : @ecs.World,
   root : @ecs.Entity,
   map : TiledMap,
   settings~ : TiledSpawnSettings = TiledSpawnSettings(),
 ) -> @ecs.Entity {
+  let query_tiled_world_map_instance : @ecs.Query[
+    @ecs.Single[TiledWorldMapInstance],
+  ] = world.query()
+  let query_tiled_world_instance : @ecs.Query[@ecs.Single[TiledWorldInstance]] = world.query()
   let parent = root.get_parent()
-  let world_map = tiled_world_map_instances().get(root)
-  ignore(root.delete())
-  let replacement = spawn_tiled_map_root(map, settings, parent~, world_map?)
+  let world_map = query_tiled_world_map_instance.get(root).map(value => value.0)
+  @ecs.commands(world).delete(root)
+  let replacement = spawn_tiled_map_root(
+    world~,
+    map,
+    settings,
+    parent~,
+    world_map?,
+  )
   if world_map is Some(metadata) &&
-    tiled_world_instances().get(metadata.world_entity) is Some(instance) {
+    query_tiled_world_instance.get(metadata.world_entity).map(value => value.0)
+    is Some(instance) {
     for (index, entity) in instance.spawned_maps.to_array() {
       if entity == root {
         instance.spawned_maps.set(index, replacement)
@@ -333,34 +305,53 @@ pub fn replace_tiled_map(
 
 ///|
 fn spawn_tiled_map_root(
+  world~ : @ecs.World,
   map : TiledMap,
   settings : TiledSpawnSettings,
   parent~ : @ecs.Entity?,
   world_map? : TiledWorldMapInstance,
 ) -> @ecs.Entity {
-  let draft = @ecs.require_current_world().spawn_draft()
+  let draft = @ecs.commands(world).draft()
   draft.add(tiled_spatial(settings.position, 0))
   draft.add(TiledMapInstance::{ map, })
-  draft.add(TiledMapStorage())
+  let storage = TiledMapStorage()
+  draft.add(storage)
   tiled_add_properties(draft, map.properties)
   if world_map is Some(instance) {
     draft.add(instance)
   }
-  let root = draft.spawn(parent?)
-  let map_event = { map_entity: root, map, }
-  tiled_map_spawned_event_bus.trigger(map_event, Some(root))
-  if settings.map_hook is Some(map_hook) {
-    map_hook(map_event)
-  }
-  ignore(spawn_tiled_layers(root, root, map, map.layers, settings, true, 0))
+  let root = @ecs.commands(world).spawn_draft(draft, parent?)
+  @ecs.commands(world).add(_ => {
+    guard root.is_valid_in(world) else { return }
+    let map_event = { map_entity: root, map, }
+    tiled_map_spawned_event_bus.trigger(map_event, Some(root))
+    if settings.map_hook is Some(map_hook) {
+      map_hook(map_event)
+    }
+  })
+  ignore(
+    spawn_tiled_layers(
+      world~,
+      storage~,
+      root,
+      root,
+      map,
+      map.layers,
+      settings,
+      true,
+      0,
+    ),
+  )
   if settings.physics_settings is Some(physics_settings) {
-    spawn_tiled_map_physics(root, map, physics_settings)
+    spawn_tiled_map_physics(world~, storage~, root, map, physics_settings)
   }
   root
 }
 
 ///|
 fn spawn_tiled_layers(
+  world~ : @ecs.World,
+  storage~ : TiledMapStorage,
   map_entity : @ecs.Entity,
   parent_entity : @ecs.Entity,
   map : TiledMap,
@@ -377,7 +368,7 @@ fn spawn_tiled_layers(
     }
     let layer_zindex = settings.zindex + layer_index * settings.layer_z_step
     layer_index += 1
-    let draft = @ecs.require_current_world().spawn_draft()
+    let draft = @ecs.commands(world).draft()
     let depth = if layer.kind is ImageLayer(image_layer) &&
       image_layer.image is Some(_) {
       layer_zindex
@@ -403,8 +394,11 @@ fn spawn_tiled_layers(
     if layer.kind is ImageLayer(image_layer) {
       tiled_add_image_layer(draft, map_entity, map, layer, image_layer)
     }
-    let layer_entity = draft.spawn(parent=parent_entity)
-    tiled_register_layer_entity(map_entity, layer.id, layer_entity)
+    let layer_entity = @ecs.commands(world).spawn_draft(
+      draft,
+      parent=parent_entity,
+    )
+    storage.layers.set(layer.id, layer_entity)
     let layer_event = {
       map_entity,
       layer_entity,
@@ -412,25 +406,56 @@ fn spawn_tiled_layers(
       effective_visible,
       zindex: layer_zindex,
     }
-    tiled_layer_spawned_event_bus.trigger(layer_event, Some(layer_entity))
-    if settings.layer_hook is Some(layer_hook) {
-      layer_hook(layer_event)
-    }
+    @ecs.commands(world).add(_ => {
+      guard layer_entity.is_valid_in(world) else { return }
+      tiled_layer_spawned_event_bus.trigger(layer_event, Some(layer_entity))
+      if settings.layer_hook is Some(layer_hook) {
+        layer_hook(layer_event)
+      }
+    })
     match layer.kind {
       TileLayer(tile_layer) =>
         spawn_tiled_tile_layer(
-          map_entity, layer_entity, map, layer, tile_layer, layer_zindex, settings,
+          world~,
+          storage~,
+          map_entity,
+          layer_entity,
+          map,
+          layer,
+          tile_layer,
+          layer_zindex,
+          settings,
         )
       ObjectLayer(object_layer) =>
         spawn_tiled_object_layer(
-          map_entity, layer_entity, map, layer, object_layer, layer_zindex, effective_visible,
+          world~,
+          storage~,
+          map_entity,
+          layer_entity,
+          map,
+          layer,
+          object_layer,
+          layer_zindex,
+          effective_visible,
           settings,
         )
       GroupLayer(children) =>
         layer_index = spawn_tiled_layers(
-          map_entity, layer_entity, map, children, settings, effective_visible, layer_index,
+          world~,
+          storage~,
+          map_entity,
+          layer_entity,
+          map,
+          children,
+          settings,
+          effective_visible,
+          layer_index,
         )
-      ImageLayer(_) => emit_tiled_image_layer(layer_entity, settings)
+      ImageLayer(_) =>
+        @ecs.commands(world).add(_ => {
+          guard layer_entity.is_valid_in(world) else { return }
+          emit_tiled_image_layer(world~, layer_entity, settings)
+        })
       Unknown(_) => ()
     }
   }
@@ -439,6 +464,8 @@ fn spawn_tiled_layers(
 
 ///|
 fn spawn_tiled_tile_layer(
+  world~ : @ecs.World,
+  storage~ : TiledMapStorage,
   map_entity : @ecs.Entity,
   layer_entity : @ecs.Entity,
   map : TiledMap,
@@ -455,7 +482,7 @@ fn spawn_tiled_tile_layer(
       continue
     }
     let tile_position = tiled_cell_position(map, tileset, cell)
-    let draft = @ecs.require_current_world().spawn_draft()
+    let draft = @ecs.commands(world).draft()
     guard tiled_transform_from_2d_affine(
         tiled_gid_transform(cell.gid, tiled_tileset_tile_size(map, tileset)),
       )
@@ -484,8 +511,11 @@ fn spawn_tiled_tile_layer(
     if build_tiled_tile_animation(map, tileset, cell.gid) is Some(animation) {
       tiled_add_sprite(draft, animation)
     }
-    let tile_entity = draft.spawn(parent=layer_entity)
-    tiled_register_tile_entity(map_entity, cell.gid.tile_id, tile_entity)
+    let tile_entity = @ecs.commands(world).spawn_draft(
+      draft,
+      parent=layer_entity,
+    )
+    tiled_register_tile_entity(storage, cell.gid.tile_id, tile_entity)
     let tile_event = {
       map_entity,
       layer_entity,
@@ -495,15 +525,20 @@ fn spawn_tiled_tile_layer(
       tileset,
       cell,
     }
-    tiled_tile_spawned_event_bus.trigger(tile_event, Some(tile_entity))
-    if settings.tile_hook is Some(tile_hook) {
-      tile_hook(tile_event)
-    }
+    @ecs.commands(world).add(_ => {
+      guard tile_entity.is_valid_in(world) else { return }
+      tiled_tile_spawned_event_bus.trigger(tile_event, Some(tile_entity))
+      if settings.tile_hook is Some(tile_hook) {
+        tile_hook(tile_event)
+      }
+    })
   }
 }
 
 ///|
 fn spawn_tiled_object_layer(
+  world~ : @ecs.World,
+  storage~ : TiledMapStorage,
   map_entity : @ecs.Entity,
   layer_entity : @ecs.Entity,
   map : TiledMap,
@@ -514,7 +549,7 @@ fn spawn_tiled_object_layer(
   settings : TiledSpawnSettings,
 ) -> Unit {
   for object in object_layer.objects {
-    let draft = @ecs.require_current_world().spawn_draft()
+    let draft = @ecs.commands(world).draft()
     let spatial = if object.gid is Some(gid) &&
       map.tileset_for_gid(gid.tile_id) is Some(tileset) {
       let offset = tiled_tile_object_position(map, tileset, object)
@@ -551,8 +586,11 @@ fn spawn_tiled_object_layer(
     )
     draft.add(TiledObjectInstance::{ map_entity, layer_entity, layer, object, })
     tiled_add_properties(draft, object.properties)
-    let object_entity = draft.spawn(parent=layer_entity)
-    tiled_register_object_entity(map_entity, object.id, object_entity)
+    let object_entity = @ecs.commands(world).spawn_draft(
+      draft,
+      parent=layer_entity,
+    )
+    storage.objects.set(object.id, object_entity)
     let object_event = {
       map_entity,
       layer_entity,
@@ -560,10 +598,13 @@ fn spawn_tiled_object_layer(
       layer,
       object,
     }
-    tiled_object_spawned_event_bus.trigger(object_event, Some(object_entity))
-    if settings.object_hook is Some(object_hook) {
-      object_hook(object_event)
-    }
+    @ecs.commands(world).add(_ => {
+      guard object_entity.is_valid_in(world) else { return }
+      tiled_object_spawned_event_bus.trigger(object_event, Some(object_entity))
+      if settings.object_hook is Some(object_hook) {
+        object_hook(object_event)
+      }
+    })
   }
 }
 
@@ -606,10 +647,11 @@ fn tiled_add_image_layer(
 
 ///|
 fn emit_tiled_image_layer(
+  world~ : @ecs.World,
   layer_entity : @ecs.Entity,
   settings : TiledSpawnSettings,
 ) -> Unit {
-  let instance = tiled_image_layer_instances().get(layer_entity).unwrap()
+  let instance = (world.get_component(layer_entity) : TiledImageLayerInstance?).unwrap()
   let event = {
     map_entity: instance.map_entity,
     layer_entity,
@@ -1084,33 +1126,12 @@ fn tiled_add_properties(
 }
 
 ///|
-fn tiled_register_layer_entity(
-  map_entity : @ecs.Entity,
-  layer_id : Int32,
-  layer_entity : @ecs.Entity,
-) -> Unit {
-  guard tiled_map_storages().get(map_entity) is Some(storage) else { return }
-  storage.layers.set(layer_id, layer_entity)
-}
-
-///|
-fn tiled_register_object_entity(
-  map_entity : @ecs.Entity,
-  object_id : Int32,
-  object_entity : @ecs.Entity,
-) -> Unit {
-  guard tiled_map_storages().get(map_entity) is Some(storage) else { return }
-  storage.objects.set(object_id, object_entity)
-}
-
-///|
 fn tiled_register_tile_entity(
-  map_entity : @ecs.Entity,
+  storage : TiledMapStorage,
   global_tile_id : Int32,
   tile_entity : @ecs.Entity,
 ) -> Unit {
   guard global_tile_id > 0 else { return }
-  guard tiled_map_storages().get(map_entity) is Some(storage) else { return }
   match storage.tiles.get(global_tile_id) {
     Some(existing) => existing.push(tile_entity)
     None => storage.tiles.set(global_tile_id, [tile_entity])

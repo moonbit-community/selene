@@ -45,11 +45,6 @@ pub impl Default for OrthographicProjection with fn default() -> OrthographicPro
 pub extend OrthographicProjection with Default::{default}
 
 ///|
-pub fn orthographic_projections() -> @ecs.ComponentStore[OrthographicProjection] {
-  @ecs.components()
-}
-
-///|
 fn projection_scale(scale : Double) -> Double {
   if scale <= 0.0 || !scale.is_finite() {
     1.0

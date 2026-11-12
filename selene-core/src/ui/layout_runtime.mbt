@@ -205,10 +205,13 @@ fn chicle_style_snapshot(node : Node) -> UiChicleStyleSnapshot {
 }
 
 ///|
-fn ui_measure_snapshot(entity : @ecs.Entity) -> UiMeasureSnapshot {
-  let text = texts().get(entity)
-  let style = text_style_for(entity)
-  let layout = text_layout(entity)
+fn ui_measure_snapshot(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> UiMeasureSnapshot {
+  let text = (world.get_component(entity) : Text?)
+  let style = text_style_for(world~, entity)
+  let layout = text_layout(world~, entity)
   let font_handle = match style {
     Some(value) => value.font
     None => None
@@ -225,20 +228,25 @@ fn ui_measure_snapshot(entity : @ecs.Entity) -> UiMeasureSnapshot {
     line_height: layout.line_height,
     wrap: layout.wrap,
     overflow: layout.overflow,
-    image_size: ui_images().get(entity).map(fn(value) { value.size }),
+    image_size: (world.get_component(entity) : UiImage?).map(fn(value) {
+      value.size
+    }),
   }
 }
 
 ///|
-fn ui_projection_snapshot(entity : @ecs.Entity) -> UiProjectionSnapshot {
-  let overflow_clip_margin = nodes()
-    .get(entity)
+fn ui_projection_snapshot(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> UiProjectionSnapshot {
+  let query_override_clip : @ecs.Query[@ecs.Single[OverrideClip]] = world.query()
+  let overflow_clip_margin = (world.get_component(entity) : Node?)
     .map(fn(node) { node.overflow_clip_margin })
     .unwrap_or(OverflowClipMargin::content_box())
   let (target_camera, target_viewport_position, target_viewport_size) = match
-    ui_target_cameras().get(entity) {
+    (world.get_component(entity) : UiTargetCamera?) {
     Some(target) => {
-      let space = ui_layout_space(Some(target.camera))
+      let space = ui_layout_space(world~, Some(target.camera))
       (
         space.target_camera,
         Some(space.viewport.position),
@@ -254,28 +262,44 @@ fn ui_projection_snapshot(entity : @ecs.Entity) -> UiProjectionSnapshot {
     scroll_position: scroll_positions()
     .get(entity)
     .map(fn(value) { Vec2(value.x, value.y) }),
-    use_rounding: layout_configs()
-    .get(entity)
-    .map(fn(value) { value.use_rounding }),
-    override_clip: override_clips().contains(entity),
+    use_rounding: (world.get_component(entity) : LayoutConfig?).map(fn(value) {
+      value.use_rounding
+    }),
+    override_clip: query_override_clip.contains(entity),
     overflow_clip_margin,
   }
 }
 
 ///|
-fn ui_stack_snapshot(entity : @ecs.Entity, node : Node) -> UiStackSnapshot {
+fn ui_stack_snapshot(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+  node : Node,
+) -> UiStackSnapshot {
   {
     displayed: node.display != None,
     visible: @visibility.is_visible(entity),
-    z_index: z_indexes().get(entity).map(fn(value) { value.value }),
-    global_z_index: global_zindexes().get(entity).map(fn(value) { value.value }),
+    z_index: (world.get_component(entity) : ZIndex?).map(fn(value) {
+      value.value
+    }),
+    global_z_index: (world.get_component(entity) : GlobalZIndex?).map(fn(
+      value,
+    ) {
+      value.value
+    }),
   }
 }
 
 ///|
-fn ui_root_snapshot(root : @ecs.Entity) -> UiLayoutRootSnapshot {
+fn ui_root_snapshot(
+  world~ : @ecs.World,
+  root : @ecs.Entity,
+) -> UiLayoutRootSnapshot {
   let space = ui_layout_space(
-    ui_target_cameras().get(root).map(fn(target) { target.camera }),
+    world~,
+    (world.get_component(root) : UiTargetCamera?).map(fn(target) {
+      target.camera
+    }),
   )
   {
     target_camera: space.target_camera,
@@ -323,17 +347,21 @@ fn remove_chicle_node(runtime : UiLayoutRuntime, node_id : Int32) -> Unit {
 
 ///|
 fn sync_layout_node(
+  world~ : @ecs.World,
   runtime : UiLayoutRuntime,
   entity : @ecs.Entity,
   reachable : Set[@ecs.Entity],
   dirty : UiLayoutDirty,
 ) -> Int32? {
-  guard nodes().get(entity) is Some(node) else { return None }
+  let query_node : @ecs.Query[@ecs.Single[Node]] = world.query()
+  guard query_node.get(entity).map(value => value.0) is Some(node) else {
+    return None
+  }
   guard node.active else { return None }
   reachable.add(entity)
-  let measure = ui_measure_snapshot(entity)
-  let projection = ui_projection_snapshot(entity)
-  let stack = ui_stack_snapshot(entity, node)
+  let measure = ui_measure_snapshot(world~, entity)
+  let projection = ui_projection_snapshot(world~, entity)
+  let stack = ui_stack_snapshot(world~, entity, node)
   let (node_id, state) = match runtime.nodes.get(entity) {
     Some(state) => {
       let node_id = state.node_id
@@ -385,8 +413,9 @@ fn sync_layout_node(
 
   let child_entities : Array[@ecs.Entity] = []
   let child_ids : Array[Int32] = []
-  for child in ui_children(entity) {
-    if sync_layout_node(runtime, child, reachable, dirty) is Some(child_id) {
+  for child in ui_children(world~, entity) {
+    if sync_layout_node(world~, runtime, child, reachable, dirty)
+      is Some(child_id) {
       child_entities.push(child)
       child_ids.push(child_id)
     }
@@ -431,6 +460,7 @@ fn remove_stale_layout_nodes(
 
 ///|
 fn sync_layout_roots(
+  world~ : @ecs.World,
   runtime : UiLayoutRuntime,
   roots : Array[@ecs.Entity],
   dirty : UiLayoutDirty,
@@ -438,7 +468,7 @@ fn sync_layout_roots(
   for root in roots {
     guard runtime.nodes.get(root) is Some(root_node) else { continue }
     let root_node_id = root_node.node_id
-    let snapshot = ui_root_snapshot(root)
+    let snapshot = ui_root_snapshot(world~, root)
     match runtime.roots.get(root) {
       Some(root_runtime) => {
         if snapshot != root_runtime.snapshot {
@@ -496,6 +526,7 @@ fn sync_layout_roots(
 
 ///|
 fn compute_dirty_layout_roots(
+  world~ : @ecs.World,
   runtime : UiLayoutRuntime,
   roots : Array[@ecs.Entity],
   dirty : UiLayoutDirty,
@@ -515,7 +546,9 @@ fn compute_dirty_layout_roots(
         width=@style_helpers.available_space_definite(viewport.x),
         height=@style_helpers.available_space_definite(viewport.y),
       ),
-      measure_node,
+      (known, available, id, entity, style) => {
+        measure_node(world~, known, available, id, entity, style)
+      },
     ) catch {
       _ => abort("UI layout runtime failed to compute a valid Chicle root")
     }
@@ -529,6 +562,7 @@ fn compute_dirty_layout_roots(
 
 ///|
 fn project_layout(
+  world~ : @ecs.World,
   runtime : UiLayoutRuntime,
   roots : Array[@ecs.Entity],
 ) -> Unit {
@@ -541,6 +575,7 @@ fn project_layout(
       target_camera=snapshot.target_camera,
     )
     apply_layout_recursive(
+      world~,
       root,
       runtime.tree,
       runtime.nodes,
@@ -557,6 +592,7 @@ fn project_layout(
 
 ///|
 fn record_ui_tree_order(
+  world~ : @ecs.World,
   runtime : UiLayoutRuntime,
   entity : @ecs.Entity,
   order : Ref[Int32],
@@ -564,29 +600,30 @@ fn record_ui_tree_order(
   guard runtime.nodes.contains(entity) else { return }
   order.val += 1
   tree_orders().set(entity, order.val)
-  for child in ui_children(entity) {
-    record_ui_tree_order(runtime, child, order)
+  for child in ui_children(world~, entity) {
+    record_ui_tree_order(world~, runtime, child, order)
   }
 }
 
 ///|
 fn rebuild_layout_stack(
+  world~ : @ecs.World,
   runtime : UiLayoutRuntime,
   roots : Array[@ecs.Entity],
 ) -> Unit {
   let order = Ref(0)
   for root in roots {
-    record_ui_tree_order(runtime, root, order)
+    record_ui_tree_order(world~, runtime, root, order)
   }
   tree_orders().retain((entity, _) => runtime.nodes.contains(entity))
-  rebuild_ui_stack()
+  rebuild_ui_stack(world~)
 }
 
 ///|
-pub fn ui_layout_system(_delta : Double) -> Unit {
+pub fn ui_layout_system(world~ : @ecs.World, _delta : Double) -> Unit {
   cleanup_dead_ui_state()
   let runtime = ui_layout_runtime()
-  let roots = top_level_ui_nodes()
+  let roots = top_level_ui_nodes(world~)
   let reachable : Set[@ecs.Entity] = Set([])
   let dirty : UiLayoutDirty = {
     layout: false,
@@ -594,17 +631,17 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
     stacking: false,
   }
   for root in roots {
-    ignore(sync_layout_node(runtime, root, reachable, dirty))
+    ignore(sync_layout_node(world~, runtime, root, reachable, dirty))
   }
-  sync_layout_roots(runtime, roots, dirty)
+  sync_layout_roots(world~, runtime, roots, dirty)
   remove_stale_layout_nodes(runtime, reachable, dirty)
-  compute_dirty_layout_roots(runtime, roots, dirty)
+  compute_dirty_layout_roots(world~, runtime, roots, dirty)
   if dirty.projection {
-    project_layout(runtime, roots)
+    project_layout(world~, runtime, roots)
     runtime.projection_revision = runtime.projection_revision + 1U
   }
   if dirty.stacking {
-    rebuild_layout_stack(runtime, roots)
+    rebuild_layout_stack(world~, runtime, roots)
     runtime.stacking_revision = runtime.stacking_revision + 1U
   }
 }

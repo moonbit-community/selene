@@ -78,8 +78,11 @@ pub struct TiledColliderSpawnedEvent {
 }
 
 ///|
-pub fn tiled_colliders(source : @ecs.Entity) -> TiledColliders? {
-  let origins = tiled_collider_origins()
+pub fn tiled_colliders(
+  world~ : @ecs.World,
+  source : @ecs.Entity,
+) -> TiledColliders? {
+  let origins : @ecs.Query[@ecs.Single[TiledColliderOrigin]] = world.query()
   let entities = source
     .get_children()
     .filter(entity => origins.contains(entity))
@@ -88,11 +91,6 @@ pub fn tiled_colliders(source : @ecs.Entity) -> TiledColliders? {
   } else {
     Some({ entities, })
   }
-}
-
-///|
-pub fn tiled_collider_origins() -> @ecs.ComponentStore[TiledColliderOrigin] {
-  @ecs.components()
 }
 
 ///|
@@ -131,21 +129,31 @@ priv struct TiledPhysicsSpawnSpec {
 
 ///|
 fn spawn_tiled_map_physics(
+  world~ : @ecs.World,
+  storage~ : TiledMapStorage,
   map_entity : @ecs.Entity,
   map : TiledMap,
   settings : TiledPhysicsSettings,
 ) -> Unit {
-  spawn_tiled_physics_layers(map_entity, map, map.layers, settings)
+  spawn_tiled_physics_layers(
+    world~,
+    storage~,
+    map_entity,
+    map,
+    map.layers,
+    settings,
+  )
 }
 
 ///|
 fn spawn_tiled_physics_layers(
+  world~ : @ecs.World,
+  storage~ : TiledMapStorage,
   map_entity : @ecs.Entity,
   map : TiledMap,
   layers : Array[TiledLayer],
   settings : TiledPhysicsSettings,
 ) -> Unit {
-  guard tiled_map_storages().get(map_entity) is Some(storage) else { return }
   for layer in layers {
     match layer.kind {
       TileLayer(tile_layer) => {
@@ -156,7 +164,13 @@ fn spawn_tiled_physics_layers(
           continue
         }
         spawn_tiled_tile_layer_physics(
-          map_entity, layer_entity, map, layer, tile_layer, settings,
+          world~,
+          map_entity,
+          layer_entity,
+          map,
+          layer,
+          tile_layer,
+          settings,
         )
       }
       ObjectLayer(object_layer) =>
@@ -168,11 +182,24 @@ fn spawn_tiled_physics_layers(
             continue
           }
           spawn_tiled_object_physics(
-            map_entity, object_entity, map, layer, object, settings,
+            world~,
+            map_entity,
+            object_entity,
+            map,
+            layer,
+            object,
+            settings,
           )
         }
       GroupLayer(children) =>
-        spawn_tiled_physics_layers(map_entity, map, children, settings)
+        spawn_tiled_physics_layers(
+          world~,
+          storage~,
+          map_entity,
+          map,
+          children,
+          settings,
+        )
       _ => ()
     }
   }
@@ -180,6 +207,7 @@ fn spawn_tiled_physics_layers(
 
 ///|
 fn spawn_tiled_tile_layer_physics(
+  world~ : @ecs.World,
   map_entity : @ecs.Entity,
   layer_entity : @ecs.Entity,
   map : TiledMap,
@@ -236,12 +264,13 @@ fn spawn_tiled_tile_layer_physics(
     specs
   }
   for spec in spawned_specs {
-    spawn_tiled_physics_spec(map_entity, spec, settings)
+    spawn_tiled_physics_spec(world~, map_entity, spec, settings)
   }
 }
 
 ///|
 fn spawn_tiled_object_physics(
+  world~ : @ecs.World,
   map_entity : @ecs.Entity,
   object_entity : @ecs.Entity,
   map : TiledMap,
@@ -253,7 +282,7 @@ fn spawn_tiled_object_physics(
     object_entity, object_entity, map, layer, object, settings,
   )
   for spec in specs {
-    spawn_tiled_physics_spec(map_entity, spec, settings)
+    spawn_tiled_physics_spec(world~, map_entity, spec, settings)
   }
 }
 
@@ -445,11 +474,12 @@ fn tiled_physics_specs_from_shape_object(
 
 ///|
 fn spawn_tiled_physics_spec(
+  world~ : @ecs.World,
   map_entity : @ecs.Entity,
   spec : TiledPhysicsSpawnSpec,
   settings : TiledPhysicsSettings,
 ) -> Unit {
-  let draft = @ecs.require_current_world().spawn_draft()
+  let draft = @ecs.commands(world).draft()
   let filter = if spec.sensor {
     settings.sensor_filter
   } else {
@@ -497,7 +527,10 @@ fn spawn_tiled_physics_spec(
     layer: spec.layer,
   }
   draft.add(origin)
-  let collider_entity = draft.spawn(parent=spec.source_entity)
+  let collider_entity = @ecs.commands(world).spawn_draft(
+    draft,
+    parent=spec.source_entity,
+  )
   let event = {
     collider_entity,
     origin,
@@ -505,10 +538,13 @@ fn spawn_tiled_physics_spec(
     sensor: spec.sensor,
     properties: spec.properties,
   }
-  tiled_collider_spawned_event_bus.trigger(event, Some(collider_entity))
-  if settings.collider_hook is Some(collider_hook) {
-    collider_hook(event)
-  }
+  @ecs.commands(world).add(_ => {
+    guard collider_entity.is_valid_in(world) else { return }
+    tiled_collider_spawned_event_bus.trigger(event, Some(collider_entity))
+    if settings.collider_hook is Some(collider_hook) {
+      collider_hook(event)
+    }
+  })
 }
 
 ///|

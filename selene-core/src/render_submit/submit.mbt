@@ -120,8 +120,8 @@ fn build_frame2d(
 }
 
 ///|
-pub fn render_submit_system(_delta : Double) -> Unit {
-  let camera_views = @camera.active_camera2d_views()
+pub fn render_submit_system(world~ : @ecs.World, _delta : Double) -> Unit {
+  let camera_views = @camera.active_camera2d_views(world~)
   let (frame2d, world_commands_with_depth) = build_frame2d(camera_views)
   let assets3d : @render_pipeline.RenderAssetSync3D = {
     mesh_upserts: @render3d.take_dirty_mesh_assets(),

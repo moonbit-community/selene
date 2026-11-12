@@ -4,6 +4,9 @@
 
 ### Added
 
+- Add `Query::set(entity, row)` for World-bound point writes that preserve
+  component layouts and iterator validity and reject non-matching rows.
+
 - Add `#selene.state` declarations and generated state identities. Worlds own
   state values and pending requests through resource storage. Applications can
   initialize states, use World-aware `in_state` conditions, and register typed
@@ -23,11 +26,18 @@
 - Added typed World-local storage and streaming ECS query traversal.
 - Added World-local archetypes with typed columns and cached joined queries.
 - Added zero-copy batch reads and in-place writes for archetype queries.
-- Added `Query3`, `Query4`, and `Query5` with cached archetype traversal and
-  zero-copy batches. `Query2` through `Query5` also support direct entity reads.
-- Added reusable spawn bundles, `World::spawn1`, `Commands::spawn1`, and a
+- Add one opaque `Query[Row]` for `Single[T]` and two- through eight-component
+  tuples, with cached archetype traversal and uniform point, row, and batch access.
+- Add typed `SystemParam` injection for queries, commands, resources, optional
+  resources, state views, and time. `args0` and `args2` through `args8` adapt
+  ordinary functions for system and condition registration.
+- Add opaque `System`, `Condition`, and reusable `Schedule` execution, including
+  grouped composition with one final command synchronization.
+- Add scoped `ReadColumn` and `WriteColumn` batch access, permitting writes to
+  any declared component or several components without forming per-row tuples.
+- Added reusable spawn bundles, `Commands::spawn1`, and a
   one-shot `SpawnDraft` for data-driven imports.
-- Added `parent=` to immediate and deferred spawns. The World keeps the
+- Added `parent=` to deferred spawns. The World keeps the
   relationship and sibling order with each entity slot.
 - Added permanent entity deletion with generation-checked slot recycling,
   including through deferred commands. Destroyed entities remain recoverable
@@ -37,6 +47,45 @@
   updates in long-running Worlds with a fixed live population.
 
 ### Changed
+
+- Migrate ordinary gameplay, UI, camera, firing, collision-event, and animation
+  helpers in Cards, Pixel Adventure, and Survivors to injected queries,
+  resources, Commands, and clocks. Private named parameter views combine
+  concrete dependencies without retaining a World.
+- Use joined component rows in mesh and text rendering instead of
+  rebuilding single-component queries and looking up each required component.
+- Remove unused delta arguments from 18 engine systems and register them with
+  `args0` directly. Touch long-press processing retains its required delta.
+
+- Unify system registration under `add_system`, with explicit
+  `add_exclusive_system` for complete World access. Remove the query-specific
+  registration adapters. Move system-set ordering to `ecs`, rename application
+  stage labels to `app.Stage`, and keep runtime registrations private.
+- Preserve prepared parameter state across repeated App runs and schedule
+  composition. Fetch optional resources each execution and observe resource
+  replacements through cached handles.
+- Build drafts and prepared spawn plans through `Commands` rather than `World`.
+- Synchronize deferred commands after RenderCleanup, with no intermediate
+  synchronization between the four render stages.
+
+- Keep `World`, `Entity`, queries, and public traits in `ecs`, with private storage.
+  Expose complete `Schedule::run` execution for Apps and custom loops, with
+  reentry and active-batch checks and one frozen FIFO command batch. Engine
+  importers use the same deferred Commands as applications; no access capability
+  or public privileged execution bridge is required.
+
+- Use ordinary `for` loops for query row traversal and `query.batches(callback)`
+  for scoped batch access. Remove `Query::for_each` and its per-shape traversal
+  closures.
+
+- Require explicit World ownership for component access. Construct opaque
+  queries with `world.query()` or the single-component `world.query1()`;
+  use `world.get_component` and `world.set_component` for point access.
+  Migrate engine systems, importers, and all examples to the same interfaces.
+- LDtk component registrations infer their column from the callback result;
+  spawn drafts accept typed component values only.
+- Animation field sample/apply callbacks receive their execution World so
+  globally shared field descriptors cannot capture another World's storage.
 
 - Remove redundant runtime-table writes after mutating morph weights.
 
@@ -105,9 +154,8 @@
 
 - Spawn entities with `World::spawn` or `Commands::spawn`. Pass `Single(value)`
   or call `spawn1(value)` for one component. Pass a flat tuple for multiple
-  components or `()` for an empty entity. Replace
-  `Entity()` and `commands.spawn()` with `world.spawn(())` and
-  `commands.spawn(())`. Use `World::prepare_spawn` to reuse a layout and
+  components or `()` for an empty entity. Use
+  `commands.spawn(())` for an empty entity. Use `Commands::prepare_spawn` to reuse a layout and
   `Commands::spawn_prepared` to queue it.
 - Spawn demo cameras, terrain, actors, and UI with their initial components.
   Reuse plans for repeated tile, card, enemy, projectile, and grid spawns.
@@ -188,6 +236,20 @@
 
 ### Fixed
 
+- Preserve importer initialization and hook order with deferred-only spawning.
+  Build LDtk registration sprites from their initial project data, deduplicate
+  pending worldly entities across a level batch, and release cloned scene meshes
+  when a queued subtree cannot spawn.
+
+- Apply structural filters consistently to every query operation and cache
+  their matches per archetype. Reject foreign-World filters and undeclared batch
+  columns. Detect batch and column access after their callback has returned.
+- Make query `iter` and `iter2` conform to MoonBit's lazy iteration protocol,
+  supporting ordinary `for` loops without collecting rows or entity handles.
+  Keep snapshots explicit through `to_array`, detect structural invalidation
+  before reading the next row, and leave no query locks after early exit.
+  Defer completed-audio entity deletion until the scheduler's command flush.
+
 - Preserve shortest-path, constant-speed rotation interpolation, including
   antipodal quaternion representations and small angles.
 - Accept Float32-rounded glTF node transforms using an explicit source-precision
@@ -212,9 +274,19 @@
   during a flush run in FIFO order at the next scheduler flush.
 - Isolated entity identity, deferred commands, and query snapshots across Worlds.
 
-- Initialized the registry index before the pre-release CI compatibility check.
-
 ### Removed
+
+- Remove the MoonBit pre-release CI compatibility job; CI uses the latest toolchain.
+
+- Remove public immediate World/SpawnPlan/SpawnDraft creation, Entity lifecycle
+  mutation, raw command/lifecycle flushes, and manual state-transition execution.
+  Use Commands with App scheduling or complete `@ecs.Schedule::run` execution.
+  Remove the `Access` capability and public `runtime_*` execution bridges.
+
+- Remove public component stores, global component accessors, key data-access
+  methods, store-based query constructors, and store-selected spawn APIs.
+- Remove the separate `Query2` through `Query5` types, numbered joined-query
+  constructors, and the first-column-only `for_each_batch_mut_a` method.
 
 - Remove manually held `State[T]` and `NextState[T]` objects, global state
   callback storage, frame-serial transition predicates, and condition-bearing

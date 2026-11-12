@@ -2,3 +2,7 @@ import {
   "moonbitlang/core/debug",
   "Milky2018/selene/ecs",
 }
+
+import {
+  "Milky2018/selene/internal/ecs_test",
+} for "wbtest"

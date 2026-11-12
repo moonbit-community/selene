@@ -1,8 +1,12 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/render_submit"
 
+import {
+  "Milky2018/selene/ecs",
+}
+
 // Values
-pub fn render_submit_system(Double) -> Unit
+pub fn render_submit_system(world~ : @ecs.World, Double) -> Unit
 
 // Errors
 

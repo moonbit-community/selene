@@ -45,9 +45,9 @@ jobs:
           moon update
           git ls-files -z -- '*.mbt' | xargs -0 moonx Milky2018/selene_codegen@0.40.0-beta3 --check
 
-      - name: Test release workflow
+      - name: Test release workflow and ECS public API
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: python3 -m unittest discover -s tests -p 'test_publish.py'
+        run: python3 -m unittest discover -s tests -p 'test_*.py'
 
       - name: Check formatting
         if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -85,19 +85,3 @@ jobs:
 
       - name: Test workspace
         run: moon test --deny-warn
-
-  check-pre-release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install MoonBit pre-release
-        run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s pre-release
-          echo "$HOME/.moon/bin" >> $GITHUB_PATH
-
-      - name: Check pre-release compatibility
-        # Keep deprecation warnings visible while latest still requires the old syntax.
-        run: |
-          moon update
-          moon check --target all

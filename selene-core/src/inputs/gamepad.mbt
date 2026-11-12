@@ -346,7 +346,7 @@ pub fn gamepad_triggers(gamepad : Gamepad) -> @math.Vec2 {
 }
 
 ///|
-pub fn advanced_gamepad_system(_delta : Double) -> Unit {
+pub fn advanced_gamepad_system() -> Unit {
   just_connected_gamepads().clear()
   for gamepad in connected_gamepads().difference(last_connected_gamepads()) {
     just_connected_gamepads().add(gamepad)

@@ -119,6 +119,6 @@ pub fn timer_system(delta : Double) -> Unit {
 
 ///|
 /// Advances only unscaled timers using the active World's raw frame delta.
-pub fn realtime_timer_system(_delta : Double) -> Unit {
+pub fn realtime_timer_system() -> Unit {
   tick_timers(None, Some(raw_delta()))
 }

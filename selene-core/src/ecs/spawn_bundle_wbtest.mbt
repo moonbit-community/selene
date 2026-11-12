@@ -52,7 +52,7 @@ test "panic a spawn bundle cannot allocate an entity in a foreign world" {
 test "panic a spawn draft rejects duplicate columns" {
   let world = World()
   let store : ComponentStore[Int32] = ComponentStore(world)
-  let draft = world.spawn_draft()
+  let draft = commands(world).draft()
   draft.add_to(store, 1)
   draft.add_to(store, 2)
 }
@@ -60,7 +60,7 @@ test "panic a spawn draft rejects duplicate columns" {
 ///|
 test "panic a spawn draft cannot spawn twice" {
   let world = World()
-  let draft = world.spawn_draft()
+  let draft = commands(world).draft()
   ignore(draft.spawn())
   ignore(draft.spawn())
 }

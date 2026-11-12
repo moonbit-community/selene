@@ -2,27 +2,29 @@
 fn remove_entity_physics(entity : @ecs.Entity) -> Unit {
   remove_joint_physics(entity)
   remove_multibody_joint_physics(entity)
-  if world().entity_colliders.get(entity) is Some(collider_handle) {
-    world().colliders.remove(
+  if physics_world().entity_colliders.get(entity) is Some(collider_handle) {
+    physics_world().colliders.remove(
       collider_handle,
-      world().islands,
-      world().bodies,
+      physics_world().islands,
+      physics_world().bodies,
       true,
     )
-    world().collider_entities.remove(collider_handle_key(collider_handle))
-    world().entity_colliders.remove(entity)
+    physics_world().collider_entities.remove(
+      collider_handle_key(collider_handle),
+    )
+    physics_world().entity_colliders.remove(entity)
   }
-  if world().entity_bodies.get(entity) is Some(body_handle) {
-    world().bodies.remove(
+  if physics_world().entity_bodies.get(entity) is Some(body_handle) {
+    physics_world().bodies.remove(
       body_handle,
-      world().islands,
+      physics_world().islands,
       (),
-      world().impulse_joints,
-      world().multibody_joints,
+      physics_world().impulse_joints,
+      physics_world().multibody_joints,
       true,
     )
     |> ignore
-    world().entity_bodies.remove(entity)
+    physics_world().entity_bodies.remove(entity)
   }
   entity_physics_config_keys().remove(entity)
   entity_multibody_joint_config_keys().remove(entity)
@@ -40,22 +42,22 @@ fn consume_pending_body_controls(entity : @ecs.Entity) -> Unit {
 }
 
 ///|
-fn sync_world_entities() -> Unit {
-  prune_pending_body_state()
-  let stale = world().entity_bodies
+fn sync_world_entities(world~ : @ecs.World) -> Unit {
+  prune_pending_body_state(world~)
+  let stale = physics_world().entity_bodies
     .keys()
-    .filter(entity => !should_have_physics(entity))
+    .filter(entity => !should_have_physics(world~, entity))
     .collect()
   for entity in stale {
     remove_entity_physics(entity)
   }
 
   for entity in @ecs.iter_entities() {
-    guard should_have_physics(entity) else { continue }
-    guard! entity_physics_snapshot(entity) is Some(snapshot)
-    let config_key = entity_physics_config_key(entity, snapshot)
-    let missing_physics = world().entity_bodies.get(entity) is None ||
-      world().entity_colliders.get(entity) is None
+    guard should_have_physics(world~, entity) else { continue }
+    guard! entity_physics_snapshot(world~, entity) is Some(snapshot)
+    let config_key = entity_physics_config_key(world~, entity, snapshot)
+    let missing_physics = physics_world().entity_bodies.get(entity) is None ||
+      physics_world().entity_colliders.get(entity) is None
     let has_pending_actions = has_pending_body_actions(entity)
     if missing_physics {
       insert_entity_physics(entity, snapshot)
@@ -71,10 +73,10 @@ fn sync_world_entities() -> Unit {
     if missing_physics ||
       entity_physics_config_keys().get(entity) != Some(config_key) ||
       has_pending_actions {
-      if entity_physics_snapshot(entity) is Some(next_snapshot) {
+      if entity_physics_snapshot(world~, entity) is Some(next_snapshot) {
         entity_physics_config_keys().set(
           entity,
-          entity_physics_config_key(entity, next_snapshot),
+          entity_physics_config_key(world~, entity, next_snapshot),
         )
       }
     }
@@ -132,7 +134,7 @@ fn insert_entity_physics(
     snapshot.body.body_type != KinematicPositionBased {
     body_builder = body_builder.angvel(Float::from_double(angular_velocity))
   }
-  let body_handle = world().bodies.insert(body_builder.build())
+  let body_handle = physics_world().bodies.insert(body_builder.build())
   let collider = @rapier_full.ColliderBuilder::ColliderBuilder(rapier_shape)
     .translation(to_physics_vec2(translation))
     .active_collision_types(@rapier_collision.ActiveCollisionTypes::all())
@@ -145,14 +147,17 @@ fn insert_entity_physics(
     .restitution(Float::from_double(snapshot.collision.restitution))
     .enabled(snapshot.collision.active)
     .build()
-  let collider_handle = world().colliders.insert_with_parent(
+  let collider_handle = physics_world().colliders.insert_with_parent(
     collider,
     body_handle,
-    world().bodies,
+    physics_world().bodies,
   )
-  world().entity_bodies.set(entity, body_handle)
-  world().entity_colliders.set(entity, collider_handle)
-  world().collider_entities.set(collider_handle_key(collider_handle), entity)
+  physics_world().entity_bodies.set(entity, body_handle)
+  physics_world().entity_colliders.set(entity, collider_handle)
+  physics_world().collider_entities.set(
+    collider_handle_key(collider_handle),
+    entity,
+  )
 }
 
 ///|
@@ -160,8 +165,8 @@ fn sync_entity_physics(
   entity : @ecs.Entity,
   snapshot : EntityPhysicsSnapshot,
 ) -> Unit {
-  guard! world().entity_bodies.get(entity) is Some(body_handle)
-  guard! world().entity_colliders.get(entity) is Some(collider_handle)
+  guard! physics_world().entity_bodies.get(entity) is Some(body_handle)
+  guard! physics_world().entity_colliders.get(entity) is Some(collider_handle)
   guard! collision_shape_to_rapier_shape(snapshot.shape)
     is Some((rapier_shape, translation))
   let active_hooks = if snapshot.collision.sensor {
@@ -170,7 +175,7 @@ fn sync_entity_physics(
     @rapier_collision.ActiveHooks::filter_contact_pairs()
   }
 
-  if world().bodies.get_mut(body_handle) is Some(body) {
+  if physics_world().bodies.get_mut(body_handle) is Some(body) {
     body
     .set_body_type(rigid_body_type_to_rapier(snapshot.body.body_type), false)
     .set_enabled(snapshot.collision.active)
@@ -213,7 +218,7 @@ fn sync_entity_physics(
     }
   }
 
-  if world().colliders.get_mut(collider_handle) is Some(collider) {
+  if physics_world().colliders.get_mut(collider_handle) is Some(collider) {
     collider
     .set_sensor(snapshot.collision.sensor)
     .set_enabled(snapshot.collision.active)
@@ -234,13 +239,17 @@ fn sync_entity_physics(
 fn entity_from_collider_handle(
   handle : @rapier_collision.ColliderHandle,
 ) -> @ecs.Entity? {
-  world().collider_entities.get(collider_handle_key(handle))
+  physics_world().collider_entities.get(collider_handle_key(handle))
 }
 
 ///|
-fn estimate_direction(from : @ecs.Entity, to : @ecs.Entity) -> @math.Vec2 {
-  if entity_translation(from) is Some(from_pos) &&
-    entity_translation(to) is Some(to_pos) {
+fn estimate_direction(
+  world~ : @ecs.World,
+  from : @ecs.Entity,
+  to : @ecs.Entity,
+) -> @math.Vec2 {
+  if entity_translation(world~, from) is Some(from_pos) &&
+    entity_translation(world~, to) is Some(to_pos) {
     let delta = to_pos - from_pos
     if delta.x.abs() >= delta.y.abs() {
       Vec2(if delta.x >= 0.0 { 1.0 } else { -1.0 }, 0.0)
@@ -254,16 +263,17 @@ fn estimate_direction(from : @ecs.Entity, to : @ecs.Entity) -> @math.Vec2 {
 
 ///|
 fn move_without_collision(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   displacement : @math.Vec2,
   delta : Double,
   write_resolved : (@ecs.Entity, @math.Vec2) -> Unit,
 ) -> Unit {
-  if entity_translation(entity) is Some(position) {
+  if entity_translation(world~, entity) is Some(position) {
     let new_position = position + displacement
-    set_entity_translation(entity, new_position)
-    if world().entity_bodies.get(entity) is Some(body_handle) {
-      if world().bodies.get_mut(body_handle) is Some(body) {
+    set_entity_translation(world~, entity, new_position)
+    if physics_world().entity_bodies.get(entity) is Some(body_handle) {
+      if physics_world().bodies.get_mut(body_handle) is Some(body) {
         body.set_translation(to_physics_vec2(new_position), true) |> ignore
       }
     }
@@ -278,6 +288,7 @@ fn move_without_collision(
 
 ///|
 fn move_with_kinematic_controller(
+  world~ : @ecs.World,
   entity : @ecs.Entity,
   collider_handle : @rapier_collision.ColliderHandle,
   velocity : @math.Vec2,
@@ -285,9 +296,10 @@ fn move_with_kinematic_controller(
   query_base : @rapier_collision.QueryPipeline,
   write_resolved : (@ecs.Entity, @math.Vec2) -> Unit,
 ) -> Unit {
-  guard entity_translation(entity) is Some(position) else { return }
-  guard entity_collision_shape(entity) is Some(shape) else {
+  guard entity_translation(world~, entity) is Some(position) else { return }
+  guard entity_collision_shape(world~, entity) is Some(shape) else {
     move_without_collision(
+      world~,
       entity,
       velocity.scalar_mul(delta),
       delta,
@@ -298,6 +310,7 @@ fn move_with_kinematic_controller(
   guard collision_shape_to_rapier_shape(shape)
     is Some((rapier_shape, translation)) else {
     move_without_collision(
+      world~,
       entity,
       velocity.scalar_mul(delta),
       delta,
@@ -305,8 +318,9 @@ fn move_with_kinematic_controller(
     )
     return
   }
-  guard colliders().get(entity) is Some(collider) else {
+  guard (world.get_component(entity) : Collider?) is Some(collider) else {
     move_without_collision(
+      world~,
       entity,
       velocity.scalar_mul(delta),
       delta,
@@ -327,8 +341,8 @@ fn move_with_kinematic_controller(
   let effective = controller.move_shape(
     Float::from_double(delta),
     query,
-    world().bodies,
-    world().colliders,
+    physics_world().bodies,
+    physics_world().colliders,
     rapier_shape,
     @rapier_full.Isometry2::from_translation(
       to_physics_vec2(position + translation),
@@ -341,9 +355,9 @@ fn move_with_kinematic_controller(
     applied_displacement = Vec2(applied_displacement.x, 0.0)
   }
   let new_position = position + applied_displacement
-  set_entity_translation(entity, new_position)
-  if world().entity_bodies.get(entity) is Some(body_handle) {
-    if world().bodies.get_mut(body_handle) is Some(body) {
+  set_entity_translation(world~, entity, new_position)
+  if physics_world().entity_bodies.get(entity) is Some(body_handle) {
+    if physics_world().bodies.get_mut(body_handle) is Some(body) {
       body.set_next_kinematic_translation(to_physics_vec2(new_position))
       |> ignore
       body.set_linvel(
@@ -358,18 +372,23 @@ fn move_with_kinematic_controller(
 }
 
 ///|
-fn process_contact_events() -> Unit {
-  for event in world().event_handler.take_collision_events() {
+fn process_contact_events(world~ : @ecs.World) -> Unit {
+  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
+  for event in physics_world().event_handler.take_collision_events() {
     guard entity_from_collider_handle(event.collider1()) is Some(entity1) else {
       continue
     }
     guard entity_from_collider_handle(event.collider2()) is Some(entity2) else {
       continue
     }
-    guard colliders().get(entity1) is Some(collider1) else { continue }
-    guard colliders().get(entity2) is Some(collider2) else { continue }
+    guard query_collider.get(entity1).map(value => value.0) is Some(collider1) else {
+      continue
+    }
+    guard query_collider.get(entity2).map(value => value.0) is Some(collider2) else {
+      continue
+    }
     guard collider1.active && collider2.active else { continue }
-    let direction = estimate_direction(entity1, entity2)
+    let direction = estimate_direction(world~, entity1, entity2)
     let started = event.started()
     push_contact_event({ entity: entity1, other: entity2, started, direction, })
     push_contact_event({
@@ -383,16 +402,19 @@ fn process_contact_events() -> Unit {
 
 ///|
 fn update_area_contains(
+  world~ : @ecs.World,
   area_entity : @ecs.Entity,
   other : @ecs.Entity,
   intersecting : Bool,
 ) -> Unit {
-  guard areas().get(area_entity) is Some(area) else { return }
+  guard (world.get_component(area_entity) : Area?) is Some(area) else { return }
   guard area.active else { return }
   if !other.is_alive() {
     return
   }
-  guard colliders().get(other) is Some(other_collider) else { return }
+  guard (world.get_component(other) : Collider?) is Some(other_collider) else {
+    return
+  }
   guard other_collider.active else { return }
   guard area.filter.matches_group(other_collider.filter.group) else { return }
   if intersecting {
@@ -407,8 +429,10 @@ fn update_area_contains(
 }
 
 ///|
-fn prune_area_contains() -> Unit {
-  for _entity, area in areas() {
+fn prune_area_contains(world~ : @ecs.World) -> Unit {
+  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
+  let query_area : @ecs.Query[@ecs.Single[Area]] = world.query()
+  for _entity, Single(area) in query_area {
     let stale : Array[@ecs.Entity] = []
     for other in area.contains {
       if !area.active {
@@ -419,7 +443,7 @@ fn prune_area_contains() -> Unit {
         stale.push(other)
         continue
       }
-      if colliders().get(other) is None {
+      if query_collider.get(other).map(value => value.0) is None {
         stale.push(other)
       }
     }
@@ -442,23 +466,24 @@ fn clear_area_contains(area_entity : @ecs.Entity, area : Area) -> Unit {
 }
 
 ///|
-fn process_trigger_events() -> Unit {
+fn process_trigger_events(world~ : @ecs.World) -> Unit {
+  let query_area : @ecs.Query[@ecs.Single[Area]] = world.query()
   let query_base = @rapier_collision.QueryPipeline::QueryPipeline(
     QueryFilter(),
-    world().bodies,
-    world().colliders,
+    physics_world().bodies,
+    physics_world().colliders,
   )
-  for area_entity, area in areas() {
+  for area_entity, Single(area) in query_area {
     guard area_entity.is_alive() else { continue }
     if !area.active {
       clear_area_contains(area_entity, area)
       continue
     }
-    guard world().entity_colliders.get(area_entity) is Some(area_handle) else {
+    guard physics_world().entity_colliders.get(area_entity) is Some(area_handle) else {
       clear_area_contains(area_entity, area)
       continue
     }
-    guard world().colliders.get(area_handle) is Some(area_collider) else {
+    guard physics_world().colliders.get(area_handle) is Some(area_collider) else {
       clear_area_contains(area_entity, area)
       continue
     }
@@ -469,8 +494,8 @@ fn process_trigger_events() -> Unit {
       .groups(to_rapier_groups(area.filter)),
     )
     let overlaps = query.intersect_shape(
-      world().bodies,
-      world().colliders,
+      physics_world().bodies,
+      physics_world().colliders,
       area_collider.position(),
       area_collider.shape(),
     )
@@ -478,7 +503,7 @@ fn process_trigger_events() -> Unit {
     for handle in overlaps {
       guard entity_from_collider_handle(handle) is Some(other) else { continue }
       intersecting_entities.add(other)
-      update_area_contains(area_entity, other, true)
+      update_area_contains(world~, area_entity, other, true)
     }
     let exiting_entities : Array[@ecs.Entity] = []
     for other in area.contains {
@@ -487,23 +512,32 @@ fn process_trigger_events() -> Unit {
       }
     }
     for other in exiting_entities {
-      update_area_contains(area_entity, other, false)
+      update_area_contains(world~, area_entity, other, false)
     }
   }
-  prune_area_contains()
+  prune_area_contains(world~)
 }
 
 ///|
 fn sync_body_outputs(
+  world~ : @ecs.World,
   write_resolved : (@ecs.Entity, @math.Vec2) -> Unit,
 ) -> Unit {
-  for entity, handle in world().entity_bodies {
-    guard entity_translation(entity) is Some(_) else { continue }
-    if world().bodies.get(handle) is Some(body) {
+  for entity, handle in physics_world().entity_bodies {
+    guard entity_translation(world~, entity) is Some(_) else { continue }
+    if physics_world().bodies.get(handle) is Some(body) {
       let body_type = body.body_type()
       if body_type is Dynamic || body_type is KinematicVelocityBased {
-        set_entity_translation(entity, from_physics_vec2(body.translation()))
-        set_entity_rotation(entity, from_physics_rotation(body.rotation()))
+        set_entity_translation(
+          world~,
+          entity,
+          from_physics_vec2(body.translation()),
+        )
+        set_entity_rotation(
+          world~,
+          entity,
+          from_physics_rotation(body.rotation()),
+        )
         write_resolved(entity, from_physics_vec2(body.linvel()))
         set_grounded(entity, false)
       }
@@ -513,38 +547,40 @@ fn sync_body_outputs(
 
 ///|
 fn step_rapier_pipeline(delta : Double) -> Unit {
-  world().integration = world().integration
+  physics_world().integration = physics_world().integration
     .with_dt(Float::from_double(delta))
     .set_length_unit(Float::from_double(physics_config.pixels_per_meter))
     .set_max_ccd_substeps(physics_config.max_ccd_substeps)
-  ignore(world().event_handler.take_collision_events())
-  ignore(world().event_handler.take_intersection_events())
-  world().pipeline.step(
+  ignore(physics_world().event_handler.take_collision_events())
+  ignore(physics_world().event_handler.take_intersection_events())
+  physics_world().pipeline.step(
     to_physics_vec2(physics_config.gravity),
-    world().integration,
-    world().islands,
-    world().broad_phase,
-    world().narrow_phase,
-    world().bodies,
-    world().colliders,
-    world().impulse_joints,
-    world().multibody_joints,
-    world().ccd_solver,
+    physics_world().integration,
+    physics_world().islands,
+    physics_world().broad_phase,
+    physics_world().narrow_phase,
+    physics_world().bodies,
+    physics_world().colliders,
+    physics_world().impulse_joints,
+    physics_world().multibody_joints,
+    physics_world().ccd_solver,
     PhysicsHooks(),
-    world().event_handler,
+    physics_world().event_handler,
   )
 }
 
 ///|
-fn rapier_fixed_step(delta : Double) -> Unit {
+fn rapier_fixed_step(world~ : @ecs.World, delta : Double) -> Unit {
+  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
+  let query_velocity : @ecs.Query[@ecs.Single[@velocity.Velocity]] = world.query()
   if delta <= 0.0 {
     grounded_entities().clear()
     resolved_velocities().clear()
     return
   }
-  sync_world_entities()
-  sync_world_joints()
-  sync_world_multibody_joints()
+  sync_world_entities(world~)
+  sync_world_joints(world~)
+  sync_world_multibody_joints(world~)
   grounded_entities().clear()
   let resolved = resolved_velocities()
   resolved.clear()
@@ -554,17 +590,19 @@ fn rapier_fixed_step(delta : Double) -> Unit {
 
   let query_base = @rapier_collision.QueryPipeline::QueryPipeline(
     QueryFilter(),
-    world().bodies,
-    world().colliders,
+    physics_world().bodies,
+    physics_world().colliders,
   )
-  for entity, velocity in @velocity.velocities() {
+  for entity, Single(velocity) in query_velocity {
     guard entity.is_alive() else { continue }
-    let body_type = entity_rigid_body(entity).body_type
+    let body_type = entity_rigid_body(world~, entity).body_type
     guard body_type is KinematicPositionBased else { continue }
     let displacement = velocity.0.scalar_mul(delta)
-    if world().entity_colliders.get(entity) is Some(collider_handle) {
-      if colliders().get(entity) is Some(collider) && collider.active {
+    if physics_world().entity_colliders.get(entity) is Some(collider_handle) {
+      if query_collider.get(entity).map(value => value.0) is Some(collider) &&
+        collider.active {
         move_with_kinematic_controller(
+          world~,
           entity,
           collider_handle,
           velocity.0,
@@ -573,15 +611,27 @@ fn rapier_fixed_step(delta : Double) -> Unit {
           write_resolved,
         )
       } else {
-        move_without_collision(entity, displacement, delta, write_resolved)
+        move_without_collision(
+          world~,
+          entity,
+          displacement,
+          delta,
+          write_resolved,
+        )
       }
     } else {
-      move_without_collision(entity, displacement, delta, write_resolved)
+      move_without_collision(
+        world~,
+        entity,
+        displacement,
+        delta,
+        write_resolved,
+      )
     }
   }
 
   step_rapier_pipeline(delta)
-  sync_body_outputs(write_resolved)
-  process_contact_events()
-  process_trigger_events()
+  sync_body_outputs(world~, write_resolved)
+  process_contact_events(world~)
+  process_trigger_events(world~)
 }

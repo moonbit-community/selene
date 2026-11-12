@@ -6,3 +6,7 @@ import {
 import {
   "moonbitlang/core/bench",
 } for "wbtest"
+
+import {
+  "Milky2018/selene/internal/ecs_test",
+} for "test"

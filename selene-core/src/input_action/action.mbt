@@ -94,7 +94,7 @@ pub fn action_value(action : InputAction) -> Double {
 }
 
 ///|
-pub fn input_action_system(_delta : Double) -> Unit {
+pub fn input_action_system() -> Unit {
   for action, bindings in input_bindings {
     let previous = action_states
       .get(action)

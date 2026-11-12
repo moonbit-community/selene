@@ -141,7 +141,7 @@ fn finish_audio_sink(entity : @ecs.Entity) -> Unit {
     Remove => stop_audio(entity)
     Despawn => {
       audio_sinks().remove(entity)
-      ignore(entity.delete())
+      @ecs.commands(@ecs.require_current_world()).delete(entity)
     }
   }
 }
@@ -174,7 +174,7 @@ fn sync_audio_sink(entity : @ecs.Entity, sink : AudioSink) -> Unit {
 }
 
 ///|
-pub fn audio_event_playback_system(_delta : Double) -> Unit {
+pub fn audio_event_playback_system() -> Unit {
   for event in @event.read(audio_event_reader, audio_event_bus) {
     let settings = normalize_settings(event.settings)
     match event.target {
@@ -185,18 +185,23 @@ pub fn audio_event_playback_system(_delta : Double) -> Unit {
 }
 
 ///|
-pub fn audio_playback_system(_delta : Double) -> Unit {
+pub fn audio_playback_system(
+  players : @ecs.Query[@ecs.Single[AudioPlayer]],
+  query_playback_settings : @ecs.Query[@ecs.Single[PlaybackSettings]],
+) -> Unit {
   cleanup_orphaned_audio(instance => @platform_audio.stop(instance~))
   let runtime = audio_runtime()
-  let players = audio_players()
-  for entity, player in players {
+  for entity, Single(player) in players {
     guard entity.is_alive() && !runtime.overrides.contains(entity) else {
       continue
     }
     update_audio_playback(
       entity,
       player,
-      audio_playback_settings().get(entity).unwrap_or(PlaybackSettings::once()),
+      query_playback_settings
+      .get(entity)
+      .map(value => value.0)
+      .unwrap_or(PlaybackSettings::once()),
     )
   }
   for entity, playback in runtime.overrides {

@@ -13,29 +13,36 @@
 // limitations under the License.
 
 ///|
-fn add_system(
+fn[P : @ecs.SystemParam] add_system(
   app : @app.App,
-  system : (Double) -> Unit,
-  schedule : @app.Schedule,
+  system : (P) -> Unit,
+  schedule : @app.Stage,
   name : String,
-  in_set? : @app.SystemSet,
-  before~ : Array[@app.SystemSet] = [],
-  after~ : Array[@app.SystemSet] = [],
+  in_set? : @ecs.SystemSet,
+  before~ : Array[@ecs.SystemSet] = [],
+  after~ : Array[@ecs.SystemSet] = [],
 ) -> @app.App {
-  let world_system = fn(_world) { system(@time.delta()) }
-  match in_set {
-    Some(set) =>
-      app.add_system(
-        schedule,
-        world_system,
-        system_name=name,
-        in_set=set,
-        before~,
-        after~,
-      )
-    None =>
-      app.add_system(schedule, world_system, system_name=name, before~, after~)
-  }
+  app.add_system(schedule, system, system_name=name, in_set?, before~, after~)
+}
+
+///|
+fn add_exclusive_system(
+  app : @app.App,
+  system : (@ecs.World) -> Unit,
+  schedule : @app.Stage,
+  name : String,
+  in_set? : @ecs.SystemSet,
+  before~ : Array[@ecs.SystemSet] = [],
+  after~ : Array[@ecs.SystemSet] = [],
+) -> @app.App {
+  app.add_exclusive_system(
+    schedule,
+    system,
+    system_name=name,
+    in_set?,
+    before~,
+    after~,
+  )
 }
 
 ///|

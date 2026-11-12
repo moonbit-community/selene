@@ -17,11 +17,19 @@ priv struct ArchetypeWorld {
   slots : Array[EntitySlot]
   create_columns : Array[(Int32) -> ArchetypeColumn]
   mut active_queries : Int32
+  mut structural_version : UInt64
 }
 
 ///|
 fn ArchetypeWorld::ArchetypeWorld(slots : Array[EntitySlot]) -> ArchetypeWorld {
-  { tables: [], table_ids: {}, slots, create_columns: [], active_queries: 0, }
+  {
+    tables: [],
+    table_ids: {},
+    slots,
+    create_columns: [],
+    active_queries: 0,
+    structural_version: 0UL,
+  }
 }
 
 ///|
@@ -80,6 +88,7 @@ fn ArchetypeWorld::append_entity(
   let entities = self.tables[id].entities
   self.slots[entity.slot].location = Some((id, entities.length()))
   entities.push(entity)
+  self.structural_version += 1UL
 }
 
 ///|
@@ -101,4 +110,5 @@ fn ArchetypeWorld::remove_entity_row(
   }
   swap_remove_row(table.entities, row)
   self.slots[entity.slot].location = None
+  self.structural_version += 1UL
 }

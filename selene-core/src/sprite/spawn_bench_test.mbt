@@ -22,20 +22,20 @@ fn spawn_sprite_population(
   match mode {
     Draft =>
       for _ in 0..<size {
-        let draft = world.spawn_draft()
+        let draft = @ecs.commands(world).draft()
         draft.add(sprite)
         draft.add(make_spatial())
         if extra_columns {
           draft.add(@visibility.Visibility::Visible)
           draft.add(anchor)
         }
-        ignore(draft.spawn())
+        ignore(@ecs.commands(world).spawn_draft(draft))
       }
     Direct =>
       if extra_columns {
         for _ in 0..<size {
           ignore(
-            world.spawn(
+            @ecs.commands(world).spawn(
               (
                 sprite,
                 make_spatial(),
@@ -47,7 +47,7 @@ fn spawn_sprite_population(
         }
       } else {
         for _ in 0..<size {
-          ignore(world.spawn((sprite, make_spatial())))
+          ignore(@ecs.commands(world).spawn((sprite, make_spatial())))
         }
       }
     Prepared =>
@@ -59,10 +59,11 @@ fn spawn_sprite_population(
             @visibility.Visibility,
             @sprite.Anchor,
           ),
-        ] = world.prepare_spawn()
+        ] = @ecs.commands(world).prepare_spawn()
         for _ in 0..<size {
           ignore(
-            plan.spawn(
+            @ecs.commands(world).spawn_prepared(
+              plan,
               (
                 sprite,
                 make_spatial(),
@@ -73,12 +74,17 @@ fn spawn_sprite_population(
           )
         }
       } else {
-        let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = world.prepare_spawn()
+        let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = @ecs.commands(
+          world,
+        ).prepare_spawn()
         for _ in 0..<size {
-          ignore(plan.spawn((sprite, make_spatial())))
+          ignore(
+            @ecs.commands(world).spawn_prepared(plan, (sprite, make_spatial())),
+          )
         }
       }
   }
+  try! @ecs.Schedule().run(world)
   world
 }
 
@@ -97,10 +103,11 @@ test "sprite spawn paths" (b : @bench.T) {
         (Direct, "direct"),
         (Prepared, "prepared"),
       ] {
-      @ecs.set_current_world(spawn_sprite_population(size, mode, extra_columns))
+      let world = spawn_sprite_population(size, mode, extra_columns)
+      @ecs.set_current_world(world)
       assert_eq(@ecs.alive_entity_count(), size)
       let mut matched = 0
-      @sprite.for_each_sprite_transform((_, _, _) => matched += 1)
+      @sprite.for_each_sprite_transform(world~, (_, _, _) => matched += 1)
       assert_eq(matched, size)
       // Each sample starts with a fresh World, including plan preparation.
       b.bench(name="spawn/\{name}/n=\{size}/columns=\{columns}", count=10, () => {

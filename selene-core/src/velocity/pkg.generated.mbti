@@ -8,7 +8,6 @@ import {
 }
 
 // Values
-pub fn velocities() -> @ecs.ComponentStore[Velocity]
 
 // Errors
 

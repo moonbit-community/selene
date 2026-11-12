@@ -104,8 +104,8 @@ fn Powerup::Powerup(powerup_type : PowerupType) -> Powerup {
 }
 
 ///|
-fn apply_powerup(powerup : Powerup) -> Unit {
-  let game = game_state()
+fn apply_powerup(ui~ : SurvivorsUi, powerup : Powerup) -> Unit {
+  let game = ui.game()
   match powerup.powerup_type {
     AttackLv1 => game.player_stats.attack += 0.2
     AttackLv2 => game.player_stats.attack += 0.3

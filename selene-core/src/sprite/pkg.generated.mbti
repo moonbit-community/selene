@@ -16,15 +16,13 @@ pub fn color_from_css(String) -> @render.Color
 
 pub fn default_anchor() -> Anchor
 
-pub fn for_each_sprite_transform((@ecs.Entity, Sprite, @transform.GlobalTransform) -> Unit) -> Unit
+pub fn for_each_sprite_transform(world~ : @ecs.World, (@ecs.Entity, Sprite, @transform.GlobalTransform) -> Unit) -> Unit
 
 pub fn register_texture_atlas_layout(TextureAtlasLayout) -> TextureAtlasLayoutHandle
 
 pub fn release_texture_atlas_layout(TextureAtlasLayoutHandle) -> Unit
 
-pub fn render_sprite_system(Double) -> Unit
-
-pub fn sprites() -> @ecs.ComponentStore[Sprite]
+pub fn render_sprite_system(world~ : @ecs.World, Double) -> Unit
 
 pub fn take_dirty_texture_atlas_layouts() -> Array[(TextureAtlasLayoutHandle, TextureAtlasLayout)]
 

@@ -26,68 +26,56 @@ pub fn add_default_ldtk_int_cell_registration(
 }
 
 ///|
-pub fn[T] add_ldtk_int_cell_component_for_layer_optional(
+pub fn[T : @ecs.Component] add_ldtk_int_cell_component_for_layer_optional(
   layer_identifier : String?,
   value : Int32?,
-  storage : @ecs.ComponentStore[T],
   make : (LdtkIntGridCellSpawn) -> T,
 ) -> Unit {
   add_ldtk_int_cell_registration_for_layer_optional(layer_identifier, value, fn(
     event,
   ) {
-    event.draft.add_to(storage, make(event))
+    event.draft.add(make(event))
   })
 }
 
 ///|
-pub fn[T] add_ldtk_int_cell_component_for_layer(
+pub fn[T : @ecs.Component] add_ldtk_int_cell_component_for_layer(
   layer_identifier : String,
   value : Int32,
-  storage : @ecs.ComponentStore[T],
   make : (LdtkIntGridCellSpawn) -> T,
 ) -> Unit {
   add_ldtk_int_cell_component_for_layer_optional(
     Some(layer_identifier),
     Some(value),
-    storage,
     make,
   )
 }
 
 ///|
-pub fn[T] add_ldtk_int_cell_component(
+pub fn[T : @ecs.Component] add_ldtk_int_cell_component(
   value : Int32,
-  storage : @ecs.ComponentStore[T],
   make : (LdtkIntGridCellSpawn) -> T,
 ) -> Unit {
-  add_ldtk_int_cell_component_for_layer_optional(
-    None,
-    Some(value),
-    storage,
-    make,
-  )
+  add_ldtk_int_cell_component_for_layer_optional(None, Some(value), make)
 }
 
 ///|
-pub fn[T] add_default_ldtk_int_cell_component_for_layer(
+pub fn[T : @ecs.Component] add_default_ldtk_int_cell_component_for_layer(
   layer_identifier : String,
-  storage : @ecs.ComponentStore[T],
   make : (LdtkIntGridCellSpawn) -> T,
 ) -> Unit {
   add_ldtk_int_cell_component_for_layer_optional(
     Some(layer_identifier),
     None,
-    storage,
     make,
   )
 }
 
 ///|
-pub fn[T] add_default_ldtk_int_cell_component(
-  storage : @ecs.ComponentStore[T],
+pub fn[T : @ecs.Component] add_default_ldtk_int_cell_component(
   make : (LdtkIntGridCellSpawn) -> T,
 ) -> Unit {
-  add_ldtk_int_cell_component_for_layer_optional(None, None, storage, make)
+  add_ldtk_int_cell_component_for_layer_optional(None, None, make)
 }
 
 ///|

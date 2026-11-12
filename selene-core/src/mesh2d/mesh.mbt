@@ -55,11 +55,6 @@ pub(all) struct Mesh2dStorage {
 }
 
 ///|
-pub fn mesh2ds() -> @ecs.ComponentStore[Mesh2d] {
-  @ecs.components()
-}
-
-///|
 let mesh_storage : Mesh2dStorage = { meshes: Map([]), }
 
 ///|

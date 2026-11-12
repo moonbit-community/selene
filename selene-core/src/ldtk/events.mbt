@@ -38,6 +38,7 @@ pub struct LdtkTileSpawnedEvent {
 ///|
 /// Initial values for an LDtk entity registration, before a handle exists.
 pub struct LdtkEntitySpawn {
+  project : LdtkProject
   draft : @ecs.SpawnDraft
   spatial : @transform.Spatial
   world_entity : @ecs.Entity

@@ -1,39 +1,44 @@
 ///|
-let sprite_query : (@ecs.World) -> @ecs.Query2[Sprite, @transform.Spatial] = @ecs.cache_query(world => {
-    Query2(@ecs.components_in(world), @ecs.components_in(world))
-  },
-)
+let sprite_query : (@ecs.World) -> @ecs.Query[(Sprite, @transform.Spatial)] = @ecs.cache_query()
 
 ///|
 /// Visits Sprites with a GlobalTransform in contiguous archetype rows.
 pub fn for_each_sprite_transform(
+  world~ : @ecs.World,
   visit : (@ecs.Entity, Sprite, @transform.GlobalTransform) -> Unit,
 ) -> Unit {
-  sprite_query(@ecs.require_current_world()).for_each((entity, sprite, spatial) => {
-    visit(entity, sprite, spatial.global())
+  sprite_query(world).batches(batch => {
+    let sprites : @ecs.ReadColumn[Sprite] = batch.read_column()
+    let spatials : @ecs.ReadColumn[@transform.Spatial] = batch.read_column()
+    for row in 0..<batch.length() {
+      visit(batch.entity(row), sprites[row], spatials[row].global())
+    }
   })
 }
 
 ///|
-pub fn render_sprite_system(delta : Double) -> Unit {
+pub fn render_sprite_system(world~ : @ecs.World, delta : Double) -> Unit {
+  let query_sorting2d : @ecs.Query[@ecs.Single[@render2d.Sorting2d]] = world.query()
+  let sprites : @ecs.Query[@ecs.Single[Sprite]] = world.query()
   ignore(delta)
-  let camera_views = @camera.active_camera2d_views()
+  let camera_views = @camera.active_camera2d_views(world~)
   let camera_extract = @culling2d.CameraExtract2dContext(camera_views)
-  let is_alive = @ecs.alive_in_world(@ecs.require_current_world())
-  let sprites = sprites()
-  let sorting2ds = @render2d.sorting2ds()
+  let is_alive = @ecs.alive_in_world(world)
   // Draw ties retain Sprite insertion order even when a row moves tables.
   let order_base = @render2d.reserve_world_command_order(sprites.order_span())
-  for_each_sprite_transform((entity, sprite, global_transform) => {
+  for_each_sprite_transform(world~, (entity, sprite, global_transform) => {
     guard is_alive(entity) else { return }
     guard @visibility.is_visible(entity) else { return }
     guard sprite_size(sprite) is Some(size) else { return }
     let order = order_base + sprites.insertion_order(entity)
-    let sorting = sorting2ds.get(entity).unwrap_or(Sorting2d())
+    let sorting = query_sorting2d
+      .get(entity)
+      .map(value => value.0)
+      .unwrap_or(Sorting2d())
     let depth = @render2d.sort_depth_for_transform(global_transform, sorting)
     let translation = global_transform.translation()
     let base_pos = @math.Vec2(translation.x, translation.y)
-    let parallax = @parallax2d.inherited_parallax2d(entity)
+    let parallax = @parallax2d.inherited_parallax2d(world~, entity)
     let local_transform = sprite_local_transform(sprite, size)
     if camera_views.is_empty() {
       let screen_pos = @parallax2d.parallax_world_position(
@@ -66,8 +71,9 @@ pub fn render_sprite_system(delta : Double) -> Unit {
       @camera.world_transform_2d(global_transform) * local_transform,
     )
     let camera_views_for_entity = camera_extract.camera_views_for_bounds(
+      world~,
       world_bounds,
-      @visibility.entity_render_layers(entity),
+      @visibility.entity_render_layers(world~, entity),
       @parallax2d.parallax_depends_on_camera(parallax),
     )
     for camera_view in camera_views_for_entity {

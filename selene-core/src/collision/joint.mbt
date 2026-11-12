@@ -350,15 +350,3 @@ pub fn MultibodyJoint::revolute(
     active,
   }
 }
-
-///|
-/// Authored 2D joint components.
-pub fn joints() -> @ecs.ComponentStore[Joint] {
-  @ecs.components()
-}
-
-///|
-/// Authored 2D multibody joint components keyed by the child rigid-body entity.
-pub fn multibody_joints() -> @ecs.ComponentStore[MultibodyJoint] {
-  @ecs.components()
-}

@@ -39,12 +39,15 @@ in Startup through `@state.initialize(world, initial)`.
 ## Read and request transitions
 
 ```moonbit
-fn start_game(world : @ecs.World) -> Unit {
-  let phase : GamePhase = @state.current(world)
-  if phase == Menu {
-    GamePhase::set(Playing)
+fn start_game(
+  phase : @state.State[GamePhase],
+  next : @state.NextState[GamePhase],
+) -> Unit {
+  if phase.get() == Menu {
+    next.set(Playing)
   }
 }
+app.add_system(Update, @ecs.args2(start_game))
 ```
 
 `GamePhase::set(value)` uses the active World selected by the scheduler and
@@ -53,8 +56,9 @@ tests, or cross-World work, use `@state.set_next(world, GamePhase::Playing)`.
 No implicit World is captured by a state declaration or its generated key.
 
 Reading, requesting, or testing an uninitialized state aborts with a configuration
-error. Conditions have the same `(World) -> Bool` shape as `run_if`; they read
-the executing World's value rather than capturing a particular World.
+error. `in_state` returns an `@ecs.Condition` using the injected `State[T]`.
+Custom conditions use `Condition(predicate)` and the same `SystemParam` protocol
+as ordinary systems; they read the executing World's value.
 Each World and each declared state type have independent values.
 
 ## Transition timing
@@ -81,8 +85,12 @@ another command wait for the next synchronization point.
 
 ## Integration
 
-Applications use `init_state`, `add_on_enter`, and `add_on_exit`. A custom loop
-can call `@state.advance(world, on_exit=..., on_enter=...)`, using `is_exiting`
-and `is_entering` to match the frozen transition. These predicates are meaningful
-only during lifecycle dispatch. Nested transitions and query-time execution
-are rejected by the ECS schedule protections.
+Applications use `init_state`, `add_on_enter`, and `add_on_exit`. Lifecycle
+callbacks accept the same injected parameters and `argsN` adapters as ordinary
+systems. `State[T]::get()` reads the current phase; `NextState[T]::set(value)`
+queues its next value. `State::is_entering` and `is_exiting` inspect the frozen
+transition only during lifecycle dispatch. Callbacks that need the whole World
+use `add_exclusive_on_enter` or `add_exclusive_on_exit` explicitly.
+
+Transition execution is internal to the App. The public ECS `Schedule::run`
+executes complete ordinary schedules; it does not advance state transitions.

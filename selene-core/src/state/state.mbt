@@ -55,8 +55,8 @@ pub fn[T : StateType] set_next(world : @ecs.World, value : T) -> Unit {
 
 ///|
 /// Tests the executing World's state, without capturing a World's data.
-pub fn[T : StateType] in_state(value : T) -> (@ecs.World) -> Bool {
-  world => current(world) == value
+pub fn[T : StateType] in_state(value : T) -> @ecs.Condition {
+  Condition(fn(state : State[T]) { state.get() == value })
 }
 
 ///|
@@ -70,11 +70,7 @@ pub fn[T : StateType] initialize(world : @ecs.World, initial : T) -> Unit {
     entered: false,
     transition: None,
   })
-  let registry = registry_key.get_or_insert_with(world, _ => {
-    entries: [],
-    transitioning: false,
-  })
-  registry.entries.push({
+  @state_runtime.register(world, {
     prepare: (world, initial_only) => {
       let data : StateData[T] = state_data(world)
       if !data.entered {
@@ -105,3 +101,57 @@ pub fn[T : StateType] initialize(world : @ecs.World, initial : T) -> Unit {
     },
   })
 }
+
+///|
+struct State[T] {
+  data : StateData[T]
+}
+
+///|
+pub fn[T] State::get(self : State[T]) -> T {
+  self.data.current
+}
+
+///|
+pub fn[T : Eq] State::is_entering(self : State[T], value : T) -> Bool {
+  match self.data.transition {
+    Some((_, next)) => next == value
+    None => false
+  }
+}
+
+///|
+pub fn[T : Eq] State::is_exiting(self : State[T], value : T) -> Bool {
+  match self.data.transition {
+    Some((Some(previous), _)) => previous == value
+    _ => false
+  }
+}
+
+///|
+pub impl[T : StateType] @ecs.SystemParam for State[T] with fn prepare(world) {
+  let data : StateData[T] = state_data(world)
+  _ => { data, }
+}
+
+///|
+pub extend State with @ecs.SystemParam::{prepare}
+
+///|
+struct NextState[T] {
+  data : StateData[T]
+}
+
+///|
+pub fn[T] NextState::set(self : NextState[T], value : T) -> Unit {
+  self.data.pending = Some(value)
+}
+
+///|
+pub impl[T : StateType] @ecs.SystemParam for NextState[T] with fn prepare(world) {
+  let data : StateData[T] = state_data(world)
+  _ => { data, }
+}
+
+///|
+pub extend NextState with @ecs.SystemParam::{prepare}

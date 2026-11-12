@@ -46,11 +46,6 @@ pub extend MeshMaterial2d with @moonbitlang/core/debug.Debug::{to_repr}
 pub extend MeshMaterial2d with Eq::{not_equal, equal}
 
 ///|
-pub fn mesh_material2ds() -> @ecs.ComponentStore[MeshMaterial2d] {
-  @ecs.components()
-}
-
-///|
 let color_materials : Map[ColorMaterialHandle, ColorMaterial] = Map([])
 
 ///|

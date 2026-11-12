@@ -13,60 +13,6 @@
 // limitations under the License.
 
 ///|
-/// Linear velocities in world space.
-pub fn linear_velocities() -> @ecs.ComponentStore[LinearVelocity] {
-  @velocity.velocities()
-}
-
-///|
-/// Backward-compatible velocity store alias.
-pub fn velocities() -> @ecs.ComponentStore[Velocity] {
-  @velocity.velocities()
-}
-
-///|
-/// Collider components.
-pub fn colliders() -> @ecs.ComponentStore[Collider] {
-  @collision.colliders()
-}
-
-///|
-/// Explicit rigid-body descriptors.
-pub fn rigid_bodies() -> @ecs.ComponentStore[RigidBody] {
-  @collision.rigid_bodies()
-}
-
-///|
-/// Authored 2D joint descriptors.
-pub fn joints() -> @ecs.ComponentStore[Joint] {
-  @collision.joints()
-}
-
-///|
-/// Authored 2D multibody joint descriptors keyed by the child rigid-body entity.
-pub fn multibody_joints() -> @ecs.ComponentStore[MultibodyJoint] {
-  @collision.multibody_joints()
-}
-
-///|
-/// Sensor/area components.
-pub fn sensors() -> @ecs.ComponentStore[Sensor] {
-  @collision.areas()
-}
-
-///|
-/// Backward-compatible area store alias.
-pub fn areas() -> @ecs.ComponentStore[Area] {
-  @collision.areas()
-}
-
-///|
-/// Collider shape components.
-pub fn shapes() -> @ecs.ComponentStore[ColliderShape] {
-  @collision.shapes()
-}
-
-///|
 /// Frame-local resolved velocities after physics step.
 pub fn resolved_velocity(entity : @ecs.Entity) -> LinearVelocity? {
   @collision.resolved_velocity(entity)
@@ -76,12 +22,6 @@ pub fn resolved_velocity(entity : @ecs.Entity) -> LinearVelocity? {
 /// Grounded entities from latest fixed step.
 pub fn grounded_entities() -> @set.Set[@ecs.Entity] {
   @collision.grounded_entities()
-}
-
-///|
-/// Pointer-interactive components.
-pub fn pickables() -> @ecs.ComponentStore[Pickable] {
-  @collision.pickables()
 }
 
 ///|
@@ -118,13 +58,13 @@ pub fn multibody_link(entity : @ecs.Entity) -> MultibodyLinkId? {
 }
 
 ///|
-pub fn physics_step_system(delta : Double) -> Unit {
-  @collision.move_system(delta)
+pub fn physics_step_system(world~ : @ecs.World, delta : Double) -> Unit {
+  @collision.move_system(world~, delta)
 }
 
 ///|
-pub fn move_system(delta : Double) -> Unit {
-  @collision.move_system(delta)
+pub fn move_system(world~ : @ecs.World, delta : Double) -> Unit {
+  @collision.move_system(world~, delta)
 }
 
 ///|
@@ -153,11 +93,11 @@ pub fn emit_pickable_just_pressed(
 }
 
 ///|
-pub fn pickable_click_system(delta : Double) -> Unit {
-  @collision.pickable_click_system(delta)
+pub fn pickable_click_system(world~ : @ecs.World, delta : Double) -> Unit {
+  @collision.pickable_click_system(world~, delta)
 }
 
 ///|
-pub fn debug_colliders_system(delta : Double) -> Unit {
-  @collision.debug_collide_system(delta)
+pub fn debug_colliders_system(world~ : @ecs.World, delta : Double) -> Unit {
+  @collision.debug_collide_system(world~, delta)
 }

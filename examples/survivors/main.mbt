@@ -36,10 +36,10 @@ priv enum GamePhase {
 }
 
 ///|
-let is_playing : (@ecs.World) -> Bool = @state.in_state(GamePhase::Playing)
+let is_playing : @ecs.Condition = @state.in_state(GamePhase::Playing)
 
 ///|
-pub fn run() -> Unit {
+fn survivors_app() -> @app.App {
   @app.App()
   .with_viewport_width(VIEWPORT_WIDTH)
   .with_viewport_height(VIEWPORT_HEIGHT)
@@ -47,21 +47,30 @@ pub fn run() -> Unit {
   .with_zoom(ZOOM)
   .add_plugin(@plugins.default_plugin)
   .init_state(GamePhase::Playing)
-  .add_on_enter(GamePhase::Playing, game_start)
+  .add_exclusive_on_enter(GamePhase::Playing, game_start)
   .add_on_enter(GamePhase::GameOver, show_game_over)
   .add_systems(
     Update,
     [
-      player_update_system, player_shooting_system, enemy_ai_system, enemy_collision_system,
-      devil_shooting_system, player_bullet_trigger_system, check_victory_system,
-      game_timer_system,
+      System(@ecs.args3(player_update_system)),
+      System(@ecs.args5(player_shooting_system)),
+      System(@ecs.args3(enemy_ai_system)),
+      System(@ecs.args2(enemy_collision_system)),
+      System(@ecs.args5(devil_shooting_system)),
+      System(@ecs.args3(player_bullet_trigger_system)),
+      System(@ecs.args3(check_victory_system)),
+      System(@ecs.args3(game_timer_system)),
     ],
     run_if=is_playing,
   )
-  .add_system(Update, score_blink_system)
-  .add_system(Update, survivors_camera_follow_system)
+  .add_system(Update, @ecs.args3(score_blink_system))
+  .add_system(Update, @ecs.args2(survivors_camera_follow_system))
   .add_system(PostUpdate, survivors_ui_pointer_system)
-  .run()
+}
+
+///|
+pub fn run() -> Unit {
+  survivors_app().run()
 }
 
 ///|
@@ -157,9 +166,11 @@ fn SurvivorsRuntime::SurvivorsRuntime(world : @ecs.World) -> SurvivorsRuntime {
     entities: [],
     game: None,
     weapon_timers: [],
-    player_bullet_plan: world.prepare_spawn(),
-    enemy_bullet_plan: world.prepare_spawn(),
-    enemy_plan: world.prepare_spawn().combine(world.prepare_spawn()),
+    player_bullet_plan: @ecs.commands(world).prepare_spawn(),
+    enemy_bullet_plan: @ecs.commands(world).prepare_spawn(),
+    enemy_plan: @ecs.commands(world)
+    .prepare_spawn()
+    .combine(@ecs.commands(world).prepare_spawn()),
     enemy_bullets: Set([]),
     ui_click_reader: EventReader(),
     enemy_contact_event_reader: EventReader(),
@@ -182,7 +193,7 @@ fn survivors_runtime() -> SurvivorsRuntime {
 
 ///|
 fn[T : @ecs.Bundle] spawn_survivors_entity(values : T) -> @ecs.Entity {
-  let entity = @ecs.require_current_world().spawn(values)
+  let entity = @ecs.commands(@ecs.require_current_world()).spawn(values)
   survivors_runtime().entities.push(entity)
   entity
 }
@@ -211,7 +222,7 @@ fn reset_survivors_runtime() -> Unit {
       ignore(timer.cancel())
     }
     for entity in runtime.entities {
-      ignore(entity.delete())
+      @ecs.commands(@ecs.require_current_world()).delete(entity)
     }
   }
   world.insert_resource(SurvivorsRuntime(world))
@@ -219,20 +230,20 @@ fn reset_survivors_runtime() -> Unit {
 }
 
 ///|
-fn game_state() -> GameState {
+fn game_state(world~ : @ecs.World) -> GameState {
   let runtime = survivors_runtime()
   if runtime.game is Some(state) {
     return state
   }
-  let state = GameState()
+  let state = GameState(world~)
   runtime.game = Some(state)
   state
 }
 
 ///|
-fn GameState::GameState() -> GameState {
+fn GameState::GameState(world~ : @ecs.World) -> GameState {
   {
-    player_entity: spawn_player(),
+    player_entity: spawn_player(world~),
     camera_entity: spawn_survivors_entity(
       (
         @camera.Camera(),
@@ -324,10 +335,14 @@ fn GameState::GameState() -> GameState {
 }
 
 ///|
-fn set_score(score : Int32) -> Unit {
-  let game = game_state()
+fn set_score(ui~ : SurvivorsUi, score : Int32) -> Unit {
+  let game = ui.game()
   game.score = score
-  set_ui_text(game.score_box, "Score: " + game.score.to_string())
+  set_ui_text(
+    texts=ui.texts,
+    game.score_box,
+    "Score: " + game.score.to_string(),
+  )
 }
 
 ///|
@@ -345,8 +360,8 @@ fn get_level_from_xp(xp : Int32) -> Int32 {
 }
 
 ///|
-fn add_exp(exp_gained : Int32) -> Unit {
-  let game = game_state()
+fn add_exp(ui~ : SurvivorsUi, exp_gained : Int32) -> Unit {
+  let game = ui.game()
   let old_level = game.player_level
   game.exp += exp_gained
 
@@ -362,10 +377,14 @@ fn add_exp(exp_gained : Int32) -> Unit {
 
     // Update player level immediately
     game.player_level = new_level
-    set_ui_text(game.level_box, "Level: " + game.player_level.to_string())
+    set_ui_text(
+      texts=ui.texts,
+      game.level_box,
+      "Level: " + game.player_level.to_string(),
+    )
 
     // Process the first level-up in the queue
-    process_next_level_up()
+    process_next_level_up(ui~)
   }
 
   // Update EXP display with progress to next level
@@ -378,21 +397,22 @@ fn add_exp(exp_gained : Int32) -> Unit {
   let progress_xp = game.exp - current_level_xp
   let needed_xp = next_level_xp - current_level_xp
   set_ui_text(
+    texts=ui.texts,
     game.exp_box,
     "EXP: " + progress_xp.to_string() + "/" + needed_xp.to_string(),
   )
 }
 
 ///|
-fn process_next_level_up() -> Unit {
-  if game_state().pending_level_ups.pop() is Some(level) {
-    level_up(level)
+fn process_next_level_up(ui~ : SurvivorsUi) -> Unit {
+  if ui.game().pending_level_ups.pop() is Some(level) {
+    level_up(ui~, level)
   }
 }
 
 ///|
-fn add_weapon(weapon_type : WeaponType) -> Unit {
-  let game = game_state()
+fn add_weapon(ui~ : SurvivorsUi, weapon_type : WeaponType) -> Unit {
+  let game = ui.game()
   // Add weapon instance (allows duplicates)
   game.player_stats.weapon_instances.push(weapon_type)
 
@@ -407,6 +427,7 @@ fn add_weapon(weapon_type : WeaponType) -> Unit {
 
 ///|
 fn[T] weighted_random_selection(
+  ui~ : SurvivorsUi,
   items : Array[T],
   weights : Array[Double],
 ) -> T? {
@@ -424,7 +445,7 @@ fn[T] weighted_random_selection(
   }
 
   // Generate random value
-  let random_value = game_state().rand.double() * total_weight
+  let random_value = ui.game().rand.double() * total_weight
 
   // Select item based on weight
   let mut cumulative = 0.0
@@ -440,29 +461,35 @@ fn[T] weighted_random_selection(
 }
 
 ///|
-fn generate_level_up_selections(level : Int32) -> Array[LevelUpSelection] {
+fn generate_level_up_selections(
+  ui~ : SurvivorsUi,
+  level : Int32,
+) -> Array[LevelUpSelection] {
   // For levels 5, 10, 15, etc., offer 2 powerups + 1 weapon
   if level % 5 == 0 {
-    return generate_mixed_selections(level)
+    return generate_mixed_selections(ui~, level)
   } else {
-    return generate_powerup_selections(level)
+    return generate_powerup_selections(ui~, level)
   }
 }
 
 ///|
-fn generate_mixed_selections(level : Int32) -> Array[LevelUpSelection] {
+fn generate_mixed_selections(
+  ui~ : SurvivorsUi,
+  level : Int32,
+) -> Array[LevelUpSelection] {
   let selected = []
 
   // Add 2 weighted random powerups
   for _i in 0..<2 {
-    match select_weighted_powerup(level, selected) {
+    match select_weighted_powerup(ui~, level, selected) {
       Some(powerup) => selected.push(PowerupSelection(powerup))
       None => ()
     }
   }
 
   // Add 1 weighted random weapon
-  match select_weighted_weapon(level) {
+  match select_weighted_weapon(ui~, level) {
     Some(weapon) => selected.push(WeaponSelection(weapon))
     None => ()
   }
@@ -470,12 +497,15 @@ fn generate_mixed_selections(level : Int32) -> Array[LevelUpSelection] {
 }
 
 ///|
-fn generate_powerup_selections(level : Int32) -> Array[LevelUpSelection] {
+fn generate_powerup_selections(
+  ui~ : SurvivorsUi,
+  level : Int32,
+) -> Array[LevelUpSelection] {
   let selected = []
 
   // Add 3 weighted random powerups
   for _i in 0..<3 {
-    match select_weighted_powerup(level, selected) {
+    match select_weighted_powerup(ui~, level, selected) {
       Some(powerup) => selected.push(PowerupSelection(powerup))
       None => ()
     }
@@ -485,6 +515,7 @@ fn generate_powerup_selections(level : Int32) -> Array[LevelUpSelection] {
 
 ///|
 fn select_weighted_powerup(
+  ui~ : SurvivorsUi,
   level : Int32,
   already_selected : Array[LevelUpSelection],
 ) -> Powerup? {
@@ -531,32 +562,32 @@ fn select_weighted_powerup(
   }
 
   // Weighted random selection
-  match weighted_random_selection(available_types, available_weights) {
+  match weighted_random_selection(ui~, available_types, available_weights) {
     Some(powerup_type) => Some(Powerup(powerup_type))
     None => None
   }
 }
 
 ///|
-fn select_weighted_weapon(level : Int32) -> WeaponType? {
+fn select_weighted_weapon(ui~ : SurvivorsUi, level : Int32) -> WeaponType? {
   let all_weapons = [Pistol, Minigun, SniperRifle, Sword]
   let weights = []
   for weapon_type in all_weapons {
     weights.push(get_weapon_weight(weapon_type, level))
   }
-  weighted_random_selection(all_weapons, weights)
+  weighted_random_selection(ui~, all_weapons, weights)
 }
 
 ///|
-fn apply_selection(selection : LevelUpSelection) -> Unit {
+fn apply_selection(ui~ : SurvivorsUi, selection : LevelUpSelection) -> Unit {
   match selection {
-    PowerupSelection(powerup) => apply_powerup(powerup)
-    WeaponSelection(weapon_type) => add_weapon(weapon_type)
+    PowerupSelection(powerup) => apply_powerup(ui~, powerup)
+    WeaponSelection(weapon_type) => add_weapon(ui~, weapon_type)
   }
 }
 
 ///|
-fn game_start(_world : @ecs.World) -> Unit {
+fn game_start(world : @ecs.World) -> Unit {
   reset_survivors_runtime()
   @time.initialize(@ecs.require_current_world())
   @time.set_scale(1.0)
@@ -568,21 +599,36 @@ fn game_start(_world : @ecs.World) -> Unit {
   )
   @ui.set_ui_scale_mode(Viewport)
   configure_survivors_input()
-  survivors_camera_follow_system(@ecs.require_current_world())
+  ignore(game_state(world~))
+  @ecs.commands(world).add(world => {
+    follow_camera(world.query1(), game_state(world~))
+  })
   add_border(Vec2(MAP_WIDTH, MAP_HEIGHT))
   add_background(Vec2(MAP_WIDTH, MAP_HEIGHT))
   add_grass()
-  setup_level_up_ui()
-  setup_game_over_ui()
-  spawn_enemy_system(_world)
+  let ui = SurvivorsUi(world)
+  setup_level_up_ui(ui~)
+  setup_game_over_ui(ui~)
+  start_enemy_spawner()
 }
 
 ///|
-fn survivors_camera_follow_system(_world : @ecs.World) -> Unit {
-  let game = game_state()
-  guard @transform.local_transform(game.player_entity) is Some(player_transform) else {
-    return
+fn survivors_camera_follow_system(
+  spatials : @ecs.Query[@ecs.Single[@transform.Spatial]],
+  runtime : @ecs.Res[SurvivorsRuntime],
+) -> Unit {
+  if runtime.get().game is Some(game) {
+    follow_camera(spatials, game)
   }
+}
+
+///|
+fn follow_camera(
+  spatials : @ecs.Query[@ecs.Single[@transform.Spatial]],
+  game : GameState,
+) -> Unit {
+  guard spatials.get(game.player_entity) is Some(Single(player)) else { return }
+  let player_transform = player.pose()
   let half_width = VIEWPORT_WIDTH * 0.5
   let half_height = VIEWPORT_HEIGHT * 0.5
   let target_x = player_transform.translation.x
@@ -605,17 +651,19 @@ fn survivors_camera_follow_system(_world : @ecs.World) -> Unit {
   } else {
     target_y
   }
-  @transform.set_local_transform(
-    game.camera_entity,
-    @transform.Transform::from_xyz(center_x, center_y, 0.0),
-  )
+  guard spatials.get(game.camera_entity) is Some(Single(camera)) else { return }
+  camera.set_local(@transform.Transform::from_xyz(center_x, center_y, 0.0))
 }
 
 ///|
 ///powerup_cooldown_icon
-fn game_timer_system(_world : @ecs.World) -> Unit {
-  let game = game_state()
-  let delta = @time.delta()
+fn game_timer_system(
+  runtime : @ecs.Res[SurvivorsRuntime],
+  texts : @ecs.Query[@ecs.Single[@ui.Text]],
+  time : @time.Time,
+) -> Unit {
+  guard runtime.get().game is Some(game) else { return }
+  let delta = time.delta()
   // Continue counting down timer, but don't end game when it reaches 0
   if game.game_timer > 0.0 {
     game.game_timer -= delta
@@ -634,7 +682,7 @@ fn game_timer_system(_world : @ecs.World) -> Unit {
   // Update wave if changed
   if new_wave != game.current_wave {
     game.current_wave = new_wave
-    set_ui_text(game.wave_box, "Wave: " + game.current_wave.to_string())
+    set_ui_text(texts~, game.wave_box, "Wave: " + game.current_wave.to_string())
     reset_wave_state() // Reset spawn counters for new wave
   }
 
@@ -648,15 +696,20 @@ fn game_timer_system(_world : @ecs.World) -> Unit {
     seconds.to_string()
   }
   set_ui_text(
+    texts~,
     game.timer_box,
     "Time: " + minutes.to_string() + ":" + seconds_str,
   )
 }
 
 ///|
-fn score_blink_system(_world : @ecs.World) -> Unit {
-  let game = game_state()
-  let delta = @time.delta()
+fn score_blink_system(
+  runtime : @ecs.Res[SurvivorsRuntime],
+  colors : @ecs.Query[@ecs.Single[@ui.TextColor]],
+  time : @time.Time,
+) -> Unit {
+  guard runtime.get().game is Some(game) else { return }
+  let delta = time.delta()
   if game.score_blink_timer > 0.0 {
     game.score_blink_timer -= delta
 
@@ -667,6 +720,7 @@ fn score_blink_system(_world : @ecs.World) -> Unit {
     if should_be_red != game.score_is_red {
       game.score_is_red = should_be_red
       set_ui_text_color(
+        colors~,
         game.score_box,
         if should_be_red {
           "red"
@@ -680,24 +734,28 @@ fn score_blink_system(_world : @ecs.World) -> Unit {
     if game.score_blink_timer <= 0.0 {
       game.score_blink_timer = 0.0
       game.score_is_red = false
-      set_ui_text_color(game.score_box, "white")
+      set_ui_text_color(colors~, game.score_box, "white")
     }
   }
 }
 
 ///|
-fn trigger_damage_effect() -> Unit {
-  let game = game_state()
+fn trigger_damage_effect(ui~ : SurvivorsUi) -> Unit {
+  let game = ui.game()
   game.score_blink_timer = 1.0
   game.score_is_red = true
-  set_ui_text_color(game.score_box, "red")
+  set_ui_text_color(colors=ui.colors, game.score_box, "red")
 }
 
 ///|
-fn show_game_over(_world : @ecs.World) -> Unit {
-  let game = game_state()
-  set_ui_text(game.game_over_box, "Final Score: " + game.score.to_string())
-  add_game_over_box()
+fn show_game_over(ui : SurvivorsUi) -> Unit {
+  let game = ui.game()
+  set_ui_text(
+    texts=ui.texts,
+    game.game_over_box,
+    "Final Score: " + game.score.to_string(),
+  )
+  add_game_over_box(ui~)
 }
 
 ///|

@@ -101,13 +101,17 @@ pub fn instantiate_scene_instance(
   parent? : @ecs.Entity,
 ) -> SceneInstance {
   let world = @ecs.require_current_world()
-  let draft = world.spawn_draft()
+  let draft = @ecs.commands(world).draft()
   draft.add(@transform.Spatial(root_transform))
   draft.add(@name.Name("scene_root"))
   let parts : Map[String, @ecs.Entity] = Map([])
   let animation_nodes : Map[String, @animation.AnimationNodeIndex] = Map([])
   guard scene_templates.get(scene) is Some(template) else {
-    return { root: draft.spawn(parent?), parts, animations: animation_nodes, }
+    return {
+      root: @ecs.commands(world).spawn_draft(draft, parent?),
+      parts,
+      animations: animation_nodes,
+    }
   }
   if template.animations.length() > 0 {
     let graph = @animation.AnimationGraph()
@@ -119,7 +123,7 @@ pub fn instantiate_scene_instance(
     draft.add(@animation.AnimationPlayer())
     draft.add(@animation.AnimationTransitions())
   }
-  let root = draft.spawn(parent?)
+  let root = @ecs.commands(world).spawn_draft(draft, parent?)
   let node_entities : Array[@ecs.Entity?] = Array::make(
     template.nodes.length(),
     None,
@@ -138,7 +142,10 @@ pub fn instantiate_scene_instance(
       0,
     )
   }
-  resolve_scene_skin_bindings(template, node_entities, pending_skin_bindings)
+  @ecs.commands(world).add(_ => {
+    guard root.is_valid_in(world) else { return }
+    resolve_scene_skin_bindings(template, node_entities, pending_skin_bindings)
+  })
   { root, parts, animations: animation_nodes, }
 }
 

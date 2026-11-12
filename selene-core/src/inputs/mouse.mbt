@@ -294,7 +294,7 @@ pub let just_release_mouse : Mouse = {
 /// inspect(@inputs.is_mouse_pressed(Right), content="false")
 /// ```
 ///
-pub fn advanced_mouse_system(_delta : Double) -> Unit {
+pub fn advanced_mouse_system() -> Unit {
   let positional_delta = mouse.pos - last_mouse.pos
   let delta = pending_mouse_relative_delta.val.unwrap_or(positional_delta)
   mouse_movement.movement = delta

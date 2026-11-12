@@ -20,11 +20,6 @@ pub(all) struct Sprite {
 }
 
 ///|
-pub fn sprites() -> @ecs.ComponentStore[Sprite] {
-  @ecs.components()
-}
-
-///|
 fn white_sprite_color() -> @render.Color {
   color_from_css("white")
 }

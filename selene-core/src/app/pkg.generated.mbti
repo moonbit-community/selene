@@ -6,44 +6,25 @@ import {
   "Milky2018/selene/event",
   "Milky2018/selene/runtime_debug",
   "Milky2018/selene/state",
-  "moonbitlang/core/debug",
 }
 
 // Values
-pub fn after(SystemSet) -> SystemOrdering
-
-pub fn before(SystemSet) -> SystemOrdering
-
-pub fn in_set(SystemSet) -> SystemOrdering
-
-pub fn merge(SystemOrdering, SystemOrdering) -> SystemOrdering
 
 // Errors
 
 // Types and methods
-pub(all) struct App {
-  viewport_height : Double
-  viewport_width : Double
-  zoom : Double
-  image_smooth : Bool
-  max_fps : UInt32?
-  fixed_hz : UInt32
-  max_fixed_steps_per_frame : UInt32
-  world : @ecs.World
-  event_registrations : Array[(@ecs.World) -> Unit]
-  systems : Array[RegisteredSystem]
-  state_validations : Array[(@ecs.World) -> Unit]
-  state_on_enter : Array[(@ecs.World) -> Unit]
-  state_on_exit : Array[(@ecs.World) -> Unit]
-}
+type App
 pub fn App::App() -> Self
+pub fn[T : @state.StateType] App::add_exclusive_on_enter(Self, T, (@ecs.World) -> Unit) -> Self
+pub fn[T : @state.StateType] App::add_exclusive_on_exit(Self, T, (@ecs.World) -> Unit) -> Self
+pub fn App::add_exclusive_system(Self, Stage, (@ecs.World) -> Unit, system_name? : String, in_set? : @ecs.SystemSet, before? : Array[@ecs.SystemSet], after? : Array[@ecs.SystemSet], run_if? : @ecs.Condition) -> Self
 pub fn[T] App::add_message(Self, @event.Events[T]) -> Self
-pub fn[T : @state.StateType] App::add_on_enter(Self, T, (@ecs.World) -> Unit) -> Self
-pub fn[T : @state.StateType] App::add_on_exit(Self, T, (@ecs.World) -> Unit) -> Self
+pub fn[T : @state.StateType, P : @ecs.SystemParam] App::add_on_enter(Self, T, (P) -> Unit) -> Self
+pub fn[T : @state.StateType, P : @ecs.SystemParam] App::add_on_exit(Self, T, (P) -> Unit) -> Self
 pub fn App::add_plugin(Self, (Self) -> Self) -> Self
 pub fn App::add_plugins(Self, Array[(Self) -> Self]) -> Self
-pub fn App::add_system(Self, Schedule, (@ecs.World) -> Unit, system_name? : String, in_set? : SystemSet, before? : Array[SystemSet], after? : Array[SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
-pub fn App::add_systems(Self, Schedule, Array[(@ecs.World) -> Unit], in_set? : SystemSet, before? : Array[SystemSet], after? : Array[SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
+pub fn[P : @ecs.SystemParam] App::add_system(Self, Stage, (P) -> Unit, system_name? : String, in_set? : @ecs.SystemSet, before? : Array[@ecs.SystemSet], after? : Array[@ecs.SystemSet], run_if? : @ecs.Condition) -> Self
+pub fn App::add_systems(Self, Stage, Array[@ecs.System], in_set? : @ecs.SystemSet, before? : Array[@ecs.SystemSet], after? : Array[@ecs.SystemSet], run_if? : @ecs.Condition) -> Self
 pub fn[T : @state.StateType] App::init_state(Self, T) -> Self
 pub fn[T : @ecs.Resource] App::insert_resource(Self, T) -> Self
 pub fn App::run(Self) -> Unit
@@ -60,41 +41,8 @@ pub fn App::with_world(Self, @ecs.World) -> Self
 pub fn App::with_zoom(Self, Double) -> Self
 pub fn App::world(Self) -> @ecs.World
 
-pub(all) struct RegisteredSystem {
-  system : (@ecs.World) -> Unit
-  schedule : Schedule
-  name : String
-  in_set : SystemSet?
-  before : Array[SystemSet]
-  after : Array[SystemSet]
-  run_if : ((@ecs.World) -> Bool)?
-}
-
-pub(all) struct RuntimePlan {
-  world : @ecs.World
-  fixed_dt : Double
-  max_fixed_steps : Int32
-  startup_systems : Array[RegisteredSystem]
-  frame_first : Array[RegisteredSystem]
-  frame_pre : Array[RegisteredSystem]
-  state_validations : Array[(@ecs.World) -> Unit]
-  state_on_exit : Array[(@ecs.World) -> Unit]
-  state_on_enter : Array[(@ecs.World) -> Unit]
-  frame_update : Array[RegisteredSystem]
-  frame_post : Array[RegisteredSystem]
-  frame_last : Array[RegisteredSystem]
-  fixed_first : Array[RegisteredSystem]
-  fixed_pre : Array[RegisteredSystem]
-  fixed_update : Array[RegisteredSystem]
-  fixed_post : Array[RegisteredSystem]
-  fixed_last : Array[RegisteredSystem]
-  render_extract : Array[RegisteredSystem]
-  render_prepare : Array[RegisteredSystem]
-  render_stage : Array[RegisteredSystem]
-  render_cleanup : Array[RegisteredSystem]
-}
-
-pub(all) enum Schedule {
+#derive(Eq)
+pub(all) enum Stage {
   Startup
   First
   PreUpdate
@@ -111,30 +59,10 @@ pub(all) enum Schedule {
   Render
   RenderCleanup
 }
-
-pub(all) struct SystemOrdering {
-  set : SystemSet?
-  before : Array[SystemSet]
-  after : Array[SystemSet]
-}
-pub fn SystemOrdering::with_after(Self, SystemSet) -> Self
-pub fn SystemOrdering::with_before(Self, SystemSet) -> Self
-pub fn SystemOrdering::with_set(Self, SystemSet) -> Self
-
-#derive(Eq, Hash, @debug.Debug)
-pub(all) struct SystemSet {
-  name : String
-}
-pub fn SystemSet::SystemSet(String) -> Self
-pub fn SystemSet::equal(Self, Self) -> Bool
-pub fn SystemSet::hash(Self) -> Int32
-pub fn SystemSet::hash_combine(Self, Hasher) -> Unit
-pub fn SystemSet::not_equal(Self, Self) -> Bool
-pub fn SystemSet::to_repr(Self) -> @debug.Repr
+pub fn Stage::equal(Self, Self) -> Bool
+pub fn Stage::not_equal(Self, Self) -> Bool
 
 // Type aliases
 pub type Plugin = (App) -> App
-
-pub type RunCondition = (@ecs.World) -> Bool
 
 // Traits

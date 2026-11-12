@@ -1,16 +1,20 @@
 ///|
-test "typed UI components share the named store in each World" {
+test "typed UI queries stay bound to their explicit World" {
   let first = @ecs.World()
   let second = @ecs.World()
-  let nodes : @ecs.ComponentStore[@ui.Node] = @ecs.components_in(first)
-  let other_nodes : @ecs.ComponentStore[@ui.Node] = @ecs.components_in(second)
-  let entity = nodes.spawn_plan(first).spawn(Node())
+  let nodes : @ecs.Query[@ecs.Single[@ui.Node]] = first.query()
+  let other_nodes : @ecs.Query[@ecs.Single[@ui.Node]] = second.query()
+  let entity = @ecs_test.spawn1(first, @ui.Node())
   let found_by_accessor = Ref(false)
 
-  @ecs.run_schedule(first, _ => {
-    found_by_accessor.val = @ui.nodes().contains(entity)
-    ignore(entity.delete())
+  @ecs.Schedule()
+  .add_exclusive_system(world => {
+    found_by_accessor.val = (world.query() : @ecs.Query[@ecs.Single[@ui.Node]]).contains(
+      entity,
+    )
+    @ecs.commands(@ecs.require_current_world()).delete(entity)
   })
+  .run(first)
 
   assert_true(found_by_accessor.val)
   assert_false(nodes.contains(entity))

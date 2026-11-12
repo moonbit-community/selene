@@ -4,18 +4,11 @@ package "Milky2018/selene/text2d"
 import {
   "Milky2018/selene/ecs",
   "Milky2018/selene/render",
-  "Milky2018/selene/sprite",
   "moonbitlang/core/debug",
 }
 
 // Values
-pub fn render_text2d_system(Double) -> Unit
-
-pub fn text2ds() -> @ecs.ComponentStore[Text2d]
-
-pub fn text_anchors() -> @ecs.ComponentStore[@sprite.Anchor]
-
-pub fn text_bounds() -> @ecs.ComponentStore[TextBounds]
+pub fn render_text2d_system(world~ : @ecs.World, Double) -> Unit
 
 // Errors
 

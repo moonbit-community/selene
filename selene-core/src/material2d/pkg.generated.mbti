@@ -12,8 +12,6 @@ import {
 // Values
 pub fn color_material(ColorMaterialHandle) -> ColorMaterial?
 
-pub fn mesh_material2ds() -> @ecs.ComponentStore[MeshMaterial2d]
-
 pub fn register_color_material(ColorMaterial) -> ColorMaterialHandle
 
 pub fn release_color_material(ColorMaterialHandle) -> Unit

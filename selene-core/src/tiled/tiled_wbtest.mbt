@@ -21,7 +21,8 @@ fn with_fake_asset_io(
 ///|
 fn cleanup_spawned_tiled_tree(root : @ecs.Entity) -> Unit {
   despawn_tiled_tree(root)
-  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+  try! @ecs.Schedule().run(@ecs.require_current_world())
+  try! @ecs.Schedule().run(@ecs.require_current_world())
 }
 
 ///|
@@ -43,6 +44,7 @@ test "load_tiled_map reads UTF-8 TMJ asset bytes" {
 
 ///|
 test "load and spawn Tiled JSON preserves parallax origin and image size" {
+  let world = @ecs.require_current_world()
   let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/image-layer.tmj",
@@ -61,22 +63,30 @@ test "load and spawn Tiled JSON preserves parallax origin and image size" {
     debug_inspect(image_layer.image_width, content="Some(24)")
     debug_inspect(image_layer.image_height, content="Some(12)")
 
-    let root = spawn_tiled_map(map)
+    let root = spawn_tiled_map(world~, map)
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
-    let layer_entities = tiled_layer_instances()
+    let layer_entities = (
+        world.query() : @ecs.Query[@ecs.Single[TiledLayerInstance]])
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     let backdrop_entity = layer_entities.filter(fn(pair) {
         pair.1.layer.name == "Backdrop"
       })[0].0
-    guard @sprite.sprites().get(backdrop_entity) is Some(sprite) else {
+    guard (world.query() : @ecs.Query[@ecs.Single[@sprite.Sprite]])
+      .get(backdrop_entity)
+      .map(value => value.0)
+      is Some(sprite) else {
       fail("missing image layer sprite")
     }
     assert_eq(sprite.custom_size, Some(Vec2(24.0, 12.0)))
     let repeated_entity = layer_entities.filter(fn(pair) {
         pair.1.layer.name == "Repeated"
       })[0].0
-    guard @sprite.sprites().get(repeated_entity) is Some(repeated_sprite) else {
+    guard (world.query() : @ecs.Query[@ecs.Single[@sprite.Sprite]])
+      .get(repeated_entity)
+      .map(value => value.0)
+      is Some(repeated_sprite) else {
       fail("missing repeated image layer sprite")
     }
     assert_eq(repeated_sprite.custom_size, Some(Vec2(32.0, 32.0)))
@@ -129,7 +139,8 @@ fn spawn_tiled_test_camera(
   position : @math.Vec2,
   order~ : Int32 = 0,
 ) -> @ecs.Entity {
-  @ecs.require_current_world().spawn(
+  @ecs_test.spawn(
+    @ecs.require_current_world(),
     (
       @camera.Camera(order~),
       @camera.Camera2d(),
@@ -140,8 +151,11 @@ fn spawn_tiled_test_camera(
 }
 
 ///|
-fn tiled_test_entity_translation_2d(entity : @ecs.Entity) -> @math.Vec2 {
-  let transform = @transform.local_transform(entity).unwrap_or_default()
+fn tiled_test_entity_translation_2d(
+  world~ : @ecs.World,
+  entity : @ecs.Entity,
+) -> @math.Vec2 {
+  let transform = @transform.local_transform(world~, entity).unwrap_or_default()
   Vec2(transform.translation.x, transform.translation.y)
 }
 
@@ -172,8 +186,10 @@ fn test_tile_cell(x : Int32, y : Int32) -> TiledCell {
 }
 
 ///|
-fn animation_image_path(entity : @ecs.Entity) -> String? {
-  guard @sprite.sprites().get(entity) is Some(sprite) else { return None }
+fn animation_image_path(world~ : @ecs.World, entity : @ecs.Entity) -> String? {
+  guard (world.get_component(entity) : @sprite.Sprite?) is Some(sprite) else {
+    return None
+  }
   let expected_image = @asset.load_image("maps/terrain.png")
   if sprite.image == Some(expected_image) {
     Some("maps/terrain.png")
@@ -406,51 +422,62 @@ test "tiled world pattern expansion derives map position and size" {
 test "load_tiled_world parses pattern map dimensions defaults" {
   let files : Map[String, Bytes] = Map([])
   files.set(
-    "worlds/patterns.world",
+    "worlds/patterns.source_world",
     ascii_bytes(
-      "{\"patterns\":[{\"regexp\":\"a(\\\\d+)b(\\\\d+)\\\\.tmj\",\"multiplierX\":320,\"multiplierY\":160}],\"type\":\"world\"}",
+      "{\"patterns\":[{\"regexp\":\"a(\\\\d+)b(\\\\d+)\\\\.tmj\",\"multiplierX\":320,\"multiplierY\":160}],\"type\":\"source_world\"}",
     ),
   )
   with_fake_asset_io(files, fn() raise {
-    let world = load_tiled_world("worlds/patterns.world")
-    inspect(world.patterns.length(), content="1")
-    inspect(world.patterns[0].map_width, content="320")
-    inspect(world.patterns[0].map_height, content="160")
+    let source_world = load_tiled_world("worlds/patterns.source_world")
+    inspect(source_world.patterns.length(), content="1")
+    inspect(source_world.patterns[0].map_width, content="320")
+    inspect(source_world.patterns[0].map_height, content="160")
   })
 }
 
 ///|
 test "spawn_tiled_map creates tile object and image layer entities" {
+  let world = @ecs.require_current_world()
   let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/level.tmj",
     ascii_bytes(
-      "{\"width\":2,\"height\":2,\"tilewidth\":16,\"tileheight\":16,\"properties\":[{\"name\":\"world\",\"type\":\"string\",\"value\":\"demo\"}],\"layers\":[{\"id\":1,\"name\":\"Ground\",\"type\":\"tilelayer\",\"offsetx\":2,\"offsety\":3,\"width\":2,\"height\":2,\"properties\":[{\"name\":\"speed\",\"type\":\"float\",\"value\":2.0}],\"data\":[1,0,0,1]},{\"id\":2,\"name\":\"Objects\",\"type\":\"objectgroup\",\"objects\":[{\"id\":7,\"name\":\"Spawn\",\"type\":\"spawn\",\"x\":20,\"y\":24,\"properties\":[{\"name\":\"hp\",\"type\":\"int\",\"value\":3}]},{\"id\":8,\"name\":\"Torch\",\"gid\":1,\"x\":32,\"y\":32,\"width\":16,\"height\":16,\"visible\":true,\"properties\":[{\"name\":\"lit\",\"type\":\"bool\",\"value\":true}]}]},{\"id\":3,\"name\":\"Backdrop\",\"type\":\"imagelayer\",\"image\":\"bg.png\",\"repeatx\":true}],\"tilesets\":[{\"firstgid\":1,\"name\":\"terrain\",\"tilewidth\":16,\"tileheight\":16,\"tilecount\":1,\"columns\":1,\"image\":\"terrain.png\",\"imagewidth\":16,\"imageheight\":16,\"tiles\":[{\"id\":0,\"properties\":[{\"name\":\"solid\",\"type\":\"bool\",\"value\":true}]}]}]}",
+      "{\"width\":2,\"height\":2,\"tilewidth\":16,\"tileheight\":16,\"properties\":[{\"name\":\"source_world\",\"type\":\"string\",\"value\":\"demo\"}],\"layers\":[{\"id\":1,\"name\":\"Ground\",\"type\":\"tilelayer\",\"offsetx\":2,\"offsety\":3,\"width\":2,\"height\":2,\"properties\":[{\"name\":\"speed\",\"type\":\"float\",\"value\":2.0}],\"data\":[1,0,0,1]},{\"id\":2,\"name\":\"Objects\",\"type\":\"objectgroup\",\"objects\":[{\"id\":7,\"name\":\"Spawn\",\"type\":\"spawn\",\"x\":20,\"y\":24,\"properties\":[{\"name\":\"hp\",\"type\":\"int\",\"value\":3}]},{\"id\":8,\"name\":\"Torch\",\"gid\":1,\"x\":32,\"y\":32,\"width\":16,\"height\":16,\"visible\":true,\"properties\":[{\"name\":\"lit\",\"type\":\"bool\",\"value\":true}]}]},{\"id\":3,\"name\":\"Backdrop\",\"type\":\"imagelayer\",\"image\":\"bg.png\",\"repeatx\":true}],\"tilesets\":[{\"firstgid\":1,\"name\":\"terrain\",\"tilewidth\":16,\"tileheight\":16,\"tilecount\":1,\"columns\":1,\"image\":\"terrain.png\",\"imagewidth\":16,\"imageheight\":16,\"tiles\":[{\"id\":0,\"properties\":[{\"name\":\"solid\",\"type\":\"bool\",\"value\":true}]}]}]}",
     ),
   )
   files.set("maps/terrain.png", ascii_bytes("png"))
   files.set("maps/bg.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
-    let root = load_and_spawn_tiled_map("maps/level.tmj", settings={
+    let root = load_and_spawn_tiled_map(world~, "maps/level.tmj", settings={
       ..TiledSpawnSettings(),
       position: Vec2(10.0, 20.0),
       zindex: 5,
       layer_z_step: 10,
       spawn_hidden_layers: true,
     })
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
-      vec2_snapshot(tiled_test_entity_translation_2d(root)),
+      vec2_snapshot(tiled_test_entity_translation_2d(world~, root)),
       content="10,20",
     )
-    match tiled_properties().get(root).unwrap().get("world") {
+    match
+      (world.query() : @ecs.Query[@ecs.Single[TiledProperties]])
+      .get(root)
+      .map(value => value.0)
+      .unwrap()
+      .get("source_world") {
       Some(String(value)) => inspect(value, content="demo")
       _ => inspect("missing", content="demo")
     }
-    let storage = tiled_map_storages().get(root).unwrap()
+    let storage = (world.query() : @ecs.Query[@ecs.Single[TiledMapStorage]])
+      .get(root)
+      .map(value => value.0)
+      .unwrap()
 
-    let layer_entities = tiled_layer_instances()
+    let layer_entities = (
+        world.query() : @ecs.Query[@ecs.Single[TiledLayerInstance]])
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     inspect(layer_entities.length(), content="3")
@@ -459,22 +486,29 @@ test "spawn_tiled_map creates tile object and image layer entities" {
         pair.1.layer.name == "Ground"
       })[0].0
     inspect(
-      vec2_snapshot(tiled_test_entity_translation_2d(ground_entity)),
+      vec2_snapshot(tiled_test_entity_translation_2d(world~, ground_entity)),
       content="2,3",
     )
     inspect(storage.layer_entity(1).unwrap() == ground_entity, content="true")
-    match tiled_properties().get(ground_entity).unwrap().get("speed") {
+    match
+      (world.query() : @ecs.Query[@ecs.Single[TiledProperties]])
+      .get(ground_entity)
+      .map(value => value.0)
+      .unwrap()
+      .get("speed") {
       Some(Float(value)) => inspect(value.to_int(), content="2")
       _ => inspect("missing", content="2")
     }
 
-    let tile_entities = tiled_tile_instances()
+    let tile_entities = (
+        world.query() : @ecs.Query[@ecs.Single[TiledTileInstance]])
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     inspect(storage.tile_entities(1).length(), content="2")
     let tile_positions = tile_entities.map(fn(pair) {
-      let tile_offset = tiled_test_entity_translation_2d(pair.0)
+      let tile_offset = tiled_test_entity_translation_2d(world~, pair.0)
       let layer_offset = tiled_test_entity_translation_2d(
+        world~,
         pair.0.get_parent().unwrap(),
       )
       vec2_snapshot(tile_offset + layer_offset)
@@ -485,17 +519,23 @@ test "spawn_tiled_map creates tile object and image layer entities" {
       content="true",
     )
     debug_inspect(
-      animation_image_path(tile_entities[0].0),
+      animation_image_path(world~, tile_entities[0].0),
       content="Some(\"maps/terrain.png\")",
     )
     for (tile_entity, _) in tile_entities {
-      match tiled_properties().get(tile_entity).unwrap().get("solid") {
+      match
+        (world.query() : @ecs.Query[@ecs.Single[TiledProperties]])
+        .get(tile_entity)
+        .map(value => value.0)
+        .unwrap()
+        .get("solid") {
         Some(Bool(true)) => ()
         _ => inspect("missing", content="missing")
       }
     }
 
-    let object_entities = tiled_object_instances()
+    let object_entities = (
+        world.query() : @ecs.Query[@ecs.Single[TiledObjectInstance]])
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     inspect(object_entities.length(), content="2")
@@ -503,8 +543,9 @@ test "spawn_tiled_map creates tile object and image layer entities" {
     inspect(storage.object_entity(8) is Some(_), content="true")
     let named_positions = object_entities.map(fn(pair) {
       let name = pair.1.object.name
-      let object_offset = tiled_test_entity_translation_2d(pair.0)
+      let object_offset = tiled_test_entity_translation_2d(world~, pair.0)
       let layer_offset = tiled_test_entity_translation_2d(
+        world~,
         pair.0.get_parent().unwrap(),
       )
       "\{name}@\{vec2_snapshot(object_offset + layer_offset)}"
@@ -519,7 +560,10 @@ test "spawn_tiled_map creates tile object and image layer entities" {
         pair.1.layer.name == "Backdrop"
       })[0].0
     debug_inspect(
-      tiled_image_layer_instances().get(backdrop_entity).unwrap().resolved_image_path,
+      (world.query() : @ecs.Query[@ecs.Single[TiledImageLayerInstance]])
+      .get(backdrop_entity)
+      .map(value => value.0)
+      .unwrap().resolved_image_path,
       content="Some(\"maps/bg.png\")",
     )
   })
@@ -527,6 +571,7 @@ test "spawn_tiled_map creates tile object and image layer entities" {
 
 ///|
 test "replace_tiled_map replaces previous tiled children and metadata" {
+  let world = @ecs.require_current_world()
   let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/a.tmj",
@@ -542,13 +587,15 @@ test "replace_tiled_map replaces previous tiled children and metadata" {
   )
   files.set("maps/bg.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
-    let anchor = @ecs.require_current_world().spawn(())
-    defer ignore(anchor.delete())
+    let anchor = @ecs_test.spawn(@ecs.require_current_world(), ())
+    defer ignore(@ecs_test.delete(anchor))
     let root = spawn_tiled_map(
+      world~,
       load_tiled_map("maps/a.tmj"),
       settings={ ..TiledSpawnSettings(), position: Vec2(1.0, 2.0), },
       parent=anchor,
     )
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
@@ -556,14 +603,22 @@ test "replace_tiled_map replaces previous tiled children and metadata" {
       content="2",
     )
     inspect(
-      tiled_map_storages().get(root).unwrap().object_entity(7) is Some(_),
+      (world.query() : @ecs.Query[@ecs.Single[TiledMapStorage]])
+      .get(root)
+      .map(value => value.0)
+      .unwrap()
+      .object_entity(7)
+      is Some(_),
       content="true",
     )
 
-    let replacement = replace_tiled_map(root, load_tiled_map("maps/b.tmj"), settings={
-      ..TiledSpawnSettings(),
-      position: Vec2(3.0, 4.0),
-    })
+    let replacement = replace_tiled_map(
+      world~,
+      root,
+      load_tiled_map("maps/b.tmj"),
+      settings={ ..TiledSpawnSettings(), position: Vec2(3.0, 4.0), },
+    )
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     assert_false(root.is_valid_in(@ecs.require_current_world()))
     assert_eq(replacement.get_parent(), Some(anchor))
     assert_eq(anchor.get_children(), [replacement])
@@ -571,25 +626,35 @@ test "replace_tiled_map replaces previous tiled children and metadata" {
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
-      vec2_snapshot(tiled_test_entity_translation_2d(root)),
+      vec2_snapshot(tiled_test_entity_translation_2d(world~, root)),
       content="3,4",
     )
     inspect(
       root.get_children().filter(fn(child) { child.is_alive() }).length(),
       content="1",
     )
-    match tiled_properties().get(root).unwrap().get("stage") {
+    match
+      (world.query() : @ecs.Query[@ecs.Single[TiledProperties]])
+      .get(root)
+      .map(value => value.0)
+      .unwrap()
+      .get("stage") {
       Some(String(value)) => inspect(value, content="two")
       _ => inspect("missing", content="two")
     }
-    let storage = tiled_map_storages().get(root).unwrap()
+    let storage = (world.query() : @ecs.Query[@ecs.Single[TiledMapStorage]])
+      .get(root)
+      .map(value => value.0)
+      .unwrap()
     inspect(storage.object_entity(7) is None, content="true")
-    let layer_names = tiled_layer_instances()
+    let layer_names = (
+        world.query() : @ecs.Query[@ecs.Single[TiledLayerInstance]])
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
       .map(fn(pair) { pair.1.layer.name })
     inspect(string_array_matches(layer_names, ["Backdrop"]), content="true")
-    let image_layers = tiled_image_layer_instances()
+    let image_layers = (
+        world.query() : @ecs.Query[@ecs.Single[TiledImageLayerInstance]])
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     inspect(image_layers.length(), content="1")
@@ -598,6 +663,7 @@ test "replace_tiled_map replaces previous tiled children and metadata" {
 
 ///|
 test "spawn_tiled_map attaches full tiled physics coverage" {
+  let world = @ecs.require_current_world()
   let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/physics.tmj",
@@ -607,7 +673,7 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
   )
   files.set("maps/terrain.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
-    let root = load_and_spawn_tiled_map("maps/physics.tmj", settings={
+    let root = load_and_spawn_tiled_map(world~, "maps/physics.tmj", settings={
       ..TiledSpawnSettings(),
       physics_settings: Some({
         ..TiledPhysicsSettings(),
@@ -620,20 +686,31 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
         point_radius: 2.0,
       }),
     })
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
-    let storage = tiled_map_storages().get(root).unwrap()
+    let storage = (world.query() : @ecs.Query[@ecs.Single[TiledMapStorage]])
+      .get(root)
+      .map(value => value.0)
+      .unwrap()
     let layer_entity = storage.layer_entity(1).unwrap()
-    let layer_colliders = tiled_colliders(layer_entity)
+    let layer_colliders = tiled_colliders(world~, layer_entity)
       .unwrap()
       .alive_entities()
     inspect(layer_colliders.length(), content="1")
     inspect(
-      tiled_collider_origins().get(layer_colliders[0]).unwrap().source_kind ==
+      (world.query() : @ecs.Query[@ecs.Single[TiledColliderOrigin]])
+      .get(layer_colliders[0])
+      .map(value => value.0)
+      .unwrap().source_kind ==
       TilesLayer,
       content="true",
     )
-    match @physics2d.shapes().get(layer_colliders[0]).unwrap() {
+    match
+      (world.query() : @ecs.Query[@ecs.Single[@physics2d.ColliderShape]])
+      .get(layer_colliders[0])
+      .map(value => value.0)
+      .unwrap() {
       Rect(size~, offset~) =>
         inspect(
           "\{size.x.to_int()},\{size.y.to_int()}@\{offset.x.to_int()},\{offset.y.to_int()}",
@@ -643,29 +720,40 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
     }
 
     let sensor_object = storage.object_entity(7).unwrap()
-    let sensor_colliders = tiled_colliders(sensor_object)
+    let sensor_colliders = tiled_colliders(world~, sensor_object)
       .unwrap()
       .alive_entities()
     inspect(sensor_colliders.length(), content="1")
     inspect(
-      @physics2d.areas().get(sensor_colliders[0]) is Some(_),
+      (world.query() : @ecs.Query[@ecs.Single[@physics2d.Area]])
+      .get(sensor_colliders[0])
+      .map(value => value.0)
+      is Some(_),
       content="true",
     )
 
     let ellipse_object = storage.object_entity(8).unwrap()
-    let ellipse_collider = tiled_colliders(ellipse_object)
+    let ellipse_collider = tiled_colliders(world~, ellipse_object)
       .unwrap()
       .alive_entities()[0]
-    match @physics2d.shapes().get(ellipse_collider).unwrap() {
+    match
+      (world.query() : @ecs.Query[@ecs.Single[@physics2d.ColliderShape]])
+      .get(ellipse_collider)
+      .map(value => value.0)
+      .unwrap() {
       Polygon(points~, ..) => inspect(points.length(), content="12")
       _ => inspect("wrong-shape", content="12")
     }
 
     let polyline_object = storage.object_entity(9).unwrap()
-    let polyline_collider = tiled_colliders(polyline_object)
+    let polyline_collider = tiled_colliders(world~, polyline_object)
       .unwrap()
       .alive_entities()[0]
-    match @physics2d.shapes().get(polyline_collider).unwrap() {
+    match
+      (world.query() : @ecs.Query[@ecs.Single[@physics2d.ColliderShape]])
+      .get(polyline_collider)
+      .map(value => value.0)
+      .unwrap() {
       Polyline(points~, closed~, ..) => {
         inspect(points.length(), content="3")
         inspect(closed, content="false")
@@ -677,17 +765,27 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
     }
 
     let polygon_object = storage.object_entity(10).unwrap()
-    let polygon_collider = tiled_colliders(polygon_object)
+    let polygon_collider = tiled_colliders(world~, polygon_object)
       .unwrap()
       .alive_entities()[0]
-    match @physics2d.shapes().get(polygon_collider).unwrap() {
+    match
+      (world.query() : @ecs.Query[@ecs.Single[@physics2d.ColliderShape]])
+      .get(polygon_collider)
+      .map(value => value.0)
+      .unwrap() {
       Polygon(points~, ..) => inspect(points.length(), content="3")
       _ => inspect("wrong-shape", content="3")
     }
 
     let point_object = storage.object_entity(11).unwrap()
-    let point_collider = tiled_colliders(point_object).unwrap().alive_entities()[0]
-    match @physics2d.shapes().get(point_collider).unwrap() {
+    let point_collider = tiled_colliders(world~, point_object)
+      .unwrap()
+      .alive_entities()[0]
+    match
+      (world.query() : @ecs.Query[@ecs.Single[@physics2d.ColliderShape]])
+      .get(point_collider)
+      .map(value => value.0)
+      .unwrap() {
       Ball(radius~, offset~) => {
         inspect(radius.to_int(), content="2")
         inspect(vec2_snapshot(offset), content="0,0")
@@ -699,16 +797,23 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
     }
 
     let tile_object = storage.object_entity(12).unwrap()
-    let tile_object_colliders = tiled_colliders(tile_object)
+    let tile_object_colliders = tiled_colliders(world~, tile_object)
       .unwrap()
       .alive_entities()
     inspect(tile_object_colliders.length(), content="1")
     inspect(
-      tiled_collider_origins().get(tile_object_colliders[0]).unwrap().source_kind ==
+      (world.query() : @ecs.Query[@ecs.Single[TiledColliderOrigin]])
+      .get(tile_object_colliders[0])
+      .map(value => value.0)
+      .unwrap().source_kind ==
       Object,
       content="true",
     )
-    match @physics2d.shapes().get(tile_object_colliders[0]).unwrap() {
+    match
+      (world.query() : @ecs.Query[@ecs.Single[@physics2d.ColliderShape]])
+      .get(tile_object_colliders[0])
+      .map(value => value.0)
+      .unwrap() {
       Rect(size~, offset~) =>
         inspect(
           "\{size.x.to_int()},\{size.y.to_int()}@\{offset.x.to_int()},\{offset.y.to_int()}",
@@ -721,6 +826,7 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
 
 ///|
 test "spawn_tiled_map applies physics body and material properties" {
+  let world = @ecs.require_current_world()
   let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/physics-properties.tmj",
@@ -729,72 +835,115 @@ test "spawn_tiled_map applies physics body and material properties" {
     ),
   )
   with_fake_asset_io(files, fn() raise {
-    let root = load_and_spawn_tiled_map("maps/physics-properties.tmj", settings={
+    let root = load_and_spawn_tiled_map(world~, "maps/physics-properties.tmj", settings={
       ..TiledSpawnSettings(),
       physics_settings: Some(TiledPhysicsSettings()),
     })
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
-    let storage = tiled_map_storages().get(root).unwrap()
-    let dynamic_entity = tiled_colliders(storage.object_entity(7).unwrap())
+    let storage = (world.query() : @ecs.Query[@ecs.Single[TiledMapStorage]])
+      .get(root)
+      .map(value => value.0)
+      .unwrap()
+    let dynamic_entity = tiled_colliders(
+        world~,
+        storage.object_entity(7).unwrap(),
+      )
       .unwrap()
       .alive_entities()[0]
-    let sensor_entity = tiled_colliders(storage.object_entity(8).unwrap())
+    let sensor_entity = tiled_colliders(
+        world~,
+        storage.object_entity(8).unwrap(),
+      )
       .unwrap()
       .alive_entities()[0]
 
     inspect(
-      @physics2d.colliders().get(dynamic_entity).unwrap().active,
+      (world.query() : @ecs.Query[@ecs.Single[@physics2d.Collider]])
+      .get(dynamic_entity)
+      .map(value => value.0)
+      .unwrap().active,
       content="false",
     )
     inspect(
-      @physics2d.colliders().get(dynamic_entity).unwrap().friction == 0.2,
+      (world.query() : @ecs.Query[@ecs.Single[@physics2d.Collider]])
+      .get(dynamic_entity)
+      .map(value => value.0)
+      .unwrap().friction ==
+      0.2,
       content="true",
     )
     inspect(
-      @physics2d.colliders().get(dynamic_entity).unwrap().restitution == 0.6,
+      (world.query() : @ecs.Query[@ecs.Single[@physics2d.Collider]])
+      .get(dynamic_entity)
+      .map(value => value.0)
+      .unwrap().restitution ==
+      0.6,
       content="true",
     )
     inspect(
-      @physics2d.areas().get(sensor_entity).unwrap().active,
+      (world.query() : @ecs.Query[@ecs.Single[@physics2d.Area]])
+      .get(sensor_entity)
+      .map(value => value.0)
+      .unwrap().active,
       content="false",
     )
     inspect(
-      @physics2d.rigid_bodies().get(dynamic_entity).unwrap().body_type
+      (world.query() : @ecs.Query[@ecs.Single[@physics2d.RigidBody]])
+      .get(dynamic_entity)
+      .map(value => value.0)
+      .unwrap().body_type
       is Dynamic,
       content="true",
     )
     inspect(
-      @physics2d.rigid_bodies().get(dynamic_entity).unwrap().gravity_scale ==
+      (world.query() : @ecs.Query[@ecs.Single[@physics2d.RigidBody]])
+      .get(dynamic_entity)
+      .map(value => value.0)
+      .unwrap().gravity_scale ==
       0.5,
       content="true",
     )
     inspect(
-      @physics2d.rigid_bodies().get(dynamic_entity).unwrap().linear_damping ==
+      (world.query() : @ecs.Query[@ecs.Single[@physics2d.RigidBody]])
+      .get(dynamic_entity)
+      .map(value => value.0)
+      .unwrap().linear_damping ==
       1.25,
       content="true",
     )
     inspect(
-      @physics2d.rigid_bodies().get(dynamic_entity).unwrap().angular_damping ==
+      (world.query() : @ecs.Query[@ecs.Single[@physics2d.RigidBody]])
+      .get(dynamic_entity)
+      .map(value => value.0)
+      .unwrap().angular_damping ==
       0.75,
       content="true",
     )
     inspect(
-      @physics2d.rigid_bodies().get(dynamic_entity).unwrap().ccd_enabled,
+      (world.query() : @ecs.Query[@ecs.Single[@physics2d.RigidBody]])
+      .get(dynamic_entity)
+      .map(value => value.0)
+      .unwrap().ccd_enabled,
       content="true",
     )
     inspect(
-      @physics2d.rigid_bodies().get(dynamic_entity).unwrap().lock_rotation,
+      (world.query() : @ecs.Query[@ecs.Single[@physics2d.RigidBody]])
+      .get(dynamic_entity)
+      .map(value => value.0)
+      .unwrap().lock_rotation,
       content="false",
     )
   })
 }
 
 ///|
-test "spawn_tiled_world loads adjacent maps and emits world events" {
+test "spawn_tiled_world loads adjacent maps and emits source_world events" {
+  let world = @ecs.require_current_world()
   let files : Map[String, Bytes] = Map([])
   files.set(
-    "worlds/demo.world",
+    "worlds/demo.source_world",
     ascii_bytes(
       "{\"onlyShowAdjacentMaps\":true,\"maps\":[{\"fileName\":\"maps/a.tmj\",\"x\":0,\"y\":0,\"width\":32,\"height\":32},{\"fileName\":\"maps/b.tmj\",\"x\":32,\"y\":0,\"width\":32,\"height\":32},{\"fileName\":\"maps/c.tmj\",\"x\":96,\"y\":0,\"width\":32,\"height\":32}]}",
     ),
@@ -821,8 +970,8 @@ test "spawn_tiled_world loads adjacent maps and emits world events" {
     let world_reader = @event.EventReader()
     let world_map_reader = @event.EventReader()
     let hooked_paths : Array[String] = []
-    let world = load_tiled_world("worlds/demo.world")
-    let root = spawn_tiled_world(world, settings={
+    let source_world = load_tiled_world("worlds/demo.source_world")
+    let root = spawn_tiled_world(world~, source_world, settings={
       ..TiledWorldSpawnSettings(),
       position: Vec2(5.0, 7.0),
       focus_map_path: Some("maps/a.tmj"),
@@ -830,10 +979,12 @@ test "spawn_tiled_world loads adjacent maps and emits world events" {
         hooked_paths.push(event.resolved_map_path)
       }),
     })
+    try! @ecs.Schedule().run(@ecs.require_current_world())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
-      vec2_snapshot(tiled_test_entity_translation_2d(root)),
+      vec2_snapshot(tiled_test_entity_translation_2d(world~, root)),
       content="5,7",
     )
     inspect(
@@ -852,12 +1003,13 @@ test "spawn_tiled_world loads adjacent maps and emits world events" {
       content="true",
     )
 
-    let map_entities = tiled_world_map_instances()
+    let map_entities = (
+        world.query() : @ecs.Query[@ecs.Single[TiledWorldMapInstance]])
       .to_array()
       .filter(fn(pair) { pair.1.world_entity == root })
       .map(fn(pair) {
         let path = pair.1.resolved_map_path
-        let offset = tiled_test_entity_translation_2d(pair.0)
+        let offset = tiled_test_entity_translation_2d(world~, pair.0)
         "\{path}@\{vec2_snapshot(offset)}"
       })
     map_entities.sort()
@@ -872,17 +1024,18 @@ test "spawn_tiled_world loads adjacent maps and emits world events" {
 
 ///|
 test "replace_tiled_world replaces previous spawned maps" {
+  let world = @ecs.require_current_world()
   let files : Map[String, Bytes] = Map([])
   files.set(
-    "worlds/a.world",
+    "worlds/a.source_world",
     ascii_bytes(
-      "{\"maps\":[{\"fileName\":\"maps/a.tmj\",\"x\":0,\"y\":0}],\"type\":\"world\"}",
+      "{\"maps\":[{\"fileName\":\"maps/a.tmj\",\"x\":0,\"y\":0}],\"type\":\"source_world\"}",
     ),
   )
   files.set(
-    "worlds/b.world",
+    "worlds/b.source_world",
     ascii_bytes(
-      "{\"maps\":[{\"fileName\":\"maps/b.tmj\",\"x\":64,\"y\":0}],\"type\":\"world\"}",
+      "{\"maps\":[{\"fileName\":\"maps/b.tmj\",\"x\":64,\"y\":0}],\"type\":\"source_world\"}",
     ),
   )
   files.set(
@@ -898,10 +1051,13 @@ test "replace_tiled_world replaces previous spawned maps" {
     ),
   )
   with_fake_asset_io(files, fn() raise {
-    let root = spawn_tiled_world(load_tiled_world("worlds/a.world"), settings={
-      ..TiledWorldSpawnSettings(),
-      position: Vec2(5.0, 7.0),
-    })
+    let root = spawn_tiled_world(
+      world~,
+      load_tiled_world("worlds/a.source_world"),
+      settings={ ..TiledWorldSpawnSettings(), position: Vec2(5.0, 7.0), },
+    )
+    try! @ecs.Schedule().run(@ecs.require_current_world())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
@@ -910,16 +1066,19 @@ test "replace_tiled_world replaces previous spawned maps" {
     )
 
     let replacement = replace_tiled_world(
+      world~,
       root,
-      load_tiled_world("worlds/b.world"),
+      load_tiled_world("worlds/b.source_world"),
       settings={ ..TiledWorldSpawnSettings(), position: Vec2(11.0, 13.0), },
     )
+    try! @ecs.Schedule().run(@ecs.require_current_world())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     assert_false(root.is_valid_in(@ecs.require_current_world()))
     let root = replacement
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
-      vec2_snapshot(tiled_test_entity_translation_2d(root)),
+      vec2_snapshot(tiled_test_entity_translation_2d(world~, root)),
       content="11,13",
     )
     inspect(
@@ -927,15 +1086,19 @@ test "replace_tiled_world replaces previous spawned maps" {
       content="1",
     )
     inspect(
-      tiled_world_instances().get(root).unwrap().loaded_maps.length(),
+      (world.query() : @ecs.Query[@ecs.Single[TiledWorldInstance]])
+      .get(root)
+      .map(value => value.0)
+      .unwrap().loaded_maps.length(),
       content="1",
     )
-    let map_entities = tiled_world_map_instances()
+    let map_entities = (
+        world.query() : @ecs.Query[@ecs.Single[TiledWorldMapInstance]])
       .to_array()
       .filter(fn(pair) { pair.1.world_entity == root })
       .map(fn(pair) {
         let path = pair.1.resolved_map_path
-        let offset = tiled_test_entity_translation_2d(pair.0)
+        let offset = tiled_test_entity_translation_2d(world~, pair.0)
         "\{path}@\{vec2_snapshot(offset)}"
       })
     inspect(
@@ -946,19 +1109,20 @@ test "replace_tiled_world replaces previous spawned maps" {
 }
 
 ///|
-test "tiled world chunking spawns maps around camera view" {
+test "tiled source_world chunking spawns maps around camera view" {
+  let world = @ecs.require_current_world()
   let previous_viewport = @window.get_viewport_size()
   let previous_zoom = @window.get_zoom()
   @window.configure_display(100.0, 100.0, 1.0)
 
   let camera_entity = spawn_tiled_test_camera(Vec2(50.0, 50.0))
-  defer ignore(camera_entity.delete())
+  defer ignore(@ecs_test.delete(camera_entity))
 
   let files : Map[String, Bytes] = Map([])
   files.set(
-    "worlds/chunk.world",
+    "worlds/chunk.source_world",
     ascii_bytes(
-      "{\"maps\":[{\"fileName\":\"maps/a.tmj\",\"x\":0,\"y\":0},{\"fileName\":\"maps/b.tmj\",\"x\":200,\"y\":0}],\"type\":\"world\"}",
+      "{\"maps\":[{\"fileName\":\"maps/a.tmj\",\"x\":0,\"y\":0},{\"fileName\":\"maps/b.tmj\",\"x\":200,\"y\":0}],\"type\":\"source_world\"}",
     ),
   )
   files.set(
@@ -974,27 +1138,33 @@ test "tiled world chunking spawns maps around camera view" {
     ),
   )
   with_fake_asset_io(files, fn() raise {
-    let root = load_and_spawn_tiled_world("worlds/chunk.world", settings={
+    let root = load_and_spawn_tiled_world(world~, "worlds/chunk.source_world", settings={
       ..TiledWorldSpawnSettings(),
       chunking: Some(@math.Vec2::zero()),
       map_settings: { ..TiledSpawnSettings(), position: @math.Vec2::zero(), },
     })
+    try! @ecs.Schedule().run(@ecs.require_current_world())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
-    let first_spawned = tiled_world_map_instances()
+    let first_spawned = (
+        world.query() : @ecs.Query[@ecs.Single[TiledWorldMapInstance]])
       .to_array()
       .filter(fn(pair) { pair.1.world_entity == root })
     inspect(first_spawned.length(), content="1")
     inspect(first_spawned[0].1.resolved_map_path, content="worlds/maps/a.tmj")
 
     @transform.set_local_transform(
+      world~,
       camera_entity,
       @transform.Transform::from_xyz(250.0, 50.0, 0.0),
     )
-    @transform.transform_propagate_system(0.0)
-    tiled_world_chunking_system(0.0)
+    @transform.transform_propagate_system(world~, 0.0)
+    tiled_world_chunking_system(world~, 0.0)
+    try! @ecs.Schedule().run(world)
 
-    let second_spawned = tiled_world_map_instances()
+    let second_spawned = (
+        world.query() : @ecs.Query[@ecs.Single[TiledWorldMapInstance]])
       .to_array()
       .filter(fn(pair) { pair.1.world_entity == root })
     inspect(second_spawned.length(), content="1")
@@ -1009,22 +1179,23 @@ test "tiled world chunking spawns maps around camera view" {
 }
 
 ///|
-test "tiled world chunking unions multiple active camera views" {
+test "tiled source_world chunking unions multiple active camera views" {
+  let world = @ecs.require_current_world()
   let previous_viewport = @window.get_viewport_size()
   let previous_zoom = @window.get_zoom()
   @window.configure_display(100.0, 100.0, 1.0)
 
   let left_camera = spawn_tiled_test_camera(Vec2(50.0, 50.0), order=0)
-  defer ignore(left_camera.delete())
+  defer ignore(@ecs_test.delete(left_camera))
 
   let right_camera = spawn_tiled_test_camera(Vec2(250.0, 50.0), order=1)
-  defer ignore(right_camera.delete())
+  defer ignore(@ecs_test.delete(right_camera))
 
   let files : Map[String, Bytes] = Map([])
   files.set(
-    "worlds/chunk.world",
+    "worlds/chunk.source_world",
     ascii_bytes(
-      "{\"maps\":[{\"fileName\":\"maps/a.tmj\",\"x\":0,\"y\":0},{\"fileName\":\"maps/b.tmj\",\"x\":200,\"y\":0}],\"type\":\"world\"}",
+      "{\"maps\":[{\"fileName\":\"maps/a.tmj\",\"x\":0,\"y\":0},{\"fileName\":\"maps/b.tmj\",\"x\":200,\"y\":0}],\"type\":\"source_world\"}",
     ),
   )
   files.set(
@@ -1040,14 +1211,17 @@ test "tiled world chunking unions multiple active camera views" {
     ),
   )
   with_fake_asset_io(files, fn() raise {
-    let root = load_and_spawn_tiled_world("worlds/chunk.world", settings={
+    let root = load_and_spawn_tiled_world(world~, "worlds/chunk.source_world", settings={
       ..TiledWorldSpawnSettings(),
       chunking: Some(@math.Vec2::zero()),
       map_settings: { ..TiledSpawnSettings(), position: @math.Vec2::zero(), },
     })
+    try! @ecs.Schedule().run(@ecs.require_current_world())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
-    let spawned = tiled_world_map_instances()
+    let spawned = (
+        world.query() : @ecs.Query[@ecs.Single[TiledWorldMapInstance]])
       .to_array()
       .filter(fn(pair) { pair.1.world_entity == root })
       .map(fn(pair) { pair.1.resolved_map_path })
@@ -1067,15 +1241,16 @@ test "tiled world chunking unions multiple active camera views" {
 
 ///|
 test "Tiled parallax uses map origin for each camera view" {
+  let world = @ecs.require_current_world()
   let previous_viewport = @window.get_viewport_size()
   let previous_zoom = @window.get_zoom()
   @window.configure_display(100.0, 100.0, 1.0)
 
   let left_camera = spawn_tiled_test_camera(Vec2(50.0, 50.0), order=0)
-  defer ignore(left_camera.delete())
+  defer ignore(@ecs_test.delete(left_camera))
 
   let right_camera = spawn_tiled_test_camera(Vec2(250.0, 150.0), order=1)
-  defer ignore(right_camera.delete())
+  defer ignore(@ecs_test.delete(right_camera))
 
   let files : Map[String, Bytes] = Map([])
   files.set(
@@ -1085,16 +1260,18 @@ test "Tiled parallax uses map origin for each camera view" {
     ),
   )
   with_fake_asset_io(files, fn() raise {
-    let root = load_and_spawn_tiled_map("maps/parallax.tmj")
+    let root = load_and_spawn_tiled_map(world~, "maps/parallax.tmj")
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
-    let layer_entity = tiled_layer_instances()
+    let layer_entity = (
+        world.query() : @ecs.Query[@ecs.Single[TiledLayerInstance]])
       .to_array()
       .filter(fn(pair) {
         pair.1.map_entity == root && pair.1.layer.name == "Background"
       })[0].0
-    let parallax = @parallax2d.inherited_parallax2d(layer_entity).unwrap()
-    let camera_views = @camera.active_camera2d_views()
+    let parallax = @parallax2d.inherited_parallax2d(world~, layer_entity).unwrap()
+    let camera_views = @camera.active_camera2d_views(world~)
     let left_camera_view = camera_views.filter(fn(view) {
         view.entity == left_camera
       })[0]
@@ -1115,7 +1292,7 @@ test "Tiled parallax uses map origin for each camera view" {
     inspect(
       vec2_snapshot(
         @parallax2d.parallax_world_position(
-          tiled_test_entity_translation_2d(layer_entity),
+          tiled_test_entity_translation_2d(world~, layer_entity),
           Some(parallax),
           Some(left_camera_view),
         ),
@@ -1125,7 +1302,7 @@ test "Tiled parallax uses map origin for each camera view" {
     inspect(
       vec2_snapshot(
         @parallax2d.parallax_world_position(
-          tiled_test_entity_translation_2d(layer_entity),
+          tiled_test_entity_translation_2d(world~, layer_entity),
           Some(parallax),
           Some(right_camera_view),
         ),
@@ -1143,6 +1320,7 @@ test "Tiled parallax uses map origin for each camera view" {
 
 ///|
 test "spawn_tiled_map reads TMX tile object and image layers" {
+  let world = @ecs.require_current_world()
   let files : Map[String, Bytes] = Map([])
   let level_tmx =
     #|<?xml version="1.0" encoding="UTF-8"?>
@@ -1166,21 +1344,23 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
   files.set("maps/terrain.png", ascii_bytes("png"))
   files.set("maps/bg.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
-    let root = load_and_spawn_tiled_map("maps/level.tmx", settings={
+    let root = load_and_spawn_tiled_map(world~, "maps/level.tmx", settings={
       ..TiledSpawnSettings(),
       position: Vec2(10.0, 20.0),
       zindex: 5,
       layer_z_step: 10,
       spawn_hidden_layers: true,
     })
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
-      vec2_snapshot(tiled_test_entity_translation_2d(root)),
+      vec2_snapshot(tiled_test_entity_translation_2d(world~, root)),
       content="10,20",
     )
 
-    let layer_entities = tiled_layer_instances()
+    let layer_entities = (
+        world.query() : @ecs.Query[@ecs.Single[TiledLayerInstance]])
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     inspect(layer_entities.length(), content="3")
@@ -1189,16 +1369,18 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
         pair.1.layer.name == "Ground"
       })[0].0
     inspect(
-      vec2_snapshot(tiled_test_entity_translation_2d(ground_entity)),
+      vec2_snapshot(tiled_test_entity_translation_2d(world~, ground_entity)),
       content="2,3",
     )
 
-    let tile_entities = tiled_tile_instances()
+    let tile_entities = (
+        world.query() : @ecs.Query[@ecs.Single[TiledTileInstance]])
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     let tile_positions = tile_entities.map(fn(pair) {
-      let tile_offset = tiled_test_entity_translation_2d(pair.0)
+      let tile_offset = tiled_test_entity_translation_2d(world~, pair.0)
       let layer_offset = tiled_test_entity_translation_2d(
+        world~,
         pair.0.get_parent().unwrap(),
       )
       vec2_snapshot(tile_offset + layer_offset)
@@ -1209,18 +1391,20 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
       content="true",
     )
     debug_inspect(
-      animation_image_path(tile_entities[0].0),
+      animation_image_path(world~, tile_entities[0].0),
       content="Some(\"maps/terrain.png\")",
     )
 
-    let object_entities = tiled_object_instances()
+    let object_entities = (
+        world.query() : @ecs.Query[@ecs.Single[TiledObjectInstance]])
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     inspect(object_entities.length(), content="2")
     let named_positions = object_entities.map(fn(pair) {
       let name = pair.1.object.name
-      let object_offset = tiled_test_entity_translation_2d(pair.0)
+      let object_offset = tiled_test_entity_translation_2d(world~, pair.0)
       let layer_offset = tiled_test_entity_translation_2d(
+        world~,
         pair.0.get_parent().unwrap(),
       )
       "\{name}@\{vec2_snapshot(object_offset + layer_offset)}"
@@ -1235,7 +1419,10 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
         pair.1.layer.name == "Backdrop"
       })[0].0
     debug_inspect(
-      tiled_image_layer_instances().get(backdrop_entity).unwrap().resolved_image_path,
+      (world.query() : @ecs.Query[@ecs.Single[TiledImageLayerInstance]])
+      .get(backdrop_entity)
+      .map(value => value.0)
+      .unwrap().resolved_image_path,
       content="Some(\"maps/bg.png\")",
     )
   })
@@ -1243,6 +1430,7 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
 
 ///|
 test "spawn_tiled_map expands tiled animated tiles into frame timelines" {
+  let world = @ecs.require_current_world()
   let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/animated.tmj",
@@ -1252,15 +1440,20 @@ test "spawn_tiled_map expands tiled animated tiles into frame timelines" {
   )
   files.set("maps/terrain.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
-    let root = load_and_spawn_tiled_map("maps/animated.tmj")
+    let root = load_and_spawn_tiled_map(world~, "maps/animated.tmj")
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
-    let tile_entities = tiled_tile_instances()
+    let tile_entities = (
+        world.query() : @ecs.Query[@ecs.Single[TiledTileInstance]])
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     inspect(tile_entities.length(), content="1")
 
-    guard @sprite.sprites().get(tile_entities[0].0) is Some(sprite) else {
+    guard (world.query() : @ecs.Query[@ecs.Single[@sprite.Sprite]])
+      .get(tile_entities[0].0)
+      .map(value => value.0)
+      is Some(sprite) else {
       inspect("missing-sprite", content="missing-sprite")
       return
     }
@@ -1288,6 +1481,7 @@ test "spawn_tiled_map expands tiled animated tiles into frame timelines" {
 
 ///|
 test "spawn_tiled_map creates tile entities for isometric maps" {
+  let world = @ecs.require_current_world()
   let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/isometric.tmj",
@@ -1297,10 +1491,12 @@ test "spawn_tiled_map creates tile entities for isometric maps" {
   )
   files.set("maps/terrain.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
-    let root = load_and_spawn_tiled_map("maps/isometric.tmj")
+    let root = load_and_spawn_tiled_map(world~, "maps/isometric.tmj")
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
-    let tile_entities = tiled_tile_instances()
+    let tile_entities = (
+        world.query() : @ecs.Query[@ecs.Single[TiledTileInstance]])
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     inspect(tile_entities.length(), content="1")

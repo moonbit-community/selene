@@ -16,35 +16,37 @@ Only the highest-priority scope is selected. Within the same selected scope, `ad
 
 ## Minimal Bundle-Like Template
 
-Create each custom store with `ComponentStore(world)` once per World and pass
-the stores when registering bindings in that World.
+Declare each custom component with `#selene.component` and generate its
+companion. Registration callbacks return initial component values; the importer
+adds them to the spawn draft in its owning World. The registration context also
+provides `event.project`; parent entities are still pending during construction,
+so use this initial data instead of querying their components.
 
 ```moonbit
 ///|
+#selene.component
 pub struct EnemyTag {}
 
 ///|
+#selene.component
 pub struct Health {
   value : Int
 }
 
 ///|
+#selene.component
 pub struct SolidCell {}
 
 ///|
-pub fn setup_ldtk_bindings(
-  enemy_tags : @ecs.ComponentStore[EnemyTag],
-  healths : @ecs.ComponentStore[Health],
-  solid_cells : @ecs.ComponentStore[SolidCell],
-) -> Unit {
+pub fn setup_ldtk_bindings() -> Unit {
   // Optional: clear old bindings before re-registering.
   @ldtk.clear_ldtk_entity_registrations()
   @ldtk.clear_ldtk_int_cell_registrations()
 
   // "Enemy" entity -> compose multiple component insertions.
-  @ldtk.add_ldtk_entity_component("Enemy", enemy_tags, fn(_event) { {} })
-  @ldtk.add_ldtk_entity_component("Enemy", healths, fn(event) {
-    {
+  @ldtk.add_ldtk_entity_component("Enemy", fn(_event) { EnemyTag::{} })
+  @ldtk.add_ldtk_entity_component("Enemy", fn(event) {
+    Health::{
       value: event.instance.field_int("HP").unwrap_or(1),
     }
   })
@@ -53,8 +55,7 @@ pub fn setup_ldtk_bindings(
   @ldtk.add_ldtk_int_cell_component_for_layer(
     "Collision",
     1,
-    solid_cells,
-    fn(_event) { {} },
+    fn(_event) { SolidCell::{} },
   )
 }
 ```
@@ -64,8 +65,8 @@ pub fn setup_ldtk_bindings(
 To mirror bevy's `#[sprite_sheet]` flow without derive macros, Selene provides explicit helpers that read `entity.instance.tile` (`__tile`) and insert a sprite automatically:
 
 - One-shot insertion in your own hook:
-  - `insert_ldtk_entity_tile_sprite(event, zindex=...)`
-  - `ldtk_entity_tile_sprite(event, zindex=...)`
+  - `insert_ldtk_entity_tile_sprite(world~, event, zindex=...)`
+  - `ldtk_entity_tile_sprite(world~, event, zindex=...)`
 - Registration helpers with the same scope model:
   - `register_ldtk_entity_tile_sprite_for_layer_optional(...)`
   - `add_ldtk_entity_tile_sprite_for_layer_optional(...)`

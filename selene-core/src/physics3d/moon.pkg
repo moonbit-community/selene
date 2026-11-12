@@ -15,3 +15,7 @@ import {
 }
 
 formatter(ignore: [ "physics3d_components.g.mbt", "physics3d_types.g.mbt" ])
+
+import {
+  "Milky2018/selene/internal/ecs_test",
+} for "wbtest"
