@@ -137,7 +137,9 @@ fn spawn_panel_button(
   font~ : String = "16px ThaleahFat",
 ) -> @ecs.Entity {
   let world = @ecs.require_current_world()
-  let plan = world.prepare_spawn().combine(world.prepare_spawn())
+  let plan = @ecs.commands(world)
+    .prepare_spawn()
+    .combine(@ecs.commands(world).prepare_spawn())
   let entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
     plan,
     (

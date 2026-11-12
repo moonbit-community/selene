@@ -167,7 +167,9 @@ fn spawn_player_entity(
     animations,
     active_animation: None,
   }
-  let plan = world.prepare_spawn().combine(world.prepare_spawn())
+  let plan = @ecs.commands(world)
+    .prepare_spawn()
+    .combine(@ecs.commands(world).prepare_spawn())
   let entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
     plan,
     (
@@ -211,7 +213,9 @@ fn spawn_bird_entity(world~ : @ecs.World, x : Double, y : Double) -> Unit {
     animations,
     active_animation: None,
   }
-  let plan = world.prepare_spawn().combine(world.prepare_spawn())
+  let plan = @ecs.commands(world)
+    .prepare_spawn()
+    .combine(@ecs.commands(world).prepare_spawn())
   let entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
     plan,
     (
@@ -311,7 +315,9 @@ fn[T : @ecs.Component] spawn_animated_item(
   let player = @animation.AnimationPlayer()
   ignore(player.play(nodes[0], repeat=Forever))
   let shape : @physics2d.ColliderShape = Rect(size~, offset=@math.Vec2::zero())
-  let plan = world.prepare_spawn().combine(world.prepare_spawn())
+  let plan = @ecs.commands(world)
+    .prepare_spawn()
+    .combine(@ecs.commands(world).prepare_spawn())
   let entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
     plan,
     (

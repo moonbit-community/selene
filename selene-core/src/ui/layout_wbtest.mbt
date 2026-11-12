@@ -76,7 +76,7 @@ test "ui nodes map block display and aspect ratio into block layout" {
 ///|
 test "ui wrapped text contributes lines to auto height" {
   let world = @ecs.require_current_world()
-  let entity_draft = @ecs.require_current_world().spawn_draft()
+  let entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
   entity_draft.add((Text("hello world") : Text))
   entity_draft.add((TextFont(size=16.0) : TextFont))
   entity_draft.add((TextLayout(wrap=WordWrap) : TextLayout))
@@ -122,7 +122,7 @@ test "ui wrapped text contributes lines to auto height" {
 ///|
 test "ui layout uses wrapped text height in the computed node" {
   let world = @ecs.require_current_world()
-  let entity_draft = @ecs.require_current_world().spawn_draft()
+  let entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
   entity_draft.add(
     (
       Node(
@@ -372,7 +372,7 @@ test "ui layout config controls screen-space rounding for viewport-scaled rects"
 test "ui target camera layouts use the camera viewport as screen-space origin" {
   let world = @ecs.require_current_world()
   @window.configure_display(200.0, 120.0, 1.0)
-  let camera_draft = @ecs.require_current_world().spawn_draft()
+  let camera_draft = @ecs.commands(@ecs.require_current_world()).draft()
   camera_draft.add(
     (
       Camera(viewport=Some(CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0)))) :
@@ -384,7 +384,7 @@ test "ui target camera layouts use the camera viewport as screen-space origin" {
   )
   let camera = @ecs_test.spawn_draft(camera_draft)
 
-  let entity_draft = @ecs.require_current_world().spawn_draft()
+  let entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
   entity_draft.add(
     (Node::absolute(Vec2(4.0, 6.0), size=Vec2(20.0, 10.0)) : Node),
   )

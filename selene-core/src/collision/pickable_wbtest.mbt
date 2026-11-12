@@ -29,7 +29,7 @@ fn spawn_pickable_camera(
   order : Int32,
   layers : @visibility.RenderLayers,
 ) -> @ecs.Entity {
-  let camera_entity_draft = world.spawn_draft()
+  let camera_entity_draft = @ecs.commands(world).draft()
   camera_entity_draft.add(
     (
       Camera(order~, viewport=Some(@camera.CameraViewport::from_rect(viewport))) :
@@ -58,7 +58,7 @@ fn spawn_pickable_shape(
   shape : CollisionShape,
   layers~ : @visibility.RenderLayers = RenderLayers(),
 ) -> @ecs.Entity {
-  let entity_draft = world.spawn_draft()
+  let entity_draft = @ecs.commands(world).draft()
   entity_draft.add((Pickable() : Pickable))
   entity_draft.add((shape : CollisionShape))
   entity_draft.add(

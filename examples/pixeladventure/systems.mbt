@@ -417,12 +417,13 @@ fn hurt_player(
 }
 
 ///|
-fn player_input_system(world : @ecs.World) -> Unit {
-  guard (world.get_resource() : GameSession?) is Some(session) else { return }
-  guard (world.get_component(session.player) : PlayerController?)
-    is Some(controller) else {
-    return
-  }
+fn player_input_system(
+  players : @ecs.Query[@ecs.Single[PlayerController]],
+  session_resource : @ecs.Res[GameSession]?,
+) -> Unit {
+  guard session_resource is Some(resource) else { return }
+  let session = resource.get()
+  guard players.get(session.player) is Some(Single(controller)) else { return }
   controller.move_direction = if @input_action.action_pressed(
       pixel_move_left_action(),
     ) {
@@ -690,8 +691,9 @@ fn trigger_system(world : @ecs.World) -> Unit {
 }
 
 ///|
-fn volume_button_system(world : @ecs.World) -> Unit {
-  guard (world.get_resource() : GameSession?) is Some(session) else { return }
+fn volume_button_system(session_resource : @ecs.Res[GameSession]?) -> Unit {
+  guard session_resource is Some(resource) else { return }
+  let session = resource.get()
   for event in @ui.click_event_bus.read(ui_click_reader()) {
     if event.entity == session.volume_button {
       session.volume_on = !session.volume_on

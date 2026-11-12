@@ -1,7 +1,4 @@
 ///|
-pub type System = (World) -> Unit
-
-///|
 pub(all) suberror ScheduleError {
   ReentrantSchedule
   ActiveQuery
@@ -34,7 +31,10 @@ pub fn check_schedule_idle() -> Unit raise ScheduleError {
 /// Runs one complete schedule and applies one frozen batch of its deferred commands.
 /// Commands queued while applying that batch wait for the next schedule.
 /// Nested execution, including execution for another World, is rejected.
-pub fn run_schedule(world : World, run : System) -> Unit raise ScheduleError {
+fn run_schedule(
+  world : World,
+  run : (World) -> Unit,
+) -> Unit raise ScheduleError {
   check_schedule_idle()
   let previous = current_world()
   running_schedule.val = true

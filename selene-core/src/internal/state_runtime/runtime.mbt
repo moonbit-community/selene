@@ -8,8 +8,8 @@ pub(all) enum TransitionKind {
 ///|
 pub(all) struct StateEntry {
   prepare : (@ecs.World, Bool) -> TransitionKind
-  commit : @ecs.System
-  finish : @ecs.System
+  commit : (@ecs.World) -> Unit
+  finish : (@ecs.World) -> Unit
 }
 
 ///|
@@ -36,8 +36,8 @@ pub fn register(world : @ecs.World, entry : StateEntry) -> Unit {
 /// With initial_only, only initial entries are dispatched; requests are retained.
 pub fn advance(
   world : @ecs.World,
-  on_exit~ : @ecs.System,
-  on_enter~ : @ecs.System,
+  on_exit~ : @ecs.Schedule,
+  on_enter~ : @ecs.Schedule,
   initial_only~ : Bool = false,
 ) -> Unit raise @ecs.ScheduleError {
   guard registry_key.get_in(world) is Some(registry) else { return }
@@ -53,7 +53,7 @@ pub fn advance(
   }
   let changed = Ref(false)
   let exiting = Ref(false)
-  @ecs.run_schedule(world, world => {
+  let prepare = @ecs.Schedule().add_exclusive_system(world => {
     for entry in entries {
       match (entry.prepare)(world, initial_only) {
         Unchanged => ()
@@ -64,13 +64,14 @@ pub fn advance(
         }
       }
     }
-    if exiting.val {
-      on_exit(world)
-    }
   })
+  @ecs.Schedule::chain([
+    prepare,
+    on_exit.with_run_if(@ecs.Condition::exclusive(_ => exiting.val)),
+  ]).run(world)
   guard changed.val else { return }
   for entry in entries {
     (entry.commit)(world)
   }
-  @ecs.run_schedule(world, on_enter)
+  on_enter.run(world)
 }

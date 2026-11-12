@@ -77,7 +77,7 @@ fn build_retained_layout_benchmark() -> Array[@ecs.Entity] {
       )
     }
   }
-  try! @ecs.run_schedule(world, _ => ())
+  try! @ecs.Schedule().run(world)
   entities
 }
 
@@ -110,6 +110,6 @@ test "BENCH-UI retained static layout" (b : @bench.T) {
       @ecs.commands(world).despawn(entity)
     }
   }
-  try! @ecs.run_schedule(world, _ => ())
+  try! @ecs.Schedule().run(world)
   @ui.ui_layout_system(world~, 0.0)
 }

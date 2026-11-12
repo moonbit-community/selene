@@ -78,7 +78,7 @@ pub fn spawn_audio(
 ) -> @ecs.Entity {
   let world = @ecs.require_current_world()
   let plan = audio_spawn_plan.get_or_insert_with(world, world => {
-    world.prepare_spawn()
+    @ecs.commands(world).prepare_spawn()
   })
   @ecs.commands(world).spawn_prepared(
     plan,

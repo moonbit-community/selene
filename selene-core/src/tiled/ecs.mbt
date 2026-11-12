@@ -311,7 +311,7 @@ fn spawn_tiled_map_root(
   parent~ : @ecs.Entity?,
   world_map? : TiledWorldMapInstance,
 ) -> @ecs.Entity {
-  let draft = world.spawn_draft()
+  let draft = @ecs.commands(world).draft()
   draft.add(tiled_spatial(settings.position, 0))
   draft.add(TiledMapInstance::{ map, })
   let storage = TiledMapStorage()
@@ -368,7 +368,7 @@ fn spawn_tiled_layers(
     }
     let layer_zindex = settings.zindex + layer_index * settings.layer_z_step
     layer_index += 1
-    let draft = world.spawn_draft()
+    let draft = @ecs.commands(world).draft()
     let depth = if layer.kind is ImageLayer(image_layer) &&
       image_layer.image is Some(_) {
       layer_zindex
@@ -482,7 +482,7 @@ fn spawn_tiled_tile_layer(
       continue
     }
     let tile_position = tiled_cell_position(map, tileset, cell)
-    let draft = world.spawn_draft()
+    let draft = @ecs.commands(world).draft()
     guard tiled_transform_from_2d_affine(
         tiled_gid_transform(cell.gid, tiled_tileset_tile_size(map, tileset)),
       )
@@ -549,7 +549,7 @@ fn spawn_tiled_object_layer(
   settings : TiledSpawnSettings,
 ) -> Unit {
   for object in object_layer.objects {
-    let draft = world.spawn_draft()
+    let draft = @ecs.commands(world).draft()
     let spatial = if object.gid is Some(gid) &&
       map.tileset_for_gid(gid.tile_id) is Some(tileset) {
       let offset = tiled_tile_object_position(map, tileset, object)

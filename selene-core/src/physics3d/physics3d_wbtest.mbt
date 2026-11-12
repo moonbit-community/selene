@@ -26,7 +26,7 @@ fn near(actual : Double, expected : Double, tolerance : Double) -> Bool {
 ///|
 test "same-entity collider uses body world transform only once" {
   with_physics3d_test_world(fn(world) raise {
-    let body_draft = @ecs.require_current_world().spawn_draft()
+    let body_draft = @ecs.commands(@ecs.require_current_world()).draft()
     body_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(4.0, 0.0, 0.0)) :
@@ -49,7 +49,7 @@ test "same-entity collider uses body world transform only once" {
 ///|
 test "child collider stays relative to its rigid-body ancestor" {
   with_physics3d_test_world(fn(world) raise {
-    let body_draft = @ecs.require_current_world().spawn_draft()
+    let body_draft = @ecs.commands(@ecs.require_current_world()).draft()
     body_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(4.0, 0.0, 0.0)) :
@@ -58,7 +58,7 @@ test "child collider stays relative to its rigid-body ancestor" {
     body_draft.add((Fixed : RigidBody))
     let body = @ecs_test.spawn_draft(body_draft)
 
-    let child_draft = @ecs.require_current_world().spawn_draft()
+    let child_draft = @ecs.commands(@ecs.require_current_world()).draft()
     child_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(0.0, 0.0, 2.0)) :
@@ -91,7 +91,7 @@ test "child collider stays relative to its rigid-body ancestor" {
 ///|
 test "query filter groups and contact force events work in 3d" {
   with_physics3d_test_world(fn(world) raise {
-    let filtered_draft = @ecs.require_current_world().spawn_draft()
+    let filtered_draft = @ecs.commands(@ecs.require_current_world()).draft()
     filtered_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(5.0, 0.0, 0.0)) :
@@ -102,7 +102,7 @@ test "query filter groups and contact force events work in 3d" {
     filtered_draft.add((CollisionGroups(0x1, 0xFFFF_FFFF) : CollisionGroups))
     let filtered = @ecs_test.spawn_draft(filtered_draft)
 
-    let excluded_draft = @ecs.require_current_world().spawn_draft()
+    let excluded_draft = @ecs.commands(@ecs.require_current_world()).draft()
     excluded_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)) :
@@ -147,7 +147,7 @@ test "query filter groups and contact force events work in 3d" {
 ///|
 test "query filter exclude_entity and body filter work in 3d" {
   with_physics3d_test_world(fn(world) raise {
-    let dynamic_entity_draft = @ecs.require_current_world().spawn_draft()
+    let dynamic_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     dynamic_entity_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)) :
@@ -157,7 +157,7 @@ test "query filter exclude_entity and body filter work in 3d" {
     dynamic_entity_draft.add((Collider::ball(0.5) : Collider))
     let dynamic_entity = @ecs_test.spawn_draft(dynamic_entity_draft)
 
-    let fixed_entity_draft = @ecs.require_current_world().spawn_draft()
+    let fixed_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     fixed_entity_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(5.0, 0.0, 0.0)) :
@@ -196,7 +196,7 @@ test "query filter exclude_entity and body filter work in 3d" {
 ///|
 test "query filter exclude_sensors and exclude_solids work in 3d" {
   with_physics3d_test_world(fn(world) raise {
-    let sensor_entity_draft = @ecs.require_current_world().spawn_draft()
+    let sensor_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     sensor_entity_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)) :
@@ -206,7 +206,7 @@ test "query filter exclude_sensors and exclude_solids work in 3d" {
     sensor_entity_draft.add((Sensor::{ } : Sensor))
     let sensor_entity = @ecs_test.spawn_draft(sensor_entity_draft)
 
-    let solid_entity_draft = @ecs.require_current_world().spawn_draft()
+    let solid_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     solid_entity_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(5.0, 0.0, 0.0)) :
@@ -243,7 +243,7 @@ test "query filter exclude_sensors and exclude_solids work in 3d" {
 ///|
 test "cast_shape respects body filter and exclude_entity in 3d" {
   with_physics3d_test_world(fn(world) raise {
-    let dynamic_entity_draft = @ecs.require_current_world().spawn_draft()
+    let dynamic_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     dynamic_entity_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)) :
@@ -253,7 +253,7 @@ test "cast_shape respects body filter and exclude_entity in 3d" {
     dynamic_entity_draft.add((Collider::ball(0.5) : Collider))
     let dynamic_entity = @ecs_test.spawn_draft(dynamic_entity_draft)
 
-    let fixed_entity_draft = @ecs.require_current_world().spawn_draft()
+    let fixed_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     fixed_entity_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(5.0, 0.0, 0.0)) :
@@ -302,7 +302,7 @@ test "cast_shape respects body filter and exclude_entity in 3d" {
 ///|
 test "cast_shape respects exclude_sensors and exclude_solids in 3d" {
   with_physics3d_test_world(fn(world) raise {
-    let sensor_entity_draft = @ecs.require_current_world().spawn_draft()
+    let sensor_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     sensor_entity_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)) :
@@ -312,7 +312,7 @@ test "cast_shape respects exclude_sensors and exclude_solids in 3d" {
     sensor_entity_draft.add((Sensor::{ } : Sensor))
     let sensor_entity = @ecs_test.spawn_draft(sensor_entity_draft)
 
-    let solid_entity_draft = @ecs.require_current_world().spawn_draft()
+    let solid_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     solid_entity_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(5.0, 0.0, 0.0)) :
@@ -357,7 +357,7 @@ test "cast_shape respects exclude_sensors and exclude_solids in 3d" {
 ///|
 test "query filter only_kinematic targets kinematic bodies in 3d" {
   with_physics3d_test_world(fn(world) raise {
-    let kinematic_entity_draft = @ecs.require_current_world().spawn_draft()
+    let kinematic_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     kinematic_entity_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(2.0, 0.0, 0.0)) :
@@ -367,7 +367,7 @@ test "query filter only_kinematic targets kinematic bodies in 3d" {
     kinematic_entity_draft.add((Collider::ball(0.5) : Collider))
     let kinematic_entity = @ecs_test.spawn_draft(kinematic_entity_draft)
 
-    let dynamic_entity_draft = @ecs.require_current_world().spawn_draft()
+    let dynamic_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     dynamic_entity_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(5.0, 0.0, 0.0)) :
@@ -402,7 +402,7 @@ test "query filter only_kinematic targets kinematic bodies in 3d" {
 ///|
 test "collision and intersection events map to selene event buses" {
   with_physics3d_test_world(fn(world) raise {
-    let sensor_entity_draft = @ecs.require_current_world().spawn_draft()
+    let sensor_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     sensor_entity_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(10.0, 0.0, 0.0)) :
@@ -412,7 +412,7 @@ test "collision and intersection events map to selene event buses" {
     sensor_entity_draft.add((Sensor::{ } : Sensor))
     let sensor_entity = @ecs_test.spawn_draft(sensor_entity_draft)
 
-    let other_entity_draft = @ecs.require_current_world().spawn_draft()
+    let other_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     other_entity_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(20.0, 0.0, 0.0)) :
@@ -458,7 +458,7 @@ test "collision and intersection events map to selene event buses" {
 ///|
 test "rapier context project_point and intersections_with_shape work" {
   with_physics3d_test_world(fn(world) raise {
-    let collider_entity_draft = @ecs.require_current_world().spawn_draft()
+    let collider_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     collider_entity_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(1.0, 0.0, 0.0)) :
@@ -483,7 +483,7 @@ test "rapier context project_point and intersections_with_shape work" {
 ///|
 test "impulse joint creates a rapier handle" {
   with_physics3d_test_world(fn(world) raise {
-    let parent_draft = @ecs.require_current_world().spawn_draft()
+    let parent_draft = @ecs.commands(@ecs.require_current_world()).draft()
     parent_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(0.0, 0.0, 0.0)) :
@@ -493,7 +493,7 @@ test "impulse joint creates a rapier handle" {
     parent_draft.add((Collider::ball(0.5) : Collider))
     let parent = @ecs_test.spawn_draft(parent_draft)
 
-    let child_draft = @ecs.require_current_world().spawn_draft()
+    let child_draft = @ecs.commands(@ecs.require_current_world()).draft()
     child_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(0.0, 1.0, 0.0)) :
@@ -517,12 +517,12 @@ test "impulse joint creates a rapier handle" {
 ///|
 test "impulse joint contacts_enabled disables body contact pairs" {
   with_physics3d_test_world(fn(world) raise {
-    let parent_draft = @ecs.require_current_world().spawn_draft()
+    let parent_draft = @ecs.commands(@ecs.require_current_world()).draft()
     parent_draft.add((Fixed : RigidBody))
     parent_draft.add((Collider::ball(0.5) : Collider))
     let parent = @ecs_test.spawn_draft(parent_draft)
 
-    let child_draft = @ecs.require_current_world().spawn_draft()
+    let child_draft = @ecs.commands(@ecs.require_current_world()).draft()
     child_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(0.0, 1.0, 0.0)) :
@@ -549,12 +549,12 @@ test "impulse joint contacts_enabled disables body contact pairs" {
 ///|
 test "impulse rope and spring contacts_enabled disable body contact pairs" {
   with_physics3d_test_world(fn(world) raise {
-    let parent_draft = @ecs.require_current_world().spawn_draft()
+    let parent_draft = @ecs.commands(@ecs.require_current_world()).draft()
     parent_draft.add((Fixed : RigidBody))
     parent_draft.add((Collider::ball(0.5) : Collider))
     let parent = @ecs_test.spawn_draft(parent_draft)
 
-    let rope_child_draft = @ecs.require_current_world().spawn_draft()
+    let rope_child_draft = @ecs.commands(@ecs.require_current_world()).draft()
     rope_child_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(0.0, 1.0, 0.0)) :
@@ -569,7 +569,7 @@ test "impulse rope and spring contacts_enabled disable body contact pairs" {
     )
     ignore(@ecs_test.spawn_draft(rope_child_draft))
 
-    let spring_child_draft = @ecs.require_current_world().spawn_draft()
+    let spring_child_draft = @ecs.commands(@ecs.require_current_world()).draft()
     spring_child_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(0.0, 2.0, 0.0)) :
@@ -599,12 +599,12 @@ test "impulse rope and spring contacts_enabled disable body contact pairs" {
 ///|
 test "multibody joint creates a rapier handle" {
   with_physics3d_test_world(fn(world) raise {
-    let parent_draft = @ecs.require_current_world().spawn_draft()
+    let parent_draft = @ecs.commands(@ecs.require_current_world()).draft()
     parent_draft.add((Fixed : RigidBody))
     parent_draft.add((Collider::ball(0.5) : Collider))
     let parent = @ecs_test.spawn_draft(parent_draft)
 
-    let child_draft = @ecs.require_current_world().spawn_draft()
+    let child_draft = @ecs.commands(@ecs.require_current_world()).draft()
     child_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(0.0, 1.0, 0.0)) :
@@ -631,13 +631,13 @@ test "multibody joint creates a rapier handle" {
 ///|
 test "impulse joints expose generic handles for all 3d joint variants" {
   with_physics3d_test_world(fn(world) raise {
-    let parent_draft = @ecs.require_current_world().spawn_draft()
+    let parent_draft = @ecs.commands(@ecs.require_current_world()).draft()
     parent_draft.add((Fixed : RigidBody))
     parent_draft.add((Collider::ball(0.5) : Collider))
     let parent = @ecs_test.spawn_draft(parent_draft)
 
     let spawn_child = fn(y : Double, joint : Joint) -> @ecs.Entity {
-      let child_draft = @ecs.require_current_world().spawn_draft()
+      let child_draft = @ecs.commands(@ecs.require_current_world()).draft()
       child_draft.add(
         (
           Spatial(@transform.Transform::from_xyz(0.0, y, 0.0)) :
@@ -683,13 +683,13 @@ test "impulse joints expose generic handles for all 3d joint variants" {
 ///|
 test "multibody joints expose generic handles for all 3d joint variants" {
   with_physics3d_test_world(fn(world) raise {
-    let parent_draft = @ecs.require_current_world().spawn_draft()
+    let parent_draft = @ecs.commands(@ecs.require_current_world()).draft()
     parent_draft.add((Fixed : RigidBody))
     parent_draft.add((Collider::ball(0.5) : Collider))
     let parent = @ecs_test.spawn_draft(parent_draft)
 
     let spawn_child = fn(y : Double, joint : Joint) -> @ecs.Entity {
-      let child_draft = @ecs.require_current_world().spawn_draft()
+      let child_draft = @ecs.commands(@ecs.require_current_world()).draft()
       child_draft.add(
         (
           Spatial(@transform.Transform::from_xyz(0.0, y, 0.0)) :
@@ -821,7 +821,7 @@ test "prismatic joint forwards limits and motor state" {
 ///|
 test "dominance is forwarded to rapier rigid body" {
   with_physics3d_test_world(fn(world) raise {
-    let body_entity_draft = @ecs.require_current_world().spawn_draft()
+    let body_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     body_entity_draft.add((Dynamic : RigidBody))
     body_entity_draft.add((Dominance(5) : Dominance))
     let body_entity = @ecs_test.spawn_draft(body_entity_draft)
@@ -838,7 +838,7 @@ test "dominance is forwarded to rapier rigid body" {
 ///|
 test "solver groups are forwarded to rapier collider" {
   with_physics3d_test_world(fn(world) raise {
-    let collider_entity_draft = @ecs.require_current_world().spawn_draft()
+    let collider_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     collider_entity_draft.add((Collider::ball(0.5) : Collider))
     collider_entity_draft.add((SolverGroups(0x2, 0x4) : SolverGroups))
     let collider_entity = @ecs_test.spawn_draft(collider_entity_draft)
@@ -859,7 +859,7 @@ test "contact force threshold toggles contact-force active events" {
   with_physics3d_test_world(fn(world) raise {
     let default_entity = @ecs_test.spawn1(world, Collider::ball(0.5))
 
-    let low_threshold_entity_draft = @ecs.require_current_world().spawn_draft()
+    let low_threshold_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     low_threshold_entity_draft.add((Collider::ball(0.5) : Collider))
     low_threshold_entity_draft.add(
       (ContactForceEventThreshold(0.5) : ContactForceEventThreshold),
@@ -901,7 +901,7 @@ test "contact force threshold toggles contact-force active events" {
 ///|
 test "kinematic character controller writes output and clears consumed translation" {
   with_physics3d_test_world(fn(world) raise {
-    let floor_draft = @ecs.require_current_world().spawn_draft()
+    let floor_draft = @ecs.commands(@ecs.require_current_world()).draft()
     floor_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(0.0, -1.0, 0.0)) :
@@ -910,7 +910,7 @@ test "kinematic character controller writes output and clears consumed translati
     floor_draft.add((Collider::cuboid(Vec3(4.0, 0.5, 4.0)) : Collider))
     ignore(@ecs_test.spawn_draft(floor_draft))
 
-    let actor_draft = @ecs.require_current_world().spawn_draft()
+    let actor_draft = @ecs.commands(@ecs.require_current_world()).draft()
     actor_draft.add(
       (
         Spatial(@transform.Transform::from_xyz(0.0, 0.5, 0.0)) :
@@ -1123,7 +1123,7 @@ test "collider3d debug color distinguishes body and sensor types" {
 ///|
 test "collider3d debug system appends wire lines to render3d pipeline" {
   with_physics3d_test_world(fn(world) raise {
-    let entity_draft = @ecs.require_current_world().spawn_draft()
+    let entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     entity_draft.add((Collider::cuboid(Vec3(1.0, 1.0, 1.0)) : Collider))
     entity_draft.add(
       (

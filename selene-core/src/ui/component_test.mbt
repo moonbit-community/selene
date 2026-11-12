@@ -7,12 +7,14 @@ test "typed UI queries stay bound to their explicit World" {
   let entity = @ecs_test.spawn1(first, @ui.Node())
   let found_by_accessor = Ref(false)
 
-  @ecs.run_schedule(first, world => {
+  @ecs.Schedule()
+  .add_exclusive_system(world => {
     found_by_accessor.val = (world.query() : @ecs.Query[@ecs.Single[@ui.Node]]).contains(
       entity,
     )
     @ecs.commands(@ecs.require_current_world()).delete(entity)
   })
+  .run(first)
 
   assert_true(found_by_accessor.val)
   assert_false(nodes.contains(entity))

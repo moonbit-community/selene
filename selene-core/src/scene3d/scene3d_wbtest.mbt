@@ -438,7 +438,7 @@ test "instantiate_scene_instance installs animation components without autoplay"
     scene,
     @transform.Transform::default(),
   )
-  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+  try! @ecs.Schedule().run(@ecs.require_current_world())
   inspect(instance.animations.contains("idle"), content="true")
   inspect(
     (world.query() : @ecs.Query[@ecs.Single[@animation.AnimationPlayer]]).contains(
@@ -614,7 +614,7 @@ test "canceled scene subtrees release their cloned meshes" {
     )
     let cloned = @render3d.take_dirty_mesh_assets().map(pair => pair.0)
     assert_eq(cloned.length(), renderer_count)
-    @ecs.run_schedule(world, _ => ())
+    @ecs.Schedule().run(world)
     assert_false(instance.root.is_valid_in(world))
     let released = @render3d.take_released_mesh_assets()
     for handle in cloned {

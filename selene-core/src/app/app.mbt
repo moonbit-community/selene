@@ -17,7 +17,7 @@ const DEFAULT_MAX_FIXED_STEPS_PER_FRAME : UInt32 = 8
 pub type Plugin = (App) -> App
 
 ///|
-pub(all) struct App {
+struct App {
   viewport_height : Double
   viewport_width : Double
   zoom : Double
@@ -28,9 +28,9 @@ pub(all) struct App {
   world : @ecs.World
   event_registrations : Array[(@ecs.World) -> Unit]
   systems : Array[RegisteredSystem]
-  state_validations : Array[@ecs.System]
-  state_on_enter : Array[@ecs.System]
-  state_on_exit : Array[@ecs.System]
+  state_validations : Array[(@ecs.World) -> Unit]
+  state_on_enter : @ecs.Schedule
+  state_on_exit : @ecs.Schedule
 }
 
 ///|
@@ -48,8 +48,8 @@ pub fn App::App() -> App {
     event_registrations: [],
     systems: [],
     state_validations: [],
-    state_on_enter: [],
-    state_on_exit: [],
+    state_on_enter: Schedule(),
+    state_on_exit: Schedule(),
   }
 }
 

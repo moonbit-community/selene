@@ -8,7 +8,7 @@ import {
 // Values
 pub fn[T : StateType] current(@ecs.World) -> T
 
-pub fn[T : StateType] in_state(T) -> (@ecs.World) -> Bool
+pub fn[T : StateType] in_state(T) -> @ecs.Condition
 
 pub fn[T : StateType] initialize(@ecs.World, T) -> Unit
 
@@ -21,6 +21,18 @@ pub fn[T : StateType] set_next(@ecs.World, T) -> Unit
 // Errors
 
 // Types and methods
+type NextState[T]
+pub fn[T : StateType] NextState::prepare(@ecs.World) -> (@ecs.World) -> Self[T]
+pub fn[T] NextState::set(Self[T], T) -> Unit
+pub impl[T : StateType] @ecs.SystemParam for NextState[T]
+
+type State[T]
+pub fn[T] State::get(Self[T]) -> T
+pub fn[T : Eq] State::is_entering(Self[T], T) -> Bool
+pub fn[T : Eq] State::is_exiting(Self[T], T) -> Bool
+pub fn[T : StateType] State::prepare(@ecs.World) -> (@ecs.World) -> Self[T]
+pub impl[T : StateType] @ecs.SystemParam for State[T]
+
 type StateKey[T]
 pub fn[T] StateKey::StateKey() -> Self[T]
 

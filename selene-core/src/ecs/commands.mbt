@@ -20,7 +20,7 @@ pub fn[T : Bundle] Commands::spawn(
   values : T,
   parent? : Entity,
 ) -> Entity {
-  self.spawn_prepared(self.world.prepare_spawn(), values, parent?)
+  self.spawn_prepared(self.prepare_spawn(), values, parent?)
 }
 
 ///|

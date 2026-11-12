@@ -30,7 +30,7 @@ test "BENCH-UI prepare borders in paint order" (b : @bench.T) {
         ignore(@ecs.commands(world).spawn1(node, parent=root))
       }
     }
-    try! @ecs.run_schedule(world, _ => ())
+    try! @ecs.Schedule().run(world)
     @ui.ui_layout_system(world~, 0.0)
     @ui.ui_extract_system(0.0)
     let frame = () => {

@@ -6,9 +6,29 @@ import {
 }
 
 // Values
+pub fn after(SystemSet) -> SystemOrdering
+
 pub fn alive_entity_count() -> Int32
 
 pub fn alive_in_world(World) -> (Entity) -> Bool
+
+pub fn[R] args0(() -> R) -> (Unit) -> R
+
+pub fn[A, B, R] args2((A, B) -> R) -> ((A, B)) -> R
+
+pub fn[A, B, C, R] args3((A, B, C) -> R) -> ((A, B, C)) -> R
+
+pub fn[A, B, C, D, R] args4((A, B, C, D) -> R) -> ((A, B, C, D)) -> R
+
+pub fn[A, B, C, D, E, R] args5((A, B, C, D, E) -> R) -> ((A, B, C, D, E)) -> R
+
+pub fn[A, B, C, D, E, F, R] args6((A, B, C, D, E, F) -> R) -> ((A, B, C, D, E, F)) -> R
+
+pub fn[A, B, C, D, E, F, G, R] args7((A, B, C, D, E, F, G) -> R) -> ((A, B, C, D, E, F, G)) -> R
+
+pub fn[A, B, C, D, E, F, G, H, R] args8((A, B, C, D, E, F, G, H) -> R) -> ((A, B, C, D, E, F, G, H)) -> R
+
+pub fn before(SystemSet) -> SystemOrdering
 
 pub fn bootstrap_world() -> World
 
@@ -26,13 +46,13 @@ pub fn get_roots() -> Iter[Entity]
 
 pub fn has_pending_commands(World) -> Bool
 
+pub fn in_set(SystemSet) -> SystemOrdering
+
 pub fn iter_entities() -> Iter[Entity]
 
-pub fn[T : QueryData] query_system((Query[T]) -> Unit, filters? : (World) -> Array[EntityFilter]) -> (World) -> Unit
+pub fn merge(SystemOrdering, SystemOrdering) -> SystemOrdering
 
 pub fn require_current_world() -> World
-
-pub fn run_schedule(World, (World) -> Unit) -> Unit raise ScheduleError
 
 pub fn set_current_world(World) -> Unit
 
@@ -47,14 +67,22 @@ type Commands
 pub fn Commands::add(Self, (World) -> Unit) -> Unit
 pub fn Commands::delete(Self, Entity) -> Unit
 pub fn Commands::despawn(Self, Entity) -> Unit
+pub fn Commands::draft(Self) -> SpawnDraft
+pub fn Commands::prepare(World) -> (World) -> Self
+pub fn[T : Bundle] Commands::prepare_spawn(Self) -> SpawnPlan[T]
 pub fn Commands::respawn(Self, Entity) -> Unit
 pub fn[T : Bundle] Commands::spawn(Self, T, parent? : Entity) -> Entity
 pub fn[T : Component] Commands::spawn1(Self, T, parent? : Entity) -> Entity
 pub fn Commands::spawn_draft(Self, SpawnDraft, parent? : Entity) -> Entity
 pub fn[T] Commands::spawn_prepared(Self, SpawnPlan[T], T, parent? : Entity) -> Entity
+pub impl SystemParam for Commands
 
 type ComponentKey[T]
 pub fn[T] ComponentKey::ComponentKey() -> Self[T]
+
+type Condition
+pub fn[P : SystemParam] Condition::Condition((P) -> Bool) -> Self
+pub fn Condition::exclusive((World) -> Bool) -> Self
 
 #derive(Eq, Hash, @debug.Debug)
 type Entity
@@ -103,10 +131,12 @@ pub fn[T] Query::iter2(Self[T]) -> Iter2[Entity, T]
 pub fn[T] Query::keys(Self[T]) -> Iter[Entity]
 pub fn[T] Query::length(Self[T]) -> Int32
 pub fn[T] Query::order_span(Self[T]) -> Int32
+pub fn[T : QueryData] Query::prepare(World) -> (World) -> Self[T]
 pub fn[T] Query::single(Self[T]) -> (Entity, T)?
 pub fn[T] Query::to_array(Self[T]) -> Array[(Entity, T)]
 pub fn[T] Query::values(Self[T]) -> Iter[T]
 pub fn[T] Query::with_filters(Self[T], Array[EntityFilter]) -> Self[T]
+pub impl[T : QueryData] SystemParam for Query[T]
 
 type QueryBatch[T]
 pub fn[T] QueryBatch::entity(Self[T], Int32) -> Entity
@@ -133,11 +163,28 @@ type ReadColumn[T]
 pub fn[T] ReadColumn::get(Self[T], Int32) -> T
 pub fn[T] ReadColumn::length(Self[T]) -> Int32
 
+type Res[T]
+pub fn[T] Res::get(Self[T]) -> T
+pub fn[T : Resource] Res::prepare(World) -> (World) -> Self[T]
+pub fn[T] Res::set(Self[T], T) -> Unit
+pub impl[T : Resource] SystemParam for Res[T]
+
 type ResourceKey[T]
 pub fn[T] ResourceKey::ResourceKey() -> Self[T]
 pub fn[T] ResourceKey::get_in(Self[T], World) -> T?
 pub fn[T] ResourceKey::get_or_insert_with(Self[T], World, (World) -> T) -> T
 pub fn[T] ResourceKey::insert_in(Self[T], World, T) -> Unit
+
+type Schedule
+pub fn Schedule::Schedule(deterministic_ordering? : Bool) -> Self
+pub fn Schedule::add(Self, System, system_name? : String, in_set? : SystemSet, before? : Array[SystemSet], after? : Array[SystemSet], run_if? : Condition) -> Self
+pub fn Schedule::add_exclusive_system(Self, (World) -> Unit, system_name? : String, in_set? : SystemSet, before? : Array[SystemSet], after? : Array[SystemSet], run_if? : Condition) -> Self
+pub fn[P : SystemParam] Schedule::add_system(Self, (P) -> Unit, system_name? : String, in_set? : SystemSet, before? : Array[SystemSet], after? : Array[SystemSet], run_if? : Condition) -> Self
+pub fn Schedule::add_systems(Self, Array[System], in_set? : SystemSet, before? : Array[SystemSet], after? : Array[SystemSet], run_if? : Condition) -> Self
+pub fn Schedule::chain(Array[Self]) -> Self
+pub fn Schedule::merge(Array[Self], deterministic_ordering? : Bool) -> Self
+pub fn Schedule::run(Self, World) -> Unit raise ScheduleError
+pub fn Schedule::with_run_if(Self, Condition) -> Self
 
 #derive(Eq, @debug.Debug)
 pub(all) struct Single[T](T)
@@ -152,6 +199,30 @@ pub fn[T : Component] SpawnDraft::add(Self, T) -> Unit
 
 type SpawnPlan[T]
 pub fn[A, B] SpawnPlan::combine(Self[A], Self[B]) -> Self[(A, B)]
+
+type System
+pub fn[P : SystemParam] System::System((P) -> Unit) -> Self
+pub fn System::exclusive((World) -> Unit) -> Self
+
+pub(all) struct SystemOrdering {
+  set : SystemSet?
+  before : Array[SystemSet]
+  after : Array[SystemSet]
+}
+pub fn SystemOrdering::with_after(Self, SystemSet) -> Self
+pub fn SystemOrdering::with_before(Self, SystemSet) -> Self
+pub fn SystemOrdering::with_set(Self, SystemSet) -> Self
+
+#derive(Eq, Hash, @debug.Debug)
+pub(all) struct SystemSet {
+  name : String
+}
+pub fn SystemSet::SystemSet(String) -> Self
+pub fn SystemSet::equal(Self, Self) -> Bool
+pub fn SystemSet::hash(Self) -> Int32
+pub fn SystemSet::hash_combine(Self, Hasher) -> Unit
+pub fn SystemSet::not_equal(Self, Self) -> Bool
+pub fn SystemSet::to_repr(Self) -> @debug.Repr
 
 type With[T]
 pub fn[T : Component] With::With(World) -> Self[T]
@@ -180,12 +251,10 @@ pub fn World::get_roots(Self) -> Iter[Entity]
 pub fn World::id(Self) -> UInt32
 pub fn[T : Resource] World::insert_resource(Self, T) -> Unit
 pub fn World::is_alive(Self, Entity) -> Bool
-pub fn[T : Bundle] World::prepare_spawn(Self) -> SpawnPlan[T]
 pub fn[T : QueryData] World::query(Self, filters? : Array[EntityFilter]) -> Query[T]
 pub fn[T : Component] World::query1(Self, filters? : Array[EntityFilter]) -> Query[Single[T]]
 pub fn[T : Resource] World::resource(Self) -> T
 pub fn[T : Component] World::set_component(Self, Entity, T) -> Unit
-pub fn World::spawn_draft(Self) -> SpawnDraft
 
 type WriteColumn[T]
 #alias(op_get)
@@ -195,7 +264,6 @@ pub fn[T] WriteColumn::length(Self[T]) -> Int32
 pub fn[T] WriteColumn::set(Self[T], Int32, T) -> Unit
 
 // Type aliases
-pub type System = (World) -> Unit
 
 // Traits
 pub(open) trait Bundle {
@@ -228,3 +296,16 @@ pub impl[A : Component, B : Component, C : Component, D : Component, E : Compone
 pub(open) trait Resource {
   fn resource_key() -> ResourceKey[Self]
 }
+
+pub(open) trait SystemParam {
+  fn prepare(World) -> (World) -> Self
+}
+pub impl SystemParam for Unit
+pub impl[T : Resource] SystemParam for Res[T]?
+pub impl[A : SystemParam, B : SystemParam] SystemParam for (A, B)
+pub impl[A : SystemParam, B : SystemParam, C : SystemParam] SystemParam for (A, B, C)
+pub impl[A : SystemParam, B : SystemParam, C : SystemParam, D : SystemParam] SystemParam for (A, B, C, D)
+pub impl[A : SystemParam, B : SystemParam, C : SystemParam, D : SystemParam, E : SystemParam] SystemParam for (A, B, C, D, E)
+pub impl[A : SystemParam, B : SystemParam, C : SystemParam, D : SystemParam, E : SystemParam, F : SystemParam] SystemParam for (A, B, C, D, E, F)
+pub impl[A : SystemParam, B : SystemParam, C : SystemParam, D : SystemParam, E : SystemParam, F : SystemParam, G : SystemParam] SystemParam for (A, B, C, D, E, F, G)
+pub impl[A : SystemParam, B : SystemParam, C : SystemParam, D : SystemParam, E : SystemParam, F : SystemParam, G : SystemParam, H : SystemParam] SystemParam for (A, B, C, D, E, F, G, H)

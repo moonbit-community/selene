@@ -6,17 +6,21 @@ test "system sets order an application stage independently of registration order
     None => @ecs.clear_current_world()
   })
   let world = @ecs.World()
-  let first = @app.SystemSet("first")
-  let middle = @app.SystemSet("middle")
-  let last = @app.SystemSet("last")
+  let first = @ecs.SystemSet("first")
+  let middle = @ecs.SystemSet("middle")
+  let last = @ecs.SystemSet("last")
   let calls = []
   @app.App()
   .with_world(world)
-  .add_system(Update, _ => calls.push(3), in_set=last)
-  .add_system(Update, _ => calls.push(2), in_set=middle, before=[last], after=[
-    first,
-  ])
-  .add_system(Update, _ => calls.push(1), in_set=first)
+  .add_system(Update, fn(_ : Unit) { calls.push(3) }, in_set=last)
+  .add_system(
+    Update,
+    fn(_ : Unit) { calls.push(2) },
+    in_set=middle,
+    before=[last],
+    after=[first],
+  )
+  .add_system(Update, fn(_ : Unit) { calls.push(1) }, in_set=first)
   .run_frames(1, raw_delta=0.125, fixed_delta_override=Some(1.0))
   assert_eq(calls, [1, 2, 3])
 }

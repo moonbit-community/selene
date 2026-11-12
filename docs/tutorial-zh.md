@@ -155,15 +155,15 @@ pub fn run() -> Unit {
   .with_image_smooth(false)
   .with_zoom(2.0)
   .add_plugin(@plugins.default_plugin)
-  .add_system(Startup, game_start)
-  .add_system(Update, player_input_system)
-  .add_system(FixedPreUpdate, player_controller_system)
-  .add_system(Update, trigger_system)
-  .add_system(Update, pixeladventure_camera_follow_system)
-  .add_system(FixedPostUpdate, player_bird_contact_system)
-  .add_system(FixedPostUpdate, bird_patrol_system)
+  .add_exclusive_system(Startup, game_start)
+  .add_system(Update, @ecs.args2(player_input_system))
+  .add_exclusive_system(FixedPreUpdate, player_controller_system)
+  .add_exclusive_system(Update, trigger_system)
+  .add_exclusive_system(Update, pixeladventure_camera_follow_system)
+  .add_exclusive_system(FixedPostUpdate, player_bird_contact_system)
+  .add_exclusive_system(FixedPostUpdate, bird_patrol_system)
   .add_system(PostUpdate, volume_button_system)
-  .add_system(PostUpdate, hud_sync_system)
+  .add_exclusive_system(PostUpdate, hud_sync_system)
   .run()
 }
 ```
@@ -204,10 +204,11 @@ priv struct PlayerController {
 ```
 
 启动时会先清理上一轮实体，再加载关卡并用 `world.insert_resource(...)`
-插入新的 `GameSession`。系统通过 `world.get_resource()` 读取会话，
-通过 `world.query1()` 创建类型化的 `@ecs.Query[@ecs.Single[PlayerController]]` 来访问玩家控制器。
-单实体读取和替换分别使用 `world.get_component(entity)` 和
-`world.set_component(entity, value)`。示例包对 `model.mbt` 应用以下生成规则。
+插入新的 `GameSession`。玩家输入系统通过 `args2` 直接接收
+`Query[Single[PlayerController]]` 和可选的 `Res[GameSession]?`，音量系统直接接收会话资源。
+需要协调整个 World 的系统显式使用 `add_exclusive_system` 注册，其中的单实体读取和替换
+分别使用 `world.get_component(entity)` 和 `world.set_component(entity, value)`。
+示例包对 `model.mbt` 应用以下生成规则。
 
 ```moonbit
 dev_build(rule: "selene_codegen", input: "model.mbt", output: "model.g.mbt")

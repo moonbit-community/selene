@@ -156,7 +156,9 @@ fn spawn_player(world~ : @ecs.World) -> @ecs.Entity {
     offset=Vec2(-PLAYER_SIZE / 2.0, -PLAYER_SIZE / 2.0),
   )
   let (animation_controller, graph) = build_player_animation_controller()
-  let plan = world.prepare_spawn().combine(world.prepare_spawn())
+  let plan = @ecs.commands(world)
+    .prepare_spawn()
+    .combine(@ecs.commands(world).prepare_spawn())
   let entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
     plan,
     (

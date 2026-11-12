@@ -4,7 +4,7 @@ fn[T : Bundle] World::spawn(
   values : T,
   parent? : Entity,
 ) -> Entity {
-  self.prepare_spawn().spawn(values, parent?)
+  commands(self).prepare_spawn().spawn(values, parent?)
 }
 
 ///|

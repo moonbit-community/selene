@@ -479,7 +479,7 @@ fn spawn_tiled_physics_spec(
   spec : TiledPhysicsSpawnSpec,
   settings : TiledPhysicsSettings,
 ) -> Unit {
-  let draft = world.spawn_draft()
+  let draft = @ecs.commands(world).draft()
   let filter = if spec.sensor {
     settings.sensor_filter
   } else {

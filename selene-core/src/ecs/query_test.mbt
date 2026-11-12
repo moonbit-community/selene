@@ -31,9 +31,11 @@ test "component queries report a permanently deleted handle as removed" {
   let query : @ecs.Query[@ecs.Single[Position]] = world.query()
   let reader : @ecs.QueryReader[@ecs.Single[Position]] = QueryReader()
   assert_eq(reader.read(query).added, [(old, Single(Position(10)))])
-  @ecs.run_schedule(world, _ => {
+  @ecs.Schedule()
+  .add_exclusive_system(_ => {
     @ecs.commands(@ecs.require_current_world()).delete(old)
   })
+  .run(world)
   let replacement = @ecs_test.spawn1(world, Position(20))
   assert_eq(replacement.slot_index(), old.slot_index())
   let delta = reader.read(query)
@@ -109,9 +111,11 @@ test "panic point writes cannot target another World" {
 test "panic point writes reject a deleted generation after slot reuse" {
   let world = @ecs.World()
   let old = @ecs_test.spawn1(world, Position(1))
-  @ecs.run_schedule(world, _ => {
+  @ecs.Schedule()
+  .add_exclusive_system(_ => {
     @ecs.commands(@ecs.require_current_world()).delete(old)
   })
+  .run(world)
   ignore(@ecs_test.spawn1(world, Position(2)))
   world.set_component(old, Position(3))
 }
@@ -227,11 +231,13 @@ test "query snapshots survive deletion and slot reuse explicitly" {
   let deleted = @ecs_test.spawn1(world, Position(2))
   let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
   let snapshot = query.to_array()
-  @ecs.run_schedule(world, _ => {
+  @ecs.Schedule()
+  .add_exclusive_system(_ => {
     @ecs.commands(@ecs.require_current_world()).delete(deleted)
     ignore(@ecs.commands(world).spawn1(Position(3)))
     world.set_component(first, Position(10))
   })
+  .run(world)
   assert_eq(snapshot, [
     (first, Single(Position(1))),
     (deleted, Single(Position(2))),
@@ -288,7 +294,9 @@ test "lazy query iterators observe value writes and ignore other World changes" 
   assert_eq(entries.next(), Some((first, Single(Position(10)))))
   assert_eq(pairs.next(), Some((first, Single(Position(10)))))
   assert_eq(values.next(), Some(Single(Position(10))))
-  @ecs.run_schedule(world, _ => world.set_component(second, Position(20)))
+  @ecs.Schedule()
+  .add_exclusive_system(_ => world.set_component(second, Position(20)))
+  .run(world)
   ignore(@ecs_test.spawn1(other, Position(99)))
   assert_eq(entries.next(), Some((second, Single(Position(20)))))
   assert_eq(pairs.next(), Some((second, Single(Position(20)))))
@@ -326,7 +334,9 @@ test "early exit discarded and nested query iterators do not retain locks" {
     }
   }
   assert_eq(count, 4)
-  @ecs.run_schedule(world, _ => ignore(@ecs.commands(world).spawn1(Position(3))))
+  @ecs.Schedule()
+  .add_exclusive_system(_ => ignore(@ecs.commands(world).spawn1(Position(3))))
+  .run(world)
   assert_eq(query.length(), 3)
 }
 
@@ -368,9 +378,11 @@ test "panic iter2 rejects deletion and reuse before reading the replacement" {
   let entries = query.iter2()
   ignore(entries.next())
   let replacement = Ref(None)
-  @ecs.run_schedule(world, _ => {
+  @ecs.Schedule()
+  .add_exclusive_system(_ => {
     @ecs.commands(@ecs.require_current_world()).delete(first)
   })
+  .run(world)
   replacement.val = Some(@ecs_test.spawn1(world, Position(3)))
   assert_eq(replacement.val.unwrap().slot_index(), first.slot_index())
   ignore(entries.next())
@@ -382,9 +394,11 @@ test "panic keys rejects deletion before advancing linked order entries" {
   ignore(@ecs_test.spawn1(world, Position(1)))
   let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
   let keys = query.keys()
-  @ecs.run_schedule(world, _ => {
+  @ecs.Schedule()
+  .add_exclusive_system(_ => {
     let entity = query.single().unwrap().0
     @ecs.commands(@ecs.require_current_world()).delete(entity)
   })
+  .run(world)
   ignore(keys.next())
 }

@@ -115,7 +115,7 @@ fn instantiate_scene_node(
   guard node_index >= 0 && node_index < template.nodes.length() else { return }
   let node = template.nodes[node_index]
   let world = @ecs.require_current_world()
-  let draft = world.spawn_draft()
+  let draft = @ecs.commands(world).draft()
   let base_name = node.name.unwrap_or("node\{node_index}")
   let path_base = "\{parent_path}/\{base_name}"
   let entity_name = if parts.contains(path_base) {

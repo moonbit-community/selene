@@ -43,6 +43,17 @@ pub fn use_frame_delta() -> Unit
 // Errors
 
 // Types and methods
+type Time
+pub fn Time::delta(Self) -> Double
+pub fn Time::elapsed(Self) -> Double
+pub fn Time::elapsed_raw(Self) -> Double
+pub fn Time::fixed_delta(Self) -> Double
+pub fn Time::frame_delta(Self) -> Double
+pub fn Time::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub fn Time::raw_delta(Self) -> Double
+pub fn Time::scale(Self) -> Double
+pub impl @ecs.SystemParam for Time
+
 type TimerHandle
 pub fn TimerHandle::cancel(Self) -> Bool
 

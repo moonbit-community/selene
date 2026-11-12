@@ -36,7 +36,7 @@ priv enum GamePhase {
 }
 
 ///|
-let is_playing : (@ecs.World) -> Bool = @state.in_state(GamePhase::Playing)
+let is_playing : @ecs.Condition = @state.in_state(GamePhase::Playing)
 
 ///|
 pub fn run() -> Unit {
@@ -47,20 +47,25 @@ pub fn run() -> Unit {
   .with_zoom(ZOOM)
   .add_plugin(@plugins.default_plugin)
   .init_state(GamePhase::Playing)
-  .add_on_enter(GamePhase::Playing, game_start)
-  .add_on_enter(GamePhase::GameOver, show_game_over)
+  .add_exclusive_on_enter(GamePhase::Playing, game_start)
+  .add_exclusive_on_enter(GamePhase::GameOver, show_game_over)
   .add_systems(
     Update,
     [
-      player_update_system, player_shooting_system, enemy_ai_system, enemy_collision_system,
-      devil_shooting_system, player_bullet_trigger_system, check_victory_system,
-      game_timer_system,
+      @ecs.System::exclusive(player_update_system),
+      @ecs.System::exclusive(player_shooting_system),
+      @ecs.System::exclusive(enemy_ai_system),
+      @ecs.System::exclusive(enemy_collision_system),
+      @ecs.System::exclusive(devil_shooting_system),
+      @ecs.System::exclusive(player_bullet_trigger_system),
+      System(@ecs.args3(check_victory_system)),
+      @ecs.System::exclusive(game_timer_system),
     ],
     run_if=is_playing,
   )
-  .add_system(Update, score_blink_system)
-  .add_system(Update, survivors_camera_follow_system)
-  .add_system(PostUpdate, survivors_ui_pointer_system)
+  .add_exclusive_system(Update, score_blink_system)
+  .add_exclusive_system(Update, survivors_camera_follow_system)
+  .add_exclusive_system(PostUpdate, survivors_ui_pointer_system)
   .run()
 }
 
@@ -157,9 +162,11 @@ fn SurvivorsRuntime::SurvivorsRuntime(world : @ecs.World) -> SurvivorsRuntime {
     entities: [],
     game: None,
     weapon_timers: [],
-    player_bullet_plan: world.prepare_spawn(),
-    enemy_bullet_plan: world.prepare_spawn(),
-    enemy_plan: world.prepare_spawn().combine(world.prepare_spawn()),
+    player_bullet_plan: @ecs.commands(world).prepare_spawn(),
+    enemy_bullet_plan: @ecs.commands(world).prepare_spawn(),
+    enemy_plan: @ecs.commands(world)
+    .prepare_spawn()
+    .combine(@ecs.commands(world).prepare_spawn()),
     enemy_bullets: Set([]),
     ui_click_reader: EventReader(),
     enemy_contact_event_reader: EventReader(),

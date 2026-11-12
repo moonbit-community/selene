@@ -59,7 +59,9 @@ fn add_border(size : @math.Vec2) -> Unit {
 fn add_grass() -> Unit {
   let density = 0.05
   let rand = @random.Rand()
-  let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = @ecs.require_current_world().prepare_spawn()
+  let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = @ecs.commands(
+    @ecs.require_current_world(),
+  ).prepare_spawn()
   let entities = survivors_runtime().entities
   for x in 0..<(MAP_WIDTH / 16.0).to_int() {
     for y in 0..<(MAP_HEIGHT / 16.0).to_int() {

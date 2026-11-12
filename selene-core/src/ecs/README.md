@@ -36,17 +36,40 @@ fn move_entities(query : @ecs.Query[(Position, Velocity)]) -> Unit {
 }
 ```
 
-Register the typed callback directly:
+Register a single-parameter callback directly. Use `argsN` for an ordinary
+function with several parameters:
 
 ```moonbit
-app.add_query_system(Update, move_entities)
+app.add_system(Update, move_entities)
+
+fn remove_dead(
+  enemies : @ecs.Query[(Enemy, Health)],
+  commands : @ecs.Commands,
+) -> Unit {
+  for entity, (_, health) in enemies {
+    if health.value <= 0 {
+      commands.delete(entity)
+    }
+  }
+}
+app.add_system(Update, @ecs.args2(remove_dead))
 ```
 
-The callback's parameter supplies the row shape. The scheduler constructs and
-caches that query separately for each World; no query factory is required at
-registration. `add_query_system` accepts the same schedules, conditions, names,
-and system-set ordering arguments as `add_system`. Use `add_system` for a
-callback that explicitly needs the entire World.
+`SystemParam` supplies `Query[Row]`, `Commands`, `Res[T]`, optional `Res[T]?`,
+`Unit`, and tuples of two through eight parameters. `args0` adapts a function
+with no arguments; `args2` through `args8` adapt ordinary multiargument
+functions. Single-parameter functions need no adapter. These adapters also work
+with predicates passed to `Condition`.
+
+The scheduler prepares parameters once per registration and World, then fetches
+them on each execution. A `System` is an opaque description, not a callable
+function. Registering the same description twice creates independent parameter
+state. `World` is deliberately not a `SystemParam`: use
+`app.add_exclusive_system(stage, callback)` when full World access is needed.
+This is an explicit access declaration; execution remains sequential.
+`@time.Time`, `@state.State[T]`, and `@state.NextState[T]` are additional
+parameters supplied by their respective packages. Time reads follow the active
+frame or fixed step; state requests remain deferred.
 
 There is one opaque `Query[Row]` type. `Single[T]` describes one component;
 flat tuples describe two to eight components. This uses the same single-value
@@ -70,7 +93,6 @@ let position : @ecs.Single[Position]? = positions.get(player)
 `single`, `length`, ordinary `for` loops, and `batches` with the same semantics.
 Their component storage and batch representations are private.
 
-For custom schedulers, `@ecs.query_system(callback)` produces a `System`.
 Outside a system, use an inferred cached query constructor:
 
 ```moonbit
@@ -91,8 +113,27 @@ let moving_positions : @ecs.Query[@ecs.Single[Position]] =
 the query's World; foreign filters are rejected. Matching happens once for each
 archetype, including new archetypes encountered later. `query.with_filters(...)`
 creates an independently cached view and copies its filter list. To filter a
-registered system, pass `filters=world => [...]` to `add_query_system`; that
-constructor runs only when the query is first needed in each World.
+registered system, declare a custom parameter that constructs the filtered query
+in `SystemParam::prepare`:
+
+```moonbit
+priv struct MovingPositions {
+  query : @ecs.Query[@ecs.Single[Position]]
+}
+
+impl @ecs.SystemParam for MovingPositions with fn prepare(world) {
+  let with_velocity : @ecs.With[Velocity] = With(world)
+  let query : @ecs.Query[@ecs.Single[Position]] =
+    world.query1(filters=[with_velocity.to_filter()])
+  _ => { query, }
+}
+```
+
+The returned fetcher must not retain `world`: the World owns its prepared state.
+Cache queries or resource slots, and use the World supplied to the fetcher for
+operations that need it. Preparation is lazy and occurs only when conditions
+allow the system to run. Custom named parameter structs can also combine the
+built-in parameters through their `prepare` methods.
 `QueryReader[Row]::read(query)` snapshots the same filtered row shape.
 
 For setup and systems that explicitly need the whole World, use point access:
@@ -143,14 +184,14 @@ A later command in the same batch can overwrite one of its initialized values.
 For repeated spawns, prepare the layout once in its owning World.
 
 ```moonbit
-let players : @ecs.SpawnPlan[(Position, Velocity)] = world.prepare_spawn()
+let players : @ecs.SpawnPlan[(Position, Velocity)] = commands.prepare_spawn()
 let pending = commands.spawn_prepared(players, (position, velocity))
 ```
 
 Use `SpawnPlan::combine` to join plans for larger groups. A plan belongs to a single World and each component column may occur only once.
 
 For imports whose columns depend on data, collect the values with
-`world.spawn_draft()` and `draft.add(value)`, then call `commands.spawn_draft(draft)` once.
+`commands.draft()` and `draft.add(value)`, then call `commands.spawn_draft(draft)` once.
 The draft infers each column from its component type and rejects duplicate
 columns. Component stores cannot be supplied by callers.
 
@@ -285,63 +326,81 @@ value is missing. `create` receives the requested World.
 
 ## Schedules and commands
 
-`@ecs.System` is a function from `World` to `Unit`. Application stages such as
-`Startup`, `Update`, and `FixedUpdate` belong to `@app.Schedule`. System groups
-and their ordering are also owned by `app`:
+Application stages such as `Startup`, `Update`, and `FixedUpdate` belong to
+`@app.Stage`. Reusable `Schedule`, `System`, `Condition`, and system-set ordering
+belong to `ecs`:
 
 ```moonbit
-let movement = @app.SystemSet("movement")
-let animation = @app.SystemSet("animation")
+let movement = @ecs.SystemSet("movement")
+let animation = @ecs.SystemSet("animation")
 app.add_system(Update, move_system, in_set=movement, before=[animation])
+app.add_systems(Update, [
+  @ecs.System(move_system),
+  @ecs.System(@ecs.args2(remove_dead)),
+])
 ```
 
-Use `@ecs.commands(world)` to queue structural changes. The ECS schedule applies
-one command batch and completes entity lifecycle changes when the systems finish.
-Commands added while applying a batch run at the next synchronization point.
-The app runs these schedules at startup, after `First`/`PreUpdate`, for each
-fixed step, and after the ordinary updates. State transitions run between
-`PreUpdate` and fixed updates, with command synchronization after exit and
-entry systems. Render stages consume the resulting state. See the
-[state guide](../state/README.md) for initialization and lifecycle semantics.
+A resource parameter uses the same `#selene.resource` declaration as World
+resource access. Required resources must exist when the system executes;
+optional parameters are fetched again each time and may become available later.
+Cached `Res` handles observe resource replacements.
 
-The app passes its selected World to engine systems, including rendering,
-physics, transforms, and animation. Helpers that access components take an
-explicit `world~` argument. Component access remains World-bound in engine and
-game systems. Engine importers queue structural changes through the same
-`Commands` interface as application code.
+```moonbit
+fn show_score(score : @ecs.Res[Score]) -> Unit {
+  display_score(score.get().value)
+}
+fn advance_score(score : @ecs.Res[Score]) -> Unit {
+  score.set(Score::{ value: score.get().value + 1 })
+}
+app.add_system(Update, show_score,
+  run_if=@ecs.Condition(fn(score : @ecs.Res[Score]?) { score is Some(_) }))
+```
 
-Apps and custom schedulers use the same complete execution boundary:
+Systems receive `Commands` directly. Outside a system, obtain the same deferred
+queue with `@ecs.commands(world)`. `commands.draft()` and
+`commands.prepare_spawn()` build World-bound spawn descriptions. Immediate
+creation/deletion and bare command/lifecycle flushes are private to `ecs`.
+
+Apps and custom loops use the same complete execution boundary:
 
 ```moonbit
 let world = @ecs.World()
-let commands = @ecs.commands(world)
-let player = commands.spawn1(Position::{ x: 0.0, y: 0.0 })
-try! @ecs.run_schedule(world, world => {
-  // Run systems against this World. Pending spawns initialize after this callback.
-  ignore(world.id())
-})
-// The pending entity is now materialized.
-ignore(world.get_component(player) : Position?)
+let schedule = @ecs.Schedule()
+  .add_system(fn(commands : @ecs.Commands) {
+    ignore(commands.spawn1(Position::{ x: 0.0, y: 0.0 }))
+  })
+  .add_system(move_entities)
+try! schedule.run(world)
+// Pending entities materialize only after all systems in this schedule.
 ```
 
-`run_schedule` selects the World for the callback and its command batch, then
-restores the previous active World. It rejects nested execution, including for a
-different World, and execution inside any query batch callback. App drivers check
-these same conditions before changing platform or World state. Ordinary lazy row
-iterators instead detect structural invalidation on their next advance.
+`Schedule::run` selects its World, executes systems and conditions, applies one
+frozen FIFO command batch, completes entity lifecycle changes, and restores the
+previous active World. Commands added while applying that batch wait for the
+next synchronization point. Nested execution, including for a different World,
+and execution inside any query batch callback are rejected. App drivers check
+these same conditions before changing platform or World state. Ordinary lazy
+row iterators detect structural invalidation on their next advance.
 
-Immediate creation/deletion and bare command/lifecycle flushes are private to
-`ecs`. Public types and traits remain owned by `ecs`, and World storage stays
-private. There are no access tokens or public `runtime_*` execution bridges.
+`Schedule::chain([a, b])` snapshots ordered groups and flushes once at the end;
+`Schedule::merge([a, b])` combines registrations into one system-set ordering
+group. Both preserve existing registration state. `with_run_if(condition)` adds
+a gate to each registration while preserving its state. `Condition::exclusive`
+and `System::exclusive` explicitly declare callbacks that need a World.
 
-Create initial entities in a Startup system using `@ecs.commands(world)`. Their
-components become available after that stage's flush. Use `commands.add(...)`
-for initialization that must run after an earlier spawn in the same batch.
-Public LDtk, Tiled, scene, audio, and autotile creation requests are also deferred;
-query imported trees after the scheduler applies their command batches. Tiled
-worlds select their maps after the root initializes; those maps and their
-subtrees are queued for the next synchronization point. This follows the same
-frozen-batch rule as commands added by any other command callback.
+The App synchronizes after Startup, after First/PreUpdate, after each complete
+fixed step, after Update/PostUpdate/observer dispatch/Last, and after
+RenderExtract/RenderPrepare/Render/RenderCleanup. There is no intermediate flush
+within any of these groups. State transitions occur between PreUpdate and fixed
+updates, with synchronization after exits and entries. See the
+[state guide](../state/README.md) for initialization and lifecycle semantics.
+
+Public ECS types remain owned by `ecs`; World storage and App runtime
+registrations are private. Engine importers queue structural changes through
+Commands as application code does. Public LDtk, Tiled, scene, audio, and
+autotile creation requests are deferred. Tiled worlds queue their selected maps
+when the root initializes, so those maps wait for the next synchronization
+point under the same frozen-batch rule.
 
 Timeouts belong to `time` and are stored in the active World. The default plugins
 advance them once per frame. Cancellation remains valid when another World is

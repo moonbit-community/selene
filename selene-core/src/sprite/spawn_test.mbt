@@ -9,12 +9,14 @@ test "typed spawn binds the layout to the explicit World" {
   let foreign : @ecs.Query[@ecs.Single[@sprite.Sprite]] = other.query()
   let empty = @ecs_test.spawn(world, ())
   let single = @ecs_test.spawn(world, @ecs.Single(sprite))
-  let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = world.prepare_spawn()
+  let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = @ecs.commands(
+    world,
+  ).prepare_spawn()
   let prepared = @ecs.commands(world).spawn_prepared(
     plan,
     (sprite, Spatial(transform)),
   )
-  @ecs.run_schedule(world, _ => ())
+  @ecs.Schedule().run(world)
   let reversed = @ecs_test.spawn(world, (@transform.Spatial(transform), sprite))
   assert_true(empty.belongs_to(world))
   assert_false(sprites.contains(empty))
@@ -22,7 +24,7 @@ test "typed spawn binds the layout to the explicit World" {
   assert_false(transforms.contains(single))
   let pending = @ecs.commands(world).spawn(@ecs.Single(sprite))
   assert_false(sprites.contains(pending))
-  @ecs.run_schedule(world, _ => ())
+  @ecs.Schedule().run(world)
   assert_true(sprites.contains(pending))
   for entity in [prepared, reversed] {
     assert_true(@ecs.alive_in_world(world)(entity))
@@ -49,7 +51,8 @@ test "typed spawn can queue an entity from a query" {
   let transform = @transform.Transform::from_xyz(3.0, 4.0, 0.0)
   let later = @transform.Transform::from_xyz(5.0, 6.0, 0.0)
   let spawned = []
-  @ecs.run_schedule(world, _ => {
+  @ecs.Schedule()
+  .add_exclusive_system(_ => {
     for entity, row in query {
       let sprite = row.0
       if entity == first {
@@ -66,6 +69,7 @@ test "typed spawn can queue an entity from a query" {
     }
     guard !sprites.contains(pending) else { abort("bundle is already visible") }
   })
+  .run(world)
   guard spawned is [entity] else { fail("expected one spawned entity") }
   assert_true(@ecs.alive_in_world(world)(entity))
   assert_true(sprites.contains(entity))

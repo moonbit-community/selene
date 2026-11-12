@@ -26,7 +26,7 @@ test "CPU skinning with four joint influences" (b : @bench.T) {
         }),
       )
     })
-    try! @ecs.run_schedule(world, _ => ())
+    try! @ecs.Schedule().run(world)
     bind_skinned_mesh(target, {
       target_entity: target,
       mesh,

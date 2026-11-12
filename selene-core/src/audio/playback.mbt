@@ -185,9 +185,10 @@ pub fn audio_event_playback_system(_delta : Double) -> Unit {
 }
 
 ///|
-pub fn audio_playback_system(world~ : @ecs.World, _delta : Double) -> Unit {
-  let query_playback_settings : @ecs.Query[@ecs.Single[PlaybackSettings]] = world.query()
-  let players : @ecs.Query[@ecs.Single[AudioPlayer]] = world.query()
+pub fn audio_playback_system(
+  players : @ecs.Query[@ecs.Single[AudioPlayer]],
+  query_playback_settings : @ecs.Query[@ecs.Single[PlaybackSettings]],
+) -> Unit {
   cleanup_orphaned_audio(instance => @platform_audio.stop(instance~))
   let runtime = audio_runtime()
   for entity, Single(player) in players {

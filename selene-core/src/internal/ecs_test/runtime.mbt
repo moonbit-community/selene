@@ -6,7 +6,7 @@ pub fn[T : @ecs.Bundle] spawn(
   parent? : @ecs.Entity,
 ) -> @ecs.Entity {
   let entity = @ecs.commands(world).spawn(values, parent?)
-  try! @ecs.run_schedule(world, _ => ())
+  try! @ecs.Schedule().run(world)
   entity
 }
 
@@ -26,7 +26,7 @@ pub fn spawn_draft(
   parent? : @ecs.Entity,
 ) -> @ecs.Entity {
   let entity = @ecs.commands(world).spawn_draft(draft, parent?)
-  try! @ecs.run_schedule(world, _ => ())
+  try! @ecs.Schedule().run(world)
   entity
 }
 
@@ -35,7 +35,7 @@ pub fn delete(entity : @ecs.Entity) -> Bool {
   let world = @ecs.require_current_world()
   let valid = entity.is_valid_in(world)
   @ecs.commands(world).delete(entity)
-  try! @ecs.run_schedule(world, _ => ())
+  try! @ecs.Schedule().run(world)
   valid
 }
 
@@ -43,5 +43,5 @@ pub fn delete(entity : @ecs.Entity) -> Bool {
 pub fn destroy(entity : @ecs.Entity) -> Unit {
   let world = @ecs.require_current_world()
   @ecs.commands(world).despawn(entity)
-  try! @ecs.run_schedule(world, _ => ())
+  try! @ecs.Schedule().run(world)
 }

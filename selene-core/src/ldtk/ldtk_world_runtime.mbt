@@ -687,7 +687,7 @@ fn ldtk_spawn_int_grid_cells(
     }
     let grid_x = index % width
     let grid_y = index / width
-    let draft = world.spawn_draft()
+    let draft = @ecs.commands(world).draft()
     draft.add(
       ldtk_spatial(
         Vec2(grid_x.to_double() * grid_size, grid_y.to_double() * grid_size),
@@ -830,7 +830,7 @@ fn ldtk_spawn_layer_entities(
     } else {
       base_offset
     }
-    let draft = world.spawn_draft()
+    let draft = @ecs.commands(world).draft()
     let spatial = ldtk_spatial(spawn_offset, zindex)
     draft.add(spatial)
     draft.add(LdtkGridCoords::{

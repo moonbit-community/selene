@@ -42,7 +42,7 @@ pub impl[T : Component] Bundle for Single[T] with fn prepare(world) {
 }
 
 ///|
-#deprecated("Use World::prepare_spawn.", skip_current_package=true)
+#deprecated("Use Commands::prepare_spawn.", skip_current_package=true)
 #doc(hidden)
 pub extend Single with Bundle::{prepare}
 
@@ -151,9 +151,9 @@ pub impl[
 
 ///|
 /// Prepares a World-bound plan for repeatedly spawning the same component types.
-pub fn[T : Bundle] World::prepare_spawn(self : World) -> SpawnPlan[T] {
-  let plan : SpawnPlan[T] = Bundle::prepare(self)
-  guard plan.world_id == self.id() else {
+pub fn[T : Bundle] Commands::prepare_spawn(self : Commands) -> SpawnPlan[T] {
+  let plan : SpawnPlan[T] = Bundle::prepare(self.world)
+  guard plan.world_id == self.world.id() else {
     abort("spawn plan belongs to another world")
   }
   plan

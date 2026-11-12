@@ -59,17 +59,17 @@ class EcsPublicApiTests(unittest.TestCase):
   ignore(query.get(entity))
   let pair : @ecs.Query[(Position, Position)] = world.query()
   for _, _ in pair {}
-  let draft = world.spawn_draft()
+  let draft = @ecs.commands(world).draft()
   draft.add(Position(3))
   ignore(commands.spawn_draft(draft))
-  try! @ecs.run_schedule(world, world => {
+  try! @ecs.Schedule().add_exclusive_system(world => {
     ignore(world.id())
     commands.delete(entity)
-  })
+  }).run(world)
 """)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
-    def test_query_system_registration_compiles(self):
+    def test_system_parameter_registration_compiles(self):
         manifest = self.consumer / "moon.pkg"
         original = manifest.read_text()
         manifest.write_text(original + '\nimport { "Milky2018/selene/app" }\n')
@@ -78,11 +78,72 @@ class EcsPublicApiTests(unittest.TestCase):
   fn move_entities(query : @ecs.Query[(Position, Position)]) -> Unit {
     for _, _ in query {}
   }
-  ignore(@app.App().with_world(world).add_query_system(Update, move_entities))
+  ignore(@app.App().with_world(world).add_system(Update, move_entities))
 """)
         finally:
             manifest.write_text(original)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_execution_internals_are_not_public(self):
+        manifest = self.consumer / "moon.pkg"
+        original = manifest.read_text()
+        manifest.write_text(original + '\nimport { "Milky2018/selene/app" }\n')
+        cases = {
+            "raw_schedule": "try! @ecs.run_schedule(world, _ => ())",
+            "world_param": "ignore(@app.App().add_system(Update, fn(_ : @ecs.World) {}))",
+            "unsupported_param": "ignore(@app.App().add_system(Update, fn(_ : Int) {}))",
+            "old_query_adapter": "ignore(@ecs.query_system(fn(_ : @ecs.Query[@ecs.Single[Position]]) {}))",
+            "old_query_registration": "ignore(@app.App().add_query_system(Update, fn(_ : @ecs.Query[@ecs.Single[Position]]) {}))",
+            "app_systems": "ignore(@app.App().systems)",
+            "runtime_plan": "let plan : @app.RuntimePlan = abort(\"unreachable\"); ignore(plan)",
+            "registered_system": "let entry : @app.RegisteredSystem = abort(\"unreachable\"); ignore(entry)",
+            "system_bind": "ignore(@ecs.System(@ecs.args0(() => ())).bind)",
+            "condition_bind": "ignore(@ecs.Condition(@ecs.args0(() => true)).bind)",
+            "schedule_groups": "ignore(@ecs.Schedule().groups)",
+        }
+        try:
+            for name, source in cases.items():
+                with self.subTest(name=name):
+                    result = self.compile(source, strict=False)
+                    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        finally:
+            manifest.write_text(original)
+
+    def test_required_resource_failure_is_isolated(self):
+        result = self.run_program("""
+struct Settings(Int)
+let settings_key : @ecs.ResourceKey[Settings] = ResourceKey()
+impl @ecs.Resource for Settings with resource_key() { settings_key }
+fn main {
+  let schedule = @ecs.Schedule().add_system(fn(settings : @ecs.Res[Settings]) {
+    println(settings.get().0)
+  })
+  println("running uninitialized resource")
+  try! schedule.run(@ecs.World())
+}
+""")
+        output = result.stdout + result.stderr
+        self.assertNotEqual(result.returncode, 0, output)
+        self.assertIn("running uninitialized resource", output)
+        self.assertIn("Resource is not initialized", output)
+
+    def test_uninitialized_state_condition_failure_is_isolated(self):
+        result = self.run_program("""
+#derive(Eq)
+enum Phase { Playing }
+let phase_key : @state.StateKey[Phase] = StateKey()
+impl @state.StateType for Phase with state_key() { phase_key }
+fn main {
+  let schedule = @ecs.Schedule().add_system(@ecs.args0(() => ()),
+    run_if=@state.in_state(Phase::Playing))
+  println("running uninitialized condition")
+  try! schedule.run(@ecs.World())
+}
+""", state=True)
+        output = result.stdout + result.stderr
+        self.assertNotEqual(result.returncode, 0, output)
+        self.assertIn("running uninitialized condition", output)
+        self.assertIn("State is not initialized", output)
 
     def test_storage_access_is_rejected_outside_ecs(self):
         cases = {
@@ -95,12 +156,12 @@ class EcsPublicApiTests(unittest.TestCase):
             "key_set": ("position_key.set(@ecs.commands(world).spawn(()), Position(1))", "set"),
             "query_storage": ("let query : @ecs.Query[@ecs.Single[Position]] = world.query()\n  ignore(query.storage)", "abstract type"),
             "joined_constructor": ("ignore(@ecs.Query2(world.query(), world.query()))", "Query2"),
-            "draft_store": ("world.spawn_draft().add_to(world.query(), Position(1))", "add_to"),
+            "draft_store": ("@ecs.commands(world).draft().add_to(world.query(), Position(1))", "add_to"),
             "old_query_factory": ("ignore(world.query2())", "query2"),
             "immediate_spawn": ("ignore(world.spawn(()))", "spawn"),
             "immediate_spawn1": ("ignore(world.spawn1(Position(1)))", "spawn1"),
-            "prepared_spawn": ("let plan : @ecs.SpawnPlan[@ecs.Single[Position]] = world.prepare_spawn()\n  ignore(plan.spawn(Single(Position(1))))", "spawn"),
-            "draft_spawn": ("ignore(world.spawn_draft().spawn())", "spawn"),
+            "prepared_spawn": ("let plan : @ecs.SpawnPlan[@ecs.Single[Position]] = @ecs.commands(world).prepare_spawn()\n  ignore(plan.spawn(Single(Position(1))))", "spawn"),
+            "draft_spawn": ("ignore(@ecs.commands(world).draft().spawn())", "spawn"),
             "immediate_delete": ("ignore(@ecs.commands(world).spawn(()).delete())", "delete"),
             "immediate_destroy": ("@ecs.commands(world).spawn(()).destroy()", "destroy"),
             "immediate_respawn": ("@ecs.commands(world).spawn(()).respawn()", "respawn"),
@@ -110,8 +171,8 @@ class EcsPublicApiTests(unittest.TestCase):
             "runtime_flush": ("@ecs.runtime_flush({}, world)", "runtime_flush"),
             "runtime_spawn": ("ignore(world.runtime_spawn({}, ()))", "runtime_spawn"),
             "runtime_spawn1": ("ignore(world.runtime_spawn1({}, Position(1)))", "runtime_spawn1"),
-            "runtime_prepared_spawn": ("let plan : @ecs.SpawnPlan[@ecs.Single[Position]] = world.prepare_spawn()\n  ignore(plan.runtime_spawn({}, Single(Position(1))))", "runtime_spawn"),
-            "runtime_draft_spawn": ("ignore(world.spawn_draft().runtime_spawn({}))", "runtime_spawn"),
+            "runtime_prepared_spawn": ("let plan : @ecs.SpawnPlan[@ecs.Single[Position]] = @ecs.commands(world).prepare_spawn()\n  ignore(plan.runtime_spawn({}, Single(Position(1))))", "runtime_spawn"),
+            "runtime_draft_spawn": ("ignore(@ecs.commands(world).draft().runtime_spawn({}))", "runtime_spawn"),
             "runtime_delete": ("ignore(@ecs.commands(world).spawn(()).runtime_delete({}))", "runtime_delete"),
             "runtime_destroy": ("@ecs.commands(world).spawn(()).runtime_destroy({})", "runtime_destroy"),
             "runtime_respawn": ("@ecs.commands(world).spawn(()).runtime_respawn({})", "runtime_respawn"),
@@ -134,12 +195,12 @@ class EcsPublicApiTests(unittest.TestCase):
                     for item in errors
                 ), output)
 
-    def run_program(self, source):
+    def run_program(self, source, *, state=False):
         # Fatal aborts do not unwind MoonBit defers. Isolate contracts that abort
         # inside an active query rather than poisoning the shared test process.
         manifest = self.consumer / "moon.pkg"
         original = manifest.read_text()
-        manifest.write_text(original + '\nimport { "Milky2018/selene/app" }\npkgtype(kind: "executable")\n')
+        manifest.write_text(original + '\nimport { "Milky2018/selene/app" }\npkgtype(kind: "executable")\n' + ('\nimport { "Milky2018/selene/state" }\n' if state else ""))
         (self.consumer / "access.mbt").write_text(COMPONENT + source)
         try:
             return subprocess.run(

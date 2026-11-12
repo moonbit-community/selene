@@ -34,10 +34,10 @@ test "spatial propagation replaces the cached pose across despawn and respawn" {
   transform_propagate_system(world~, 0.0)
   assert_eq(global_transform(world~, entity).unwrap().translation().x, 2.0)
   @ecs_test.destroy(entity)
-  try! @ecs.run_schedule(world, _ => ())
+  try! @ecs.Schedule().run(world)
   assert_true(global_transform(world~, entity) is None)
   @ecs.commands(@ecs.require_current_world()).respawn(entity)
-  try! @ecs.run_schedule(world, _ => ())
+  try! @ecs.Schedule().run(world)
   transform_propagate_system(world~, 0.0)
   assert_eq(global_transform(world~, entity).unwrap().translation().x, 2.0)
 }

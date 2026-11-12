@@ -33,7 +33,7 @@ test "a cached query sees new tables and repairs swapped rows after deletion" {
 test "archetype signatures support more than 64 components and isolate worlds" {
   let world = World()
   let other = World()
-  let draft = world.spawn_draft()
+  let draft = commands(world).draft()
   let foreign = other.spawn(())
   let stores : Array[ComponentStore[Int32]] = []
   for i in 0..<70 {

@@ -2,7 +2,9 @@
 fn make_sprite_fixture(size : Int32) -> Array[@ecs.Entity] {
   @window.configure_display(960.0, 540.0, 1.0)
   let world = @ecs.require_current_world()
-  let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = world.prepare_spawn()
+  let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = @ecs.commands(
+    world,
+  ).prepare_spawn()
   let entities = []
   let sprite = @sprite.Sprite::from_color(
     { r: 255U, g: 255U, b: 255U, a: 1.0, },
@@ -17,7 +19,7 @@ fn make_sprite_fixture(size : Int32) -> Array[@ecs.Entity] {
     }
     entities.push(entity)
   }
-  try! @ecs.run_schedule(world, _ => ())
+  try! @ecs.Schedule().run(world)
   entities
 }
 

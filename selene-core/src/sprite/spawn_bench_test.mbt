@@ -22,7 +22,7 @@ fn spawn_sprite_population(
   match mode {
     Draft =>
       for _ in 0..<size {
-        let draft = world.spawn_draft()
+        let draft = @ecs.commands(world).draft()
         draft.add(sprite)
         draft.add(make_spatial())
         if extra_columns {
@@ -59,7 +59,7 @@ fn spawn_sprite_population(
             @visibility.Visibility,
             @sprite.Anchor,
           ),
-        ] = world.prepare_spawn()
+        ] = @ecs.commands(world).prepare_spawn()
         for _ in 0..<size {
           ignore(
             @ecs.commands(world).spawn_prepared(
@@ -74,7 +74,9 @@ fn spawn_sprite_population(
           )
         }
       } else {
-        let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = world.prepare_spawn()
+        let plan : @ecs.SpawnPlan[(@sprite.Sprite, @transform.Spatial)] = @ecs.commands(
+          world,
+        ).prepare_spawn()
         for _ in 0..<size {
           ignore(
             @ecs.commands(world).spawn_prepared(plan, (sprite, make_spatial())),
@@ -82,7 +84,7 @@ fn spawn_sprite_population(
         }
       }
   }
-  try! @ecs.run_schedule(world, _ => ())
+  try! @ecs.Schedule().run(world)
   world
 }
 

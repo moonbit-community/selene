@@ -101,7 +101,7 @@ pub fn instantiate_scene_instance(
   parent? : @ecs.Entity,
 ) -> SceneInstance {
   let world = @ecs.require_current_world()
-  let draft = world.spawn_draft()
+  let draft = @ecs.commands(world).draft()
   draft.add(@transform.Spatial(root_transform))
   draft.add(@name.Name("scene_root"))
   let parts : Map[String, @ecs.Entity] = Map([])

@@ -6,7 +6,7 @@ import {
 }
 
 // Values
-pub fn advance(@ecs.World, on_exit~ : (@ecs.World) -> Unit, on_enter~ : (@ecs.World) -> Unit, initial_only? : Bool) -> Unit raise @ecs.ScheduleError
+pub fn advance(@ecs.World, on_exit~ : @ecs.Schedule, on_enter~ : @ecs.Schedule, initial_only? : Bool) -> Unit raise @ecs.ScheduleError
 
 pub fn register(@ecs.World, StateEntry) -> Unit
 

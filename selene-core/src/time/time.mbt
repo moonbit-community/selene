@@ -109,3 +109,53 @@ pub fn set_scale(scale : Double) -> Unit {
 pub fn scale() -> Double {
   time_state().scale
 }
+
+///|
+/// The executing World's clock, including the selected frame/fixed delta.
+struct Time {
+  state : TimeState
+}
+
+///|
+pub impl @ecs.SystemParam for Time with fn prepare(world) {
+  let state : TimeState = world.resource()
+  _ => { state, }
+}
+
+///|
+pub extend Time with @ecs.SystemParam::{prepare}
+
+///|
+pub fn Time::delta(self : Time) -> Double {
+  self.state.delta
+}
+
+///|
+pub fn Time::frame_delta(self : Time) -> Double {
+  self.state.frame_delta
+}
+
+///|
+pub fn Time::fixed_delta(self : Time) -> Double {
+  self.state.fixed_delta
+}
+
+///|
+pub fn Time::raw_delta(self : Time) -> Double {
+  self.state.raw_delta
+}
+
+///|
+pub fn Time::elapsed(self : Time) -> Double {
+  self.state.elapsed
+}
+
+///|
+pub fn Time::elapsed_raw(self : Time) -> Double {
+  self.state.elapsed_raw
+}
+
+///|
+pub fn Time::scale(self : Time) -> Double {
+  self.state.scale
+}

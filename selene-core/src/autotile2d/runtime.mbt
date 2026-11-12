@@ -112,7 +112,9 @@ pub fn register_runtime_layer(
     destroy_layer_tiles(previous)
   }
   let state : RuntimeLayerState = { source, tile_entities: Map([]), context, }
-  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
+  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.commands(
+    @ecs.require_current_world(),
+  ).prepare_spawn()
   for solved in solve_autotile_layer(source) {
     let key = AutoTileGridPos::{ x: solved.x, y: solved.y, }
     if apply_tile_visual(plan, layer_entity, source, solved, context)
@@ -140,7 +142,9 @@ fn apply_diff_to_runtime(
       ignore(tile_entities.remove(key))
     }
   }
-  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
+  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.commands(
+    @ecs.require_current_world(),
+  ).prepare_spawn()
   for changed in diff.changed_tiles {
     let key = AutoTileGridPos::{ x: changed.x, y: changed.y, }
     if tile_entities.get(key) is Some(entity_) {

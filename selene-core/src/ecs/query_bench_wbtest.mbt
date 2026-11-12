@@ -64,7 +64,7 @@ test "unified query row and typed column traversal" (bench : @bench.T) {
     let e : ComponentStore[QueryBenchE] = components_in(world)
     let base : SpawnPlan[
       (QueryBenchA, QueryBenchB, QueryBenchC, QueryBenchD, QueryBenchE),
-    ] = world.prepare_spawn()
+    ] = commands(world).prepare_spawn()
     let partial = a.spawn_plan(world).combine(b.spawn_plan(world))
     for group in 0..<8 {
       let tag : ComponentStore[Unit] = ComponentStore(world)

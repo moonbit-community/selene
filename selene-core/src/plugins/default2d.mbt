@@ -15,59 +15,59 @@
 ///|
 pub fn default_plugin(app : @app.App) -> @app.App {
   let app = register_builtin_messages(app)
-  let input = @app.SystemSet("input")
-  let pointer_input = @app.SystemSet("pointer_input")
-  let ui_input = @app.SystemSet("ui_input")
-  let touch_controls = @app.SystemSet("touch_controls")
-  let physics = @app.SystemSet("physics")
-  let gameplay = @app.SystemSet("gameplay")
-  let audio = @app.SystemSet("audio")
-  let time = @app.SystemSet("time")
-  let animation = @app.SystemSet("animation")
-  let transform = @app.SystemSet("transform")
-  let ui = @app.SystemSet("ui")
-  let render_extract = @app.SystemSet("render_extract")
-  let render_prepare = @app.SystemSet("render_prepare")
-  let touch_controls_render = @app.SystemSet("touch_controls_render")
-  let render_submit = @app.SystemSet("render_submit")
+  let input = @ecs.SystemSet("input")
+  let pointer_input = @ecs.SystemSet("pointer_input")
+  let ui_input = @ecs.SystemSet("ui_input")
+  let touch_controls = @ecs.SystemSet("touch_controls")
+  let physics = @ecs.SystemSet("physics")
+  let gameplay = @ecs.SystemSet("gameplay")
+  let audio = @ecs.SystemSet("audio")
+  let time = @ecs.SystemSet("time")
+  let animation = @ecs.SystemSet("animation")
+  let transform = @ecs.SystemSet("transform")
+  let ui = @ecs.SystemSet("ui")
+  let render_extract = @ecs.SystemSet("render_extract")
+  let render_prepare = @ecs.SystemSet("render_prepare")
+  let touch_controls_render = @ecs.SystemSet("touch_controls_render")
+  let render_submit = @ecs.SystemSet("render_submit")
 
   let app = add_system(
     app,
-    _ => @inputs.advanced_key_system(@time.delta()),
+    fn(time : @time.Time) { @inputs.advanced_key_system(time.delta()) },
     PreUpdate,
     "Advanced Key System",
     in_set=input,
   )
   let app = add_system(
     app,
-    _ => @inputs.advanced_mouse_system(@time.delta()),
+    fn(time : @time.Time) { @inputs.advanced_mouse_system(time.delta()) },
     PreUpdate,
     "Advanced Mouse System",
     in_set=input,
   )
   let app = add_system(
     app,
-    _ => @inputs.advanced_touch_system(@time.delta()),
+    fn(time : @time.Time) { @inputs.advanced_touch_system(time.delta()) },
     PreUpdate,
     "Advanced Touch System",
     in_set=input,
   )
   let app = add_system(
     app,
-    _ => @inputs.advanced_gamepad_system(@time.delta()),
+    fn(time : @time.Time) { @inputs.advanced_gamepad_system(time.delta()) },
     PreUpdate,
     "Advanced Gamepad System",
     in_set=input,
   )
   let app = add_system(
     app,
-    _ => @inputs.advanced_pointer_system(@time.delta()),
+    fn(time : @time.Time) { @inputs.advanced_pointer_system(time.delta()) },
     PreUpdate,
     "Advanced Pointer System",
     in_set=pointer_input,
     after=[input],
   )
-  let app = add_system(
+  let app = add_exclusive_system(
     app,
     world => @ui.ui_input_capture_system(world~, @time.delta()),
     PreUpdate,
@@ -77,7 +77,9 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    _ => @touch_controls.touch_controls_system(@time.delta()),
+    fn(time : @time.Time) {
+      @touch_controls.touch_controls_system(time.delta())
+    },
     PreUpdate,
     "Touch Controls System",
     in_set=touch_controls,
@@ -85,40 +87,40 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    _ => @input_action.input_action_system(@time.delta()),
+    fn(time : @time.Time) { @input_action.input_action_system(time.delta()) },
     PreUpdate,
     "Input Action System",
     after=[touch_controls],
   )
   let app = add_system(
     app,
-    _ => @window.sync_mouse_lock_system(@time.delta()),
+    fn(time : @time.Time) { @window.sync_mouse_lock_system(time.delta()) },
     PreUpdate,
     "Sync Mouse Lock",
     after=[input],
   )
-  let app = add_system(
+  let app = add_exclusive_system(
     app,
     world => @physics2d.physics_step_system(world~, @time.delta()),
     FixedUpdate,
     "Physics2D Step System",
     in_set=physics,
   )
-  let app = add_system(
+  let app = add_exclusive_system(
     app,
     world => @physics2d.pickable_click_system(world~, @time.delta()),
     Update,
     "Pickable Click System",
     in_set=gameplay,
   )
-  let app = add_system(
+  let app = add_exclusive_system(
     app,
     world => @ldtk.ldtk_world_sync_system(world~, @time.delta()),
     Update,
     "LDtk World Sync System",
     in_set=gameplay,
   )
-  let app = add_system(
+  let app = add_exclusive_system(
     app,
     world => @tiled.tiled_world_chunking_system(world~, @time.delta()),
     Update,
@@ -127,7 +129,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    _ => @audio.audio_event_playback_system(@time.delta()),
+    fn(time : @time.Time) { @audio.audio_event_playback_system(time.delta()) },
     PostUpdate,
     "Audio Event Playback System",
     in_set=audio,
@@ -135,7 +137,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    world => @audio.audio_playback_system(world~, @time.delta()),
+    @ecs.args2(@audio.audio_playback_system),
     PostUpdate,
     "Audio Playback System",
     in_set=audio,
@@ -143,13 +145,13 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    _ => @time.timers_system(@time.delta()),
+    fn(time : @time.Time) { @time.timers_system(time.delta()) },
     PostUpdate,
     "Timer System",
     in_set=time,
     after=[gameplay],
   )
-  let app = add_system(
+  let app = add_exclusive_system(
     app,
     world => @animation.animation_player_system(world~, @time.delta()),
     PostUpdate,
@@ -157,14 +159,21 @@ pub fn default_plugin(app : @app.App) -> @app.App {
     in_set=animation,
     after=[gameplay],
   )
-  let app = app.add_query_system(
+  let app = app.add_system(
     PostUpdate,
-    query => @animation.animation_transition_system(query, @time.delta()),
+    @ecs.args2(fn(
+      query : @ecs.Query[
+        (@animation.AnimationTransitions, @animation.AnimationPlayer),
+      ],
+      time : @time.Time,
+    ) {
+      @animation.animation_transition_system(query, time.delta())
+    }),
     system_name="Animation Transition System",
     in_set=animation,
     after=[animation],
   )
-  let app = add_system(
+  let app = add_exclusive_system(
     app,
     world => @animation.animation_apply_system(world~, @time.delta()),
     PostUpdate,
@@ -172,7 +181,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
     in_set=animation,
     after=[animation],
   )
-  let app = add_system(
+  let app = add_exclusive_system(
     app,
     world => @transform.transform_propagate_system(world~, @time.delta()),
     PostUpdate,
@@ -180,7 +189,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
     in_set=transform,
     after=[animation],
   )
-  let app = add_system(
+  let app = add_exclusive_system(
     app,
     world => @visibility.visibility_propagate_system(world~, @time.delta()),
     PostUpdate,
@@ -190,13 +199,13 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    _ => @scene.scene_spawner_cleanup_system(@time.delta()),
+    fn(time : @time.Time) { @scene.scene_spawner_cleanup_system(time.delta()) },
     PostUpdate,
     "Scene Spawner Cleanup System",
     in_set=transform,
     after=[transform],
   )
-  let app = add_system(
+  let app = add_exclusive_system(
     app,
     world => @ui.ui_layout_system(world~, @time.delta()),
     PostUpdate,
@@ -204,7 +213,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
     in_set=ui,
     after=[transform],
   )
-  let app = add_system(
+  let app = add_exclusive_system(
     app,
     world => @ui.ui_interaction_system(world~, @time.delta()),
     PostUpdate,
@@ -212,7 +221,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
     in_set=ui,
     after=[ui],
   )
-  let app = add_system(
+  let app = add_exclusive_system(
     app,
     world => @a11y.a11y_sync_system(world~, @time.delta()),
     PostUpdate,
@@ -222,19 +231,19 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    _ => @render2d.begin_frame2d_system(@time.delta()),
+    fn(time : @time.Time) { @render2d.begin_frame2d_system(time.delta()) },
     RenderExtract,
     "Render2D Begin Frame",
     in_set=render_extract,
   )
   let app = add_system(
     app,
-    _ => @ui.ui_extract_system(@time.delta()),
+    fn(time : @time.Time) { @ui.ui_extract_system(time.delta()) },
     RenderExtract,
     "UI Extract",
     in_set=render_extract,
   )
-  let app = add_system(
+  let app = add_exclusive_system(
     app,
     world => @sprite.render_sprite_system(world~, @time.delta()),
     RenderPrepare,
@@ -242,7 +251,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
     in_set=render_prepare,
     after=[render_extract],
   )
-  let app = add_system(
+  let app = add_exclusive_system(
     app,
     world => @mesh2d.render_mesh2d_system(world~, @time.delta()),
     RenderPrepare,
@@ -250,7 +259,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
     in_set=render_prepare,
     after=[render_extract],
   )
-  let app = add_system(
+  let app = add_exclusive_system(
     app,
     world => @text2d.render_text2d_system(world~, @time.delta()),
     RenderPrepare,
@@ -260,13 +269,15 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    _ => @touch_controls.touch_controls_render_system(@time.delta()),
+    fn(time : @time.Time) {
+      @touch_controls.touch_controls_render_system(time.delta())
+    },
     RenderPrepare,
     "Touch Controls Prepare",
     in_set=touch_controls_render,
     after=[render_extract],
   )
-  let app = add_system(
+  let app = add_exclusive_system(
     app,
     world => @ui.ui_prepare_system(world~, @time.delta()),
     RenderPrepare,
@@ -274,7 +285,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
     in_set=render_prepare,
     after=[touch_controls_render],
   )
-  add_system(
+  add_exclusive_system(
     app,
     world => @render_submit.render_submit_system(world~, @time.delta()),
     Render,

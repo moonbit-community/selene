@@ -41,7 +41,7 @@ fn collision_test_cleanup(
     ignore(@ecs_test.delete(entity))
   }
   rapier_fixed_step(world~, 0.016)
-  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+  try! @ecs.Schedule().run(@ecs.require_current_world())
   configure_physics(
     gravity=@math.Vec2::zero(),
     pixels_per_meter=100.0,

@@ -1,7 +1,7 @@
 ///|
 test "retained UI layout stays clean until measured content changes" {
   let world = @ecs.require_current_world()
-  let entity_draft = @ecs.require_current_world().spawn_draft()
+  let entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
   entity_draft.add((Node() : Node))
   entity_draft.add((Text("A") : Text))
   entity_draft.add((TextFont(size=16.0) : TextFont))
@@ -110,7 +110,7 @@ test "retained UI stacking changes do not reproject or relayout" {
 ///|
 test "retained UI projection changes do not rebuild layout or stacking" {
   let world = @ecs.require_current_world()
-  let camera_draft = @ecs.require_current_world().spawn_draft()
+  let camera_draft = @ecs.commands(@ecs.require_current_world()).draft()
   camera_draft.add(
     (
       Camera(viewport=Some(CameraViewport(Vec2(0.0, 0.0), Vec2(100.0, 100.0)))) :

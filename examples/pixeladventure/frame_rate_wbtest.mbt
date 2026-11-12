@@ -11,12 +11,14 @@ fn player_motion_at_refresh_rate(refresh : Int32) -> Array[@math.Vec2] raise {
     pixeladventure_app()
     .with_world(world)
     .with_fixed_hz(60)
-    .add_system(Startup, world => {
+    .add_exclusive_system(Startup, world => {
       @inputs.apply_input_snapshot(snapshot)
       @input_action.input_action_system(0.0)
-      @ecs.commands(world).add(world => player_input_system(world))
+      @ecs.commands(world).add(world => {
+        @ecs.args2(player_input_system)(test_params(world))
+      })
     })
-    .add_system(FixedFirst, world => {
+    .add_exclusive_system(FixedFirst, world => {
       if world.fixed_step_index() == 12U {
         let session : GameSession = world.resource()
         (world.query() : @ecs.Query[@ecs.Single[PlayerController]])
@@ -26,7 +28,7 @@ fn player_motion_at_refresh_rate(refresh : Int32) -> Array[@math.Vec2] raise {
         = true
       }
     })
-    .add_system(FixedLast, world => {
+    .add_exclusive_system(FixedLast, world => {
       if positions.length() < 60 {
         let session : GameSession = world.resource()
         let translation = @transform.local_transform(world~, session.player).unwrap().translation
@@ -62,10 +64,10 @@ test "a jump press survives render frames without a physics step" {
       pressed.pressed_keys.add(ArrowUp)
       @inputs.apply_input_snapshot(pressed)
       @input_action.input_action_system(0.0)
-      player_input_system(world)
+      @ecs.args2(player_input_system)(test_params(world))
       @inputs.apply_input_snapshot(InputSnapshot())
       @input_action.input_action_system(0.0)
-      player_input_system(world)
+      @ecs.args2(player_input_system)(test_params(world))
       let controller = (
           world.query() : @ecs.Query[@ecs.Single[PlayerController]])
         .get(session.player)

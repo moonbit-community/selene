@@ -1,26 +1,16 @@
 ///|
-pub(all) struct RuntimePlan {
+priv struct RuntimePlan {
   world : @ecs.World
   fixed_dt : Double
   max_fixed_steps : Int32
-  startup_systems : Array[RegisteredSystem]
-  frame_first : Array[RegisteredSystem]
-  frame_pre : Array[RegisteredSystem]
-  state_validations : Array[@ecs.System]
-  state_on_exit : Array[@ecs.System]
-  state_on_enter : Array[@ecs.System]
-  frame_update : Array[RegisteredSystem]
-  frame_post : Array[RegisteredSystem]
-  frame_last : Array[RegisteredSystem]
-  fixed_first : Array[RegisteredSystem]
-  fixed_pre : Array[RegisteredSystem]
-  fixed_update : Array[RegisteredSystem]
-  fixed_post : Array[RegisteredSystem]
-  fixed_last : Array[RegisteredSystem]
-  render_extract : Array[RegisteredSystem]
-  render_prepare : Array[RegisteredSystem]
-  render_stage : Array[RegisteredSystem]
-  render_cleanup : Array[RegisteredSystem]
+  startup : @ecs.Schedule
+  frame_input : @ecs.Schedule
+  frame_update : @ecs.Schedule
+  fixed : @ecs.Schedule
+  render : @ecs.Schedule
+  state_validations : Array[(@ecs.World) -> Unit]
+  state_on_exit : @ecs.Schedule
+  state_on_enter : @ecs.Schedule
 }
 
 ///|
@@ -72,88 +62,57 @@ fn build_runtime_plan(
     abort("App::run_frames/step_fixed fixed delta must be greater than 0")
   }
   let deterministic_ordering = @runtime_debug.deterministic_ordering_enabled()
+  let stage = fn(stage : Stage) {
+    collect_systems(app.systems, deterministic_ordering, candidate => {
+      candidate == stage
+    })
+  }
+  let frame_events = @ecs.Schedule().add_exclusive_system(_ => {
+    @event.event_frame_update_system(@time.delta())
+  })
+  let fixed_events = @ecs.Schedule().add_exclusive_system(_ => {
+    @event.event_fixed_update_system(@time.delta())
+  })
+  let observers = @ecs.Schedule().add_exclusive_system(_ => {
+    @event.event_observer_dispatch_system(@time.delta())
+  })
+  let render_events = @ecs.Schedule().add_exclusive_system(_ => {
+    @event.event_render_update_system(@time.delta())
+  })
   {
     world: app.world,
     fixed_dt,
     max_fixed_steps: app.max_fixed_steps_per_frame.reinterpret_as_int(),
-    startup_systems: collect_systems(app.systems, deterministic_ordering, fn(
-      schedule,
-    ) {
-      schedule is Startup
-    }),
-    frame_first: collect_systems(app.systems, deterministic_ordering, fn(
-      schedule,
-    ) {
-      schedule is First
-    }),
-    frame_pre: collect_systems(app.systems, deterministic_ordering, fn(
-      schedule,
-    ) {
-      schedule is PreUpdate
-    }),
-    state_validations: app.state_validations,
+    startup: stage(Startup),
+    frame_input: @ecs.Schedule::chain([
+      frame_events,
+      stage(First),
+      stage(PreUpdate),
+    ]),
+    frame_update: @ecs.Schedule::chain([
+      stage(Update),
+      stage(PostUpdate),
+      observers,
+      stage(Last),
+    ]),
+    fixed: @ecs.Schedule::chain([
+      fixed_events,
+      stage(FixedFirst),
+      stage(FixedPreUpdate),
+      stage(FixedUpdate),
+      stage(FixedPostUpdate),
+      stage(FixedLast),
+    ]),
+    render: @ecs.Schedule::chain([
+      render_events,
+      stage(RenderExtract),
+      stage(RenderPrepare),
+      stage(Render),
+      stage(RenderCleanup),
+    ]),
+    state_validations: app.state_validations.copy(),
     state_on_exit: app.state_on_exit,
     state_on_enter: app.state_on_enter,
-    frame_update: collect_systems(app.systems, deterministic_ordering, fn(
-      schedule,
-    ) {
-      schedule is Update
-    }),
-    frame_post: collect_systems(app.systems, deterministic_ordering, fn(
-      schedule,
-    ) {
-      schedule is PostUpdate
-    }),
-    frame_last: collect_systems(app.systems, deterministic_ordering, fn(
-      schedule,
-    ) {
-      schedule is Last
-    }),
-    fixed_first: collect_systems(app.systems, deterministic_ordering, fn(
-      schedule,
-    ) {
-      schedule is FixedFirst
-    }),
-    fixed_pre: collect_systems(app.systems, deterministic_ordering, fn(
-      schedule,
-    ) {
-      schedule is FixedPreUpdate
-    }),
-    fixed_update: collect_systems(app.systems, deterministic_ordering, fn(
-      schedule,
-    ) {
-      schedule is FixedUpdate
-    }),
-    fixed_post: collect_systems(app.systems, deterministic_ordering, fn(
-      schedule,
-    ) {
-      schedule is FixedPostUpdate
-    }),
-    fixed_last: collect_systems(app.systems, deterministic_ordering, fn(
-      schedule,
-    ) {
-      schedule is FixedLast
-    }),
-    render_extract: collect_systems(app.systems, deterministic_ordering, fn(
-      schedule,
-    ) {
-      schedule is RenderExtract
-    }),
-    render_prepare: collect_systems(app.systems, deterministic_ordering, fn(
-      schedule,
-    ) {
-      schedule is RenderPrepare
-    }),
-    render_stage: collect_systems(app.systems, deterministic_ordering, fn(
-      schedule,
-    ) {
-      schedule is Render
-    }),
-    render_cleanup: collect_systems(app.systems, deterministic_ordering, fn(
-      schedule,
-    ) {
-      schedule is RenderCleanup
-    }),
   }
 }
 
@@ -161,9 +120,7 @@ fn build_runtime_plan(
 fn startup_runtime(plan : RuntimePlan) -> Unit {
   @ecs.set_current_world(plan.world)
   @time.set_delta(0.0)
-  try! @ecs.run_schedule(plan.world, world => {
-    run_stage(plan.startup_systems, world)
-  })
+  try! plan.startup.run(plan.world)
   for validate in plan.state_validations {
     validate(plan.world)
   }
@@ -184,14 +141,7 @@ fn run_fixed_step_once(plan : RuntimePlan) -> Unit {
   plan.world.advance_fixed_step()
   @time.use_fixed_delta(plan.fixed_dt)
   let fixed_delta = @time.delta()
-  try! @ecs.run_schedule(plan.world, world => {
-    @event.event_fixed_update_system(fixed_delta)
-    run_stage(plan.fixed_first, world)
-    run_stage(plan.fixed_pre, world)
-    run_stage(plan.fixed_update, world)
-    run_stage(plan.fixed_post, world)
-    run_stage(plan.fixed_last, world)
-  })
+  try! plan.fixed.run(plan.world)
   @runtime_debug.note_fixed_step(fixed_delta)
 }
 
@@ -218,11 +168,7 @@ fn run_game_frame(
   @inputs.apply_input_snapshot(injected_or_polled)
   accumulator.val += @time.delta()
 
-  try! @ecs.run_schedule(plan.world, world => {
-    @event.event_frame_update_system(@time.delta())
-    run_stage(plan.frame_first, world)
-    run_stage(plan.frame_pre, world)
-  })
+  try! plan.frame_input.run(plan.world)
   run_state_transitions(plan)
 
   let mut fixed_steps = 0
@@ -237,12 +183,7 @@ fn run_game_frame(
 
   @time.use_frame_delta()
   let delta = @time.delta()
-  try! @ecs.run_schedule(plan.world, world => {
-    run_stage(plan.frame_update, world)
-    run_stage(plan.frame_post, world)
-    @event.event_observer_dispatch_system(delta)
-    run_stage(plan.frame_last, world)
-  })
+  try! plan.frame_update.run(plan.world)
 
   @runtime_debug.note_update(delta, @ecs.alive_entity_count())
 }
@@ -259,11 +200,7 @@ fn run_render_frame(plan : RuntimePlan, raw_delta : Double) -> Unit {
   @time.set_delta(used_delta)
   @time.use_frame_delta()
   let delta = @time.delta()
-  @event.event_render_update_system(delta)
-  run_stage(plan.render_extract, plan.world)
-  run_stage(plan.render_prepare, plan.world)
-  run_stage(plan.render_stage, plan.world)
-  run_stage(plan.render_cleanup, plan.world)
+  try! plan.render.run(plan.world)
   let (draw2d_count, draw3d_count) = match
     @runtime_debug.latest_render_submission() {
     Some(submission) => (submission.draw2d.length(), submission.draw3d.length())

@@ -25,8 +25,11 @@
 - Added zero-copy batch reads and in-place writes for archetype queries.
 - Add one opaque `Query[Row]` for `Single[T]` and two- through eight-component
   tuples, with cached archetype traversal and uniform point, row, and batch access.
-- Add `App::add_query_system(schedule, callback)` with inferred, World-local query
-  construction and the same conditions and ordering options as World systems.
+- Add typed `SystemParam` injection for queries, commands, resources, optional
+  resources, state views, and time. `args0` and `args2` through `args8` adapt
+  ordinary functions for system and condition registration.
+- Add opaque `System`, `Condition`, and reusable `Schedule` execution, including
+  grouped composition with one final command synchronization.
 - Add scoped `ReadColumn` and `WriteColumn` batch access, permitting writes to
   any declared component or several components without forming per-row tuples.
 - Added reusable spawn bundles, `Commands::spawn1`, and a
@@ -42,8 +45,19 @@
 
 ### Changed
 
+- Unify system registration under `add_system`, with explicit
+  `add_exclusive_system` for complete World access. Remove the query-specific
+  registration adapters. Move system-set ordering to `ecs`, rename application
+  stage labels to `app.Stage`, and keep runtime registrations private.
+- Preserve prepared parameter state across repeated App runs and schedule
+  composition. Fetch optional resources each execution and observe resource
+  replacements through cached handles.
+- Build drafts and prepared spawn plans through `Commands` rather than `World`.
+- Synchronize deferred commands after RenderCleanup, with no intermediate
+  synchronization between the four render stages.
+
 - Keep `World`, `Entity`, queries, and public traits in `ecs`, with private storage.
-  Expose complete `run_schedule` execution for Apps and custom schedulers, with
+  Expose complete `Schedule::run` execution for Apps and custom loops, with
   reentry and active-batch checks and one frozen FIFO command batch. Engine
   importers use the same deferred Commands as applications; no access capability
   or public privileged execution bridge is required.
@@ -129,7 +143,7 @@
 - Spawn entities with `World::spawn` or `Commands::spawn`. Pass `Single(value)`
   or call `spawn1(value)` for one component. Pass a flat tuple for multiple
   components or `()` for an empty entity. Use
-  `commands.spawn(())` for an empty entity. Use `World::prepare_spawn` to reuse a layout and
+  `commands.spawn(())` for an empty entity. Use `Commands::prepare_spawn` to reuse a layout and
   `Commands::spawn_prepared` to queue it.
 - Spawn demo cameras, terrain, actors, and UI with their initial components.
   Reuse plans for repeated tile, card, enemy, projectile, and grid spawns.
@@ -254,7 +268,7 @@
 
 - Remove public immediate World/SpawnPlan/SpawnDraft creation, Entity lifecycle
   mutation, raw command/lifecycle flushes, and manual state-transition execution.
-  Use Commands with App scheduling or complete `@ecs.run_schedule` execution.
+  Use Commands with App scheduling or complete `@ecs.Schedule::run` execution.
   Remove the `Access` capability and public `runtime_*` execution bridges.
 
 - Remove public component stores, global component accessors, key data-access

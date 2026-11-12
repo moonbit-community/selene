@@ -23,9 +23,9 @@ pub fn run() -> Unit {
   .with_zoom(ZOOM)
   .add_plugin(@plugins.default_plugin)
   // .add_plugin(@plugins.debug_plugin)
-  .add_system(Startup, game_start)
-  .add_system(PostUpdate, cards_ui_pointer_system)
-  .add_system(Update, game_update_system)
+  .add_exclusive_system(Startup, game_start)
+  .add_exclusive_system(PostUpdate, cards_ui_pointer_system)
+  .add_exclusive_system(Update, game_update_system)
   .run()
 }
 

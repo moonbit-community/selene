@@ -257,7 +257,7 @@ let spawners : Array[@math.Vec2] = [
 fn spawn_enemy_system(world : @ecs.World) -> Unit {
   fn spawn_enemy() -> Unit {
     let game = game_state(world~)
-    if !is_playing(@ecs.require_current_world()) {
+    if (@state.current(@ecs.require_current_world()) : GamePhase) != Playing {
       return
     }
     let rand = game.rand
@@ -677,9 +677,12 @@ fn enemy_collision_system(world : @ecs.World) -> Unit {
 }
 
 ///|
-fn check_victory_system(world : @ecs.World) -> Unit {
-  let query_enemy : @ecs.Query[@ecs.Single[Enemy]] = world.query()
-  let game = game_state(world~)
+fn check_victory_system(
+  query_enemy : @ecs.Query[@ecs.Single[Enemy]],
+  runtime : @ecs.Res[SurvivorsRuntime],
+  next_phase : @state.NextState[GamePhase],
+) -> Unit {
+  guard runtime.get().game is Some(game) else { return }
 
   // Only check after timer has reached 0 (all 10 waves completed)
   if game.game_timer > 0.0 {
@@ -696,6 +699,6 @@ fn check_victory_system(world : @ecs.World) -> Unit {
 
   // If no enemies left, trigger victory
   if alive_count == 0 {
-    GamePhase::set(GameOver)
+    next_phase.set(GameOver)
   }
 }

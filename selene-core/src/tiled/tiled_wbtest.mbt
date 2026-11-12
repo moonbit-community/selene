@@ -21,8 +21,8 @@ fn with_fake_asset_io(
 ///|
 fn cleanup_spawned_tiled_tree(root : @ecs.Entity) -> Unit {
   despawn_tiled_tree(root)
-  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
-  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+  try! @ecs.Schedule().run(@ecs.require_current_world())
+  try! @ecs.Schedule().run(@ecs.require_current_world())
 }
 
 ///|
@@ -64,7 +64,7 @@ test "load and spawn Tiled JSON preserves parallax origin and image size" {
     debug_inspect(image_layer.image_height, content="Some(12)")
 
     let root = spawn_tiled_map(world~, map)
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
     let layer_entities = (
         world.query() : @ecs.Query[@ecs.Single[TiledLayerInstance]])
@@ -455,7 +455,7 @@ test "spawn_tiled_map creates tile object and image layer entities" {
       layer_z_step: 10,
       spawn_hidden_layers: true,
     })
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
@@ -595,7 +595,7 @@ test "replace_tiled_map replaces previous tiled children and metadata" {
       settings={ ..TiledSpawnSettings(), position: Vec2(1.0, 2.0), },
       parent=anchor,
     )
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
@@ -618,7 +618,7 @@ test "replace_tiled_map replaces previous tiled children and metadata" {
       load_tiled_map("maps/b.tmj"),
       settings={ ..TiledSpawnSettings(), position: Vec2(3.0, 4.0), },
     )
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     assert_false(root.is_valid_in(@ecs.require_current_world()))
     assert_eq(replacement.get_parent(), Some(anchor))
     assert_eq(anchor.get_children(), [replacement])
@@ -686,7 +686,7 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
         point_radius: 2.0,
       }),
     })
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
     let storage = (world.query() : @ecs.Query[@ecs.Single[TiledMapStorage]])
@@ -839,7 +839,7 @@ test "spawn_tiled_map applies physics body and material properties" {
       ..TiledSpawnSettings(),
       physics_settings: Some(TiledPhysicsSettings()),
     })
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
     let storage = (world.query() : @ecs.Query[@ecs.Single[TiledMapStorage]])
@@ -979,8 +979,8 @@ test "spawn_tiled_world loads adjacent maps and emits source_world events" {
         hooked_paths.push(event.resolved_map_path)
       }),
     })
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
@@ -1056,8 +1056,8 @@ test "replace_tiled_world replaces previous spawned maps" {
       load_tiled_world("worlds/a.source_world"),
       settings={ ..TiledWorldSpawnSettings(), position: Vec2(5.0, 7.0), },
     )
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
@@ -1071,8 +1071,8 @@ test "replace_tiled_world replaces previous spawned maps" {
       load_tiled_world("worlds/b.source_world"),
       settings={ ..TiledWorldSpawnSettings(), position: Vec2(11.0, 13.0), },
     )
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     assert_false(root.is_valid_in(@ecs.require_current_world()))
     let root = replacement
     defer cleanup_spawned_tiled_tree(root)
@@ -1143,8 +1143,8 @@ test "tiled source_world chunking spawns maps around camera view" {
       chunking: Some(@math.Vec2::zero()),
       map_settings: { ..TiledSpawnSettings(), position: @math.Vec2::zero(), },
     })
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
     let first_spawned = (
@@ -1161,7 +1161,7 @@ test "tiled source_world chunking spawns maps around camera view" {
     )
     @transform.transform_propagate_system(world~, 0.0)
     tiled_world_chunking_system(world~, 0.0)
-    try! @ecs.run_schedule(world, _ => ())
+    try! @ecs.Schedule().run(world)
 
     let second_spawned = (
         world.query() : @ecs.Query[@ecs.Single[TiledWorldMapInstance]])
@@ -1216,8 +1216,8 @@ test "tiled source_world chunking unions multiple active camera views" {
       chunking: Some(@math.Vec2::zero()),
       map_settings: { ..TiledSpawnSettings(), position: @math.Vec2::zero(), },
     })
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
     let spawned = (
@@ -1261,7 +1261,7 @@ test "Tiled parallax uses map origin for each camera view" {
   )
   with_fake_asset_io(files, fn() raise {
     let root = load_and_spawn_tiled_map(world~, "maps/parallax.tmj")
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
     let layer_entity = (
@@ -1351,7 +1351,7 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
       layer_z_step: 10,
       spawn_hidden_layers: true,
     })
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
@@ -1441,7 +1441,7 @@ test "spawn_tiled_map expands tiled animated tiles into frame timelines" {
   files.set("maps/terrain.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
     let root = load_and_spawn_tiled_map(world~, "maps/animated.tmj")
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
     let tile_entities = (
@@ -1492,7 +1492,7 @@ test "spawn_tiled_map creates tile entities for isometric maps" {
   files.set("maps/terrain.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
     let root = load_and_spawn_tiled_map(world~, "maps/isometric.tmj")
-    try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
+    try! @ecs.Schedule().run(@ecs.require_current_world())
     defer cleanup_spawned_tiled_tree(root)
 
     let tile_entities = (

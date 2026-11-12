@@ -38,7 +38,9 @@ fn load_level_scene(world~ : @ecs.World) -> LoadedLevelScene {
     "assets/pixeladventure/Terrain/Terrain (16x16).png",
   )
   let rows : Map[Int32, Array[Int32]] = Map([])
-  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = world.prepare_spawn()
+  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.commands(
+    world,
+  ).prepare_spawn()
   let entities = pixeladventure_world_state().entities
   for (x, y, count, atlas_x, atlas_y) in terrain_runs {
     for offset in 0..<count {
@@ -75,7 +77,7 @@ fn load_level_scene(world~ : @ecs.World) -> LoadedLevelScene {
 ///|
 fn build_terrain_colliders(rows : Map[Int32, Array[Int32]]) -> Unit {
   let tile_size_d = TERRAIN_TILE_SIZE.to_double()
-  let plan : TerrainSpawnPlan = @ecs.require_current_world().prepare_spawn()
+  let plan : TerrainSpawnPlan = @ecs.commands(@ecs.require_current_world()).prepare_spawn()
   for y, columns in rows {
     columns.sort()
     let mut cursor = 0

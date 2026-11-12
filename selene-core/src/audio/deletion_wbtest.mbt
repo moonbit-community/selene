@@ -13,8 +13,8 @@ test "audio cleanup stops deleted loops only in the active World" {
   let parent = @ecs_test.spawn(@ecs.require_current_world(), ())
   let child = @ecs_test.spawn(@ecs.require_current_world(), (), parent~)
   attach_audio(child, AudioPlayer(clip), settings~)
-  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
-  audio_playback_system(world=first, 0.0)
+  try! @ecs.Schedule().run(@ecs.require_current_world())
+  audio_playback_system(first.query(), first.query())
   assert_true(audio_sinks().contains(direct))
   assert_true(audio_sinks().contains(child))
   assert_true(@ecs_test.delete(direct))
@@ -23,8 +23,8 @@ test "audio cleanup stops deleted loops only in the active World" {
   let second = @ecs.World()
   @ecs.set_current_world(second)
   let survivor = spawn_audio(clip, settings~)
-  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
-  audio_playback_system(world=second, 0.0)
+  try! @ecs.Schedule().run(@ecs.require_current_world())
+  audio_playback_system(second.query(), second.query())
   let stopped = []
   cleanup_orphaned_audio(instance => stopped.push(instance))
   assert_true(stopped.is_empty())
@@ -56,8 +56,8 @@ test "audio cleanup retains old loop handles when the entity slot is reused" {
   @ecs.set_current_world(world)
   let clip = @asset.load_audio("audio-slot-reuse-test.ogg")
   let old = spawn_audio(clip, settings=PlaybackSettings::looped())
-  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
-  audio_playback_system(world~, 0.0)
+  try! @ecs.Schedule().run(@ecs.require_current_world())
+  audio_playback_system(world.query(), world.query())
   ignore(@ecs_test.delete(old))
   let replacement = spawn_audio(clip, settings=PlaybackSettings::looped())
   assert_eq(old.slot_index(), replacement.slot_index())
@@ -65,8 +65,8 @@ test "audio cleanup retains old loop handles when the entity slot is reused" {
   let stopped = []
   cleanup_orphaned_audio(instance => stopped.push(instance))
   assert_eq(stopped.length(), 1)
-  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
-  audio_playback_system(world~, 0.0)
+  try! @ecs.Schedule().run(@ecs.require_current_world())
+  audio_playback_system(world.query(), world.query())
   assert_false(audio_sinks().contains(old))
   assert_true(audio_sinks().contains(replacement))
 }
@@ -83,16 +83,18 @@ test "finished despawn audio queues deletion until query traversal completes" {
   let clip = @asset.load_audio("audio-deferred-delete-test.ogg")
   let first = spawn_audio(clip, settings=PlaybackSettings::despawn())
   let second = spawn_audio(clip, settings=PlaybackSettings::despawn())
-  try! @ecs.run_schedule(@ecs.require_current_world(), _ => ())
-  audio_playback_system(world~, 0.0)
+  try! @ecs.Schedule().run(@ecs.require_current_world())
+  audio_playback_system(world.query(), world.query())
   let players : @ecs.Query[@ecs.Single[AudioPlayer]] = world.query1()
   let visited = []
-  @ecs.run_schedule(world, _ => {
+  @ecs.Schedule()
+  .add_exclusive_system(_ => {
     for entity, _ in players {
       finish_audio_sink(entity)
       visited.push((entity, entity.is_valid_in(world)))
     }
   })
+  .run(world)
   assert_eq(visited, [(first, true), (second, true)])
   assert_false(first.is_valid_in(world))
   assert_false(second.is_valid_in(world))

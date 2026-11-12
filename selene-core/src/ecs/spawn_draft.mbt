@@ -7,8 +7,8 @@ struct SpawnDraft {
 }
 
 ///|
-pub fn World::spawn_draft(self : World) -> SpawnDraft {
-  { world: self, columns: [], spawned: false, }
+pub fn Commands::draft(self : Commands) -> SpawnDraft {
+  { world: self.world, columns: [], spawned: false, }
 }
 
 ///|

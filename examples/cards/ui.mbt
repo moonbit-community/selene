@@ -363,7 +363,9 @@ fn display_all_cards() -> Unit {
   let x_base = pos.x
   let y_base = pos.y - 40.0
 
-  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
+  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.commands(
+    @ecs.require_current_world(),
+  ).prepare_spawn()
   for j, card in player.hole_cards {
     let card_x = x_base + (j.to_double() - 0.5) * 30.0 - 30
     let card_entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
@@ -390,7 +392,9 @@ fn display_community_cards() -> Unit {
   game.community_card_entities.clear()
   let center_x = VIEWPORT_WIDTH / 2.0
   let center_y = VIEWPORT_HEIGHT / 2.0 - 60.0
-  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.require_current_world().prepare_spawn()
+  let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.commands(
+    @ecs.require_current_world(),
+  ).prepare_spawn()
   for i, card in game.community_cards {
     let card_x = center_x + (i.to_double() - 2.5) * 30.0 - 15
     let card_entity = @ecs.commands(@ecs.require_current_world()).spawn_prepared(

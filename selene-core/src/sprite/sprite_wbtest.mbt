@@ -9,7 +9,7 @@ fn with_sprite_test_world(action : (@ecs.World) -> Unit raise) -> Unit raise {
 
 ///|
 fn spawn_test_camera(world~ : @ecs.World, viewport : @math.Rect) -> @ecs.Entity {
-  let camera_entity_draft = world.spawn_draft()
+  let camera_entity_draft = @ecs.commands(world).draft()
   camera_entity_draft.add(
     (
       Camera(viewport=Some(@camera.CameraViewport::from_rect(viewport))) :
@@ -28,7 +28,7 @@ fn spawn_color_sprite(
   world~ : @ecs.World,
   position : @math.Vec2,
 ) -> @ecs.Entity {
-  let entity_draft = world.spawn_draft()
+  let entity_draft = @ecs.commands(world).draft()
   entity_draft.add(
     (
       Sprite::from_color(
