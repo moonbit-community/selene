@@ -143,6 +143,53 @@ fn main {
                 self.assertIn("entered query callback", output)
                 self.assertIn("queue structural changes outside an archetype query", output)
 
+    def test_query_for_loops_compile(self):
+        result = self.compile("""
+  ignore(world.spawn1(Position(1)))
+  let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
+  for (entity, Single(position)) in query {
+    world.set_component(entity, Position(position.0 + 1))
+  }
+  for entity, Single(position) in query {
+    world.set_component(entity, Position(position.0 + 1))
+  }
+  let entries : Iter[(@ecs.Entity, @ecs.Single[Position])] = query.iter()
+  ignore(entries.take(1).collect())
+""")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_query_iterators_reject_structural_invalidation(self):
+        for iterator in ("iter", "iter2"):
+            for operation in (
+                "ignore(world.spawn1(Position(3)))",
+                "ignore(world.spawn((Position(3), Speed(4))))",
+                "ignore(first.delete()); ignore(world.spawn1(Position(3)))",
+            ):
+                with self.subTest(iterator=iterator, operation=operation):
+                    result = self.run_program("""
+pub(all) struct Speed(Int)
+let speed_key : @ecs.ComponentKey[Speed] = ComponentKey()
+impl @ecs.Component for Speed with fn component_key() { speed_key }
+fn main raise {
+  let world = @ecs.World()
+  let first = world.spawn1(Position(1))
+  ignore(first)
+  let speeds : @ecs.Query[@ecs.Single[Speed]] = world.query1()
+  ignore(speeds)
+  ignore(world.spawn1(Position(2)))
+  let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
+  let entries = query.""" + iterator + """()
+  ignore(entries.next())
+  @ecs.run_schedule(world, _ => { """ + operation + """ })
+  println("advancing invalidated iterator")
+  ignore(entries.next())
+}
+""")
+                    output = result.stdout + result.stderr
+                    self.assertNotEqual(result.returncode, 0, output)
+                    self.assertIn("advancing invalidated iterator", output)
+                    self.assertIn("query iterator invalidated by structural changes in its World", output)
+
     def test_batch_cannot_access_an_undeclared_component(self):
         result = self.run_program("""
 pub(all) struct Speed(Int)

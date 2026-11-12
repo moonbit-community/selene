@@ -136,49 +136,79 @@ pub fn[T] Query::for_each(self : Query[T], visit : (Entity, T) -> Unit) -> Unit 
 }
 
 ///|
-/// Collects a snapshot. Structural changes after collection cannot invalidate traversal.
-/// Component objects inside the snapshot still have MoonBit reference semantics.
-pub fn[T] Query::iter(self : Query[T]) -> Array[(Entity, T)] {
-  let output = []
-  self.for_each((entity, value) => output.push((entity, value)))
-  output
+/// Lazily visits rows in archetype order without collecting a snapshot.
+/// Structural row changes invalidate the iterator; value writes do not.
+pub fn[T] Query::iter(self : Query[T]) -> Iter[(Entity, T)] {
+  self.iter2().iter()
 }
 
 ///|
+/// Explicitly collects a shallow snapshot of entity handles and component values.
 pub fn[T] Query::to_array(self : Query[T]) -> Array[(Entity, T)] {
-  self.iter()
+  self.iter().collect()
 }
 
 ///|
-/// Captures entity handles in insertion order, then reads each current row.
-/// Deleted handles are skipped and newly spawned entities are not visited.
-/// No archetype array remains borrowed between iterator steps.
+fn ArchetypeWorld::check_iteration(
+  self : ArchetypeWorld,
+  version : UInt64,
+) -> Unit {
+  guard self.structural_version == version else {
+    abort("query iterator invalidated by structural changes in its World")
+  }
+}
+
+///|
+/// Lazily reads matching archetype rows for two-variable for loops.
+/// No query lock survives a step. Structural changes are detected before the
+/// next read, so early exit never requires releasing a traversal guard.
 pub fn[T] Query::iter2(self : Query[T]) -> Iter2[Entity, T] {
-  let entities = self.keys()
+  let version = self.storage.structural_version
+  let mut started = false
+  let mut finished = false
+  let mut table = 0
+  let mut row = 0
   Iter2::new(() => {
-    while entities.next() is Some(entity) {
-      if self.get(entity) is Some(value) {
-        return Some((entity, value))
-      }
+    guard !finished else { return None }
+    self.storage.check_iteration(version)
+    if !started {
+      self.refresh()
+      started = true
     }
+    while table < self.matches.length() {
+      let (id, column) = self.matches[table]
+      let entities = self.storage.tables[id].entities
+      if row < entities.length() {
+        let entry = (entities[row], (column.read)(row))
+        row += 1
+        return Some(entry)
+      }
+      table += 1
+      row = 0
+    }
+    finished = true
     None
   })
 }
 
 ///|
-/// Captures matching handles, so later structural changes cannot invalidate it.
+/// Lazily visits matching entity handles in the first component's insertion order.
+/// Uses the same structural invalidation rule as row iterators.
 pub fn[T] Query::keys(self : Query[T]) -> Iter[Entity] {
-  self.refresh()
-  let entities = []
+  let version = self.storage.structural_version
   let mut next = self.order.head
-  while next is Some(index) {
-    let entry = self.order.entries[index].unwrap()
-    next = entry.next
-    if self.contains(entry.entity) {
-      entities.push(entry.entity)
+  Iter::new(() => {
+    guard next is Some(_) else { return None }
+    self.storage.check_iteration(version)
+    while next is Some(index) {
+      let entry = self.order.entries[index].unwrap()
+      next = entry.next
+      if self.contains(entry.entity) {
+        return Some(entry.entity)
+      }
     }
-  }
-  entities.iter()
+    None
+  })
 }
 
 ///|

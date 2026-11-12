@@ -56,14 +56,12 @@ each component. `Single` wraps the query row, not the stored component.
 ```moonbit
 let positions : @ecs.Query[@ecs.Single[Position]] = world.query1()
 let moving : @ecs.Query[(Position, Velocity)] = world.query()
-positions.for_each((entity, row) => {
-  let Single(position) = row
+for entity, Single(position) in positions {
   update_position(entity, position)
-})
-moving.for_each((entity, row) => {
-  let (position, velocity) = row
+}
+for entity, (position, velocity) in moving {
   update_movement(entity, position, velocity)
-})
+}
 let position : @ecs.Single[Position]? = positions.get(player)
 ```
 
@@ -216,14 +214,35 @@ view aborts. They expose no raw arrays or persistent array views.
 `for_each` and `for_each_batch` reject immediate structural changes and schedule
 flushes during traversal. Queue spawns and deletions through `Commands`.
 
-`iter()` and `to_array()` collect a snapshot of rows. `keys()` captures matching
-entity handles in the first component's insertion order. `iter2()` and
-`values()` capture those handles and read their current values when advancing:
-deleted generations are skipped, replacements in recycled slots are not
-visited, and value updates made before a later step are visible. They do not
-retain a live archetype row between steps, so a schedule flush cannot invalidate
-the iterator. Prefer callback traversal when no handle snapshot is needed.
-Snapshots retain component objects, not deep copies of mutable values.
+`iter()` returns `Iter[(Entity, Row)]`; `iter2()` returns `Iter2[Entity, Row]`.
+Both read archetype rows lazily, without collecting entity handles or results.
+Use ordinary loops with either one destructuring pattern or two loop variables:
+
+```moonbit
+for (entity, (position, velocity)) in moving {
+  update_movement(entity, position, velocity)
+}
+for entity, (position, velocity) in moving {
+  update_movement(entity, position, velocity)
+}
+```
+
+Each iterator has its own cursor. Value writes before a row is visited are visible.
+`values()` also reads lazily; `keys()` lazily follows the first component's insertion
+order. Row iterators use archetype order, which is not global spawn order.
+
+Adding or removing an archetype row in the owning World invalidates existing
+iterators, including before their first step. Their next advance aborts before
+reading a shifted row or a recycled entity slot. Changes in another World and
+schedules that only replace values do not invalidate them. Exhausted row iterators
+stay exhausted. Iterators hold no query lock between steps, so `break`, `return`,
+and discarding an iterator require no cleanup.
+
+Queue structural changes through `Commands` and flush after traversal. When
+immediate deletion during traversal is necessary, explicitly use `to_array()` to
+collect a shallow snapshot. Snapshots retain component objects, not deep copies of
+mutable values. Lazy traversal avoids result-array allocation; constructing each
+logical row can still allocate a tuple, as described in the benchmark report.
 
 ## Resources
 

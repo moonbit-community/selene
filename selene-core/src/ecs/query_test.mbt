@@ -12,7 +12,7 @@ test "query traversal and reader snapshots are scoped to their World" {
     visited.push((entity, value))
   })
   assert_eq(visited, [(first_entity, Position(10))])
-  assert_eq(query.iter(), [(first_entity, Single(Position(10)))])
+  assert_eq(query.iter().collect(), [(first_entity, Single(Position(10)))])
   assert_eq(query.get(second_entity).map(value => value.0), None)
   let reader : @ecs.QueryReader[@ecs.Single[Position]] = QueryReader()
   assert_eq(reader.read(query).added, [(first_entity, Single(Position(10)))])
@@ -37,7 +37,7 @@ test "component queries report a permanently deleted handle as removed" {
   let delta = reader.read(query)
   assert_eq(delta.removed, [old])
   assert_eq(delta.added, [(replacement, Single(Position(20)))])
-  assert_eq(query.iter(), [(replacement, Single(Position(20)))])
+  assert_eq(query.iter().collect(), [(replacement, Single(Position(20)))])
 }
 
 ///|
@@ -81,10 +81,10 @@ test "filters require a World and cannot expose its component store" {
   let query : @ecs.Query[@ecs.Single[Position]] = world.query()
   let with_speed : @ecs.With[Speed] = With(world)
   let without_speed : @ecs.Without[Speed] = Without(world)
-  assert_eq(query.with_filters([with_speed.to_filter()]).iter(), [
+  assert_eq(query.with_filters([with_speed.to_filter()]).iter().collect(), [
     (both, Single(Position(2))),
   ])
-  assert_eq(query.with_filters([without_speed.to_filter()]).iter(), [
+  assert_eq(query.with_filters([without_speed.to_filter()]).iter().collect(), [
     (only, Single(Position(1))),
   ])
 }
@@ -217,23 +217,112 @@ test "query shapes support six through eight columns without new query types" {
 }
 
 ///|
-test "handle-snapshot iteration survives deletion slot reuse and schedule flush" {
+test "query snapshots survive deletion and slot reuse explicitly" {
   let world = @ecs.World()
   let first = world.spawn1(Position(1))
   let deleted = world.spawn1(Position(2))
-  let third = world.spawn1(Position(3))
   let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
-  let entries = query.iter2()
-  assert_eq(entries.next(), Some((first, Single(Position(1)))))
-  let replacement = Ref(None)
+  let snapshot = query.to_array()
   @ecs.run_schedule(world, _ => {
     ignore(deleted.delete())
-    replacement.val = Some(world.spawn1(Position(4)))
-    world.set_component(third, Position(30))
+    ignore(world.spawn1(Position(3)))
+    world.set_component(first, Position(10))
   })
-  assert_eq(entries.next(), Some((third, Single(Position(30)))))
+  assert_eq(snapshot, [
+    (first, Single(Position(1))),
+    (deleted, Single(Position(2))),
+  ])
+  assert_eq(query.length(), 2)
+}
+
+///|
+test "query iter and iter2 support ordinary loops across filtered archetypes" {
+  let world = @ecs.World()
+  let other = @ecs.World()
+  ignore(world.spawn1(Position(0)))
+  let first = world.spawn((Position(1), Speed(2)))
+  let second = world.spawn((Position(3), Speed(4), Tagged(true)))
+  ignore(other.spawn((Position(8), Speed(9))))
+  let query : @ecs.Query[(Position, Speed)] = world.query()
+  let expected = [
+    (first, (Position(1), Speed(2))),
+    (second, (Position(3), Speed(4))),
+  ]
+  let singles = []
+  for (entity, (position, speed)) in query {
+    singles.push((entity, (position, speed)))
+  }
+  let pairs = []
+  for entity, (position, speed) in query {
+    pairs.push((entity, (position, speed)))
+  }
+  assert_eq(singles, expected)
+  assert_eq(pairs, expected)
+  let without : @ecs.Without[Tagged] = Without(world)
+  let filtered = query.with_filters([without.to_filter()])
+  assert_eq(filtered.iter().collect(), [expected[0]])
+  assert_eq(filtered.iter2().iter().collect(), [expected[0]])
+  let with_tag : @ecs.With[Tagged] = With(other)
+  let empty : @ecs.Query[@ecs.Single[Speed]] = other.query1(filters=[
+    with_tag.to_filter(),
+  ])
+  assert_eq(empty.iter().collect(), [])
+  assert_eq(empty.iter2().iter().collect(), [])
+}
+
+///|
+test "lazy query iterators observe value writes and ignore other World changes" {
+  let world = @ecs.World()
+  let other = @ecs.World()
+  let first = world.spawn1(Position(1))
+  let second = world.spawn1(Position(2))
+  let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
+  let entries : Iter[(@ecs.Entity, @ecs.Single[Position])] = query.iter()
+  let pairs = query.iter2()
+  let values = query.values()
+  world.set_component(first, Position(10))
+  assert_eq(entries.next(), Some((first, Single(Position(10)))))
+  assert_eq(pairs.next(), Some((first, Single(Position(10)))))
+  assert_eq(values.next(), Some(Single(Position(10))))
+  @ecs.run_schedule(world, _ => world.set_component(second, Position(20)))
+  ignore(other.spawn1(Position(99)))
+  assert_eq(entries.next(), Some((second, Single(Position(20)))))
+  assert_eq(pairs.next(), Some((second, Single(Position(20)))))
+  assert_eq(values.next(), Some(Single(Position(20))))
   assert_eq(entries.next(), None)
-  assert_eq(replacement.val.unwrap().slot_index(), deleted.slot_index())
+  assert_eq(pairs.next(), None)
+  ignore(world.spawn1(Position(30)))
+  assert_eq(entries.next(), None)
+  assert_eq(pairs.next(), None)
+}
+
+///|
+fn return_from_query(query : @ecs.Query[@ecs.Single[Position]]) -> Unit {
+  for _ in query {
+    return
+  }
+}
+
+///|
+test "early exit discarded and nested query iterators do not retain locks" {
+  let world = @ecs.World()
+  ignore(world.spawn1(Position(1)))
+  ignore(world.spawn((Position(2), Speed(3))))
+  let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
+  ignore(query.iter())
+  ignore(query.iter2())
+  for _ in query {
+    break
+  }
+  return_from_query(query)
+  let mut count = 0
+  for _ in query {
+    for _, _ in query {
+      count += 1
+    }
+  }
+  assert_eq(count, 4)
+  @ecs.run_schedule(world, _ => ignore(world.spawn1(Position(3))))
   assert_eq(query.length(), 3)
 }
 
@@ -255,4 +344,43 @@ test "panic an escaped write column expires after its callback" {
   let saved : Ref[@ecs.WriteColumn[Position]?] = Ref(None)
   query.for_each_batch(batch => saved.val = Some(batch.write_column()))
   saved.val.unwrap()[0] = Position(9)
+}
+
+///|
+test "panic iter rejects a spawn before its first advance" {
+  let world = @ecs.World()
+  let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
+  let entries = query.iter()
+  ignore(world.spawn1(Position(1)))
+  ignore(entries.next())
+}
+
+///|
+test "panic iter2 rejects deletion and reuse before reading the replacement" {
+  let world = @ecs.World()
+  let first = world.spawn1(Position(1))
+  ignore(world.spawn1(Position(2)))
+  let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
+  let entries = query.iter2()
+  ignore(entries.next())
+  let replacement = Ref(None)
+  @ecs.run_schedule(world, _ => {
+    ignore(first.delete())
+    replacement.val = Some(world.spawn1(Position(3)))
+  })
+  assert_eq(replacement.val.unwrap().slot_index(), first.slot_index())
+  ignore(entries.next())
+}
+
+///|
+test "panic keys rejects deletion before advancing linked order entries" {
+  let world = @ecs.World()
+  ignore(world.spawn1(Position(1)))
+  let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
+  let keys = query.keys()
+  @ecs.run_schedule(world, _ => {
+    let entity = query.single().unwrap().0
+    ignore(entity.delete())
+  })
+  ignore(keys.next())
 }

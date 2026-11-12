@@ -141,7 +141,7 @@ fn finish_audio_sink(entity : @ecs.Entity) -> Unit {
     Remove => stop_audio(entity)
     Despawn => {
       audio_sinks().remove(entity)
-      ignore(entity.delete())
+      @ecs.commands(@ecs.require_current_world()).delete(entity)
     }
   }
 }

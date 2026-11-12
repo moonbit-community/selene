@@ -103,7 +103,7 @@ test "batch row replacement preserves alignment across tables" {
 }
 
 ///|
-test "component iteration preserves spawn order when the current row is deleted" {
+test "explicit component snapshots allow deletion during traversal" {
   let world = World()
   let a : ComponentStore[Int32] = ComponentStore(world)
   let plan = a.spawn_plan(world)
@@ -112,7 +112,7 @@ test "component iteration preserves spawn order when the current row is deleted"
   let third = plan.spawn(3)
   let seen = []
   run_schedule(world, _ => {
-    for entity, Single(value) in make_query1(a) {
+    for (entity, Single(value)) in make_query1(a).to_array() {
       seen.push(value)
       if entity == second {
         if !entity.delete() {
@@ -122,10 +122,10 @@ test "component iteration preserves spawn order when the current row is deleted"
     }
   })
   assert_eq(seen, [1, 2, 3])
-  assert_eq(make_query1(a).iter().map(entry => (entry.0, entry.1.0)), [
-    (first, 1),
-    (third, 3),
-  ])
+  assert_eq(
+    make_query1(a).iter().map(entry => (entry.0, entry.1.0)).collect(),
+    [(first, 1), (third, 3)],
+  )
 }
 
 ///|

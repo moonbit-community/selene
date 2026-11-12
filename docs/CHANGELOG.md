@@ -204,9 +204,11 @@
 - Apply structural filters consistently to every query operation and cache
   their matches per archetype. Reject foreign-World filters and undeclared batch
   columns. Detect batch and column access after their callback has returned.
-- Protect callback traversals against structural changes; use entity-handle
-  snapshots for iterators so deletion, slot reuse, and schedule flushes cannot
-  invalidate live array traversal.
+- Make query `iter` and `iter2` conform to MoonBit's lazy iteration protocol,
+  supporting ordinary `for` loops without collecting rows or entity handles.
+  Keep snapshots explicit through `to_array`, detect structural invalidation
+  before reading the next row, and leave no query locks after early exit.
+  Defer completed-audio entity deletion until the scheduler's command flush.
 
 - Preserve shortest-path, constant-speed rotation interpolation, including
   antipodal quaternion representations and small angles.

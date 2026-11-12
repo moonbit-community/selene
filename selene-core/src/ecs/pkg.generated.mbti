@@ -98,7 +98,7 @@ pub fn[T] Query::for_each_batch(Self[T], (QueryBatch[T]) -> Unit) -> Unit
 pub fn[T] Query::get(Self[T], Entity) -> T?
 pub fn[T] Query::insertion_order(Self[T], Entity) -> Int32
 pub fn[T] Query::is_empty(Self[T]) -> Bool
-pub fn[T] Query::iter(Self[T]) -> Array[(Entity, T)]
+pub fn[T] Query::iter(Self[T]) -> Iter[(Entity, T)]
 pub fn[T] Query::iter2(Self[T]) -> Iter2[Entity, T]
 pub fn[T] Query::keys(Self[T]) -> Iter[Entity]
 pub fn[T] Query::length(Self[T]) -> Int32
