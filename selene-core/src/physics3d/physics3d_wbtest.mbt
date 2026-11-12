@@ -899,10 +899,10 @@ test "kinematic character controller writes output and clears consumed translati
 
     step_physics(1)
 
-    let output = kinematic_character_controller_outputs().get(actor).unwrap()
+    let output = kinematic_character_controller_output(actor).unwrap()
     inspect(output.desired_translation.y < 0.0, content="true")
     inspect(
-      kinematic_character_controller_collisions().get(actor).unwrap().collisions.length() >=
+      kinematic_character_controller_collisions(actor).unwrap().collisions.length() >=
       0,
       content="true",
     )
@@ -1130,5 +1130,34 @@ test "3D physics removes sheared poses and restores valid colliders" {
     @transform.set_local_transform(parent, @transform.Transform::identity())
     step_physics(1)
     assert_eq(cast().unwrap().entity, child)
+  })
+}
+
+///|
+test "character contacts expose snapshots instead of mutable output storage" {
+  with_physics3d_test_world(fn() raise {
+    let world = @ecs.require_current_world()
+    let entity = world.spawn(())
+    controller_collisions().set(entity, {
+      collisions: [
+        {
+          entity: None,
+          character_translation_applied: @math.Vec3::zero(),
+          character_translation_remaining: @math.Vec3::zero(),
+          toi: 0.0,
+          normal: @math.Vec3::y_axis(),
+        },
+      ],
+    })
+    let snapshot = kinematic_character_controller_collisions(entity).unwrap()
+    snapshot.collisions.clear()
+    assert_eq(
+      kinematic_character_controller_collisions(entity).unwrap().collisions.length(),
+      1,
+    )
+    ignore(entity.delete())
+    let replacement = world.spawn(())
+    assert_true(kinematic_character_controller_collisions(entity) is None)
+    assert_true(kinematic_character_controller_collisions(replacement) is None)
   })
 }

@@ -152,7 +152,7 @@ fn sync_character_controllers(delta : Double) -> Unit {
     }
     guard colliders().get(entity) is Some(shape) else {
       kinematic_character_controller_outputs().set(entity, output)
-      kinematic_character_controller_collisions().set(
+      controller_collisions().set(
         entity,
         KinematicCharacterControllerCollisions(),
       )
@@ -199,7 +199,7 @@ fn sync_character_controllers(delta : Double) -> Unit {
       grounded: movement.is_grounded(),
       is_sliding_down_slope: movement.is_sliding_down_slope(),
     })
-    kinematic_character_controller_collisions().set(entity, {
+    controller_collisions().set(entity, {
       collisions: rapier_collisions.map(collision => {
         entity: resolve_collider_entity(collision.handle()),
         character_translation_applied: vec3_from_rapier(

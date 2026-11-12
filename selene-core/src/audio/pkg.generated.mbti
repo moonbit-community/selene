@@ -5,7 +5,6 @@ import {
   "Milky2018/selene/asset_types",
   "Milky2018/selene/ecs",
   "Milky2018/selene/event",
-  "Milky2018/selene/platform_audio",
   "moonbitlang/core/debug",
 }
 
@@ -22,7 +21,7 @@ pub fn audio_playback_system(Double) -> Unit
 
 pub fn audio_players() -> @ecs.ComponentStore[AudioPlayer]
 
-pub fn audio_sinks() -> @ecs.EntityTable[AudioSink]
+pub fn audio_sink(@ecs.Entity) -> AudioSink?
 
 pub fn global_volume() -> Double
 
@@ -62,16 +61,7 @@ pub fn AudioPlayer::not_equal(Self, Self) -> Bool
 pub fn AudioPlayer::to_repr(Self) -> @debug.Repr
 pub impl @ecs.Component for AudioPlayer
 
-pub(all) struct AudioSink {
-  instance : @platform_audio.AudioInstance
-  mode : PlaybackMode
-  mut volume : Double
-  mut speed : Double
-  mut paused : Bool
-  mut muted : Bool
-  mut stopped : Bool
-  mut finished : Bool
-}
+type AudioSink
 pub fn AudioSink::finished(Self) -> Bool
 pub fn AudioSink::mode(Self) -> PlaybackMode
 pub fn AudioSink::muted(Self) -> Bool

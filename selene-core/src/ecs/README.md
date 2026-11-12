@@ -279,13 +279,33 @@ generated sources included in the published package.
 Use a World resource for subsystem state, including caches and event readers.
 Do not keep a global `Map[WorldId, State]`: the World should own its data.
 
-`EntityTable[T](world)` stores World-local runtime data indexed by entity slots.
-It is not a component store and does not change entity layouts. Lookups compare
-full entity handles, and traversal preserves insertion order. Deleted entities'
-entries remain available for explicit cleanup, including when their slots have
-been reused. This lets an owner release old audio or physics resources without
-confusing them with a new entity. Use `retain` to prune entries; its callback
-must not structurally modify the table. Use `clear` for frame-local results.
+Engine subsystems keep entity-indexed runtime caches inside those resources.
+Game code accesses individual results or control handles rather than mutable
+cache containers:
+
+```moonbit
+let interaction = @ui.interaction(entity)
+let clip = @ui.calculated_clip(entity)
+let position = @ui.scroll_position(entity) // a snapshot
+@ui.set_scroll_position(entity, { x: 0.0, y: 100.0 })
+@ui.focus(entity)
+
+if @audio.audio_sink(entity) is Some(sink) {
+  sink.set_volume(0.5)
+  sink.pause()
+}
+```
+
+Scroll position updates are applied and clamped during layout. Readers return
+copies of mutable value data, including scroll positions and character contact
+arrays. Audio sinks are opaque control handles with playback operations.
+Visibility and character motion readers return results from the latest
+propagation or physics pass. LDtk respawn requests use `mark_ldtk_respawn`,
+`clear_ldtk_respawn`, and `is_ldtk_respawn_requested`.
+
+The underlying entity tables can retain deleted generations until the owning
+subsystem releases external resources. Public readers reject deleted handles
+and do not expose those cleanup records.
 
 Prefer direct iteration for reads. Use `Map::retain` for simple filtering, and
 queue entity deletions through `Commands` while traversing components. Collect a

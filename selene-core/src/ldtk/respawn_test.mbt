@@ -1,0 +1,26 @@
+///|
+test "respawn requests are changed through operations and queried per entity" {
+  let previous = @ecs.current_world()
+  defer (match previous {
+    Some(world) => @ecs.set_current_world(world)
+    None => @ecs.clear_current_world()
+  })
+  let first = @ecs.World()
+  let second = @ecs.World()
+  @ecs.set_current_world(first)
+  let entity = first.spawn(())
+  assert_false(@ldtk.is_ldtk_respawn_requested(entity))
+  @ldtk.mark_ldtk_respawn(entity)
+  assert_true(@ldtk.is_ldtk_respawn_requested(entity))
+  @ldtk.clear_ldtk_respawn(entity)
+  assert_false(@ldtk.is_ldtk_respawn_requested(entity))
+  @ldtk.mark_ldtk_respawn(entity)
+  @ecs.set_current_world(second)
+  assert_false(@ldtk.is_ldtk_respawn_requested(entity))
+  @ecs.set_current_world(first)
+  assert_true(entity.delete())
+  let replacement = first.spawn(())
+  assert_eq(entity.slot_index(), replacement.slot_index())
+  assert_false(@ldtk.is_ldtk_respawn_requested(entity))
+  assert_false(@ldtk.is_ldtk_respawn_requested(replacement))
+}

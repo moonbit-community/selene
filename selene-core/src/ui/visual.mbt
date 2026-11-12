@@ -557,7 +557,7 @@ pub fn buttons() -> @ecs.ComponentStore[Button] {
 }
 
 ///|
-pub fn interactions() -> @ecs.EntityTable[Interaction] {
+fn interactions() -> @ecs.EntityTable[Interaction] {
   ui_model_world_store().interactions
 }
 
@@ -623,4 +623,11 @@ pub fn text_style_for(entity : @ecs.Entity) -> @render2d_types.TextStyle2D? {
     align: layout.align,
     baseline: layout.baseline,
   })
+}
+
+///|
+/// Reads the interaction state produced by the latest UI interaction pass.
+pub fn interaction(entity : @ecs.Entity) -> Interaction {
+  guard entity.is_alive() else { None }
+  interactions().get(entity).unwrap_or(None)
 }

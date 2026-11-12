@@ -55,9 +55,9 @@ pub fn impulse_joint_handle(@ecs.Entity) -> @dynamics.JointHandle3DReal?
 
 pub fn impulse_joints() -> @ecs.ComponentStore[ImpulseJoint]
 
-pub fn kinematic_character_controller_collisions() -> @ecs.EntityTable[KinematicCharacterControllerCollisions]
+pub fn kinematic_character_controller_collisions(@ecs.Entity) -> KinematicCharacterControllerCollisions?
 
-pub fn kinematic_character_controller_outputs() -> @ecs.EntityTable[KinematicCharacterControllerOutput]
+pub fn kinematic_character_controller_output(@ecs.Entity) -> KinematicCharacterControllerOutput?
 
 pub fn kinematic_character_controllers() -> @ecs.ComponentStore[KinematicCharacterController]
 

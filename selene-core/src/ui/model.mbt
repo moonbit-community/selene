@@ -893,12 +893,12 @@ pub extend FocusPolicy with @moonbitlang/core/debug.Debug::{to_repr}
 pub extend FocusPolicy with Eq::{not_equal, equal}
 
 ///|
-pub(all) struct Focused {
+priv struct Focused {
   _tag : Unit
 }
 
 ///|
-pub fn Focused::Focused() -> Focused {
+fn Focused::Focused() -> Focused {
   { _tag: (), }
 }
 
@@ -1027,7 +1027,7 @@ pub fn ui_target_cameras() -> @ecs.ComponentStore[UiTargetCamera] {
 }
 
 ///|
-pub fn calculated_clips() -> @ecs.EntityTable[CalculatedClip] {
+fn calculated_clips() -> @ecs.EntityTable[CalculatedClip] {
   ui_model_world_store().calculated_clips
 }
 
@@ -1047,7 +1047,7 @@ pub fn global_zindexes() -> @ecs.ComponentStore[GlobalZIndex] {
 }
 
 ///|
-pub fn scroll_positions() -> @ecs.EntityTable[ScrollPosition] {
+fn scroll_positions() -> @ecs.EntityTable[ScrollPosition] {
   ui_model_world_store().scroll_positions
 }
 
@@ -1067,7 +1067,7 @@ pub fn focusables() -> @ecs.ComponentStore[Focusable] {
 }
 
 ///|
-pub fn focuseds() -> @ecs.EntityTable[Focused] {
+fn focuseds() -> @ecs.EntityTable[Focused] {
   ui_model_world_store().focuseds
 }
 
@@ -1294,4 +1294,40 @@ fn rebuild_ui_stack() -> Unit {
       }
     }
   }
+}
+
+///|
+/// Reads the clipping rectangle calculated by the latest UI layout pass.
+pub fn calculated_clip(entity : @ecs.Entity) -> CalculatedClip? {
+  guard entity.is_valid_in(@ecs.require_current_world()) else { None }
+  calculated_clips().get(entity)
+}
+
+///|
+/// Returns a copy of the stored scroll position. Use set_scroll_position to
+/// request a change; layout clamps the position to the current scroll bounds.
+pub fn scroll_position(entity : @ecs.Entity) -> ScrollPosition? {
+  guard entity.is_valid_in(@ecs.require_current_world()) else { None }
+  scroll_positions().get(entity).map(position => { ..position, })
+}
+
+///|
+/// Requests a scroll position for a UI node in the active World. The next
+/// layout pass clamps it to the node's scroll bounds. Copies the input value.
+pub fn set_scroll_position(
+  entity : @ecs.Entity,
+  position : ScrollPosition,
+) -> Unit {
+  guard entity.is_valid_in(@ecs.require_current_world()) &&
+    nodes().contains(entity) else {
+    return
+  }
+  scroll_positions().set(entity, { ..position, })
+}
+
+///|
+/// Whether this live entity currently has UI focus. Change focus with focus
+/// or blur so the focus state and focus events remain synchronized.
+pub fn is_focused(entity : @ecs.Entity) -> Bool {
+  entity.is_alive() && focuseds().contains(entity)
 }

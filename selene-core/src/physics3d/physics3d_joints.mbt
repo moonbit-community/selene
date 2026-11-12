@@ -162,7 +162,7 @@ fn collider_desc(entity : @ecs.Entity, shape : Collider) -> ColliderDesc {
 ///|
 fn clear_controller_outputs() -> Unit {
   kinematic_character_controller_outputs().clear()
-  kinematic_character_controller_collisions().clear()
+  controller_collisions().clear()
 }
 
 ///|

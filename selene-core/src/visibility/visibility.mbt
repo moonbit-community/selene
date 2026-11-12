@@ -59,12 +59,12 @@ fn visibility_state() -> VisibilityState {
 }
 
 ///|
-pub fn inherited_visibilities() -> @ecs.EntityTable[InheritedVisibility] {
+fn inherited_visibilities() -> @ecs.EntityTable[InheritedVisibility] {
   visibility_state().inherited
 }
 
 ///|
-pub fn view_visibilities() -> @ecs.EntityTable[ViewVisibility] {
+fn view_visibilities() -> @ecs.EntityTable[ViewVisibility] {
   visibility_state().view
 }
 
@@ -103,4 +103,18 @@ pub fn visibility_propagate_system(_delta : Double) -> Unit {
 ///|
 pub fn is_visible(entity : @ecs.Entity) -> Bool {
   view_visibilities().get(entity).map(fn(v) { v.visible }).unwrap_or(true)
+}
+
+///|
+/// Reads inherited visibility produced by the latest propagation pass.
+pub fn inherited_visibility(entity : @ecs.Entity) -> InheritedVisibility? {
+  guard entity.is_valid_in(@ecs.require_current_world()) else { None }
+  inherited_visibilities().get(entity)
+}
+
+///|
+/// Reads view visibility produced by the latest propagation pass.
+pub fn view_visibility(entity : @ecs.Entity) -> ViewVisibility? {
+  guard entity.is_valid_in(@ecs.require_current_world()) else { None }
+  view_visibilities().get(entity)
 }

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-pub(all) struct AudioSink {
+struct AudioSink {
   instance : @platform_audio.AudioInstance
   mode : PlaybackMode
   mut volume : Double

@@ -89,6 +89,8 @@ pub fn default_ldtk_level_selection() -> LdtkLevelSelection
 
 pub fn despawn_ldtk_tree(@ecs.Entity) -> Unit
 
+pub fn is_ldtk_respawn_requested(@ecs.Entity) -> Bool
+
 pub fn ldtk_entity_by_iid(@ecs.Entity, String) -> @ecs.Entity?
 
 pub fn ldtk_entity_default_spawn_hook() -> @ref.Ref[((LdtkEntitySpawnedEvent) -> Unit)?]
@@ -208,8 +210,6 @@ pub fn ldtk_level_spawn_behavior_world_translation(Bool) -> LdtkLevelSpawnBehavi
 pub let ldtk_level_spawned_event_bus : @event.Events[LdtkLevelSpawnedEvent]
 
 pub fn ldtk_pending_transformed_level_iids() -> @set.Set[String]
-
-pub fn ldtk_respawns() -> @ecs.EntityTable[LdtkRespawn]
 
 pub let ldtk_settings : @ref.Ref[LdtkSettings]
 
@@ -799,10 +799,6 @@ pub struct LdtkProjectDefinitions {
   external_enums : Array[LdtkEnumDefinition]
 }
 pub fn LdtkProjectDefinitions::LdtkProjectDefinitions() -> Self
-
-pub struct LdtkRespawn {
-  requested : Bool
-}
 
 pub struct LdtkSettings {
   level_spawn_behavior : LdtkLevelSpawnBehavior

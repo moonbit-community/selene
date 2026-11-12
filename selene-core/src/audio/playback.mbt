@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-pub fn audio_sinks() -> @ecs.EntityTable[AudioSink] {
+fn audio_sinks() -> @ecs.EntityTable[AudioSink] {
   audio_runtime().sinks
 }
 
@@ -217,4 +217,12 @@ fn update_audio_playback(
   } else {
     start_audio_sink(entity, player, normalize_settings(settings))
   }
+}
+
+///|
+/// Returns the playback control handle for an entity in the active World.
+/// A sink is available after the audio playback system starts its instance.
+pub fn audio_sink(entity : @ecs.Entity) -> AudioSink? {
+  guard entity.is_valid_in(@ecs.require_current_world()) else { None }
+  audio_sinks().get(entity)
 }

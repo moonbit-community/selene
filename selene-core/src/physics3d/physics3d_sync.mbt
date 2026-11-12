@@ -38,14 +38,14 @@ pub fn kinematic_character_controllers() -> @ecs.ComponentStore[
 }
 
 ///|
-pub fn kinematic_character_controller_outputs() -> @ecs.EntityTable[
+fn kinematic_character_controller_outputs() -> @ecs.EntityTable[
   KinematicCharacterControllerOutput,
 ] {
   physics3d_world_store().controller_outputs
 }
 
 ///|
-pub fn kinematic_character_controller_collisions() -> @ecs.EntityTable[
+fn controller_collisions() -> @ecs.EntityTable[
   KinematicCharacterControllerCollisions,
 ] {
   physics3d_world_store().controller_collisions
@@ -178,4 +178,25 @@ pub fn multibody_joint_handle(
   entity : @ecs.Entity,
 ) -> RapierMultibodyJointHandle? {
   multibody_joint_handles().get(entity)
+}
+
+///|
+/// Reads the character motion result from the latest physics step.
+pub fn kinematic_character_controller_output(
+  entity : @ecs.Entity,
+) -> KinematicCharacterControllerOutput? {
+  guard entity.is_valid_in(@ecs.require_current_world()) else { None }
+  kinematic_character_controller_outputs().get(entity)
+}
+
+///|
+/// Reads character contacts from the latest physics step. The returned array
+/// is a copy, so modifying it cannot change the stored physics result.
+pub fn kinematic_character_controller_collisions(
+  entity : @ecs.Entity,
+) -> KinematicCharacterControllerCollisions? {
+  guard entity.is_valid_in(@ecs.require_current_world()) else { None }
+  controller_collisions()
+  .get(entity)
+  .map(result => { collisions: result.collisions.copy(), })
 }

@@ -138,7 +138,7 @@ pub struct LdtkWorldly {
 }
 
 ///|
-pub struct LdtkRespawn {
+priv struct LdtkRespawn {
   requested : Bool
 }
 

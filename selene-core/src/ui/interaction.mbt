@@ -200,6 +200,7 @@ fn set_focus_marker(entity : @ecs.Entity) -> Unit {
 
 ///|
 pub fn focus(entity : @ecs.Entity) -> Unit {
+  guard entity.is_alive() else { return }
   let runtime = ui_interaction_runtime()
   if runtime.focused_entity is Some(current) && current == entity {
     return

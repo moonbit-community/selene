@@ -237,18 +237,12 @@ test "ui mouse click uses the unified pointer event stream" {
 
     apply_ui_mouse_frame(position, true)
     ui_interaction_system(0.0)
-    inspect(
-      interactions().get(entity).unwrap_or(None) == Pressed,
-      content="true",
-    )
+    inspect(interaction(entity) == Pressed, content="true")
 
     apply_ui_mouse_frame(position, false)
     ui_interaction_system(0.0)
     inspect(click_event_bus.read(click_reader).length(), content="1")
-    inspect(
-      interactions().get(entity).unwrap_or(None) == Hovered,
-      content="true",
-    )
+    inspect(interaction(entity) == Hovered, content="true")
 
     cleanup_interaction_test_entity(entity)
     reset_interaction_test_state()
@@ -304,10 +298,7 @@ test "ui touch tap clicks interactive button without sticky hover" {
       touch_event(id, Started, press),
     ])
     ui_interaction_system(0.0)
-    inspect(
-      interactions().get(entity).unwrap_or(None) == Pressed,
-      content="true",
-    )
+    inspect(interaction(entity) == Pressed, content="true")
 
     apply_ui_touch_frame(None, [touch_event(id, Ended, press)])
     ui_interaction_system(0.0)
@@ -316,7 +307,7 @@ test "ui touch tap clicks interactive button without sticky hover" {
     inspect(pointer_up_event_bus.read(up_reader).length(), content="1")
     inspect(click_event_bus.read(click_reader).length(), content="1")
     inspect(pointer_enter_event_bus.read(enter_reader).length(), content="0")
-    inspect(interactions().get(entity).unwrap_or(None) == None, content="true")
+    inspect(interaction(entity) == None, content="true")
 
     cleanup_interaction_test_entity(entity)
     reset_interaction_test_state()
@@ -343,7 +334,7 @@ test "ui cancelled touch clears pressed state without click" {
     ui_interaction_system(0.0)
 
     inspect(click_event_bus.read(click_reader).length(), content="0")
-    inspect(interactions().get(entity).unwrap_or(None) == None, content="true")
+    inspect(interaction(entity) == None, content="true")
 
     cleanup_interaction_test_entity(entity)
     reset_interaction_test_state()
@@ -375,7 +366,7 @@ test "ui touch release outside pressed target does not click" {
 
     inspect(pointer_up_event_bus.read(up_reader).length(), content="1")
     inspect(click_event_bus.read(click_reader).length(), content="0")
-    inspect(interactions().get(entity).unwrap_or(None) == None, content="true")
+    inspect(interaction(entity) == None, content="true")
 
     cleanup_interaction_test_entity(entity)
     reset_interaction_test_state()
@@ -404,7 +395,7 @@ test "ui touch drag scrolls non-button scrollable panels" {
     )
     ui_interaction_system(0.0)
 
-    let scroll = scroll_positions().get(entity).unwrap()
+    let scroll = scroll_position(entity).unwrap()
     inspect(scroll.y, content="20")
 
     cleanup_interaction_test_entity(child)
@@ -430,13 +421,13 @@ test "ui scroll deltas stop at the computed content bounds" {
     debug_inspect(
       [
         computed_ui_node(entity).unwrap().max_scroll_position.y,
-        scroll_positions().get(entity).unwrap().y,
+        scroll_position(entity).unwrap().y,
       ],
       content="[120, 120]",
     )
 
     apply_scroll_delta(entity, Vec2(0.0, -1000.0))
-    inspect(scroll_positions().get(entity).unwrap().y, content="0")
+    inspect(scroll_position(entity).unwrap().y, content="0")
 
     cleanup_interaction_test_entity(child)
     cleanup_interaction_test_entity(entity)

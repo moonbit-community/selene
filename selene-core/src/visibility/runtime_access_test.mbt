@@ -1,0 +1,27 @@
+///|
+test "visibility results follow authored components and reject stale handles" {
+  let previous = @ecs.current_world()
+  defer (match previous {
+    Some(world) => @ecs.set_current_world(world)
+    None => @ecs.clear_current_world()
+  })
+  let first = @ecs.World()
+  let second = @ecs.World()
+  @ecs.set_current_world(first)
+  let parent = first.spawn1(@visibility.Visibility::Hidden)
+  let child = first.spawn((), parent~)
+  assert_true(@visibility.view_visibility(child) is None)
+  @visibility.visibility_propagate_system(0.0)
+  assert_false(@visibility.inherited_visibility(child).unwrap().visible)
+  assert_false(@visibility.view_visibility(child).unwrap().visible)
+  @visibility.visibilities().set(parent, Visible)
+  @visibility.visibility_propagate_system(0.0)
+  assert_true(@visibility.is_visible(child))
+  @ecs.set_current_world(second)
+  assert_true(@visibility.inherited_visibility(child) is None)
+  @ecs.set_current_world(first)
+  assert_true(parent.delete())
+  assert_true(@visibility.view_visibility(child) is None)
+  let replacement = first.spawn(())
+  assert_true(@visibility.view_visibility(replacement) is None)
+}

@@ -38,6 +38,15 @@
 
 ### Changed
 
+- Remove redundant runtime-table writes after mutating morph weights.
+
+- Keep entity runtime tables private to their subsystems. Read individual UI,
+  visibility, audio, and character controller results instead of mutating their
+  stores. Use `set_scroll_position`, focus operations, and LDtk respawn operations
+  for writes. Scroll positions and contact arrays are snapshots; `AudioSink`
+  exposes playback methods without public fields. Hide the internal `Focused`
+  and `LdtkRespawn` marker types.
+
 - Store engine runtime state, event buses, and event reader cursors in their
   owning World resources instead of global World-ID maps.
 - Index entity runtime data by reusable slots with full-handle validation,

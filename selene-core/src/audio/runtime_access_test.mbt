@@ -1,0 +1,26 @@
+///|
+test "audio control handles are read per entity without exposing sink storage" {
+  let previous = @ecs.current_world()
+  defer (match previous {
+    Some(world) => @ecs.set_current_world(world)
+    None => @ecs.clear_current_world()
+  })
+  let first = @ecs.World()
+  let second = @ecs.World()
+  @ecs.set_current_world(first)
+  let entity = @audio.spawn_audio(@asset.load_audio("audio-access-test.ogg"))
+  assert_true(@audio.audio_sink(entity) is None)
+  @audio.audio_playback_system(0.0)
+  let sink = @audio.audio_sink(entity).unwrap()
+  sink.set_volume(0.25)
+  sink.pause()
+  assert_eq(@audio.audio_sink(entity).unwrap().volume(), 0.25)
+  assert_true(@audio.audio_sink(entity).unwrap().paused())
+  @ecs.set_current_world(second)
+  assert_true(@audio.audio_sink(entity) is None)
+  @ecs.set_current_world(first)
+  @audio.stop_audio(entity)
+  assert_true(@audio.audio_sink(entity) is None)
+  assert_true(entity.delete())
+  assert_true(@audio.audio_sink(entity) is None)
+}

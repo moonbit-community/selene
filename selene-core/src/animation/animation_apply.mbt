@@ -196,16 +196,14 @@ fn set_target_morph_weights(
   target_entity : @ecs.Entity,
   weights : Array[Double],
 ) -> Unit {
-  for entity, binding in morphed_meshes() {
+  for binding in morphed_meshes().values() {
     if binding.target_entity == target_entity {
       binding.morph_weights = weights.copy()
-      morphed_meshes().set(entity, binding)
     }
   }
-  for entity, binding in skinned_meshes() {
+  for binding in skinned_meshes().values() {
     if binding.target_entity == target_entity {
       binding.morph_weights = weights.copy()
-      skinned_meshes().set(entity, binding)
     }
   }
 }

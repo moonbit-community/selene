@@ -9,7 +9,7 @@ import {
 // Values
 pub fn entity_render_layers(@ecs.Entity) -> RenderLayers
 
-pub fn inherited_visibilities() -> @ecs.EntityTable[InheritedVisibility]
+pub fn inherited_visibility(@ecs.Entity) -> InheritedVisibility?
 
 pub fn is_visible(@ecs.Entity) -> Bool
 
@@ -21,7 +21,7 @@ pub fn matches(RenderLayers, RenderLayers) -> Bool
 
 pub fn render_layers() -> @ecs.ComponentStore[RenderLayers]
 
-pub fn view_visibilities() -> @ecs.EntityTable[ViewVisibility]
+pub fn view_visibility(@ecs.Entity) -> ViewVisibility?
 
 pub fn visibilities() -> @ecs.ComponentStore[Visibility]
 

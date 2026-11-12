@@ -63,7 +63,11 @@ test "retained UI layout updates replaced subtrees" {
 ///|
 test "retained UI stacking changes do not reproject or relayout" {
   let entity = @ecs.require_current_world().spawn(
-    (Node(width=Val::px(100.0), height=Val::px(100.0)), ZIndex(0)),
+    (
+      Node(width=Val::px(100.0), height=Val::px(100.0)),
+      ZIndex(0),
+      @visibility.Visibility::Visible,
+    ),
   )
   ui_layout_system(0.0)
   let runtime = ui_layout_runtime()
@@ -77,14 +81,14 @@ test "retained UI stacking changes do not reproject or relayout" {
   assert_eq(runtime.projection_revision, projection_revision)
   assert_eq(runtime.stacking_revision, stacking_revision + 1U)
 
-  @visibility.view_visibilities().set(entity, { visible: false, })
+  @visibility.visibilities().set(entity, Hidden)
+  @visibility.visibility_propagate_system(0.0)
   ui_layout_system(0.0)
   assert_eq(runtime.layout_revision, layout_revision)
   assert_eq(runtime.projection_revision, projection_revision)
   assert_eq(runtime.stacking_revision, stacking_revision + 2U)
   assert_false(ui_stack().contains(entity))
 
-  ignore(@visibility.view_visibilities().remove(entity))
   cleanup_layout_test_entity(entity)
   ui_layout_system(0.0)
 }
@@ -123,7 +127,7 @@ test "retained UI projection changes do not rebuild layout or stacking" {
   let projection_revision = runtime.projection_revision
   let stacking_revision = runtime.stacking_revision
 
-  scroll_positions().set(root, { x: 10.0, y: 0.0, })
+  set_scroll_position(root, { x: 10.0, y: 0.0, })
   ui_layout_system(0.0)
   assert_eq(runtime.layout_revision, layout_revision)
   assert_eq(runtime.projection_revision, projection_revision + 1U)
