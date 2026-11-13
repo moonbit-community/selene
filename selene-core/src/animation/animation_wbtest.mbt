@@ -152,7 +152,7 @@ test "animation graph mask groups exclude masked targets during apply" {
       ),
     )
     ignore(masked_player.start(masked_node, repeat=Never))
-    animation_apply_system(world~, 0.0)
+    animation_apply_system(world~)
     inspect(
       @transform.local_transform(world~, target_entity).unwrap().translation.x,
       content="0",
@@ -171,7 +171,7 @@ test "animation graph mask groups exclude masked targets during apply" {
       .unwrap()
     ignore(unmasked_player.stop_all())
     ignore(unmasked_player.start(unmasked_node, repeat=Never))
-    animation_apply_system(world~, 0.0)
+    animation_apply_system(world~)
     inspect(
       @transform.local_transform(world~, target_entity).unwrap().translation.x,
       content="10",
@@ -202,7 +202,9 @@ test "animation event descriptors dispatch typed events to readers and observers
     })
     |> ignore
     ignore(player.start(nodes[0], repeat=Never))
-    animation_player_system(world~, 1.0)
+    let time = @time.Time(world)
+    time.set_delta(1.0)
+    animation_player_system(world.query(), AnimationTargets(world), time)
     let reader_events = events.read(reader)
     inspect(reader_events.length(), content="1")
     inspect(reader_events[0], content="7")
@@ -275,8 +277,12 @@ test "skinning uses the joint world affine for positions and normals" {
       joint_entities: [joint],
       inverse_bind_matrices: [@math.Mat4::identity()],
     })
-    @transform.transform_propagate_system(world~, 0.0)
-    animation_skinning_system(world~, 0.0)
+    @transform.transform_propagate_system(
+      Entities(world),
+      Hierarchy(world),
+      world.query(),
+    )
+    animation_skinning_system(AnimationMeshes(world), Transforms(world))
     guard @render3d.mesh_asset(mesh).unwrap().primitive is Triangles(deformed) else {
       fail("expected a skinned triangle mesh")
     }
@@ -369,8 +375,12 @@ test "skinning blends four affine joints and ignores inactive influences" {
       inverse_bind_matrices: [],
     }
     bind_skinned_mesh(target, binding)
-    @transform.transform_propagate_system(world~, 0.0)
-    animation_skinning_system(world~, 0.0)
+    @transform.transform_propagate_system(
+      Entities(world),
+      Hierarchy(world),
+      world.query(),
+    )
+    animation_skinning_system(AnimationMeshes(world), Transforms(world))
     guard @render3d.mesh_asset(mesh).unwrap().primitive is Triangles(deformed) else {
       fail("expected a skinned mesh")
     }
@@ -407,7 +417,7 @@ test "skinning blends four affine joints and ignores inactive influences" {
         },
       ],
     })
-    animation_skinning_system(world~, 0.0)
+    animation_skinning_system(AnimationMeshes(world), Transforms(world))
     guard @render3d.mesh_asset(mesh).unwrap().primitive is Triangles(deformed) else {
       fail("expected a skinned mesh")
     }
@@ -434,7 +444,9 @@ test "multiple animation fades are removed in one transition update" {
       )
     }
     ignore(@ecs_test.spawn(@ecs.require_current_world(), (player, transitions)))
-    animation_transition_system(world.query(), 0.2)
+    let time = @time.Time(world)
+    time.set_delta(0.2)
+    animation_transition_system(world.query(), time, Entities(world))
     assert_eq(player.playing_animations().length(), 1)
     let main = transitions.get_main_animation().unwrap()
     assert_true(player.is_playing_animation(main))

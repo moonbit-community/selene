@@ -61,7 +61,7 @@ fn test_entity_index(
 ///|
 test "ui rounded backgrounds emit quarter-circle fill commands" {
   let world = @ecs.require_current_world()
-  @render2d.begin_frame2d_system()
+  @render2d.begin_frame2d_system(Frame2D(@ecs.require_current_world()))
   let rect = test_rect(10.0, 20.0, 100.0, 60.0)
   let entity = @ecs_test.spawn(
     @ecs.require_current_world(),
@@ -69,7 +69,11 @@ test "ui rounded backgrounds emit quarter-circle fill commands" {
   )
   set_test_ui_geometry(entity, test_global_node(rect, rect))
 
-  push_background(world~, entity)
+  push_background(
+    Frame2D(@ecs.require_current_world()),
+    nodes=UiNodes(world),
+    entity,
+  )
 
   let frame = @render2d.get_frame2d(world~)
   let mut rects = 0
@@ -96,7 +100,7 @@ test "ui rounded backgrounds emit quarter-circle fill commands" {
 ///|
 test "ui material nodes render gradient materials ahead of legacy background fills" {
   let world = @ecs.require_current_world()
-  @render2d.begin_frame2d_system()
+  @render2d.begin_frame2d_system(Frame2D(@ecs.require_current_world()))
   let rect = test_rect(8.0, 12.0, 80.0, 40.0)
   let handle = register_ui_material_asset(
     UiMaterialAsset::gradient(rgba(255, 0, 0, 1.0), rgba(0, 0, 255, 1.0)),
@@ -107,7 +111,11 @@ test "ui material nodes render gradient materials ahead of legacy background fil
   )
   set_test_ui_geometry(entity, test_global_node(rect, rect))
 
-  render_entity(world~, entity)
+  render_entity(
+    Frame2D(@ecs.require_current_world()),
+    nodes=UiNodes(world),
+    entity,
+  )
 
   let frame = @render2d.get_frame2d(world~)
   inspect(frame.ui_commands.length(), content="1")
@@ -130,12 +138,16 @@ test "ui material nodes render gradient materials ahead of legacy background fil
 ///|
 test "ui material assets can render through custom draw callbacks" {
   let world = @ecs.require_current_world()
-  @render2d.begin_frame2d_system()
+  @render2d.begin_frame2d_system(Frame2D(@ecs.require_current_world()))
   let screen_rect = test_rect(4.0, 6.0, 120.0, 80.0)
   let content_rect = test_rect(12.0, 18.0, 64.0, 24.0)
   let handle = register_ui_material_asset(
     UiMaterialAsset::from_draw(fn(context) {
-      push_ui_rect_fill(context.content_rect, rgba(0, 200, 80, 1.0))
+      push_ui_rect_fill(
+        context.frame,
+        context.content_rect,
+        rgba(0, 200, 80, 1.0),
+      )
     }),
   )
   let entity = @ecs_test.spawn(
@@ -144,7 +156,11 @@ test "ui material assets can render through custom draw callbacks" {
   )
   set_test_ui_geometry(entity, test_global_node(screen_rect, content_rect))
 
-  render_entity(world~, entity)
+  render_entity(
+    Frame2D(@ecs.require_current_world()),
+    nodes=UiNodes(world),
+    entity,
+  )
 
   let frame = @render2d.get_frame2d(world~)
   inspect(frame.ui_commands.length(), content="1")
@@ -185,7 +201,7 @@ test "ui border radii resolve percent values against node size" {
 ///|
 test "ui box shadows emit layered rounded shadow commands" {
   let world = @ecs.require_current_world()
-  @render2d.begin_frame2d_system()
+  @render2d.begin_frame2d_system(Frame2D(@ecs.require_current_world()))
   let rect = test_rect(16.0, 24.0, 96.0, 48.0)
   let entity = @ecs_test.spawn(
     @ecs.require_current_world(),
@@ -202,7 +218,11 @@ test "ui box shadows emit layered rounded shadow commands" {
   )
   set_test_ui_geometry(entity, test_global_node(rect, rect))
 
-  push_box_shadow(world~, entity)
+  push_box_shadow(
+    Frame2D(@ecs.require_current_world()),
+    nodes=UiNodes(world),
+    entity,
+  )
 
   let frame = @render2d.get_frame2d(world~)
   let mut circles = 0
@@ -223,7 +243,7 @@ test "ui box shadows emit layered rounded shadow commands" {
 ///|
 test "ui outlines resolve width and offset into outer bands" {
   let world = @ecs.require_current_world()
-  @render2d.begin_frame2d_system()
+  @render2d.begin_frame2d_system(Frame2D(@ecs.require_current_world()))
   let rect = test_rect(20.0, 30.0, 100.0, 60.0)
   let entity = @ecs_test.spawn1(
     @ecs.require_current_world(),
@@ -231,7 +251,11 @@ test "ui outlines resolve width and offset into outer bands" {
   )
   set_test_ui_geometry(entity, test_global_node(rect, rect))
 
-  push_outline(world~, entity)
+  push_outline(
+    Frame2D(@ecs.require_current_world()),
+    nodes=UiNodes(world),
+    entity,
+  )
 
   let frame = @render2d.get_frame2d(world~)
   inspect(frame.ui_commands.length(), content="4")
@@ -264,7 +288,7 @@ test "ui outlines resolve width and offset into outer bands" {
 ///|
 test "ui overflow clipping applies after node decorations" {
   let world = @ecs.require_current_world()
-  @render2d.begin_frame2d_system()
+  @render2d.begin_frame2d_system(Frame2D(@ecs.require_current_world()))
   let screen_rect = test_rect(0.0, 0.0, 120.0, 80.0)
   let content_rect = test_rect(12.0, 10.0, 96.0, 54.0)
   let entity = @ecs_test.spawn(
@@ -277,9 +301,13 @@ test "ui overflow clipping applies after node decorations" {
   )
   set_test_ui_geometry(entity, test_global_node(screen_rect, content_rect))
   calculated_clips().set(entity, CalculatedClip(content_rect))
-  tree_orders().set(entity, 1)
+  ui_model_world_store().tree_orders.set(entity, 1)
 
-  render_entity(world~, entity)
+  render_entity(
+    Frame2D(@ecs.require_current_world()),
+    nodes=UiNodes(world),
+    entity,
+  )
 
   let frame = @render2d.get_frame2d(world~)
   inspect(frame.ui_commands.length(), content="4")
@@ -317,7 +345,7 @@ test "ui overflow clipping applies after node decorations" {
 
 ///|
 test "ui override clip removes inherited clip from child rendering" {
-  @render2d.begin_frame2d_system()
+  @render2d.begin_frame2d_system(Frame2D(@ecs.require_current_world()))
   let world = @ecs.require_current_world()
   let parent = @ecs_test.spawn1(
     world,
@@ -346,11 +374,19 @@ test "ui override clip removes inherited clip from child rendering" {
     parent,
     CalculatedClip(test_rect(0.0, 0.0, 100.0, 80.0)),
   )
-  tree_orders().set(parent, 1)
-  tree_orders().set(child, 2)
+  ui_model_world_store().tree_orders.set(parent, 1)
+  ui_model_world_store().tree_orders.set(child, 2)
 
-  render_entity(world~, parent)
-  render_entity(world~, child)
+  render_entity(
+    Frame2D(@ecs.require_current_world()),
+    nodes=UiNodes(world),
+    parent,
+  )
+  render_entity(
+    Frame2D(@ecs.require_current_world()),
+    nodes=UiNodes(world),
+    child,
+  )
 
   let frame = @render2d.get_frame2d(world~)
   inspect(frame.ui_commands.length(), content="3")
@@ -396,13 +432,13 @@ test "ui stacking keeps a pause menu subtree above the HUD" {
   )
   let entities = [root, hud, minimap, pause_menu, dimmer, resume_button]
 
-  ui_layout_system(world~, 0.0)
-  ui_extract_system()
+  ui_layout_system(UiNodes(world))
+  ui_extract_system(UiExtraction(@ecs.require_current_world()))
 
   let mut minimap_index = -1
   let mut pause_menu_index = -1
   let mut dimmer_index = -1
-  for index, entity in extracted_ui_entities() {
+  for index, entity in ui_model_world_store().extracted_entities {
     if entity == minimap {
       minimap_index = index
     } else if entity == pause_menu {
@@ -414,7 +450,7 @@ test "ui stacking keeps a pause menu subtree above the HUD" {
   assert_eq(minimap_index < pause_menu_index, true)
   assert_eq(pause_menu_index < dimmer_index, true)
 
-  extracted_ui_entities().clear()
+  ui_model_world_store().extracted_entities.clear()
   for entity in entities.rev() {
     cleanup_test_ui_entity(entity)
   }
@@ -431,12 +467,12 @@ test "global z index lifts a descendant out of its parent stack" {
   let dimmer = @ecs_test.spawn1(world, node, parent=pause_menu)
   let entities = [root, hud, minimap, pause_menu, dimmer]
 
-  ui_layout_system(world~, 0.0)
-  ui_extract_system()
+  ui_layout_system(UiNodes(world))
+  ui_extract_system(UiExtraction(@ecs.require_current_world()))
 
   let mut dimmer_index = -1
   let mut minimap_index = -1
-  for index, entity in extracted_ui_entities() {
+  for index, entity in ui_model_world_store().extracted_entities {
     if entity == dimmer {
       dimmer_index = index
     } else if entity == minimap {
@@ -445,7 +481,7 @@ test "global z index lifts a descendant out of its parent stack" {
   }
   assert_eq(dimmer_index < minimap_index, true)
 
-  extracted_ui_entities().clear()
+  ui_model_world_store().extracted_entities.clear()
   for entity in entities.rev() {
     cleanup_test_ui_entity(entity)
   }
@@ -459,16 +495,16 @@ test "global z index orders separate UI roots before local z index" {
   let global_front = @ecs_test.spawn(world, (node, ZIndex(0), GlobalZIndex(1)))
   let entities = [local_front, global_front]
 
-  ui_layout_system(world~, 0.0)
-  ui_extract_system()
+  ui_layout_system(UiNodes(world))
+  ui_extract_system(UiExtraction(@ecs.require_current_world()))
 
   assert_eq(
-    test_entity_index(extracted_ui_entities(), local_front) <
-    test_entity_index(extracted_ui_entities(), global_front),
+    test_entity_index(ui_model_world_store().extracted_entities, local_front) <
+    test_entity_index(ui_model_world_store().extracted_entities, global_front),
     true,
   )
 
-  extracted_ui_entities().clear()
+  ui_model_world_store().extracted_entities.clear()
   for entity in entities {
     cleanup_test_ui_entity(entity)
   }
@@ -483,14 +519,14 @@ test "ui extraction reuses the stack snapshot produced by layout" {
   let second = @ecs_test.spawn(world, (node, ZIndex(1)), parent=root)
   let entities = [root, first, second]
 
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   world.set_component(first, (ZIndex(2) : ZIndex))
-  ui_extract_system()
-  let first_snapshot = extracted_ui_entities().copy()
+  ui_extract_system(UiExtraction(@ecs.require_current_world()))
+  let first_snapshot = ui_model_world_store().extracted_entities.copy()
 
-  ui_layout_system(world~, 0.0)
-  ui_extract_system()
-  let second_snapshot = extracted_ui_entities().copy()
+  ui_layout_system(UiNodes(world))
+  ui_extract_system(UiExtraction(@ecs.require_current_world()))
+  let second_snapshot = ui_model_world_store().extracted_entities.copy()
 
   assert_eq(
     test_entity_index(first_snapshot, first) <
@@ -503,7 +539,7 @@ test "ui extraction reuses the stack snapshot produced by layout" {
     true,
   )
 
-  extracted_ui_entities().clear()
+  ui_model_world_store().extracted_entities.clear()
   for entity in entities.rev() {
     cleanup_test_ui_entity(entity)
   }
@@ -527,7 +563,7 @@ test "ui prepare preserves clipped border paint order and sees material changes"
   let yellow = rgba(4, 0, 0, 1.0)
   let material = register_ui_material_asset(
     UiMaterialAsset::from_draw(context => {
-      push_ui_rect_fill(context.rect, blue)
+      push_ui_rect_fill(context.frame, context.rect, blue)
       // Update a predeclared border during drawing.
       world.set_component(context.entity, (BorderColor(yellow) : BorderColor))
     }),
@@ -561,11 +597,11 @@ test "ui prepare preserves clipped border paint order and sees material changes"
     set_test_ui_geometry(entity, test_global_node(rect, rect), computed~)
   }
   defer release_ui_material_asset(material)
-  extracted_ui_entities().clear()
-  defer extracted_ui_entities().clear()
-  extracted_ui_entities().append([back, front])
-  @render2d.begin_frame2d_system()
-  ui_prepare_system(world~, 0.0)
+  ui_model_world_store().extracted_entities.clear()
+  defer ui_model_world_store().extracted_entities.clear()
+  ui_model_world_store().extracted_entities.append([back, front])
+  @render2d.begin_frame2d_system(Frame2D(@ecs.require_current_world()))
+  ui_prepare_system(Frame2D(world), UiNodes(world))
 
   let commands = StringBuilder()
   for command in @render2d.get_frame2d(world~).ui_commands {

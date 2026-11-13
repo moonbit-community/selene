@@ -1,14 +1,16 @@
 ///|
 fn entity_angular_velocity_for_body(
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
   body_type : RigidBodyType,
 ) -> Double? {
   match body_type {
     Dynamic | KinematicVelocityBased =>
-      if pending_body_angular_velocities().get(entity) is Some(angular_velocity) {
+      if physics.runtime.pending_body_angular_velocities.get(entity)
+        is Some(angular_velocity) {
         Some(angular_velocity)
-      } else if physics_world().entity_bodies.get(entity) is Some(handle) &&
-        physics_world().bodies.get(handle) is Some(body) {
+      } else if physics.runtime.world.entity_bodies.get(entity) is Some(handle) &&
+        physics.runtime.world.bodies.get(handle) is Some(body) {
         Some(body.angvel().to_double())
       } else {
         None
@@ -18,21 +20,24 @@ fn entity_angular_velocity_for_body(
 }
 
 ///|
-fn entity_has_command_rotation(entity : @ecs.Entity) -> Bool {
-  pending_body_rotations().contains(entity)
+fn entity_has_command_rotation(
+  physics~ : PhysicsStep2D,
+  entity : @ecs.Entity,
+) -> Bool {
+  physics.runtime.pending_body_rotations.contains(entity)
 }
 
 ///|
 fn entity_has_command_linear_velocity(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
   body_type : RigidBodyType,
 ) -> Bool {
-  let query_velocity : @ecs.Query[@ecs.Single[@velocity.Velocity]] = world.query()
+  let query_velocity = physics.velocity
   match body_type {
-    Dynamic => pending_body_linear_velocities().contains(entity)
+    Dynamic => physics.runtime.pending_body_linear_velocities.contains(entity)
     KinematicVelocityBased =>
-      pending_body_linear_velocities().contains(entity) ||
+      physics.runtime.pending_body_linear_velocities.contains(entity) ||
       query_velocity.contains(entity)
     KinematicPositionBased => query_velocity.contains(entity)
     Fixed => false
@@ -41,49 +46,54 @@ fn entity_has_command_linear_velocity(
 
 ///|
 fn entity_has_command_angular_velocity(
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
   body_type : RigidBodyType,
 ) -> Bool {
   match body_type {
     Dynamic | KinematicVelocityBased =>
-      pending_body_angular_velocities().contains(entity)
+      physics.runtime.pending_body_angular_velocities.contains(entity)
     _ => false
   }
 }
 
 ///|
 fn entity_physics_snapshot(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
 ) -> EntityPhysicsSnapshot? {
-  guard entity_translation(world~, entity) is Some(position) else {
+  guard entity_translation(physics~, entity) is Some(position) else {
     return None
   }
-  guard entity_collision_shape(world~, entity) is Some(shape) else {
+  guard entity_collision_shape(physics~, entity) is Some(shape) else {
     return None
   }
-  guard entity_collision_config(world~, entity) is Some(collision) else {
+  guard entity_collision_config(physics~, entity) is Some(collision) else {
     return None
   }
-  let body = entity_rigid_body(world~, entity)
+  let body = entity_rigid_body(physics~, entity)
   Some({
     position,
-    rotation: entity_rotation(world~, entity),
+    rotation: entity_rotation(physics~, entity),
     shape,
     collision,
     body,
     linear_velocity: entity_linear_velocity_for_body(
-      world~,
+      physics~,
       entity,
       body.body_type,
     ),
-    angular_velocity: entity_angular_velocity_for_body(entity, body.body_type),
+    angular_velocity: entity_angular_velocity_for_body(
+      physics~,
+      entity,
+      body.body_type,
+    ),
   })
 }
 
 ///|
 fn entity_physics_config_key(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
   snapshot : EntityPhysicsSnapshot,
 ) -> EntityPhysicsConfigKey {
@@ -91,7 +101,7 @@ fn entity_physics_config_key(
     Fixed | KinematicPositionBased => Some(snapshot.position)
     _ => None
   }
-  let rotation = if entity_has_command_rotation(entity) {
+  let rotation = if entity_has_command_rotation(physics~, entity) {
     Some(snapshot.rotation)
   } else {
     None
@@ -103,7 +113,7 @@ fn entity_physics_config_key(
     collision: snapshot.collision,
     body: snapshot.body,
     linear_velocity: if entity_has_command_linear_velocity(
-        world~,
+        physics~,
         entity,
         snapshot.body.body_type,
       ) {
@@ -112,6 +122,7 @@ fn entity_physics_config_key(
       None
     },
     angular_velocity: if entity_has_command_angular_velocity(
+        physics~,
         entity,
         snapshot.body.body_type,
       ) {
@@ -123,10 +134,10 @@ fn entity_physics_config_key(
 }
 
 ///|
-fn should_have_physics(world~ : @ecs.World, entity : @ecs.Entity) -> Bool {
-  entity.is_alive() &&
-  world_entity(world~, entity) &&
-  entity_physics_snapshot(world~, entity) is Some(_)
+fn should_have_physics(physics~ : PhysicsStep2D, entity : @ecs.Entity) -> Bool {
+  physics.entities.is_alive(entity) &&
+  world_entity(physics~, entity) &&
+  entity_physics_snapshot(physics~, entity) is Some(_)
 }
 
 ///|

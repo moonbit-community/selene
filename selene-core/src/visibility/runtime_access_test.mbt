@@ -11,11 +11,21 @@ test "visibility results follow authored components and reject stale handles" {
   let parent = @ecs_test.spawn1(first, @visibility.Visibility::Hidden)
   let child = @ecs_test.spawn(first, (), parent~)
   assert_true(@visibility.view_visibility(child) is None)
-  @visibility.visibility_propagate_system(world=first, 0.0)
+  @visibility.visibility_propagate_system(
+    Entities(first),
+    Hierarchy(first),
+    first.query(),
+    VisibilityState(first),
+  )
   assert_false(@visibility.inherited_visibility(child).unwrap().visible)
   assert_false(@visibility.view_visibility(child).unwrap().visible)
   first.set_component(parent, (Visible : @visibility.Visibility))
-  @visibility.visibility_propagate_system(world=first, 0.0)
+  @visibility.visibility_propagate_system(
+    Entities(first),
+    Hierarchy(first),
+    first.query(),
+    VisibilityState(first),
+  )
   assert_true(@visibility.is_visible(child))
   @ecs.set_current_world(second)
   assert_true(@visibility.inherited_visibility(child) is None)

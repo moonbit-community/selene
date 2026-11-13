@@ -29,23 +29,11 @@ priv struct EntityJointConfigKey {
 }
 
 ///|
-fn entity_joint_config_keys() -> @ecs.EntityTable[EntityJointConfigKey] {
-  physics_world_runtime().entity_joint_config_keys
-}
-
-///|
 #derive(Eq)
 priv struct EntityMultibodyJointConfigKey {
   joint : MultibodyJoint
   parent : (Int32, Int32)
   child : (Int32, Int32)
-}
-
-///|
-fn entity_multibody_joint_config_keys() -> @ecs.EntityTable[
-  EntityMultibodyJointConfigKey,
-] {
-  physics_world_runtime().entity_multibody_joint_config_keys
 }
 
 ///|
@@ -104,7 +92,9 @@ pub fn raycast(
       solid,
     ) {
     Some((handle, hit)) =>
-      entity_from_collider_handle(handle).map(fn(entity) {
+      entity_from_collider_handle(physics=PhysicsStep2D(world), handle).map(fn(
+        entity,
+      ) {
         let toi = from_physics_scalar(hit.toi().to_double())
         {
           entity,
@@ -154,7 +144,9 @@ pub fn shape_cast(
       options,
     ) {
     Some((handle, hit)) =>
-      entity_from_collider_handle(handle).map(fn(entity) {
+      entity_from_collider_handle(physics=PhysicsStep2D(world), handle).map(fn(
+        entity,
+      ) {
         {
           entity,
           toi: from_physics_scalar(hit.toi().to_double()),
@@ -216,7 +208,7 @@ pub fn rigid_body_translation(
     physics_world().bodies.get(handle) is Some(body) {
     Some(from_physics_vec2(body.translation()))
   } else {
-    entity_translation(world~, entity)
+    entity_translation(physics=PhysicsStep2D(world), entity)
   }
 }
 
@@ -226,10 +218,10 @@ pub fn set_rigid_body_translation(
   entity : @ecs.Entity,
   translation : @math.Vec2,
 ) -> Unit {
-  set_entity_translation(world~, entity, translation)
+  set_entity_translation(physics=PhysicsStep2D(world), entity, translation)
   if physics_world().entity_bodies.get(entity) is Some(handle) &&
     physics_world().bodies.get_mut(handle) is Some(body) {
-    match entity_rigid_body(world~, entity).body_type {
+    match entity_rigid_body(physics=PhysicsStep2D(world), entity).body_type {
       KinematicPositionBased => {
         body.set_translation(to_physics_vec2(translation), true) |> ignore
         body.set_next_kinematic_translation(to_physics_vec2(translation))

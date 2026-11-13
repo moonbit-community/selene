@@ -155,6 +155,8 @@ fn main {
             "key_current_store": ("ignore(position_key.store())", "store"),
             "key_get": ("ignore(position_key.get(@ecs.commands(world).spawn(())))", "get"),
             "key_set": ("position_key.set(@ecs.commands(world).spawn(()), Position(1))", "set"),
+            "entity_metadata_storage": ("ignore(@ecs.Entities(world).store)", "abstract type"),
+            "hierarchy_storage": ("ignore(@ecs.Hierarchy(world).store)", "abstract type"),
             "query_storage": ("let query : @ecs.Query[@ecs.Single[Position]] = world.query()\n  ignore(query.storage)", "abstract type"),
             "joined_constructor": ("ignore(@ecs.Query2(world.query(), world.query()))", "Query2"),
             "draft_store": ("@ecs.commands(world).draft().add_to(world.query(), Position(1))", "add_to"),

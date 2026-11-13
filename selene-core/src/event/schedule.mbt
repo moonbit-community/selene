@@ -34,11 +34,8 @@ fn allocate_event_bus_id() -> UInt32 {
 }
 
 ///|
-fn update_domain(domain : EventDomain) -> Unit {
-  for
-    bus in registered_buses_key
-    .get_in(@ecs.require_current_world())
-    .unwrap_or([]) {
+fn update_domain(events : EventRegistry, domain : EventDomain) -> Unit {
+  for bus in events.buses {
     if bus.domain == domain {
       (bus.update)()
     }
@@ -46,26 +43,42 @@ fn update_domain(domain : EventDomain) -> Unit {
 }
 
 ///|
-pub fn event_frame_update_system() -> Unit {
-  update_domain(Frame)
+pub fn event_frame_update_system(events : EventRegistry) -> Unit {
+  update_domain(events, Frame)
 }
 
 ///|
-pub fn event_fixed_update_system() -> Unit {
-  update_domain(Fixed)
+pub fn event_fixed_update_system(events : EventRegistry) -> Unit {
+  update_domain(events, Fixed)
 }
 
 ///|
-pub fn event_render_update_system() -> Unit {
-  update_domain(Render)
+pub fn event_render_update_system(events : EventRegistry) -> Unit {
+  update_domain(events, Render)
 }
 
 ///|
-pub fn event_observer_dispatch_system() -> Unit {
-  for
-    bus in registered_buses_key
-    .get_in(@ecs.require_current_world())
-    .unwrap_or([]) {
+pub fn event_observer_dispatch_system(events : EventRegistry) -> Unit {
+  for bus in events.buses {
     (bus.dispatch)()
   }
 }
+
+///|
+struct EventRegistry {
+  buses : Array[RegisteredBus]
+}
+
+///|
+pub fn EventRegistry::EventRegistry(world : @ecs.World) -> EventRegistry {
+  { buses: registered_buses_key.get_or_insert_with(world, _ => []), }
+}
+
+///|
+pub impl @ecs.SystemParam for EventRegistry with fn prepare(world) {
+  let value = EventRegistry(world)
+  _ => value
+}
+
+///|
+pub extend EventRegistry with @ecs.SystemParam::{prepare}

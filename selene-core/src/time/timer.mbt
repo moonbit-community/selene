@@ -35,14 +35,15 @@ priv struct Timer {
 
 ///|
 #selene.resource
-priv struct Timers {
+struct Timers {
   pending : Array[Timer]
   mut ticking : Bool
 }
 
 ///|
-fn Timers::Timers() -> Timers {
-  { pending: [], ticking: false, }
+pub fn Timers::Timers(world : @ecs.World) -> Timers {
+  let key : @ecs.ResourceKey[Timers] = @ecs.Resource::resource_key()
+  key.get_or_insert_with(world, _ => { pending: [], ticking: false, })
 }
 
 ///|
@@ -55,26 +56,25 @@ pub fn timeout(
   callback : () -> Unit,
   pausible~ : Bool = true,
 ) -> TimerHandle {
+  Timers(@ecs.require_current_world()).timeout(time, callback, pausible~)
+}
+
+///|
+/// Schedules a callback in the timer queue bound to this resource.
+pub fn Timers::timeout(
+  self : Timers,
+  time : Double,
+  callback : () -> Unit,
+  pausible~ : Bool = true,
+) -> TimerHandle {
   let handle = { callback: Some(callback), }
-  let world = @ecs.require_current_world()
-  let existing : Timers? = world.get_resource()
-  let state = match existing {
-    Some(state) => state
-    None => {
-      let state = Timers()
-      world.insert_resource(state)
-      state
-    }
-  }
-  state.pending.push({ remaining: time, pausible, handle, })
+  self.pending.push({ remaining: time, pausible, handle, })
   handle
 }
 
 ///|
-fn tick_timers(scaled : Double?, unscaled : Double?) -> Unit {
+fn tick_timers(state : Timers, scaled : Double?, unscaled : Double?) -> Unit {
   let world = @ecs.require_current_world()
-  let existing : Timers? = world.get_resource()
-  guard existing is Some(state) else { return }
   guard !state.ticking && !state.pending.is_empty() else { return }
   state.ticking = true
   defer {
@@ -107,18 +107,27 @@ fn tick_timers(scaled : Double?, unscaled : Double?) -> Unit {
 
 ///|
 /// Advances both timer clocks in one tick. The default plugins use this system.
-pub fn timers_system(delta : Double) -> Unit {
-  tick_timers(Some(delta), Some(raw_delta()))
+pub fn timers_system(timers : Timers, time : Time) -> Unit {
+  tick_timers(timers, Some(time.delta()), Some(time.raw_delta()))
 }
 
 ///|
 /// Advances only scaled timers by the given delta in seconds.
-pub fn timer_system(delta : Double) -> Unit {
-  tick_timers(Some(delta), None)
+pub fn timer_system(timers : Timers, time : Time) -> Unit {
+  tick_timers(timers, Some(time.delta()), None)
 }
 
 ///|
 /// Advances only unscaled timers using the active World's raw frame delta.
-pub fn realtime_timer_system() -> Unit {
-  tick_timers(None, Some(raw_delta()))
+pub fn realtime_timer_system(timers : Timers, time : Time) -> Unit {
+  tick_timers(timers, None, Some(time.raw_delta()))
 }
+
+///|
+pub impl @ecs.SystemParam for Timers with fn prepare(world) {
+  let timers = Timers(world)
+  _ => timers
+}
+
+///|
+pub extend Timers with @ecs.SystemParam::{prepare}

@@ -13,9 +13,9 @@ pub fn attach_audio(@ecs.Entity, AudioPlayer, settings? : PlaybackSettings) -> U
 
 pub let audio_event_bus : @event.Events[AudioEvent]
 
-pub fn audio_event_playback_system() -> Unit
+pub fn audio_event_playback_system(AudioPlayback, AudioEvents) -> Unit
 
-pub fn audio_playback_system(@ecs.Query[@ecs.Single[AudioPlayer]], @ecs.Query[@ecs.Single[PlaybackSettings]]) -> Unit
+pub fn audio_playback_system(@ecs.Query[@ecs.Single[AudioPlayer]], @ecs.Query[@ecs.Single[PlaybackSettings]], AudioPlayback) -> Unit
 
 pub fn audio_sink(@ecs.Entity) -> AudioSink?
 
@@ -45,6 +45,16 @@ pub(all) struct AudioEvent {
 pub fn AudioEvent::equal(Self, Self) -> Bool
 pub fn AudioEvent::not_equal(Self, Self) -> Bool
 pub fn AudioEvent::to_repr(Self) -> @debug.Repr
+
+type AudioEvents
+pub fn AudioEvents::AudioEvents(@ecs.World) -> Self
+pub fn AudioEvents::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for AudioEvents
+
+type AudioPlayback
+pub fn AudioPlayback::AudioPlayback(@ecs.World) -> Self
+pub fn AudioPlayback::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for AudioPlayback
 
 #derive(Eq, @debug.Debug)
 pub(all) struct AudioPlayer {

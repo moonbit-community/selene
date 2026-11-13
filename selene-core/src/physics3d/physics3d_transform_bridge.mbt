@@ -44,24 +44,24 @@ fn interaction_groups(
 }
 
 ///|
-fn cleanup_world_components(world~ : @ecs.World) -> Unit {
-  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
-  let query_rigid_body : @ecs.Query[@ecs.Single[RigidBody]] = world.query()
-  let query_impulse_joint : @ecs.Query[@ecs.Single[ImpulseJoint]] = world.query()
-  let query_multibody_joint : @ecs.Query[@ecs.Single[MultibodyJoint]] = world.query()
-  let physics_world = physics3d_world()
-  let collider_handles = collider_handles()
-  let body_handles = body_handles()
-  let impulse_joint_handles = impulse_joint_handles()
-  let multibody_joint_handles = multibody_joint_handles()
-  let collider_entities_by_key = collider_entities_by_key()
+fn cleanup_world_components(physics~ : PhysicsStep3D) -> Unit {
+  let query_collider = physics.collider
+  let query_rigid_body = physics.rigid_body
+  let query_impulse_joint = physics.impulse_joint
+  let query_multibody_joint = physics.multibody_joint
+  let physics_world = physics.runtime.world
+  let collider_handles = physics.runtime.collider_handles
+  let body_handles = physics.runtime.body_handles
+  let impulse_joint_handles = physics.runtime.impulse_joint_handles
+  let multibody_joint_handles = physics.runtime.multibody_joint_handles
+  let collider_entities_by_key = physics.runtime.collider_entities_by_key
   collider_handles.retain((entity, handle) => {
-    if entity.is_alive() &&
+    if physics.entities.is_alive(entity) &&
       query_collider.contains(entity) &&
       collider_transform(
-        world~,
+        physics~,
         entity,
-        attached_rigid_body_entity(world~, entity),
+        attached_rigid_body_entity(physics~, entity),
       )
       is Some(_) {
       return true
@@ -71,9 +71,9 @@ fn cleanup_world_components(world~ : @ecs.World) -> Unit {
     false
   })
   body_handles.retain((entity, handle) => {
-    if entity.is_alive() &&
+    if physics.entities.is_alive(entity) &&
       query_rigid_body.contains(entity) &&
-      current_world_transform(world~, entity) is Some(_) {
+      current_world_transform(physics~, entity) is Some(_) {
       return true
     }
     ignore(physics_world.bodies.remove(handle))
@@ -81,30 +81,34 @@ fn cleanup_world_components(world~ : @ecs.World) -> Unit {
   })
 
   impulse_joint_handles.retain((entity, _) => {
-    entity.is_alive() && query_impulse_joint.contains(entity)
+    physics.entities.is_alive(entity) && query_impulse_joint.contains(entity)
   })
 
   multibody_joint_handles.retain((entity, _) => {
-    entity.is_alive() && query_multibody_joint.contains(entity)
+    physics.entities.is_alive(entity) && query_multibody_joint.contains(entity)
   })
 }
 
 ///|
-fn collect_events() -> Unit {
-  let physics_world = physics3d_world()
+fn collect_events(physics~ : PhysicsStep3D) -> Unit {
+  let physics_world = physics.runtime.world
   for collision_event in physics_world.event_handler.take_collision_events() {
     let collider1 = collision_event.collider1()
     let collider2 = collision_event.collider2()
-    guard resolve_collider_entity(collider1) is Some(entity_a) else { continue }
-    guard resolve_collider_entity(collider2) is Some(entity_b) else { continue }
+    guard resolve_collider_entity(physics~, collider1) is Some(entity_a) else {
+      continue
+    }
+    guard resolve_collider_entity(physics~, collider2) is Some(entity_b) else {
+      continue
+    }
     if collision_event.sensor() {
-      sensor_event_bus.send({
+      physics.sensor_event_bus.send({
         sensor: entity_a,
         other: entity_b,
         entered: collision_event.started(),
       })
     }
-    collision_event_bus.send({
+    physics.collision_event_bus.send({
       entity_a,
       entity_b,
       started: collision_event.started(),
@@ -116,15 +120,15 @@ fn collect_events() -> Unit {
 
   for
     intersection_event in physics_world.event_handler.take_intersection_events() {
-    guard resolve_collider_entity(intersection_event.collider1())
+    guard resolve_collider_entity(physics~, intersection_event.collider1())
       is Some(sensor_entity) else {
       continue
     }
-    guard resolve_collider_entity(intersection_event.collider2())
+    guard resolve_collider_entity(physics~, intersection_event.collider2())
       is Some(other_entity) else {
       continue
     }
-    sensor_event_bus.send({
+    physics.sensor_event_bus.send({
       sensor: sensor_entity,
       other: other_entity,
       entered: intersection_event.intersecting(),
@@ -133,15 +137,15 @@ fn collect_events() -> Unit {
 
   for
     contact_force_event in physics_world.event_handler.take_contact_force_events() {
-    guard resolve_collider_entity(contact_force_event.collider1())
+    guard resolve_collider_entity(physics~, contact_force_event.collider1())
       is Some(entity_a) else {
       continue
     }
-    guard resolve_collider_entity(contact_force_event.collider2())
+    guard resolve_collider_entity(physics~, contact_force_event.collider2())
       is Some(entity_b) else {
       continue
     }
-    contact_force_event_bus.send({
+    physics.contact_force_event_bus.send({
       entity_a,
       entity_b,
       total_force: vec3_from_rapier(contact_force_event.total_force()),
@@ -401,7 +405,7 @@ fn controller_to_rapier(
 
 ///|
 fn apply_character_controller_translation(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep3D,
   entity : @ecs.Entity,
   translation : @math.Vec3,
   delta : Double,
@@ -409,19 +413,19 @@ fn apply_character_controller_translation(
   if translation.length_squared() <= 0.000000001 {
     return
   }
-  guard current_world_transform(world~, entity) is Some(transform) else {
+  guard current_world_transform(physics~, entity) is Some(transform) else {
     return
   }
   let target = transform.translation + translation
   let target_world_transform = { ..transform, translation: target, }
-  guard set_entity_world_transform(world~, entity, target_world_transform) else {
+  guard set_entity_world_transform(physics~, entity, target_world_transform) else {
     return
   }
-  match (world.get_component(entity) : RigidBody?) {
+  match physics.rigid_body.get(entity).map(value => value.0) {
     Some(KinematicPositionBased) =>
-      match body_handles().get(entity) {
+      match physics.runtime.body_handles.get(entity) {
         Some(handle) =>
-          match physics3d_world().bodies.get_mut(handle) {
+          match physics.runtime.world.bodies.get_mut(handle) {
             Some(body) =>
               body.set_next_kinematic_translation(vec3_to_rapier(target))
             None => ()
@@ -435,13 +439,13 @@ fn apply_character_controller_translation(
           translation.y / delta,
           translation.z / delta,
         )
-        if (world.get_component(entity) : Velocity?) is Some(current) {
-          world.set_component(
+        if physics.velocity.get(entity).map(value => value.0) is Some(current) {
+          physics.velocity.set(
             entity,
-            ({ ..current, linvel: velocity, } : Velocity),
+            Single(({ ..current, linvel: velocity, } : Velocity)),
           )
-        } else if body_handles().get(entity) is Some(handle) &&
-          physics3d_world().bodies.get_mut(handle) is Some(body) {
+        } else if physics.runtime.body_handles.get(entity) is Some(handle) &&
+          physics.runtime.world.bodies.get_mut(handle) is Some(body) {
           body.set_linvel(vec3_to_rapier(velocity))
         }
       }
@@ -451,11 +455,12 @@ fn apply_character_controller_translation(
 
 ///|
 fn make_query_pipeline(
+  physics~ : PhysicsStep3D,
   query_filter~ : QueryFilter = QueryFilter::all(),
 ) -> @collision.QueryPipeline3DReal {
-  let physics_world = physics3d_world()
+  let physics_world = physics.runtime.world
   QueryPipeline3DReal(
-    to_query_filter(query_filter),
+    to_query_filter(physics~, query_filter),
     physics_world.bodies,
     physics_world.colliders,
   )
@@ -549,7 +554,10 @@ fn to_query_shape_with_rotation(
 }
 
 ///|
-fn to_query_filter(query_filter : QueryFilter) -> @collision.QueryFilter3DReal {
+fn to_query_filter(
+  physics~ : PhysicsStep3D,
+  query_filter : QueryFilter,
+) -> @collision.QueryFilter3DReal {
   let mut filter = match query_filter.body_filter {
     All => @collision.QueryFilter3DReal::QueryFilter3DReal()
     Dynamic => @collision.QueryFilter3DReal::only_dynamic()
@@ -568,10 +576,10 @@ fn to_query_filter(query_filter : QueryFilter) -> @collision.QueryFilter3DReal {
     filter = filter.exclude_rigid_body(body_handle)
   }
   if query_filter.exclude_entity is Some(entity) {
-    if collider_handles().get(entity) is Some(collider_handle) {
+    if physics.runtime.collider_handles.get(entity) is Some(collider_handle) {
       filter = filter.exclude_collider(collider_handle)
     }
-    if body_handles().get(entity) is Some(body_handle) {
+    if physics.runtime.body_handles.get(entity) is Some(body_handle) {
       filter = filter.exclude_rigid_body(body_handle)
     }
   }

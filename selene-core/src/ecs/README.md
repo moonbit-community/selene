@@ -67,9 +67,58 @@ function. Registering the same description twice creates independent parameter
 state. `World` is deliberately not a `SystemParam`: use
 `app.add_exclusive_system(stage, callback)` when full World access is needed.
 This is an explicit access declaration; execution remains sequential.
-`@time.Time`, `@state.State[T]`, and `@state.NextState[T]` are additional
-parameters supplied by their respective packages. Time reads follow the active
-frame or fixed step; state requests remain deferred.
+`@time.Time`, `@time.Timers`, `@state.State[T]`, and `@state.NextState[T]`
+are additional parameters supplied by their respective packages. Time reads
+follow the active frame or fixed step; state requests remain deferred.
+
+Systems should declare the resources and queries they use. Pass these values
+through their helper functions as well. Named parameters can group a subsystem's
+fixed component queries and runtime state without retaining a World.
+
+Use `Entities` for entity validity and liveness, and `Hierarchy` for the fixed
+parent-child tree:
+
+```moonbit
+fn inspect_tree(entities : @ecs.Entities, hierarchy : @ecs.Hierarchy) -> Unit {
+  for root in hierarchy.roots() {
+    for child in hierarchy.children(root) {
+      if entities.is_alive(child) {
+        inspect_child(root, child)
+      }
+    }
+  }
+}
+app.add_system(Update, @ecs.args2(inspect_tree))
+```
+
+Both parameters are read-only and bound to one World. They retain entity
+metadata, not the World, and expose no component access or structural changes.
+`Entities::is_valid` accepts a reserved handle before its spawn is flushed;
+`is_alive` requires a materialized live entity. `iter` and `count` include live
+entities only. `Hierarchy::children` returns an independent array; relationships
+become visible when deferred spawning completes. Foreign and stale handles
+return `false`, `None`, or an empty child array.
+
+Subsystem parameters include `@transform.Transforms`, `@visibility.VisibilityState`,
+`@physics2d.PhysicsMotion`, `@render2d.Frame2D`, and `@ui.UiGeometryView`.
+They provide the corresponding operations on their bound data. `Frame2D` stays
+valid across frame resets. Custom UI material callbacks submit commands through
+`context.frame`.
+
+Keep exclusive systems for operations that need the World itself, such as
+runtime-selected animation field types or data-driven importer factories.
+`current_world`, explicit World methods, and convenience calls such as
+`GamePhase::set(...)` and `timeout(...)` remain available. They are useful at
+application boundaries and callbacks, while ordinary systems receive their
+dependencies as parameters.
+
+Event buses may be declared globally; queues and reader cursors belong to each
+World. A prepared parameter can bind a writer with `events.writer(world=world)`
+and a cursor with `reader.bind(world, events)`. Pass the resulting
+`EventWriter[T]` and `EventReaderView[T]` to helpers and call `send` or `read`
+there. They remain bound when the active World changes; rebinding the same reader
+in the same World shares its cursor. Event maintenance uses an injected
+`@event.EventRegistry`.
 
 There is one opaque `Query[Row]` type. `Single[T]` describes one component;
 flat tuples describe two to eight components. This uses the same single-value
@@ -431,8 +480,19 @@ ignore(handle.cancel())
 ```
 
 Timeouts use scaled frame time by default. Pass `pausible=false` for unscaled
-frame time. Custom loops can call `@time.timers_system(@time.delta())` after
-advancing the World's clock.
+frame time. Systems can receive `@time.Timers` and schedule through
+`timers.timeout(delay, callback)`. Custom loops use the same clock and schedule:
+
+```moonbit
+let time = @time.Time(world)
+let timers = @ecs.Schedule().add_system(@ecs.args2(@time.timers_system))
+time.begin_frame(raw_delta)
+try! timers.run(world)
+```
+
+Constructors `Time(world)` and `Timers(world)` preserve existing state. The
+free clock functions and `timeout(...)` select the active World for imperative
+code.
 
 ## Code generation
 

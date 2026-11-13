@@ -45,8 +45,10 @@ priv struct Physics3DWorldStore {
 let physics3d_world_store_key : @ecs.ResourceKey[Physics3DWorldStore] = ResourceKey()
 
 ///|
-fn physics3d_world_store() -> Physics3DWorldStore {
-  physics3d_world_store_key.get_or_insert_with(@ecs.require_current_world(), world => {
+fn physics3d_world_store(
+  world~ : @ecs.World = @ecs.require_current_world(),
+) -> Physics3DWorldStore {
+  physics3d_world_store_key.get_or_insert_with(world, world => {
     world: {
       pipeline: PhysicsPipeline3D(),
       integration: @dynamics.IntegrationParameters::default(),
@@ -83,11 +85,6 @@ fn body_handles() -> @ecs.EntityTable[RapierRigidBodyHandle] {
 ///|
 fn collider_handles() -> @ecs.EntityTable[RapierColliderHandle] {
   physics3d_world_store().collider_handles
-}
-
-///|
-fn collider_entities_by_key() -> Map[(Int32, Int32), @ecs.Entity] {
-  physics3d_world_store().collider_entities_by_key
 }
 
 ///|

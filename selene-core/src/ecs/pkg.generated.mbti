@@ -84,6 +84,15 @@ type Condition
 pub fn[P : SystemParam] Condition::Condition((P) -> Bool) -> Self
 pub fn Condition::exclusive((World) -> Bool) -> Self
 
+type Entities
+pub fn Entities::Entities(World) -> Self
+pub fn Entities::count(Self) -> Int32
+pub fn Entities::is_alive(Self, Entity) -> Bool
+pub fn Entities::is_valid(Self, Entity) -> Bool
+pub fn Entities::iter(Self) -> Iter[Entity]
+pub fn Entities::prepare(World) -> (World) -> Self
+pub impl SystemParam for Entities
+
 #derive(Eq, Hash, @debug.Debug)
 type Entity
 pub fn Entity::belongs_to(Self, World) -> Bool
@@ -119,6 +128,14 @@ pub fn[T] EntityTable::retain(Self[T], (Entity, T) -> Bool) -> Unit
 pub fn[T] EntityTable::set(Self[T], Entity, T) -> Unit
 pub fn[T] EntityTable::to_array(Self[T]) -> Array[(Entity, T)]
 pub fn[T] EntityTable::values(Self[T]) -> Iter[T]
+
+type Hierarchy
+pub fn Hierarchy::Hierarchy(World) -> Self
+pub fn Hierarchy::children(Self, Entity) -> Array[Entity]
+pub fn Hierarchy::parent(Self, Entity) -> Entity?
+pub fn Hierarchy::prepare(World) -> (World) -> Self
+pub fn Hierarchy::roots(Self) -> Iter[Entity]
+pub impl SystemParam for Hierarchy
 
 type Query[T]
 pub fn[T] Query::batches(Self[T], (QueryBatch[T]) -> Unit) -> Unit
@@ -252,6 +269,7 @@ pub fn World::get_roots(Self) -> Iter[Entity]
 pub fn World::id(Self) -> UInt32
 pub fn[T : Resource] World::insert_resource(Self, T) -> Unit
 pub fn World::is_alive(Self, Entity) -> Bool
+pub fn World::iter_entities(Self) -> Iter[Entity]
 pub fn[T : QueryData] World::query(Self, filters? : Array[EntityFilter]) -> Query[T]
 pub fn[T : Component] World::query1(Self, filters? : Array[EntityFilter]) -> Query[Single[T]]
 pub fn[T : Resource] World::resource(Self) -> T

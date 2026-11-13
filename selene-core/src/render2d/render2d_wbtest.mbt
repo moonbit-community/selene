@@ -28,7 +28,7 @@ fn int_array_matches(values : Array[Int32], expected : Array[Int32]) -> Bool {
 
 ///|
 test "render2d world sorting honors layer and depth order" {
-  begin_frame2d_system()
+  begin_frame2d_system(Frame2D(@ecs.require_current_world()))
 
   push_rect_with_depth_for_entity(
     10.0,
@@ -57,7 +57,7 @@ test "render2d world sorting honors layer and depth order" {
 
 ///|
 test "render2d world sorting honors explicit sorting groups" {
-  begin_frame2d_system()
+  begin_frame2d_system(Frame2D(@ecs.require_current_world()))
 
   push_rect_with_depth_for_entity(
     1.0,

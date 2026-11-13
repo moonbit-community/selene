@@ -357,11 +357,12 @@ fn atlas_overlay_from_draw_command(
 }
 
 ///|
-pub fn decorate_frame_for_debug(
+fn decorate_frame(
+  enabled : Bool,
   frame : @render_pipeline.RenderFrame,
   world_commands : Array[@render2d.DrawCommandWithDepth2D],
 ) -> @render_pipeline.RenderFrame {
-  if !atlas_overlay_enabled() {
+  if !enabled {
     return frame
   }
   let overlays : Array[@render2d_types.DrawCommand2D] = []
@@ -390,4 +391,12 @@ pub fn decorate_frame_for_debug(
     }
   }
   { ..frame, frame2d: { ..frame.frame2d, passes, ui_commands, }, }
+}
+
+///|
+pub fn decorate_frame_for_debug(
+  frame : @render_pipeline.RenderFrame,
+  world_commands : Array[@render2d.DrawCommandWithDepth2D],
+) -> @render_pipeline.RenderFrame {
+  decorate_frame(atlas_overlay_enabled(), frame, world_commands)
 }

@@ -1,4 +1,5 @@
 import {
+  "Milky2018/selene/time",
   "Milky2018/selene/window",
   "moonbitlang/core/debug",
   "Milky2018/moon_rapier/collision" @rapier_collision,

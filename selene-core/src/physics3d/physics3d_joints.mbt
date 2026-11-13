@@ -15,11 +15,16 @@ pub fn set_rigid_body_translation(
   entity : @ecs.Entity,
   translation : @math.Vec3,
 ) -> Unit {
-  guard current_world_transform(world~, entity) is Some(transform) else {
+  guard current_world_transform(physics=PhysicsStep3D(world), entity)
+    is Some(transform) else {
     return
   }
   let world_transform = { ..transform, translation, }
-  guard set_entity_world_transform(world~, entity, world_transform) else {
+  guard set_entity_world_transform(
+    physics=PhysicsStep3D(world),
+    entity,
+    world_transform,
+  ) else {
     return
   }
   match body_handles().get(entity) {
@@ -49,11 +54,16 @@ pub fn set_rigid_body_rotation(
   entity : @ecs.Entity,
   rotation : @math.Rotation3,
 ) -> Unit {
-  guard current_world_transform(world~, entity) is Some(transform) else {
+  guard current_world_transform(physics=PhysicsStep3D(world), entity)
+    is Some(transform) else {
     return
   }
   let world_transform = { ..transform, rotation, }
-  guard set_entity_world_transform(world~, entity, world_transform) else {
+  guard set_entity_world_transform(
+    physics=PhysicsStep3D(world),
+    entity,
+    world_transform,
+  ) else {
     return
   }
   match body_handles().get(entity) {
@@ -135,86 +145,113 @@ pub fn set_rigid_body_angular_velocity(
 }
 
 ///|
-fn rigid_body_desc(world~ : @ecs.World, entity : @ecs.Entity) -> RigidBodyDesc {
-  let query_ccd : @ecs.Query[@ecs.Single[Ccd]] = world.query()
+fn rigid_body_desc(
+  physics~ : PhysicsStep3D,
+  entity : @ecs.Entity,
+) -> RigidBodyDesc {
+  let query_ccd = physics.ccd
   {
-    body_type: (world.get_component(entity) : RigidBody?).unwrap_or(Dynamic),
-    velocity: (world.get_component(entity) : Velocity?).unwrap_or(
-      Velocity::zero(),
-    ),
-    damping: (world.get_component(entity) : Damping?).unwrap_or(Damping()),
-    gravity_scale: (world.get_component(entity) : GravityScale?).unwrap_or(
-      GravityScale::default(),
-    ),
-    locked_axes: (world.get_component(entity) : LockedAxes?).unwrap_or(
-      LockedAxes(),
-    ),
+    body_type: physics.rigid_body
+    .get(entity)
+    .map(value => value.0)
+    .unwrap_or(Dynamic),
+    velocity: physics.velocity
+    .get(entity)
+    .map(value => value.0)
+    .unwrap_or(Velocity::zero()),
+    damping: physics.damping
+    .get(entity)
+    .map(value => value.0)
+    .unwrap_or(Damping()),
+    gravity_scale: physics.gravity_scale
+    .get(entity)
+    .map(value => value.0)
+    .unwrap_or(GravityScale::default()),
+    locked_axes: physics.locked_axes
+    .get(entity)
+    .map(value => value.0)
+    .unwrap_or(LockedAxes()),
     ccd_enabled: query_ccd.contains(entity),
-    dominance: (world.get_component(entity) : Dominance?),
-    additional_mass_properties: (
-      world.get_component(entity) : AdditionalMassProperties?),
+    dominance: physics.dominance.get(entity).map(value => value.0),
+    additional_mass_properties: physics.additional_mass_properties
+    .get(entity)
+    .map(value => value.0),
   }
 }
 
 ///|
 fn collider_desc(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep3D,
   entity : @ecs.Entity,
   shape : Collider,
 ) -> ColliderDesc {
-  let query_sensor : @ecs.Query[@ecs.Single[Sensor]] = world.query()
+  let query_sensor = physics.sensor
   {
     shape,
     sensor: query_sensor.contains(entity),
-    friction: (world.get_component(entity) : Friction?).unwrap_or(Friction(0.5)),
-    restitution: (world.get_component(entity) : Restitution?).unwrap_or(
-      Restitution(0.0),
-    ),
-    collision_groups: (world.get_component(entity) : CollisionGroups?).unwrap_or(
-      CollisionGroups::all(),
-    ),
-    solver_groups: (world.get_component(entity) : SolverGroups?),
-    active_collision_types: (world.get_component(entity) : ActiveCollisionTypes?)
+    friction: physics.friction
+    .get(entity)
+    .map(value => value.0)
+    .unwrap_or(Friction(0.5)),
+    restitution: physics.restitution
+    .get(entity)
+    .map(value => value.0)
+    .unwrap_or(Restitution(0.0)),
+    collision_groups: physics.collision_groups
+    .get(entity)
+    .map(value => value.0)
+    .unwrap_or(CollisionGroups::all()),
+    solver_groups: physics.solver_groups.get(entity).map(value => value.0),
+    active_collision_types: physics.active_collision_types
+    .get(entity)
+    .map(value => value.0)
     .map(flags => flags.0)
     .unwrap_or(@collision.ActiveCollisionTypes::default()),
-    active_events: (world.get_component(entity) : ActiveEvents?)
+    active_events: physics.active_events
+    .get(entity)
+    .map(value => value.0)
     .map(flags => flags.0)
     .unwrap_or(
       @collision.ActiveEvents::collision_events().union(
         @collision.ActiveEvents::intersection_events(),
       ),
     ),
-    active_hooks: (world.get_component(entity) : ActiveHooks?)
+    active_hooks: physics.active_hooks
+    .get(entity)
+    .map(value => value.0)
     .map(flags => flags.0)
     .unwrap_or(@collision.ActiveHooks::empty()),
-    contact_force_event_threshold: (
-      world.get_component(entity) : ContactForceEventThreshold?).unwrap_or(
-      ContactForceEventThreshold::default(),
-    ),
-    mass_properties: (world.get_component(entity) : ColliderMassProperties?),
+    contact_force_event_threshold: physics.contact_force_event_threshold
+    .get(entity)
+    .map(value => value.0)
+    .unwrap_or(ContactForceEventThreshold::default()),
+    mass_properties: physics.collider_mass_properties
+    .get(entity)
+    .map(value => value.0),
   }
 }
 
 ///|
-fn clear_controller_outputs() -> Unit {
-  kinematic_character_controller_outputs().clear()
-  controller_collisions().clear()
+fn clear_controller_outputs(physics~ : PhysicsStep3D) -> Unit {
+  physics.runtime.controller_outputs.clear()
+  physics.runtime.controller_collisions.clear()
 }
 
 ///|
-pub fn physics_step_system(world~ : @ecs.World, delta : Double) -> Unit {
+pub fn physics_step_system(physics : PhysicsStep3D, time : @time.Time) -> Unit {
+  let delta = time.delta()
   if delta <= 0.0 {
     return
   }
-  clear_controller_outputs()
-  cleanup_world_components(world~)
-  ensure_bodies_and_colliders(world~)
-  sync_components_to_rapier(world~)
-  sync_impulse_joints_to_rapier(world~)
-  sync_multibody_joints_to_rapier(world~)
-  sync_character_controllers(world~, delta)
+  clear_controller_outputs(physics~)
+  cleanup_world_components(physics~)
+  ensure_bodies_and_colliders(physics~)
+  sync_components_to_rapier(physics~)
+  sync_impulse_joints_to_rapier(physics~)
+  sync_multibody_joints_to_rapier(physics~)
+  sync_character_controllers(physics~, delta)
 
-  let physics_world = physics3d_world()
+  let physics_world = physics.runtime.world
   physics_world.integration = physics_world.integration.with_dt(
     Float::from_double(delta),
   )
@@ -241,8 +278,8 @@ pub fn physics_step_system(world~ : @ecs.World, delta : Double) -> Unit {
     physics_world.bodies,
   )
 
-  collect_events()
-  sync_rapier_to_components(world~)
+  collect_events(physics~)
+  sync_rapier_to_components(physics~)
 }
 
 ///|
@@ -258,7 +295,10 @@ pub fn RapierContext::cast_ray(
     return None
   }
   let physics_world = physics3d_world()
-  let query = make_query_pipeline(query_filter~)
+  let query = make_query_pipeline(
+    physics=PhysicsStep3D(@ecs.require_current_world()),
+    query_filter~,
+  )
   let ray = @collision.Ray3::Ray3(
     vec3_to_rapier(origin),
     vec3_to_rapier(direction.normalize_or_zero()),
@@ -272,7 +312,10 @@ pub fn RapierContext::cast_ray(
       solid,
     ) {
     Some((handle, hit)) =>
-      resolve_collider_entity(handle).map(fn(entity) {
+      resolve_collider_entity(
+        physics=PhysicsStep3D(@ecs.require_current_world()),
+        handle,
+      ).map(fn(entity) {
         {
           entity,
           toi: hit.toi().to_double(),
@@ -298,7 +341,10 @@ pub fn RapierContext::cast_shape(
     return None
   }
   let physics_world = physics3d_world()
-  let query = make_query_pipeline(query_filter~)
+  let query = make_query_pipeline(
+    physics=PhysicsStep3D(@ecs.require_current_world()),
+    query_filter~,
+  )
   let options = @collision.ShapeCastOptions3::ShapeCastOptions3(
     Float::from_double(max_toi),
     stop_at_penetration,
@@ -316,7 +362,10 @@ pub fn RapierContext::cast_shape(
       options,
     ) {
     Some((handle, hit)) =>
-      resolve_collider_entity(handle).map(fn(entity) {
+      resolve_collider_entity(
+        physics=PhysicsStep3D(@ecs.require_current_world()),
+        handle,
+      ).map(fn(entity) {
         {
           entity,
           toi: hit.toi().to_double(),
@@ -334,7 +383,10 @@ pub fn RapierContext::intersections_with_point(
   query_filter~ : QueryFilter = QueryFilter::all(),
 ) -> Array[@ecs.Entity] {
   let physics_world = physics3d_world()
-  let query = make_query_pipeline(query_filter~)
+  let query = make_query_pipeline(
+    physics=PhysicsStep3D(@ecs.require_current_world()),
+    query_filter~,
+  )
   let entities : Array[@ecs.Entity] = []
   for
     handle in query.intersect_point(
@@ -342,7 +394,11 @@ pub fn RapierContext::intersections_with_point(
       physics_world.colliders,
       vec3_to_rapier(point),
     ) {
-    match resolve_collider_entity(handle) {
+    match
+      resolve_collider_entity(
+        physics=PhysicsStep3D(@ecs.require_current_world()),
+        handle,
+      ) {
       Some(entity) => entities.push(entity)
       None => ()
     }
@@ -359,7 +415,10 @@ pub fn RapierContext::intersections_with_shape(
   query_filter~ : QueryFilter = QueryFilter::all(),
 ) -> Array[@ecs.Entity] {
   let physics_world = physics3d_world()
-  let query = make_query_pipeline(query_filter~)
+  let query = make_query_pipeline(
+    physics=PhysicsStep3D(@ecs.require_current_world()),
+    query_filter~,
+  )
   let entities : Array[@ecs.Entity] = []
   let (query_shape, shape_rotation) = to_query_shape_with_rotation(
     shape, rotation,
@@ -375,7 +434,13 @@ pub fn RapierContext::intersections_with_shape(
       physics_world.colliders,
       query_aabb,
     ) {
-    guard resolve_collider_entity(handle) is Some(entity) else { continue }
+    guard resolve_collider_entity(
+        physics=PhysicsStep3D(@ecs.require_current_world()),
+        handle,
+      )
+      is Some(entity) else {
+      continue
+    }
     guard physics_world.colliders.get(handle) is Some(collider) else {
       continue
     }
@@ -399,7 +464,10 @@ pub fn RapierContext::project_point(
   query_filter~ : QueryFilter = QueryFilter::all(),
 ) -> PointProjection? {
   let physics_world = physics3d_world()
-  let query = make_query_pipeline(query_filter~)
+  let query = make_query_pipeline(
+    physics=PhysicsStep3D(@ecs.require_current_world()),
+    query_filter~,
+  )
   match
     query.project_point(
       physics_world.bodies,
@@ -409,7 +477,10 @@ pub fn RapierContext::project_point(
       solid,
     ) {
     Some((handle, projection)) =>
-      resolve_collider_entity(handle).map(fn(entity) {
+      resolve_collider_entity(
+        physics=PhysicsStep3D(@ecs.require_current_world()),
+        handle,
+      ).map(fn(entity) {
         {
           entity,
           point: vec3_from_rapier(projection.point()),
@@ -421,36 +492,38 @@ pub fn RapierContext::project_point(
 }
 
 ///|
-fn ensure_bodies_and_colliders(world~ : @ecs.World) -> Unit {
-  let query_rigid_body : @ecs.Query[@ecs.Single[RigidBody]] = world.query()
-  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
+fn ensure_bodies_and_colliders(physics~ : PhysicsStep3D) -> Unit {
+  let query_rigid_body = physics.rigid_body
+  let query_collider = physics.collider
   for entity, _ in query_rigid_body {
-    if !entity.is_alive() {
+    if !physics.entities.is_alive(entity) {
       continue
     }
-    ensure_rigid_body(world~, entity)
+    ensure_rigid_body(physics~, entity)
   }
 
   for entity, Single(collider) in query_collider {
-    if !entity.is_alive() {
+    if !physics.entities.is_alive(entity) {
       continue
     }
-    ensure_collider(world~, entity, collider_desc(world~, entity, collider))
+    ensure_collider(physics~, entity, collider_desc(physics~, entity, collider))
   }
 }
 
 ///|
-fn sync_components_to_rapier(world~ : @ecs.World) -> Unit {
-  let query_rigid_body : @ecs.Query[@ecs.Single[RigidBody]] = world.query()
-  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
-  let physics_world = physics3d_world()
+fn sync_components_to_rapier(physics~ : PhysicsStep3D) -> Unit {
+  let query_rigid_body = physics.rigid_body
+  let query_collider = physics.collider
+  let physics_world = physics.runtime.world
   for entity, _ in query_rigid_body {
-    if !entity.is_alive() {
+    if !physics.entities.is_alive(entity) {
       continue
     }
-    guard body_handles().get(entity) is Some(handle) else { continue }
+    guard physics.runtime.body_handles.get(entity) is Some(handle) else {
+      continue
+    }
     guard physics_world.bodies.get_mut(handle) is Some(body) else { continue }
-    let body_desc = rigid_body_desc(world~, entity)
+    let body_desc = rigid_body_desc(physics~, entity)
 
     body.set_linvel(vec3_to_rapier(body_desc.velocity.linvel))
     body.set_angvel(vec3_to_rapier(body_desc.velocity.angvel))
@@ -458,7 +531,7 @@ fn sync_components_to_rapier(world~ : @ecs.World) -> Unit {
 
     match body_desc.body_type {
       KinematicPositionBased =>
-        if current_world_transform(world~, entity) is Some(transform) {
+        if current_world_transform(physics~, entity) is Some(transform) {
           body.set_next_kinematic_translation(
             vec3_to_rapier(transform.translation),
           )
@@ -467,7 +540,7 @@ fn sync_components_to_rapier(world~ : @ecs.World) -> Unit {
           )
         }
       Fixed =>
-        if current_world_transform(world~, entity) is Some(transform) {
+        if current_world_transform(physics~, entity) is Some(transform) {
           body.set_translation(vec3_to_rapier(transform.translation))
           body.set_rotation(rotation_to_rapier(transform.rotation))
         }
@@ -476,27 +549,27 @@ fn sync_components_to_rapier(world~ : @ecs.World) -> Unit {
   }
 
   for entity, Single(collider) in query_collider {
-    if !entity.is_alive() {
+    if !physics.entities.is_alive(entity) {
       continue
     }
     sync_collider_to_rapier(
-      world~,
+      physics~,
       entity,
-      collider_desc(world~, entity, collider),
+      collider_desc(physics~, entity, collider),
     )
   }
 }
 
 ///|
-fn sync_rapier_to_components(world~ : @ecs.World) -> Unit {
-  let query_velocity : @ecs.Query[@ecs.Single[Velocity]] = world.query()
-  let physics_world = physics3d_world()
-  for entity, handle in body_handles() {
-    if !entity.is_alive() {
+fn sync_rapier_to_components(physics~ : PhysicsStep3D) -> Unit {
+  let query_velocity = physics.velocity
+  let physics_world = physics.runtime.world
+  for entity, handle in physics.runtime.body_handles {
+    if !physics.entities.is_alive(entity) {
       continue
     }
     guard physics_world.bodies.get(handle) is Some(body) else { continue }
-    guard current_world_transform(world~, entity) is Some(transform) else {
+    guard current_world_transform(physics~, entity) is Some(transform) else {
       continue
     }
     let world_transform = {
@@ -504,7 +577,7 @@ fn sync_rapier_to_components(world~ : @ecs.World) -> Unit {
       translation: vec3_from_rapier(body.translation()),
       rotation: rotation_from_rapier(body.rotation()),
     }
-    guard set_entity_world_transform(world~, entity, world_transform) else {
+    guard set_entity_world_transform(physics~, entity, world_transform) else {
       // A simulated rotation can introduce local shear under a scaled parent.
       // Keep the body at the last pose the hierarchy can represent.
       if physics_world.bodies.get_mut(handle) is Some(body) {
@@ -514,13 +587,15 @@ fn sync_rapier_to_components(world~ : @ecs.World) -> Unit {
       continue
     }
     if query_velocity.contains(entity) {
-      world.set_component(
+      physics.velocity.set(
         entity,
-        (
-          {
-            linvel: vec3_from_rapier(body.linvel()),
-            angvel: vec3_from_rapier(body.angvel()),
-          } : Velocity),
+        Single(
+          (
+            {
+              linvel: vec3_from_rapier(body.linvel()),
+              angvel: vec3_from_rapier(body.angvel()),
+            } : Velocity),
+        ),
       )
     }
   }

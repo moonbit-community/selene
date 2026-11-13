@@ -2,15 +2,18 @@
 package "Milky2018/selene/render2d"
 
 import {
+  "Milky2018/selene/camera",
   "Milky2018/selene/ecs",
   "Milky2018/selene/math",
+  "Milky2018/selene/parallax2d",
   "Milky2018/selene/render2d_types",
   "Milky2018/selene/transform",
+  "Milky2018/selene/visibility",
   "moonbitlang/core/debug",
 }
 
 // Values
-pub fn begin_frame2d_system() -> Unit
+pub fn begin_frame2d_system(Frame2D) -> Unit
 
 pub fn entity_sorting2d(world~ : @ecs.World, @ecs.Entity) -> Sorting2d
 
@@ -112,6 +115,32 @@ pub(all) struct DrawCommandWithDepth2D {
   entity_id : UInt32?
   command : @render2d_types.DrawCommand2D
 }
+
+type Frame2D
+pub fn Frame2D::Frame2D(@ecs.World) -> Self
+pub fn Frame2D::get_camera_ui_commands(Self, UInt32) -> Array[@render2d_types.DrawCommand2D]
+pub fn Frame2D::get_camera_world_commands_with_depth(Self, UInt32) -> Array[DrawCommandWithDepth2D]
+pub fn Frame2D::get_screen_ui_commands(Self) -> Array[@render2d_types.DrawCommand2D]
+pub fn Frame2D::get_screen_world_commands_with_depth(Self) -> Array[DrawCommandWithDepth2D]
+pub fn Frame2D::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub fn Frame2D::push_ui(Self, @render2d_types.DrawCommand2D, camera_entity_id? : UInt32?) -> Unit
+pub fn Frame2D::push_world_command(Self, Double, UInt32?, @render2d_types.DrawCommand2D, camera_entity_id? : UInt32?, sorting? : Sorting2d, order? : Int32?) -> Unit
+pub fn Frame2D::reserve_world_command_order(Self, Int32) -> Int32
+pub impl @ecs.SystemParam for Frame2D
+
+type RenderView2D
+pub fn RenderView2D::RenderView2D(@ecs.World) -> Self
+pub fn RenderView2D::camera_views(Self) -> ArrayView[@camera.Camera2dView]
+pub fn RenderView2D::camera_views_for_bounds(Self, @math.Rect, @visibility.RenderLayers, Bool) -> Array[@camera.Camera2dView]
+pub fn RenderView2D::is_alive(Self, @ecs.Entity) -> Bool
+pub fn RenderView2D::is_visible(Self, @ecs.Entity) -> Bool
+pub fn RenderView2D::layers_for(Self, @ecs.Entity) -> @visibility.RenderLayers
+pub fn RenderView2D::parallax_for(Self, @ecs.Entity) -> @parallax2d.Parallax2d?
+pub fn RenderView2D::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub fn RenderView2D::scale_position(Self, @math.Vec2) -> @math.Vec2
+pub fn RenderView2D::screen_transform(Self, @transform.GlobalTransform, @camera.Camera2dView?) -> @math.Affine2
+pub fn RenderView2D::sorting_for(Self, @ecs.Entity) -> Sorting2d
+pub impl @ecs.SystemParam for RenderView2D
 
 #derive(Eq, @debug.Debug)
 pub(all) enum SortMode2D {

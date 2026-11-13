@@ -166,7 +166,7 @@ pub fn ldtk_entity_by_iid(
 }
 
 ///|
-pub fn ldtk_world_sync_system(world~ : @ecs.World, _delta : Double) -> Unit {
+pub fn ldtk_world_sync_system(world~ : @ecs.World) -> Unit {
   let query_ldtk_world_instance : @ecs.Query[@ecs.Single[LdtkWorldInstance]] = world.query()
   ldtk_emit_pending_transformed_events()
   ldtk_cleanup_dead_runtime_entries()

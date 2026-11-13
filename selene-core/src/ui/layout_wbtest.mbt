@@ -83,7 +83,7 @@ test "ui wrapped text contributes lines to auto height" {
   let entity = @ecs_test.spawn_draft(entity_draft)
 
   let measured = measure_node(
-    world~,
+    nodes=UiNodes(world),
     Size(width=Some(60.0), height=None),
     Size(
       width=@style_helpers.available_space_definite(60.0),
@@ -98,7 +98,7 @@ test "ui wrapped text contributes lines to auto height" {
   inspect(measured.height, content="32")
 
   let measured_with_padding = measure_node(
-    world~,
+    nodes=UiNodes(world),
     Size(width=Some(100.0), height=None),
     Size(
       width=@style_helpers.available_space_definite(100.0),
@@ -137,7 +137,7 @@ test "ui layout uses wrapped text height in the computed node" {
   entity_draft.add((TextLayout(wrap=WordWrap) : TextLayout))
   let entity = @ecs_test.spawn_draft(entity_draft)
 
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
 
   assert_eq(computed_ui_node(entity).unwrap().size, Vec2(60.0, 32.0))
   cleanup_layout_test_entity(entity)
@@ -273,7 +273,7 @@ test "ui layout uses overflow clip margins from the requested visual box" {
     ),
   )
 
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
 
   let clip = calculated_clips().get(entity).unwrap().clip
   inspect(clip.position.x == 11.0, content="true")
@@ -312,7 +312,7 @@ test "ui layout projects nested border and padding offsets exactly once" {
     parent=child,
   )
 
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
 
   assert_eq(computed_ui_node(parent).unwrap().position, Vec2(10.0, 20.0))
   assert_eq(
@@ -342,6 +342,7 @@ test "ui layout config controls screen-space rounding for viewport-scaled rects"
     size: Vec2(10.0, 10.0),
   }
   let rounded_rect = screen_rect_for(
+    nodes=UiNodes(@ecs.require_current_world()),
     logical_rect,
     ui_layout_space(world~, None),
     LayoutConfig().use_rounding,
@@ -350,6 +351,7 @@ test "ui layout config controls screen-space rounding for viewport-scaled rects"
   inspect(rounded_rect.position.y == 51.0, content="true")
 
   let unrounded_rect = screen_rect_for(
+    nodes=UiNodes(@ecs.require_current_world()),
     logical_rect,
     ui_layout_space(world~, None),
     LayoutConfig(use_rounding=false).use_rounding,
@@ -391,7 +393,7 @@ test "ui target camera layouts use the camera viewport as screen-space origin" {
   entity_draft.add((UiTargetCamera(camera) : UiTargetCamera))
   let entity = @ecs_test.spawn_draft(entity_draft)
 
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
 
   let global = global_ui_node(entity).unwrap()
   inspect(global.screen_rect.position.x == 24.0, content="true")
@@ -416,7 +418,7 @@ test "ui layout clamps scroll positions to overflowing content" {
   )
   set_scroll_position(world~, parent, { x: 80.0, y: 1000.0, })
 
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
 
   let scroll = scroll_position(parent).unwrap()
   debug_inspect([scroll.x, scroll.y], content="[0, 200]")
@@ -430,7 +432,7 @@ test "ui layout clamps scroll positions to overflowing content" {
       Node::absolute(Vec2(0.0, 0.0), size=Vec2(100.0, 250.0), overflow_y=Scroll) :
       Node),
   )
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   let resized = computed_ui_node(parent).unwrap()
   debug_inspect(
     [resized.max_scroll_position.y, scroll_position(parent).unwrap().y],
@@ -441,7 +443,7 @@ test "ui layout clamps scroll positions to overflowing content" {
     child,
     (Node(width=Val::px(100.0), height=Val::px(120.0), flex_shrink=0.0) : Node),
   )
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   let shrunk = computed_ui_node(parent).unwrap()
   debug_inspect(
     [shrunk.max_scroll_position.y, scroll_position(parent).unwrap().y],
@@ -459,7 +461,7 @@ test "ui layout clamps scroll positions to overflowing content" {
       Node::absolute(Vec2(0.0, 0.0), size=Vec2(100.0, 100.0), overflow_y=Hidden) :
       Node),
   )
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   let disabled = computed_ui_node(parent).unwrap()
   debug_inspect(
     [disabled.max_scroll_position.y, scroll_position(parent).unwrap().y],
@@ -490,7 +492,7 @@ test "ui scrolling preserves nested border and padding offsets" {
   )
   set_scroll_position(world~, parent, { x: 0.0, y: 20.0, })
 
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
 
   assert_eq(computed_ui_node(child).unwrap().position, Vec2(18.0, 8.0))
   cleanup_layout_test_entity(child)
@@ -515,7 +517,7 @@ test "ui override clip ignores inherited clipping rectangles" {
     parent~,
   )
 
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
 
   inspect(calculated_clips().contains(parent), content="true")
   inspect(calculated_clips().contains(child), content="false")

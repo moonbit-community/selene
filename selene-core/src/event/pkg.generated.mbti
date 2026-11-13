@@ -4,16 +4,17 @@ package "Milky2018/selene/event"
 import {
   "Milky2018/selene/ecs",
   "moonbitlang/core/debug",
+  "moonbitlang/core/ref",
 }
 
 // Values
-pub fn event_fixed_update_system() -> Unit
+pub fn event_fixed_update_system(EventRegistry) -> Unit
 
-pub fn event_frame_update_system() -> Unit
+pub fn event_frame_update_system(EventRegistry) -> Unit
 
-pub fn event_observer_dispatch_system() -> Unit
+pub fn event_observer_dispatch_system(EventRegistry) -> Unit
 
-pub fn event_render_update_system() -> Unit
+pub fn event_render_update_system(EventRegistry) -> Unit
 
 pub fn[T] observe_entity(Events[T], @ecs.Entity, (Trigger[T]) -> Unit) -> ObserverHandle
 
@@ -41,18 +42,25 @@ pub fn EventDomain::not_equal(Self, Self) -> Bool
 pub fn EventDomain::to_repr(Self) -> @debug.Repr
 
 pub(all) struct EventReader[T] {
-  last_seen_key : @ecs.ResourceKey[Int32]
+  last_seen_key : @ecs.ResourceKey[@ref.Ref[Int32]]
   marker : T?
 }
 pub fn[T] EventReader::EventReader() -> Self[T]
+pub fn[T] EventReader::bind(Self[T], @ecs.World, Events[T]) -> EventReaderView[T]
 pub fn[T] EventReader::read(Self[T], Events[T]) -> Array[T]
+
+type EventReaderView[T]
+pub fn[T] EventReaderView::read(Self[T]) -> Array[T]
+
+type EventRegistry
+pub fn EventRegistry::EventRegistry(@ecs.World) -> Self
+pub fn EventRegistry::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for EventRegistry
 
 type EventWorldStore[T]
 
-pub(all) struct EventWriter[T] {
-  events : Events[T]
-}
-pub fn[T] EventWriter::EventWriter(Events[T]) -> Self[T]
+type EventWriter[T]
+pub fn[T] EventWriter::EventWriter(Events[T], world? : @ecs.World) -> Self[T]
 pub fn[T] EventWriter::send(Self[T], T) -> Unit
 pub fn[T] EventWriter::trigger(Self[T], T, target? : @ecs.Entity?) -> Unit
 
@@ -73,7 +81,7 @@ pub fn[T] Events::send(Self[T], T) -> Unit
 pub fn[T] Events::trigger(Self[T], T, @ecs.Entity?) -> Unit
 pub fn[T] Events::unobserve(Self[T], ObserverHandle) -> Unit
 pub fn[T] Events::update(Self[T]) -> Unit
-pub fn[T] Events::writer(Self[T]) -> EventWriter[T]
+pub fn[T] Events::writer(Self[T], world? : @ecs.World) -> EventWriter[T]
 
 #derive(Eq, Hash, @debug.Debug)
 pub(all) struct ObserverHandle(Int32)

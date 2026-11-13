@@ -304,3 +304,9 @@ fn flush_entity_lifecycle(world : World) -> Unit {
 pub fn World::is_alive(self : World, entity : Entity) -> Bool {
   entity.belongs_to(self) && entity_store(world=self).is_alive(entity)
 }
+
+///|
+/// Visits the entities tracked by this World without consulting the active schedule.
+pub fn World::iter_entities(self : World) -> Iter[Entity] {
+  entity_store(world=self).all_entities.iter()
+}

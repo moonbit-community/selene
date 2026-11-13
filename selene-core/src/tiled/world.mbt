@@ -187,10 +187,7 @@ pub fn replace_tiled_world(
 }
 
 ///|
-pub fn tiled_world_chunking_system(
-  world~ : @ecs.World,
-  _delta : Double,
-) -> Unit {
+pub fn tiled_world_chunking_system(world~ : @ecs.World) -> Unit {
   let query_tiled_world_instance : @ecs.Query[@ecs.Single[TiledWorldInstance]] = world.query()
   for entity in query_tiled_world_instance.to_array().map(pair => pair.0) {
     if !entity.is_alive() {

@@ -43,8 +43,8 @@ pub struct TriggerEvent {
 pub let trigger_event_bus : @event.Events[TriggerEvent] = Events()
 
 ///|
-fn push_trigger_event(event : TriggerEvent) -> Unit {
-  trigger_event_bus.send(event)
+fn push_trigger_event(physics~ : PhysicsStep2D, event : TriggerEvent) -> Unit {
+  physics.trigger_event_bus.send(event)
 }
 
 ///|

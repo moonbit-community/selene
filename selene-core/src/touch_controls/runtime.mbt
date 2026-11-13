@@ -2,8 +2,10 @@
 let touch_control_store_key : @ecs.ResourceKey[TouchControlsWorldStore] = ResourceKey()
 
 ///|
-fn store() -> TouchControlsWorldStore {
-  touch_control_store_key.get_or_insert_with(@ecs.require_current_world(), _ => {
+fn store(
+  world~ : @ecs.World = @ecs.require_current_world(),
+) -> TouchControlsWorldStore {
+  touch_control_store_key.get_or_insert_with(world, _ => {
     sticks: Map([]),
     buttons: Map([]),
     stick_runtimes: Map([]),
@@ -130,3 +132,22 @@ pub fn spawn_twin_stick_controls(
     ),
   )
 }
+
+///|
+struct TouchControls {
+  state : TouchControlsWorldStore
+}
+
+///|
+pub fn TouchControls::TouchControls(world : @ecs.World) -> TouchControls {
+  { state: store(world~), }
+}
+
+///|
+pub impl @ecs.SystemParam for TouchControls with fn prepare(world) {
+  let value = TouchControls(world)
+  _ => value
+}
+
+///|
+pub extend TouchControls with @ecs.SystemParam::{prepare}

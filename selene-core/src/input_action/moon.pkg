@@ -1,4 +1,5 @@
 import {
+  "Milky2018/selene/ecs",
   "moonbitlang/core/debug",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",

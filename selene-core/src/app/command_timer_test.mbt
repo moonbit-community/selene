@@ -99,7 +99,7 @@ test "scheduler ticks only the active World's timeouts" {
         @time.timeout(0.25, () => calls.push(@ecs.require_current_world().id())),
       )
     })
-    .add_system(PostUpdate, fn(_ : Unit) { @time.timers_system(@time.delta()) })
+    .add_system(PostUpdate, @ecs.args2(@time.timers_system))
   let second_app = @app.App()
     .with_world(second)
     .add_system(Startup, fn(_ : Unit) {
@@ -111,7 +111,7 @@ test "scheduler ticks only the active World's timeouts" {
         ),
       )
     })
-    .add_system(PostUpdate, fn(_ : Unit) { @time.timers_system(@time.delta()) })
+    .add_system(PostUpdate, @ecs.args2(@time.timers_system))
 
   first_app.run_frames(1, raw_delta=0.125)
   second_app.run_frames(3, raw_delta=0.125)
@@ -119,7 +119,7 @@ test "scheduler ticks only the active World's timeouts" {
 
   @app.App()
   .with_world(first)
-  .add_system(PostUpdate, fn(_ : Unit) { @time.timers_system(@time.delta()) })
+  .add_system(PostUpdate, @ecs.args2(@time.timers_system))
   .run_frames(1, raw_delta=0.125)
   assert_eq(calls, [second.id(), first.id()])
 }
@@ -141,10 +141,13 @@ test "zero-delay timeouts scheduled by callbacks run on the next tick" {
     )
     ignore(@time.timeout(0.0, () => calls.push(2), pausible=false))
   })
-  .add_system(PostUpdate, fn(_ : Unit) {
-    @time.timers_system(@time.delta())
-    after_tick.push(calls.copy())
-  })
+  .add_system(
+    PostUpdate,
+    @ecs.args2(fn(timers : @time.Timers, time : @time.Time) {
+      @time.timers_system(timers, time)
+      after_tick.push(calls.copy())
+    }),
+  )
   .run_frames(3)
   assert_eq(after_tick, [[1, 2], [1, 2, 3, 4], [1, 2, 3, 4]])
 }
@@ -155,19 +158,19 @@ test "scaled and unscaled timeouts respect the World's time scale" {
   let calls = []
   @app.App()
   .with_world(world)
-  .add_system(Startup, fn(_ : Unit) {
-    @time.set_scale(0.0)
+  .add_system(Startup, fn(time : @time.Time) {
+    time.set_scale(0.0)
     ignore(@time.timeout(0.125, () => calls.push(2)))
     ignore(@time.timeout(0.125, () => calls.push(1), pausible=false))
   })
-  .add_system(Update, fn(_ : Unit) { @time.set_scale(1.0) })
-  .add_system(PostUpdate, fn(_ : Unit) { @time.timers_system(@time.delta()) })
+  .add_system(Update, fn(time : @time.Time) { time.set_scale(1.0) })
+  .add_system(PostUpdate, @ecs.args2(@time.timers_system))
   .run_frames(1, raw_delta=0.125)
   assert_eq(calls, [1])
 
   @app.App()
   .with_world(world)
-  .add_system(PostUpdate, fn(_ : Unit) { @time.timers_system(@time.delta()) })
+  .add_system(PostUpdate, @ecs.args2(@time.timers_system))
   .run_frames(1, raw_delta=0.125)
   assert_eq(calls, [1, 2])
 }

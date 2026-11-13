@@ -16,7 +16,7 @@ pub fn local_transform(world~ : @ecs.World, @ecs.Entity) -> Transform?
 
 pub fn set_local_transform(world~ : @ecs.World, @ecs.Entity, Transform) -> Unit
 
-pub fn transform_propagate_system(world~ : @ecs.World, Double) -> Unit
+pub fn transform_propagate_system(@ecs.Entities, @ecs.Hierarchy, @ecs.Query[@ecs.Single[Spatial]]) -> Unit
 
 // Errors
 
@@ -66,6 +66,15 @@ pub fn Transform::with_rotation(Self, @math.Rotation3) -> Self
 pub fn Transform::with_scale(Self, @math.Vec3) -> Self
 pub fn Transform::with_translation(Self, @math.Vec3) -> Self
 pub impl Default for Transform
+
+type Transforms
+pub fn Transforms::Transforms(@ecs.World) -> Self
+pub fn Transforms::compute_global_transform(Self, @ecs.Entity) -> GlobalTransform?
+pub fn Transforms::global_transform(Self, @ecs.Entity) -> GlobalTransform?
+pub fn Transforms::local_transform(Self, @ecs.Entity) -> Transform?
+pub fn Transforms::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub fn Transforms::set_local(Self, @ecs.Entity, Transform) -> Unit
+pub impl @ecs.SystemParam for Transforms
 
 // Type aliases
 

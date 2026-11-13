@@ -40,7 +40,7 @@ fn collision_test_cleanup(
   for entity in entities {
     ignore(@ecs_test.delete(entity))
   }
-  rapier_fixed_step(world~, 0.016)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
   try! @ecs.Schedule().run(@ecs.require_current_world())
   configure_physics(
     gravity=@math.Vec2::zero(),
@@ -79,7 +79,7 @@ test "explicit rigid body syncs material and rapier handles" {
   )
   defer collision_test_cleanup(world~, [entity])
 
-  rapier_fixed_step(world~, 0.016)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
 
   inspect(rigid_body_handle(entity) is Some(_), content="true")
   inspect(collider_handle(entity) is Some(_), content="true")
@@ -136,7 +136,7 @@ test "dynamic rigid body moves under gravity without legacy velocity component" 
   let entity = spawn_test_body(RigidBody::dynamic())
   defer collision_test_cleanup(world~, [entity])
 
-  rapier_fixed_step(world~, 0.1)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.1)
 
   inspect(test_translation(world~, entity).y > 0.0, content="true")
   inspect(
@@ -175,7 +175,7 @@ test "explicit body type overrides legacy velocity heuristic" {
   )
   defer collision_test_cleanup(world~, [fixed_entity, kinematic_entity])
 
-  rapier_fixed_step(world~, 0.25)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.25)
 
   inspect(
     test_translation(world~, fixed_entity).x.abs() <= 0.001,
@@ -221,7 +221,7 @@ test "spatial queries resolve hits, overlaps, and body filters" {
     fixed_entity, dynamic_entity, kinematic_entity,
   ])
 
-  rapier_fixed_step(world~, 0.016)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
 
   inspect(
     raycast(world~, @math.Vec2::zero() + Vec2(0.0, 100.0), Vec2(1.0, 0.0)).map_or(
@@ -323,7 +323,7 @@ test "rigid body setters and getters work before insertion" {
     content="true",
   )
 
-  rapier_fixed_step(world~, 0.1)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.1)
 
   inspect(
     rigid_body_translation(world~, entity).map_or(false, fn(value) {
@@ -351,7 +351,7 @@ test "force and impulse helpers apply before and after body creation" {
   apply_impulse(entity, Vec2(200.0, 0.0))
   apply_torque_impulse(entity, 1.0)
 
-  rapier_fixed_step(world~, 0.05)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.05)
   let first_x = rigid_body_translation(world~, entity).unwrap_or(
       @math.Vec2::zero(),
     ).x
@@ -367,7 +367,7 @@ test "force and impulse helpers apply before and after body creation" {
   add_force(entity, Vec2(80.0, 0.0))
   add_force_at_point(entity, Vec2(0.0, 120.0), Vec2(8.0, 8.0))
 
-  rapier_fixed_step(world~, 0.05)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.05)
 
   inspect(
     rigid_body_translation(world~, entity).map_or(false, fn(value) {
@@ -402,7 +402,7 @@ test "impulse joints insert and accept all supported joint kinds" {
   )
   defer collision_test_cleanup(world~, [body_a, body_b, joint_entity])
 
-  rapier_fixed_step(world~, 0.016)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
   inspect(joint_handle(joint_entity) is Some(_), content="true")
   inspect(physics_world().impulse_joints.len() == 1, content="true")
 
@@ -417,7 +417,7 @@ test "impulse joints insert and accept all supported joint kinds" {
         softness=JointSoftness(0.7, 6.0),
       ) : Joint),
   )
-  rapier_fixed_step(world~, 0.016)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
   inspect(joint_handle(joint_entity) is Some(_), content="true")
   inspect(physics_world().impulse_joints.len() == 1, content="true")
 
@@ -431,11 +431,11 @@ test "impulse joints insert and accept all supported joint kinds" {
         limits=JointLimits(-24.0, 24.0),
       ) : Joint),
   )
-  rapier_fixed_step(world~, 0.016)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
   inspect(joint_handle(joint_entity) is Some(_), content="true")
 
   world.set_component(joint_entity, (Joint::rope(body_a, body_b, 48.0) : Joint))
-  rapier_fixed_step(world~, 0.016)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
   inspect(joint_handle(joint_entity) is Some(_), content="true")
 
   world.set_component(
@@ -452,7 +452,7 @@ test "impulse joints insert and accept all supported joint kinds" {
         contacts_enabled=true,
       ) : Joint),
   )
-  rapier_fixed_step(world~, 0.016)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
   inspect(joint_handle(joint_entity) is Some(_), content="true")
   guard joint_handle(joint_entity) is Some(handle) else {
     inspect("missing", content="true")
@@ -482,12 +482,12 @@ test "impulse joints are removed when endpoints disappear" {
   )
   defer collision_test_cleanup(world~, [body_a, body_b, joint_entity])
 
-  rapier_fixed_step(world~, 0.016)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
   inspect(joint_handle(joint_entity) is Some(_), content="true")
 
   ignore(@ecs_test.delete(body_b))
 
-  rapier_fixed_step(world~, 0.016)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
 
   inspect(joint_handle(joint_entity) is None, content="true")
   inspect(physics_world().impulse_joints.len() == 0, content="true")
@@ -539,7 +539,7 @@ test "multibody joints insert, expose handles, and rebuild chains" {
   )
   defer collision_test_cleanup(world~, [parent, child, grandchild])
 
-  rapier_fixed_step(world~, 0.016)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
 
   inspect(multibody_joint_handle(child) is Some(_), content="true")
   inspect(multibody_joint_handle(grandchild) is Some(_), content="true")
@@ -604,7 +604,7 @@ test "multibody joints insert, expose handles, and rebuild chains" {
     child,
     (MultibodyJoint::revolute(parent, active=false) : MultibodyJoint),
   )
-  rapier_fixed_step(world~, 0.016)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
   inspect(multibody_joint_handle(child) is None, content="true")
   inspect(
     physics_world().multibody_joints.revolute_joint_descriptors().length() == 1,
@@ -620,7 +620,7 @@ test "multibody joints insert, expose handles, and rebuild chains" {
         motor=JointMotor::velocity(1.5, 0.5, max_force=1.0),
       ) : MultibodyJoint),
   )
-  rapier_fixed_step(world~, 0.016)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
   inspect(multibody_joint_handle(child) is Some(_), content="true")
   inspect(
     physics_world().multibody_joints.revolute_joint_descriptors().length() == 2,
@@ -649,7 +649,7 @@ test "multibody joints are removed when endpoints disappear" {
   )
   defer collision_test_cleanup(world~, [parent, child])
 
-  rapier_fixed_step(world~, 0.016)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
   inspect(multibody_joint_handle(child) is Some(_), content="true")
   inspect(
     physics_world().multibody_joints.revolute_joint_descriptors().length() == 1,
@@ -658,7 +658,7 @@ test "multibody joints are removed when endpoints disappear" {
 
   ignore(@ecs_test.delete(parent))
 
-  rapier_fixed_step(world~, 0.016)
+  rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
 
   inspect(multibody_joint_handle(child) is None, content="true")
   inspect(

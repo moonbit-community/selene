@@ -31,8 +31,8 @@ fn reset_interaction_test_state() -> Unit {
   @inputs.just_release_mouse.right_button = false
   @inputs.just_release_mouse.middle_button = false
   @inputs.clear_touch_state()
-  @inputs.advanced_mouse_system()
-  @inputs.advanced_pointer_system()
+  @inputs.advanced_mouse_system(InputEvents(@ecs.require_current_world()))
+  @inputs.advanced_pointer_system(InputEvents(@ecs.require_current_world()))
   pointer_down_event_bus.clear()
   pointer_up_event_bus.clear()
   pointer_enter_event_bus.clear()
@@ -68,7 +68,7 @@ fn spawn_interaction_test_node(
     @ecs_test.spawn(world, (node, ZIndex(zindex)), parent?)
   }
   set_test_ui_geometry(entity, interaction_test_global_node(rect))
-  rebuild_ui_stack(world~)
+  rebuild_ui_stack(nodes=UiNodes(world))
   entity
 }
 
@@ -123,8 +123,8 @@ fn apply_ui_touch_frame(
     touches: active,
     touch_changes: changes,
   })
-  @inputs.advanced_mouse_system()
-  @inputs.advanced_pointer_system()
+  @inputs.advanced_mouse_system(InputEvents(@ecs.require_current_world()))
+  @inputs.advanced_pointer_system(InputEvents(@ecs.require_current_world()))
 }
 
 ///|
@@ -138,8 +138,8 @@ fn apply_ui_mouse_frame(position : @math.Vec2, down : Bool) -> Unit {
       middle_button: false,
     },
   })
-  @inputs.advanced_mouse_system()
-  @inputs.advanced_pointer_system()
+  @inputs.advanced_mouse_system(InputEvents(@ecs.require_current_world()))
+  @inputs.advanced_pointer_system(InputEvents(@ecs.require_current_world()))
 }
 
 ///|
@@ -157,7 +157,7 @@ test "ui relative cursor positions use centered normalized coordinates" {
   set_test_ui_geometry(entity, interaction_test_global_node(rect))
   @inputs.mouse.pos = Vec2(130.0, 60.0)
 
-  ui_interaction_system(world~, 0.0)
+  ui_interaction_system(UiInput(world))
 
   let relative = (
       world.query() : @ecs.Query[@ecs.Single[RelativeCursorPosition]])
@@ -205,11 +205,14 @@ test "ui pointer picks the pause menu dimmer above the HUD" {
     let dimmer = spawn_interaction_test_node(world~, rect, parent=pause_menu)
     let entities = [root, hud, minimap, pause_menu, dimmer]
     for index, entity in entities {
-      tree_orders().set(entity, index + 1)
+      ui_model_world_store().tree_orders.set(entity, index + 1)
     }
-    rebuild_ui_stack(world~)
+    rebuild_ui_stack(nodes=UiNodes(world))
 
-    assert_eq(resolve_pointer_target(world~, Vec2(20.0, 20.0)), Some(dimmer))
+    assert_eq(
+      resolve_pointer_target(input=UiInput(world), Vec2(20.0, 20.0)),
+      Some(dimmer),
+    )
 
     for entity in entities.rev() {
       cleanup_interaction_test_entity(entity)
@@ -237,8 +240,8 @@ test "ui focus candidates only include nodes in the layout stack" {
       parent=root,
     )
 
-    ui_layout_system(world~, 0.0)
-    let candidates = focusable_entities(world~)
+    ui_layout_system(UiNodes(world))
+    let candidates = focusable_entities(input=UiInput(world))
 
     assert_eq(candidates.length(), 1)
     assert_eq(candidates[0], visible)
@@ -262,11 +265,11 @@ test "ui mouse click uses the unified pointer event stream" {
     let click_reader : @event.EventReader[UiClickEvent] = EventReader()
 
     apply_ui_mouse_frame(position, true)
-    ui_interaction_system(world~, 0.0)
+    ui_interaction_system(UiInput(world))
     inspect(interaction(entity) == Pressed, content="true")
 
     apply_ui_mouse_frame(position, false)
-    ui_interaction_system(world~, 0.0)
+    ui_interaction_system(UiInput(world))
     inspect(click_event_bus.read(click_reader).length(), content="1")
     inspect(interaction(entity) == Hovered, content="true")
 
@@ -291,11 +294,11 @@ test "ui pen tap follows contact semantics without hover" {
     apply_ui_touch_frame(Some(touch_point(id, position, source=PointerPen)), [
       touch_event(id, Started, position, source=PointerPen),
     ])
-    ui_interaction_system(world~, 0.0)
+    ui_interaction_system(UiInput(world))
     apply_ui_touch_frame(None, [
       touch_event(id, Ended, position, source=PointerPen),
     ])
-    ui_interaction_system(world~, 0.0)
+    ui_interaction_system(UiInput(world))
 
     inspect(click_event_bus.read(click_reader).length(), content="1")
     inspect(pointer_enter_event_bus.read(enter_reader).length(), content="0")
@@ -323,11 +326,11 @@ test "ui touch tap clicks interactive button without sticky hover" {
     apply_ui_touch_frame(Some(touch_point(id, press)), [
       touch_event(id, Started, press),
     ])
-    ui_interaction_system(world~, 0.0)
+    ui_interaction_system(UiInput(world))
     inspect(interaction(entity) == Pressed, content="true")
 
     apply_ui_touch_frame(None, [touch_event(id, Ended, press)])
-    ui_interaction_system(world~, 0.0)
+    ui_interaction_system(UiInput(world))
 
     inspect(pointer_down_event_bus.read(down_reader).length(), content="1")
     inspect(pointer_up_event_bus.read(up_reader).length(), content="1")
@@ -355,9 +358,9 @@ test "ui cancelled touch clears pressed state without click" {
     apply_ui_touch_frame(Some(touch_point(id, press)), [
       touch_event(id, Started, press),
     ])
-    ui_interaction_system(world~, 0.0)
+    ui_interaction_system(UiInput(world))
     apply_ui_touch_frame(None, [touch_event(id, Cancelled, press)])
-    ui_interaction_system(world~, 0.0)
+    ui_interaction_system(UiInput(world))
 
     inspect(click_event_bus.read(click_reader).length(), content="0")
     inspect(interaction(entity) == None, content="true")
@@ -384,11 +387,11 @@ test "ui touch release outside pressed target does not click" {
     apply_ui_touch_frame(Some(touch_point(id, press)), [
       touch_event(id, Started, press),
     ])
-    ui_interaction_system(world~, 0.0)
+    ui_interaction_system(UiInput(world))
     apply_ui_touch_frame(None, [
       touch_event(id, Ended, outside, previous_position=press),
     ])
-    ui_interaction_system(world~, 0.0)
+    ui_interaction_system(UiInput(world))
 
     inspect(pointer_up_event_bus.read(up_reader).length(), content="1")
     inspect(click_event_bus.read(click_reader).length(), content="0")
@@ -412,7 +415,7 @@ test "ui touch drag scrolls non-button scrollable panels" {
       Node(width=Val::px(100.0), height=Val::px(200.0), flex_shrink=0.0),
       parent=entity,
     )
-    ui_layout_system(world~, 0.0)
+    ui_layout_system(UiNodes(world))
     let id = @inputs.TouchId(4)
     let previous = @math.Vec2(20.0, 50.0)
     let current = @math.Vec2(20.0, 30.0)
@@ -421,7 +424,7 @@ test "ui touch drag scrolls non-button scrollable panels" {
       Some(touch_point(id, current, previous_position=previous)),
       [touch_event(id, Moved, current, previous_position=previous)],
     )
-    ui_interaction_system(world~, 0.0)
+    ui_interaction_system(UiInput(world))
 
     let scroll = scroll_position(entity).unwrap()
     inspect(scroll.y, content="20")
@@ -445,9 +448,9 @@ test "ui scroll deltas stop at the computed content bounds" {
       Node(width=Val::px(100.0), height=Val::px(220.0), flex_shrink=0.0),
       parent=entity,
     )
-    ui_layout_system(world~, 0.0)
+    ui_layout_system(UiNodes(world))
 
-    apply_scroll_delta(world~, entity, Vec2(0.0, 1000.0))
+    apply_scroll_delta(input=UiInput(world), entity, Vec2(0.0, 1000.0))
     debug_inspect(
       [
         computed_ui_node(entity).unwrap().max_scroll_position.y,
@@ -456,7 +459,7 @@ test "ui scroll deltas stop at the computed content bounds" {
       content="[120, 120]",
     )
 
-    apply_scroll_delta(world~, entity, Vec2(0.0, -1000.0))
+    apply_scroll_delta(input=UiInput(world), entity, Vec2(0.0, -1000.0))
     inspect(scroll_position(entity).unwrap().y, content="0")
 
     cleanup_interaction_test_entity(child)
@@ -479,7 +482,7 @@ test "ui input capture consumes touch started over button before interaction" {
     apply_ui_touch_frame(Some(touch_point(id, press)), [
       touch_event(id, Started, press),
     ])
-    ui_input_capture_system(world~, 0.0)
+    ui_input_capture_system(UiInput(world))
 
     inspect(is_touch_consumed(id), content="true")
     inspect(active_unconsumed_touches().length(), content="0")
@@ -504,7 +507,7 @@ test "ui input capture preserves pen identity" {
     apply_ui_touch_frame(Some(touch_point(id, press, source=PointerPen)), [
       touch_event(id, Started, press, source=PointerPen),
     ])
-    ui_input_capture_system(world~, 0.0)
+    ui_input_capture_system(UiInput(world))
 
     inspect(is_pointer_consumed(pointer), content="true")
     inspect(is_touch_consumed(id), content="true")
@@ -530,22 +533,22 @@ test "ui input capture holds touch until release" {
     apply_ui_touch_frame(Some(touch_point(id, press)), [
       touch_event(id, Started, press),
     ])
-    ui_input_capture_system(world~, 0.0)
+    ui_input_capture_system(UiInput(world))
     apply_ui_touch_frame(
       Some(touch_point(id, outside, previous_position=press)),
       [touch_event(id, Moved, outside, previous_position=press)],
     )
-    ui_input_capture_system(world~, 0.0)
+    ui_input_capture_system(UiInput(world))
     inspect(is_touch_consumed(id), content="true")
     inspect(active_unconsumed_touches().length(), content="0")
 
     apply_ui_touch_frame(None, [
       touch_event(id, Ended, outside, previous_position=outside),
     ])
-    ui_input_capture_system(world~, 0.0)
+    ui_input_capture_system(UiInput(world))
     inspect(is_touch_consumed(id), content="true")
     apply_ui_touch_frame(None, [])
-    ui_input_capture_system(world~, 0.0)
+    ui_input_capture_system(UiInput(world))
     inspect(is_touch_consumed(id), content="false")
 
     cleanup_interaction_test_entity(entity)
@@ -569,7 +572,7 @@ test "ui input capture consumes non-button scroll panels" {
     apply_ui_touch_frame(Some(touch_point(id, press)), [
       touch_event(id, Started, press),
     ])
-    ui_input_capture_system(world~, 0.0)
+    ui_input_capture_system(UiInput(world))
 
     inspect(is_touch_consumed(id), content="true")
 
@@ -592,7 +595,7 @@ test "ui input capture leaves gameplay touches unconsumed" {
     apply_ui_touch_frame(Some(touch_point(id, press)), [
       touch_event(id, Started, press),
     ])
-    ui_input_capture_system(world~, 0.0)
+    ui_input_capture_system(UiInput(world))
 
     inspect(is_touch_consumed(id), content="false")
     inspect(active_unconsumed_touches().length(), content="1")
@@ -621,7 +624,7 @@ test "ui relative cursor positions keep normalized values outside calculated cli
   )
   @inputs.mouse.pos = Vec2(130.0, 60.0)
 
-  ui_interaction_system(world~, 0.0)
+  ui_interaction_system(UiInput(world))
 
   let relative = (
       world.query() : @ecs.Query[@ecs.Single[RelativeCursorPosition]])

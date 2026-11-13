@@ -7,6 +7,8 @@ import {
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
+  "Milky2018/selene/render2d",
+  "Milky2018/selene/time",
   "Milky2018/selene/velocity",
   "moonbitlang/core/debug",
   "moonbitlang/core/set",
@@ -31,7 +33,7 @@ pub fn configure_physics(gravity? : @math.Vec2, pixels_per_meter? : Double, max_
 
 pub let contact_event_bus : @event.Events[ContactEvent]
 
-pub fn debug_collide_system(world~ : @ecs.World, Double) -> Unit
+pub fn debug_collide_system(@render2d.Frame2D, CollisionQueries) -> Unit
 
 pub fn emit_pickable_just_pressed(@ecs.Entity, button? : @inputs.MouseButton) -> Unit
 
@@ -47,7 +49,7 @@ pub fn is_grounded(@ecs.Entity) -> Bool
 
 pub fn joint_handle(@ecs.Entity) -> @dynamics.ImpulseJointHandle?
 
-pub fn move_system(world~ : @ecs.World, Double) -> Unit
+pub fn move_system(PhysicsStep2D, @time.Time) -> Unit
 
 pub fn multibody_joint_handle(@ecs.Entity) -> @dynamics.MultibodyJointHandle?
 
@@ -55,7 +57,7 @@ pub fn multibody_link(@ecs.Entity) -> @dynamics.MultibodyLinkId?
 
 pub let physics_config : PhysicsConfig
 
-pub fn pickable_click_system(world~ : @ecs.World, Double) -> Unit
+pub fn pickable_click_system(CollisionQueries) -> Unit
 
 pub let pointer_event_bus : @event.Events[PointerEvent]
 
@@ -135,6 +137,11 @@ pub struct CollisionGroup {
 pub fn CollisionGroup::CollisionGroup() -> Self
 pub fn CollisionGroup::equal(Self, Self) -> Bool
 pub fn CollisionGroup::not_equal(Self, Self) -> Bool
+
+type CollisionQueries
+pub fn CollisionQueries::CollisionQueries(@ecs.World) -> Self
+pub fn CollisionQueries::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for CollisionQueries
 
 #derive(Eq, @debug.Debug)
 pub(all) enum CollisionShape {
@@ -252,6 +259,18 @@ pub(all) struct PhysicsConfig {
   mut pixels_per_meter : Double
   mut max_ccd_substeps : Int32
 }
+
+type PhysicsMotion
+pub fn PhysicsMotion::PhysicsMotion(@ecs.World) -> Self
+pub fn PhysicsMotion::is_grounded(Self, @ecs.Entity) -> Bool
+pub fn PhysicsMotion::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub fn PhysicsMotion::resolved_velocity(Self, @ecs.Entity) -> @velocity.Velocity?
+pub impl @ecs.SystemParam for PhysicsMotion
+
+type PhysicsStep2D
+pub fn PhysicsStep2D::PhysicsStep2D(@ecs.World) -> Self
+pub fn PhysicsStep2D::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for PhysicsStep2D
 
 pub(all) struct Pickable {
   mut active : Bool

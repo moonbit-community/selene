@@ -8,13 +8,15 @@ import {
   "Milky2018/selene/math",
   "Milky2018/selene/render",
   "Milky2018/selene/render3d_types",
+  "Milky2018/selene/time",
+  "Milky2018/selene/transform",
   "moonbitlang/core/debug",
 }
 
 // Values
 pub fn animated_field(AnimatedFieldHandle) -> AnimatedField?
 
-pub fn animation_apply_system(world~ : @ecs.World, Double) -> Unit
+pub fn animation_apply_system(world~ : @ecs.World) -> Unit
 
 pub fn animation_clip_asset(AnimationClipHandle) -> AnimationClip?
 
@@ -24,13 +26,13 @@ pub fn animation_graph_asset(AnimationGraphHandle) -> AnimationGraph?
 
 pub let animation_graph_asset_events : @event.Events[@asset.AssetEvent[AnimationGraphHandle]]
 
-pub fn animation_player_system(world~ : @ecs.World, Double) -> Unit
+pub fn animation_player_system(@ecs.Query[(AnimationPlayer, AnimationGraphHandle)], AnimationTargets, @time.Time) -> Unit
 
-pub fn animation_skinning_system(world~ : @ecs.World, Double) -> Unit
+pub fn animation_skinning_system(AnimationMeshes, @transform.Transforms) -> Unit
 
 pub fn animation_target_id_of(world~ : @ecs.World, @ecs.Entity) -> AnimationTargetId?
 
-pub fn animation_transition_system(@ecs.Query[(AnimationTransitions, AnimationPlayer)], Double) -> Unit
+pub fn animation_transition_system(@ecs.Query[(AnimationTransitions, AnimationPlayer)], @time.Time, @ecs.Entities) -> Unit
 
 pub fn bind_morph_mesh(@ecs.Entity, MorphMeshBinding3D) -> Unit
 
@@ -233,6 +235,11 @@ pub(all) enum AnimationGraphNodeType {
   Clip(AnimationClipHandle)
 }
 
+type AnimationMeshes
+pub fn AnimationMeshes::AnimationMeshes(@ecs.World) -> Self
+pub fn AnimationMeshes::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for AnimationMeshes
+
 #derive(Eq, Hash, @debug.Debug)
 pub(all) struct AnimationNodeIndex(UInt32)
 pub fn AnimationNodeIndex::equal(Self, Self) -> Bool
@@ -271,6 +278,11 @@ pub fn AnimationTargetId::not_equal(Self, Self) -> Bool
 pub fn AnimationTargetId::path(Self) -> String
 pub fn AnimationTargetId::to_repr(Self) -> @debug.Repr
 pub impl @ecs.Component for AnimationTargetId
+
+type AnimationTargets
+pub fn AnimationTargets::AnimationTargets(@ecs.World) -> Self
+pub fn AnimationTargets::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for AnimationTargets
 
 pub(all) struct AnimationTransitions {
   mut main : AnimationNodeIndex?

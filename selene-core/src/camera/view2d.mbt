@@ -20,7 +20,7 @@ fn compare_camera2d_views(lhs : Camera2dView, rhs : Camera2dView) -> Int32 {
 ///|
 fn camera2d_view(world~ : @ecs.World, entity : @ecs.Entity) -> Camera2dView? {
   let query_camera2d : @ecs.Query[@ecs.Single[Camera2d]] = world.query()
-  guard entity.is_alive() else { return None }
+  guard world.is_alive(entity) else { return None }
   guard (world.get_component(entity) : Camera?) is Some(camera) else {
     return None
   }
@@ -29,9 +29,16 @@ fn camera2d_view(world~ : @ecs.World, entity : @ecs.Entity) -> Camera2dView? {
     return None
   }
   let projection = (world.get_component(entity) : OrthographicProjection?).unwrap_or_default()
-  let viewport = camera.viewport_rect()
+  let display = @window.Display(world)
+  let viewport : @math.Rect = camera.viewport.map_or(
+    { position: @math.Vec2::zero(), size: display.screen_size(), },
+    viewport => viewport.rect(),
+  )
   let viewport_to_world = viewport_to_world_affine(
-    global_transform, projection, viewport,
+    global_transform,
+    projection,
+    viewport,
+    display.zoom(),
   )
   guard viewport_to_world.inverse() is Some(world_to_viewport) else { None }
   Some({

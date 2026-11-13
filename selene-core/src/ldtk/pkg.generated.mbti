@@ -201,7 +201,7 @@ pub let ldtk_tile_spawned_event_bus : @event.Events[LdtkTileSpawnedEvent]
 
 pub let ldtk_world_spawned_event_bus : @event.Events[LdtkWorldSpawnedEvent]
 
-pub fn ldtk_world_sync_system(world~ : @ecs.World, Double) -> Unit
+pub fn ldtk_world_sync_system(world~ : @ecs.World) -> Unit
 
 pub fn ldtk_worldly_entity(world~ : @ecs.World, @ecs.Entity, String) -> @ecs.Entity?
 

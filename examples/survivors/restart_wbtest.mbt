@@ -8,7 +8,7 @@ test "state-driven Survivors restart replaces entities and cancels old timers" {
     .init_state(GamePhase::Playing)
     .add_exclusive_on_enter(GamePhase::Playing, game_start)
     .add_on_enter(GamePhase::GameOver, show_game_over)
-    .add_system(PostUpdate, fn(_ : Unit) { @time.timers_system(0.0) })
+    .add_system(PostUpdate, @ecs.args2(@time.timers_system))
   app.run_frames(1)
   @state.set_next(world, GamePhase::GameOver)
   app.run_frames(1)
@@ -18,7 +18,9 @@ test "state-driven Survivors restart replaces entities and cancels old timers" {
   game_state(world~).score = 200
   previous_entities.append(survivors_runtime().entities)
   @time.set_scale(0.0)
-  survivors_timeout(0.0, () => old_callback_ran.val = true)
+  survivors_timeout(world.resource(), Timers(world), 0.0, () => {
+    old_callback_ran.val = true
+  })
   restart_game()
   let before : GamePhase = @state.current(world)
   assert_true(before == GameOver)

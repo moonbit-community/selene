@@ -1,38 +1,37 @@
 ///|
-fn text2d_anchor(world~ : @ecs.World, entity : @ecs.Entity) -> @sprite.Anchor {
-  (world.get_component(entity) : @sprite.Anchor?).unwrap_or(
-    Anchor(Vec2(0.0, 0.0)),
-  )
-}
-
-///|
 fn anchor_origin(anchor : @sprite.Anchor, size : @math.Vec2) -> @math.Vec2 {
   let normalized = anchor.as_vec()
   Vec2(-size.x * (normalized.x + 0.5), -size.y * (0.5 - normalized.y))
 }
 
 ///|
-pub fn render_text2d_system(world~ : @ecs.World, delta : Double) -> Unit {
-  let query_text_bounds : @ecs.Query[@ecs.Single[TextBounds]] = world.query()
-  let texts : @ecs.Query[(Text2d, @ui.Text, @transform.Spatial)] = world.query()
-  ignore(delta)
-  text_layout_caches().retain((entity, _) => entity.is_alive())
-  let camera_views = @camera.active_camera2d_views(world~)
-  let camera_extract = @culling2d.CameraExtract2dContext(camera_views)
+pub fn render_text2d_system(
+  frame : @render2d.Frame2D,
+  texts : @ecs.Query[(Text2d, @ui.Text, @transform.Spatial)],
+  view : @render2d.RenderView2D,
+  data : TextLayoutData,
+) -> Unit {
+  data.caches.retain((entity, _) => view.is_alive(entity))
+  let camera_views = view.camera_views()
   for entity, (text2d, text, spatial) in texts {
-    guard entity.is_alive() else { continue }
-    guard @visibility.is_visible(entity) else { continue }
+    guard view.is_alive(entity) else { continue }
+    guard view.is_visible(entity) else { continue }
     let global_transform = spatial.global()
-    guard @ui.text_style_for(world~, entity) is Some(style) else { continue }
-    let layout = text2d_layout(world~, entity)
-    let bounds = query_text_bounds.get(entity).map(value => value.0)
+    let layout = data.layouts
+      .get(entity)
+      .map_or(@ui.TextLayout(), value => value.0)
+    let style = data.style(entity, layout)
+    let bounds = data.bounds.get(entity).map(value => value.0)
     let translation = global_transform.translation()
     let base_pos = @math.Vec2(translation.x, translation.y)
-    let parallax = @parallax2d.inherited_parallax2d(world~, entity)
-    let sorting = @render2d.entity_sorting2d(world~, entity)
-    let anchor = text2d_anchor(world~, entity)
+    let parallax = view.parallax_for(entity)
+    let sorting = view.sorting_for(entity)
+    let anchor = data.anchors
+      .get(entity)
+      .map_or(@sprite.Anchor(Vec2(0.0, 0.0)), value => value.0)
     let depth = @render2d.sort_depth_for_transform(global_transform, sorting)
     let cached_layout = cached_text_layout(
+      data.caches,
       entity,
       text.content,
       style,
@@ -61,7 +60,9 @@ pub fn render_text2d_system(world~ : @ecs.World, delta : Double) -> Unit {
         None,
       )
       push_text2d_lines(
-        world~,
+        frame,
+        anchor,
+        view,
         entity,
         lines,
         style,
@@ -70,7 +71,7 @@ pub fn render_text2d_system(world~ : @ecs.World, delta : Double) -> Unit {
         bounds_height,
         block_height,
         line_height,
-        @camera.pixel_snapped_position(@window.scale_vec2(screen_pos)),
+        @camera.pixel_snapped_position(view.scale_position(screen_pos)),
         layout_size,
         global_transform,
         None,
@@ -90,10 +91,9 @@ pub fn render_text2d_system(world~ : @ecs.World, delta : Double) -> Unit {
       { position: @math.Vec2::zero(), size: layout_size, },
       @camera.world_transform_2d(global_transform),
     )
-    let camera_views_for_entity = camera_extract.camera_views_for_bounds(
-      world~,
+    let camera_views_for_entity = view.camera_views_for_bounds(
       world_bounds,
-      @visibility.entity_render_layers(world~, entity),
+      view.layers_for(entity),
       @parallax2d.parallax_depends_on_camera(parallax),
     )
     if camera_views_for_entity.is_empty() {
@@ -108,7 +108,7 @@ pub fn render_text2d_system(world~ : @ecs.World, delta : Double) -> Unit {
       let screen_pos = @camera.pixel_snapped_position(
         camera_view.world_to_viewport(raw_pos),
       )
-      let screen_transform = @camera.camera_screen_transform(
+      let screen_transform = view.screen_transform(
         global_transform,
         Some(camera_view),
       )
@@ -120,7 +120,9 @@ pub fn render_text2d_system(world~ : @ecs.World, delta : Double) -> Unit {
       )
       guard camera_view.intersects_screen_rect(layout_bounds) else { continue }
       push_text2d_lines(
-        world~,
+        frame,
+        anchor,
+        view,
         entity,
         lines,
         style,
@@ -143,7 +145,9 @@ pub fn render_text2d_system(world~ : @ecs.World, delta : Double) -> Unit {
 
 ///|
 fn push_text2d_lines(
-  world~ : @ecs.World,
+  frame : @render2d.Frame2D,
+  anchor : @sprite.Anchor,
+  view : @render2d.RenderView2D,
   entity : @ecs.Entity,
   lines : Array[String],
   style : @render2d_types.TextStyle2D,
@@ -160,8 +164,7 @@ fn push_text2d_lines(
   depth : Double,
   sorting : @render2d.Sorting2d,
 ) -> Unit {
-  let origin = screen_pos +
-    anchor_origin(text2d_anchor(world~, entity), layout_size)
+  let origin = screen_pos + anchor_origin(anchor, layout_size)
   let start_y = match layout.baseline {
     Top => origin.y
     Center => origin.y + (bounds_height - block_height) / 2.0
@@ -180,24 +183,24 @@ fn push_text2d_lines(
       position: @camera.pixel_snapped_position(
         Vec2(x, start_y + line_height * index.to_double()),
       ),
-      transform: @camera.camera_screen_transform(global_transform, camera_view),
+      transform: view.screen_transform(global_transform, camera_view),
       blend_mode,
       style: style_for_draw,
     }
     match camera_view {
       Some(camera_view) =>
-        @render2d.push_text_with_depth_to_camera(
-          camera_view.entity.id(),
-          depth,
-          command,
-          entity_id=Some(entity.id()),
-          sorting~,
-        )
-      None =>
-        @render2d.push_text_with_depth_for_entity(
+        frame.push_world_command(
           depth,
           Some(entity.id()),
-          command,
+          Text(command),
+          sorting~,
+          camera_entity_id=Some(camera_view.entity.id()),
+        )
+      None =>
+        frame.push_world_command(
+          depth,
+          Some(entity.id()),
+          Text(command),
           sorting~,
         )
     }

@@ -48,8 +48,11 @@ pub struct Events[T] {
 }
 
 ///|
-fn[T] world_store(events : Events[T]) -> EventWorldStore[T] {
-  events.store_key.get_or_insert_with(@ecs.require_current_world(), _ => {
+fn[T] world_store(
+  events : Events[T],
+  world~ : @ecs.World = @ecs.require_current_world(),
+) -> EventWorldStore[T] {
+  events.store_key.get_or_insert_with(world, _ => {
     next_event_id: 0,
     next_observer_id: 0,
     older: [],
@@ -80,17 +83,21 @@ pub fn[T] Events::register_to_world(
       return
     }
   }
+  let store = world_store(self, world~)
   buses.push({
     id: self.id,
     domain: self.domain,
-    update: fn() { self.update() },
-    dispatch: fn() { self.dispatch_observers() },
+    update: fn() { update_store(store) },
+    dispatch: fn() { dispatch_store(store) },
   })
 }
 
 ///|
-pub fn[T] Events::writer(self : Events[T]) -> EventWriter[T] {
-  EventWriter(self)
+pub fn[T] Events::writer(
+  self : Events[T],
+  world~ : @ecs.World = @ecs.require_current_world(),
+) -> EventWriter[T] {
+  EventWriter(self, world~)
 }
 
 ///|
@@ -158,7 +165,11 @@ pub fn[T] Events::clear(self : Events[T]) -> Unit {
 
 ///|
 pub fn[T] Events::update(self : Events[T]) -> Unit {
-  let store = world_store(self)
+  update_store(world_store(self))
+}
+
+///|
+fn[T] update_store(store : EventWorldStore[T]) -> Unit {
   store.older = store.newer
   store.newer = []
 }
@@ -166,7 +177,11 @@ pub fn[T] Events::update(self : Events[T]) -> Unit {
 ///|
 /// Subscription changes made by a callback take effect on the next trigger.
 pub fn[T] Events::dispatch_observers(self : Events[T]) -> Unit {
-  let store = world_store(self)
+  dispatch_store(world_store(self))
+}
+
+///|
+fn[T] dispatch_store(store : EventWorldStore[T]) -> Unit {
   for item in store.observer_queue {
     for observer in store.observers.values().collect() {
       let deliver = match observer.target {

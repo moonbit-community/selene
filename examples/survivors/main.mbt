@@ -53,13 +53,13 @@ fn survivors_app() -> @app.App {
     Update,
     [
       System(@ecs.args3(player_update_system)),
-      System(@ecs.args5(player_shooting_system)),
-      System(@ecs.args3(enemy_ai_system)),
+      System(@ecs.args7(player_shooting_system)),
+      System(@ecs.args4(enemy_ai_system)),
       System(@ecs.args2(enemy_collision_system)),
-      System(@ecs.args5(devil_shooting_system)),
+      System(@ecs.args7(devil_shooting_system)),
       System(@ecs.args3(player_bullet_trigger_system)),
-      System(@ecs.args3(check_victory_system)),
-      System(@ecs.args3(game_timer_system)),
+      System(@ecs.args4(check_victory_system)),
+      System(@ecs.args4(game_timer_system)),
     ],
     run_if=is_playing,
   )
@@ -199,13 +199,17 @@ fn[T : @ecs.Bundle] spawn_survivors_entity(values : T) -> @ecs.Entity {
 }
 
 ///|
-fn survivors_timeout(delay : Double, callback : () -> Unit) -> Unit {
-  let runtime = survivors_runtime()
+fn survivors_timeout(
+  runtime : SurvivorsRuntime,
+  timers : @time.Timers,
+  delay : Double,
+  callback : () -> Unit,
+) -> Unit {
   let id = runtime.next_timer
   runtime.next_timer += 1
   runtime.timers.set(
     id,
-    @time.timeout(delay, () => {
+    timers.timeout(delay, () => {
       runtime.timers.remove(id)
       callback()
     }),
@@ -590,7 +594,7 @@ fn apply_selection(ui~ : SurvivorsUi, selection : LevelUpSelection) -> Unit {
 fn game_start(world : @ecs.World) -> Unit {
   reset_survivors_runtime()
   @time.initialize(@ecs.require_current_world())
-  @time.set_scale(1.0)
+  @time.Time(world).set_scale(1.0)
   @ui.set_ui_scale_mode(Viewport)
   configure_survivors_input()
   ignore(game_state(world~))
@@ -603,7 +607,13 @@ fn game_start(world : @ecs.World) -> Unit {
   let ui = SurvivorsUi(world)
   setup_level_up_ui(ui~)
   setup_game_over_ui(ui~)
-  start_enemy_spawner()
+  start_enemy_spawner(
+    world.resource(),
+    @ecs.Res::prepare(world)(world),
+    Timers(world),
+    @ecs.commands(world),
+    @state.State::prepare(world)(world),
+  )
 }
 
 ///|
@@ -655,6 +665,7 @@ fn game_timer_system(
   runtime : @ecs.Res[SurvivorsRuntime],
   texts : @ecs.Query[@ecs.Single[@ui.Text]],
   time : @time.Time,
+  wave : @ecs.Res[WaveState],
 ) -> Unit {
   guard runtime.get().game is Some(game) else { return }
   let delta = time.delta()
@@ -677,7 +688,7 @@ fn game_timer_system(
   if new_wave != game.current_wave {
     game.current_wave = new_wave
     set_ui_text(texts~, game.wave_box, "Wave: " + game.current_wave.to_string())
-    reset_wave_state() // Reset spawn counters for new wave
+    wave.set(WaveState()) // Reset spawn counters for new wave
   }
 
   // Format timer as MM:SS

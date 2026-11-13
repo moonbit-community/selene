@@ -23,7 +23,7 @@ pub let scene_instance_ready_events : @event.Events[SceneInstanceReadyEvent]
 
 pub fn scene_of(@ecs.Entity) -> @render3d_types.SceneHandle?
 
-pub fn scene_spawner_cleanup_system() -> Unit
+pub fn scene_spawner_cleanup_system(SceneInstances) -> Unit
 
 // Errors
 
@@ -36,6 +36,11 @@ pub(all) struct SceneInstanceReadyEvent {
 pub fn SceneInstanceReadyEvent::equal(Self, Self) -> Bool
 pub fn SceneInstanceReadyEvent::not_equal(Self, Self) -> Bool
 pub fn SceneInstanceReadyEvent::to_repr(Self) -> @debug.Repr
+
+type SceneInstances
+pub fn SceneInstances::SceneInstances(@ecs.World) -> Self
+pub fn SceneInstances::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for SceneInstances
 
 pub(all) struct SceneSpawner {
   _tag : Unit

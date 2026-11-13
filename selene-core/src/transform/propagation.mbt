@@ -13,21 +13,23 @@
 // limitations under the License.
 
 ///|
-pub fn transform_propagate_system(world~ : @ecs.World, _delta : Double) -> Unit {
-  let spatials : @ecs.Query[@ecs.Single[Spatial]] = world.query()
-  let is_alive = @ecs.alive_in_world(world)
-  for entity in world.get_roots() {
-    propagate_spatial(world, entity, None, spatials, is_alive)
+pub fn transform_propagate_system(
+  entities : @ecs.Entities,
+  hierarchy : @ecs.Hierarchy,
+  spatials : @ecs.Query[@ecs.Single[Spatial]],
+) -> Unit {
+  for entity in hierarchy.roots() {
+    propagate_spatial(hierarchy, entities, entity, None, spatials)
   }
 }
 
 ///|
 fn propagate_spatial(
-  world : @ecs.World,
+  hierarchy : @ecs.Hierarchy,
+  entities : @ecs.Entities,
   entity : @ecs.Entity,
   parent_global : GlobalTransform?,
   spatials : @ecs.Query[@ecs.Single[Spatial]],
-  is_alive : (@ecs.Entity) -> Bool,
 ) -> Unit {
   let global = match spatials.get(entity).map(value => value.0) {
     Some(spatial) => {
@@ -41,9 +43,9 @@ fn propagate_spatial(
     }
     None => parent_global
   }
-  for child in world.get_children(entity) {
-    if is_alive(child) {
-      propagate_spatial(world, child, global, spatials, is_alive)
+  for child in hierarchy.children(entity) {
+    if entities.is_alive(child) {
+      propagate_spatial(hierarchy, entities, child, global, spatials)
     }
   }
 }

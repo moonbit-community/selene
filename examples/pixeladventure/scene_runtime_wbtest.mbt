@@ -131,7 +131,7 @@ test "injected trigger queries collect an apple and delete it at schedule comple
     let apples : @ecs.Query[(AppleTag, @physics2d.Area)] = world.query()
     let (entity, (_, area)) = apples.iter().next().unwrap()
     area.contains.add(session.player)
-    @ecs.Schedule().add_system(@ecs.args4(trigger_system)).run(world)
+    @ecs.Schedule().add_system(@ecs.args6(trigger_system)).run(world)
     assert_eq(session.score, 10)
     assert_false(entity.is_valid_in(world))
   })
