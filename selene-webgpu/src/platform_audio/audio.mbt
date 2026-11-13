@@ -23,20 +23,20 @@ fn from_impl_instance(instance : @impl.AudioInstance) -> AudioInstance {
 
 ///|
 pub fn play_audio(
-  audio_path~ : String,
+  source~ : @asset_types.AudioHandle,
   volume~ : Double,
   speed~ : Double,
   loop_~ : Bool,
   paused~ : Bool,
 ) -> AudioInstance {
   from_impl_instance(
-    @impl.play_audio(audio_path~, volume~, speed~, loop_~, paused~),
+    @impl.play_audio(source~, volume~, speed~, loop_~, paused~),
   )
 }
 
 ///|
-pub fn preload(path : String) -> Unit {
-  @impl.preload_audio(path)
+pub fn preload(source : @asset_types.AudioHandle) -> Unit {
+  @impl.preload_audio(source)
 }
 
 ///|
@@ -72,4 +72,11 @@ pub fn is_finished(instance~ : AudioInstance) -> Bool {
 ///|
 pub fn tick() -> Unit {
   @impl.tick_audio()
+}
+
+///|
+pub fn preparation_state(
+  handle : @asset_types.AudioHandle,
+) -> @asset_types.PreparationState {
+  @impl.audio_preparation_state(handle)
 }

@@ -278,23 +278,27 @@ fn parse_image_handles(
         continue
       }
       let resolved = resolve_relative_asset_path(scene_path, uri)
-      handles.push(Some(@render3d.register_image_asset({ path: resolved, })))
+      if uri.to_lower().has_prefix("data:") {
+        handles.push(
+          decode_data_uri_base64(uri).map(bytes => {
+            @asset.images.add(@asset.Image::from_bytes(bytes))
+          }),
+        )
+      } else {
+        handles.push(Some(@asset.load_image(resolved)))
+      }
       continue
     }
     guard field_int(image_object, "bufferView") is Some(buffer_view_index) else {
       handles.push(None)
       continue
     }
-    let mime_type = field_string(image_object, "mimeType").unwrap_or(
-      "image/png",
-    )
     guard resolve_buffer_view_bytes(buffer_view_index, buffers, buffer_views)
       is Some(image_bytes) else {
       handles.push(None)
       continue
     }
-    let data_uri = "data:\{mime_type};base64,\{@base64.encode(image_bytes[:])}"
-    handles.push(Some(@render3d.register_image_asset({ path: data_uri, })))
+    handles.push(Some(@asset.images.add(@asset.Image::from_bytes(image_bytes))))
   }
   handles
 }

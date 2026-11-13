@@ -126,11 +126,9 @@ pub fn render_submit_system(world~ : @ecs.World, _delta : Double) -> Unit {
   let assets3d : @render_pipeline.RenderAssetSync3D = {
     mesh_upserts: @render3d.take_dirty_mesh_assets(),
     material_upserts: @render3d.take_dirty_material_assets(),
-    image_upserts: @render3d.take_dirty_image_assets(),
     cubemap_upserts: @render3d.take_dirty_cubemap_assets(),
     mesh_releases: @render3d.take_released_mesh_assets(),
     material_releases: @render3d.take_released_material_assets(),
-    image_releases: @render3d.take_released_image_assets(),
     cubemap_releases: @render3d.take_released_cubemap_assets(),
   }
   let frame : @render_pipeline.RenderFrame = {

@@ -4,7 +4,6 @@ version = "0.21.2"
 
 import {
   "Milky2018/selene@0.39.1",
-  "moonbitlang/x@0.5.7",
 }
 
 readme = "README.md"

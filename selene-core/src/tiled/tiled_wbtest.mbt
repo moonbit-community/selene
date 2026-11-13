@@ -13,9 +13,9 @@ fn with_fake_asset_io(
   files : Map[String, Bytes],
   body : () -> Unit raise,
 ) -> Unit raise {
-  @asset.set_io(fn(path) { files.get(path) })
+  @asset.set_io(fn(path) { files.get(path) }, paths=files.keys().collect())
+  defer @asset.set_io(fn(_path) { None })
   body()
-  @asset.set_io(fn(_path) { None })
 }
 
 ///|
@@ -1633,5 +1633,44 @@ test "tiled diagonal flip swaps the tile axes before later flips" {
   inspect(
     "\{top_right.x.to_int()},\{top_right.y.to_int()}|\{bottom_left.x.to_int()},\{bottom_left.y.to_int()}",
     content="0,32|16,0",
+  )
+}
+
+///|
+test "world patterns discover sorted direct children from the asset catalogue" {
+  @asset.set_io(fn(_) { None }, paths=[
+    "maps/a2b3.tmj", "maps/nested/a9b9.tmj", "other/a8b8.tmj", "maps/a1b1.tmj", "maps/a2b3.tmj",
+    "maps/readme.txt",
+  ])
+  defer @asset.set_io(fn(_) { None })
+  let source_world : TiledWorld = {
+    ..TiledWorld(),
+    source_path: Some("maps/demo.world"),
+    maps: [{ file_name: "a1b1.tmj", x: 7, y: 9, width: None, height: None, }],
+    patterns: [
+      {
+        regexp: "a(\\d+)b(\\d+)\\.tmj",
+        multiplier_x: 16,
+        multiplier_y: 32,
+        offset_x: 0,
+        offset_y: 0,
+        map_width: 16,
+        map_height: 32,
+      },
+    ],
+  }
+  let maps = tiled_world_collect_maps(source_world)
+  assert_eq(maps.length(), 2)
+  assert_eq(maps[0].file_name, "a1b1.tmj")
+  assert_eq(maps[0].x, 7)
+  assert_eq(maps[1].file_name, "a2b3.tmj")
+  assert_eq(maps[1].x, 32)
+  assert_eq(maps[1].y, 96)
+  assert_eq(
+    tiled_world_asset_file_names({
+      ..TiledWorld(),
+      source_path: Some("local.world"),
+    }).length(),
+    0,
   )
 }

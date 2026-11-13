@@ -464,7 +464,7 @@ fn tiled_world_expand_patterns(
   if source_world.patterns.length() == 0 {
     return []
   }
-  let file_names = tiled_world_scan_directory_files(source_world)
+  let file_names = tiled_world_asset_file_names(source_world)
   if file_names.length() == 0 {
     return []
   }
@@ -502,15 +502,26 @@ fn tiled_world_expand_pattern(
 }
 
 ///|
-fn tiled_world_scan_directory_files(source_world : TiledWorld) -> Array[String] {
+fn tiled_world_asset_file_names(source_world : TiledWorld) -> Array[String] {
   guard source_world.source_path is Some(source_path) else { return [] }
-  let directory = tiled_world_directory_path(source_path)
-  let entries = @fs.read_dir(directory) catch { _ => return [] }
+  let directory = tiled_world_directory_path(
+    source_path.replace_all(old="\\", new="/"),
+  )
   let file_names : Array[String] = []
-  for entry in entries {
-    let resolved = source_world.resolve_map_path(entry)
-    if (@fs.is_file(resolved) catch { _ => false }) {
-      file_names.push(entry)
+  let seen : @set.Set[String] = Set([])
+  for path in @asset.paths() {
+    let normalized = path.replace_all(old="\\", new="/")
+    if tiled_world_directory_path(normalized) != directory {
+      continue
+    }
+    let name = match normalized.rev_find("/") {
+      Some(index) =>
+        normalized.unsafe_substring(start=index + 1, end=normalized.length())
+      None => normalized
+    }
+    if !seen.contains(name) {
+      seen.add(name)
+      file_names.push(name)
     }
   }
   file_names.sort()

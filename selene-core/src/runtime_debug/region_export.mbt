@@ -26,11 +26,11 @@ fn join_output_path(output_dir : String, file_name : String) -> String {
 
 ///|
 pub fn export_texture_region_png(
-  image_path : String,
+  image : @asset.ImageHandle,
   rect : @math.Rect,
   out_path : String,
 ) -> Bool {
-  @platform_render.export_texture_region_png(image_path, rect, out_path)
+  @platform_render.export_texture_region_png(image, rect, out_path)
 }
 
 ///|
@@ -41,11 +41,11 @@ pub fn export_sprite_inspector_regions(
 ) -> Int32 {
   let mut exported = 0
   for index, entry in entries {
-    guard entry.image_path is Some(image_path) else { continue }
+    guard entry.image is Some(image) else { continue }
     guard entry.source_rect is Some(source_rect) else { continue }
     let out_path = join_output_path(output_dir, file_naming(entry, index))
     if export_texture_region_png(
-        image_path,
+        image,
         debug_rect_to_math_rect(source_rect),
         out_path,
       ) {

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Adventure - Selene Game</title>
+    <title>Texas Hold'em Poker Challenge - Selene Game</title>
     <style>
         * {
             margin: 0;
@@ -14,7 +14,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #4158d0 0%, #c850c0 46%, #ffcc70 100%);
+            background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -39,7 +39,7 @@
             font-weight: 800;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            color: #fff;
+            color: #ffd700;
         }
 
         .subtitle {
@@ -69,8 +69,7 @@
         }
 
         .game-wrapper,
-        .game-wrapper *,
-        .instructions img {
+        .game-wrapper * {
             user-select: none;
             -webkit-user-select: none;
             -webkit-touch-callout: none;
@@ -88,7 +87,7 @@
         .instructions h2 {
             font-size: 1.3rem;
             margin-bottom: 10px;
-            color: #ffcc70;
+            color: #ffd700;
         }
 
         .instructions p {
@@ -142,18 +141,18 @@
     </style>
     <script>
         document.addEventListener('contextmenu', event => {
-            if (event.target.closest('.game-wrapper') || event.target.closest('.instructions')) {
+            if (event.target.closest('.game-wrapper')) {
                 event.preventDefault();
             }
         });
     </script>
-    <script src="../../_build/js/release/build/Milky2018/selene-examples-web/pixeladventure/web/web.js" defer></script>
+    <script src="web.js" defer></script>
 </head>
 
 <body>
     <div class="container">
         <header>
-            <h1>Pixel Adventure</h1>
+            <h1>🃏 Texas Hold'em Poker Challenge</h1>
         </header>
 
         <div class="game-wrapper">
@@ -161,7 +160,15 @@
         </div>
 
         <div class="instructions">
-            <img src="assets/pixeladventure/arrowkey.png" alt="Arrow Keys" style="display: block; margin: 0 auto; max-width: 25%;">
+            <h2>How to Play</h2>
+            <p><strong>Objective:</strong> Start with $1000 and maximize your profit over exactly 10 poker hands.</p>
+            <ul>
+                <li><strong>Big Blind:</strong> $20 per hand (you pay automatically)</li>
+                <li><strong>Actions:</strong> Fold (forfeit hand), Call (continue), or Raise (increase bet & multiplier)</li>
+                <li><strong>Multiplier System:</strong> Each raise increases your payout multiplier by 1×</li>
+                <li><strong>Folding:</strong> Doesn't count as a completed hand - you can retry!</li>
+                <li><strong>Payouts:</strong> Based on poker hand rank × multiplier</li>
+            </ul>
         </div>
 
         <a href="../index.html" class="back-link">← Back to Games</a>

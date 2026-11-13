@@ -397,7 +397,7 @@ fn hurt_player(
   if session.health <= 0 {
     session.result = Some(GameOver)
   }
-  play_sfx(hurt_sound(), session.volume_on)
+  play_sfx(hurt_sound, session.volume_on)
   Some(knockback)
 }
 
@@ -501,7 +501,7 @@ fn player_controller_system(
     if grounded && jump_requested {
       new_velocity_y = -JUMP_V
       controller.state = Jump
-      play_sfx(jump_sound(), session.volume_on)
+      play_sfx(jump_sound, session.volume_on)
     } else if !grounded {
       controller.state = if velocity.y > 0.0 { Fall } else { Jump }
     } else if new_velocity_x != 0.0 {
@@ -678,7 +678,7 @@ fn trigger_system(
     }
     if area.contains.contains(session.player) {
       session.score += 10
-      play_sfx(coin_sound(), session.volume_on)
+      play_sfx(coin_sound, session.volume_on)
       commands.delete(apple_entity)
     }
   }

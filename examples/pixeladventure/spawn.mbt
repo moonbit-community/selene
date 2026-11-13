@@ -14,7 +14,6 @@
 
 ///|
 fn game_start(world : @ecs.World) -> Unit {
-  ignore(@asset.load_font(FONT_PATH, family=FONT_FAMILY))
   @ui.set_ui_scale_mode(Viewport)
   configure_pixeladventure_input()
   reset_pixeladventure_world_store()
@@ -90,7 +89,7 @@ fn spawn_text_box(
       @ui.Node::absolute(offset, size~),
       @ui.ZIndex(HUD_ZINDEX),
       @ui.Text(content),
-      @ui.TextFont::from_css(font),
+      game_text_font(font),
       @ui.TextColor::from_css(color),
       @ui.TextLayout(align~, baseline~),
     ),
@@ -250,9 +249,7 @@ fn spawn_background(size : @math.Vec2) -> Unit {
     spawn_game_entity(
       (
         @sprite.Sprite(
-          image=Some(
-            @asset.load_image("assets/pixeladventure/Background/Gray.png"),
-          ),
+          image=Some(background_image),
           custom_size=Some(size),
           anchor=Anchor(Vec2(-0.5, 0.5)),
           image_mode=Tiled(Repeat),

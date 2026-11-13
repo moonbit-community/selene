@@ -115,11 +115,14 @@ pub fn set_time_scale(time_scale : Double) -> Unit {
 }
 
 ///|
-pub fn set_embedded_assets(lookup : (String) -> Bytes?) -> Unit {
+pub fn set_embedded_assets(
+  lookup : (String) -> Bytes?,
+  paths~ : Array[String] = [],
+) -> Unit {
   embedded_asset_lookup.val = lookup
+  embedded_paths.val = paths.copy()
   embedded_asset_cache.clear()
   reported_asset_io_failures.clear()
-  reset_audio_runtime()
 }
 
 ///|

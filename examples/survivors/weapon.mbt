@@ -156,10 +156,7 @@ type PlayerBulletSpawnPlan = @ecs.SpawnPlan[
 
 ///|
 fn player_bullet_visual() -> @sprite.Sprite {
-  Sprite(
-    image=Some(@asset.load_image("assets/survivors/icon/bullet.png")),
-    custom_size=Some(Vec2(12.0, 12.0)),
-  )
+  Sprite(image=Some(bullet_image), custom_size=Some(Vec2(12.0, 12.0)))
 }
 
 ///|

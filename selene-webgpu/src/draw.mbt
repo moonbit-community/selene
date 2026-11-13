@@ -114,12 +114,6 @@ let synced_material_assets : Map[
 ] = Map([])
 
 ///|
-let synced_image_assets : Map[
-  @render3d_types.ImageHandle,
-  @render3d_types.ImageAsset,
-] = Map([])
-
-///|
 let synced_cubemap_assets : Map[
   @render3d_types.CubemapHandle,
   @render3d_types.CubemapAsset3D,
@@ -319,8 +313,10 @@ priv struct ResolvedMaterialTextureInput3D {
 }
 
 ///|
-pub fn preload_img(path : String) -> Unit {
-  webgpu_preload_img(resolve_asset_path(path))
+pub fn prepare_image(handle : @asset_types.ImageHandle) -> Unit {
+  if image_url(handle) is Some(url) {
+    webgpu_preload_img(url)
+  }
 }
 
 ///|
@@ -433,11 +429,8 @@ pub fn reset_clip_stack() -> Unit {
 }
 
 ///|
-pub fn draw_image(
-  command : @render2d_types.ImageDrawCommand2D,
-  image_path : String,
-) -> Unit {
-  let path = resolve_asset_path(image_path)
+pub fn draw_image(command : @render2d_types.ImageDrawCommand2D) -> Unit {
+  guard image_url(command.image) is Some(path) else { return }
   let dimensions = webgpu_image_dimensions(path)
   if dimensions.length() < 3 ||
     dimensions[0] < 0.5 ||
@@ -670,14 +663,6 @@ pub fn sync_material_asset(
 }
 
 ///|
-pub fn sync_image_asset(
-  handle : @render3d_types.ImageHandle,
-  image : @render3d_types.ImageAsset,
-) -> Unit {
-  synced_image_assets.set(handle, image)
-}
-
-///|
 pub fn sync_cubemap_asset(
   handle : @render3d_types.CubemapHandle,
   cubemap : @render3d_types.CubemapAsset3D,
@@ -693,11 +678,6 @@ pub fn release_mesh_asset(handle : @render3d_types.MeshHandle) -> Unit {
 ///|
 pub fn release_material_asset(handle : @render3d_types.MaterialHandle) -> Unit {
   synced_material_assets.remove(handle)
-}
-
-///|
-pub fn release_image_asset(handle : @render3d_types.ImageHandle) -> Unit {
-  synced_image_assets.remove(handle)
 }
 
 ///|
@@ -824,8 +804,7 @@ fn draw_skybox_face(
   p2 : @smath.Vec3,
   p3 : @smath.Vec3,
 ) -> Unit {
-  guard synced_image_assets.get(image) is Some(image_asset) else { return }
-  let path = resolve_asset_path(image_asset.path)
+  guard image_url(image) is Some(path) else { return }
   let vertices : Array[Double] = []
   push_skybox_vertex(
     vertices, camera_position, rotation, half_size, p0, 0.0, 1.0, brightness,
@@ -2984,10 +2963,10 @@ fn texture_sampler_code(sampler : @render3d_types.TextureSampler3D) -> Int32 {
 fn resolve_texture_source(
   binding : @render3d_types.TextureBinding3D,
 ) -> MaterialTextureSource3D? {
-  match synced_image_assets.get(binding.image) {
-    Some(image_asset) =>
+  match image_url(binding.image) {
+    Some(path) =>
       Some({
-        path: resolve_asset_path(image_asset.path),
+        path,
         texcoord_set: binding.texcoord_set,
         sampler_code: texture_sampler_code(binding.sampler),
       })

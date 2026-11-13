@@ -50,7 +50,7 @@ python3 -m http.server 8000
 
 我们将要制作的游戏如下：
 
-![](../examples/pixeladventure/screenshot.png)
+![](../page/examples/pixeladventure/screenshot.png)
 
 我们会在流程中展示如何制作：
 
@@ -111,7 +111,6 @@ import {
   "Milky2018/selene/transform",
   "Milky2018/selene/ui",
   "moonbitlang/core/json",
-  "moonbitlang/x/fs",
 }
 ```
 
@@ -418,19 +417,20 @@ fn volume_button_input_system(_world : @ecs.World) -> Unit {
 构建命令：
 
 ```shell
-moon -C examples-web build ./pixeladventure/web --target js --release
+moon build examples-web/pixeladventure/web --target js --release
+cp _build/js/release/build/Milky2018/selene-examples-web/pixeladventure/web/web.js page/examples/pixeladventure/web.js
 ```
 
-构建后可直接使用 `examples/pixeladventure/index.html`，其中脚本路径如下：
+构建后可直接使用 `page/examples/pixeladventure/index.html`，其中脚本路径如下：
 
 ```html
-<script src="../../_build/js/release/build/Milky2018/selene-examples-web/pixeladventure/web/web.js" defer></script>
+<script src="web.js" defer></script>
 ```
 
-然后在仓库根目录启动本地 Web 服务：
+然后在仓库根目录启动本地 Web 服务，以 `page/` 为站点目录：
 
 ```shell
-python3 -m http.server 8000
+python3 -m http.server --directory page 8000
 ```
 
 访问 `http://localhost:8000/examples/pixeladventure/` 即可游玩。

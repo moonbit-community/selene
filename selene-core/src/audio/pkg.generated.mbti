@@ -21,15 +21,15 @@ pub fn audio_sink(@ecs.Entity) -> AudioSink?
 
 pub fn global_volume() -> Double
 
-pub fn play_one_shot(@asset_types.AudioHandle, volume? : Double) -> Unit
+pub fn play_one_shot(@asset_types.Handle[@asset_types.Audio], volume? : Double) -> Unit
 
 pub fn restart_audio(@ecs.Entity) -> Unit
 
-pub fn send_audio_event(@asset_types.AudioHandle, settings? : PlaybackSettings, target? : @ecs.Entity) -> Unit
+pub fn send_audio_event(@asset_types.Handle[@asset_types.Audio], settings? : PlaybackSettings, target? : @ecs.Entity) -> Unit
 
 pub fn set_global_volume(Double) -> Unit
 
-pub fn spawn_audio(@asset_types.AudioHandle, settings? : PlaybackSettings) -> @ecs.Entity
+pub fn spawn_audio(@asset_types.Handle[@asset_types.Audio], settings? : PlaybackSettings) -> @ecs.Entity
 
 pub fn stop_audio(@ecs.Entity) -> Unit
 
@@ -38,7 +38,7 @@ pub fn stop_audio(@ecs.Entity) -> Unit
 // Types and methods
 #derive(Eq, @debug.Debug)
 pub(all) struct AudioEvent {
-  source : @asset_types.AudioHandle
+  source : @asset_types.Handle[@asset_types.Audio]
   settings : PlaybackSettings
   target : @ecs.Entity?
 }
@@ -48,9 +48,9 @@ pub fn AudioEvent::to_repr(Self) -> @debug.Repr
 
 #derive(Eq, @debug.Debug)
 pub(all) struct AudioPlayer {
-  source : @asset_types.AudioHandle
+  source : @asset_types.Handle[@asset_types.Audio]
 }
-pub fn AudioPlayer::AudioPlayer(@asset_types.AudioHandle) -> Self
+pub fn AudioPlayer::AudioPlayer(@asset_types.Handle[@asset_types.Audio]) -> Self
 pub fn AudioPlayer::equal(Self, Self) -> Bool
 pub fn AudioPlayer::from_path(String) -> Self
 pub fn AudioPlayer::not_equal(Self, Self) -> Bool
@@ -107,6 +107,6 @@ pub fn PlaybackSettings::with_volume(Self, Double) -> Self
 pub impl @ecs.Component for PlaybackSettings
 
 // Type aliases
-pub using @asset_types {type AudioHandle}
+pub type AudioHandle = @asset_types.Handle[@asset_types.Audio]
 
 // Traits

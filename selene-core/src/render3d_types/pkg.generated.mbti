@@ -2,6 +2,7 @@
 package "Milky2018/selene/render3d_types"
 
 import {
+  "Milky2018/selene/asset_types",
   "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
@@ -74,14 +75,14 @@ pub fn CubemapAsset3D::to_repr(Self) -> @debug.Repr
 
 #derive(Eq, @debug.Debug)
 pub(all) struct CubemapFaces3D {
-  positive_x : ImageHandle
-  negative_x : ImageHandle
-  positive_y : ImageHandle
-  negative_y : ImageHandle
-  positive_z : ImageHandle
-  negative_z : ImageHandle
+  positive_x : @asset_types.Handle[@asset_types.Image]
+  negative_x : @asset_types.Handle[@asset_types.Image]
+  positive_y : @asset_types.Handle[@asset_types.Image]
+  negative_y : @asset_types.Handle[@asset_types.Image]
+  positive_z : @asset_types.Handle[@asset_types.Image]
+  negative_z : @asset_types.Handle[@asset_types.Image]
 }
-pub fn CubemapFaces3D::CubemapFaces3D(ImageHandle, ImageHandle, ImageHandle, ImageHandle, ImageHandle, ImageHandle) -> Self
+pub fn CubemapFaces3D::CubemapFaces3D(@asset_types.Handle[@asset_types.Image], @asset_types.Handle[@asset_types.Image], @asset_types.Handle[@asset_types.Image], @asset_types.Handle[@asset_types.Image], @asset_types.Handle[@asset_types.Image], @asset_types.Handle[@asset_types.Image]) -> Self
 pub fn CubemapFaces3D::equal(Self, Self) -> Bool
 pub fn CubemapFaces3D::not_equal(Self, Self) -> Bool
 pub fn CubemapFaces3D::to_repr(Self) -> @debug.Repr
@@ -151,22 +152,6 @@ pub(all) struct FrameSpotLight3D {
   inner_angle : Double
   outer_angle : Double
 }
-
-#derive(Eq, @debug.Debug)
-pub(all) struct ImageAsset {
-  path : String
-}
-pub fn ImageAsset::equal(Self, Self) -> Bool
-pub fn ImageAsset::not_equal(Self, Self) -> Bool
-pub fn ImageAsset::to_repr(Self) -> @debug.Repr
-
-#derive(Eq, Hash, @debug.Debug)
-pub(all) struct ImageHandle(UInt32)
-pub fn ImageHandle::equal(Self, Self) -> Bool
-pub fn ImageHandle::hash(Self) -> Int32
-pub fn ImageHandle::hash_combine(Self, Hasher) -> Unit
-pub fn ImageHandle::not_equal(Self, Self) -> Bool
-pub fn ImageHandle::to_repr(Self) -> @debug.Repr
 
 #derive(Eq, Hash, @debug.Debug)
 pub(all) struct MaterialHandle(UInt32)
@@ -327,12 +312,12 @@ pub fn Tangent3D::to_repr(Self) -> @debug.Repr
 
 #derive(Eq, @debug.Debug)
 pub(all) struct TextureBinding3D {
-  image : ImageHandle
+  image : @asset_types.Handle[@asset_types.Image]
   sampler : TextureSampler3D
   texcoord_set : Int32
   transform : TextureTransform3D
 }
-pub fn TextureBinding3D::TextureBinding3D(ImageHandle, texcoord_set? : Int32, sampler? : TextureSampler3D, transform? : TextureTransform3D) -> Self
+pub fn TextureBinding3D::TextureBinding3D(@asset_types.Handle[@asset_types.Image], texcoord_set? : Int32, sampler? : TextureSampler3D, transform? : TextureTransform3D) -> Self
 pub fn TextureBinding3D::equal(Self, Self) -> Bool
 pub fn TextureBinding3D::not_equal(Self, Self) -> Bool
 pub fn TextureBinding3D::to_repr(Self) -> @debug.Repr
@@ -405,5 +390,6 @@ pub fn TriangleTopology3D::not_equal(Self, Self) -> Bool
 pub fn TriangleTopology3D::to_repr(Self) -> @debug.Repr
 
 // Type aliases
+pub type ImageHandle = @asset_types.Handle[@asset_types.Image]
 
 // Traits

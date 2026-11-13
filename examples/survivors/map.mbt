@@ -15,7 +15,7 @@
 ///|
 fn add_background(size : @math.Vec2) -> Unit {
   let background_sprite = @sprite.Sprite(
-    image=Some(@asset.load_image(background_picture)),
+    image=Some(background_image),
     custom_size=Some(size),
     anchor=Anchor(Vec2(-0.5, 0.5)),
     image_mode=Tiled(Repeat),

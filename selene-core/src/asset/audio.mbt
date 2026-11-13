@@ -2,9 +2,6 @@
 pub type AudioHandle = @asset_types.AudioHandle
 
 ///|
-let next_audio_id : Ref[UInt32] = Ref(0)
-
-///|
 let audios_by_path : Map[String, AudioHandle] = Map([])
 
 ///|
@@ -18,11 +15,10 @@ pub let audio_asset_events : @event.Events[AssetEvent[AudioHandle]] = Events()
 
 ///|
 fn ensure_audio_handle(path : String) -> AudioHandle {
-  if audios_by_path.get(path) is Some(handle) {
+  if audios_by_path.get(path) is Some(handle) && handle.is_alive() {
     return handle
   }
-  let handle = @asset_types.AudioHandle(next_audio_id.val)
-  next_audio_id.val += 1
+  let handle = audios.reserve()
   audios_by_path.set(path, handle)
   audio_path_by_handle.set(handle, path)
   handle
@@ -39,8 +35,9 @@ pub fn load_audio(path : String) -> AudioHandle {
     audio_asset_events.send({ handle, kind: Added, })
   }
   audio_states.set(handle, Loading)
-  if read_bytes(path) is Some(_) {
-    @platform_audio.preload(path)
+  if read_bytes(path) is Some(bytes) {
+    ignore(audios.insert(handle, Audio::from_bytes(bytes)))
+    @platform_audio.preload(handle)
     audio_states.set(handle, Loaded)
     audio_asset_events.send({ handle, kind: Loaded, })
   } else {
@@ -58,16 +55,24 @@ pub fn audio_path(handle : AudioHandle) -> String? {
 
 ///|
 pub fn audio_load_state(handle : AudioHandle) -> LoadState {
-  audio_states.get(handle).unwrap_or(NotLoaded)
+  if !handle.is_alive() {
+    NotLoaded
+  } else {
+    audio_states
+    .get(handle)
+    .unwrap_or(if handle.get() is Some(_) { Loaded } else { NotLoaded })
+  }
 }
 
 ///|
 pub fn reload_audio(handle : AudioHandle) -> Unit {
+  guard handle.is_alive() else { return }
   match audio_path(handle) {
     Some(path) => {
       audio_states.set(handle, Loading)
-      if read_bytes(path) is Some(_) {
-        @platform_audio.preload(path)
+      if read_bytes(path) is Some(bytes) {
+        ignore(audios.insert(handle, Audio::from_bytes(bytes)))
+        @platform_audio.preload(handle)
         audio_states.set(handle, Loaded)
         audio_asset_events.send({ handle, kind: Modified, })
       } else {
@@ -82,6 +87,7 @@ pub fn reload_audio(handle : AudioHandle) -> Unit {
 
 ///|
 pub fn remove_audio(handle : AudioHandle) -> Unit {
+  ignore(audios.remove(handle))
   if audio_states.get(handle) is Some(_) {
     audio_states.remove(handle)
     audio_asset_events.send({ handle, kind: Removed, })

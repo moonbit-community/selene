@@ -2,6 +2,7 @@
 package "Milky2018/selene/render3d"
 
 import {
+  "Milky2018/selene/asset_types",
   "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
@@ -40,8 +41,6 @@ pub fn push_line3d(@render3d_types.RenderLine3D) -> Unit
 
 pub fn register_cubemap_asset(@render3d_types.CubemapAsset3D) -> @render3d_types.CubemapHandle
 
-pub fn register_image_asset(@render3d_types.ImageAsset) -> @render3d_types.ImageHandle
-
 pub fn register_material_asset(@render3d_types.StandardMaterial3D) -> @render3d_types.MaterialHandle
 
 pub fn register_mesh_asset(@render3d_types.MeshAsset) -> @render3d_types.MeshHandle
@@ -49,8 +48,6 @@ pub fn register_mesh_asset(@render3d_types.MeshAsset) -> @render3d_types.MeshHan
 pub fn register_scene_path(String) -> @render3d_types.SceneHandle
 
 pub fn release_cubemap_asset(@render3d_types.CubemapHandle) -> Unit
-
-pub fn release_image_asset(@render3d_types.ImageHandle) -> Unit
 
 pub fn release_material_asset(@render3d_types.MaterialHandle) -> Unit
 
@@ -68,15 +65,11 @@ pub fn sphere_mesh(Double) -> @render3d_types.MeshAsset
 
 pub fn take_dirty_cubemap_assets() -> Array[(@render3d_types.CubemapHandle, @render3d_types.CubemapAsset3D)]
 
-pub fn take_dirty_image_assets() -> Array[(@render3d_types.ImageHandle, @render3d_types.ImageAsset)]
-
 pub fn take_dirty_material_assets() -> Array[(@render3d_types.MaterialHandle, @render3d_types.StandardMaterial3D)]
 
 pub fn take_dirty_mesh_assets() -> Array[(@render3d_types.MeshHandle, @render3d_types.MeshAsset)]
 
 pub fn take_released_cubemap_assets() -> Array[@render3d_types.CubemapHandle]
-
-pub fn take_released_image_assets() -> Array[@render3d_types.ImageHandle]
 
 pub fn take_released_material_assets() -> Array[@render3d_types.MaterialHandle]
 
@@ -85,8 +78,6 @@ pub fn take_released_mesh_assets() -> Array[@render3d_types.MeshHandle]
 pub fn triangle_mesh(Array[@math.Vec3], uvs? : Array[@math.Vec2]?, normals? : Array[@math.Vec3]?, tangents? : Array[@render3d_types.Tangent3D]?, colors? : Array[@render.Color]?, uv_sets? : Array[Array[@math.Vec2]], indices? : Array[Int32]?, topology? : @render3d_types.TriangleTopology3D) -> @render3d_types.MeshAsset
 
 pub fn update_cubemap_asset(@render3d_types.CubemapHandle, @render3d_types.CubemapAsset3D) -> Unit
-
-pub fn update_image_asset(@render3d_types.ImageHandle, @render3d_types.ImageAsset) -> Unit
 
 pub fn update_material_asset(@render3d_types.MaterialHandle, @render3d_types.StandardMaterial3D) -> Unit
 
@@ -131,9 +122,7 @@ pub using @render3d_types {type FramePointLight3D}
 
 pub using @render3d_types {type FrameSpotLight3D}
 
-pub using @render3d_types {type ImageAsset}
-
-pub using @render3d_types {type ImageHandle}
+pub type ImageHandle = @asset_types.Handle[@asset_types.Image]
 
 pub using @render3d_types {type MaterialHandle}
 

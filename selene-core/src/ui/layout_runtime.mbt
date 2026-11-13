@@ -221,7 +221,7 @@ fn ui_measure_snapshot(
     font_handle,
     font_state: font_handle.map(@asset.font_load_state),
     font_metrics_revision: style
-    .map(fn(value) { @platform_render.font_metrics_revision(value.family) })
+    .map(fn(value) { @platform_render.font_metrics_revision(value) })
     .unwrap_or(0U),
     font_family: style.map(fn(value) { value.family }),
     font_size: style.map(fn(value) { value.size }),

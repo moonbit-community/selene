@@ -17,10 +17,9 @@ which may report syntax deprecation warnings until `latest` supports the replace
 ```bash
 moon update
 moon build --target js --release
-python3 -m http.server 8000
 ```
 
-Open `http://localhost:8000/examples/index.html`.
+To play the examples locally, follow the [Pages preview instructions](page/README.md).
 
 ## Documentation
 

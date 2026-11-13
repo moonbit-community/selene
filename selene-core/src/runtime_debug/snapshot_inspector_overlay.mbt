@@ -94,7 +94,9 @@ pub(all) struct SpriteInspectorEntry {
   entity_id : UInt32
   entity_name : String?
   visible : Bool
+  image : @asset.ImageHandle?
   image_path : String?
+  image_byte_length : Int32?
   source_rect : DebugRect?
   destination_size : DebugVec2?
   anchor : DebugVec2
@@ -115,7 +117,8 @@ pub extend SpriteInspectorEntry with ToJson::{to_json}
 pub(all) struct AtlasOverlayEntry {
   entity_id : UInt32?
   layer : String
-  texture_path : String
+  image : @asset.ImageHandle
+  texture_path : String?
   source_rect : DebugRect
   destination_rect : DebugRect?
 }
@@ -274,7 +277,11 @@ pub fn sprite_inspector_entries(
       entity_id: entity.id(),
       entity_name: @name.name_of(world~, entity),
       visible: @visibility.is_visible(entity),
+      image: sprite.image,
       image_path,
+      image_byte_length: sprite.image.bind(handle => {
+        handle.get().map(image => image.bytes.length())
+      }),
       source_rect,
       destination_size,
       anchor,
@@ -301,12 +308,13 @@ pub fn atlas_overlay_entries() -> Array[AtlasOverlayEntry] {
   let entries : Array[AtlasOverlayEntry] = []
   guard latest_render_submission() is Some(submission) else { return entries }
   for item in submission.draw2d {
-    guard item.texture_path is Some(texture_path) else { continue }
+    guard item.image is Some(image) else { continue }
     guard item.uv_rect is Some(source_rect) else { continue }
     entries.push({
       entity_id: item.entity_id,
       layer: item.layer,
-      texture_path,
+      image,
+      texture_path: item.texture_path,
       source_rect: debug_rect(source_rect),
       destination_rect: item.destination_rect.map(debug_rect),
     })

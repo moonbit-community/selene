@@ -1,5 +1,6 @@
 ///|
 priv struct WebFontRuntime {
+  mut error : String?
   mut generation : UInt32
   mut metrics_revision : UInt32
   mut dom_ready_generation : UInt32?
@@ -12,6 +13,7 @@ let web_font_runtimes : Map[String, WebFontRuntime] = Map([])
 ///|
 fn web_font_runtime(family : String) -> WebFontRuntime {
   web_font_runtimes.get_or_init(family, () => {
+    error: None,
     generation: 0U,
     metrics_revision: 0U,
     dom_ready_generation: None,
@@ -22,6 +24,7 @@ fn web_font_runtime(family : String) -> WebFontRuntime {
 ///|
 fn begin_web_font_load(family : String) -> UInt32 {
   let runtime = web_font_runtime(family)
+  runtime.error = None
   runtime.generation += 1U
   runtime.dom_ready_generation = None
   runtime.bytes_ready_generation = None
@@ -30,7 +33,10 @@ fn begin_web_font_load(family : String) -> UInt32 {
 
 ///|
 fn web_font_load_is_current(family : String, generation : UInt32) -> Bool {
-  web_font_runtime(family).generation == generation
+  web_font_runtimes
+  .get(family)
+  .map(runtime => runtime.generation == generation)
+  .unwrap_or(false)
 }
 
 ///|
@@ -72,21 +78,20 @@ pub fn font_metrics_revision(family : String) -> UInt32 {
 }
 
 ///|
-pub fn load_font(family : String, path : String) -> Unit {
-  let resolved_path = resolve_asset_path(path)
+fn load_font(family : String, bytes : Bytes, url : String) -> Unit {
   let generation = begin_web_font_load(family)
+  if prepare_cosmic_font(family, bytes) {
+    mark_web_font_bytes_ready(family, generation)
+  }
   load_font_async(
     family,
-    resolved_path,
+    url,
     fn() { web_font_load_is_current(family, generation) },
     fn() { mark_web_font_dom_ready(family, generation) },
-    fn(_message) { () },
-  )
-  webgpu_preload_font_bytes(
-    family,
-    resolved_path,
-    fn() { web_font_load_is_current(family, generation) },
-    fn() { mark_web_font_bytes_ready(family, generation) },
-    fn(_message) { () },
+    fn(message) {
+      if web_font_load_is_current(family, generation) {
+        web_font_runtime(family).error = Some(message)
+      }
+    },
   )
 }

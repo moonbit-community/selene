@@ -1,5 +1,5 @@
 ///|
-extern "js" fn create_audio_object_url(bytes : Bytes, mime : String) -> String =
+extern "js" fn create_object_url(bytes : Bytes, mime : String) -> String =
   #| (bytes, mime) => {
   #|   return URL.createObjectURL(new Blob([bytes], { type: mime }));
   #| }

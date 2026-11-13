@@ -1,6 +1,5 @@
 ///|
 test "level up shows panel and buttons" {
-  use_survivors_test_assets()
   let world = @ecs.World()
   @ecs.set_current_world(world)
   @time.initialize(@ecs.require_current_world())
@@ -74,7 +73,6 @@ test "level up shows panel and buttons" {
 
 ///|
 test "level up click resumes game" {
-  use_survivors_test_assets()
   let world = @ecs.World()
   @ecs.set_current_world(world)
   @time.initialize(@ecs.require_current_world())

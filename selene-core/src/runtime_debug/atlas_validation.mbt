@@ -48,22 +48,22 @@ fn rect_overlap(lhs : @math.Rect, rhs : @math.Rect) -> Bool {
 
 ///|
 fn validate_atlas_transparency(
-  image_path : String?,
+  image : @asset.ImageHandle?,
   rects : Array[@math.Rect],
   issues : Array[AtlasValidationIssue],
 ) -> Unit {
-  guard image_path is Some(path) else {
+  guard image is Some(handle) else {
     issues.push({
       kind: TransparencyCheckUnavailable,
       rect_index: None,
       other_rect_index: None,
-      message: "Transparency checks require an atlas image path",
+      message: "Transparency checks require an atlas image",
     })
     return
   }
   let mut backend_supported = false
   for index, rect in rects {
-    match @platform_render.image_region_is_fully_transparent(path, rect) {
+    match @platform_render.image_region_is_fully_transparent(handle, rect) {
       Some(true) => {
         backend_supported = true
         issues.push({
@@ -97,7 +97,7 @@ pub fn validate_texture_atlas_layout(
 ///|
 pub fn validate_texture_atlas_layout_for_image(
   layout : @sprite.TextureAtlasLayout,
-  image_path : String?,
+  image : @asset.ImageHandle?,
 ) -> AtlasValidationReport {
   let atlas_size = @sprite.texture_atlas_layout_size(layout)
   let rects = @sprite.texture_atlas_layout_rects(layout)
@@ -154,7 +154,7 @@ pub fn validate_texture_atlas_layout_for_image(
       }
     }
   }
-  validate_atlas_transparency(image_path, rects, issues)
+  validate_atlas_transparency(image, rects, issues)
   { total_rects: rects.length(), issues, }
 }
 
@@ -163,13 +163,13 @@ pub fn validate_registered_texture_atlases(
   world~ : @ecs.World,
 ) -> Array[(@sprite.TextureAtlasLayoutHandle, AtlasValidationReport)] {
   let query_sprite : @ecs.Query[@ecs.Single[@sprite.Sprite]] = world.query()
-  let atlas_image_paths : Map[@sprite.TextureAtlasLayoutHandle, String] = Map([])
+  let atlas_images : Map[@sprite.TextureAtlasLayoutHandle, @asset.ImageHandle] = Map([],
+  )
   for _entity, Single(sprite) in query_sprite {
     guard sprite.texture_atlas is Some(atlas) else { continue }
     guard sprite.image is Some(image_handle) else { continue }
-    guard @asset.image_path(image_handle) is Some(path) else { continue }
-    if !atlas_image_paths.contains(atlas.layout) {
-      atlas_image_paths.set(atlas.layout, path)
+    if !atlas_images.contains(atlas.layout) {
+      atlas_images.set(atlas.layout, image_handle)
     }
   }
   let reports : Array[(@sprite.TextureAtlasLayoutHandle, AtlasValidationReport)] = []
@@ -179,7 +179,7 @@ pub fn validate_registered_texture_atlases(
         handle,
         validate_texture_atlas_layout_for_image(
           layout,
-          atlas_image_paths.get(handle),
+          atlas_images.get(handle),
         ),
       ),
     )

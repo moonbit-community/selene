@@ -13,7 +13,7 @@
 - Follow [CONTRIBUTING.md](CONTRIBUTING.md#release-process) for the release sequence.
 
 ## Pages
-- Build examples from the repository root with `moon build --target js --release`. Serve the repository root to preview `examples/index.html`.
+- Build examples from the repository root with `moon build --target js --release`, then copy the generated JavaScript as described in [page/README.md](page/README.md). Serve `page/` to preview the same directory published by Pages.
 
 ## Release Manifest Behavior
 - Stable publish flow rewrites each release module `moon.mod` version and internal Selene deps to `@x.y.z`.

@@ -2,6 +2,7 @@
 package "Milky2018/selene_webgpu"
 
 import {
+  "Milky2018/selene/asset_types",
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
   "Milky2018/selene/platform_runtime",
@@ -14,6 +15,8 @@ import {
 }
 
 // Values
+pub fn audio_preparation_state(@asset_types.Handle[@asset_types.Audio]) -> @asset_types.PreparationState
+
 pub fn capture_frame_png() -> Bytes?
 
 pub fn capture_frame_png_to_file(String) -> Bool
@@ -22,13 +25,17 @@ pub fn draw_circle(@render2d_types.CircleDrawCommand2D) -> Unit
 
 pub fn draw_gradient_rect(@render2d_types.GradientRectDrawCommand2D) -> Unit
 
-pub fn draw_image(@render2d_types.ImageDrawCommand2D, String) -> Unit
+pub fn draw_image(@render2d_types.ImageDrawCommand2D) -> Unit
 
 pub fn draw_rect(@render2d_types.RectDrawCommand2D) -> Unit
 
 pub fn draw_text(@render2d_types.TextDrawCommand2D) -> Unit
 
+pub fn embedded_asset_paths() -> Array[String]
+
 pub fn font_metrics_revision(String) -> UInt32
+
+pub fn font_preparation_state(@asset_types.Handle[@asset_types.Font]) -> @asset_types.PreparationState
 
 pub fn frame_begin(@render.Color) -> Unit
 
@@ -40,23 +47,25 @@ pub fn get_realtime_delta() -> Double
 
 pub fn get_time_scale() -> Double
 
+pub fn image_preparation_state(@asset_types.Handle[@asset_types.Image]) -> @asset_types.PreparationState
+
 pub fn initialize(@platform_runtime.WindowConfig, @platform_runtime.RunnerCallbacks) -> () -> Unit
 
 pub fn is_finished(instance~ : Int32) -> Bool
-
-pub fn load_font(String, String) -> Unit
 
 pub fn lock_mouse(@ref.Ref[Bool]) -> Unit
 
 pub fn measure_text(@render2d_types.TextStyle2D, String) -> @math.Vec2
 
-pub fn play_audio(audio_path~ : String, volume~ : Double, speed~ : Double, loop_~ : Bool, paused~ : Bool) -> Int32
+pub fn play_audio(source~ : @asset_types.Handle[@asset_types.Audio], volume~ : Double, speed~ : Double, loop_~ : Bool, paused~ : Bool) -> Int32
 
 pub fn pop_clip_rect() -> Unit
 
-pub fn preload_audio(String) -> Unit
+pub fn preload_audio(@asset_types.Handle[@asset_types.Audio]) -> Unit
 
-pub fn preload_img(String) -> Unit
+pub fn prepare_font(@asset_types.Handle[@asset_types.Font]) -> String?
+
+pub fn prepare_image(@asset_types.Handle[@asset_types.Image]) -> Unit
 
 pub fn push_clip_rect(@math.Rect) -> Unit
 
@@ -69,8 +78,6 @@ pub fn register_mouse_events(@inputs.Mouse, @ref.Ref[@math.Vec2?], @inputs.Mouse
 pub fn register_touch_events(Map[@inputs.TouchId, @inputs.TouchPoint], Array[@inputs.TouchEvent]) -> Unit
 
 pub fn release_cubemap_asset(@render3d_types.CubemapHandle) -> Unit
-
-pub fn release_image_asset(@render3d_types.ImageHandle) -> Unit
 
 pub fn release_material_asset(@render3d_types.MaterialHandle) -> Unit
 
@@ -88,7 +95,7 @@ pub fn request_close() -> Unit
 
 pub fn reset_clip_stack() -> Unit
 
-pub fn set_embedded_assets((String) -> Bytes?) -> Unit
+pub fn set_embedded_assets((String) -> Bytes?, paths? : Array[String]) -> Unit
 
 pub fn set_loop(instance~ : Int32, loop_~ : Bool) -> Unit
 
@@ -105,8 +112,6 @@ pub fn set_volume(instance~ : Int32, volume~ : Double) -> Unit
 pub fn stop(instance~ : Int32) -> Unit
 
 pub fn sync_cubemap_asset(@render3d_types.CubemapHandle, @render3d_types.CubemapAsset3D) -> Unit
-
-pub fn sync_image_asset(@render3d_types.ImageHandle, @render3d_types.ImageAsset) -> Unit
 
 pub fn sync_material_asset(@render3d_types.MaterialHandle, @render3d_types.StandardMaterial3D) -> Unit
 

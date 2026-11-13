@@ -1,0 +1,23 @@
+dev_build(
+  input: [
+    "../assets/pixeladventure/Background/Gray.png",
+    "../assets/pixeladventure/Enemies/BlueBird/Flying (32x32).png",
+    "../assets/pixeladventure/Enemies/BlueBird/Hit (32x32).png",
+    "../assets/pixeladventure/Fonts/ThaleahFat.ttf",
+    "../assets/pixeladventure/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png",
+    "../assets/pixeladventure/Items/Fruits/Apple.png",
+    "../assets/pixeladventure/Main Characters/Mask Dude/Fall (32x32).png",
+    "../assets/pixeladventure/Main Characters/Mask Dude/Hit (32x32).png",
+    "../assets/pixeladventure/Main Characters/Mask Dude/Idle (32x32).png",
+    "../assets/pixeladventure/Main Characters/Mask Dude/Jump (32x32).png",
+    "../assets/pixeladventure/Main Characters/Mask Dude/Run (32x32).png",
+    "../assets/pixeladventure/Menu/Buttons/Volume.png",
+    "../assets/pixeladventure/Menu/Buttons/VolumeOff.png",
+    "../assets/pixeladventure/Terrain/Terrain (16x16).png",
+    "../assets/pixeladventure/sounds/coin.wav",
+    "../assets/pixeladventure/sounds/hurt.wav",
+    "../assets/pixeladventure/sounds/jump.wav",
+  ],
+  output: "assets.g.mbt",
+  command: "moonx moonbit-community/embed@0.1.3 \"$pkg_dir/../assets\" -o \"$output\"",
+)

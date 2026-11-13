@@ -4,8 +4,6 @@ package "Milky2018/selene-examples/pixeladventure"
 // Values
 pub fn run() -> Unit
 
-pub fn with_pixeladventure_test_asset_io(() -> Unit raise) -> Unit raise
-
 // Errors
 
 // Types and methods

@@ -1,10 +1,10 @@
 .DS_Store
 __pycache__/
-page/examples/
-page/preload-assets.js
-page/assets/
+/page/examples/*/web.js
 todo.md
 
 .mooncakes/
 _build/
 target
+
+examples/*/embedded_assets/*.g.mbt

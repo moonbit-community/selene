@@ -626,11 +626,11 @@ pub impl @ecs.Component for TextColor
 pub(all) struct TextFont {
   mut family : String
   mut size : Double
-  mut font_handle : @asset_types.FontHandle?
+  mut font_handle : @asset_types.Handle[@asset_types.Font]?
 }
 pub fn TextFont::TextFont(family? : String, size? : Double) -> Self
 pub fn TextFont::from_css(String) -> Self
-pub fn TextFont::from_font(@asset_types.FontHandle, size? : Double) -> Self
+pub fn TextFont::from_font(@asset_types.Handle[@asset_types.Font], size? : Double) -> Self
 pub impl @ecs.Component for TextFont
 
 pub(all) struct TextLayout {
@@ -687,13 +687,13 @@ pub fn UiGradient::to_repr(Self) -> @debug.Repr
 #derive(Eq, @debug.Debug)
 pub(all) struct UiImage {
   size : @math.Vec2
-  image : @asset_types.ImageHandle
+  image : @asset_types.Handle[@asset_types.Image]
   tint : @render.Color
   fit : ImageFit
 }
 pub fn UiImage::UiImage(@math.Vec2, String, tint? : @render.Color, fit? : ImageFit) -> Self
 pub fn UiImage::equal(Self, Self) -> Bool
-pub fn UiImage::from_image(@math.Vec2, @asset_types.ImageHandle, tint? : @render.Color, fit? : ImageFit) -> Self
+pub fn UiImage::from_image(@math.Vec2, @asset_types.Handle[@asset_types.Image], tint? : @render.Color, fit? : ImageFit) -> Self
 pub fn UiImage::not_equal(Self, Self) -> Bool
 pub fn UiImage::to_repr(Self) -> @debug.Repr
 pub impl @ecs.Component for UiImage
@@ -721,7 +721,7 @@ pub(all) struct UiMaterialAsset {
 }
 pub fn UiMaterialAsset::UiMaterialAsset(@math.Vec2, String, tint? : @render.Color, fit? : ImageFit) -> Self
 pub fn UiMaterialAsset::from_draw((UiMaterialContext) -> Unit) -> Self
-pub fn UiMaterialAsset::from_image(@math.Vec2, @asset_types.ImageHandle, tint? : @render.Color, fit? : ImageFit) -> Self
+pub fn UiMaterialAsset::from_image(@math.Vec2, @asset_types.Handle[@asset_types.Image], tint? : @render.Color, fit? : ImageFit) -> Self
 pub fn UiMaterialAsset::from_ui_image(UiImage) -> Self
 pub fn UiMaterialAsset::gradient(@render.Color, @render.Color) -> Self
 pub fn UiMaterialAsset::solid(@render.Color) -> Self

@@ -58,9 +58,6 @@ pub type MeshPrimitive3D = @render3d_types.MeshPrimitive3D
 pub type MeshAsset = @render3d_types.MeshAsset
 
 ///|
-pub type ImageAsset = @render3d_types.ImageAsset
-
-///|
 pub using @render3d_types {type CubemapFaces3D}
 
 ///|

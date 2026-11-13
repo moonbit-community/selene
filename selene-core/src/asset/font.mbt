@@ -2,9 +2,6 @@
 pub type FontHandle = @asset_types.FontHandle
 
 ///|
-let next_font_id : Ref[UInt32] = Ref(0)
-
-///|
 let fonts_by_path : Map[String, FontHandle] = Map([])
 
 ///|
@@ -35,16 +32,14 @@ fn normalize_font_family(path : String) -> String {
 
 ///|
 fn ensure_font_handle(path : String, family : String) -> FontHandle {
-  if fonts_by_path.get(path) is Some(handle) {
+  if fonts_by_path.get(path) is Some(handle) && handle.is_alive() {
     return handle
   }
-  let handle = @asset_types.FontHandle(next_font_id.val)
-  next_font_id.val += 1
+  let handle = fonts.reserve()
   fonts_by_path.set(path, handle)
   font_family_by_handle.set(handle, family)
   font_handle_by_family.set(family, handle)
   font_path_by_handle.set(handle, path)
-  @platform_render.register_font(family, path)
   handle
 }
 
@@ -60,7 +55,8 @@ pub fn load_font(path : String, family? : String) -> FontHandle {
     font_asset_events.send({ handle, kind: Added, })
   }
   font_states.set(handle, Loading)
-  if read_bytes(path) is Some(_) {
+  if read_bytes(path) is Some(bytes) {
+    ignore(fonts.insert(handle, Font::from_bytes(bytes)))
     font_states.set(handle, Loaded)
     font_asset_events.send({ handle, kind: Loaded, })
   } else {
@@ -78,25 +74,37 @@ pub fn font_path(handle : FontHandle) -> String? {
 
 ///|
 pub fn font_family(handle : FontHandle) -> String? {
-  font_family_by_handle.get(handle)
+  if handle.is_alive() {
+    font_family_by_handle.get(handle)
+  } else {
+    None
+  }
 }
 
 ///|
 pub fn font_by_family(family : String) -> FontHandle? {
-  font_handle_by_family.get(family)
+  font_handle_by_family.get(family).filter(handle => handle.is_alive())
 }
 
 ///|
 pub fn font_load_state(handle : FontHandle) -> LoadState {
-  font_states.get(handle).unwrap_or(NotLoaded)
+  if !handle.is_alive() {
+    NotLoaded
+  } else {
+    font_states
+    .get(handle)
+    .unwrap_or(if handle.get() is Some(_) { Loaded } else { NotLoaded })
+  }
 }
 
 ///|
 pub fn reload_font(handle : FontHandle) -> Unit {
+  guard handle.is_alive() else { return }
   match font_path(handle) {
     Some(path) => {
       font_states.set(handle, Loading)
-      if read_bytes(path) is Some(_) {
+      if read_bytes(path) is Some(bytes) {
+        ignore(fonts.insert(handle, Font::from_bytes(bytes)))
         font_states.set(handle, Loaded)
         font_asset_events.send({ handle, kind: Modified, })
       } else {
@@ -111,6 +119,7 @@ pub fn reload_font(handle : FontHandle) -> Unit {
 
 ///|
 pub fn remove_font(handle : FontHandle) -> Unit {
+  ignore(fonts.remove(handle))
   if font_states.get(handle) is Some(_) {
     font_states.remove(handle)
     font_asset_events.send({ handle, kind: Removed, })

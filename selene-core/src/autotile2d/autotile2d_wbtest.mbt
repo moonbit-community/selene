@@ -265,3 +265,33 @@ test "runtime layer cell updates keep source state in sync" {
   inspect(source_after_remove.cells.length(), content="1")
   @ecs_test.destroy(layer)
 }
+
+///|
+test "runtime tile visuals reuse registered images without path IO" {
+  @asset.set_io(fn(_) { abort("tile visuals must use their image handle") })
+  defer @asset.set_io(fn(_) { None })
+  let images : @asset.Assets[@asset.Image] = Assets()
+  let image = images.add(@asset.Image::from_bytes(b"tile image"))
+  defer ignore(images.remove(image))
+  let world = @ecs.require_current_world()
+  let source = test_source(
+    Bitmask4,
+    [AutoTilePaletteEntry(1, "base", bitmask4_rules=[mask_rule(0, "m0")])],
+    [AutoTileCell(0, 0, 1)],
+  )
+  let layer = @ecs_test.spawn(world, ())
+  defer @ecs_test.destroy(layer)
+  register_runtime_layer(
+    layer,
+    source,
+    context=AutoTileRuntimeContext(
+      visual_resolver=Some(fn(_, _) { Some(AutoTileVisual(image=Some(image))) }),
+    ),
+  )
+  try! @ecs.Schedule().run(world)
+  let tile = runtime_layers().get(layer).unwrap().tile_entities
+    .get({ x: 0, y: 0, })
+    .unwrap()
+  let sprites : @ecs.Query[@ecs.Single[@sprite.Sprite]] = world.query1()
+  assert_eq(sprites.get(tile).unwrap().0.image, Some(image))
+}

@@ -17,10 +17,9 @@ Selene 是一个面向 MoonBit 的 ECS 游戏引擎，提供浏览器 WebGPU 渲
 ```bash
 moon update
 moon build --target js --release
-python3 -m http.server 8000
 ```
 
-打开 `http://localhost:8000/examples/index.html`。
+本地游玩示例请参阅 [Pages 预览说明](page/README.md)。
 
 ## 文档
 

@@ -2,6 +2,7 @@
 package "Milky2018/selene/autotile2d"
 
 import {
+  "Milky2018/selene/asset_types",
   "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "Milky2018/selene/sprite",
@@ -153,12 +154,12 @@ pub fn AutoTileSolvedTile::to_json(Self) -> @json.Json
 pub fn AutoTileSolvedTile::to_repr(Self) -> @debug.Repr
 
 pub struct AutoTileVisual {
-  image_path : String?
+  image : @asset_types.Handle[@asset_types.Image]?
   rect : @math.Rect?
   custom_size : @math.Vec2?
   anchor : @sprite.Anchor
 }
-pub fn AutoTileVisual::AutoTileVisual(image_path? : String?, rect? : @math.Rect?, custom_size? : @math.Vec2?, anchor? : @sprite.Anchor) -> Self
+pub fn AutoTileVisual::AutoTileVisual(image? : @asset_types.Handle[@asset_types.Image]?, rect? : @math.Rect?, custom_size? : @math.Vec2?, anchor? : @sprite.Anchor) -> Self
 
 #derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
 pub struct AutoTileWangRule {

@@ -1,0 +1,72 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene-examples/cards/embedded_assets"
+
+// Values
+pub let assets : AssetsFixture
+
+// Errors
+
+// Types and methods
+pub struct AssetsFixture {
+  cards : CardsFixture
+}
+
+pub struct CardsFixture {
+  v_2_c_png : Bytes
+  v_2_d_png : Bytes
+  v_2_h_png : Bytes
+  v_2_s_png : Bytes
+  v_3_c_png : Bytes
+  v_3_d_png : Bytes
+  v_3_h_png : Bytes
+  v_3_s_png : Bytes
+  v_4_c_png : Bytes
+  v_4_d_png : Bytes
+  v_4_h_png : Bytes
+  v_4_s_png : Bytes
+  v_5_c_png : Bytes
+  v_5_d_png : Bytes
+  v_5_h_png : Bytes
+  v_5_s_png : Bytes
+  v_6_c_png : Bytes
+  v_6_d_png : Bytes
+  v_6_h_png : Bytes
+  v_6_s_png : Bytes
+  v_7_c_png : Bytes
+  v_7_d_png : Bytes
+  v_7_h_png : Bytes
+  v_7_s_png : Bytes
+  v_8_c_png : Bytes
+  v_8_d_png : Bytes
+  v_8_h_png : Bytes
+  v_8_s_png : Bytes
+  v_9_c_png : Bytes
+  v_9_d_png : Bytes
+  v_9_h_png : Bytes
+  v_9_s_png : Bytes
+  a_c_png : Bytes
+  a_d_png : Bytes
+  a_h_png : Bytes
+  a_s_png : Bytes
+  j_c_png : Bytes
+  j_d_png : Bytes
+  j_h_png : Bytes
+  j_s_png : Bytes
+  k_c_png : Bytes
+  k_d_png : Bytes
+  k_h_png : Bytes
+  k_s_png : Bytes
+  q_c_png : Bytes
+  q_d_png : Bytes
+  q_h_png : Bytes
+  q_s_png : Bytes
+  v_10_c_png : Bytes
+  v_10_d_png : Bytes
+  v_10_h_png : Bytes
+  v_10_s_png : Bytes
+  thaleahfat_ttf : Bytes
+}
+
+// Type aliases
+
+// Traits

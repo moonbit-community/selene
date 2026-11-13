@@ -1,6 +1,7 @@
 package "Milky2018/selene/platform_render"
 
 import {
+  "Milky2018/selene/asset_types",
   "Milky2018/selene/math",
   "Milky2018/selene/render2d_types",
   "Milky2018/selene/render_pipeline",
@@ -8,9 +9,11 @@ import {
 
 fn submit_frame(@render_pipeline.RenderFrame) -> Unit
 
-fn register_font(String, String) -> Unit
+fn image_preparation_state(@asset_types.ImageHandle) -> @asset_types.PreparationState
 
-fn font_metrics_revision(String) -> UInt
+fn font_preparation_state(@asset_types.FontHandle) -> @asset_types.PreparationState
+
+fn font_metrics_revision(@render2d_types.TextStyle2D) -> UInt
 
 fn measure_text(@render2d_types.TextStyle2D, String) -> @math.Vec2
 
@@ -28,6 +31,6 @@ fn capture_frame_png_to_file(String) -> Bool
 
 fn render_offscreen_png(@render_pipeline.RenderFrame, Int, Int) -> Bytes?
 
-fn image_region_is_fully_transparent(String, @math.Rect) -> Bool?
+fn image_region_is_fully_transparent(@asset_types.ImageHandle, @math.Rect) -> Bool?
 
-fn export_texture_region_png(String, @math.Rect, String) -> Bool
+fn export_texture_region_png(@asset_types.ImageHandle, @math.Rect, String) -> Bool

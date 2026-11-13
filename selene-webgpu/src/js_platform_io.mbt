@@ -1,57 +1,4 @@
 ///|
-extern "js" fn webgpu_preload_font_bytes(
-  font : String,
-  path : String,
-  accept : () -> Bool,
-  loaded : () -> Unit,
-  failed : (String) -> Unit,
-) -> Unit =
-  #| (font, path, accept, loaded, failed) => {
-  #|   const g = globalThis;
-  #|   if (!g.__selene_font_bytes_states) {
-  #|     g.__selene_font_bytes_states = new Map();
-  #|   }
-  #|   const states = g.__selene_font_bytes_states;
-  #|   states.set(font, { status: 0, bytes: [] });
-  #|   fetch(path)
-  #|     .then((res) => {
-  #|       if (!res.ok) throw new Error('failed to fetch font');
-  #|       return res.arrayBuffer();
-  #|     })
-  #|     .then((buf) => {
-  #|       if (!accept()) return;
-  #|       states.set(font, { status: 1, bytes: Array.from(new Uint8Array(buf)) });
-  #|       loaded();
-  #|     })
-  #|     .catch((error) => {
-  #|       if (!accept()) return;
-  #|       states.set(font, { status: 2, bytes: [] });
-  #|       failed(error && error.message ? String(error.message) : String(error));
-  #|     });
-  #| }
-
-///|
-extern "js" fn webgpu_font_bytes_status(font : String) -> Int32 =
-  #| (font) => {
-  #|   const states = globalThis.__selene_font_bytes_states;
-  #|   if (!states) return -1;
-  #|   const rec = states.get(font);
-  #|   if (!rec) return -1;
-  #|   return rec.status | 0;
-  #| }
-
-///|
-extern "js" fn webgpu_take_font_bytes_ffi(font : String) -> FixedArray[Int32] =
-  #| (font) => {
-  #|   const states = globalThis.__selene_font_bytes_states;
-  #|   if (!states) return [];
-  #|   const rec = states.get(font);
-  #|   if (!rec || rec.status !== 1) return [];
-  #|   states.set(font, { status: 3, bytes: [] });
-  #|   return rec.bytes || [];
-  #| }
-
-///|
 extern "js" fn resolve_asset_path(path : String) -> String =
   #| (path) => {
   #|   if (
@@ -168,11 +115,6 @@ extern "js" fn webgpu_gamepad_axis_value(index : Int32, axis : Int32) -> Double 
   #|   if (v > 1) return 1;
   #|   return v;
   #| }
-
-///|
-fn webgpu_take_font_bytes(font : String) -> Array[Int32] {
-  Array::from_fixed_array(webgpu_take_font_bytes_ffi(font))
-}
 
 ///|
 fn webgpu_load_file_bytes_sync(path : String) -> Array[Int32] {

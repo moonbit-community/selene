@@ -34,9 +34,6 @@ fn load_level_scene(world~ : @ecs.World) -> LoadedLevelScene {
   }
   spawn_bird_entity(world~, 240.0, 50.0)
   spawn_bird_entity(world~, 752.0, 210.0)
-  let terrain_image = @asset.load_image(
-    "assets/pixeladventure/Terrain/Terrain (16x16).png",
-  )
   let rows : Map[Int32, Array[Int32]] = Map([])
   let plan : @ecs.SpawnPlan[(@transform.Spatial, @sprite.Sprite)] = @ecs.commands(
     world,

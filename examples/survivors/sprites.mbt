@@ -15,7 +15,7 @@
 ///|
 priv struct SpriteAnimationDef {
   name : String
-  image_path : String
+  image : @asset.ImageHandle
   layout : @sprite.TextureAtlasLayoutHandle
   fps : Double
   loop_ : Bool
@@ -27,7 +27,7 @@ priv struct SpriteAnimationDef {
 
 ///|
 fn SpriteAnimationDef::SpriteAnimationDef(
-  path : String,
+  image : @asset.ImageHandle,
   frame_count : Int32,
   size : @math.Vec2,
   offset~ : @math.Vec2 = @math.Vec2::zero(),
@@ -39,8 +39,8 @@ fn SpriteAnimationDef::SpriteAnimationDef(
   flip_y~ : Bool = false,
 ) -> SpriteAnimationDef {
   {
-    name: path,
-    image_path: path,
+    name: "sprite-\{image.id()}",
+    image,
     layout: @sprite.register_texture_atlas_layout(
       @sprite.TextureAtlasLayout::from_grid(
         size,
@@ -62,7 +62,7 @@ fn SpriteAnimationDef::SpriteAnimationDef(
 ///|
 fn sprite_animation_sprite(animation : SpriteAnimationDef) -> @sprite.Sprite {
   Sprite(
-    image=Some(@asset.load_image(animation.image_path)),
+    image=Some(animation.image),
     texture_atlas=Some(TextureAtlas(animation.layout)),
     custom_size=Some(animation.size),
     anchor=animation.anchor,
@@ -73,22 +73,17 @@ fn sprite_animation_sprite(animation : SpriteAnimationDef) -> @sprite.Sprite {
 
 ///|
 fn static_region_sprite(
-  path : String,
+  image : @asset.ImageHandle,
   size : @math.Vec2,
   rect~ : @math.Rect? = None,
   anchor~ : @sprite.Anchor = Anchor(Vec2(0.0, 0.0)),
 ) -> @sprite.Sprite {
-  Sprite(
-    image=Some(@asset.load_image(path)),
-    rect~,
-    custom_size=Some(size),
-    anchor~,
-  )
+  Sprite(image=Some(image), rect~, custom_size=Some(size), anchor~)
 }
 
 ///|
 let player_idle_right_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/whiteboy/idle.png",
+  player_idle_image,
   4,
   Vec2(PLAYER_SIZE, PLAYER_SIZE),
   offset=Vec2(32.0, 32.0),
@@ -97,7 +92,7 @@ let player_idle_right_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let player_idle_left_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/whiteboy/idle.png",
+  player_idle_image,
   4,
   Vec2(PLAYER_SIZE, PLAYER_SIZE),
   offset=Vec2(32.0, 32.0),
@@ -107,7 +102,7 @@ let player_idle_left_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let player_idle_up_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/whiteboy/idle.png",
+  player_idle_image,
   4,
   Vec2(PLAYER_SIZE, PLAYER_SIZE),
   offset=Vec2(32.0, 192.0),
@@ -116,7 +111,7 @@ let player_idle_up_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let player_idle_down_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/whiteboy/idle.png",
+  player_idle_image,
   4,
   Vec2(PLAYER_SIZE, PLAYER_SIZE),
   offset=Vec2(32.0, 112.0),
@@ -125,7 +120,7 @@ let player_idle_down_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let player_run_right_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/whiteboy/run.png",
+  player_run_image,
   8,
   Vec2(PLAYER_SIZE, PLAYER_SIZE),
   offset=Vec2(32.0, 32.0),
@@ -134,7 +129,7 @@ let player_run_right_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let player_run_left_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/whiteboy/run.png",
+  player_run_image,
   8,
   Vec2(PLAYER_SIZE, PLAYER_SIZE),
   offset=Vec2(32.0, 32.0),
@@ -144,7 +139,7 @@ let player_run_left_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let player_run_down_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/whiteboy/run.png",
+  player_run_image,
   8,
   Vec2(PLAYER_SIZE, PLAYER_SIZE),
   offset=Vec2(32.0, 112.0),
@@ -153,7 +148,7 @@ let player_run_down_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let player_run_up_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/whiteboy/run.png",
+  player_run_image,
   8,
   Vec2(PLAYER_SIZE, PLAYER_SIZE),
   offset=Vec2(32.0, 192.0),
@@ -163,7 +158,7 @@ let player_run_up_animation : SpriteAnimationDef = SpriteAnimationDef(
 ///|
 fn grass_sprite() -> @sprite.Sprite {
   static_region_sprite(
-    "assets/survivors/tilesets/decor_16x16.png",
+    decor_image,
     Vec2(16.0, 16.0),
     rect=Some({ position: Vec2(0.0, 0.0), size: Vec2(16.0, 16.0), }),
     anchor=Anchor(Vec2(-0.5, 0.5)),
@@ -171,11 +166,8 @@ fn grass_sprite() -> @sprite.Sprite {
 }
 
 ///|
-let background_picture = "assets/survivors/tilesets/grass.png"
-
-///|
 let creeper_right_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/enemy/Creeper.png",
+  creeper_image,
   4,
   Vec2(16.0, 24.0),
   offset=Vec2(0.0, 48.0),
@@ -183,7 +175,7 @@ let creeper_right_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let creeper_left_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/enemy/Creeper.png",
+  creeper_image,
   4,
   Vec2(16.0, 24.0),
   offset=Vec2(0.0, 48.0),
@@ -192,7 +184,7 @@ let creeper_left_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let icecream_right_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/enemy/Icecream.png",
+  icecream_image,
   4,
   Vec2(16.0, 24.0),
   offset=Vec2(0.0, 48.0),
@@ -200,7 +192,7 @@ let icecream_right_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let icecream_left_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/enemy/Icecream.png",
+  icecream_image,
   4,
   Vec2(16.0, 24.0),
   offset=Vec2(0.0, 48.0),
@@ -209,7 +201,7 @@ let icecream_left_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let orc_right_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/enemy/Orc.png",
+  orc_image,
   4,
   Vec2(16.0, 24.0),
   offset=Vec2(0.0, 48.0),
@@ -217,7 +209,7 @@ let orc_right_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let orc_left_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/enemy/Orc.png",
+  orc_image,
   4,
   Vec2(16.0, 24.0),
   offset=Vec2(0.0, 48.0),
@@ -226,7 +218,7 @@ let orc_left_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let skull_right_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/enemy/Skull.png",
+  skull_image,
   4,
   Vec2(16.0, 24.0),
   offset=Vec2(0.0, 48.0),
@@ -234,7 +226,7 @@ let skull_right_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let skull_left_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/enemy/Skull.png",
+  skull_image,
   4,
   Vec2(16.0, 24.0),
   offset=Vec2(0.0, 48.0),
@@ -243,7 +235,7 @@ let skull_left_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let devil_right_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/enemy/Devil.png",
+  devil_image,
   4,
   Vec2(16.0, 24.0),
   offset=Vec2(0.0, 48.0),
@@ -251,7 +243,7 @@ let devil_right_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let devil_left_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/enemy/Devil.png",
+  devil_image,
   4,
   Vec2(16.0, 24.0),
   offset=Vec2(0.0, 48.0),
@@ -260,7 +252,7 @@ let devil_left_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let pirate_right_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/enemy/Pirate.png",
+  pirate_image,
   4,
   Vec2(16.0, 24.0),
   offset=Vec2(0.0, 48.0),
@@ -268,7 +260,7 @@ let pirate_right_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let pirate_left_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/enemy/Pirate.png",
+  pirate_image,
   4,
   Vec2(16.0, 24.0),
   offset=Vec2(0.0, 48.0),
@@ -277,7 +269,7 @@ let pirate_left_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let teleman_right_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/enemy/Teleman.png",
+  teleman_image,
   4,
   Vec2(16.0, 24.0),
   offset=Vec2(0.0, 0.0),
@@ -285,7 +277,7 @@ let teleman_right_animation : SpriteAnimationDef = SpriteAnimationDef(
 
 ///|
 let teleman_left_animation : SpriteAnimationDef = SpriteAnimationDef(
-  "assets/survivors/enemy/Teleman.png",
+  teleman_image,
   4,
   Vec2(16.0, 24.0),
   offset=Vec2(0.0, 0.0),

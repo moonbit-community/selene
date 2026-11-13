@@ -1,6 +1,6 @@
 ///|
 pub struct AutoTileVisual {
-  image_path : String?
+  image : @asset.ImageHandle?
   rect : @math.Rect?
   custom_size : @math.Vec2?
   anchor : @sprite.Anchor
@@ -8,12 +8,12 @@ pub struct AutoTileVisual {
 
 ///|
 pub fn AutoTileVisual::AutoTileVisual(
-  image_path~ : String? = None,
+  image~ : @asset.ImageHandle? = None,
   rect~ : @math.Rect? = None,
   custom_size~ : @math.Vec2? = None,
   anchor~ : @sprite.Anchor = @sprite.default_anchor(),
 ) -> AutoTileVisual {
-  { image_path, rect, custom_size, anchor, }
+  { image, rect, custom_size, anchor, }
 }
 
 ///|
@@ -80,7 +80,7 @@ fn apply_tile_visual(
     (
       Spatial(@transform.Transform::from_xyz(position.x, position.y, context.z)),
       Sprite(
-        image=visual.image_path.map(fn(path) { @asset.load_image(path) }),
+        image=visual.image,
         rect=visual.rect,
         custom_size=visual.custom_size,
         anchor=visual.anchor,

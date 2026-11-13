@@ -196,7 +196,7 @@ fn text_layout_cache_key(
     font: style.font,
     family: style.family,
     size: style.size,
-    font_metrics_revision: @platform_render.font_metrics_revision(style.family),
+    font_metrics_revision: @platform_render.font_metrics_revision(style),
     line_height: layout.line_height,
     wrap: layout.wrap,
     overflow: layout.overflow,
