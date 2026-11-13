@@ -13,13 +13,26 @@
 // limitations under the License.
 
 ///|
-let mouse_lock_enabled : Ref[Bool] = Ref(false)
+struct MouseLock {
+  mut enabled : Bool
+  mut requested : Bool
+  mut active : Bool
+}
 
 ///|
-let mouse_lock_requested : Ref[Bool] = Ref(false)
+let mouse_lock : MouseLock = {
+  enabled: false,
+  requested: false,
+  active: false,
+}
 
 ///|
-let mouse_lock_active : Ref[Bool] = Ref(false)
+pub impl @ecs.SystemParam for MouseLock with fn prepare(_world) {
+  _ => mouse_lock
+}
+
+///|
+pub extend MouseLock with @ecs.SystemParam::{prepare}
 
 ///|
 fn next_mouse_lock_request(
@@ -58,11 +71,9 @@ fn next_mouse_lock_request(
 /// ```
 ///
 pub fn lock_mouse() -> Unit {
-  mouse_lock_enabled.val = true
-  mouse_lock_requested.val = true
-  mouse_lock_active.val = @platform_input.set_mouse_lock(
-    mouse_lock_requested.val,
-  )
+  mouse_lock.enabled = true
+  mouse_lock.requested = true
+  mouse_lock.active = @platform_input.set_mouse_lock(mouse_lock.requested)
 }
 
 ///|
@@ -78,19 +89,17 @@ pub fn lock_mouse() -> Unit {
 /// ```
 ///
 pub fn is_mouse_locked() -> Bool {
-  mouse_lock_active.val
+  mouse_lock.active
 }
 
 ///|
-pub fn sync_mouse_lock_system() -> Unit {
-  mouse_lock_requested.val = next_mouse_lock_request(
-    mouse_lock_enabled.val,
-    mouse_lock_requested.val,
-    mouse_lock_active.val,
+pub fn sync_mouse_lock_system(lock : MouseLock) -> Unit {
+  lock.requested = next_mouse_lock_request(
+    lock.enabled,
+    lock.requested,
+    lock.active,
     @inputs.is_just_pressed(Escape),
     @inputs.is_mouse_just_pressed(Left),
   )
-  mouse_lock_active.val = @platform_input.set_mouse_lock(
-    mouse_lock_requested.val,
-  )
+  lock.active = @platform_input.set_mouse_lock(lock.requested)
 }

@@ -8,36 +8,42 @@ priv struct ColliderWireSegment3D {
 let collider_wire_cache : Map[String, Array[ColliderWireSegment3D]] = Map([])
 
 ///|
-pub fn debug_colliders_system(world~ : @ecs.World, _delta : Double) -> Unit {
-  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
+pub fn debug_colliders_system(
+  physics : PhysicsStep3D,
+  extracted : @render3d.ExtractedFrame3D,
+  prepared : @render3d_pipeline.PreparedFrame3D,
+) -> Unit {
+  let query_collider = physics.collider
   for entity, Single(collider) in query_collider {
-    guard entity.is_alive() else { continue }
-    guard @transform.global_transform(world~, entity) is Some(global) else {
+    guard physics.entities.is_alive(entity) else { continue }
+    guard physics.transforms.global_transform(entity) is Some(global) else {
       continue
     }
-    let color = debug_collider_color(world~, entity)
+    let color = debug_collider_color(physics~, entity)
     for segment in collider_wire_segments(collider) {
-      @render3d_pipeline.push_line3d({
+      let line : @render3d.RenderLine3D = {
         start: global.transform_point(segment.start),
         end: global.transform_point(segment.end),
         color,
-      })
+      }
+      extracted.push_line(line)
+      prepared.push_line(line)
     }
   }
 }
 
 ///|
 fn debug_collider_color(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep3D,
   entity : @ecs.Entity,
 ) -> @render.Color {
-  let query_sensor : @ecs.Query[@ecs.Single[Sensor]] = world.query()
-  if !debug_collider_enabled(entity) {
+  let query_sensor = physics.sensor
+  if !debug_collider_enabled(physics~, entity) {
     debug_disabled_color()
   } else if query_sensor.contains(entity) {
     debug_sensor_color()
   } else {
-    match (world.get_component(entity) : RigidBody?) {
+    match physics.rigid_body.get(entity).map(value => value.0) {
       Some(Dynamic) => debug_dynamic_color()
       Some(Fixed) => debug_fixed_color()
       Some(KinematicPositionBased) | Some(KinematicVelocityBased) =>
@@ -48,10 +54,13 @@ fn debug_collider_color(
 }
 
 ///|
-fn debug_collider_enabled(entity : @ecs.Entity) -> Bool {
-  match collider_handle(entity) {
+fn debug_collider_enabled(
+  physics~ : PhysicsStep3D,
+  entity : @ecs.Entity,
+) -> Bool {
+  match physics.runtime.collider_handles.get(entity) {
     Some(handle) =>
-      match physics3d_world().colliders.get(handle) {
+      match physics.runtime.world.colliders.get(handle) {
         Some(collider) => collider.enabled()
         None => true
       }

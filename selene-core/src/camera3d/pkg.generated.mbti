@@ -6,10 +6,11 @@ import {
   "Milky2018/selene/math",
   "Milky2018/selene/render",
   "Milky2018/selene/render3d_types",
+  "Milky2018/selene/transform",
 }
 
 // Values
-pub fn camera3d_extract_system(world~ : @ecs.World, Double) -> Unit
+pub fn camera3d_extract_system(@ecs.Query[@ecs.Single[Camera3DComponent]], @ecs.Query[@ecs.Single[@transform.Spatial]], Camera3DState) -> Unit
 
 pub fn get_active_camera3d() -> ActiveCamera3D?
 
@@ -35,6 +36,12 @@ pub(all) struct Camera3DComponent {
 }
 pub fn Camera3DComponent::Camera3DComponent() -> Self
 pub impl @ecs.Component for Camera3DComponent
+
+type Camera3DState
+pub fn Camera3DState::Camera3DState(@ecs.World) -> Self
+pub fn Camera3DState::get(Self) -> ActiveCamera3D?
+pub fn Camera3DState::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for Camera3DState
 
 // Type aliases
 

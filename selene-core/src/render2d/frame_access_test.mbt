@@ -1,0 +1,28 @@
+///|
+test "prepared frame output survives reset and targets its original World" {
+  let previous = @ecs.current_world()
+  defer (match previous {
+    Some(world) => @ecs.set_current_world(world)
+    None => @ecs.clear_current_world()
+  })
+  let first = @ecs.World()
+  let second = @ecs.World()
+  let output = @render2d.Frame2D(first)
+  let other = @render2d.Frame2D(second)
+  other.push_ui(PopClip)
+  let schedule = @ecs.Schedule()
+    .add_system(@render2d.begin_frame2d_system)
+    .add_system(fn(frame : @render2d.Frame2D) { frame.push_ui(PopClip) })
+  @ecs.set_current_world(second)
+  schedule.run(first)
+  assert_eq(output.get_screen_ui_commands().length(), 1)
+  schedule.run(first)
+  assert_eq(output.get_screen_ui_commands().length(), 1)
+  assert_eq(other.get_screen_ui_commands().length(), 1)
+  @ecs.clear_current_world()
+  output.push_ui(PopClip)
+  assert_eq(output.get_screen_ui_commands().length(), 2)
+  @render2d.begin_frame2d_system(output)
+  assert_eq(output.get_screen_ui_commands().length(), 0)
+  assert_eq(other.get_screen_ui_commands().length(), 1)
+}

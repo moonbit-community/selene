@@ -59,7 +59,7 @@ fn apply_touch_frame(
     touches: active,
     touch_changes: changes,
   })
-  @ui.ui_input_capture_system(world~, 0.0)
+  @ui.ui_input_capture_system(UiInput(world))
 }
 
 ///|
@@ -86,7 +86,11 @@ test "floating stick writes virtual axes and consumes its touch" {
     apply_touch_frame(world~, Some(touch_point(id, start)), [
       touch_event(id, Started, start),
     ])
-    touch_controls_system()
+    touch_controls_system(
+      TouchControls(@ecs.require_current_world()),
+      Display(@ecs.require_current_world()),
+      PointerConsumption(@ecs.require_current_world()),
+    )
     inspect(@ui.is_touch_consumed(id), content="true")
     inspect(@inputs.virtual_axis_value(axis_x), content="0")
     let moved = @math.Vec2(150.0, 225.0)
@@ -95,11 +99,19 @@ test "floating stick writes virtual axes and consumes its touch" {
       Some(touch_point(id, moved, previous_position=start)),
       [touch_event(id, Moved, moved, previous_position=start)],
     )
-    touch_controls_system()
+    touch_controls_system(
+      TouchControls(@ecs.require_current_world()),
+      Display(@ecs.require_current_world()),
+      PointerConsumption(@ecs.require_current_world()),
+    )
     inspect(@inputs.virtual_axis_value(axis_x), content="1")
     inspect(@inputs.virtual_axis_value(axis_y), content="0")
     apply_touch_frame(world~, None, [touch_event(id, Ended, moved)])
-    touch_controls_system()
+    touch_controls_system(
+      TouchControls(@ecs.require_current_world()),
+      Display(@ecs.require_current_world()),
+      PointerConsumption(@ecs.require_current_world()),
+    )
     inspect(@inputs.virtual_axis_value(axis_x), content="0")
     clear_controls()
     @inputs.clear_virtual_controls()
@@ -126,10 +138,18 @@ test "button control writes virtual button only for unconsumed touches" {
     apply_touch_frame(world~, Some(touch_point(id, start)), [
       touch_event(id, Started, start),
     ])
-    touch_controls_system()
+    touch_controls_system(
+      TouchControls(@ecs.require_current_world()),
+      Display(@ecs.require_current_world()),
+      PointerConsumption(@ecs.require_current_world()),
+    )
     inspect(@inputs.is_virtual_button_pressed(button), content="true")
     apply_touch_frame(world~, None, [touch_event(id, Ended, start)])
-    touch_controls_system()
+    touch_controls_system(
+      TouchControls(@ecs.require_current_world()),
+      Display(@ecs.require_current_world()),
+      PointerConsumption(@ecs.require_current_world()),
+    )
     inspect(@inputs.is_virtual_button_pressed(button), content="false")
     clear_controls()
     @inputs.clear_virtual_controls()

@@ -2,6 +2,7 @@
 package "Milky2018/selene/input_action"
 
 import {
+  "Milky2018/selene/ecs",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "moonbitlang/core/debug",
@@ -24,7 +25,7 @@ pub fn clear_all_action_bindings() -> Unit
 
 pub let input_action_event_bus : @event.Events[ActionEvent]
 
-pub fn input_action_system() -> Unit
+pub fn input_action_system(InputActions) -> Unit
 
 // Errors
 
@@ -70,6 +71,11 @@ pub fn InputAction::hash(Self) -> Int32
 pub fn InputAction::hash_combine(Self, Hasher) -> Unit
 pub fn InputAction::not_equal(Self, Self) -> Bool
 pub fn InputAction::to_repr(Self) -> @debug.Repr
+
+type InputActions
+pub fn InputActions::InputActions(@ecs.World) -> Self
+pub fn InputActions::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for InputActions
 
 pub(all) enum InputBinding {
   Key(@inputs.Code)

@@ -346,17 +346,17 @@ pub fn primary_pointer_down() -> Bool {
 }
 
 ///|
-fn push_pointer_change(event : PointerEvent) -> Unit {
+fn push_pointer_change(events : InputEvents, event : PointerEvent) -> Unit {
   pointer_changes.push(event)
-  pointer_event_bus.send(event)
+  events.pointers.send(event)
 }
 
 ///|
-pub fn advanced_pointer_system() -> Unit {
+pub fn advanced_pointer_system(events : InputEvents) -> Unit {
   pointer_changes.clear()
   let mut contact_owns_primary = primary_touch() is Some(_)
   for event in touch_changes {
-    push_pointer_change(pointer_event_from_touch(event))
+    push_pointer_change(events, pointer_event_from_touch(event))
     if event.primary {
       contact_owns_primary = true
     }
@@ -367,7 +367,7 @@ pub fn advanced_pointer_system() -> Unit {
 
   let id : PointerId = { source: PointerMouse, value: 0, }
   if is_mouse_just_pressed(Left) {
-    push_pointer_change({
+    push_pointer_change(events, {
       id,
       source: PointerMouse,
       phase: Down,
@@ -378,7 +378,7 @@ pub fn advanced_pointer_system() -> Unit {
     })
   }
   if mouse_movement.movement.x != 0.0 || mouse_movement.movement.y != 0.0 {
-    push_pointer_change({
+    push_pointer_change(events, {
       id,
       source: PointerMouse,
       phase: Move,
@@ -389,7 +389,7 @@ pub fn advanced_pointer_system() -> Unit {
     })
   }
   if is_mouse_just_released(Left) {
-    push_pointer_change({
+    push_pointer_change(events, {
       id,
       source: PointerMouse,
       phase: Up,
@@ -700,7 +700,8 @@ fn update_pinch(cancelled : Bool) -> Unit {
 }
 
 ///|
-pub fn advanced_touch_system(delta : Double) -> Unit {
+pub fn advanced_touch_system(time : @time.Time, events : InputEvents) -> Unit {
+  let delta = time.delta()
   touch_gesture_changes.clear()
   update_long_press(delta)
   let mut cancelled = false
@@ -708,11 +709,11 @@ pub fn advanced_touch_system(delta : Double) -> Unit {
     if event.phase == Cancelled {
       cancelled = true
     }
-    touch_event_bus.send(event)
+    events.touches.send(event)
   }
   process_touch_changes_for_gestures()
   update_pinch(cancelled)
   for event in touch_gesture_changes {
-    touch_gesture_event_bus.send(event)
+    events.gestures.send(event)
   }
 }

@@ -7,13 +7,13 @@ test "retained UI layout stays clean until measured content changes" {
   entity_draft.add((TextFont(size=16.0) : TextFont))
   let entity = @ecs_test.spawn_draft(entity_draft)
 
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   let initial_width = computed_ui_node(entity).unwrap().size.x
   let runtime = ui_layout_runtime()
   let root = runtime.roots.get(entity).unwrap()
   assert_false(runtime.tree.dirty(root.node_id))
 
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   assert_false(runtime.tree.dirty(root.node_id))
   assert_eq(computed_ui_node(entity).unwrap().size.x, initial_width)
 
@@ -22,12 +22,12 @@ test "retained UI layout stays clean until measured content changes" {
   .map(value => value.0)
   .unwrap().content
   = "A much longer label"
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   assert_true(computed_ui_node(entity).unwrap().size.x > initial_width)
   assert_false(runtime.tree.dirty(root.node_id))
 
   cleanup_layout_test_entity(entity)
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
 }
 
 ///|
@@ -53,7 +53,7 @@ test "retained UI layout updates replaced subtrees" {
     parent=left,
   )
 
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   assert_eq(computed_ui_node(child).unwrap().position.x, 0.0)
 
   assert_true(@ecs_test.delete(child))
@@ -62,14 +62,14 @@ test "retained UI layout updates replaced subtrees" {
     Node(width=Val::px(20.0), height=Val::px(20.0)),
     parent=right,
   )
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   assert_eq(computed_ui_node(child).unwrap().position.x, 100.0)
 
   cleanup_layout_test_entity(child)
   cleanup_layout_test_entity(right)
   cleanup_layout_test_entity(left)
   cleanup_layout_test_entity(root)
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
 }
 
 ///|
@@ -83,28 +83,33 @@ test "retained UI stacking changes do not reproject or relayout" {
       @visibility.Visibility::Visible,
     ),
   )
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   let runtime = ui_layout_runtime()
   let layout_revision = runtime.layout_revision
   let projection_revision = runtime.projection_revision
   let stacking_revision = runtime.stacking_revision
 
   world.set_component(entity, (ZIndex(4) : ZIndex))
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   assert_eq(runtime.layout_revision, layout_revision)
   assert_eq(runtime.projection_revision, projection_revision)
   assert_eq(runtime.stacking_revision, stacking_revision + 1U)
 
   world.set_component(entity, (Hidden : @visibility.Visibility))
-  @visibility.visibility_propagate_system(world~, 0.0)
-  ui_layout_system(world~, 0.0)
+  @visibility.visibility_propagate_system(
+    Entities(world),
+    Hierarchy(world),
+    world.query(),
+    VisibilityState(world),
+  )
+  ui_layout_system(UiNodes(world))
   assert_eq(runtime.layout_revision, layout_revision)
   assert_eq(runtime.projection_revision, projection_revision)
   assert_eq(runtime.stacking_revision, stacking_revision + 2U)
-  assert_false(ui_stack().contains(entity))
+  assert_false(ui_model_world_store().ui_stack_entities.contains(entity))
 
   cleanup_layout_test_entity(entity)
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
 }
 
 ///|
@@ -138,14 +143,14 @@ test "retained UI projection changes do not rebuild layout or stacking" {
     Node(width=Val::px(200.0), height=Val::px(100.0)),
     parent=root,
   )
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   let runtime = ui_layout_runtime()
   let layout_revision = runtime.layout_revision
   let projection_revision = runtime.projection_revision
   let stacking_revision = runtime.stacking_revision
 
   set_scroll_position(world~, root, { x: 10.0, y: 0.0, })
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   assert_eq(runtime.layout_revision, layout_revision)
   assert_eq(runtime.projection_revision, projection_revision + 1U)
   assert_eq(runtime.stacking_revision, stacking_revision)
@@ -162,7 +167,7 @@ test "retained UI projection changes do not rebuild layout or stacking" {
         overflow_clip_margin: OverflowClipMargin::padding_box().with_margin(3.0),
       } : Node),
   )
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   assert_eq(runtime.layout_revision, layout_revision)
   assert_eq(runtime.projection_revision, projection_revision + 2U)
   assert_eq(runtime.stacking_revision, stacking_revision)
@@ -173,7 +178,7 @@ test "retained UI projection changes do not rebuild layout or stacking" {
       Camera(viewport=Some(CameraViewport(Vec2(8.0, 6.0), Vec2(100.0, 100.0)))) :
       @camera.Camera),
   )
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   assert_eq(runtime.layout_revision, layout_revision)
   assert_eq(runtime.projection_revision, projection_revision + 3U)
   assert_eq(runtime.stacking_revision, stacking_revision)
@@ -181,7 +186,7 @@ test "retained UI projection changes do not rebuild layout or stacking" {
   cleanup_layout_test_entity(child)
   cleanup_layout_test_entity(root)
   ignore(@ecs_test.delete(camera))
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
 }
 
 ///|
@@ -195,7 +200,7 @@ test "retained UI compares normalized Chicle styles" {
       margin=UiRectValues::all(0.0),
     ),
   )
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   let runtime = ui_layout_runtime()
   let root = runtime.roots.get(entity).unwrap()
   let layout_revision = runtime.layout_revision
@@ -210,7 +215,7 @@ test "retained UI compares normalized Chicle styles" {
     entity,
     ({ ..node, margin: UiRectValues::all(-8.0), } : Node),
   )
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   assert_eq(runtime.layout_revision, layout_revision)
   assert_eq(runtime.projection_revision, projection_revision)
   assert_eq(runtime.stacking_revision, stacking_revision)
@@ -221,13 +226,13 @@ test "retained UI compares normalized Chicle styles" {
     .map(value => value.0)
     .unwrap()
   world.set_component(entity, ({ ..node, width: Val::px(120.0), } : Node))
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   assert_eq(runtime.layout_revision, layout_revision + 1U)
   assert_eq(runtime.projection_revision, projection_revision + 1U)
   assert_eq(runtime.stacking_revision, stacking_revision)
 
   cleanup_layout_test_entity(entity)
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
 }
 
 ///|
@@ -240,13 +245,13 @@ test "layout frees the old Chicle node when a deleted entity slot is reused" {
   let world = @ecs.World()
   @ecs.set_current_world(world)
   let old = @ecs_test.spawn1(world, Node(width=Val::px(10.0)))
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   let runtime = ui_layout_runtime()
   let old_node = runtime.nodes.get(old).unwrap().node_id
   ignore(@ecs_test.delete(old))
   let replacement = @ecs_test.spawn1(world, Node(width=Val::px(30.0)))
   assert_eq(old.slot_index(), replacement.slot_index())
-  ui_layout_system(world~, 0.0)
+  ui_layout_system(UiNodes(world))
   assert_true(computed_ui_node(old) is None)
   assert_eq(computed_ui_node(replacement).unwrap().size.x, 30.0)
   assert_false(runtime.nodes.contains(old))

@@ -1,16 +1,13 @@
 ///|
-pub fn animation_player_system(world~ : @ecs.World, delta : Double) -> Unit {
-  let query_animation_graph_handle : @ecs.Query[
-    @ecs.Single[AnimationGraphHandle],
-  ] = world.query()
-  let query_animation_player : @ecs.Query[@ecs.Single[AnimationPlayer]] = world.query()
-  let targets_by_player = collect_targets_by_player(world~)
-  for (entity, Single(player)) in query_animation_player.to_array() {
-    if !entity.is_alive() {
-      continue
-    }
-    guard query_animation_graph_handle.get(entity).map(value => value.0)
-      is Some(graph_handle) else {
+pub fn animation_player_system(
+  players : @ecs.Query[(AnimationPlayer, AnimationGraphHandle)],
+  targets : AnimationTargets,
+  time : @time.Time,
+) -> Unit {
+  let delta = time.delta()
+  let targets_by_player = targets.by_player
+  for entity, (player, graph_handle) in players {
+    if !targets.entities.is_alive(entity) {
       continue
     }
     guard animation_graph_asset(graph_handle) is Some(graph) else { continue }
@@ -118,10 +115,12 @@ pub fn animation_player_system(world~ : @ecs.World, delta : Double) -> Unit {
 ///|
 pub fn animation_transition_system(
   query : @ecs.Query[(AnimationTransitions, AnimationPlayer)],
-  delta : Double,
+  time : @time.Time,
+  entities : @ecs.Entities,
 ) -> Unit {
+  let delta = time.delta()
   for entity, (transitions, player) in query {
-    guard entity.is_alive() else { continue }
+    guard entities.is_alive(entity) else { continue }
     let mut main_weight = 1.0
     transitions.fading.retain((node_index, fade) => {
       guard player.active_animations.get(node_index) is Some(active) else {
@@ -158,7 +157,7 @@ pub fn animation_transition_system(
 }
 
 ///|
-pub fn animation_apply_system(world~ : @ecs.World, _delta : Double) -> Unit {
+pub fn animation_apply_system(world~ : @ecs.World) -> Unit {
   let query_animation_graph_handle : @ecs.Query[
     @ecs.Single[AnimationGraphHandle],
   ] = world.query()
@@ -353,11 +352,14 @@ fn update_bound_mesh(
 }
 
 ///|
-pub fn animation_skinning_system(world~ : @ecs.World, _delta : Double) -> Unit {
-  morphed_meshes().retain((entity, _) => entity.is_valid_in(world))
-  skinned_meshes().retain((entity, _) => entity.is_valid_in(world))
-  for entity, binding in morphed_meshes() {
-    if !entity.is_alive() {
+pub fn animation_skinning_system(
+  meshes : AnimationMeshes,
+  transforms : @transform.Transforms,
+) -> Unit {
+  meshes.morphed.retain((entity, _) => meshes.entities.is_valid(entity))
+  meshes.skinned.retain((entity, _) => meshes.entities.is_valid(entity))
+  for entity, binding in meshes.morphed {
+    if !meshes.entities.is_alive(entity) {
       continue
     }
     let (positions, normals) = apply_morph_targets(
@@ -378,8 +380,8 @@ pub fn animation_skinning_system(world~ : @ecs.World, _delta : Double) -> Unit {
     )
   }
 
-  for entity, binding in skinned_meshes() {
-    if !entity.is_alive() {
+  for entity, binding in meshes.skinned {
+    if !meshes.entities.is_alive(entity) {
       continue
     }
     if binding.base_positions.length() != binding.influences.length() {
@@ -388,8 +390,7 @@ pub fn animation_skinning_system(world~ : @ecs.World, _delta : Double) -> Unit {
     let joint_affines : Array[@math.Affine3] = []
     let mut missing_joint_transform = false
     for joint_index, joint_entity in binding.joint_entities {
-      guard @transform.global_transform(world~, joint_entity)
-        is Some(global_transform) else {
+      guard transforms.global_transform(joint_entity) is Some(global_transform) else {
         missing_joint_transform = true
         break
       }
@@ -446,3 +447,50 @@ pub fn animation_skinning_system(world~ : @ecs.World, _delta : Double) -> Unit {
     )
   }
 }
+
+///|
+/// Animation targets resolved for the current execution, with World-bound liveness.
+struct AnimationTargets {
+  by_player : @ecs.EntityTable[Map[AnimationTargetId, @ecs.Entity]]
+  entities : @ecs.Entities
+}
+
+///|
+pub fn AnimationTargets::AnimationTargets(
+  world : @ecs.World,
+) -> AnimationTargets {
+  { by_player: collect_targets_by_player(world~), entities: Entities(world), }
+}
+
+///|
+pub impl @ecs.SystemParam for AnimationTargets with fn prepare(_world) {
+  world => AnimationTargets(world)
+}
+
+///|
+pub extend AnimationTargets with @ecs.SystemParam::{prepare}
+
+///|
+struct AnimationMeshes {
+  skinned : @ecs.EntityTable[SkinnedMeshBinding3D]
+  morphed : @ecs.EntityTable[MorphMeshBinding3D]
+  entities : @ecs.Entities
+}
+
+///|
+pub fn AnimationMeshes::AnimationMeshes(world : @ecs.World) -> AnimationMeshes {
+  {
+    skinned: skinned_meshes(world~),
+    morphed: morphed_meshes(world~),
+    entities: Entities(world),
+  }
+}
+
+///|
+pub impl @ecs.SystemParam for AnimationMeshes with fn prepare(world) {
+  let meshes = AnimationMeshes(world)
+  _ => meshes
+}
+
+///|
+pub extend AnimationMeshes with @ecs.SystemParam::{prepare}

@@ -1159,8 +1159,12 @@ test "tiled source_world chunking spawns maps around camera view" {
       camera_entity,
       @transform.Transform::from_xyz(250.0, 50.0, 0.0),
     )
-    @transform.transform_propagate_system(world~, 0.0)
-    tiled_world_chunking_system(world~, 0.0)
+    @transform.transform_propagate_system(
+      Entities(world),
+      Hierarchy(world),
+      world.query(),
+    )
+    tiled_world_chunking_system(world~)
     try! @ecs.Schedule().run(world)
 
     let second_spawned = (

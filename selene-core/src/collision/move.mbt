@@ -14,6 +14,7 @@
 
 ///|
 /// Runs one fixed-step Rapier physics update and synchronizes ECS state.
-pub fn move_system(world~ : @ecs.World, delta : Double) -> Unit {
-  rapier_fixed_step(world~, delta)
+pub fn move_system(physics : PhysicsStep2D, time : @time.Time) -> Unit {
+  let delta = time.delta()
+  rapier_fixed_step(physics~, delta)
 }

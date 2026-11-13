@@ -554,7 +554,7 @@ test "ldtk_world_sync_system updates spawned levels from selection" {
   )
 
   set_ldtk_level_selection(ldtk_level_selection_index(1))
-  ldtk_world_sync_system(world~, 0.0)
+  ldtk_world_sync_system(world~)
   try! @ecs.Schedule().run(@ecs.require_current_world())
   let updated = (world.query() : @ecs.Query[@ecs.Single[LdtkWorldInstance]])
     .get(world_entity)
@@ -2454,7 +2454,7 @@ test "ldtk transformed event is emitted on next sync tick" {
   let immediate = ldtk_level_event_bus.read(reader)
   inspect(count_transformed_events(immediate, "level-main"), content="0")
 
-  ldtk_world_sync_system(world~, 0.0)
+  ldtk_world_sync_system(world~)
   try! @ecs.Schedule().run(@ecs.require_current_world())
   let after_sync = ldtk_level_event_bus.read(reader)
   inspect(count_transformed_events(after_sync, "level-main"), content="1")
@@ -2537,7 +2537,7 @@ test "ldtk level respawn keeps worldly entities and respawns level entities" {
   inspect(worldly_count(world~, world_entity), content="1")
 
   mark_ldtk_respawn(level_entity_before)
-  ldtk_world_sync_system(world~, 0.0)
+  ldtk_world_sync_system(world~)
   try! @ecs.Schedule().run(@ecs.require_current_world())
 
   let updated_world_instance = (
@@ -2620,7 +2620,7 @@ test "ldtk world_entity respawn recreates worldly entities" {
   inspect(worldly_count(world~, world_entity), content="1")
 
   mark_ldtk_respawn(world_entity)
-  ldtk_world_sync_system(world~, 0.0)
+  ldtk_world_sync_system(world~)
   try! @ecs.Schedule().run(@ecs.require_current_world())
 
   let worldly_after = ldtk_worldly_entity(
@@ -2761,14 +2761,14 @@ test "ldtk transformed remains delayed after level respawn" {
   let world_entity = spawn_ldtk_world(world~, project)
   try! @ecs.Schedule().run(@ecs.require_current_world())
 
-  ldtk_world_sync_system(world~, 0.0)
+  ldtk_world_sync_system(world~)
   try! @ecs.Schedule().run(@ecs.require_current_world())
   let initial_events = ldtk_level_event_bus.read(reader)
   inspect(count_transformed_events(initial_events, "level-main"), content="1")
 
   let level_entity = ldtk_level_entity(world~, world_entity, "level-main").unwrap()
   mark_ldtk_respawn(level_entity)
-  ldtk_world_sync_system(world~, 0.0)
+  ldtk_world_sync_system(world~)
   try! @ecs.Schedule().run(@ecs.require_current_world())
   let respawn_tick_events = ldtk_level_event_bus.read(reader)
   inspect(
@@ -2776,7 +2776,7 @@ test "ldtk transformed remains delayed after level respawn" {
     content="0",
   )
 
-  ldtk_world_sync_system(world~, 0.0)
+  ldtk_world_sync_system(world~)
   try! @ecs.Schedule().run(@ecs.require_current_world())
   let next_tick_events = ldtk_level_event_bus.read(reader)
   inspect(count_transformed_events(next_tick_events, "level-main"), content="1")
@@ -2811,7 +2811,7 @@ test "despawn_ldtk_tree clears pending transformed levels before sync" {
     content="false",
   )
 
-  ldtk_world_sync_system(world~, 0.0)
+  ldtk_world_sync_system(world~)
   try! @ecs.Schedule().run(@ecs.require_current_world())
   let after_despawn_events = ldtk_level_event_bus.read(reader)
   inspect(

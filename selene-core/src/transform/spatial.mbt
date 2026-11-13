@@ -82,3 +82,73 @@ pub fn compute_global_transform(
     Some(GlobalTransform::from_transform(pose))
   }
 }
+
+///|
+/// Spatial queries and fixed hierarchy metadata for one World.
+struct Transforms {
+  spatials : @ecs.Query[@ecs.Single[Spatial]]
+  entities : @ecs.Entities
+  hierarchy : @ecs.Hierarchy
+}
+
+///|
+pub fn Transforms::Transforms(world : @ecs.World) -> Transforms {
+  {
+    spatials: world.query(),
+    entities: Entities(world),
+    hierarchy: Hierarchy(world),
+  }
+}
+
+///|
+pub fn Transforms::local_transform(
+  self : Transforms,
+  entity : @ecs.Entity,
+) -> Transform? {
+  self.spatials.get(entity).map(value => value.0.pose())
+}
+
+///|
+pub fn Transforms::set_local(
+  self : Transforms,
+  entity : @ecs.Entity,
+  pose : Transform,
+) -> Unit {
+  guard self.spatials.get(entity) is Some(Single(spatial)) else {
+    abort("local transform write requires a Spatial component")
+  }
+  spatial.set_local(pose)
+}
+
+///|
+pub fn Transforms::global_transform(
+  self : Transforms,
+  entity : @ecs.Entity,
+) -> GlobalTransform? {
+  guard self.entities.is_alive(entity) else { None }
+  self.spatials.get(entity).map(value => value.0.global())
+}
+
+///|
+pub fn Transforms::compute_global_transform(
+  self : Transforms,
+  entity : @ecs.Entity,
+) -> GlobalTransform? {
+  guard self.entities.is_alive(entity) else { None }
+  let pose = self.local_transform(entity).unwrap_or_default()
+  if self.hierarchy.parent(entity) is Some(parent) &&
+    self.compute_global_transform(parent) is Some(parent_global) {
+    Some({ affine: parent_global.affine * pose.compute_affine(), })
+  } else {
+    Some(GlobalTransform::from_transform(pose))
+  }
+}
+
+///|
+pub impl @ecs.SystemParam for Transforms with fn prepare(world) {
+  let transforms = Transforms(world)
+  _ => transforms
+}
+
+///|
+pub extend Transforms with @ecs.SystemParam::{prepare}

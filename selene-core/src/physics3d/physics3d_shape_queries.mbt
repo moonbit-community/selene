@@ -259,23 +259,23 @@ fn rigid_pose(global : @transform.GlobalTransform) -> @transform.Transform? {
 
 ///|
 fn current_world_transform(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep3D,
   entity : @ecs.Entity,
 ) -> @transform.Transform? {
-  @transform.compute_global_transform(world~, entity).bind(rigid_pose)
+  physics.transforms.compute_global_transform(entity).bind(rigid_pose)
 }
 
 ///|
 fn set_entity_world_transform(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep3D,
   entity : @ecs.Entity,
   world_transform : @transform.Transform,
 ) -> Bool {
-  let query_spatial : @ecs.Query[@ecs.Single[@transform.Spatial]] = world.query()
+  let query_spatial = physics.spatial
   if query_spatial.contains(entity) {
-    let local_transform = match entity.get_parent() {
+    let local_transform = match physics.hierarchy.parent(entity) {
       Some(parent) => {
-        guard @transform.compute_global_transform(world~, parent)
+        guard physics.transforms.compute_global_transform(parent)
           is Some(parent_global) &&
           @transform.GlobalTransform::from_transform(world_transform).relative_trs(
             parent_global,
@@ -287,44 +287,44 @@ fn set_entity_world_transform(
       }
       None => world_transform
     }
-    @transform.set_local_transform(world~, entity, local_transform)
+    physics.transforms.set_local(entity, local_transform)
   }
   true
 }
 
 ///|
 fn attached_rigid_body_entity(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep3D,
   entity : @ecs.Entity,
 ) -> @ecs.Entity? {
-  let query_rigid_body : @ecs.Query[@ecs.Single[RigidBody]] = world.query()
+  let query_rigid_body = physics.rigid_body
   if query_rigid_body.contains(entity) {
     return Some(entity)
   }
-  let mut current = entity.get_parent()
+  let mut current = physics.hierarchy.parent(entity)
   while current is Some(parent) {
     if query_rigid_body.contains(parent) {
       return Some(parent)
     }
-    current = parent.get_parent()
+    current = physics.hierarchy.parent(parent)
   }
   None
 }
 
 ///|
 fn collider_transform(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep3D,
   entity : @ecs.Entity,
   body_entity : @ecs.Entity?,
 ) -> @transform.Transform? {
-  guard @transform.compute_global_transform(world~, entity) is Some(global) &&
+  guard physics.transforms.compute_global_transform(entity) is Some(global) &&
     rigid_pose(global) is Some(world_pose) else {
     None
   }
   match body_entity {
     Some(parent) if parent == entity => Some(@transform.Transform::identity())
     Some(parent) => {
-      guard @transform.compute_global_transform(world~, parent)
+      guard physics.transforms.compute_global_transform(parent)
         is Some(parent_global) &&
         rigid_pose(parent_global) is Some(_) else {
         None
@@ -337,11 +337,11 @@ fn collider_transform(
 
 ///|
 fn set_standalone_collider_position(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep3D,
   collider : @collision.Collider3D,
   entity : @ecs.Entity,
 ) -> Unit {
-  match current_world_transform(world~, entity) {
+  match current_world_transform(physics~, entity) {
     Some(transform) =>
       collider.set_position(
         Isometry3(
@@ -355,9 +355,10 @@ fn set_standalone_collider_position(
 
 ///|
 fn resolve_collider_entity(
+  physics~ : PhysicsStep3D,
   handle : @collision.ColliderHandle3D,
 ) -> @ecs.Entity? {
-  collider_entities_by_key().get(collider_key(handle))
+  physics.runtime.collider_entities_by_key.get(collider_key(handle))
 }
 
 ///|

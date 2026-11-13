@@ -91,8 +91,10 @@ priv struct PhysicsWorldRuntime {
 let physics_runtime_key : @ecs.ResourceKey[PhysicsWorldRuntime] = ResourceKey()
 
 ///|
-fn physics_world_runtime() -> PhysicsWorldRuntime {
-  physics_runtime_key.get_or_insert_with(@ecs.require_current_world(), world => {
+fn physics_world_runtime(
+  world~ : @ecs.World = @ecs.require_current_world(),
+) -> PhysicsWorldRuntime {
+  physics_runtime_key.get_or_insert_with(world, world => {
     world: {
       pipeline: PhysicsPipeline(),
       integration: @rapier_dynamics.IntegrationParameters::default(),
@@ -162,11 +164,6 @@ priv struct EntityPhysicsConfigKey {
   body : RigidBody
   linear_velocity : @math.Vec2?
   angular_velocity : Double?
-}
-
-///|
-fn entity_physics_config_keys() -> @ecs.EntityTable[EntityPhysicsConfigKey] {
-  physics_world_runtime().entity_physics_config_keys
 }
 
 ///|

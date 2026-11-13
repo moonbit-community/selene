@@ -39,29 +39,32 @@ fn quat_rotation_z(value : @math.Rotation3) -> Double {
 
 ///|
 fn entity_transform(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
 ) -> @transform.Transform? {
-  @transform.local_transform(world~, entity)
+  physics.transforms.local_transform(entity)
 }
 
 ///|
-fn entity_translation(world~ : @ecs.World, entity : @ecs.Entity) -> @math.Vec2? {
-  entity_transform(world~, entity).map(fn(transform) {
+fn entity_translation(
+  physics~ : PhysicsStep2D,
+  entity : @ecs.Entity,
+) -> @math.Vec2? {
+  entity_transform(physics~, entity).map(fn(transform) {
     Vec2(transform.translation.x, transform.translation.y)
   })
 }
 
 ///|
 fn set_entity_translation(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
   translation : @math.Vec2,
 ) -> Unit {
-  guard @transform.local_transform(world~, entity) is Some(current) else {
+  guard physics.transforms.local_transform(entity) is Some(current) else {
     return
   }
-  @transform.set_local_transform(world~, entity, {
+  physics.transforms.set_local(entity, {
     ..current,
     translation: Vec3(translation.x, translation.y, current.translation.z),
   })
@@ -69,14 +72,14 @@ fn set_entity_translation(
 
 ///|
 fn set_entity_rotation(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
   rotation : Double,
 ) -> Unit {
-  guard @transform.local_transform(world~, entity) is Some(current) else {
+  guard physics.transforms.local_transform(entity) is Some(current) else {
     return
   }
-  @transform.set_local_transform(world~, entity, {
+  physics.transforms.set_local(entity, {
     ..current,
     rotation: @math.Rotation3::from_axis_angle(@math.Vec3::z_axis(), rotation),
   })
@@ -95,22 +98,25 @@ fn collider_handle_key(
 }
 
 ///|
-fn world_entity(world~ : @ecs.World, entity : @ecs.Entity) -> Bool {
-  let query_node : @ecs.Query[@ecs.Single[@ui.Node]] = world.query()
+fn world_entity(physics~ : PhysicsStep2D, entity : @ecs.Entity) -> Bool {
+  let query_node = physics.node
   !query_node.contains(entity)
 }
 
 ///|
 fn entity_collision_shape(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
 ) -> CollisionShape? {
-  (world.get_component(entity) : CollisionShape?)
+  physics.collision_shape.get(entity).map(value => value.0)
 }
 
 ///|
-fn legacy_rigid_body(world~ : @ecs.World, entity : @ecs.Entity) -> RigidBody {
-  let query_velocity : @ecs.Query[@ecs.Single[@velocity.Velocity]] = world.query()
+fn legacy_rigid_body(
+  physics~ : PhysicsStep2D,
+  entity : @ecs.Entity,
+) -> RigidBody {
+  let query_velocity = physics.velocity
   if query_velocity.contains(entity) {
     RigidBody::kinematic_position_based()
   } else {
@@ -119,18 +125,22 @@ fn legacy_rigid_body(world~ : @ecs.World, entity : @ecs.Entity) -> RigidBody {
 }
 
 ///|
-fn entity_rigid_body(world~ : @ecs.World, entity : @ecs.Entity) -> RigidBody {
-  (world.get_component(entity) : RigidBody?).unwrap_or_else(fn() {
-    legacy_rigid_body(world~, entity)
-  })
+fn entity_rigid_body(
+  physics~ : PhysicsStep2D,
+  entity : @ecs.Entity,
+) -> RigidBody {
+  physics.rigid_body
+  .get(entity)
+  .map(value => value.0)
+  .unwrap_or_else(fn() { legacy_rigid_body(physics~, entity) })
 }
 
 ///|
 fn entity_collision_config(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
 ) -> EntityCollisionConfig? {
-  if (world.get_component(entity) : Area?) is Some(area) {
+  if physics.area.get(entity).map(value => value.0) is Some(area) {
     Some({
       filter: area.filter,
       sensor: true,
@@ -138,7 +148,7 @@ fn entity_collision_config(
       friction: 0.0,
       restitution: 0.0,
     })
-  } else if (world.get_component(entity) : Collider?) is Some(collider) {
+  } else if physics.collider.get(entity).map(value => value.0) is Some(collider) {
     Some({
       filter: collider.filter,
       sensor: false,
@@ -152,13 +162,13 @@ fn entity_collision_config(
 }
 
 ///|
-fn entity_rotation(world~ : @ecs.World, entity : @ecs.Entity) -> Double {
-  if pending_body_rotations().get(entity) is Some(rotation) {
+fn entity_rotation(physics~ : PhysicsStep2D, entity : @ecs.Entity) -> Double {
+  if physics.runtime.pending_body_rotations.get(entity) is Some(rotation) {
     rotation
-  } else if physics_world().entity_bodies.get(entity) is Some(handle) &&
-    physics_world().bodies.get(handle) is Some(body) {
+  } else if physics.runtime.world.entity_bodies.get(entity) is Some(handle) &&
+    physics.runtime.world.bodies.get(handle) is Some(body) {
     from_physics_rotation(body.rotation())
-  } else if entity_transform(world~, entity) is Some(transform) {
+  } else if entity_transform(physics~, entity) is Some(transform) {
     quat_rotation_z(transform.rotation)
   } else {
     0.0
@@ -167,29 +177,31 @@ fn entity_rotation(world~ : @ecs.World, entity : @ecs.Entity) -> Double {
 
 ///|
 fn entity_linear_velocity_for_body(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
   body_type : RigidBodyType,
 ) -> @math.Vec2? {
-  let query_velocity : @ecs.Query[@ecs.Single[@velocity.Velocity]] = world.query()
+  let query_velocity = physics.velocity
   match body_type {
     Dynamic =>
-      if pending_body_linear_velocities().get(entity) is Some(velocity) {
+      if physics.runtime.pending_body_linear_velocities.get(entity)
+        is Some(velocity) {
         Some(velocity)
-      } else if physics_world().entity_bodies.get(entity) is Some(handle) &&
-        physics_world().bodies.get(handle) is Some(body) {
+      } else if physics.runtime.world.entity_bodies.get(entity) is Some(handle) &&
+        physics.runtime.world.bodies.get(handle) is Some(body) {
         Some(from_physics_vec2(body.linvel()))
       } else {
         None
       }
     KinematicVelocityBased =>
-      if pending_body_linear_velocities().get(entity) is Some(velocity) {
+      if physics.runtime.pending_body_linear_velocities.get(entity)
+        is Some(velocity) {
         Some(velocity)
       } else if query_velocity.get(entity).map(value => value.0)
         is Some(velocity) {
         Some(velocity.0)
-      } else if physics_world().entity_bodies.get(entity) is Some(handle) &&
-        physics_world().bodies.get(handle) is Some(body) {
+      } else if physics.runtime.world.entity_bodies.get(entity) is Some(handle) &&
+        physics.runtime.world.bodies.get(handle) is Some(body) {
         Some(from_physics_vec2(body.linvel()))
       } else {
         None

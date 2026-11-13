@@ -21,7 +21,7 @@ pub fn matches(RenderLayers, RenderLayers) -> Bool
 
 pub fn view_visibility(@ecs.Entity) -> ViewVisibility?
 
-pub fn visibility_propagate_system(world~ : @ecs.World, Double) -> Unit
+pub fn visibility_propagate_system(@ecs.Entities, @ecs.Hierarchy, @ecs.Query[@ecs.Single[Visibility]], VisibilityState) -> Unit
 
 // Errors
 
@@ -61,6 +61,12 @@ pub fn Visibility::equal(Self, Self) -> Bool
 pub fn Visibility::not_equal(Self, Self) -> Bool
 pub fn Visibility::to_repr(Self) -> @debug.Repr
 pub impl @ecs.Component for Visibility
+
+type VisibilityState
+pub fn VisibilityState::VisibilityState(@ecs.World) -> Self
+pub fn VisibilityState::is_visible(Self, @ecs.Entity) -> Bool
+pub fn VisibilityState::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for VisibilityState
 
 // Type aliases
 

@@ -104,9 +104,15 @@ test "player run animation advances atlas indices in order" {
   )
   let step = 1.0 / player_run_right_animation.fps
   for _ in 0..<4 {
-    @animation.animation_player_system(world~, step)
-    @animation.animation_transition_system(world.query(), step)
-    @animation.animation_apply_system(world~, 0.0)
+    let time = @time.Time(world)
+    time.set_delta(step)
+    @animation.animation_player_system(
+      world.query(),
+      AnimationTargets(world),
+      time,
+    )
+    @animation.animation_transition_system(world.query(), time, Entities(world))
+    @animation.animation_apply_system(world~)
     indices.push(
       (world.query() : @ecs.Query[@ecs.Single[@sprite.Sprite]])
       .get(entity)

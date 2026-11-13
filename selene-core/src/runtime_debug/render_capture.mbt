@@ -110,10 +110,12 @@ pub(all) struct FrameCaptureArtifact {
 pub extend FrameCaptureArtifact with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
-let render_submission_key : @ecs.ResourceKey[RenderSubmissionDebug] = ResourceKey()
+let render_submission_key : @ecs.ResourceKey[Ref[RenderSubmissionDebug?]] = ResourceKey()
 
 ///|
-let latest_render_frame_key : @ecs.ResourceKey[@render_pipeline.RenderFrame] = ResourceKey()
+let latest_render_frame_key : @ecs.ResourceKey[
+  Ref[@render_pipeline.RenderFrame?],
+] = ResourceKey()
 
 ///|
 fn draw2d_info(
@@ -248,6 +250,15 @@ pub fn record_render_submission(
   frame : @render_pipeline.RenderFrame,
   world_commands : Array[@render2d.DrawCommandWithDepth2D],
 ) -> Unit {
+  RenderCapture(current_world()).record(frame, world_commands)
+}
+
+///|
+pub fn RenderCapture::record(
+  self : RenderCapture,
+  frame : @render_pipeline.RenderFrame,
+  world_commands : Array[@render2d.DrawCommandWithDepth2D],
+) -> Unit {
   let draw2d : Array[DrawSubmission2DInfo] = []
   for command in world_commands {
     draw2d.push(
@@ -263,11 +274,10 @@ pub fn record_render_submission(
     draw2d.push(draw2d_info(None, "ui", None, command))
   }
   let draw3d = frame.frame3d.items.map(draw3d_info)
-  let world = current_world()
-  latest_render_frame_key.insert_in(world, frame)
-  render_submission_key.insert_in(world, {
-    frame_index: world.frame_index(),
-    fixed_step_index: world.fixed_step_index(),
+  self.frame.val = Some(frame)
+  self.submission.val = Some({
+    frame_index: self.frame_index,
+    fixed_step_index: self.fixed_step_index,
     draw2d,
     draw3d,
   })
@@ -275,7 +285,7 @@ pub fn record_render_submission(
 
 ///|
 pub fn latest_render_submission() -> RenderSubmissionDebug? {
-  render_submission_key.get_in(current_world())
+  render_submission_key.get_in(current_world()).bind(value => value.val)
 }
 
 ///|
@@ -381,7 +391,8 @@ pub fn capture_last_frame_with_metadata(
 
 ///|
 pub fn render_last_frame_offscreen_png(width : Int32, height : Int32) -> Bytes? {
-  guard latest_render_frame_key.get_in(current_world()) is Some(frame) else {
+  guard latest_render_frame_key.get_in(current_world()).bind(value => value.val)
+    is Some(frame) else {
     return None
   }
   @platform_render.render_offscreen_png(frame, width, height)
@@ -395,4 +406,46 @@ pub fn capture_frame_png() -> Bytes? {
 ///|
 pub fn capture_frame_png_to_file(path : String) -> Bool {
   @platform_render.capture_frame_png_to_file(path)
+}
+
+///|
+struct RenderCapture {
+  frame : Ref[@render_pipeline.RenderFrame?]
+  submission : Ref[RenderSubmissionDebug?]
+  frame_index : UInt32
+  fixed_step_index : UInt32
+  overlay : Bool
+}
+
+///|
+pub fn RenderCapture::RenderCapture(world : @ecs.World) -> RenderCapture {
+  let fetch : (@ecs.World) -> RenderCapture = @ecs.SystemParam::prepare(world)
+  fetch(world)
+}
+
+///|
+pub impl @ecs.SystemParam for RenderCapture with fn prepare(world) {
+  let frame = latest_render_frame_key.get_or_insert_with(world, _ => Ref(None))
+  let submission = render_submission_key.get_or_insert_with(world, _ => {
+    Ref(None)
+  })
+  world => {
+    frame,
+    submission,
+    frame_index: world.frame_index(),
+    fixed_step_index: world.fixed_step_index(),
+    overlay: atlas_overlay_enabled_key.get_in(world).unwrap_or(false),
+  }
+}
+
+///|
+pub extend RenderCapture with @ecs.SystemParam::{prepare}
+
+///|
+pub fn RenderCapture::decorate(
+  self : RenderCapture,
+  frame : @render_pipeline.RenderFrame,
+  commands : Array[@render2d.DrawCommandWithDepth2D],
+) -> @render_pipeline.RenderFrame {
+  decorate_frame(self.overlay, frame, commands)
 }

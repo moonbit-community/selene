@@ -104,7 +104,7 @@ test "pickable click respects top-most camera render layers" {
     click_left_mouse(Vec2(50.0, 50.0))
 
     let reader = @event.EventReader()
-    pickable_click_system(world~, 0.0)
+    pickable_click_system(CollisionQueries(world))
     let events = pointer_event_bus.read(reader)
     let visible_id = visible_entity.id()
     let left_events = events.filter(fn(event) { event.button is Left })
@@ -142,7 +142,7 @@ test "pickable click supports ball shapes" {
     click_left_mouse(Vec2(48.0, 40.0))
 
     let reader = @event.EventReader()
-    pickable_click_system(world~, 0.0)
+    pickable_click_system(CollisionQueries(world))
     let events = pointer_event_bus.read(reader)
     let left_events = events.filter(fn(event) { event.button is Left })
 
@@ -174,14 +174,34 @@ test "pickable uses the sheared world plane and rejects a collapsed shape" {
       ),
       parent~,
     )
-    @transform.transform_propagate_system(world~, 0.0)
+    @transform.transform_propagate_system(
+      Entities(world),
+      Hierarchy(world),
+      world.query(),
+    )
     let pose = @transform.global_transform(world~, child).unwrap()
     let render = @camera.world_transform_2d(pose)
     let inside = render.transform_point(Vec2(9.0, 1.0))
     let outside = render.transform_point(Vec2(11.0, 1.0))
-    assert_true(hit_test_pickable(world~, child, inside, inside, inside, None))
+    assert_true(
+      hit_test_pickable(
+        scene=CollisionQueries(world),
+        child,
+        inside,
+        inside,
+        inside,
+        None,
+      ),
+    )
     assert_false(
-      hit_test_pickable(world~, child, outside, outside, outside, None),
+      hit_test_pickable(
+        scene=CollisionQueries(world),
+        child,
+        outside,
+        outside,
+        outside,
+        None,
+      ),
     )
     @transform.set_local_transform(
       world~,
@@ -191,7 +211,7 @@ test "pickable uses the sheared world plane and rejects a collapsed shape" {
     let inside_old_fallback = @math.Vec2(1.0, 1.0)
     assert_false(
       hit_test_pickable(
-        world~,
+        scene=CollisionQueries(world),
         child,
         inside_old_fallback,
         inside_old_fallback,

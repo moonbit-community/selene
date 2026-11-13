@@ -7,7 +7,15 @@ pub fn for_each_sprite_transform(
   world~ : @ecs.World,
   visit : (@ecs.Entity, Sprite, @transform.GlobalTransform) -> Unit,
 ) -> Unit {
-  sprite_query(world).batches(batch => {
+  visit_sprite_transforms(sprite_query(world), visit)
+}
+
+///|
+fn visit_sprite_transforms(
+  query : @ecs.Query[(Sprite, @transform.Spatial)],
+  visit : (@ecs.Entity, Sprite, @transform.GlobalTransform) -> Unit,
+) -> Unit {
+  query.batches(batch => {
     let sprites : @ecs.ReadColumn[Sprite] = batch.read_column()
     let spatials : @ecs.ReadColumn[@transform.Spatial] = batch.read_column()
     for row in 0..<batch.length() {
@@ -17,28 +25,24 @@ pub fn for_each_sprite_transform(
 }
 
 ///|
-pub fn render_sprite_system(world~ : @ecs.World, delta : Double) -> Unit {
-  let query_sorting2d : @ecs.Query[@ecs.Single[@render2d.Sorting2d]] = world.query()
-  let sprites : @ecs.Query[@ecs.Single[Sprite]] = world.query()
-  ignore(delta)
-  let camera_views = @camera.active_camera2d_views(world~)
-  let camera_extract = @culling2d.CameraExtract2dContext(camera_views)
-  let is_alive = @ecs.alive_in_world(world)
+pub fn render_sprite_system(
+  frame : @render2d.Frame2D,
+  sprites : @ecs.Query[(Sprite, @transform.Spatial)],
+  view : @render2d.RenderView2D,
+) -> Unit {
+  let camera_views = view.camera_views()
   // Draw ties retain Sprite insertion order even when a row moves tables.
-  let order_base = @render2d.reserve_world_command_order(sprites.order_span())
-  for_each_sprite_transform(world~, (entity, sprite, global_transform) => {
-    guard is_alive(entity) else { return }
-    guard @visibility.is_visible(entity) else { return }
+  let order_base = frame.reserve_world_command_order(sprites.order_span())
+  visit_sprite_transforms(sprites, (entity, sprite, global_transform) => {
+    guard view.is_alive(entity) else { return }
+    guard view.is_visible(entity) else { return }
     guard sprite_size(sprite) is Some(size) else { return }
     let order = order_base + sprites.insertion_order(entity)
-    let sorting = query_sorting2d
-      .get(entity)
-      .map(value => value.0)
-      .unwrap_or(Sorting2d())
+    let sorting = view.sorting_for(entity)
     let depth = @render2d.sort_depth_for_transform(global_transform, sorting)
     let translation = global_transform.translation()
     let base_pos = @math.Vec2(translation.x, translation.y)
-    let parallax = @parallax2d.inherited_parallax2d(world~, entity)
+    let parallax = view.parallax_for(entity)
     let local_transform = sprite_local_transform(sprite, size)
     if camera_views.is_empty() {
       let screen_pos = @parallax2d.parallax_world_position(
@@ -47,13 +51,13 @@ pub fn render_sprite_system(world~ : @ecs.World, delta : Double) -> Unit {
         None,
       )
       push_sprite_draw_command(
+        frame,
         entity,
         sprite,
         size,
         depth,
-        @camera.pixel_snapped_position(@window.scale_vec2(screen_pos)),
-        @camera.camera_screen_transform(global_transform, None) *
-        local_transform,
+        @camera.pixel_snapped_position(view.scale_position(screen_pos)),
+        view.screen_transform(global_transform, None) * local_transform,
         None,
         sorting,
         order,
@@ -70,10 +74,9 @@ pub fn render_sprite_system(world~ : @ecs.World, delta : Double) -> Unit {
       { position: @math.Vec2::zero(), size, },
       @camera.world_transform_2d(global_transform) * local_transform,
     )
-    let camera_views_for_entity = camera_extract.camera_views_for_bounds(
-      world~,
+    let camera_views_for_entity = view.camera_views_for_bounds(
       world_bounds,
-      @visibility.entity_render_layers(world~, entity),
+      view.layers_for(entity),
       @parallax2d.parallax_depends_on_camera(parallax),
     )
     for camera_view in camera_views_for_entity {
@@ -82,7 +85,7 @@ pub fn render_sprite_system(world~ : @ecs.World, delta : Double) -> Unit {
         parallax,
         Some(camera_view),
       )
-      let screen_transform = @camera.camera_screen_transform(
+      let screen_transform = view.screen_transform(
           global_transform,
           Some(camera_view),
         ) *
@@ -97,6 +100,7 @@ pub fn render_sprite_system(world~ : @ecs.World, delta : Double) -> Unit {
       )
       guard camera_view.intersects_screen_rect(bounds) else { continue }
       push_sprite_draw_command(
+        frame,
         entity,
         sprite,
         size,
@@ -113,6 +117,7 @@ pub fn render_sprite_system(world~ : @ecs.World, delta : Double) -> Unit {
 
 ///|
 fn push_sprite_draw_command(
+  frame : @render2d.Frame2D,
   entity : @ecs.Entity,
   sprite : Sprite,
   size : @math.Vec2,
@@ -146,7 +151,7 @@ fn push_sprite_draw_command(
         stroke_color: None,
       })
   }
-  @render2d.push_world_command(
+  frame.push_world_command(
     depth,
     Some(entity.id()),
     command,

@@ -1,4 +1,8 @@
 import {
+  "Milky2018/selene/culling2d",
+  "Milky2018/selene/parallax2d",
+  "Milky2018/selene/visibility",
+  "Milky2018/selene/window",
   "moonbitlang/core/set",
   "moonbitlang/core/debug",
   "Milky2018/selene/camera",

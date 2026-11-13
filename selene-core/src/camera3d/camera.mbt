@@ -46,24 +46,27 @@ pub fn Camera3DComponent::Camera3DComponent() -> Camera3DComponent {
 }
 
 ///|
-let active_camera3d_key : @ecs.ResourceKey[ActiveCamera3D?] = ResourceKey()
+let active_camera3d_key : @ecs.ResourceKey[Ref[ActiveCamera3D?]] = ResourceKey()
 
 ///|
 pub fn get_active_camera3d() -> ActiveCamera3D? {
-  active_camera3d_key.get_in(@ecs.require_current_world()).unwrap_or(None)
+  Camera3DState(@ecs.require_current_world()).get()
 }
 
 ///|
 pub fn set_active_camera3d(camera : ActiveCamera3D?) -> Unit {
-  active_camera3d_key.insert_in(@ecs.require_current_world(), camera)
+  Camera3DState(@ecs.require_current_world()).value.val = camera
 }
 
 ///|
-pub fn camera3d_extract_system(world~ : @ecs.World, _delta : Double) -> Unit {
-  let query_camera3_d_component : @ecs.Query[@ecs.Single[Camera3DComponent]] = world.query()
+pub fn camera3d_extract_system(
+  cameras : @ecs.Query[@ecs.Single[Camera3DComponent]],
+  spatials : @ecs.Query[@ecs.Single[@transform.Spatial]],
+  output : Camera3DState,
+) -> Unit {
   let mut selected : (@ecs.Entity, Camera3DComponent)? = None
-  for entity, Single(camera) in query_camera3_d_component {
-    if !entity.is_alive() || !camera.enabled {
+  for entity, Single(camera) in cameras {
+    if !output.entities.is_alive(entity) || !camera.enabled {
       continue
     }
     selected = match selected {
@@ -74,9 +77,9 @@ pub fn camera3d_extract_system(world~ : @ecs.World, _delta : Double) -> Unit {
   }
   match selected {
     Some((entity, camera)) => {
-      guard @transform.global_transform(world~, entity)
+      guard spatials.get(entity).map(value => value.0.global())
         is Some(global_transform) else {
-        set_active_camera3d(None)
+        output.value.val = None
         return
       }
       let global = global_transform.affine
@@ -86,23 +89,49 @@ pub fn camera3d_extract_system(world~ : @ecs.World, _delta : Double) -> Unit {
         .try_normalize()
         .unwrap_or(Vec3(0.0, 0.0, -1.0))
       let up = global.y_axis.try_normalize().unwrap_or(@math.Vec3::y_axis())
-      set_active_camera3d(
-        Some({
-          entity,
-          camera: {
-            position,
-            target: position + forward,
-            up,
-            fov_y: camera.fov_y,
-            projection: camera.projection,
-            orthographic_size: camera.orthographic_size,
-            near: camera.near,
-            far: camera.far,
-            clear_color: camera.clear_color,
-          },
-        }),
-      )
+      output.value.val = Some({
+        entity,
+        camera: {
+          position,
+          target: position + forward,
+          up,
+          fov_y: camera.fov_y,
+          projection: camera.projection,
+          orthographic_size: camera.orthographic_size,
+          near: camera.near,
+          far: camera.far,
+          clear_color: camera.clear_color,
+        },
+      })
     }
-    None => set_active_camera3d(None)
+    None => output.value.val = None
   }
 }
+
+///|
+struct Camera3DState {
+  value : Ref[ActiveCamera3D?]
+  entities : @ecs.Entities
+}
+
+///|
+pub fn Camera3DState::Camera3DState(world : @ecs.World) -> Camera3DState {
+  {
+    value: active_camera3d_key.get_or_insert_with(world, _ => Ref(None)),
+    entities: Entities(world),
+  }
+}
+
+///|
+pub fn Camera3DState::get(self : Camera3DState) -> ActiveCamera3D? {
+  self.value.val
+}
+
+///|
+pub impl @ecs.SystemParam for Camera3DState with fn prepare(world) {
+  let state = Camera3DState(world)
+  _ => state
+}
+
+///|
+pub extend Camera3DState with @ecs.SystemParam::{prepare}

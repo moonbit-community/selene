@@ -63,7 +63,7 @@ pub fn attach_audio(
     entity,
     Attached(player, normalize_settings(settings)),
   )
-  remove_audio_sink(entity)
+  remove_audio_sink(audio_runtime(), entity)
 }
 
 ///|

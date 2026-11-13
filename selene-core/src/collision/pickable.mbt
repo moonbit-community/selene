@@ -173,7 +173,10 @@ fn point_on_polyline(
 }
 
 ///|
-fn pickable_line_tolerance(camera_view : @camera.Camera2dView?) -> Double {
+fn pickable_line_tolerance(
+  scene~ : CollisionQueries,
+  camera_view : @camera.Camera2dView?,
+) -> Double {
   match camera_view {
     Some(camera_view) => {
       let projection_scale = if camera_view.projection.scale <= 0.0 {
@@ -181,14 +184,15 @@ fn pickable_line_tolerance(camera_view : @camera.Camera2dView?) -> Double {
       } else {
         camera_view.projection.scale
       }
-      4.0 * projection_scale / @cmp.maximum(@window.get_zoom(), 0.000001)
+      4.0 * projection_scale / @cmp.maximum(scene.display.zoom(), 0.000001)
     }
-    None => 4.0 / @cmp.maximum(@window.get_zoom(), 0.000001)
+    None => 4.0 / @cmp.maximum(scene.display.zoom(), 0.000001)
   }
 }
 
 ///|
 fn point_in_collision_shape(
+  scene~ : CollisionQueries,
   point : @math.Vec2,
   shape : CollisionShape,
   camera_view : @camera.Camera2dView?,
@@ -203,25 +207,25 @@ fn point_in_collision_shape(
         points,
         offset,
         closed,
-        pickable_line_tolerance(camera_view),
+        pickable_line_tolerance(scene~, camera_view),
       )
   }
 }
 
 ///|
 fn pickable_matches_camera_view(
-  world~ : @ecs.World,
+  scene~ : CollisionQueries,
   entity : @ecs.Entity,
   camera_view : @camera.Camera2dView?,
 ) -> Bool {
-  if @ui.global_ui_node(entity) is Some(_) {
+  if scene.geometry.global_node(entity) is Some(_) {
     return true
   }
   match camera_view {
     Some(camera_view) => {
       if !@visibility.matches(
-          @visibility.entity_render_layers(world~, entity),
-          @visibility.entity_render_layers(world~, camera_view.entity),
+          scene.view.layers_for(entity),
+          scene.view.layers_for(camera_view.entity),
         ) {
         return false
       }
@@ -233,30 +237,31 @@ fn pickable_matches_camera_view(
 
 ///|
 fn hit_test_pickable(
-  world~ : @ecs.World,
+  scene~ : CollisionQueries,
   entity : @ecs.Entity,
   mouse_screen : @math.Vec2,
   mouse_world : @math.Vec2,
   _mouse_virtual : @math.Vec2,
   camera_view : @camera.Camera2dView?,
 ) -> Bool {
-  if @ui.global_ui_node(entity) is Some(transform) {
+  if scene.geometry.global_node(entity) is Some(transform) {
     return point_in_rect(
       mouse_screen,
       transform.screen_rect.position,
       transform.screen_rect.size,
     )
   }
-  guard pickable_entity_global_transform(world~, entity) is Some(transform) else {
+  guard pickable_entity_global_transform(scene~, entity) is Some(transform) else {
     return false
   }
-  guard (world.get_component(entity) : CollisionShape?) is Some(shape) else {
+  guard scene.shapes.get(entity).map(value => value.0) is Some(shape) else {
     return false
   }
   guard transform.affine.project_xy().inverse() is Some(inverse) else {
     return false
   }
   point_in_collision_shape(
+    scene~,
     inverse.transform_point(mouse_world),
     shape,
     camera_view,
@@ -264,57 +269,60 @@ fn hit_test_pickable(
 }
 
 ///|
-fn dispatch_pointer_events(entity : @ecs.Entity) -> Unit {
+fn dispatch_pointer_events(
+  scene~ : CollisionQueries,
+  entity : @ecs.Entity,
+) -> Unit {
   for button in [@inputs.MouseButton::Left, Right, Middle] {
     if @inputs.is_mouse_pressed(button) {
-      push_pointer_event(entity, button, Pressed)
+      scene.events.send({ entity, button, phase: Pressed, })
     }
     if @inputs.is_mouse_released(button) {
-      push_pointer_event(entity, button, Released)
+      scene.events.send({ entity, button, phase: Released, })
     }
     if @inputs.is_mouse_just_pressed(button) {
-      push_pointer_event(entity, button, JustPressed)
+      scene.events.send({ entity, button, phase: JustPressed, })
     }
     if @inputs.is_mouse_just_released(button) {
-      push_pointer_event(entity, button, JustReleased)
+      scene.events.send({ entity, button, phase: JustReleased, })
     }
   }
 }
 
 ///|
-pub fn pickable_click_system(world~ : @ecs.World, _delta : Double) -> Unit {
-  let query_pickable : @ecs.Query[@ecs.Single[Pickable]] = world.query()
+pub fn pickable_click_system(scene : CollisionQueries) -> Unit {
+  let query_pickable = scene.pickables
   let mouse_screen = @inputs.mouse.pos
-  let camera_view = @camera.camera2d_view_for_screen_point(world~, mouse_screen)
+  let camera_view = scene.camera_at(mouse_screen)
   let mouse_world = match camera_view {
     Some(camera_view) => camera_view.viewport_to_world_2d(mouse_screen)
-    None => @window.unscale_vec2(mouse_screen)
+    None => mouse_screen.scalar_mul(1.0 / scene.display.zoom())
   }
-  let mouse_virtual = @window.screen_to_ui_virtual(mouse_screen)
+  let mouse_virtual = mouse_screen.scalar_mul(1.0 / scene.display.zoom())
   for entity, Single(pickable) in query_pickable {
-    guard entity.is_alive() else { continue }
+    guard scene.view.is_alive(entity) else { continue }
     guard pickable.active else { continue }
-    guard @visibility.is_visible(entity) else { continue }
-    guard pickable_matches_camera_view(world~, entity, camera_view) else {
+    guard scene.view.is_visible(entity) else { continue }
+    guard pickable_matches_camera_view(scene~, entity, camera_view) else {
       continue
     }
     if hit_test_pickable(
-        world~,
+        scene~,
         entity,
         mouse_screen,
         mouse_world,
         mouse_virtual,
         camera_view,
       ) {
-      dispatch_pointer_events(entity)
+      dispatch_pointer_events(scene~, entity)
     }
   }
 }
 
 ///|
 fn pickable_entity_global_transform(
-  world~ : @ecs.World,
+  scene~ : CollisionQueries,
   entity : @ecs.Entity,
 ) -> @transform.GlobalTransform? {
-  @transform.compute_global_transform(world~, entity)
+  scene.transforms.compute_global_transform(entity)
 }

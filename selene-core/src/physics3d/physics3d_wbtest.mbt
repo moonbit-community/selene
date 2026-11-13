@@ -13,7 +13,9 @@ fn with_physics3d_test_world(action : (@ecs.World) -> Unit raise) -> Unit raise 
 ///|
 fn step_physics(world~ : @ecs.World, iterations : Int32) -> Unit {
   for _ in 0..<iterations {
-    physics_step_system(world~, 1.0 / 60.0)
+    let time = @time.Time(world)
+    time.set_delta(1.0 / 60.0)
+    physics_step_system(PhysicsStep3D(world), time)
   }
 }
 
@@ -133,9 +135,9 @@ test "query filter groups and contact force events work in 3d" {
         2.0,
       ),
     )
-    collider_entities_by_key().set((1, 0), filtered)
-    collider_entities_by_key().set((2, 0), excluded)
-    collect_events()
+    physics3d_world_store().collider_entities_by_key.set((1, 0), filtered)
+    physics3d_world_store().collider_entities_by_key.set((2, 0), excluded)
+    collect_events(physics=PhysicsStep3D(@ecs.require_current_world()))
     let reader : @event.EventReader[ContactForceEvent] = EventReader()
     let events = reader.read(contact_force_event_bus)
     inspect(events.length(), content="1")
@@ -433,7 +435,7 @@ test "collision and intersection events map to selene event buses" {
     physics3d_world().event_handler.push_intersection_event(
       IntersectionEvent3D(sensor_handle, other_handle, true),
     )
-    collect_events()
+    collect_events(physics=PhysicsStep3D(@ecs.require_current_world()))
 
     let collision_reader : @event.EventReader[CollisionEvent] = EventReader()
     let collisions = collision_reader.read(collision_event_bus)
@@ -1098,23 +1100,28 @@ test "collider3d debug color distinguishes body and sensor types" {
       None => ()
     }
     inspect(
-      debug_collider_color(world~, dynamic_entity) == debug_dynamic_color(),
+      debug_collider_color(physics=PhysicsStep3D(world), dynamic_entity) ==
+      debug_dynamic_color(),
       content="true",
     )
     inspect(
-      debug_collider_color(world~, fixed_entity) == debug_fixed_color(),
+      debug_collider_color(physics=PhysicsStep3D(world), fixed_entity) ==
+      debug_fixed_color(),
       content="true",
     )
     inspect(
-      debug_collider_color(world~, kinematic_entity) == debug_kinematic_color(),
+      debug_collider_color(physics=PhysicsStep3D(world), kinematic_entity) ==
+      debug_kinematic_color(),
       content="true",
     )
     inspect(
-      debug_collider_color(world~, sensor_entity) == debug_sensor_color(),
+      debug_collider_color(physics=PhysicsStep3D(world), sensor_entity) ==
+      debug_sensor_color(),
       content="true",
     )
     inspect(
-      debug_collider_color(world~, disabled_entity) == debug_disabled_color(),
+      debug_collider_color(physics=PhysicsStep3D(world), disabled_entity) ==
+      debug_disabled_color(),
       content="true",
     )
   })
@@ -1131,7 +1138,11 @@ test "collider3d debug system appends wire lines to render3d pipeline" {
         @transform.Spatial),
     )
     ignore(@ecs_test.spawn_draft(entity_draft))
-    debug_colliders_system(world~, 0.0)
+    debug_colliders_system(
+      PhysicsStep3D(world),
+      ExtractedFrame3D(world),
+      PreparedFrame3D(world),
+    )
     let frame = @render3d_pipeline.get_prepared_frame3d()
     inspect(frame.lines.length(), content="12")
     inspect(frame.lines[0].start.x == 1.0, content="true")

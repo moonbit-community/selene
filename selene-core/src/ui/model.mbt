@@ -12,16 +12,21 @@ pub extend UiScaleMode with @moonbitlang/core/debug.Debug::{to_repr}
 pub extend UiScaleMode with Eq::{not_equal, equal}
 
 ///|
-let ui_scale_mode_key : @ecs.ResourceKey[UiScaleMode] = ResourceKey()
+let ui_scale_mode_key : @ecs.ResourceKey[Ref[UiScaleMode]] = ResourceKey()
 
 ///|
 fn ui_scale_mode() -> UiScaleMode {
-  ui_scale_mode_key.get_or_insert_with(@ecs.require_current_world(), _ => Screen)
+  ui_scale_mode_key.get_or_insert_with(@ecs.require_current_world(), _ => {
+    Ref(Screen)
+  }).val
 }
 
 ///|
 pub fn set_ui_scale_mode(mode : UiScaleMode) -> Unit {
-  ui_scale_mode_key.insert_in(@ecs.require_current_world(), mode)
+  ui_scale_mode_key.get_or_insert_with(@ecs.require_current_world(), _ => {
+    Ref(Screen)
+  }).val
+  = mode
 }
 
 ///|
@@ -989,8 +994,10 @@ fn UiModelWorldStore::UiModelWorldStore(
 }
 
 ///|
-fn ui_model_world_store() -> UiModelWorldStore {
-  ui_model_world_store_key.get_or_insert_with(@ecs.require_current_world(), world => {
+fn ui_model_world_store(
+  world~ : @ecs.World = @ecs.require_current_world(),
+) -> UiModelWorldStore {
+  ui_model_world_store_key.get_or_insert_with(world, world => {
     UiModelWorldStore(world)
   })
 }
@@ -1032,42 +1039,36 @@ fn focuseds() -> @ecs.EntityTable[Focused] {
 }
 
 ///|
-fn tree_orders() -> @ecs.EntityTable[Int32] {
-  ui_model_world_store().tree_orders
-}
-
-///|
-fn ui_stack() -> Array[@ecs.Entity] {
-  ui_model_world_store().ui_stack_entities
-}
-
-///|
-fn global_zindex_value(world~ : @ecs.World, entity : @ecs.Entity) -> Int32 {
-  (world.get_component(entity) : GlobalZIndex?)
+fn global_zindex_value(nodes~ : UiNodes, entity : @ecs.Entity) -> Int32 {
+  nodes.global_z_index
+  .get(entity)
+  .map(value => value.0)
   .map(fn(value) { value.value })
   .unwrap_or(0)
 }
 
 ///|
-fn zindex_value(world~ : @ecs.World, entity : @ecs.Entity) -> Int32 {
-  (world.get_component(entity) : ZIndex?)
+fn zindex_value(nodes~ : UiNodes, entity : @ecs.Entity) -> Int32 {
+  nodes.z_index
+  .get(entity)
+  .map(value => value.0)
   .map(fn(value) { value.value })
   .unwrap_or(0)
 }
 
 ///|
 fn compare_ui_root_order(
-  world~ : @ecs.World,
+  nodes~ : UiNodes,
   lhs : @ecs.Entity,
   rhs : @ecs.Entity,
 ) -> Int32 {
-  let lg = global_zindex_value(world~, lhs)
-  let rg = global_zindex_value(world~, rhs)
+  let lg = global_zindex_value(nodes~, lhs)
+  let rg = global_zindex_value(nodes~, rhs)
   if lg != rg {
     return lg - rg
   }
-  let lz = zindex_value(world~, lhs)
-  let rz = zindex_value(world~, rhs)
+  let lz = zindex_value(nodes~, lhs)
+  let rz = zindex_value(nodes~, rhs)
   if lz != rz {
     lz - rz
   } else {
@@ -1146,27 +1147,27 @@ pub fn to_screen_rect(rect : @math.Rect, space : UiLayoutSpace) -> @math.Rect {
 }
 
 ///|
-fn top_level_ui_nodes(world~ : @ecs.World) -> Array[@ecs.Entity] {
-  let query_node : @ecs.Query[@ecs.Single[Node]] = world.query()
+fn top_level_ui_nodes(nodes~ : UiNodes) -> Array[@ecs.Entity] {
+  let query_node = nodes.node
   let roots : Array[@ecs.Entity] = []
   for entity, Single(node) in query_node {
-    guard entity.is_alive() else { continue }
+    guard nodes.entities.is_alive(entity) else { continue }
     guard node.active && node.display != None else { continue }
-    match entity.get_parent() {
+    match nodes.hierarchy.parent(entity) {
       Some(parent) => if !query_node.contains(parent) { roots.push(entity) }
       None => roots.push(entity)
     }
   }
-  roots.sort_by((a, b) => compare_ui_root_order(world~, a, b))
+  roots.sort_by((a, b) => compare_ui_root_order(nodes~, a, b))
   roots
 }
 
 ///|
-fn ui_children(world~ : @ecs.World, entity : @ecs.Entity) -> Array[@ecs.Entity] {
-  let query_node : @ecs.Query[@ecs.Single[Node]] = world.query()
+fn ui_children(nodes~ : UiNodes, entity : @ecs.Entity) -> Array[@ecs.Entity] {
+  let query_node = nodes.node
   let children : Array[@ecs.Entity] = []
-  for child in entity.get_children() {
-    if child.is_alive() && query_node.contains(child) {
+  for child in nodes.hierarchy.children(entity) {
+    if nodes.entities.is_alive(child) && query_node.contains(child) {
       children.push(child)
     }
   }
@@ -1174,35 +1175,35 @@ fn ui_children(world~ : @ecs.World, entity : @ecs.Entity) -> Array[@ecs.Entity] 
 }
 
 ///|
-fn is_stacked_ui_entity(world~ : @ecs.World, entity : @ecs.Entity) -> Bool {
-  guard entity.is_alive() &&
-    ui_geometry().contains(entity) &&
-    (world.get_component(entity) : Node?) is Some(node) else {
+fn is_stacked_ui_entity(nodes~ : UiNodes, entity : @ecs.Entity) -> Bool {
+  guard nodes.entities.is_alive(entity) &&
+    nodes.model.geometry.contains(entity) &&
+    nodes.node.get(entity).map(value => value.0) is Some(node) else {
     return false
   }
-  node.active && node.display != None && @visibility.is_visible(entity)
+  node.active && node.display != None && nodes.visibility.is_visible(entity)
 }
 
 ///|
 fn compare_ui_stack_root(
-  world~ : @ecs.World,
+  nodes~ : UiNodes,
   lhs : @ecs.Entity,
   rhs : @ecs.Entity,
 ) -> Int32 {
-  let global_order = global_zindex_value(world~, lhs).compare(
-    global_zindex_value(world~, rhs),
+  let global_order = global_zindex_value(nodes~, lhs).compare(
+    global_zindex_value(nodes~, rhs),
   )
   if global_order != 0 {
     return global_order
   }
-  let local_order = zindex_value(world~, lhs).compare(zindex_value(world~, rhs))
+  let local_order = zindex_value(nodes~, lhs).compare(zindex_value(nodes~, rhs))
   if local_order != 0 {
     return local_order
   }
-  let tree_order = tree_orders()
+  let tree_order = nodes.model.tree_orders
     .get(lhs)
     .unwrap_or(0)
-    .compare(tree_orders().get(rhs).unwrap_or(0))
+    .compare(nodes.model.tree_orders.get(rhs).unwrap_or(0))
   if tree_order != 0 {
     tree_order
   } else {
@@ -1212,18 +1213,18 @@ fn compare_ui_stack_root(
 
 ///|
 fn compare_ui_stack_sibling(
-  world~ : @ecs.World,
+  nodes~ : UiNodes,
   lhs : @ecs.Entity,
   rhs : @ecs.Entity,
 ) -> Int32 {
-  let local_order = zindex_value(world~, lhs).compare(zindex_value(world~, rhs))
+  let local_order = zindex_value(nodes~, lhs).compare(zindex_value(nodes~, rhs))
   if local_order != 0 {
     return local_order
   }
-  let tree_order = tree_orders()
+  let tree_order = nodes.model.tree_orders
     .get(lhs)
     .unwrap_or(0)
-    .compare(tree_orders().get(rhs).unwrap_or(0))
+    .compare(nodes.model.tree_orders.get(rhs).unwrap_or(0))
   if tree_order != 0 {
     tree_order
   } else {
@@ -1232,34 +1233,34 @@ fn compare_ui_stack_sibling(
 }
 
 ///|
-fn rebuild_ui_stack(world~ : @ecs.World) -> Unit {
-  let query_global_z_index : @ecs.Query[@ecs.Single[GlobalZIndex]] = world.query()
-  let ordered = ui_stack()
+fn rebuild_ui_stack(nodes~ : UiNodes) -> Unit {
+  let query_global_z_index = nodes.global_z_index
+  let ordered = nodes.model.ui_stack_entities
   ordered.clear()
   let roots : Array[@ecs.Entity] = []
-  for entity, _ in ui_geometry() {
-    guard is_stacked_ui_entity(world~, entity) else { continue }
-    let hierarchy_root = match entity.get_parent() {
-      Some(parent) => !is_stacked_ui_entity(world~, parent)
+  for entity, _ in nodes.model.geometry {
+    guard is_stacked_ui_entity(nodes~, entity) else { continue }
+    let hierarchy_root = match nodes.hierarchy.parent(entity) {
+      Some(parent) => !is_stacked_ui_entity(nodes~, parent)
       None => true
     }
     if hierarchy_root || query_global_z_index.contains(entity) {
       roots.push(entity)
     }
   }
-  roots.sort_by((a, b) => compare_ui_stack_root(world~, a, b))
+  roots.sort_by((a, b) => compare_ui_stack_root(nodes~, a, b))
   let pending : Array[@ecs.Entity] = []
   for root in roots {
     pending.push(root)
     while pending.pop() is Some(entity) {
       ordered.push(entity)
       let children : Array[@ecs.Entity] = []
-      for child in ui_children(world~, entity) {
+      for child in ui_children(nodes~, entity) {
         guard !query_global_z_index.contains(child) else { continue }
-        guard is_stacked_ui_entity(world~, child) else { continue }
+        guard is_stacked_ui_entity(nodes~, child) else { continue }
         children.push(child)
       }
-      children.sort_by((a, b) => compare_ui_stack_sibling(world~, a, b))
+      children.sort_by((a, b) => compare_ui_stack_sibling(nodes~, a, b))
       let mut index = children.length() - 1
       while index >= 0 {
         pending.push(children[index])
@@ -1306,3 +1307,39 @@ pub fn set_scroll_position(
 pub fn is_focused(entity : @ecs.Entity) -> Bool {
   entity.is_alive() && focuseds().contains(entity)
 }
+
+///|
+/// Read-only geometry produced by the UI layout pass in one World.
+struct UiGeometryView {
+  geometry : @ecs.EntityTable[UiGeometry]
+}
+
+///|
+pub fn UiGeometryView::UiGeometryView(world : @ecs.World) -> UiGeometryView {
+  { geometry: ui_model_world_store(world~).geometry, }
+}
+
+///|
+pub fn UiGeometryView::global_node(
+  self : UiGeometryView,
+  entity : @ecs.Entity,
+) -> GlobalUiNode? {
+  self.geometry.get(entity).map(value => value.global)
+}
+
+///|
+pub fn UiGeometryView::computed_node(
+  self : UiGeometryView,
+  entity : @ecs.Entity,
+) -> ComputedUiNode? {
+  self.geometry.get(entity).map(value => value.computed)
+}
+
+///|
+pub impl @ecs.SystemParam for UiGeometryView with fn prepare(world) {
+  let geometry = UiGeometryView(world)
+  _ => geometry
+}
+
+///|
+pub extend UiGeometryView with @ecs.SystemParam::{prepare}

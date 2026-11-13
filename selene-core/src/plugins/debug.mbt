@@ -15,16 +15,16 @@
 ///|
 pub fn debug_plugin(app : @app.App) -> @app.App {
   let render_prepare = @ecs.SystemSet("render_prepare")
-  let app = add_exclusive_system(
+  let app = add_system(
     app,
-    world => @physics2d.debug_colliders_system(world~, @time.delta()),
+    @ecs.args2(@physics2d.debug_colliders_system),
     RenderPrepare,
     "Debug Collide System",
     in_set=render_prepare,
   )
-  add_exclusive_system(
+  add_system(
     app,
-    world => @physics3d.debug_colliders_system(world~, @time.delta()),
+    @ecs.args3(@physics3d.debug_colliders_system),
     RenderPrepare,
     "Debug Collider3D System",
     in_set=render_prepare,

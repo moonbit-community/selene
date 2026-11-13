@@ -52,9 +52,13 @@ test "CPU skinning with four joint influences" (b : @bench.T) {
       joint_entities: joints,
       inverse_bind_matrices: [],
     })
-    @transform.transform_propagate_system(world~, 0.0)
+    @transform.transform_propagate_system(
+      Entities(world),
+      Hierarchy(world),
+      world.query(),
+    )
     b.bench(name="skin/4096/four-joints", () => {
-      animation_skinning_system(world~, 0.0)
+      animation_skinning_system(AnimationMeshes(world), Transforms(world))
       b.keep(@render3d.mesh_asset(mesh))
     })
     clear_skinned_mesh(target)

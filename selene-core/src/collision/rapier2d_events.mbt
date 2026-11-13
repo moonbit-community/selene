@@ -1,68 +1,76 @@
 ///|
-fn consume_pending_body_actions(entity : @ecs.Entity) -> Unit {
-  pending_body_forces().remove(entity)
-  pending_body_force_points().remove(entity)
-  pending_body_torques().remove(entity)
-  pending_body_impulses().remove(entity)
-  pending_body_impulse_points().remove(entity)
-  pending_body_torque_impulses().remove(entity)
+fn consume_pending_body_actions(
+  physics~ : PhysicsStep2D,
+  entity : @ecs.Entity,
+) -> Unit {
+  physics.runtime.pending_body_forces.remove(entity)
+  physics.runtime.pending_body_force_points.remove(entity)
+  physics.runtime.pending_body_torques.remove(entity)
+  physics.runtime.pending_body_impulses.remove(entity)
+  physics.runtime.pending_body_impulse_points.remove(entity)
+  physics.runtime.pending_body_torque_impulses.remove(entity)
 }
 
 ///|
-fn apply_pending_body_actions(entity : @ecs.Entity) -> Unit {
-  if pending_body_forces().get(entity) is Some(force) {
-    ignore(apply_force_now(entity, force, true))
+fn apply_pending_body_actions(
+  physics~ : PhysicsStep2D,
+  entity : @ecs.Entity,
+) -> Unit {
+  if physics.runtime.pending_body_forces.get(entity) is Some(force) {
+    ignore(apply_force_now(physics~, entity, force, true))
   }
-  if pending_body_force_points().get(entity) is Some(force_points) {
+  if physics.runtime.pending_body_force_points.get(entity) is Some(force_points) {
     for (force, point) in force_points {
-      ignore(apply_force_at_point_now(entity, force, point, true))
+      ignore(apply_force_at_point_now(physics~, entity, force, point, true))
     }
   }
-  if pending_body_torques().get(entity) is Some(torque) {
-    ignore(apply_torque_now(entity, torque, true))
+  if physics.runtime.pending_body_torques.get(entity) is Some(torque) {
+    ignore(apply_torque_now(physics~, entity, torque, true))
   }
-  if pending_body_impulses().get(entity) is Some(impulse) {
-    ignore(apply_impulse_now(entity, impulse, true))
+  if physics.runtime.pending_body_impulses.get(entity) is Some(impulse) {
+    ignore(apply_impulse_now(physics~, entity, impulse, true))
   }
-  if pending_body_impulse_points().get(entity) is Some(impulse_points) {
+  if physics.runtime.pending_body_impulse_points.get(entity)
+    is Some(impulse_points) {
     for (impulse, point) in impulse_points {
-      ignore(apply_impulse_at_point_now(entity, impulse, point, true))
+      ignore(apply_impulse_at_point_now(physics~, entity, impulse, point, true))
     }
   }
-  if pending_body_torque_impulses().get(entity) is Some(torque_impulse) {
-    ignore(apply_torque_impulse_now(entity, torque_impulse, true))
+  if physics.runtime.pending_body_torque_impulses.get(entity)
+    is Some(torque_impulse) {
+    ignore(apply_torque_impulse_now(physics~, entity, torque_impulse, true))
   }
-  consume_pending_body_actions(entity)
+  consume_pending_body_actions(physics~, entity)
 }
 
 ///|
-fn prune_pending_body_state(world~ : @ecs.World) -> Unit {
-  pending_body_rotations().retain((entity, _) => {
-    entity.is_alive() && world_entity(world~, entity)
+fn prune_pending_body_state(physics~ : PhysicsStep2D) -> Unit {
+  physics.runtime.pending_body_rotations.retain((entity, _) => {
+    physics.entities.is_alive(entity) && world_entity(physics~, entity)
   })
-  pending_body_linear_velocities().retain((entity, _) => {
-    entity.is_alive() && world_entity(world~, entity)
+  physics.runtime.pending_body_linear_velocities.retain((entity, _) => {
+    physics.entities.is_alive(entity) && world_entity(physics~, entity)
   })
-  pending_body_angular_velocities().retain((entity, _) => {
-    entity.is_alive() && world_entity(world~, entity)
+  physics.runtime.pending_body_angular_velocities.retain((entity, _) => {
+    physics.entities.is_alive(entity) && world_entity(physics~, entity)
   })
-  pending_body_forces().retain((entity, _) => {
-    entity.is_alive() && world_entity(world~, entity)
+  physics.runtime.pending_body_forces.retain((entity, _) => {
+    physics.entities.is_alive(entity) && world_entity(physics~, entity)
   })
-  pending_body_force_points().retain((entity, _) => {
-    entity.is_alive() && world_entity(world~, entity)
+  physics.runtime.pending_body_force_points.retain((entity, _) => {
+    physics.entities.is_alive(entity) && world_entity(physics~, entity)
   })
-  pending_body_torques().retain((entity, _) => {
-    entity.is_alive() && world_entity(world~, entity)
+  physics.runtime.pending_body_torques.retain((entity, _) => {
+    physics.entities.is_alive(entity) && world_entity(physics~, entity)
   })
-  pending_body_impulses().retain((entity, _) => {
-    entity.is_alive() && world_entity(world~, entity)
+  physics.runtime.pending_body_impulses.retain((entity, _) => {
+    physics.entities.is_alive(entity) && world_entity(physics~, entity)
   })
-  pending_body_impulse_points().retain((entity, _) => {
-    entity.is_alive() && world_entity(world~, entity)
+  physics.runtime.pending_body_impulse_points.retain((entity, _) => {
+    physics.entities.is_alive(entity) && world_entity(physics~, entity)
   })
-  pending_body_torque_impulses().retain((entity, _) => {
-    entity.is_alive() && world_entity(world~, entity)
+  physics.runtime.pending_body_torque_impulses.retain((entity, _) => {
+    physics.entities.is_alive(entity) && world_entity(physics~, entity)
   })
 }
 
@@ -95,12 +103,13 @@ fn body_handle_parts(
 
 ///|
 fn joint_endpoint_handles(
+  physics~ : PhysicsStep2D,
   joint : Joint,
 ) -> (@rapier_dynamics.RigidBodyHandle, @rapier_dynamics.RigidBodyHandle)? {
-  guard physics_world().entity_bodies.get(joint.entity1) is Some(body1) else {
+  guard physics.runtime.world.entity_bodies.get(joint.entity1) is Some(body1) else {
     return None
   }
-  guard physics_world().entity_bodies.get(joint.entity2) is Some(body2) else {
+  guard physics.runtime.world.entity_bodies.get(joint.entity2) is Some(body2) else {
     return None
   }
   if body_handle_parts(body1) == body_handle_parts(body2) {
@@ -231,13 +240,14 @@ fn joint_to_rapier(joint : Joint) -> @rapier_dynamics.GenericJoint? {
 
 ///|
 fn multibody_joint_endpoint_handles(
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
   joint : MultibodyJoint,
 ) -> (@rapier_dynamics.RigidBodyHandle, @rapier_dynamics.RigidBodyHandle)? {
-  guard physics_world().entity_bodies.get(joint.parent) is Some(parent) else {
+  guard physics.runtime.world.entity_bodies.get(joint.parent) is Some(parent) else {
     return None
   }
-  guard physics_world().entity_bodies.get(entity) is Some(child) else {
+  guard physics.runtime.world.entity_bodies.get(entity) is Some(child) else {
     return None
   }
   if body_handle_parts(parent) == body_handle_parts(child) {
@@ -312,140 +322,144 @@ fn multibody_joint_to_rapier(
 }
 
 ///|
-fn should_have_joint(world~ : @ecs.World, entity : @ecs.Entity) -> Bool {
-  entity.is_alive() &&
-  world_entity(world~, entity) &&
-  (world.get_component(entity) : Joint?) is Some(joint) &&
-  joint.entity1.is_alive() &&
-  joint.entity2.is_alive() &&
-  joint_endpoint_handles(joint) is Some(_)
+fn should_have_joint(physics~ : PhysicsStep2D, entity : @ecs.Entity) -> Bool {
+  physics.entities.is_alive(entity) &&
+  world_entity(physics~, entity) &&
+  physics.joint.get(entity).map(value => value.0) is Some(joint) &&
+  physics.entities.is_alive(joint.entity1) &&
+  physics.entities.is_alive(joint.entity2) &&
+  joint_endpoint_handles(physics~, joint) is Some(_)
 }
 
 ///|
-fn remove_joint_physics(entity : @ecs.Entity) -> Unit {
-  if physics_world().entity_joints.get(entity) is Some(handle) &&
-    physics_world().impulse_joints.contains(handle) {
-    physics_world().impulse_joints.remove(handle, true) |> ignore
+fn remove_joint_physics(physics~ : PhysicsStep2D, entity : @ecs.Entity) -> Unit {
+  if physics.runtime.world.entity_joints.get(entity) is Some(handle) &&
+    physics.runtime.world.impulse_joints.contains(handle) {
+    physics.runtime.world.impulse_joints.remove(handle, true) |> ignore
   }
-  physics_world().entity_joints.remove(entity)
-  entity_joint_config_keys().remove(entity)
+  physics.runtime.world.entity_joints.remove(entity)
+  physics.runtime.entity_joint_config_keys.remove(entity)
 }
 
 ///|
 fn should_have_multibody_joint(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
 ) -> Bool {
-  entity.is_alive() &&
-  world_entity(world~, entity) &&
-  (world.get_component(entity) : MultibodyJoint?) is Some(joint) &&
+  physics.entities.is_alive(entity) &&
+  world_entity(physics~, entity) &&
+  physics.multibody_joint.get(entity).map(value => value.0) is Some(joint) &&
   joint.active &&
-  joint.parent.is_alive() &&
-  multibody_joint_endpoint_handles(entity, joint) is Some(_)
+  physics.entities.is_alive(joint.parent) &&
+  multibody_joint_endpoint_handles(physics~, entity, joint) is Some(_)
 }
 
 ///|
-fn remove_multibody_joint_physics(entity : @ecs.Entity) -> Unit {
-  if physics_world().entity_multibody_joints.get(entity) is Some(handle) &&
-    physics_world().multibody_joints.get(handle) is Some(_) {
-    physics_world().multibody_joints.remove(handle, true)
+fn remove_multibody_joint_physics(
+  physics~ : PhysicsStep2D,
+  entity : @ecs.Entity,
+) -> Unit {
+  if physics.runtime.world.entity_multibody_joints.get(entity) is Some(handle) &&
+    physics.runtime.world.multibody_joints.get(handle) is Some(_) {
+    physics.runtime.world.multibody_joints.remove(handle, true)
   }
-  physics_world().entity_multibody_joints.remove(entity)
-  entity_multibody_joint_config_keys().remove(entity)
+  physics.runtime.world.entity_multibody_joints.remove(entity)
+  physics.runtime.entity_multibody_joint_config_keys.remove(entity)
 }
 
 ///|
-fn sync_world_joints(world~ : @ecs.World) -> Unit {
-  let query_joint : @ecs.Query[@ecs.Single[Joint]] = world.query()
-  let stale = physics_world().entity_joints
+fn sync_world_joints(physics~ : PhysicsStep2D) -> Unit {
+  let query_joint = physics.joint
+  let stale = physics.runtime.world.entity_joints
     .iter()
     .filter(pair => {
       let (entity, handle) = pair
-      !should_have_joint(world~, entity) ||
-      !physics_world().impulse_joints.contains(handle)
+      !should_have_joint(physics~, entity) ||
+      !physics.runtime.world.impulse_joints.contains(handle)
     })
     .map(pair => pair.0)
     .collect()
   for entity in stale {
-    remove_joint_physics(entity)
+    remove_joint_physics(physics~, entity)
   }
 
-  for entity in @ecs.iter_entities() {
-    guard world_entity(world~, entity) else { continue }
+  for entity in physics.entities.iter() {
+    guard world_entity(physics~, entity) else { continue }
     guard query_joint.get(entity).map(value => value.0) is Some(joint) else {
-      remove_joint_physics(entity)
+      remove_joint_physics(physics~, entity)
       continue
     }
-    guard joint_endpoint_handles(joint) is Some((body1, body2)) else {
-      remove_joint_physics(entity)
+    guard joint_endpoint_handles(physics~, joint) is Some((body1, body2)) else {
+      remove_joint_physics(physics~, entity)
       continue
     }
     guard joint_to_rapier(joint) is Some(rapier_joint) else {
-      remove_joint_physics(entity)
+      remove_joint_physics(physics~, entity)
       continue
     }
     let config_key = EntityJointConfigKey(joint, body1, body2)
-    if physics_world().entity_joints.get(entity) is Some(handle) &&
-      physics_world().impulse_joints.contains(handle) &&
-      entity_joint_config_keys().get(entity) == Some(config_key) {
+    if physics.runtime.world.entity_joints.get(entity) is Some(handle) &&
+      physics.runtime.world.impulse_joints.contains(handle) &&
+      physics.runtime.entity_joint_config_keys.get(entity) == Some(config_key) {
       continue
     }
-    remove_joint_physics(entity)
-    let handle = physics_world().impulse_joints.insert(
+    remove_joint_physics(physics~, entity)
+    let handle = physics.runtime.world.impulse_joints.insert(
       body1, body2, rapier_joint, true,
     )
-    physics_world().entity_joints.set(entity, handle)
-    entity_joint_config_keys().set(entity, config_key)
+    physics.runtime.world.entity_joints.set(entity, handle)
+    physics.runtime.entity_joint_config_keys.set(entity, config_key)
   }
 }
 
 ///|
-fn sync_world_multibody_joints(world~ : @ecs.World) -> Unit {
-  let query_multibody_joint : @ecs.Query[@ecs.Single[MultibodyJoint]] = world.query()
-  let stale = physics_world().entity_multibody_joints
+fn sync_world_multibody_joints(physics~ : PhysicsStep2D) -> Unit {
+  let query_multibody_joint = physics.multibody_joint
+  let stale = physics.runtime.world.entity_multibody_joints
     .iter()
     .filter(pair => {
       let (entity, handle) = pair
-      !should_have_multibody_joint(world~, entity) ||
-      physics_world().multibody_joints.get(handle) is None
+      !should_have_multibody_joint(physics~, entity) ||
+      physics.runtime.world.multibody_joints.get(handle) is None
     })
     .map(pair => pair.0)
     .collect()
   for entity in stale {
-    remove_multibody_joint_physics(entity)
+    remove_multibody_joint_physics(physics~, entity)
   }
 
-  for entity in @ecs.iter_entities() {
-    guard world_entity(world~, entity) else { continue }
+  for entity in physics.entities.iter() {
+    guard world_entity(physics~, entity) else { continue }
     guard query_multibody_joint.get(entity).map(value => value.0) is Some(joint) else {
-      remove_multibody_joint_physics(entity)
+      remove_multibody_joint_physics(physics~, entity)
       continue
     }
-    guard multibody_joint_endpoint_handles(entity, joint)
+    guard multibody_joint_endpoint_handles(physics~, entity, joint)
       is Some((parent, child)) else {
-      remove_multibody_joint_physics(entity)
+      remove_multibody_joint_physics(physics~, entity)
       continue
     }
     guard multibody_joint_to_rapier(joint) is Some(rapier_joint) else {
-      remove_multibody_joint_physics(entity)
+      remove_multibody_joint_physics(physics~, entity)
       continue
     }
     let config_key = entity_multibody_joint_config_key(
       entity, joint, parent, child,
     )
-    if physics_world().entity_multibody_joints.get(entity) is Some(handle) &&
-      physics_world().multibody_joints.get(handle) is Some(_) &&
-      entity_multibody_joint_config_keys().get(entity) == Some(config_key) {
+    if physics.runtime.world.entity_multibody_joints.get(entity) is Some(handle) &&
+      physics.runtime.world.multibody_joints.get(handle) is Some(_) &&
+      physics.runtime.entity_multibody_joint_config_keys.get(entity) ==
+      Some(config_key) {
       continue
     }
-    remove_multibody_joint_physics(entity)
-    guard physics_world().multibody_joints.insert(
+    remove_multibody_joint_physics(physics~, entity)
+    guard physics.runtime.world.multibody_joints.insert(
         parent, child, rapier_joint, true,
       )
       is Some(handle) else {
       continue
     }
-    physics_world().entity_multibody_joints.set(entity, handle)
-    entity_multibody_joint_config_keys().set(entity, config_key)
+    physics.runtime.world.entity_multibody_joints.set(entity, handle)
+    physics.runtime.entity_multibody_joint_config_keys.set(entity, config_key)
   }
 }

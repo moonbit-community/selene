@@ -217,11 +217,6 @@ fn reset_pixeladventure_world_store() -> Unit {
 }
 
 ///|
-fn ui_click_reader() -> @event.EventReader[@ui.UiClickEvent] {
-  pixeladventure_world_state().click_reader
-}
-
-///|
 fn SpriteAnimationDef::SpriteAnimationDef(
   image : @asset.ImageHandle,
   frame_count : Int32,
@@ -381,3 +376,16 @@ let enemy_collision_group : @physics2d.CollisionGroup = CollisionGroup()
 
 ///|
 let trigger_collision_group : @physics2d.CollisionGroup = CollisionGroup()
+
+///|
+priv struct UiClicks {
+  events : @event.EventReaderView[@ui.UiClickEvent]
+}
+
+///|
+impl @ecs.SystemParam for UiClicks with fn prepare(_world) {
+  world => {
+    let runtime : PixelAdventureWorldState = world.resource()
+    { events: runtime.click_reader.bind(world, @ui.click_event_bus), }
+  }
+}

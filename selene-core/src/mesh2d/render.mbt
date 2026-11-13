@@ -4,27 +4,26 @@ fn centered_quad_transform(size : @math.Vec2) -> @math.Affine2 {
 }
 
 ///|
-pub fn render_mesh2d_system(world~ : @ecs.World, delta : Double) -> Unit {
-  let meshes : @ecs.Query[
-    (Mesh2d, @material2d.MeshMaterial2d, @transform.Spatial),
-  ] = world.query()
-  ignore(delta)
-  let camera_views = @camera.active_camera2d_views(world~)
-  let camera_extract = @culling2d.CameraExtract2dContext(camera_views)
+pub fn render_mesh2d_system(
+  frame : @render2d.Frame2D,
+  meshes : @ecs.Query[(Mesh2d, @material2d.MeshMaterial2d, @transform.Spatial)],
+  view : @render2d.RenderView2D,
+) -> Unit {
+  let camera_views = view.camera_views()
   for entity, (mesh, material_node, spatial) in meshes {
-    guard entity.is_alive() else { continue }
-    guard @visibility.is_visible(entity) else { continue }
+    guard view.is_alive(entity) else { continue }
+    guard view.is_visible(entity) else { continue }
     let global_transform = spatial.global()
     guard mesh2d_asset(mesh.mesh) is Some(mesh_asset) else { continue }
     let material = match material_node.material {
       Color(handle) => @material2d.color_material(handle)
     }
     guard material is Some(material) else { continue }
-    let sorting = @render2d.entity_sorting2d(world~, entity)
+    let sorting = view.sorting_for(entity)
     let depth = @render2d.sort_depth_for_transform(global_transform, sorting)
     let translation = global_transform.translation()
     let base_pos = @math.Vec2(translation.x, translation.y)
-    let parallax = @parallax2d.inherited_parallax2d(world~, entity)
+    let parallax = view.parallax_for(entity)
     if camera_views.is_empty() {
       let screen_pos = @parallax2d.parallax_world_position(
         base_pos,
@@ -32,12 +31,13 @@ pub fn render_mesh2d_system(world~ : @ecs.World, delta : Double) -> Unit {
         None,
       )
       push_mesh2d_draw_command(
+        frame,
         entity,
         mesh_asset,
         material,
         depth,
-        @camera.pixel_snapped_position(@window.scale_vec2(screen_pos)),
-        @camera.camera_screen_transform(global_transform, None),
+        @camera.pixel_snapped_position(view.scale_position(screen_pos)),
+        view.screen_transform(global_transform, None),
         None,
         sorting,
       )
@@ -53,10 +53,9 @@ pub fn render_mesh2d_system(world~ : @ecs.World, delta : Double) -> Unit {
       world_pos,
       @camera.world_transform_2d(global_transform),
     )
-    let camera_views_for_entity = camera_extract.camera_views_for_bounds(
-      world~,
+    let camera_views_for_entity = view.camera_views_for_bounds(
       world_bounds,
-      @visibility.entity_render_layers(world~, entity),
+      view.layers_for(entity),
       @parallax2d.parallax_depends_on_camera(parallax),
     )
     if camera_views_for_entity.is_empty() {
@@ -71,13 +70,14 @@ pub fn render_mesh2d_system(world~ : @ecs.World, delta : Double) -> Unit {
       let screen_position = @camera.pixel_snapped_position(
         camera_view.world_to_viewport(raw_pos),
       )
-      let screen_transform = @camera.camera_screen_transform(
+      let screen_transform = view.screen_transform(
         global_transform,
         Some(camera_view),
       )
       let bounds = mesh2d_bounds(mesh_asset, screen_position, screen_transform)
       guard camera_view.intersects_screen_rect(bounds) else { continue }
       push_mesh2d_draw_command(
+        frame,
         entity,
         mesh_asset,
         material,
@@ -93,6 +93,7 @@ pub fn render_mesh2d_system(world~ : @ecs.World, delta : Double) -> Unit {
 
 ///|
 fn push_mesh2d_draw_command(
+  frame : @render2d.Frame2D,
   entity : @ecs.Entity,
   mesh_asset : Mesh2dAsset,
   material : @material2d.ColorMaterial,
@@ -120,18 +121,18 @@ fn push_mesh2d_draw_command(
           }
           match camera_entity_id {
             Some(camera_entity_id) =>
-              @render2d.push_image_with_depth_to_camera(
-                camera_entity_id,
-                depth,
-                command,
-                entity_id=Some(entity.id()),
-                sorting~,
-              )
-            None =>
-              @render2d.push_image_with_depth_for_entity(
+              frame.push_world_command(
                 depth,
                 Some(entity.id()),
-                command,
+                Image(command),
+                sorting~,
+                camera_entity_id=Some(camera_entity_id),
+              )
+            None =>
+              frame.push_world_command(
+                depth,
+                Some(entity.id()),
+                Image(command),
                 sorting~,
               )
           }
@@ -147,18 +148,18 @@ fn push_mesh2d_draw_command(
           }
           match camera_entity_id {
             Some(camera_entity_id) =>
-              @render2d.push_rect_with_depth_to_camera(
-                camera_entity_id,
-                depth,
-                command,
-                entity_id=Some(entity.id()),
-                sorting~,
-              )
-            None =>
-              @render2d.push_rect_with_depth_for_entity(
+              frame.push_world_command(
                 depth,
                 Some(entity.id()),
-                command,
+                Rect(command),
+                sorting~,
+                camera_entity_id=Some(camera_entity_id),
+              )
+            None =>
+              frame.push_world_command(
+                depth,
+                Some(entity.id()),
+                Rect(command),
                 sorting~,
               )
           }
@@ -177,18 +178,18 @@ fn push_mesh2d_draw_command(
       }
       match camera_entity_id {
         Some(camera_entity_id) =>
-          @render2d.push_circle_with_depth_to_camera(
-            camera_entity_id,
-            depth,
-            command,
-            entity_id=Some(entity.id()),
-            sorting~,
-          )
-        None =>
-          @render2d.push_circle_with_depth_for_entity(
+          frame.push_world_command(
             depth,
             Some(entity.id()),
-            command,
+            Circle(command),
+            sorting~,
+            camera_entity_id=Some(camera_entity_id),
+          )
+        None =>
+          frame.push_world_command(
+            depth,
+            Some(entity.id()),
+            Circle(command),
             sorting~,
           )
       }

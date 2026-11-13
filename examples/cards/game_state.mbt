@@ -246,6 +246,9 @@ fn GameState::GameState() -> GameState {
 
 ///|
 priv struct CardsGame {
+  consumption : @ui.PointerConsumption
+  display : @window.Display
+  clicks : @event.EventReaderView[@ui.UiClickEvent]
   runtime : CardsRuntime
   texts : @ecs.Query[@ecs.Single[@ui.Text]]
   nodes : @ecs.Query[@ecs.Single[@ui.Node]]
@@ -255,6 +258,11 @@ priv struct CardsGame {
 ///|
 fn CardsGame::CardsGame(world : @ecs.World) -> CardsGame {
   {
+    consumption: PointerConsumption(world),
+    display: Display(world),
+    clicks: (world.resource() : CardsRuntime).click_reader.bind(
+      world, @ui.click_event_bus,
+    ),
     runtime: world.resource(),
     texts: world.query1(),
     nodes: world.query1(),
@@ -264,6 +272,8 @@ fn CardsGame::CardsGame(world : @ecs.World) -> CardsGame {
 
 ///|
 impl @ecs.SystemParam for CardsGame with fn prepare(world) {
+  let consumption = @ui.PointerConsumption(world)
+  let display = @window.Display(world)
   let fetch : (@ecs.World) -> (
     @ecs.Res[CardsRuntime],
     @ecs.Query[@ecs.Single[@ui.Text]],
@@ -272,7 +282,15 @@ impl @ecs.SystemParam for CardsGame with fn prepare(world) {
   ) = @ecs.SystemParam::prepare(world)
   world => {
     let (runtime, texts, nodes, commands) = fetch(world)
-    { runtime: runtime.get(), texts, nodes, commands, }
+    {
+      consumption,
+      display,
+      runtime: runtime.get(),
+      texts,
+      nodes,
+      commands,
+      clicks: runtime.get().click_reader.bind(world, @ui.click_event_bus),
+    }
   }
 }
 

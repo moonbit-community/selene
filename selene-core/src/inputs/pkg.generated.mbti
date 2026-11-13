@@ -2,8 +2,10 @@
 package "Milky2018/selene/inputs"
 
 import {
+  "Milky2018/selene/ecs",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
+  "Milky2018/selene/time",
   "moonbitlang/core/debug",
   "moonbitlang/core/set",
 }
@@ -11,15 +13,15 @@ import {
 // Values
 pub fn active_touches() -> Map[TouchId, TouchPoint]
 
-pub fn advanced_gamepad_system() -> Unit
+pub fn advanced_gamepad_system(GamepadInput, InputEvents) -> Unit
 
-pub fn advanced_key_system() -> Unit
+pub fn advanced_key_system(InputEvents) -> Unit
 
-pub fn advanced_mouse_system() -> Unit
+pub fn advanced_mouse_system(InputEvents) -> Unit
 
-pub fn advanced_pointer_system() -> Unit
+pub fn advanced_pointer_system(InputEvents) -> Unit
 
-pub fn advanced_touch_system(Double) -> Unit
+pub fn advanced_touch_system(@time.Time, InputEvents) -> Unit
 
 pub fn apply_input_snapshot(InputSnapshot) -> Unit
 
@@ -302,6 +304,19 @@ pub struct GamepadConnectionEvent {
   gamepad : Gamepad
   connected : Bool
 }
+
+type GamepadInput
+pub fn GamepadInput::GamepadInput(@ecs.World) -> Self
+pub fn GamepadInput::axis_value(Self, Gamepad, GamepadAxis) -> Double
+pub fn GamepadInput::button_just_pressed(Self, Gamepad, GamepadButton) -> Bool
+pub fn GamepadInput::button_pressed(Self, Gamepad, GamepadButton) -> Bool
+pub fn GamepadInput::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for GamepadInput
+
+type InputEvents
+pub fn InputEvents::InputEvents(@ecs.World) -> Self
+pub fn InputEvents::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for InputEvents
 
 pub(all) struct InputSnapshot {
   pressed_keys : @set.Set[Code]

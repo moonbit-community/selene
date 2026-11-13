@@ -49,7 +49,10 @@ pub fn clear_all_action_bindings() -> Unit {
 }
 
 ///|
-fn binding_value(binding : InputBinding) -> Double {
+fn binding_value(
+  gamepads : @inputs.GamepadInput,
+  binding : InputBinding,
+) -> Double {
   match binding {
     Key(code) => if @inputs.is_pressed(code) { 1.0 } else { 0.0 }
     Mouse(button) => if @inputs.is_mouse_pressed(button) { 1.0 } else { 0.0 }
@@ -67,14 +70,14 @@ fn binding_value(binding : InputBinding) -> Double {
         positive,
       )
     GamepadButton(gamepad, button) =>
-      if @inputs.is_gamepad_button_pressed(gamepad, button) {
+      if gamepads.button_pressed(gamepad, button) {
         1.0
       } else {
         0.0
       }
     GamepadAxis(gamepad, axis, dead_zone~, positive~) =>
       axis_value_with_dead_zone(
-        @inputs.gamepad_axis_value(gamepad, axis),
+        gamepads.axis_value(gamepad, axis),
         dead_zone,
         positive,
       )

@@ -26,10 +26,10 @@ pub extend SceneInstanceReadyEvent with Eq::{not_equal, equal}
 let scene_instances_key : @ecs.ResourceKey[@ecs.EntityTable[SceneHandle]] = ResourceKey()
 
 ///|
-fn scene_instances() -> @ecs.EntityTable[SceneHandle] {
-  scene_instances_key.get_or_insert_with(@ecs.require_current_world(), world => {
-    EntityTable(world)
-  })
+fn scene_instances(
+  world~ : @ecs.World = @ecs.require_current_world(),
+) -> @ecs.EntityTable[SceneHandle] {
+  scene_instances_key.get_or_insert_with(world, world => EntityTable(world))
 }
 
 ///|
@@ -96,7 +96,26 @@ pub fn scene_of(root : @ecs.Entity) -> SceneHandle? {
 }
 
 ///|
-pub fn scene_spawner_cleanup_system() -> Unit {
-  let world = @ecs.require_current_world()
-  scene_instances().retain((entity, _) => entity.is_valid_in(world))
+pub fn scene_spawner_cleanup_system(instances : SceneInstances) -> Unit {
+  instances.entries.retain((entity, _) => instances.entities.is_valid(entity))
 }
+
+///|
+struct SceneInstances {
+  entries : @ecs.EntityTable[SceneHandle]
+  entities : @ecs.Entities
+}
+
+///|
+pub fn SceneInstances::SceneInstances(world : @ecs.World) -> SceneInstances {
+  { entries: scene_instances(world~), entities: Entities(world), }
+}
+
+///|
+pub impl @ecs.SystemParam for SceneInstances with fn prepare(world) {
+  let instances = SceneInstances(world)
+  _ => instances
+}
+
+///|
+pub extend SceneInstances with @ecs.SystemParam::{prepare}

@@ -4,6 +4,11 @@
 
 ### Added
 
+- Add read-only `Entities` and `Hierarchy` system parameters for World-bound
+  lifecycle and fixed-tree queries, including generation checks.
+- Add bound event reader views and writers, explicit timer queues, physics
+  results, UI geometry, and render frame parameters for system helpers.
+
 - Add typed `Assets[T]` collections and `Handle[T]`, with independent resource
   construction, registration, replacement, and removal. Embedded images, fonts,
   and audio are used directly without hand-maintained path catalogues.
@@ -58,6 +63,13 @@
   updates in long-running Worlds with a fixed live population.
 
 ### Changed
+
+- Migrate engine and example systems to injected queries and resources,
+  including their input, UI, physics, audio, animation, and rendering helpers.
+  Retain explicit World access for dynamic animation fields and importers,
+  along with existing active-World convenience APIs.
+- Keep prepared 2D frame buffers stable across resets and bind event maintenance
+  to each World's registry.
 
 - Keep the complete Pages site in `page/`, with each example loading an
   adjacent `web.js`. Build and copy the three game bundles, then deploy `page/`

@@ -349,10 +349,10 @@ fn collect_targets_by_player(
 ) -> @ecs.EntityTable[Map[AnimationTargetId, @ecs.Entity]] {
   let query_animated_by : @ecs.Query[@ecs.Single[AnimatedBy]] = world.query()
   let targets_by_player : @ecs.EntityTable[Map[AnimationTargetId, @ecs.Entity]] = EntityTable(
-    @ecs.require_current_world(),
+    world,
   )
-  for entity in @ecs.iter_entities() {
-    guard entity.is_alive() else { continue }
+  for entity in world.iter_entities() {
+    guard world.is_alive(entity) else { continue }
     let player = query_animated_by
       .get(entity)
       .map_or(entity, fn(binding) { binding.player })

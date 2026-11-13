@@ -1,16 +1,20 @@
 ///|
-fn sync_impulse_joints_to_rapier(world~ : @ecs.World) -> Unit {
-  let query_impulse_joint : @ecs.Query[@ecs.Single[ImpulseJoint]] = world.query()
-  let physics_world = physics3d_world()
+fn sync_impulse_joints_to_rapier(physics~ : PhysicsStep3D) -> Unit {
+  let query_impulse_joint = physics.impulse_joint
+  let physics_world = physics.runtime.world
   physics_world.impulse_joints = JointSet3DReal()
   physics_world.rope_joints = RopeJointSet3DReal()
-  impulse_joint_handles().clear()
+  physics.runtime.impulse_joint_handles.clear()
   for entity, Single(impulse_joint) in query_impulse_joint {
-    if !entity.is_alive() || !impulse_joint.parent.is_alive() {
+    if !physics.entities.is_alive(entity) ||
+      !physics.entities.is_alive(impulse_joint.parent) {
       continue
     }
-    guard body_handles().get(entity) is Some(body_handle) else { continue }
-    guard body_handles().get(impulse_joint.parent) is Some(parent_handle) else {
+    guard physics.runtime.body_handles.get(entity) is Some(body_handle) else {
+      continue
+    }
+    guard physics.runtime.body_handles.get(impulse_joint.parent)
+      is Some(parent_handle) else {
       continue
     }
     match impulse_joint.data {
@@ -24,7 +28,7 @@ fn sync_impulse_joints_to_rapier(world~ : @ecs.World) -> Unit {
           ),
           true,
         )
-        impulse_joint_handles().set(entity, handle)
+        physics.runtime.impulse_joint_handles.set(entity, handle)
       }
       Revolute(joint) => {
         let handle = physics_world.impulse_joints.insert_generic(
@@ -36,7 +40,7 @@ fn sync_impulse_joints_to_rapier(world~ : @ecs.World) -> Unit {
           ),
           true,
         )
-        impulse_joint_handles().set(entity, handle)
+        physics.runtime.impulse_joint_handles.set(entity, handle)
       }
       Prismatic(joint) => {
         let handle = physics_world.impulse_joints.insert_generic(
@@ -48,7 +52,7 @@ fn sync_impulse_joints_to_rapier(world~ : @ecs.World) -> Unit {
           ),
           true,
         )
-        impulse_joint_handles().set(entity, handle)
+        physics.runtime.impulse_joint_handles.set(entity, handle)
       }
       Spherical(joint) => {
         let handle = physics_world.impulse_joints.insert_generic(
@@ -69,7 +73,7 @@ fn sync_impulse_joints_to_rapier(world~ : @ecs.World) -> Unit {
             Float::from_double(damping),
           )
         }
-        impulse_joint_handles().set(entity, handle)
+        physics.runtime.impulse_joint_handles.set(entity, handle)
       }
       Spring(joint) => {
         let handle = physics_world.impulse_joints.insert_generic(
@@ -81,7 +85,7 @@ fn sync_impulse_joints_to_rapier(world~ : @ecs.World) -> Unit {
           ),
           true,
         )
-        impulse_joint_handles().set(entity, handle)
+        physics.runtime.impulse_joint_handles.set(entity, handle)
       }
       Rope(joint) => {
         let handle = physics_world.impulse_joints.insert_generic(
@@ -93,24 +97,28 @@ fn sync_impulse_joints_to_rapier(world~ : @ecs.World) -> Unit {
           ),
           true,
         )
-        impulse_joint_handles().set(entity, handle)
+        physics.runtime.impulse_joint_handles.set(entity, handle)
       }
     }
   }
 }
 
 ///|
-fn sync_multibody_joints_to_rapier(world~ : @ecs.World) -> Unit {
-  let query_multibody_joint : @ecs.Query[@ecs.Single[MultibodyJoint]] = world.query()
-  let physics_world = physics3d_world()
+fn sync_multibody_joints_to_rapier(physics~ : PhysicsStep3D) -> Unit {
+  let query_multibody_joint = physics.multibody_joint
+  let physics_world = physics.runtime.world
   physics_world.multibody_joints = MultibodyJointSet3DReal()
-  multibody_joint_handles().clear()
+  physics.runtime.multibody_joint_handles.clear()
   for entity, Single(multibody_joint) in query_multibody_joint {
-    if !entity.is_alive() || !multibody_joint.parent.is_alive() {
+    if !physics.entities.is_alive(entity) ||
+      !physics.entities.is_alive(multibody_joint.parent) {
       continue
     }
-    guard body_handles().get(entity) is Some(child_handle) else { continue }
-    guard body_handles().get(multibody_joint.parent) is Some(parent_handle) else {
+    guard physics.runtime.body_handles.get(entity) is Some(child_handle) else {
+      continue
+    }
+    guard physics.runtime.body_handles.get(multibody_joint.parent)
+      is Some(parent_handle) else {
       continue
     }
     if child_handle.into_raw_parts() == parent_handle.into_raw_parts() {
@@ -127,24 +135,22 @@ fn sync_multibody_joints_to_rapier(world~ : @ecs.World) -> Unit {
         parent_handle, child_handle, rapier_joint, true,
       )
       is Some(handle) {
-      multibody_joint_handles().set(entity, handle)
+      physics.runtime.multibody_joint_handles.set(entity, handle)
     }
   }
 }
 
 ///|
-fn sync_character_controllers(world~ : @ecs.World, delta : Double) -> Unit {
-  let query_collider : @ecs.Query[@ecs.Single[Collider]] = world.query()
-  let query_kinematic_character_controller : @ecs.Query[
-    @ecs.Single[KinematicCharacterController],
-  ] = world.query()
+fn sync_character_controllers(physics~ : PhysicsStep3D, delta : Double) -> Unit {
+  let query_collider = physics.collider
+  let query_kinematic_character_controller = physics.kinematic_character_controller
   if delta <= 0.0 {
     return
   }
-  let physics_world = physics3d_world()
+  let physics_world = physics.runtime.world
   let dt = Float::from_double(delta)
   for entity, Single(controller) in query_kinematic_character_controller {
-    if !entity.is_alive() {
+    if !physics.entities.is_alive(entity) {
       continue
     }
     let desired_translation = controller.translation.unwrap_or(
@@ -157,17 +163,17 @@ fn sync_character_controllers(world~ : @ecs.World, delta : Double) -> Unit {
       is_sliding_down_slope: false,
     }
     guard query_collider.get(entity).map(value => value.0) is Some(shape) else {
-      kinematic_character_controller_outputs().set(entity, output)
-      controller_collisions().set(
+      physics.runtime.controller_outputs.set(entity, output)
+      physics.runtime.controller_collisions.set(
         entity,
         KinematicCharacterControllerCollisions(),
       )
       continue
     }
     let query_filter = { ..QueryFilter::all(), exclude_entity: Some(entity), }
-    let query = make_query_pipeline(query_filter~)
+    let query = make_query_pipeline(physics~, query_filter~)
     let rapier_controller = controller_to_rapier(controller)
-    guard current_world_transform(world~, entity) is Some(transform) else {
+    guard current_world_transform(physics~, entity) is Some(transform) else {
       continue
     }
     let (query_shape, shape_rotation) = to_query_shape_with_rotation(
@@ -201,15 +207,15 @@ fn sync_character_controllers(world~ : @ecs.World, delta : Double) -> Unit {
       )
     }
     let effective_translation = vec3_from_rapier(movement.translation())
-    kinematic_character_controller_outputs().set(entity, {
+    physics.runtime.controller_outputs.set(entity, {
       desired_translation,
       effective_translation,
       grounded: movement.is_grounded(),
       is_sliding_down_slope: movement.is_sliding_down_slope(),
     })
-    controller_collisions().set(entity, {
+    physics.runtime.controller_collisions.set(entity, {
       collisions: rapier_collisions.map(collision => {
-        entity: resolve_collider_entity(collision.handle()),
+        entity: resolve_collider_entity(physics~, collision.handle()),
         character_translation_applied: vec3_from_rapier(
           collision.translation_applied(),
         ),
@@ -221,26 +227,30 @@ fn sync_character_controllers(world~ : @ecs.World, delta : Double) -> Unit {
       }),
     })
     apply_character_controller_translation(
-      world~,
+      physics~,
       entity,
       effective_translation,
       delta,
     )
-    world.set_component(
+    physics.kinematic_character_controller.set(
       entity,
-      ({ ..controller, translation: None, } : KinematicCharacterController),
+      Single(
+        ({ ..controller, translation: None, } : KinematicCharacterController),
+      ),
     )
   }
 }
 
 ///|
 fn sync_collider_to_rapier(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep3D,
   entity : @ecs.Entity,
   collider_desc : ColliderDesc,
 ) -> Unit {
-  let physics_world = physics3d_world()
-  guard collider_handles().get(entity) is Some(handle) else { return }
+  let physics_world = physics.runtime.world
+  guard physics.runtime.collider_handles.get(entity) is Some(handle) else {
+    return
+  }
   guard physics_world.colliders.get_mut(handle) is Some(collider) else {
     return
   }
@@ -252,9 +262,9 @@ fn sync_collider_to_rapier(
   let solver_groups = interaction_groups(solver.memberships, solver.filters)
   let active_events = effective_active_events(collider_desc)
 
-  match attached_rigid_body_entity(world~, entity) {
+  match attached_rigid_body_entity(physics~, entity) {
     Some(body_entity) =>
-      match body_handles().get(body_entity) {
+      match physics.runtime.body_handles.get(body_entity) {
         Some(parent_handle) => {
           let mut parent_changed = true
           match collider.parent() {
@@ -272,7 +282,7 @@ fn sync_collider_to_rapier(
               physics_world.bodies,
             )
           }
-          guard collider_transform(world~, entity, Some(body_entity))
+          guard collider_transform(physics~, entity, Some(body_entity))
             is Some(relative_transform) else {
             return
           }
@@ -283,13 +293,13 @@ fn sync_collider_to_rapier(
             ),
           )
         }
-        None => set_standalone_collider_position(world~, collider, entity)
+        None => set_standalone_collider_position(physics~, collider, entity)
       }
     None => {
       if collider.parent() is Some(_) {
         physics_world.colliders.set_parent(handle, None, physics_world.bodies)
       }
-      set_standalone_collider_position(world~, collider, entity)
+      set_standalone_collider_position(physics~, collider, entity)
     }
   }
 
@@ -308,9 +318,9 @@ fn sync_collider_to_rapier(
 }
 
 ///|
-fn ensure_rigid_body(world~ : @ecs.World, entity : @ecs.Entity) -> Unit {
-  let physics_world = physics3d_world()
-  let body_handles = body_handles()
+fn ensure_rigid_body(physics~ : PhysicsStep3D, entity : @ecs.Entity) -> Unit {
+  let physics_world = physics.runtime.world
+  let body_handles = physics.runtime.body_handles
   if body_handles.get(entity) is Some(handle) {
     if physics_world.bodies.get(handle) is Some(_) {
       return
@@ -318,8 +328,8 @@ fn ensure_rigid_body(world~ : @ecs.World, entity : @ecs.Entity) -> Unit {
     body_handles.remove(entity)
   }
 
-  let body_desc = rigid_body_desc(world~, entity)
-  guard current_world_transform(world~, entity) is Some(transform) else {
+  let body_desc = rigid_body_desc(physics~, entity)
+  guard current_world_transform(physics~, entity) is Some(transform) else {
     return
   }
   let mut builder = match body_desc.body_type {
@@ -361,14 +371,14 @@ fn ensure_rigid_body(world~ : @ecs.World, entity : @ecs.Entity) -> Unit {
 
 ///|
 fn ensure_collider(
-  world~ : @ecs.World,
+  physics~ : PhysicsStep3D,
   entity : @ecs.Entity,
   collider_desc : ColliderDesc,
 ) -> Unit {
-  let physics_world = physics3d_world()
-  let body_handles = body_handles()
-  let collider_handles = collider_handles()
-  let collider_entities_by_key = collider_entities_by_key()
+  let physics_world = physics.runtime.world
+  let body_handles = physics.runtime.body_handles
+  let collider_handles = physics.runtime.collider_handles
+  let collider_entities_by_key = physics.runtime.collider_entities_by_key
   if collider_handles.get(entity) is Some(handle) {
     if physics_world.colliders.get(handle) is Some(_) {
       return
@@ -378,8 +388,8 @@ fn ensure_collider(
   }
 
   let mut builder = collider_builder_from_desc(collider_desc)
-  let body_entity = attached_rigid_body_entity(world~, entity)
-  guard collider_transform(world~, entity, body_entity) is Some(transform) else {
+  let body_entity = attached_rigid_body_entity(physics~, entity)
+  guard collider_transform(physics~, entity, body_entity) is Some(transform) else {
     return
   }
   builder = builder

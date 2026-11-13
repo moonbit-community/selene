@@ -3,7 +3,7 @@ test "survivors touch controls feed movement actions" {
   configure_survivors_input()
   @inputs.set_virtual_axis_value(VirtualAxis("survivors.move-x"), 0.75)
   @inputs.set_virtual_axis_value(VirtualAxis("survivors.move-y"), -0.5)
-  @input_action.input_action_system()
+  @input_action.input_action_system(InputActions(@ecs.require_current_world()))
   inspect(
     @input_action.action_value(survivors_move_right_action()),
     content="0.75",

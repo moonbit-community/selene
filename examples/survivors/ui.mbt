@@ -324,7 +324,7 @@ fn setup_level_up_ui(ui~ : SurvivorsUi) -> Unit {
 ///|
 fn level_up(ui~ : SurvivorsUi, level : Int32) -> Unit {
   let runtime = ui.runtime
-  @time.set_scale(0.0)
+  ui.time.set_scale(0.0)
   let panel = ui.game().level_up_panel
 
   panel.available_selections = generate_level_up_selections(ui~, level)
@@ -382,7 +382,7 @@ fn resume_game(ui~ : SurvivorsUi) -> Unit {
   hide_level_up_ui(ui~)
 
   if ui.game().pending_level_ups.is_empty() {
-    @time.set_scale(1.0)
+    ui.time.set_scale(1.0)
   } else {
     process_next_level_up(ui~)
   }
@@ -424,7 +424,7 @@ fn add_game_over_box(ui~ : SurvivorsUi) -> Unit {
 ///|
 fn survivors_ui_pointer_system(ui : SurvivorsUi) -> Unit {
   let runtime = ui.runtime
-  for event in @ui.click_event_bus.read(runtime.ui_click_reader) {
+  for event in ui.clicks.read() {
     if runtime.restart_button is Some(restart_button) &&
       event.entity == restart_button {
       restart_game()
@@ -441,6 +441,10 @@ fn survivors_ui_pointer_system(ui : SurvivorsUi) -> Unit {
 
 ///|
 priv struct SurvivorsUi {
+  clicks : @event.EventReaderView[@ui.UiClickEvent]
+  enemy_contacts : @event.EventReaderView[@physics2d.ContactEvent]
+  enemy_triggers : @event.EventReaderView[@physics2d.TriggerEvent]
+  bullet_triggers : @event.EventReaderView[@physics2d.TriggerEvent]
   runtime : SurvivorsRuntime
   texts : @ecs.Query[@ecs.Single[@ui.Text]]
   colors : @ecs.Query[@ecs.Single[@ui.TextColor]]
@@ -449,13 +453,26 @@ priv struct SurvivorsUi {
   images : @ecs.Query[@ecs.Single[@ui.UiImage]]
   backgrounds : @ecs.Query[@ecs.Single[@ui.BackgroundColor]]
   commands : @ecs.Commands
+  time : @time.Time
+  timers : @time.Timers
 }
 
 ///|
 fn SurvivorsUi::SurvivorsUi(world : @ecs.World) -> SurvivorsUi {
   ignore(game_state(world~))
+  let runtime : SurvivorsRuntime = world.resource()
   {
-    runtime: world.resource(),
+    clicks: runtime.ui_click_reader.bind(world, @ui.click_event_bus),
+    enemy_contacts: runtime.enemy_contact_event_reader.bind(
+      world, @physics2d.contact_event_bus,
+    ),
+    enemy_triggers: runtime.enemy_trigger_event_reader.bind(
+      world, @physics2d.trigger_event_bus,
+    ),
+    bullet_triggers: runtime.player_bullet_trigger_event_reader.bind(
+      world, @physics2d.trigger_event_bus,
+    ),
+    runtime,
     texts: world.query1(),
     colors: world.query1(),
     nodes: world.query1(),
@@ -463,11 +480,17 @@ fn SurvivorsUi::SurvivorsUi(world : @ecs.World) -> SurvivorsUi {
     images: world.query1(),
     backgrounds: world.query1(),
     commands: @ecs.commands(world),
+    time: Time(world),
+    timers: Timers(world),
   }
 }
 
 ///|
 impl @ecs.SystemParam for SurvivorsUi with fn prepare(world) {
+  let fetch_time : (@ecs.World) -> @time.Time = @ecs.SystemParam::prepare(world)
+  let fetch_timers : (@ecs.World) -> @time.Timers = @ecs.SystemParam::prepare(
+    world,
+  )
   let fetch : (@ecs.World) -> (
     @ecs.Res[SurvivorsRuntime],
     @ecs.Query[@ecs.Single[@ui.Text]],
@@ -483,6 +506,16 @@ impl @ecs.SystemParam for SurvivorsUi with fn prepare(world) {
       world,
     )
     {
+      clicks: runtime.get().ui_click_reader.bind(world, @ui.click_event_bus),
+      enemy_contacts: runtime.get().enemy_contact_event_reader.bind(
+        world, @physics2d.contact_event_bus,
+      ),
+      enemy_triggers: runtime.get().enemy_trigger_event_reader.bind(
+        world, @physics2d.trigger_event_bus,
+      ),
+      bullet_triggers: runtime.get().player_bullet_trigger_event_reader.bind(
+        world, @physics2d.trigger_event_bus,
+      ),
       runtime: runtime.get(),
       texts,
       colors,
@@ -491,6 +524,8 @@ impl @ecs.SystemParam for SurvivorsUi with fn prepare(world) {
       images,
       backgrounds,
       commands,
+      time: fetch_time(world),
+      timers: fetch_timers(world),
     }
   }
 }
