@@ -1,7 +1,8 @@
 # Selene Pages
 
-This directory contains the site's landing page. Example pages and assets live
-in `examples/`.
+This directory is the complete GitHub Pages site. Example pages, screenshots,
+and other static images live in `examples/`; game assets are embedded in the
+compiled JavaScript.
 
 ## Build
 
@@ -10,8 +11,13 @@ Run these commands from the repository root:
 ```bash
 moon update
 moon build --target js --release
-python3 -m http.server 8000
+for game in cards pixeladventure survivors; do
+  cp "_build/js/release/build/Milky2018/selene-examples-web/$game/web/web.js" "page/examples/$game/web.js"
+done
+python3 -m http.server --directory page 8000
 ```
 
-Open `http://localhost:8000/examples/index.html`. The Pages workflow copies the
-landing page, examples, and compiled JavaScript into the deployment directory.
+Open `http://localhost:8000/` or `http://localhost:8000/examples/`.
+Each game page loads its adjacent `web.js`, which is ignored by Git.
+The Pages workflow uses the same build and copy commands, then publishes this
+directory directly.

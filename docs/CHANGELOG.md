@@ -59,6 +59,9 @@
 
 ### Changed
 
+- Keep the complete Pages site in `page/`, with each example loading an
+  adjacent `web.js`. Build and copy the three game bundles, then deploy `page/`
+  directly without collecting a separate staging directory.
 - Embed example game assets with `moonbit-community/embed` through `dev_build`
   and route WebGPU image, font, and audio loading through the embedded data.
   Remove the network preloader, asset manifests, and `moonbitlang/x` dependency.

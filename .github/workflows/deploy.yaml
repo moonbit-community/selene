@@ -3,20 +3,15 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main    
+      - main
   workflow_dispatch:
 
 permissions:
-  contents: write   
-  pages: write
-  id-token: write
+  contents: write
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      MOONBIT_INSTALL_VERSION: latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -25,25 +20,16 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s latest
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
-      - name: Build project
+      - name: Build Pages
         run: |
           moon update
           moon build --target js --release --deny-warn
-
-      - name: Collect Pages files
-        run: |
-          site="$RUNNER_TEMP/selene-pages"
-          mkdir -p "$site"
-          cp page/index.html "$site/index.html"
-          cp -R --parents \
-            examples/index.html \
-            examples/*/index.html examples/*/screenshot.png \
-            examples/pixeladventure/assets/pixeladventure/arrowkey.png \
-            _build/js/release/build/Milky2018/selene-examples-web/*/web/web.js \
-            "$site"
+          for game in cards pixeladventure survivors; do
+            cp "_build/js/release/build/Milky2018/selene-examples-web/$game/web/web.js" "page/examples/$game/web.js"
+          done
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ${{ runner.temp }}/selene-pages
+          publish_dir: page

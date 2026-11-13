@@ -1,7 +1,6 @@
 .DS_Store
 __pycache__/
-page/examples/
-page/assets/
+/page/examples/*/web.js
 todo.md
 
 .mooncakes/

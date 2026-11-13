@@ -14,7 +14,6 @@ dev_build(
     "../assets/pixeladventure/Menu/Buttons/Volume.png",
     "../assets/pixeladventure/Menu/Buttons/VolumeOff.png",
     "../assets/pixeladventure/Terrain/Terrain (16x16).png",
-    "../assets/pixeladventure/arrowkey.png",
     "../assets/pixeladventure/sounds/coin.wav",
     "../assets/pixeladventure/sounds/hurt.wav",
     "../assets/pixeladventure/sounds/jump.wav",

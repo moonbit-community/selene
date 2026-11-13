@@ -16,10 +16,10 @@ To try a change in the browser:
 
 ```sh
 moon build --target js --release
-python3 -m http.server 8000
 ```
 
-Open <http://localhost:8000/examples/index.html>.
+Follow the [Pages preview instructions](page/README.md) to copy the generated
+JavaScript and serve `page/`.
 See the [README](README.md) for package roles and tutorials.
 
 ## Changes and pull requests

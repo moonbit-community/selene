@@ -50,7 +50,7 @@ This chapter shows how to build a complete platformer-style game with Selene and
 
 The game we will build looks like this:
 
-![](../examples/pixeladventure/screenshot.png)
+![](../page/examples/pixeladventure/screenshot.png)
 
 In the following process, we will build:
 
@@ -421,19 +421,20 @@ fn volume_button_input_system(_world : @ecs.World) -> Unit {
 Build command:
 
 ```shell
-moon -C examples-web build ./pixeladventure/web --target js --release
+moon build examples-web/pixeladventure/web --target js --release
+cp _build/js/release/build/Milky2018/selene-examples-web/pixeladventure/web/web.js page/examples/pixeladventure/web.js
 ```
 
-Then use `examples/pixeladventure/index.html`, which references:
+Then use `page/examples/pixeladventure/index.html`, which references:
 
 ```html
-<script src="../../_build/js/release/build/Milky2018/selene-examples-web/pixeladventure/web/web.js" defer></script>
+<script src="web.js" defer></script>
 ```
 
-Run the local server from the repository root:
+Run the local server from the repository root, serving the Pages directory:
 
 ```shell
-python3 -m http.server 8000
+python3 -m http.server --directory page 8000
 ```
 
 Open `http://localhost:8000/examples/pixeladventure/` to play.
