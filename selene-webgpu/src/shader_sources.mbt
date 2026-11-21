@@ -11,6 +11,7 @@ fn webgpu_shader_sources() -> Array[String] {
     webgpu_shader_shadow_sampling_source(),
     webgpu_shader3d_lit_color_source(),
     webgpu_shader3d_lit_texture_source(),
+    webgpu_shader2d_rect_inst_source(),
   ]
 }
 
@@ -33,6 +34,48 @@ fn webgpu_shader2d_color_source() -> String {
     #|  let ny = 1.0 - (v.pos.y / u_canvas.size.y) * 2.0;
     #|  o.pos = vec4<f32>(nx, ny, 0.0, 1.0);
     #|  o.color = v.color;
+    #|  return o;
+    #|}
+    #|@fragment fn fs_main(v: VSOut) -> @location(0) vec4<f32> {
+    #|  return v.color;
+    #|}
+    #|
+  )
+}
+
+///| Instance-rect 2D shader. Each instance is a compact 5-float rect
+///| `(x, y, w, h, paletteIndex)` split into two storage buffers, so callers
+///| avoid expanding six vertices per rectangle in JS.
+fn webgpu_shader2d_rect_inst_source() -> String {
+  (
+    #|struct CanvasUniform { size: vec2<f32>, _pad: vec2<f32> };
+    #|@group(0) @binding(0) var<uniform> u_canvas: CanvasUniform;
+    #|@group(0) @binding(1) var<storage, read> u_rects: array<vec4<f32>>;
+    #|@group(0) @binding(2) var<storage, read> u_colors: array<f32>;
+    #|@group(0) @binding(3) var<storage, read> u_palette: array<vec4<f32>>;
+    #|struct VSOut {
+    #|  @builtin(position) pos: vec4<f32>,
+    #|  @location(0) color: vec4<f32>,
+    #|};
+    #|@vertex fn vs_main(
+    #|  @builtin(vertex_index) vertex_index: u32,
+    #|  @builtin(instance_index) instance_index: u32,
+    #|) -> VSOut {
+    #|  var o: VSOut;
+    #|  let r = u_rects[instance_index];
+    #|  let corners = array<vec2<f32>, 6>(
+    #|    vec2<f32>(r.x, r.y),
+    #|    vec2<f32>(r.x + r.z, r.y),
+    #|    vec2<f32>(r.x + r.z, r.y + r.w),
+    #|    vec2<f32>(r.x, r.y),
+    #|    vec2<f32>(r.x + r.z, r.y + r.w),
+    #|    vec2<f32>(r.x, r.y + r.w),
+    #|  );
+    #|  let p = corners[vertex_index];
+    #|  let nx = (p.x / u_canvas.size.x) * 2.0 - 1.0;
+    #|  let ny = 1.0 - (p.y / u_canvas.size.y) * 2.0;
+    #|  o.pos = vec4<f32>(nx, ny, 0.0, 1.0);
+    #|  o.color = u_palette[i32(u_colors[instance_index])];
     #|  return o;
     #|}
     #|@fragment fn fs_main(v: VSOut) -> @location(0) vec4<f32> {
