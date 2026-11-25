@@ -1,6 +1,6 @@
 ///|
 fn cleanup_layout_test_entity(entity : @ecs.Entity) -> Unit {
-  ignore(@ecs_test.delete(entity))
+  ignore(@ecs_test.despawn(entity))
 }
 
 ///|
@@ -401,7 +401,7 @@ test "ui target camera layouts use the camera viewport as screen-space origin" {
   inspect(global.target_camera == Some(camera), content="true")
 
   cleanup_layout_test_entity(entity)
-  ignore(@ecs_test.delete(camera))
+  ignore(@ecs_test.despawn(camera))
 }
 
 ///|

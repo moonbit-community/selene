@@ -606,7 +606,7 @@ test "canceled scene subtrees release their cloned meshes" {
     ignore(@render3d.take_dirty_mesh_assets())
     ignore(@render3d.take_released_mesh_assets())
     let parent = @ecs.commands(world).spawn(())
-    @ecs.commands(world).delete(parent)
+    @ecs.commands(world).despawn(parent)
     let instance = instantiate_scene_instance(
       scene,
       @transform.Transform::identity(),

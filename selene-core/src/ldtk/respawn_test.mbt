@@ -18,7 +18,7 @@ test "respawn requests are changed through operations and queried per entity" {
   @ecs.set_current_world(second)
   assert_false(@ldtk.is_ldtk_respawn_requested(entity))
   @ecs.set_current_world(first)
-  assert_true(@ecs_test.delete(entity))
+  assert_true(@ecs_test.despawn(entity))
   let replacement = @ecs_test.spawn(first, ())
   assert_eq(entity.slot_index(), replacement.slot_index())
   assert_false(@ldtk.is_ldtk_respawn_requested(entity))

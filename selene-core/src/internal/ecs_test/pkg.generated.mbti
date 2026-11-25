@@ -6,9 +6,9 @@ import {
 }
 
 // Values
-pub fn delete(@ecs.Entity) -> Bool
+pub fn despawn(@ecs.Entity) -> Bool
 
-pub fn destroy(@ecs.Entity) -> Unit
+pub fn disable(@ecs.Entity) -> Unit
 
 pub fn[T : @ecs.Bundle] spawn(@ecs.World, T, parent? : @ecs.Entity) -> @ecs.Entity
 

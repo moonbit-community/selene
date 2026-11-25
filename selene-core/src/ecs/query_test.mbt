@@ -33,7 +33,7 @@ test "component queries report a permanently deleted handle as removed" {
   assert_eq(reader.read(query).added, [(old, Single(Position(10)))])
   @ecs.Schedule()
   .add_exclusive_system(_ => {
-    @ecs.commands(@ecs.require_current_world()).delete(old)
+    @ecs.commands(@ecs.require_current_world()).despawn(old)
   })
   .run(world)
   let replacement = @ecs_test.spawn1(world, Position(20))
@@ -113,7 +113,7 @@ test "panic point writes reject a deleted generation after slot reuse" {
   let old = @ecs_test.spawn1(world, Position(1))
   @ecs.Schedule()
   .add_exclusive_system(_ => {
-    @ecs.commands(@ecs.require_current_world()).delete(old)
+    @ecs.commands(@ecs.require_current_world()).despawn(old)
   })
   .run(world)
   ignore(@ecs_test.spawn1(world, Position(2)))
@@ -233,7 +233,7 @@ test "query snapshots survive deletion and slot reuse explicitly" {
   let snapshot = query.to_array()
   @ecs.Schedule()
   .add_exclusive_system(_ => {
-    @ecs.commands(@ecs.require_current_world()).delete(deleted)
+    @ecs.commands(@ecs.require_current_world()).despawn(deleted)
     ignore(@ecs.commands(world).spawn1(Position(3)))
     world.set_component(first, Position(10))
   })
@@ -380,7 +380,7 @@ test "panic iter2 rejects deletion and reuse before reading the replacement" {
   let replacement = Ref(None)
   @ecs.Schedule()
   .add_exclusive_system(_ => {
-    @ecs.commands(@ecs.require_current_world()).delete(first)
+    @ecs.commands(@ecs.require_current_world()).despawn(first)
   })
   .run(world)
   replacement.val = Some(@ecs_test.spawn1(world, Position(3)))
@@ -397,7 +397,7 @@ test "panic keys rejects deletion before advancing linked order entries" {
   @ecs.Schedule()
   .add_exclusive_system(_ => {
     let entity = query.single().unwrap().0
-    @ecs.commands(@ecs.require_current_world()).delete(entity)
+    @ecs.commands(@ecs.require_current_world()).despawn(entity)
   })
   .run(world)
   ignore(keys.next())
@@ -479,7 +479,7 @@ test "panic a query cannot point-write a recycled generation" {
   let commands = @ecs.commands(world)
   let entity = commands.spawn1(Position(1))
   @ecs.Schedule().run(world)
-  commands.delete(entity)
+  commands.despawn(entity)
   @ecs.Schedule().run(world)
   ignore(commands.spawn1(Position(2)))
   @ecs.Schedule().run(world)

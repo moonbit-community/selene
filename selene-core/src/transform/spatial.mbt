@@ -125,7 +125,6 @@ pub fn Transforms::global_transform(
   self : Transforms,
   entity : @ecs.Entity,
 ) -> GlobalTransform? {
-  guard self.entities.is_alive(entity) else { None }
   self.spatials.get(entity).map(value => value.0.global())
 }
 

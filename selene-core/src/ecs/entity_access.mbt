@@ -54,7 +54,9 @@ pub fn Hierarchy::Hierarchy(world : World) -> Hierarchy {
 
 ///|
 pub fn Hierarchy::parent(self : Hierarchy, entity : Entity) -> Entity? {
-  guard entity.world_id == self.world_id else { None }
+  guard entity.world_id == self.world_id && self.store.is_alive(entity) else {
+    None
+  }
   match self.store.archetypes.slot(entity) {
     Some(slot) => slot.parent
     None => None
@@ -63,10 +65,16 @@ pub fn Hierarchy::parent(self : Hierarchy, entity : Entity) -> Entity? {
 
 ///|
 pub fn Hierarchy::children(self : Hierarchy, entity : Entity) -> Array[Entity] {
-  guard entity.world_id == self.world_id else { [] }
+  guard entity.world_id == self.world_id && self.store.is_alive(entity) else {
+    []
+  }
   self.store.archetypes
   .slot(entity)
-  .map_or([], slot => slot.children.map_or([], children => children.copy()))
+  .map_or([], slot => {
+    slot.children.map_or([], children => {
+      children.filter(child => self.store.is_alive(child))
+    })
+  })
 }
 
 ///|

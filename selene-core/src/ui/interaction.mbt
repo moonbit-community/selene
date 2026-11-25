@@ -455,7 +455,6 @@ fn update_relative_cursor_positions(
   let query_node = input.nodes
   let query_relative_cursor_position = input.cursor_positions
   for entity, Single(relative) in query_relative_cursor_position {
-    guard input.entities.is_alive(entity) else { continue }
     guard query_node.get(entity).map(value => value.0) is Some(node) else {
       relative.normalized = None
       relative.cursor_over = false
@@ -872,12 +871,10 @@ pub fn ui_interaction_system(input : UiInput) -> Unit {
   }
 
   for entity, Single(_button) in query_button {
-    if input.entities.is_alive(entity) {
-      input.model.interactions.set(
-        entity,
-        interaction_state(input~, entity, visual_hover),
-      )
-    }
+    input.model.interactions.set(
+      entity,
+      interaction_state(input~, entity, visual_hover),
+    )
   }
 }
 

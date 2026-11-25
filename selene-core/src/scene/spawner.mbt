@@ -77,7 +77,7 @@ pub fn SceneSpawner::spawn(
 
 ///|
 pub fn despawn_scene(root : @ecs.Entity) -> Unit {
-  @ecs.commands(@ecs.require_current_world()).delete(root)
+  @ecs.commands(@ecs.require_current_world()).despawn(root)
   scene_instances().remove(root)
 }
 
@@ -85,7 +85,7 @@ pub fn despawn_scene(root : @ecs.Entity) -> Unit {
 pub fn despawn_all_scenes() -> Unit {
   let roots = scene_instances().keys().collect()
   for root in roots {
-    @ecs.commands(@ecs.require_current_world()).delete(root)
+    @ecs.commands(@ecs.require_current_world()).despawn(root)
   }
   scene_instances().clear()
 }

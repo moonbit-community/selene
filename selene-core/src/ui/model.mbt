@@ -1151,7 +1151,6 @@ fn top_level_ui_nodes(nodes~ : UiNodes) -> Array[@ecs.Entity] {
   let query_node = nodes.node
   let roots : Array[@ecs.Entity] = []
   for entity, Single(node) in query_node {
-    guard nodes.entities.is_alive(entity) else { continue }
     guard node.active && node.display != None else { continue }
     match nodes.hierarchy.parent(entity) {
       Some(parent) => if !query_node.contains(parent) { roots.push(entity) }
@@ -1167,7 +1166,7 @@ fn ui_children(nodes~ : UiNodes, entity : @ecs.Entity) -> Array[@ecs.Entity] {
   let query_node = nodes.node
   let children : Array[@ecs.Entity] = []
   for child in nodes.hierarchy.children(entity) {
-    if nodes.entities.is_alive(child) && query_node.contains(child) {
+    if query_node.contains(child) {
       children.push(child)
     }
   }
@@ -1176,8 +1175,7 @@ fn ui_children(nodes~ : UiNodes, entity : @ecs.Entity) -> Array[@ecs.Entity] {
 
 ///|
 fn is_stacked_ui_entity(nodes~ : UiNodes, entity : @ecs.Entity) -> Bool {
-  guard nodes.entities.is_alive(entity) &&
-    nodes.model.geometry.contains(entity) &&
+  guard nodes.model.geometry.contains(entity) &&
     nodes.node.get(entity).map(value => value.0) is Some(node) else {
     return false
   }

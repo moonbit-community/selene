@@ -15,7 +15,6 @@ pub fn debug_colliders_system(
 ) -> Unit {
   let query_collider = physics.collider
   for entity, Single(collider) in query_collider {
-    guard physics.entities.is_alive(entity) else { continue }
     guard physics.transforms.global_transform(entity) is Some(global) else {
       continue
     }

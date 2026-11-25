@@ -22,12 +22,16 @@ test "commands reserve and flush entities in the queue's world" {
   @ecs.set_current_world(second)
   assert_true(entity.is_alive())
   @ecs.set_current_world(first)
-  commands.despawn(entity)
+  commands.disable(entity)
   @ecs.Schedule().run(second)
   assert_true(active.is_alive())
   @ecs.set_current_world(second)
   assert_false(entity.is_alive())
-  assert_eq(components.get(entity).map(value => value.0), Some(Position(30)))
+  assert_eq(components.get(entity), None)
+  assert_eq(
+    components.including_inactive().get(entity),
+    Some(Single(Position(30))),
+  )
 }
 
 ///|
@@ -78,12 +82,12 @@ test "permanent commands remove pending entities and recycle their slots" {
   let queue = @ecs.commands(world)
   let components : @ecs.Query[@ecs.Single[Position]] = world.query()
   let pending = queue.spawn1(Position(99))
-  assert_true(@ecs_test.delete(pending))
+  assert_true(@ecs_test.despawn(pending))
   let entity = @ecs_test.spawn1(world, Position(10))
   assert_eq(entity.slot_index(), pending.slot_index())
   @ecs.Schedule().run(world)
   assert_eq(components.get(entity).map(value => value.0), Some(Position(10)))
-  queue.delete(entity)
+  queue.despawn(entity)
   @ecs.Schedule().run(world)
   assert_false(entity.is_valid_in(world))
   assert_eq(components.get(entity).map(value => value.0), None)
@@ -104,7 +108,7 @@ test "deferred children link in spawn order and cancel if their parent is delete
   let first = queue.spawn((), parent~)
   let second = queue.spawn((), parent~)
   let deleted = queue.spawn(())
-  queue.delete(deleted)
+  queue.despawn(deleted)
   let canceled = queue.spawn((), parent=deleted)
   assert_eq(first.get_parent(), None)
   @ecs.Schedule().run(world)
@@ -124,22 +128,23 @@ test "panic deferred spawn rejects a parent in another World" {
 }
 
 ///|
-test "despawning a newly initialized parent also suspends its pending child" {
+test "disabling a newly initialized parent also suspends its pending child" {
   let world = @ecs.World()
   let queue = @ecs.commands(world)
   let values : @ecs.Query[@ecs.Single[Position]] = world.query()
   let parent = queue.spawn(())
   let child = queue.spawn1(Position(42), parent~)
-  queue.despawn(parent)
+  queue.disable(parent)
   @ecs.Schedule().run(world)
   let alive = @ecs.alive_in_world(world)
   assert_false(alive(parent))
   assert_false(alive(child))
-  assert_eq(values.get(child).map(value => value.0), Some(Position(42)))
+  assert_eq(values.get(child), None)
+  assert_eq(values.including_inactive().get(child), Some(Single(Position(42))))
 
   @ecs.Schedule()
   .add_exclusive_system(_ => {
-    @ecs.commands(@ecs.require_current_world()).respawn(parent)
+    @ecs.commands(@ecs.require_current_world()).enable(parent)
   })
   .run(world)
   assert_true(alive(parent))
@@ -191,15 +196,16 @@ test "draft commands preserve pending parent order and later value writes" {
   assert_eq(query.get(child), Some(Single(Position(3))))
   assert_eq(world.get_parent(child), Some(parent))
   assert_eq(world.get_children(parent), [child])
-  queue.despawn(parent)
+  queue.disable(parent)
   assert_true(world.is_alive(child))
   @ecs.Schedule().run(world)
   assert_false(world.is_alive(child))
-  assert_true(query.contains(child))
-  queue.respawn(parent)
+  assert_false(query.contains(child))
+  assert_true(query.including_inactive().contains(child))
+  queue.enable(parent)
   @ecs.Schedule().run(world)
   assert_true(world.is_alive(child))
-  queue.delete(parent)
+  queue.despawn(parent)
   assert_true(child.is_valid_in(world))
   @ecs.Schedule().run(world)
   assert_false(parent.is_valid_in(world))

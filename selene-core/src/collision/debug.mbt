@@ -46,7 +46,6 @@ pub fn debug_collide_system(
   let cameras = scene.view.camera_views()
   let camera_view = cameras.get(cameras.length() - 1)
   for e, Single(collide) in query_collider {
-    guard scene.view.is_alive(e) else { continue }
     guard collide.active else { continue }
     guard! query_collision_shape.get(e).map(value => value.0) is Some(shape)
     guard! shape is Rect(size~, offset~)
@@ -68,7 +67,6 @@ pub fn debug_collide_system(
     )
   }
   for e, Single(area) in query_area {
-    guard scene.view.is_alive(e) else { continue }
     guard area.active else { continue }
     guard query_collision_shape.get(e).map(value => value.0) is Some(shape) else {
       continue
@@ -92,7 +90,6 @@ pub fn debug_collide_system(
     )
   }
   for e, Single(_pickable) in query_pickable {
-    guard scene.view.is_alive(e) else { continue }
     guard query_collision_shape.get(e).map(value => value.0) is Some(shape) else {
       continue
     }

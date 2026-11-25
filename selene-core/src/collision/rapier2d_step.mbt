@@ -429,9 +429,6 @@ fn update_area_contains(
     return
   }
   guard area.active else { return }
-  if !physics.entities.is_alive(other) {
-    return
-  }
   guard physics.collider.get(other).map(value => value.0)
     is Some(other_collider) else {
     return
@@ -457,10 +454,6 @@ fn prune_area_contains(physics~ : PhysicsStep2D) -> Unit {
     let stale : Array[@ecs.Entity] = []
     for other in area.contains {
       if !area.active {
-        stale.push(other)
-        continue
-      }
-      if !physics.entities.is_alive(other) {
         stale.push(other)
         continue
       }
@@ -499,7 +492,6 @@ fn process_trigger_events(physics~ : PhysicsStep2D) -> Unit {
     physics.runtime.world.colliders,
   )
   for area_entity, Single(area) in query_area {
-    guard physics.entities.is_alive(area_entity) else { continue }
     if !area.active {
       clear_area_contains(physics~, area_entity, area)
       continue
@@ -623,7 +615,6 @@ fn rapier_fixed_step(physics~ : PhysicsStep2D, delta : Double) -> Unit {
     physics.runtime.world.colliders,
   )
   for entity, Single(velocity) in query_velocity {
-    guard physics.entities.is_alive(entity) else { continue }
     let body_type = entity_rigid_body(physics~, entity).body_type
     guard body_type is KinematicPositionBased else { continue }
     let displacement = velocity.0.scalar_mul(delta)

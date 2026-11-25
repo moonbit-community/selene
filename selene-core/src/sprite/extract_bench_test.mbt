@@ -52,17 +52,9 @@ test "sprite CPU extraction and transform propagation" (b : @bench.T) {
         RenderView2D(world),
       )
     })
-    @transform.transform_propagate_system(
-      Entities(world),
-      Hierarchy(world),
-      world.query(),
-    )
+    @transform.transform_propagate_system(Hierarchy(world), world.query())
     b.bench(name="transform-propagate/n=\{size}", count=10, () => {
-      @transform.transform_propagate_system(
-        Entities(world),
-        Hierarchy(world),
-        world.query(),
-      )
+      @transform.transform_propagate_system(Hierarchy(world), world.query())
     })
   }
 }

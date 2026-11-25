@@ -14,19 +14,17 @@
 
 ///|
 pub fn transform_propagate_system(
-  entities : @ecs.Entities,
   hierarchy : @ecs.Hierarchy,
   spatials : @ecs.Query[@ecs.Single[Spatial]],
 ) -> Unit {
   for entity in hierarchy.roots() {
-    propagate_spatial(hierarchy, entities, entity, None, spatials)
+    propagate_spatial(hierarchy, entity, None, spatials)
   }
 }
 
 ///|
 fn propagate_spatial(
   hierarchy : @ecs.Hierarchy,
-  entities : @ecs.Entities,
   entity : @ecs.Entity,
   parent_global : GlobalTransform?,
   spatials : @ecs.Query[@ecs.Single[Spatial]],
@@ -44,8 +42,6 @@ fn propagate_spatial(
     None => parent_global
   }
   for child in hierarchy.children(entity) {
-    if entities.is_alive(child) {
-      propagate_spatial(hierarchy, entities, child, global, spatials)
-    }
+    propagate_spatial(hierarchy, child, global, spatials)
   }
 }

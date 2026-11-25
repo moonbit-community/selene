@@ -496,16 +496,10 @@ fn ensure_bodies_and_colliders(physics~ : PhysicsStep3D) -> Unit {
   let query_rigid_body = physics.rigid_body
   let query_collider = physics.collider
   for entity, _ in query_rigid_body {
-    if !physics.entities.is_alive(entity) {
-      continue
-    }
     ensure_rigid_body(physics~, entity)
   }
 
   for entity, Single(collider) in query_collider {
-    if !physics.entities.is_alive(entity) {
-      continue
-    }
     ensure_collider(physics~, entity, collider_desc(physics~, entity, collider))
   }
 }
@@ -516,9 +510,6 @@ fn sync_components_to_rapier(physics~ : PhysicsStep3D) -> Unit {
   let query_collider = physics.collider
   let physics_world = physics.runtime.world
   for entity, _ in query_rigid_body {
-    if !physics.entities.is_alive(entity) {
-      continue
-    }
     guard physics.runtime.body_handles.get(entity) is Some(handle) else {
       continue
     }
@@ -549,9 +540,6 @@ fn sync_components_to_rapier(physics~ : PhysicsStep3D) -> Unit {
   }
 
   for entity, Single(collider) in query_collider {
-    if !physics.entities.is_alive(entity) {
-      continue
-    }
     sync_collider_to_rapier(
       physics~,
       entity,

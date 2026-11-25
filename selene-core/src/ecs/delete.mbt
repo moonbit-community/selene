@@ -2,7 +2,7 @@
 /// Permanently deletes this entity and its descendants in the active World.
 /// Removes archetype rows, invalidates the handles, and recycles their slots.
 /// Queue deletion through commands when traversing an archetype query.
-fn Entity::delete(self : Entity) -> Bool {
+fn Entity::despawn(self : Entity) -> Bool {
   let world = require_current_world()
   guard self.belongs_to(world) else { false }
   let store = entity_store(world~)
@@ -23,7 +23,7 @@ fn Entity::delete(self : Entity) -> Bool {
       store.archetypes.remove_entity_row(entity, id, row)
     }
     if store.all_entities.contains(entity) {
-      if slot.state is Some(Alive) || slot.state is Some(PendingRespawn) {
+      if slot.state is Some(Alive) {
         store.alive_count -= 1
       }
       store.all_entities.remove(entity)

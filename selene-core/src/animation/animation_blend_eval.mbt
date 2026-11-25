@@ -352,7 +352,6 @@ fn collect_targets_by_player(
     world,
   )
   for entity in world.iter_entities() {
-    guard world.is_alive(entity) else { continue }
     let player = query_animated_by
       .get(entity)
       .map_or(entity, fn(binding) { binding.player })

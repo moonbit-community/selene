@@ -1,5 +1,4 @@
 import {
-  "moonbitlang/async",
   "moonbitlang/async/fs",
   "moonbitlang/async/stdio",
   "moonbitlang/core/env",
@@ -11,3 +10,7 @@ import {
 pkgtype(kind: "executable")
 
 supported_targets = "wasm"
+
+import {
+  "moonbitlang/async",
+} for "wbtest"

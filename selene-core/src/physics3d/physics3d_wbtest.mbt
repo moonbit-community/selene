@@ -1212,7 +1212,7 @@ test "character contacts expose snapshots instead of mutable output storage" {
       kinematic_character_controller_collisions(entity).unwrap().collisions.length(),
       1,
     )
-    ignore(@ecs_test.delete(entity))
+    ignore(@ecs_test.despawn(entity))
     let replacement = @ecs_test.spawn(world, ())
     assert_true(kinematic_character_controller_collisions(entity) is None)
     assert_true(kinematic_character_controller_collisions(replacement) is None)

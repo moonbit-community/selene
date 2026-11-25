@@ -11,7 +11,7 @@ fn with_ui_interaction_test_world(
 
 ///|
 fn cleanup_interaction_test_entity(entity : @ecs.Entity) -> Unit {
-  ignore(@ecs_test.delete(entity))
+  ignore(@ecs_test.despawn(entity))
 }
 
 ///|

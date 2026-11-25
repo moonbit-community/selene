@@ -148,7 +148,7 @@ fn finish_audio_sink(playback : AudioPlayback, entity : @ecs.Entity) -> Unit {
     }
     Despawn => {
       playback.runtime.sinks.remove(entity)
-      playback.commands.delete(entity)
+      playback.commands.despawn(entity)
     }
   }
 }
@@ -220,10 +220,7 @@ pub fn audio_playback_system(
   cleanup_orphaned_audio(playback, instance => @platform_audio.stop(instance~))
   let runtime = playback.runtime
   for entity, Single(player) in players {
-    guard playback.entities.is_alive(entity) &&
-      !runtime.overrides.contains(entity) else {
-      continue
-    }
+    guard !runtime.overrides.contains(entity) else { continue }
     update_audio_playback(
       playback,
       entity,

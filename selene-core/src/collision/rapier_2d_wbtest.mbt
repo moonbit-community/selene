@@ -38,7 +38,7 @@ fn collision_test_cleanup(
   entities : Array[@ecs.Entity],
 ) -> Unit {
   for entity in entities {
-    ignore(@ecs_test.delete(entity))
+    ignore(@ecs_test.despawn(entity))
   }
   rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
   try! @ecs.Schedule().run(@ecs.require_current_world())
@@ -485,7 +485,7 @@ test "impulse joints are removed when endpoints disappear" {
   rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
   inspect(joint_handle(joint_entity) is Some(_), content="true")
 
-  ignore(@ecs_test.delete(body_b))
+  ignore(@ecs_test.despawn(body_b))
 
   rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
 
@@ -656,7 +656,7 @@ test "multibody joints are removed when endpoints disappear" {
     content="true",
   )
 
-  ignore(@ecs_test.delete(parent))
+  ignore(@ecs_test.despawn(parent))
 
   rapier_fixed_step(physics=PhysicsStep2D(world), 0.016)
 

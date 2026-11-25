@@ -1,11 +1,13 @@
 ///|
 priv struct ArchetypeColumn {
   remove_row : (Int32) -> Unit
+  swap_rows : (Int32, Int32) -> Unit
   forget : (Entity) -> Unit
 }
 
 ///|
 priv struct Archetype {
+  mut active_count : Int32
   entities : Array[Entity]
   columns : Array[ArchetypeColumn]
 }
@@ -40,7 +42,7 @@ fn ArchetypeWorld::table_for(
   self.table_ids.get_or_init(signature, () => {
     let id = self.tables.length()
     let columns = signature.map(component => self.create_columns[component](id))
-    self.tables.push({ entities: [], columns, })
+    self.tables.push({ active_count: 0, entities: [], columns, })
     id
   })
 }
@@ -92,6 +94,45 @@ fn ArchetypeWorld::append_entity(
 }
 
 ///|
+fn ArchetypeWorld::swap_rows(
+  self : ArchetypeWorld,
+  id : Int32,
+  first : Int32,
+  second : Int32,
+) -> Unit {
+  guard first != second else { return }
+  let table = self.tables[id]
+  for column in table.columns {
+    (column.swap_rows)(first, second)
+  }
+  let entity = table.entities[first]
+  table.entities[first] = table.entities[second]
+  table.entities[second] = entity
+  self.slots[table.entities[first].slot].location = Some((id, first))
+  self.slots[table.entities[second].slot].location = Some((id, second))
+}
+
+///|
+fn ArchetypeWorld::set_active(
+  self : ArchetypeWorld,
+  entity : Entity,
+  active : Bool,
+) -> Unit {
+  guard self.location(entity) is Some((id, row)) else { return }
+  let table = self.tables[id]
+  if active {
+    guard row >= table.active_count else { return }
+    self.swap_rows(id, row, table.active_count)
+    table.active_count += 1
+  } else {
+    guard row < table.active_count else { return }
+    self.swap_rows(id, row, table.active_count - 1)
+    table.active_count -= 1
+  }
+  self.structural_version += 1UL
+}
+
+///|
 fn ArchetypeWorld::remove_entity_row(
   self : ArchetypeWorld,
   entity : Entity,
@@ -99,16 +140,19 @@ fn ArchetypeWorld::remove_entity_row(
   row : Int32,
 ) -> Unit {
   let table = self.tables[id]
-  let last = table.entities.length() - 1
-  if row != last {
-    let moved = table.entities[last]
-    self.slots[moved.slot].location = Some((id, row))
+  let mut row = row
+  if row < table.active_count {
+    self.swap_rows(id, row, table.active_count - 1)
+    table.active_count -= 1
+    row = table.active_count
   }
+  let last = table.entities.length() - 1
+  self.swap_rows(id, row, last)
   for column in table.columns {
     (column.forget)(entity)
-    (column.remove_row)(row)
+    (column.remove_row)(last)
   }
-  swap_remove_row(table.entities, row)
+  ignore(table.entities.pop())
   self.slots[entity.slot].location = None
   self.structural_version += 1UL
 }

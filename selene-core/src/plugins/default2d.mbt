@@ -159,7 +159,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = app.add_system(
     PostUpdate,
-    @ecs.args3(@animation.animation_transition_system),
+    @ecs.args2(@animation.animation_transition_system),
     system_name="Animation Transition System",
     in_set=animation,
     after=[animation],
@@ -174,7 +174,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @ecs.args3(@transform.transform_propagate_system),
+    @ecs.args2(@transform.transform_propagate_system),
     PostUpdate,
     "Transform Propagation System",
     in_set=transform,

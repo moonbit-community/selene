@@ -32,10 +32,10 @@ fn pixeladventure_app() -> @app.App {
   .add_exclusive_system(Startup, game_start)
   .add_system(Update, @ecs.args2(player_input_system))
   .add_system(FixedPreUpdate, @ecs.args6(player_controller_system))
-  .add_system(Update, @ecs.args6(trigger_system))
+  .add_system(Update, @ecs.args5(trigger_system))
   .add_system(Update, @ecs.args2(pixeladventure_camera_follow_system))
-  .add_system(FixedPostUpdate, @ecs.args7(player_bird_contact_system))
-  .add_system(FixedPostUpdate, @ecs.args6(bird_patrol_system))
+  .add_system(FixedPostUpdate, @ecs.args6(player_bird_contact_system))
+  .add_system(FixedPostUpdate, @ecs.args5(bird_patrol_system))
   .add_system(PostUpdate, @ecs.args2(volume_button_system))
   .add_system(PostUpdate, @ecs.args4(hud_sync_system))
 }

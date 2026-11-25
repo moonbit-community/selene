@@ -46,23 +46,24 @@ pub fn[T] Commands::spawn_prepared(
 }
 
 ///|
+/// Queues permanent removal of this entity and its descendants, recycling their slots.
 pub fn Commands::despawn(self : Commands, entity : Entity) -> Unit {
-  self.add(fn(_world) { entity.destroy() })
+  self.add(_ => ignore(entity.despawn()))
 }
 
 ///|
-/// Queues permanent deletion and slot recycling for this entity and its descendants.
-pub fn Commands::delete(self : Commands, entity : Entity) -> Unit {
-  self.add(_ => ignore(entity.delete()))
+/// Suspends this subtree without changing component layouts or entity handles.
+pub fn Commands::disable(self : Commands, entity : Entity) -> Unit {
+  self.add(_ => entity.disable())
+}
+
+///|
+/// Reactivates this subtree. A disabled ancestor must be enabled first.
+pub fn Commands::enable(self : Commands, entity : Entity) -> Unit {
+  self.add(_ => entity.enable())
 }
 
 ///|
 pub fn has_pending_commands(world : World) -> Bool {
   !queues.get_or_insert_with(world, _ => CommandQueue()).pending.is_empty()
-}
-
-///|
-/// Restores a retained entity and its descendants at the scheduler's flush.
-pub fn Commands::respawn(self : Commands, entity : Entity) -> Unit {
-  self.add(_ => entity.respawn())
 }

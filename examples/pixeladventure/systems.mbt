@@ -547,7 +547,6 @@ fn player_bird_contact_system(
   ],
   session_resource : @ecs.Res[GameSession]?,
   time : @time.Time,
-  entities : @ecs.Entities,
   motion : @physics2d.PhysicsMotion,
   audio : GameAudio,
 ) -> Unit {
@@ -570,9 +569,6 @@ fn player_bird_contact_system(
   )
 
   for bird_entity, (bird, bird_spatial, bird_shape) in birds {
-    if !entities.is_alive(bird_entity) {
-      continue
-    }
     if bird.is_hurt {
       continue
     }
@@ -617,13 +613,9 @@ fn bird_patrol_system(
   colliders : @ecs.Query[@ecs.Single[@physics2d.Collider]],
   animations : SpriteAnimations,
   commands : @ecs.Commands,
-  entities : @ecs.Entities,
   motion : @physics2d.PhysicsMotion,
 ) -> Unit {
   for bird_entity, (bird, _) in birds {
-    if !entities.is_alive(bird_entity) {
-      continue
-    }
     if bird.is_hurt {
       birds.set(bird_entity, (bird, Velocity(@math.Vec2::zero())))
       if colliders.get(bird_entity).map(value => value.0) is Some(collider) {
@@ -631,7 +623,7 @@ fn bird_patrol_system(
       }
       play_bird_animation(animations, bird_entity, bird)
       if sprite_animation_finished(animations, bird_entity) {
-        commands.delete(bird_entity)
+        commands.despawn(bird_entity)
       }
       continue
     }
@@ -665,7 +657,6 @@ fn trigger_system(
   apples : @ecs.Query[(AppleTag, @physics2d.Area)],
   session_resource : @ecs.Res[GameSession]?,
   commands : @ecs.Commands,
-  entities : @ecs.Entities,
   audio : GameAudio,
 ) -> Unit {
   guard session_resource is Some(resource) else { return }
@@ -675,24 +666,18 @@ fn trigger_system(
   }
 
   for flag_entity, (_, area) in flags {
-    if !entities.is_alive(flag_entity) {
-      continue
-    }
     if area.contains.contains(session.player) {
       session.score += 100
       session.result = Some(Win)
-      commands.delete(flag_entity)
+      commands.despawn(flag_entity)
     }
   }
 
   for apple_entity, (_, area) in apples {
-    if !entities.is_alive(apple_entity) {
-      continue
-    }
     if area.contains.contains(session.player) {
       session.score += 10
       play_sfx(audio, coin_sound, session.volume_on)
-      commands.delete(apple_entity)
+      commands.despawn(apple_entity)
     }
   }
 }

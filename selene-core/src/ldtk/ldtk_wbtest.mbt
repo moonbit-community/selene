@@ -3169,7 +3169,7 @@ test "canceling a pending import parent skips tree population and ready hooks" {
   @ecs.set_current_world(world)
   let commands = @ecs.commands(world)
   let parent = commands.spawn(())
-  commands.delete(parent)
+  commands.despawn(parent)
   let called = Ref(false)
   let project = test_project_with_layers("canceled-level", [])
   let root = spawn_ldtk_world(world~, project, parent~, settings={

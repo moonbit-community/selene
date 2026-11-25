@@ -14,7 +14,6 @@ pub fn render_text2d_system(
   data.caches.retain((entity, _) => view.is_alive(entity))
   let camera_views = view.camera_views()
   for entity, (text2d, text, spatial) in texts {
-    guard view.is_alive(entity) else { continue }
     guard view.is_visible(entity) else { continue }
     let global_transform = spatial.global()
     let layout = data.layouts

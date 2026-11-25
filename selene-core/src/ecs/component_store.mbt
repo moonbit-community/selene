@@ -22,6 +22,11 @@ fn[T] ComponentStore::ComponentStore(world : World) -> ComponentStore[T] {
     columns[table] = Some(values)
     {
       remove_row: row => swap_remove_row(values, row),
+      swap_rows: (first, second) => {
+        let value = values[first]
+        values[first] = values[second]
+        values[second] = value
+      },
       forget: entity => order.remove(entity),
     }
   })

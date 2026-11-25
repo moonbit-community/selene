@@ -29,6 +29,7 @@ fn[T] SpawnPlan::spawn(
   self.entities.archetypes.require_no_query()
   let entity = self.entities.spawn(self.world_id)
   self.append_row(entity, values)
+  self.entities.archetypes.set_active(entity, true)
   self.entities.link_child(entity, parent)
   entity
 }

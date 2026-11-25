@@ -210,7 +210,7 @@ fn reset_pixeladventure_world_store() -> Unit {
   let previous : PixelAdventureWorldState? = world.get_resource()
   if previous is Some(state) {
     for entity in state.entities {
-      @ecs.commands(@ecs.require_current_world()).delete(entity)
+      @ecs.commands(@ecs.require_current_world()).despawn(entity)
     }
   }
   world.insert_resource(PixelAdventureWorldState())

@@ -111,7 +111,7 @@ test "player run animation advances atlas indices in order" {
       AnimationTargets(world),
       time,
     )
-    @animation.animation_transition_system(world.query(), time, Entities(world))
+    @animation.animation_transition_system(world.query(), time)
     @animation.animation_apply_system(world~)
     indices.push(
       (world.query() : @ecs.Query[@ecs.Single[@sprite.Sprite]])

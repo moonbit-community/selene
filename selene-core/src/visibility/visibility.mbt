@@ -102,13 +102,11 @@ pub fn visibility_propagate_system(
   inherited_visibilities.clear()
   view_visibilities.clear()
   for entity in entities.iter() {
-    guard entities.is_alive(entity) else { continue }
     let visible = compute_inherited_visibility(
       hierarchy, visibilities, entity, inherited_visibilities,
     )
     view_visibilities.set(entity, { visible, })
   }
-  inherited_visibilities.retain((entity, _) => entities.is_alive(entity))
 }
 
 ///|

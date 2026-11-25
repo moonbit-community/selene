@@ -6,8 +6,7 @@ fn sync_impulse_joints_to_rapier(physics~ : PhysicsStep3D) -> Unit {
   physics_world.rope_joints = RopeJointSet3DReal()
   physics.runtime.impulse_joint_handles.clear()
   for entity, Single(impulse_joint) in query_impulse_joint {
-    if !physics.entities.is_alive(entity) ||
-      !physics.entities.is_alive(impulse_joint.parent) {
+    if !physics.entities.is_alive(impulse_joint.parent) {
       continue
     }
     guard physics.runtime.body_handles.get(entity) is Some(body_handle) else {
@@ -110,8 +109,7 @@ fn sync_multibody_joints_to_rapier(physics~ : PhysicsStep3D) -> Unit {
   physics_world.multibody_joints = MultibodyJointSet3DReal()
   physics.runtime.multibody_joint_handles.clear()
   for entity, Single(multibody_joint) in query_multibody_joint {
-    if !physics.entities.is_alive(entity) ||
-      !physics.entities.is_alive(multibody_joint.parent) {
+    if !physics.entities.is_alive(multibody_joint.parent) {
       continue
     }
     guard physics.runtime.body_handles.get(entity) is Some(child_handle) else {
@@ -150,9 +148,6 @@ fn sync_character_controllers(physics~ : PhysicsStep3D, delta : Double) -> Unit 
   let physics_world = physics.runtime.world
   let dt = Float::from_double(delta)
   for entity, Single(controller) in query_kinematic_character_controller {
-    if !physics.entities.is_alive(entity) {
-      continue
-    }
     let desired_translation = controller.translation.unwrap_or(
       @math.Vec3::zero(),
     )

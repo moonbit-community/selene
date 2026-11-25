@@ -315,7 +315,6 @@ fn player_shooting_system(
   commands : @ecs.Commands,
   time : @time.Time,
   timers : @time.Timers,
-  entities : @ecs.Entities,
 ) -> Unit {
   let runtime = resource.get()
   guard runtime.game is Some(game) else { return }
@@ -349,7 +348,6 @@ fn player_shooting_system(
     game.player_stats.penetration
   }
   update_weapon_timers(
-    entities,
     runtime,
     timers,
     commands,
@@ -366,15 +364,13 @@ fn player_shooting_system(
 
 ///|
 fn find_nearest_enemy_in_range(
-  entities : @ecs.Entities,
   enemies : @ecs.Query[(Enemy, @transform.Spatial)],
   player_pos : @math.Vec2,
   weapon_range : Double,
 ) -> @math.Vec2? {
   let mut min = weapon_range
   let mut res : @math.Vec2? = None
-  for e, (_, spatial) in enemies {
-    guard entities.is_alive(e) else { continue }
+  for _, (_, spatial) in enemies {
     let enemy_transform = spatial.pose()
     let enemy_pos = @math.Vec2(
       enemy_transform.translation.x,

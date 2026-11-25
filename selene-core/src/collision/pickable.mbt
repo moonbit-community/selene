@@ -300,7 +300,6 @@ pub fn pickable_click_system(scene : CollisionQueries) -> Unit {
   }
   let mouse_virtual = mouse_screen.scalar_mul(1.0 / scene.display.zoom())
   for entity, Single(pickable) in query_pickable {
-    guard scene.view.is_alive(entity) else { continue }
     guard pickable.active else { continue }
     guard scene.view.is_visible(entity) else { continue }
     guard pickable_matches_camera_view(scene~, entity, camera_view) else {

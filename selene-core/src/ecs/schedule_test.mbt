@@ -78,7 +78,7 @@ test "a query batch rejects public scheduling for every World without applying c
   let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
   let trace = []
   let rejected = []
-  @ecs.commands(world).delete(entity)
+  @ecs.commands(world).despawn(entity)
   @ecs.commands(other).add(_ => trace.push(1))
   query.batches(_ => {
     for target in [world, other] {

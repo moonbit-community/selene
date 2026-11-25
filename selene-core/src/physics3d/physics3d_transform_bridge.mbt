@@ -56,8 +56,7 @@ fn cleanup_world_components(physics~ : PhysicsStep3D) -> Unit {
   let multibody_joint_handles = physics.runtime.multibody_joint_handles
   let collider_entities_by_key = physics.runtime.collider_entities_by_key
   collider_handles.retain((entity, handle) => {
-    if physics.entities.is_alive(entity) &&
-      query_collider.contains(entity) &&
+    if query_collider.contains(entity) &&
       collider_transform(
         physics~,
         entity,
@@ -71,8 +70,7 @@ fn cleanup_world_components(physics~ : PhysicsStep3D) -> Unit {
     false
   })
   body_handles.retain((entity, handle) => {
-    if physics.entities.is_alive(entity) &&
-      query_rigid_body.contains(entity) &&
+    if query_rigid_body.contains(entity) &&
       current_world_transform(physics~, entity) is Some(_) {
       return true
     }
@@ -81,11 +79,11 @@ fn cleanup_world_components(physics~ : PhysicsStep3D) -> Unit {
   })
 
   impulse_joint_handles.retain((entity, _) => {
-    physics.entities.is_alive(entity) && query_impulse_joint.contains(entity)
+    query_impulse_joint.contains(entity)
   })
 
   multibody_joint_handles.retain((entity, _) => {
-    physics.entities.is_alive(entity) && query_multibody_joint.contains(entity)
+    query_multibody_joint.contains(entity)
   })
 }
 

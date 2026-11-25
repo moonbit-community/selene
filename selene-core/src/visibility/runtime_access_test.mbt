@@ -30,7 +30,7 @@ test "visibility results follow authored components and reject stale handles" {
   @ecs.set_current_world(second)
   assert_true(@visibility.inherited_visibility(child) is None)
   @ecs.set_current_world(first)
-  assert_true(@ecs_test.delete(parent))
+  assert_true(@ecs_test.despawn(parent))
   assert_true(@visibility.view_visibility(child) is None)
   let replacement = @ecs_test.spawn(first, ())
   assert_true(@visibility.view_visibility(replacement) is None)

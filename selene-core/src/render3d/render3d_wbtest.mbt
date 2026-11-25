@@ -25,11 +25,7 @@ test "render3d extract preserves mesh shadow toggles" {
     world.query(),
     VisibilityState(world),
   )
-  @transform.transform_propagate_system(
-    Entities(world),
-    Hierarchy(world),
-    world.query(),
-  )
+  @transform.transform_propagate_system(Hierarchy(world), world.query())
 
   render3d_extract_system(
     Render3DQueries(world),
@@ -46,7 +42,7 @@ test "render3d extract preserves mesh shadow toggles" {
   meshes.remove(mesh)
   materials.remove(material)
   render3d_world_state().extracted_frame = RenderFrame3D()
-  ignore(@ecs_test.delete(entity))
+  ignore(@ecs_test.despawn(entity))
 }
 
 ///|
@@ -254,7 +250,7 @@ test "render3d extracts skybox from active camera" {
   ignore(@asset.images.remove(nz))
   ignore(take_dirty_cubemap_assets())
   ignore(take_released_cubemap_assets())
-  ignore(@ecs_test.delete(camera_entity))
+  ignore(@ecs_test.despawn(camera_entity))
 }
 
 ///|

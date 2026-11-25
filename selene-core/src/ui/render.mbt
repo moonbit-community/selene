@@ -380,7 +380,6 @@ fn push_box_shadow(
 
 ///|
 fn should_render_ui(nodes~ : UiNodes, entity : @ecs.Entity) -> Bool {
-  nodes.entities.is_alive(entity) &&
   nodes.visibility.is_visible(entity) &&
   nodes.model.geometry.contains(entity) &&
   nodes.node

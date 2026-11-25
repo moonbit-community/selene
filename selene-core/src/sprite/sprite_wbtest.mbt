@@ -106,7 +106,7 @@ test "sprite draw ties keep spawn order after swap-removal" {
     let retired = spawn_color_sprite(world~, Vec2(0.0, 0.0))
     let first = spawn_color_sprite(world~, Vec2(0.0, 0.0))
     let second = spawn_color_sprite(world~, Vec2(0.0, 0.0))
-    assert_true(@ecs_test.delete(retired))
+    assert_true(@ecs_test.despawn(retired))
     @render2d.begin_frame2d_system(Frame2D(@ecs.require_current_world()))
     render_sprite_system(Frame2D(world), world.query(), RenderView2D(world))
     let commands = @render2d.get_screen_world_commands_with_depth()
@@ -144,11 +144,7 @@ test "sprite world transform preserves shear from its parent" {
       ),
       parent~,
     )
-    @transform.transform_propagate_system(
-      Entities(world),
-      Hierarchy(world),
-      world.query(),
-    )
+    @transform.transform_propagate_system(Hierarchy(world), world.query())
     @visibility.visibility_propagate_system(
       Entities(world),
       Hierarchy(world),

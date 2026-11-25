@@ -16,7 +16,7 @@ pub fn local_transform(world~ : @ecs.World, @ecs.Entity) -> Transform?
 
 pub fn set_local_transform(world~ : @ecs.World, @ecs.Entity, Transform) -> Unit
 
-pub fn transform_propagate_system(@ecs.Entities, @ecs.Hierarchy, @ecs.Query[@ecs.Single[Spatial]]) -> Unit
+pub fn transform_propagate_system(@ecs.Hierarchy, @ecs.Query[@ecs.Single[Spatial]]) -> Unit
 
 // Errors
 

@@ -34,7 +34,6 @@ pub fn render_sprite_system(
   // Draw ties retain Sprite insertion order even when a row moves tables.
   let order_base = frame.reserve_world_command_order(sprites.order_span())
   visit_sprite_transforms(sprites, (entity, sprite, global_transform) => {
-    guard view.is_alive(entity) else { return }
     guard view.is_visible(entity) else { return }
     guard sprite_size(sprite) is Some(size) else { return }
     let order = order_base + sprites.insertion_order(entity)

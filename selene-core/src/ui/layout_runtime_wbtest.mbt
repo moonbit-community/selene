@@ -56,7 +56,7 @@ test "retained UI layout updates replaced subtrees" {
   ui_layout_system(UiNodes(world))
   assert_eq(computed_ui_node(child).unwrap().position.x, 0.0)
 
-  assert_true(@ecs_test.delete(child))
+  assert_true(@ecs_test.despawn(child))
   let child = @ecs_test.spawn1(
     world,
     Node(width=Val::px(20.0), height=Val::px(20.0)),
@@ -185,7 +185,7 @@ test "retained UI projection changes do not rebuild layout or stacking" {
 
   cleanup_layout_test_entity(child)
   cleanup_layout_test_entity(root)
-  ignore(@ecs_test.delete(camera))
+  ignore(@ecs_test.despawn(camera))
   ui_layout_system(UiNodes(world))
 }
 
@@ -248,7 +248,7 @@ test "layout frees the old Chicle node when a deleted entity slot is reused" {
   ui_layout_system(UiNodes(world))
   let runtime = ui_layout_runtime()
   let old_node = runtime.nodes.get(old).unwrap().node_id
-  ignore(@ecs_test.delete(old))
+  ignore(@ecs_test.despawn(old))
   let replacement = @ecs_test.spawn1(world, Node(width=Val::px(30.0)))
   assert_eq(old.slot_index(), replacement.slot_index())
   ui_layout_system(UiNodes(world))

@@ -30,7 +30,7 @@ test "metadata parameters stay bound across Worlds and slot reuse" {
   let snapshot = hierarchy.children(root)
   snapshot.clear()
   assert_eq(hierarchy.children(root), [child])
-  commands.delete(child)
+  commands.despawn(child)
   @ecs.Schedule().run(first)
   let replacement = commands.spawn((), parent=root)
   @ecs.Schedule().run(first)
@@ -57,7 +57,7 @@ test "metadata injection observes deferred lifecycle changes on later runs" {
   )
   schedule.run(world)
   schedule.run(world)
-  commands.delete(root)
+  commands.despawn(root)
   schedule.run(world)
   schedule.run(world)
   assert_eq(observed, [

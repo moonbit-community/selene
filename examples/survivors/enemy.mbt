@@ -497,7 +497,6 @@ fn enemy_ai_system(
   enemies : EnemyActors,
   spatials : @ecs.Query[@ecs.Single[@transform.Spatial]],
   runtime : @ecs.Res[SurvivorsRuntime],
-  entities : @ecs.Entities,
 ) -> Unit {
   guard runtime.get().game is Some(game) else { return }
   guard spatials.get(game.player_entity) is Some(Single(player_spatial)) else {
@@ -509,7 +508,6 @@ fn enemy_ai_system(
     player_transform.translation.y,
   )
   for e, (state, spatial, _, sprite, player, transitions) in enemies {
-    guard entities.is_alive(e) else { continue }
     let enemy_transform = spatial.pose()
     let data = get_enemy_data(state.enemy_type)
     let position = @math.Vec2(
@@ -549,15 +547,14 @@ fn devil_shooting_system(
   commands : @ecs.Commands,
   time : @time.Time,
   timers : @time.Timers,
-  entities : @ecs.Entities,
 ) -> Unit {
   let runtime = resource.get()
   guard runtime.game is Some(game) else { return }
   guard spatials.get(game.player_entity) is Some(Single(player)) else { return }
   let player_transform = player.pose()
   let delta = time.delta()
-  for e, (state, spatial) in enemies {
-    guard entities.is_alive(e) && state.enemy_type == Devil else { continue }
+  for _, (state, spatial) in enemies {
+    guard state.enemy_type == Devil else { continue }
     let enemy_transform = spatial.pose()
     let enemy_pos = @math.Vec2(
       enemy_transform.translation.x,
@@ -654,7 +651,7 @@ fn shoot_enemy_bullet(
   runtime.entities.push(bullet_entity)
   runtime.enemy_bullets.add(bullet_entity)
   survivors_timeout(runtime, timers, 5.0, fn() {
-    commands.delete(bullet_entity)
+    commands.despawn(bullet_entity)
     runtime.enemy_bullets.remove(bullet_entity)
   })
 }
@@ -695,7 +692,7 @@ fn enemy_collision_system(
     if event.other == game.player_entity {
       apply_player_damage(ui~)
     }
-    ui.commands.delete(event.area)
+    ui.commands.despawn(event.area)
     runtime.enemy_bullets.remove(event.area)
   }
 }
@@ -705,7 +702,6 @@ fn check_victory_system(
   query_enemy : @ecs.Query[@ecs.Single[Enemy]],
   runtime : @ecs.Res[SurvivorsRuntime],
   next_phase : @state.NextState[GamePhase],
-  entities : @ecs.Entities,
 ) -> Unit {
   guard runtime.get().game is Some(game) else { return }
 
@@ -714,16 +710,8 @@ fn check_victory_system(
     return
   }
 
-  // Count alive enemies
-  let mut alive_count = 0
-  for e, Single(_state) in query_enemy {
-    if entities.is_alive(e) {
-      alive_count += 1
-    }
-  }
-
-  // If no enemies left, trigger victory
-  if alive_count == 0 {
+  // Finish when no active enemies remain.
+  if query_enemy.is_empty() {
     next_phase.set(GameOver)
   }
 }

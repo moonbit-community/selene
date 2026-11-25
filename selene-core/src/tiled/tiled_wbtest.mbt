@@ -588,7 +588,7 @@ test "replace_tiled_map replaces previous tiled children and metadata" {
   files.set("maps/bg.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
     let anchor = @ecs_test.spawn(@ecs.require_current_world(), ())
-    defer ignore(@ecs_test.delete(anchor))
+    defer ignore(@ecs_test.despawn(anchor))
     let root = spawn_tiled_map(
       world~,
       load_tiled_map("maps/a.tmj"),
@@ -1116,7 +1116,7 @@ test "tiled source_world chunking spawns maps around camera view" {
   @window.configure_display(100.0, 100.0, 1.0)
 
   let camera_entity = spawn_tiled_test_camera(Vec2(50.0, 50.0))
-  defer ignore(@ecs_test.delete(camera_entity))
+  defer ignore(@ecs_test.despawn(camera_entity))
 
   let files : Map[String, Bytes] = Map([])
   files.set(
@@ -1159,11 +1159,7 @@ test "tiled source_world chunking spawns maps around camera view" {
       camera_entity,
       @transform.Transform::from_xyz(250.0, 50.0, 0.0),
     )
-    @transform.transform_propagate_system(
-      Entities(world),
-      Hierarchy(world),
-      world.query(),
-    )
+    @transform.transform_propagate_system(Hierarchy(world), world.query())
     tiled_world_chunking_system(world~)
     try! @ecs.Schedule().run(world)
 
@@ -1190,10 +1186,10 @@ test "tiled source_world chunking unions multiple active camera views" {
   @window.configure_display(100.0, 100.0, 1.0)
 
   let left_camera = spawn_tiled_test_camera(Vec2(50.0, 50.0), order=0)
-  defer ignore(@ecs_test.delete(left_camera))
+  defer ignore(@ecs_test.despawn(left_camera))
 
   let right_camera = spawn_tiled_test_camera(Vec2(250.0, 50.0), order=1)
-  defer ignore(@ecs_test.delete(right_camera))
+  defer ignore(@ecs_test.despawn(right_camera))
 
   let files : Map[String, Bytes] = Map([])
   files.set(
@@ -1251,10 +1247,10 @@ test "Tiled parallax uses map origin for each camera view" {
   @window.configure_display(100.0, 100.0, 1.0)
 
   let left_camera = spawn_tiled_test_camera(Vec2(50.0, 50.0), order=0)
-  defer ignore(@ecs_test.delete(left_camera))
+  defer ignore(@ecs_test.despawn(left_camera))
 
   let right_camera = spawn_tiled_test_camera(Vec2(250.0, 150.0), order=1)
-  defer ignore(@ecs_test.delete(right_camera))
+  defer ignore(@ecs_test.despawn(right_camera))
 
   let files : Map[String, Bytes] = Map([])
   files.set(

@@ -28,6 +28,6 @@ test "audio control handles are read per entity without exposing sink storage" {
   @ecs.set_current_world(first)
   @audio.stop_audio(entity)
   assert_true(@audio.audio_sink(entity) is None)
-  assert_true(@ecs_test.delete(entity))
+  assert_true(@ecs_test.despawn(entity))
   assert_true(@audio.audio_sink(entity) is None)
 }

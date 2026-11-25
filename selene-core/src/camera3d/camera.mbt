@@ -66,7 +66,7 @@ pub fn camera3d_extract_system(
 ) -> Unit {
   let mut selected : (@ecs.Entity, Camera3DComponent)? = None
   for entity, Single(camera) in cameras {
-    if !output.entities.is_alive(entity) || !camera.enabled {
+    if !camera.enabled {
       continue
     }
     selected = match selected {
@@ -111,15 +111,11 @@ pub fn camera3d_extract_system(
 ///|
 struct Camera3DState {
   value : Ref[ActiveCamera3D?]
-  entities : @ecs.Entities
 }
 
 ///|
 pub fn Camera3DState::Camera3DState(world : @ecs.World) -> Camera3DState {
-  {
-    value: active_camera3d_key.get_or_insert_with(world, _ => Ref(None)),
-    entities: Entities(world),
-  }
+  { value: active_camera3d_key.get_or_insert_with(world, _ => Ref(None)), }
 }
 
 ///|

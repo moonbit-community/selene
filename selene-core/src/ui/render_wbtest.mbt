@@ -42,7 +42,7 @@ fn set_test_ui_geometry(
 
 ///|
 fn cleanup_test_ui_entity(entity : @ecs.Entity) -> Unit {
-  ignore(@ecs_test.delete(entity))
+  ignore(@ecs_test.despawn(entity))
 }
 
 ///|

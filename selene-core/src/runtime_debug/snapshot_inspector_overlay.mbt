@@ -160,9 +160,6 @@ pub fn world_snapshot(world~ : @ecs.World) -> WorldSnapshot {
   let query_linear_velocity : @ecs.Query[@ecs.Single[@physics2d.LinearVelocity]] = world.query()
   let entities : Array[EntitySnapshot] = []
   for entity in @ecs.iter_entities() {
-    if !entity.is_alive() {
-      continue
-    }
     entities.push({
       entity_id: entity.id(),
       name: @name.name_of(world~, entity),
@@ -253,9 +250,6 @@ pub fn sprite_inspector_entries(
   let query_sprite : @ecs.Query[@ecs.Single[@sprite.Sprite]] = world.query()
   let entries : Array[SpriteInspectorEntry] = []
   for entity, Single(sprite) in query_sprite {
-    if !entity.is_alive() {
-      continue
-    }
     let image_path = match sprite.image {
       Some(image) => @asset.image_path(image)
       None => None

@@ -131,7 +131,7 @@ fn ui_children(state~ : A11yTree, entity : @ecs.Entity) -> Array[@ecs.Entity] {
   let query_z_index = state.z_indices
   let children : Array[@ecs.Entity] = []
   for child in state.hierarchy.children(entity) {
-    if state.entities.is_alive(child) && query_node.contains(child) {
+    if query_node.contains(child) {
       children.push(child)
     }
   }
@@ -188,7 +188,6 @@ fn collect_ordered_semantic_entities(state~ : A11yTree) -> Array[@ecs.Entity] {
   let ordered : Array[@ecs.Entity] = []
   let seen : @set.Set[@ecs.Entity] = Set([])
   for entity, Single(_node) in query_node {
-    guard state.entities.is_alive(entity) else { continue }
     match state.hierarchy.parent(entity) {
       Some(parent) => if query_node.contains(parent) { continue }
       None => ()
@@ -196,7 +195,6 @@ fn collect_ordered_semantic_entities(state~ : A11yTree) -> Array[@ecs.Entity] {
     collect_semantic_descendants(state~, entity, ordered, seen)
   }
   for entity, _ in query_a11y {
-    guard state.entities.is_alive(entity) else { continue }
     guard get_a11y(state~, entity) is Some(_) else { continue }
     if !seen.contains(entity) {
       seen.add(entity)

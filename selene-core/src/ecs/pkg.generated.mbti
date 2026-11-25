@@ -65,12 +65,12 @@ pub(all) suberror ScheduleError {
 // Types and methods
 type Commands
 pub fn Commands::add(Self, (World) -> Unit) -> Unit
-pub fn Commands::delete(Self, Entity) -> Unit
 pub fn Commands::despawn(Self, Entity) -> Unit
+pub fn Commands::disable(Self, Entity) -> Unit
 pub fn Commands::draft(Self) -> SpawnDraft
+pub fn Commands::enable(Self, Entity) -> Unit
 pub fn Commands::prepare(World) -> (World) -> Self
 pub fn[T : Bundle] Commands::prepare_spawn(Self) -> SpawnPlan[T]
-pub fn Commands::respawn(Self, Entity) -> Unit
 pub fn[T : Bundle] Commands::spawn(Self, T, parent? : Entity) -> Entity
 pub fn[T : Component] Commands::spawn1(Self, T, parent? : Entity) -> Entity
 pub fn Commands::spawn_draft(Self, SpawnDraft, parent? : Entity) -> Entity
@@ -141,6 +141,7 @@ type Query[T]
 pub fn[T] Query::batches(Self[T], (QueryBatch[T]) -> Unit) -> Unit
 pub fn[T] Query::contains(Self[T], Entity) -> Bool
 pub fn[T] Query::get(Self[T], Entity) -> T?
+pub fn[T] Query::including_inactive(Self[T]) -> Self[T]
 pub fn[T] Query::insertion_order(Self[T], Entity) -> Int32
 pub fn[T] Query::is_empty(Self[T]) -> Bool
 pub fn[T] Query::iter(Self[T]) -> Iter[(Entity, T)]

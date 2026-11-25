@@ -121,13 +121,13 @@ test "unified query row and typed column traversal" (bench : @bench.T) {
     // A direct-column reference isolates the cost of the public scoped views.
     let raw_columns = () => {
       let mut sum = 0
-      query.for_each_table((entities, table, _) => {
+      query.for_each_table((_entities, table, _, length) => {
         let a = a.column(table).unwrap()
         let b = b.column(table).unwrap()
         let c = c.column(table).unwrap()
         let d = d.column(table).unwrap()
         let e = e.column(table).unwrap()
-        for row in 0..<entities.length() {
+        for row in 0..<length {
           sum += a[row].0 + b[row].0 + c[row].0 + d[row].0 + e[row].0
         }
       })

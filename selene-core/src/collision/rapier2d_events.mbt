@@ -213,7 +213,7 @@ fn joint_to_rapier(joint : Joint) -> @rapier_dynamics.GenericJoint? {
       damping~,
       local_anchor1~,
       local_anchor2~,
-      model~
+      model~,
     ) =>
       if rest_length < 0.0 {
         None
@@ -323,7 +323,6 @@ fn multibody_joint_to_rapier(
 
 ///|
 fn should_have_joint(physics~ : PhysicsStep2D, entity : @ecs.Entity) -> Bool {
-  physics.entities.is_alive(entity) &&
   world_entity(physics~, entity) &&
   physics.joint.get(entity).map(value => value.0) is Some(joint) &&
   physics.entities.is_alive(joint.entity1) &&
@@ -346,7 +345,6 @@ fn should_have_multibody_joint(
   physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
 ) -> Bool {
-  physics.entities.is_alive(entity) &&
   world_entity(physics~, entity) &&
   physics.multibody_joint.get(entity).map(value => value.0) is Some(joint) &&
   joint.active &&

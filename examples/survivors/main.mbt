@@ -53,12 +53,12 @@ fn survivors_app() -> @app.App {
     Update,
     [
       System(@ecs.args3(player_update_system)),
-      System(@ecs.args7(player_shooting_system)),
-      System(@ecs.args4(enemy_ai_system)),
+      System(@ecs.args6(player_shooting_system)),
+      System(@ecs.args3(enemy_ai_system)),
       System(@ecs.args2(enemy_collision_system)),
-      System(@ecs.args7(devil_shooting_system)),
+      System(@ecs.args6(devil_shooting_system)),
       System(@ecs.args3(player_bullet_trigger_system)),
-      System(@ecs.args4(check_victory_system)),
+      System(@ecs.args3(check_victory_system)),
       System(@ecs.args4(game_timer_system)),
     ],
     run_if=is_playing,
@@ -226,7 +226,7 @@ fn reset_survivors_runtime() -> Unit {
       ignore(timer.cancel())
     }
     for entity in runtime.entities {
-      @ecs.commands(@ecs.require_current_world()).delete(entity)
+      @ecs.commands(@ecs.require_current_world()).despawn(entity)
     }
   }
   world.insert_resource(SurvivorsRuntime(world))

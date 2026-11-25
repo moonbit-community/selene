@@ -174,11 +174,7 @@ test "pickable uses the sheared world plane and rejects a collapsed shape" {
       ),
       parent~,
     )
-    @transform.transform_propagate_system(
-      Entities(world),
-      Hierarchy(world),
-      world.query(),
-    )
+    @transform.transform_propagate_system(Hierarchy(world), world.query())
     let pose = @transform.global_transform(world~, child).unwrap()
     let render = @camera.world_transform_2d(pose)
     let inside = render.transform_point(Vec2(9.0, 1.0))

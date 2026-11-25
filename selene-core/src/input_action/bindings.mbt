@@ -7,14 +7,14 @@ pub(all) enum InputBinding {
   VirtualAxis(
     @inputs.VirtualAxis,
     mut dead_zone~ : Double,
-    mut positive~ : Bool
+    mut positive~ : Bool,
   )
   GamepadButton(@inputs.Gamepad, @inputs.GamepadButton)
   GamepadAxis(
     @inputs.Gamepad,
     @inputs.GamepadAxis,
     mut dead_zone~ : Double,
-    mut positive~ : Bool
+    mut positive~ : Bool,
   )
 }
 

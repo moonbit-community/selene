@@ -19,7 +19,7 @@ test "a cached query sees new tables and repairs swapped rows after deletion" {
     if matches() != [(first.id(), 11, "first"), (second.id(), 22, "second")] {
       abort("missing rows")
     }
-    if !first.delete() {
+    if !first.despawn() {
       abort("first row was not deleted")
     }
     a.set(second, 23)
@@ -85,7 +85,7 @@ test "batch row replacement preserves alignment across tables" {
   assert_eq(b.get(first), Some(3))
   assert_eq(b.get(second), Some(7))
   run_schedule(world, _ => {
-    if !first.delete() {
+    if !first.despawn() {
       abort("first row was not deleted")
     }
   })
@@ -112,7 +112,7 @@ test "explicit component snapshots allow deletion during traversal" {
     for (entity, Single(value)) in make_query1(a).to_array() {
       seen.push(value)
       if entity == second {
-        if !entity.delete() {
+        if !entity.despawn() {
           abort("row was not deleted")
         }
       }
@@ -183,7 +183,7 @@ test "three to five column queries follow new tables and recycled slots" {
   assert_eq(foreign.slot_index(), first.slot_index())
   assert_eq(five.get(foreign), None)
 
-  assert_true(first.delete())
+  assert_true(first.despawn())
   let replacement = five_plan.spawn(((((20, "new"), true), 42), 52))
   assert_eq(replacement.slot_index(), first.slot_index())
   assert_eq(five.get(first), None)

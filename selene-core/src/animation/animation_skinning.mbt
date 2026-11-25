@@ -7,9 +7,6 @@ pub fn animation_player_system(
   let delta = time.delta()
   let targets_by_player = targets.by_player
   for entity, (player, graph_handle) in players {
-    if !targets.entities.is_alive(entity) {
-      continue
-    }
     guard animation_graph_asset(graph_handle) is Some(graph) else { continue }
     let targets = targets_by_player.get_or_init(entity, fn() { Map([]) })
     for (node_index, active) in player.active_animations.to_array() {
@@ -116,11 +113,9 @@ pub fn animation_player_system(
 pub fn animation_transition_system(
   query : @ecs.Query[(AnimationTransitions, AnimationPlayer)],
   time : @time.Time,
-  entities : @ecs.Entities,
 ) -> Unit {
   let delta = time.delta()
-  for entity, (transitions, player) in query {
-    guard entities.is_alive(entity) else { continue }
+  for _, (transitions, player) in query {
     let mut main_weight = 1.0
     transitions.fading.retain((node_index, fade) => {
       guard player.active_animations.get(node_index) is Some(active) else {
@@ -164,7 +159,6 @@ pub fn animation_apply_system(world~ : @ecs.World) -> Unit {
   let query_animation_player : @ecs.Query[@ecs.Single[AnimationPlayer]] = world.query()
   let targets_by_player = collect_targets_by_player(world~)
   for (player_entity, Single(player)) in query_animation_player.to_array() {
-    guard player_entity.is_alive() else { continue }
     guard query_animation_graph_handle.get(player_entity).map(value => value.0)
       is Some(graph_handle) else {
       continue
@@ -452,14 +446,13 @@ pub fn animation_skinning_system(
 /// Animation targets resolved for the current execution, with World-bound liveness.
 struct AnimationTargets {
   by_player : @ecs.EntityTable[Map[AnimationTargetId, @ecs.Entity]]
-  entities : @ecs.Entities
 }
 
 ///|
 pub fn AnimationTargets::AnimationTargets(
   world : @ecs.World,
 ) -> AnimationTargets {
-  { by_player: collect_targets_by_player(world~), entities: Entities(world), }
+  { by_player: collect_targets_by_player(world~), }
 }
 
 ///|

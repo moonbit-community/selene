@@ -11,7 +11,6 @@ pub fn render_mesh2d_system(
 ) -> Unit {
   let camera_views = view.camera_views()
   for entity, (mesh, material_node, spatial) in meshes {
-    guard view.is_alive(entity) else { continue }
     guard view.is_visible(entity) else { continue }
     let global_transform = spatial.global()
     guard mesh2d_asset(mesh.mesh) is Some(mesh_asset) else { continue }

@@ -207,9 +207,7 @@ pub fn render3d_extract_system(
 
   let items : Array[RenderItem3D] = []
   for entity, (renderer, spatial) in queries.meshes {
-    if !queries.entities.is_alive(entity) ||
-      !renderer.visible ||
-      !visibility.is_visible(entity) {
+    if !renderer.visible || !visibility.is_visible(entity) {
       continue
     }
     if !@visibility.matches(
@@ -241,71 +239,65 @@ pub fn render3d_extract_system(
   }
 
   let dir_lights : Array[DirectionalLight3D] = []
-  for entity, (light, spatial) in queries.directionals {
-    if queries.entities.is_alive(entity) {
-      let transform = spatial.global().affine
-      let local_direction = if light.direction.length_squared() <= 0.0000001 {
-        @math.Vec3(0.0, 0.0, -1.0)
-      } else {
-        light.direction.normalize_or_zero()
-      }
-      dir_lights.push({
-        direction: transform
-        .transform_vector(local_direction)
-        .try_normalize()
-        .unwrap_or(local_direction),
-        color: light.color,
-        intensity: light.intensity,
-        shadows: light.shadows,
-        shadow_depth_bias: light.shadow_depth_bias,
-        shadow_normal_bias: light.shadow_normal_bias,
-        cascade_shadow_config: light.cascade_shadow_config,
-      })
+  for _, (light, spatial) in queries.directionals {
+    let transform = spatial.global().affine
+    let local_direction = if light.direction.length_squared() <= 0.0000001 {
+      @math.Vec3(0.0, 0.0, -1.0)
+    } else {
+      light.direction.normalize_or_zero()
     }
+    dir_lights.push({
+      direction: transform
+      .transform_vector(local_direction)
+      .try_normalize()
+      .unwrap_or(local_direction),
+      color: light.color,
+      intensity: light.intensity,
+      shadows: light.shadows,
+      shadow_depth_bias: light.shadow_depth_bias,
+      shadow_normal_bias: light.shadow_normal_bias,
+      cascade_shadow_config: light.cascade_shadow_config,
+    })
   }
   let point_lights : Array[FramePointLight3D] = []
-  for entity, (light, spatial) in queries.points {
-    if queries.entities.is_alive(entity) {
-      let transform = spatial.global().affine
-      point_lights.push({
-        position: transform.translation,
-        color: light.color,
-        intensity: light.intensity,
-        range: light.range,
-        shadows: light.shadows,
-        shadow_depth_bias: light.shadow_depth_bias,
-        shadow_normal_bias: light.shadow_normal_bias,
-        shadow_map_near_z: light.shadow_map_near_z,
-      })
-    }
+  for _, (light, spatial) in queries.points {
+    let transform = spatial.global().affine
+    point_lights.push({
+      position: transform.translation,
+      color: light.color,
+      intensity: light.intensity,
+      range: light.range,
+      shadows: light.shadows,
+      shadow_depth_bias: light.shadow_depth_bias,
+      shadow_normal_bias: light.shadow_normal_bias,
+      shadow_map_near_z: light.shadow_map_near_z,
+    })
   }
   let spot_lights : Array[FrameSpotLight3D] = []
-  for entity, (light, spatial) in queries.spots {
-    if queries.entities.is_alive(entity) {
-      let transform = spatial.global().affine
-      let local_direction = if light.direction.length_squared() <= 0.0000001 {
-        @math.Vec3(0.0, -1.0, 0.0)
-      } else {
-        light.direction.normalize_or_zero()
-      }
-      let world_direction = transform
-        .transform_vector(local_direction)
-        .try_normalize()
-        .unwrap_or(local_direction)
-      spot_lights.push({
-        position: transform.translation,
-        direction: world_direction,
-        color: light.color,
-        intensity: light.intensity,
-        range: light.range,
-        shadows: light.shadows,
-        shadow_depth_bias: light.shadow_depth_bias,
-        shadow_normal_bias: light.shadow_normal_bias,
-        shadow_map_near_z: light.shadow_map_near_z,
-        inner_angle: light.inner_angle,
-        outer_angle: light.outer_angle,
-      })
+  for _, (light, spatial) in queries.spots {
+    let transform = spatial.global().affine
+    let local_direction = if light.direction.length_squared() <= 0.0000001 {
+      @math.Vec3(0.0, -1.0, 0.0)
+    } else {
+      light.direction.normalize_or_zero()
     }
+    let world_direction = transform
+      .transform_vector(local_direction)
+      .try_normalize()
+      .unwrap_or(local_direction)
+    spot_lights.push({
+      position: transform.translation,
+      direction: world_direction,
+      color: light.color,
+      intensity: light.intensity,
+      range: light.range,
+      shadows: light.shadows,
+      shadow_depth_bias: light.shadow_depth_bias,
+      shadow_normal_bias: light.shadow_normal_bias,
+      shadow_map_near_z: light.shadow_map_near_z,
+      inner_angle: light.inner_angle,
+      outer_angle: light.outer_angle,
+    })
   }
 
   frame.items = items
@@ -355,7 +347,6 @@ struct Render3DQueries {
   spots : @ecs.Query[(SpotLight3D, @transform.Spatial)]
   skyboxes : @ecs.Query[@ecs.Single[Skybox3D]]
   layers : @ecs.Query[@ecs.Single[@visibility.RenderLayers]]
-  entities : @ecs.Entities
 }
 
 ///|
@@ -367,7 +358,6 @@ pub fn Render3DQueries::Render3DQueries(world : @ecs.World) -> Render3DQueries {
     spots: world.query(),
     skyboxes: world.query(),
     layers: world.query(),
-    entities: Entities(world),
   }
 }
 

@@ -135,7 +135,6 @@ fn entity_physics_config_key(
 
 ///|
 fn should_have_physics(physics~ : PhysicsStep2D, entity : @ecs.Entity) -> Bool {
-  physics.entities.is_alive(entity) &&
   world_entity(physics~, entity) &&
   entity_physics_snapshot(physics~, entity) is Some(_)
 }
