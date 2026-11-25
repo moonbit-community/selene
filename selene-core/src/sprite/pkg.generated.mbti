@@ -6,6 +6,7 @@ import {
   "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
+  "Milky2018/selene/render2d",
   "Milky2018/selene/render2d_types",
   "Milky2018/selene/transform",
   "moonbitlang/core/debug",
@@ -22,7 +23,7 @@ pub fn register_texture_atlas_layout(TextureAtlasLayout) -> TextureAtlasLayoutHa
 
 pub fn release_texture_atlas_layout(TextureAtlasLayoutHandle) -> Unit
 
-pub fn render_sprite_system(world~ : @ecs.World, Double) -> Unit
+pub fn render_sprite_system(@render2d.Frame2D, @ecs.Query[(Sprite, @transform.Spatial)], @render2d.RenderView2D) -> Unit
 
 pub fn take_dirty_texture_atlas_layouts() -> Array[(TextureAtlasLayoutHandle, TextureAtlasLayout)]
 

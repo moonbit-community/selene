@@ -1,10 +1,10 @@
 ///|
-fn full_screen_viewport() -> @math.Rect {
-  { position: @math.Vec2::zero(), size: @window.get_screen_size(), }
+fn full_screen_viewport(display : @window.Display) -> @math.Rect {
+  { position: @math.Vec2::zero(), size: display.screen_size(), }
 }
 
 ///|
-fn screen_pass_order(camera_views : Array[@camera.Camera2dView]) -> Int32 {
+fn screen_pass_order(camera_views : ArrayView[@camera.Camera2dView]) -> Int32 {
   if camera_views.is_empty() {
     0
   } else {
@@ -34,19 +34,19 @@ fn render_pass_target(
 
 ///|
 fn build_frame2d(
-  camera_views : Array[@camera.Camera2dView],
+  frame : @render2d.Frame2D,
+  display : @window.Display,
+  camera_views : ArrayView[@camera.Camera2dView],
 ) -> (@render2d_types.RenderFrame2D, Array[@render2d.DrawCommandWithDepth2D]) {
   let passes : Array[@render2d_types.RenderPass2D] = []
   let world_commands : Array[@render2d_types.DrawCommand2D] = []
   let ui_commands : Array[@render2d_types.DrawCommand2D] = []
   let world_commands_with_depth : Array[@render2d.DrawCommandWithDepth2D] = []
   for camera_view in camera_views {
-    let pass_world_with_depth = @render2d.get_camera_world_commands_with_depth(
+    let pass_world_with_depth = frame.get_camera_world_commands_with_depth(
       camera_view.entity.id(),
     )
-    let pass_ui_commands = @render2d.get_camera_ui_commands(
-      camera_view.entity.id(),
-    )
+    let pass_ui_commands = frame.get_camera_ui_commands(camera_view.entity.id())
     let needs_clear = camera_view.camera.pass.load_op is Clear
     if pass_world_with_depth.is_empty() &&
       pass_ui_commands.is_empty() &&
@@ -89,8 +89,8 @@ fn build_frame2d(
     })
   }
 
-  let screen_world_with_depth = @render2d.get_screen_world_commands_with_depth()
-  let screen_ui_commands = @render2d.get_screen_ui_commands()
+  let screen_world_with_depth = frame.get_screen_world_commands_with_depth()
+  let screen_ui_commands = frame.get_screen_ui_commands()
   if !screen_world_with_depth.is_empty() ||
     !screen_ui_commands.is_empty() ||
     passes.is_empty() {
@@ -105,7 +105,7 @@ fn build_frame2d(
     passes.push({
       camera_entity_id: None,
       order: screen_pass_order(camera_views),
-      viewport: full_screen_viewport(),
+      viewport: full_screen_viewport(display),
       load_op: Load,
       clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0, },
       target: Screen,
@@ -120,9 +120,17 @@ fn build_frame2d(
 }
 
 ///|
-pub fn render_submit_system(world~ : @ecs.World, _delta : Double) -> Unit {
-  let camera_views = @camera.active_camera2d_views(world~)
-  let (frame2d, world_commands_with_depth) = build_frame2d(camera_views)
+pub fn render_submit_system(
+  frame : @render2d.Frame2D,
+  view : @render2d.RenderView2D,
+  prepared : @render3d_pipeline.PreparedFrame3D,
+  capture : @runtime_debug.RenderCapture,
+  display : @window.Display,
+) -> Unit {
+  let camera_views = view.camera_views()
+  let (frame2d, world_commands_with_depth) = build_frame2d(
+    frame, display, camera_views,
+  )
   let assets3d : @render_pipeline.RenderAssetSync3D = {
     mesh_upserts: @render3d.take_dirty_mesh_assets(),
     material_upserts: @render3d.take_dirty_material_assets(),
@@ -133,14 +141,10 @@ pub fn render_submit_system(world~ : @ecs.World, _delta : Double) -> Unit {
   }
   let frame : @render_pipeline.RenderFrame = {
     frame2d,
-    frame3d: @render3d_pipeline.get_prepared_frame3d(),
+    frame3d: prepared.get(),
     assets3d,
   }
-  let debug_frame = @runtime_debug.decorate_frame_for_debug(
-    frame, world_commands_with_depth,
-  )
-  @runtime_debug.record_render_submission(
-    debug_frame, world_commands_with_depth,
-  )
+  let debug_frame = capture.decorate(frame, world_commands_with_depth)
+  capture.record(debug_frame, world_commands_with_depth)
   @platform_render.submit_frame(debug_frame)
 }

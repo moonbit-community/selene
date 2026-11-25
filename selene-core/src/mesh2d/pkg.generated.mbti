@@ -3,7 +3,10 @@ package "Milky2018/selene/mesh2d"
 
 import {
   "Milky2018/selene/ecs",
+  "Milky2018/selene/material2d",
   "Milky2018/selene/math",
+  "Milky2018/selene/render2d",
+  "Milky2018/selene/transform",
   "moonbitlang/core/debug",
 }
 
@@ -20,7 +23,7 @@ pub fn register_mesh2d_asset(Mesh2dAsset) -> Mesh2dHandle
 
 pub fn release_mesh2d_asset(Mesh2dHandle) -> Unit
 
-pub fn render_mesh2d_system(world~ : @ecs.World, Double) -> Unit
+pub fn render_mesh2d_system(@render2d.Frame2D, @ecs.Query[(Mesh2d, @material2d.MeshMaterial2d, @transform.Spatial)], @render2d.RenderView2D) -> Unit
 
 pub fn update_mesh2d_asset(Mesh2dHandle, Mesh2dAsset) -> Unit
 

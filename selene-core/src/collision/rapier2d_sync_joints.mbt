@@ -95,7 +95,13 @@ fn intersecting_entities(
 ) -> Array[@ecs.Entity] {
   let entities : Array[@ecs.Entity] = []
   for handle in handles {
-    guard entity_from_collider_handle(handle) is Some(entity) else { continue }
+    guard entity_from_collider_handle(
+        physics=PhysicsStep2D(@ecs.require_current_world()),
+        handle,
+      )
+      is Some(entity) else {
+      continue
+    }
     if !entities.contains(entity) {
       entities.push(entity)
     }
@@ -105,7 +111,7 @@ fn intersecting_entities(
 
 ///|
 fn refresh_query_world(world~ : @ecs.World) -> Unit {
-  sync_world_entities(world~)
+  sync_world_entities(physics=PhysicsStep2D(world))
   physics_world().bodies.propagate_modified_body_positions_to_colliders()
 }
 
@@ -140,12 +146,13 @@ fn push_pending_force_point(
 
 ///|
 fn apply_force_now(
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
   force : @math.Vec2,
   wake_up : Bool,
 ) -> Bool {
-  if physics_world().entity_bodies.get(entity) is Some(handle) &&
-    physics_world().bodies.get_mut(handle) is Some(body) {
+  if physics.runtime.world.entity_bodies.get(entity) is Some(handle) &&
+    physics.runtime.world.bodies.get_mut(handle) is Some(body) {
     body.add_force(to_physics_vec2(force), wake_up) |> ignore
     true
   } else {
@@ -155,13 +162,14 @@ fn apply_force_now(
 
 ///|
 fn apply_force_at_point_now(
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
   force : @math.Vec2,
   point : @math.Vec2,
   wake_up : Bool,
 ) -> Bool {
-  if physics_world().entity_bodies.get(entity) is Some(handle) &&
-    physics_world().bodies.get_mut(handle) is Some(body) {
+  if physics.runtime.world.entity_bodies.get(entity) is Some(handle) &&
+    physics.runtime.world.bodies.get_mut(handle) is Some(body) {
     body.add_force_at_point(
       to_physics_vec2(force),
       to_physics_vec2(point),
@@ -176,12 +184,13 @@ fn apply_force_at_point_now(
 
 ///|
 fn apply_torque_now(
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
   torque : Double,
   wake_up : Bool,
 ) -> Bool {
-  if physics_world().entity_bodies.get(entity) is Some(handle) &&
-    physics_world().bodies.get_mut(handle) is Some(body) {
+  if physics.runtime.world.entity_bodies.get(entity) is Some(handle) &&
+    physics.runtime.world.bodies.get_mut(handle) is Some(body) {
     body.add_torque(Float::from_double(torque), wake_up) |> ignore
     true
   } else {
@@ -191,12 +200,13 @@ fn apply_torque_now(
 
 ///|
 fn apply_impulse_now(
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
   impulse : @math.Vec2,
   wake_up : Bool,
 ) -> Bool {
-  if physics_world().entity_bodies.get(entity) is Some(handle) &&
-    physics_world().bodies.get_mut(handle) is Some(body) {
+  if physics.runtime.world.entity_bodies.get(entity) is Some(handle) &&
+    physics.runtime.world.bodies.get_mut(handle) is Some(body) {
     body.apply_impulse(to_physics_vec2(impulse), wake_up) |> ignore
     true
   } else {
@@ -206,13 +216,14 @@ fn apply_impulse_now(
 
 ///|
 fn apply_impulse_at_point_now(
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
   impulse : @math.Vec2,
   point : @math.Vec2,
   wake_up : Bool,
 ) -> Bool {
-  if physics_world().entity_bodies.get(entity) is Some(handle) &&
-    physics_world().bodies.get_mut(handle) is Some(body) {
+  if physics.runtime.world.entity_bodies.get(entity) is Some(handle) &&
+    physics.runtime.world.bodies.get_mut(handle) is Some(body) {
     body.apply_impulse_at_point(
       to_physics_vec2(impulse),
       to_physics_vec2(point),
@@ -227,12 +238,13 @@ fn apply_impulse_at_point_now(
 
 ///|
 fn apply_torque_impulse_now(
+  physics~ : PhysicsStep2D,
   entity : @ecs.Entity,
   impulse : Double,
   wake_up : Bool,
 ) -> Bool {
-  if physics_world().entity_bodies.get(entity) is Some(handle) &&
-    physics_world().bodies.get_mut(handle) is Some(body) {
+  if physics.runtime.world.entity_bodies.get(entity) is Some(handle) &&
+    physics.runtime.world.bodies.get_mut(handle) is Some(body) {
     body.apply_torque_impulse(Float::from_double(impulse), wake_up) |> ignore
     true
   } else {
@@ -241,11 +253,14 @@ fn apply_torque_impulse_now(
 }
 
 ///|
-fn has_pending_body_actions(entity : @ecs.Entity) -> Bool {
-  pending_body_forces().contains(entity) ||
-  pending_body_force_points().contains(entity) ||
-  pending_body_torques().contains(entity) ||
-  pending_body_impulses().contains(entity) ||
-  pending_body_impulse_points().contains(entity) ||
-  pending_body_torque_impulses().contains(entity)
+fn has_pending_body_actions(
+  physics~ : PhysicsStep2D,
+  entity : @ecs.Entity,
+) -> Bool {
+  physics.runtime.pending_body_forces.contains(entity) ||
+  physics.runtime.pending_body_force_points.contains(entity) ||
+  physics.runtime.pending_body_torques.contains(entity) ||
+  physics.runtime.pending_body_impulses.contains(entity) ||
+  physics.runtime.pending_body_impulse_points.contains(entity) ||
+  physics.runtime.pending_body_torque_impulses.contains(entity)
 }

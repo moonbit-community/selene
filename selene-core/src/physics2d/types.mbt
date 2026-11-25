@@ -159,3 +159,12 @@ pub type PointerPhase = @collision.PointerPhase
 ///|
 /// Pointer event record.
 pub type PointerEvent = @collision.PointerEvent
+
+///|
+pub type PhysicsMotion = @collision.PhysicsMotion
+
+///|
+pub type PhysicsStep2D = @collision.PhysicsStep2D
+
+///|
+pub type CollisionQueries = @collision.CollisionQueries

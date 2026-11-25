@@ -248,6 +248,7 @@ pub fn UiGradient::UiGradient(
 
 ///|
 pub(all) struct UiMaterialContext {
+  frame : @render2d.Frame2D
   entity : @ecs.Entity
   rect : @math.Rect
   content_rect : @math.Rect
@@ -257,13 +258,14 @@ pub(all) struct UiMaterialContext {
 
 ///|
 pub fn UiMaterialContext::UiMaterialContext(
+  frame : @render2d.Frame2D,
   entity : @ecs.Entity,
   rect : @math.Rect,
   content_rect~ : @math.Rect = rect,
   border_radius~ : BorderRadius = BorderRadius::all(Val::px(0.0)),
   target_camera_entity_id~ : UInt32? = None,
 ) -> UiMaterialContext {
-  { entity, rect, content_rect, border_radius, target_camera_entity_id, }
+  { frame, entity, rect, content_rect, border_radius, target_camera_entity_id, }
 }
 
 ///|

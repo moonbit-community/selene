@@ -314,6 +314,7 @@ fn player_shooting_system(
   resource : @ecs.Res[SurvivorsRuntime],
   commands : @ecs.Commands,
   time : @time.Time,
+  timers : @time.Timers,
 ) -> Unit {
   let runtime = resource.get()
   guard runtime.game is Some(game) else { return }
@@ -348,6 +349,7 @@ fn player_shooting_system(
   }
   update_weapon_timers(
     runtime,
+    timers,
     commands,
     enemies,
     game.player_stats.weapon_instances,
@@ -368,8 +370,7 @@ fn find_nearest_enemy_in_range(
 ) -> @math.Vec2? {
   let mut min = weapon_range
   let mut res : @math.Vec2? = None
-  for e, (_, spatial) in enemies {
-    guard e.is_alive() else { continue }
+  for _, (_, spatial) in enemies {
     let enemy_transform = spatial.pose()
     let enemy_pos = @math.Vec2(
       enemy_transform.translation.x,

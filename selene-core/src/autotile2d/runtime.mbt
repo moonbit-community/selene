@@ -94,7 +94,7 @@ fn apply_tile_visual(
 ///|
 fn destroy_layer_tiles(state : RuntimeLayerState) -> Unit {
   for _, tile_entity in state.tile_entities {
-    @ecs.commands(@ecs.require_current_world()).delete(tile_entity)
+    @ecs.commands(@ecs.require_current_world()).despawn(tile_entity)
   }
 }
 
@@ -138,7 +138,7 @@ fn apply_diff_to_runtime(
   for removed in diff.removed_tiles {
     let key = AutoTileGridPos::{ x: removed.x, y: removed.y, }
     if tile_entities.get(key) is Some(entity_) {
-      @ecs.commands(@ecs.require_current_world()).delete(entity_)
+      @ecs.commands(@ecs.require_current_world()).despawn(entity_)
       ignore(tile_entities.remove(key))
     }
   }
@@ -148,7 +148,7 @@ fn apply_diff_to_runtime(
   for changed in diff.changed_tiles {
     let key = AutoTileGridPos::{ x: changed.x, y: changed.y, }
     if tile_entities.get(key) is Some(entity_) {
-      @ecs.commands(@ecs.require_current_world()).delete(entity_)
+      @ecs.commands(@ecs.require_current_world()).despawn(entity_)
       ignore(tile_entities.remove(key))
     }
     if apply_tile_visual(

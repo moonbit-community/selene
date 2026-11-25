@@ -173,11 +173,6 @@ fn WaveState::WaveState() -> WaveState {
 }
 
 ///|
-fn wave_state() -> WaveState {
-  @ecs.require_current_world().resource()
-}
-
-///|
 fn reset_wave_state() -> Unit {
   @ecs.require_current_world().insert_resource(WaveState())
 }
@@ -254,11 +249,16 @@ let spawners : Array[@math.Vec2] = [
 ]
 
 ///|
-fn start_enemy_spawner() -> Unit {
+fn start_enemy_spawner(
+  runtime : SurvivorsRuntime,
+  wave_state : @ecs.Res[WaveState],
+  timers : @time.Timers,
+  commands : @ecs.Commands,
+  phase : @state.State[GamePhase],
+) -> Unit {
   fn spawn_enemy() -> Unit {
-    let world = @ecs.require_current_world()
-    let game = game_state(world~)
-    if (@state.current(@ecs.require_current_world()) : GamePhase) != Playing {
+    let game = runtime.game.unwrap()
+    if phase.get() != Playing {
       return
     }
     let rand = game.rand
@@ -272,7 +272,8 @@ fn start_enemy_spawner() -> Unit {
     }
 
     // Try to select an enemy type for the current wave
-    match select_enemy_type_for_wave(world~, rand) {
+    match
+      select_enemy_type_for_wave(wave_state.get(), game.current_wave, rand) {
       Some(enemy_type) => {
         let pos = spawners[rand.int(limit=spawners.length())]
         let data = get_enemy_data(enemy_type)
@@ -290,8 +291,7 @@ fn start_enemy_spawner() -> Unit {
           size=Vec2(8.0, 8.0),
           offset=Vec2(-4.0, -4.0),
         )
-        let runtime = survivors_runtime()
-        let enemy = @ecs.commands(@ecs.require_current_world()).spawn_prepared(
+        let enemy = commands.spawn_prepared(
           runtime.enemy_plan,
           (
             (
@@ -321,7 +321,7 @@ fn start_enemy_spawner() -> Unit {
           ),
         )
         runtime.entities.push(enemy)
-        @ecs.commands(world).add(world => {
+        commands.add(world => {
           play_enemy_animation_state(
             world.query(),
             enemy,
@@ -333,7 +333,7 @@ fn start_enemy_spawner() -> Unit {
       }
       None => () // No more enemies to spawn in this wave
     }
-    survivors_timeout(spawn_interval, spawn_enemy)
+    survivors_timeout(runtime, timers, spawn_interval, spawn_enemy)
   }
 
   spawn_enemy()
@@ -437,11 +437,10 @@ fn get_enemy_data(enemy_type : EnemyType) -> EnemyData {
 
 ///|
 fn select_enemy_type_for_wave(
-  world~ : @ecs.World,
+  state : WaveState,
+  wave : Int32,
   rand : @random.Rand,
 ) -> EnemyType? {
-  let state = wave_state()
-  let wave = game_state(world~).current_wave
   if wave < 1 || wave > 10 {
     return None
   }
@@ -509,7 +508,6 @@ fn enemy_ai_system(
     player_transform.translation.y,
   )
   for e, (state, spatial, _, sprite, player, transitions) in enemies {
-    guard e.is_alive() else { continue }
     let enemy_transform = spatial.pose()
     let data = get_enemy_data(state.enemy_type)
     let position = @math.Vec2(
@@ -548,14 +546,15 @@ fn devil_shooting_system(
   resource : @ecs.Res[SurvivorsRuntime],
   commands : @ecs.Commands,
   time : @time.Time,
+  timers : @time.Timers,
 ) -> Unit {
   let runtime = resource.get()
   guard runtime.game is Some(game) else { return }
   guard spatials.get(game.player_entity) is Some(Single(player)) else { return }
   let player_transform = player.pose()
   let delta = time.delta()
-  for e, (state, spatial) in enemies {
-    guard e.is_alive() && state.enemy_type == Devil else { continue }
+  for _, (state, spatial) in enemies {
+    guard state.enemy_type == Devil else { continue }
     let enemy_transform = spatial.pose()
     let enemy_pos = @math.Vec2(
       enemy_transform.translation.x,
@@ -574,7 +573,7 @@ fn devil_shooting_system(
     // Shoot when timer expires
     if state.shoot_timer <= 0.0 {
       state.shoot_timer = 5.0 // Reset cooldown
-      shoot_enemy_bullet(runtime, commands, enemy_pos, player_pos)
+      shoot_enemy_bullet(runtime, timers, commands, enemy_pos, player_pos)
     }
   }
 }
@@ -613,6 +612,7 @@ type EnemyBulletSpawnPlan = @ecs.SpawnPlan[
 ///|
 fn shoot_enemy_bullet(
   runtime : SurvivorsRuntime,
+  timers : @time.Timers,
   commands : @ecs.Commands,
   enemy_pos : @math.Vec2,
   player_pos : @math.Vec2,
@@ -650,8 +650,8 @@ fn shoot_enemy_bullet(
   )
   runtime.entities.push(bullet_entity)
   runtime.enemy_bullets.add(bullet_entity)
-  survivors_timeout(5.0, fn() {
-    @ecs.commands(@ecs.require_current_world()).delete(bullet_entity)
+  survivors_timeout(runtime, timers, 5.0, fn() {
+    commands.despawn(bullet_entity)
     runtime.enemy_bullets.remove(bullet_entity)
   })
 }
@@ -667,7 +667,9 @@ fn apply_player_damage(ui~ : SurvivorsUi) -> Unit {
   let new_score = (game.score - penalty).max(0)
   set_score(ui~, new_score)
   trigger_damage_effect(ui~)
-  survivors_timeout(INVINCIBLE_TIME, fn() { game.invincible = false })
+  survivors_timeout(ui.runtime, ui.timers, INVINCIBLE_TIME, fn() {
+    game.invincible = false
+  })
 }
 
 ///|
@@ -677,26 +679,20 @@ fn enemy_collision_system(
 ) -> Unit {
   let runtime = ui.runtime
   let game = ui.game()
-  for
-    event in @physics2d.contact_event_bus.read(
-      runtime.enemy_contact_event_reader,
-    ) {
+  for event in ui.enemy_contacts.read() {
     guard event.started else { continue }
     guard event.entity == game.player_entity else { continue }
     if enemies.contains(event.other) {
       apply_player_damage(ui~)
     }
   }
-  for
-    event in @physics2d.trigger_event_bus.read(
-      runtime.enemy_trigger_event_reader,
-    ) {
+  for event in ui.enemy_triggers.read() {
     guard event.entered else { continue }
     guard runtime.enemy_bullets.contains(event.area) else { continue }
     if event.other == game.player_entity {
       apply_player_damage(ui~)
     }
-    ui.commands.delete(event.area)
+    ui.commands.despawn(event.area)
     runtime.enemy_bullets.remove(event.area)
   }
 }
@@ -714,16 +710,8 @@ fn check_victory_system(
     return
   }
 
-  // Count alive enemies
-  let mut alive_count = 0
-  for e, Single(_state) in query_enemy {
-    if e.is_alive() {
-      alive_count += 1
-    }
-  }
-
-  // If no enemies left, trigger victory
-  if alive_count == 0 {
+  // Finish when no active enemies remain.
+  if query_enemy.is_empty() {
     next_phase.set(GameOver)
   }
 }

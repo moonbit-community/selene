@@ -22,12 +22,12 @@ pub fn submit_action_request(request : @moon_accesskit.ActionRequest) -> Unit {
 
 ///|
 fn invoke_action_callbacks(
-  world~ : @ecs.World,
+  state~ : A11yTree,
   entity : @ecs.Entity,
   action : @moon_accesskit.Action,
   data : @moon_accesskit.ActionData?,
 ) -> Unit {
-  let query_a11y : @ecs.Query[@ecs.Single[A11y]] = world.query()
+  let query_a11y = state.semantics
   guard query_a11y.get(entity).map(value => value.0) is Some(a11y) else {
     return
   }
@@ -38,35 +38,35 @@ fn invoke_action_callbacks(
 
 ///|
 fn dispatch_action(
-  world~ : @ecs.World,
+  state~ : A11yTree,
   entity : @ecs.Entity,
   action : @moon_accesskit.Action,
   data : @moon_accesskit.ActionData?,
 ) -> Unit {
-  guard get_a11y(world~, entity) is Some(a11y) else { return }
+  guard get_a11y(state~, entity) is Some(a11y) else { return }
   if a11y.disabled {
     return
   }
   match action {
-    Focus => @ui.focus(entity)
-    Blur => @ui.blur()
+    Focus => state.input.focus(entity)
+    Blur => state.input.blur()
     Click => {
-      @ui.click_event_bus.send({ entity, button: Left, })
-      invoke_action_callbacks(world~, entity, action, data)
+      state.clicks.send({ entity, button: Left, })
+      invoke_action_callbacks(state~, entity, action, data)
     }
-    _ => invoke_action_callbacks(world~, entity, action, data)
+    _ => invoke_action_callbacks(state~, entity, action, data)
   }
 }
 
 ///|
-fn process_action_requests(world~ : @ecs.World) -> Unit {
+fn process_action_requests(state~ : A11yTree) -> Unit {
   for request in pending_action_requests {
     guard request.target_tree() == a11y_tree_id else { continue }
-    guard a11y_runtime().current_node_entities.get(request.target_node())
+    guard state.runtime.current_node_entities.get(request.target_node())
       is Some(entity) else {
       continue
     }
-    dispatch_action(world~, entity, request.action(), request.data())
+    dispatch_action(state~, entity, request.action(), request.data())
   }
   pending_action_requests.clear()
 }

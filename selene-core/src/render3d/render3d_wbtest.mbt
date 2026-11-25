@@ -19,10 +19,20 @@ test "render3d extract preserves mesh shadow toggles" {
       @visibility.Visibility::Visible,
     ),
   )
-  @visibility.visibility_propagate_system(world~, 0.0)
-  @transform.transform_propagate_system(world~, 0.0)
+  @visibility.visibility_propagate_system(
+    Entities(world),
+    Hierarchy(world),
+    world.query(),
+    VisibilityState(world),
+  )
+  @transform.transform_propagate_system(Hierarchy(world), world.query())
 
-  render3d_extract_system(world~, 0.0)
+  render3d_extract_system(
+    Render3DQueries(world),
+    ExtractedFrame3D(world),
+    Camera3DState(world),
+    VisibilityState(world),
+  )
 
   let frame = get_extracted_frame3d()
   inspect(frame.items.length(), content="1")
@@ -32,7 +42,7 @@ test "render3d extract preserves mesh shadow toggles" {
   meshes.remove(mesh)
   materials.remove(material)
   render3d_world_state().extracted_frame = RenderFrame3D()
-  ignore(@ecs_test.delete(entity))
+  ignore(@ecs_test.despawn(entity))
 }
 
 ///|
@@ -132,7 +142,12 @@ test "render3d extract preserves shadow map size resources" {
   set_directional_light_shadow_map3d({ size: 1536, })
   set_point_light_shadow_map3d({ size: 768, })
 
-  render3d_extract_system(world~, 0.0)
+  render3d_extract_system(
+    Render3DQueries(world),
+    ExtractedFrame3D(world),
+    Camera3DState(world),
+    VisibilityState(world),
+  )
 
   let frame = get_extracted_frame3d()
   inspect(frame.directional_shadow_map_size, content="1536")
@@ -207,7 +222,12 @@ test "render3d extracts skybox from active camera" {
     }),
   )
 
-  render3d_extract_system(world~, 0.0)
+  render3d_extract_system(
+    Render3DQueries(world),
+    ExtractedFrame3D(world),
+    Camera3DState(world),
+    VisibilityState(world),
+  )
 
   let frame = get_extracted_frame3d()
   inspect(frame.clear_color.r, content="8")
@@ -230,7 +250,7 @@ test "render3d extracts skybox from active camera" {
   ignore(@asset.images.remove(nz))
   ignore(take_dirty_cubemap_assets())
   ignore(take_released_cubemap_assets())
-  ignore(@ecs_test.delete(camera_entity))
+  ignore(@ecs_test.despawn(camera_entity))
 }
 
 ///|

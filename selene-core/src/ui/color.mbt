@@ -33,7 +33,7 @@ pub fn transparent() -> @render.Color {
 
 ///|
 fn parse_uint(text : StringView, base : Int32) -> UInt32? {
-  Some(@string.parse_uint(text, base~)) catch {
+  Some(@string.parse_uint(text, radix=base)) catch {
     _ => None
   }
 }

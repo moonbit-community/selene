@@ -1,16 +1,22 @@
 ///|
-pub(all) struct EventWriter[T] {
-  events : Events[T]
+struct EventWriter[T] {
+  store : EventWorldStore[T]
 }
 
 ///|
-pub fn[T] EventWriter::EventWriter(events : Events[T]) -> EventWriter[T] {
-  { events, }
+pub fn[T] EventWriter::EventWriter(
+  events : Events[T],
+  world~ : @ecs.World = @ecs.require_current_world(),
+) -> EventWriter[T] {
+  { store: world_store(events, world~), }
 }
 
 ///|
 pub fn[T] EventWriter::send(self : EventWriter[T], event : T) -> Unit {
-  self.events.send(event)
+  let store = self.store
+  let id = store.next_event_id
+  store.next_event_id += 1
+  store.newer.push({ id, event, })
 }
 
 ///|
@@ -19,7 +25,8 @@ pub fn[T] EventWriter::trigger(
   event : T,
   target? : @ecs.Entity?,
 ) -> Unit {
-  self.events.trigger(event, target.unwrap_or(None))
+  self.send(event)
+  self.store.observer_queue.push({ event, target: target.unwrap_or(None), })
 }
 
 ///|

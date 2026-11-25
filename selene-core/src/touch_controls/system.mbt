@@ -2,15 +2,12 @@
 fn stick_runtime_for(
   runtime : TouchControlsWorldStore,
   stick : VirtualStick,
+  screen : @math.Vec2,
 ) -> StickRuntime {
   runtime.stick_runtimes.get_or_init(stick.id, fn() {
     {
       touch_id: None,
-      center: resolved_placement(
-        stick.placement,
-        @window.get_screen_size(),
-        stick.radius,
-      ),
+      center: resolved_placement(stick.placement, screen, stick.radius),
       value: @math.Vec2::zero(),
     }
   })
@@ -83,19 +80,23 @@ fn update_stick_value(
 }
 
 ///|
-fn process_existing_captures(runtime : TouchControlsWorldStore) -> Unit {
+fn process_existing_captures(
+  runtime : TouchControlsWorldStore,
+  screen : @math.Vec2,
+  consumption : @ui.PointerConsumption,
+) -> Unit {
   for _, stick in runtime.sticks {
-    let stick_state = stick_runtime_for(runtime, stick)
+    let stick_state = stick_runtime_for(runtime, stick, screen)
     match stick_state.touch_id {
       Some(id) =>
         if touch_ended_this_frame(id) {
-          @ui.consume_touch(id)
+          consumption.consume_touch(id)
           stick_state.touch_id = None
           stick_state.value = @math.Vec2::zero()
           @inputs.set_virtual_axis_value(stick.axis_x, 0.0)
           @inputs.set_virtual_axis_value(stick.axis_y, 0.0)
         } else if @inputs.touch_point(id) is Some(touch) {
-          @ui.consume_touch(id)
+          consumption.consume_touch(id)
           update_stick_value(stick, stick_state, touch.position)
         } else {
           stick_state.touch_id = None
@@ -111,12 +112,12 @@ fn process_existing_captures(runtime : TouchControlsWorldStore) -> Unit {
     match button_state.touch_id {
       Some(id) =>
         if touch_ended_this_frame(id) {
-          @ui.consume_touch(id)
+          consumption.consume_touch(id)
           button_state.touch_id = None
           button_state.pressed = false
           @inputs.set_virtual_button_pressed(button.button, false)
         } else if @inputs.touch_point(id) is Some(_) {
-          @ui.consume_touch(id)
+          consumption.consume_touch(id)
           button_state.pressed = true
           @inputs.set_virtual_button_pressed(button.button, true)
         } else {
@@ -132,6 +133,7 @@ fn process_existing_captures(runtime : TouchControlsWorldStore) -> Unit {
 ///|
 fn capture_button_start(
   runtime : TouchControlsWorldStore,
+  consumption : @ui.PointerConsumption,
   event : @inputs.TouchEvent,
   screen : @math.Vec2,
 ) -> Bool {
@@ -144,7 +146,7 @@ fn capture_button_start(
     if point_in_circle(event.position, center, hit_radius(button.radius)) {
       button_state.touch_id = Some(event.id)
       button_state.pressed = true
-      @ui.consume_touch(event.id)
+      consumption.consume_touch(event.id)
       @inputs.set_virtual_button_pressed(button.button, true)
       return true
     }
@@ -155,11 +157,12 @@ fn capture_button_start(
 ///|
 fn capture_stick_start(
   runtime : TouchControlsWorldStore,
+  consumption : @ui.PointerConsumption,
   event : @inputs.TouchEvent,
   screen : @math.Vec2,
 ) -> Bool {
   for _, stick in runtime.sticks {
-    let stick_state = stick_runtime_for(runtime, stick)
+    let stick_state = stick_runtime_for(runtime, stick, screen)
     if stick_state.touch_id is Some(_) {
       continue
     }
@@ -188,7 +191,7 @@ fn capture_stick_start(
         Fixed => placement_center
         Floating => event.position
       }
-      @ui.consume_touch(event.id)
+      consumption.consume_touch(event.id)
       update_stick_value(stick, stick_state, event.position)
       return true
     }
@@ -197,26 +200,34 @@ fn capture_stick_start(
 }
 
 ///|
-fn capture_new_starts(runtime : TouchControlsWorldStore) -> Unit {
-  let screen = @window.get_screen_size()
-  for event in @ui.unconsumed_touch_changes_this_frame() {
+fn capture_new_starts(
+  runtime : TouchControlsWorldStore,
+  screen : @math.Vec2,
+  consumption : @ui.PointerConsumption,
+) -> Unit {
+  for event in consumption.unconsumed_touch_changes() {
     if event.phase != Started {
       continue
     }
-    if capture_button_start(runtime, event, screen) {
+    if capture_button_start(runtime, consumption, event, screen) {
       continue
     }
-    ignore(capture_stick_start(runtime, event, screen))
+    ignore(capture_stick_start(runtime, consumption, event, screen))
   }
 }
 
 ///|
-pub fn touch_controls_system() -> Unit {
-  let runtime = store()
+pub fn touch_controls_system(
+  controls : TouchControls,
+  display : @window.Display,
+  consumption : @ui.PointerConsumption,
+) -> Unit {
+  let runtime = controls.state
   if !runtime.enabled {
     reset_runtime_values(runtime)
     return
   }
-  process_existing_captures(runtime)
-  capture_new_starts(runtime)
+  let screen = display.screen_size()
+  process_existing_captures(runtime, screen, consumption)
+  capture_new_starts(runtime, screen, consumption)
 }

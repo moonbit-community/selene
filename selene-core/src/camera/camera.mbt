@@ -109,9 +109,9 @@ fn viewport_to_world_affine(
   camera_transform : @transform.GlobalTransform,
   projection : OrthographicProjection,
   viewport : @math.Rect,
+  zoom : Double,
 ) -> @math.Affine2 {
-  let world_units_per_pixel = projection_scale(projection.scale) /
-    @window.get_zoom()
+  let world_units_per_pixel = projection_scale(projection.scale) / zoom
   let center = viewport.position + viewport.size.scalar_mul(0.5)
   camera_transform.affine.project_xy() *
   @math.Affine2::from_scale(Vec2(world_units_per_pixel, world_units_per_pixel)) *
@@ -126,7 +126,12 @@ pub fn Camera::world_to_viewport(
   projection : OrthographicProjection,
   world_position : @math.Vec2,
 ) -> @math.Vec2? {
-  viewport_to_world_affine(camera_transform, projection, self.viewport_rect())
+  viewport_to_world_affine(
+    camera_transform,
+    projection,
+    self.viewport_rect(),
+    @window.get_zoom(),
+  )
   .inverse()
   .map(transform => transform.transform_point(world_position))
 }
@@ -138,7 +143,10 @@ pub fn Camera::viewport_to_world_2d(
   projection : OrthographicProjection,
   viewport_position : @math.Vec2,
 ) -> @math.Vec2 {
-  viewport_to_world_affine(camera_transform, projection, self.viewport_rect()).transform_point(
-    viewport_position,
-  )
+  viewport_to_world_affine(
+    camera_transform,
+    projection,
+    self.viewport_rect(),
+    @window.get_zoom(),
+  ).transform_point(viewport_position)
 }

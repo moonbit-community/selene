@@ -21,7 +21,7 @@ test "timeouts can be cancelled before ticking and within a due batch" {
   })
   later.val = Some(@time.timeout(0.0, () => calls.push(2)))
 
-  @time.timers_system(0.0)
+  try! @ecs.Schedule().add_system(@ecs.args2(@time.timers_system)).run(world)
   assert_eq(calls, [1])
   assert_false(first.cancel())
   assert_false(later.val.unwrap().cancel())
@@ -43,8 +43,10 @@ test "scaled and realtime timer ticks advance only their own clock" {
   ignore(@time.timeout(1.0, () => calls.push(1)))
   ignore(@time.timeout(2.0, () => calls.push(2), pausible=false))
 
-  @time.timer_system(@time.delta())
+  try! @ecs.Schedule().add_system(@ecs.args2(@time.timer_system)).run(world)
   assert_eq(calls, [1])
-  @time.realtime_timer_system()
+  try! @ecs.Schedule()
+  .add_system(@ecs.args2(@time.realtime_timer_system))
+  .run(world)
   assert_eq(calls, [1, 2])
 }

@@ -36,20 +36,12 @@ fn Text2dWorldStore::Text2dWorldStore(world : @ecs.World) -> Text2dWorldStore {
 }
 
 ///|
-fn text2d_world_store() -> Text2dWorldStore {
-  text2d_world_store_key.get_or_insert_with(@ecs.require_current_world(), world => {
+fn text2d_world_store(
+  world~ : @ecs.World = @ecs.require_current_world(),
+) -> Text2dWorldStore {
+  text2d_world_store_key.get_or_insert_with(world, world => {
     Text2dWorldStore(world)
   })
-}
-
-///|
-fn text_layout_caches() -> @ecs.EntityTable[CachedTextLayout2d] {
-  text2d_world_store().text_layout_caches
-}
-
-///|
-fn text2d_layout(world~ : @ecs.World, entity : @ecs.Entity) -> @ui.TextLayout {
-  (world.get_component(entity) : @ui.TextLayout?).unwrap_or(TextLayout())
 }
 
 ///|
@@ -207,6 +199,7 @@ fn text_layout_cache_key(
 
 ///|
 fn cached_text_layout(
+  caches : @ecs.EntityTable[CachedTextLayout2d],
   entity : @ecs.Entity,
   text : String,
   style : @render2d_types.TextStyle2D,
@@ -214,7 +207,7 @@ fn cached_text_layout(
   bounds : TextBounds?,
 ) -> CachedTextLayout2d {
   let key = text_layout_cache_key(text, style, layout, bounds)
-  match text_layout_caches().get(entity) {
+  match caches.get(entity) {
     Some(cached) if cached.key == key => cached
     _ => {
       let lines = bounded_text_lines(text, style, layout, bounds)
@@ -224,8 +217,59 @@ fn cached_text_layout(
         @cmp.maximum(acc, measure_text_fragment(style, line).x)
       })
       let cached = { key, lines, max_line_width, line_height, block_height, }
-      text_layout_caches().set(entity, cached)
+      caches.set(entity, cached)
       cached
     }
   }
 }
+
+///|
+struct TextLayoutData {
+  caches : @ecs.EntityTable[CachedTextLayout2d]
+  fonts : @ecs.Query[@ecs.Single[@ui.TextFont]]
+  colors : @ecs.Query[@ecs.Single[@ui.TextColor]]
+  layouts : @ecs.Query[@ecs.Single[@ui.TextLayout]]
+  bounds : @ecs.Query[@ecs.Single[TextBounds]]
+  anchors : @ecs.Query[@ecs.Single[@sprite.Anchor]]
+}
+
+///|
+pub fn TextLayoutData::TextLayoutData(world : @ecs.World) -> TextLayoutData {
+  {
+    caches: text2d_world_store(world~).text_layout_caches,
+    fonts: world.query(),
+    colors: world.query(),
+    layouts: world.query(),
+    bounds: world.query(),
+    anchors: world.query(),
+  }
+}
+
+///|
+fn TextLayoutData::style(
+  self : TextLayoutData,
+  entity : @ecs.Entity,
+  layout : @ui.TextLayout,
+) -> @render2d_types.TextStyle2D {
+  let font = self.fonts.get(entity).map_or(@ui.TextFont(), value => value.0)
+  let color = self.colors
+    .get(entity)
+    .map_or(@ui.TextColor::from_css("white"), value => value.0)
+  {
+    font: font.font_handle,
+    family: font.family,
+    size: font.size,
+    color: color.color,
+    align: layout.align,
+    baseline: layout.baseline,
+  }
+}
+
+///|
+pub impl @ecs.SystemParam for TextLayoutData with fn prepare(world) {
+  let data = TextLayoutData(world)
+  _ => data
+}
+
+///|
+pub extend TextLayoutData with @ecs.SystemParam::{prepare}

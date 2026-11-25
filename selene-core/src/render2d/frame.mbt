@@ -32,8 +32,10 @@ priv struct RenderFrameState2D {
 let frame2d_key : @ecs.ResourceKey[RenderFrameState2D] = ResourceKey()
 
 ///|
-fn frame2d() -> RenderFrameState2D {
-  frame2d_key.get_or_insert_with(@ecs.require_current_world(), _ => {
+fn frame2d(
+  world~ : @ecs.World = @ecs.require_current_world(),
+) -> RenderFrameState2D {
+  frame2d_key.get_or_insert_with(world, _ => {
     screen_world_commands: [],
     screen_ui_commands: [],
     camera_world_commands: Map([]),
@@ -43,14 +45,13 @@ fn frame2d() -> RenderFrameState2D {
 }
 
 ///|
-pub fn begin_frame2d_system() -> Unit {
-  frame2d_key.insert_in(@ecs.require_current_world(), {
-    screen_world_commands: [],
-    screen_ui_commands: [],
-    camera_world_commands: Map([]),
-    camera_ui_commands: Map([]),
-    next_order: 0,
-  })
+pub fn begin_frame2d_system(frame : Frame2D) -> Unit {
+  let state = frame.state
+  state.screen_world_commands.clear()
+  state.screen_ui_commands.clear()
+  state.camera_world_commands.clear()
+  state.camera_ui_commands.clear()
+  state.next_order = 0
 }
 
 ///|
@@ -88,7 +89,15 @@ fn push_ui_command(
 ///|
 /// Reserves a range of draw-order keys for one batch in the active frame.
 pub fn reserve_world_command_order(count : Int32) -> Int32 {
-  let frame = frame2d()
+  Frame2D(@ecs.require_current_world()).reserve_world_command_order(count)
+}
+
+///|
+pub fn Frame2D::reserve_world_command_order(
+  self : Frame2D,
+  count : Int32,
+) -> Int32 {
+  let frame = self.state
   let start = frame.next_order
   frame.next_order += count
   start
@@ -104,7 +113,27 @@ pub fn push_world_command(
   sorting~ : Sorting2d = Sorting2d(),
   order~ : Int32? = None,
 ) -> Unit {
-  let frame = frame2d()
+  Frame2D(@ecs.require_current_world()).push_world_command(
+    depth,
+    entity_id,
+    command,
+    camera_entity_id~,
+    sorting~,
+    order~,
+  )
+}
+
+///|
+pub fn Frame2D::push_world_command(
+  self : Frame2D,
+  depth : Double,
+  entity_id : UInt32?,
+  command : @render2d_types.DrawCommand2D,
+  camera_entity_id~ : UInt32? = None,
+  sorting~ : Sorting2d = Sorting2d(),
+  order~ : Int32? = None,
+) -> Unit {
+  let frame = self.state
   let order = match order {
     Some(order) => order
     None => {
@@ -198,33 +227,16 @@ fn sorted_camera_entity_ids_by_pass_order(world~ : @ecs.World) -> Array[UInt32] 
 
 ///|
 pub fn get_screen_world_commands_with_depth() -> Array[DrawCommandWithDepth2D] {
-  sorted_world_commands(frame2d().screen_world_commands).map(fn(command) {
-    {
-      depth: command.depth,
-      order: command.order,
-      camera_entity_id: command.camera_entity_id,
-      entity_id: command.entity_id,
-      command: command.command,
-    }
-  })
+  Frame2D(@ecs.require_current_world()).get_screen_world_commands_with_depth()
 }
 
 ///|
 pub fn get_camera_world_commands_with_depth(
   camera_entity_id : UInt32,
 ) -> Array[DrawCommandWithDepth2D] {
-  let commands = frame2d().camera_world_commands
-    .get(camera_entity_id)
-    .unwrap_or([])
-  sorted_world_commands(commands).map(fn(command) {
-    {
-      depth: command.depth,
-      order: command.order,
-      camera_entity_id: command.camera_entity_id,
-      entity_id: command.entity_id,
-      command: command.command,
-    }
-  })
+  Frame2D(@ecs.require_current_world()).get_camera_world_commands_with_depth(
+    camera_entity_id,
+  )
 }
 
 ///|
@@ -245,14 +257,14 @@ pub fn get_world_commands_with_depth(
 
 ///|
 pub fn get_screen_ui_commands() -> Array[@render2d_types.DrawCommand2D] {
-  frame2d().screen_ui_commands.copy()
+  Frame2D(@ecs.require_current_world()).get_screen_ui_commands()
 }
 
 ///|
 pub fn get_camera_ui_commands(
   camera_entity_id : UInt32,
 ) -> Array[@render2d_types.DrawCommand2D] {
-  frame2d().camera_ui_commands.get(camera_entity_id).unwrap_or([]).copy()
+  Frame2D(@ecs.require_current_world()).get_camera_ui_commands(camera_entity_id)
 }
 
 ///|
@@ -280,4 +292,81 @@ pub fn get_frame2d(world~ : @ecs.World) -> @render2d_types.RenderFrame2D {
     }),
     ui_commands: get_ui_commands(world~),
   }
+}
+
+///|
+struct Frame2D {
+  state : RenderFrameState2D
+}
+
+///|
+pub fn Frame2D::Frame2D(world : @ecs.World) -> Frame2D {
+  { state: frame2d(world~), }
+}
+
+///|
+pub impl @ecs.SystemParam for Frame2D with fn prepare(world) {
+  let value = Frame2D(world)
+  _ => value
+}
+
+///|
+pub extend Frame2D with @ecs.SystemParam::{prepare}
+
+///|
+pub fn Frame2D::push_ui(
+  self : Frame2D,
+  command : @render2d_types.DrawCommand2D,
+  camera_entity_id~ : UInt32? = None,
+) -> Unit {
+  ui_command_bucket(self.state, camera_entity_id).push(command)
+}
+
+///|
+pub fn Frame2D::get_screen_world_commands_with_depth(
+  self : Frame2D,
+) -> Array[DrawCommandWithDepth2D] {
+  sorted_world_commands(self.state.screen_world_commands).map(fn(command) {
+    {
+      depth: command.depth,
+      order: command.order,
+      camera_entity_id: command.camera_entity_id,
+      entity_id: command.entity_id,
+      command: command.command,
+    }
+  })
+}
+
+///|
+pub fn Frame2D::get_camera_world_commands_with_depth(
+  self : Frame2D,
+  camera_entity_id : UInt32,
+) -> Array[DrawCommandWithDepth2D] {
+  let commands = self.state.camera_world_commands
+    .get(camera_entity_id)
+    .unwrap_or([])
+  sorted_world_commands(commands).map(fn(command) {
+    {
+      depth: command.depth,
+      order: command.order,
+      camera_entity_id: command.camera_entity_id,
+      entity_id: command.entity_id,
+      command: command.command,
+    }
+  })
+}
+
+///|
+pub fn Frame2D::get_screen_ui_commands(
+  self : Frame2D,
+) -> Array[@render2d_types.DrawCommand2D] {
+  self.state.screen_ui_commands.copy()
+}
+
+///|
+pub fn Frame2D::get_camera_ui_commands(
+  self : Frame2D,
+  camera_entity_id : UInt32,
+) -> Array[@render2d_types.DrawCommand2D] {
+  self.state.camera_ui_commands.get(camera_entity_id).unwrap_or([]).copy()
 }

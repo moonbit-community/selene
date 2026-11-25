@@ -210,15 +210,10 @@ fn reset_pixeladventure_world_store() -> Unit {
   let previous : PixelAdventureWorldState? = world.get_resource()
   if previous is Some(state) {
     for entity in state.entities {
-      @ecs.commands(@ecs.require_current_world()).delete(entity)
+      @ecs.commands(@ecs.require_current_world()).despawn(entity)
     }
   }
   world.insert_resource(PixelAdventureWorldState())
-}
-
-///|
-fn ui_click_reader() -> @event.EventReader[@ui.UiClickEvent] {
-  pixeladventure_world_state().click_reader
 }
 
 ///|
@@ -381,3 +376,16 @@ let enemy_collision_group : @physics2d.CollisionGroup = CollisionGroup()
 
 ///|
 let trigger_collision_group : @physics2d.CollisionGroup = CollisionGroup()
+
+///|
+priv struct UiClicks {
+  events : @event.EventReaderView[@ui.UiClickEvent]
+}
+
+///|
+impl @ecs.SystemParam for UiClicks with fn prepare(_world) {
+  world => {
+    let runtime : PixelAdventureWorldState = world.resource()
+    { events: runtime.click_reader.bind(world, @ui.click_event_bus), }
+  }
+}

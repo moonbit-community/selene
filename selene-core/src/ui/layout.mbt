@@ -285,7 +285,7 @@ fn implicit_root_style(size : @math.Vec2) -> @style.Style {
 
 ///|
 fn measure_node(
-  world~ : @ecs.World,
+  nodes~ : UiNodes,
   known_dimensions : @geometry.Size[Double?],
   available : @geometry.Size[@geometry.AvailableSpace],
   _node_id : Int32,
@@ -293,17 +293,20 @@ fn measure_node(
   style : @style.Style,
 ) -> @geometry.Size[Double] {
   guard entity is Some(entity) else { return @geometry.Size::zero() }
-  let (intrinsic_width, intrinsic_height) = if (
-      world.get_component(entity) : Text?)
+  let (intrinsic_width, intrinsic_height) = if nodes.text
+    .get(entity)
+    .map(value => value.0)
     is Some(text) {
-    let text_style = text_style_for(world~, entity).unwrap_or({
-      font: None,
-      family: "Arial",
-      size: 16.0,
-      color: rgba(255, 255, 255, 1.0),
-      align: Left,
-      baseline: Top,
-    })
+    let text_style = nodes
+      .text_style_for(entity)
+      .unwrap_or({
+        font: None,
+        family: "Arial",
+        size: 16.0,
+        color: rgba(255, 255, 255, 1.0),
+        align: Left,
+        baseline: Top,
+      })
     let width_basis = known_dimensions.width.unwrap_or(
       match available.width {
         AvailDefinite(width) => width
@@ -334,11 +337,11 @@ fn measure_node(
     let prepared = prepare_text_layout(
       text.content,
       text_style,
-      text_layout(world~, entity),
+      nodes.text_layout(entity),
       available_content_width,
     )
     (prepared.width, prepared.height)
-  } else if (world.get_component(entity) : UiImage?) is Some(image) {
+  } else if nodes.ui_image.get(entity).map(value => value.0) is Some(image) {
     (image.size.x, image.size.y)
   } else {
     (0.0, 0.0)
@@ -370,6 +373,7 @@ fn rect_intersection(lhs : @math.Rect, rhs : @math.Rect) -> @math.Rect? {
 
 ///|
 fn clip_rect_for_node(
+  nodes~ : UiNodes,
   logical_rect : @math.Rect,
   logical_content_rect : @math.Rect,
   border : UiInsets,
@@ -394,6 +398,7 @@ fn clip_rect_for_node(
   }
   let margin = node.overflow_clip_margin.margin
   screen_rect_for(
+    nodes~,
     {
       position: Vec2(
         base_rect.position.x - margin,
@@ -423,11 +428,12 @@ fn rounded_screen_rect(rect : @math.Rect) -> @math.Rect {
 
 ///|
 fn screen_rect_for(
+  nodes~ : UiNodes,
   logical_rect : @math.Rect,
   layout_space : UiLayoutSpace,
   use_rounding : Bool,
 ) -> @math.Rect {
-  let screen_rect = to_screen_rect(logical_rect, layout_space)
+  let screen_rect = nodes.screen_rect(logical_rect, layout_space)
   if use_rounding {
     rounded_screen_rect(screen_rect)
   } else {
@@ -436,17 +442,17 @@ fn screen_rect_for(
 }
 
 ///|
-fn cleanup_dead_ui_state() -> Unit {
-  let alive = @ecs.alive_in_world(@ecs.require_current_world())
-  focuseds().retain((entity, _) => alive(entity))
-  interactions().retain((entity, _) => alive(entity))
-  let world = @ecs.require_current_world()
-  scroll_positions().retain((entity, _) => entity.is_valid_in(world))
+fn cleanup_dead_ui_state(nodes~ : UiNodes) -> Unit {
+  nodes.model.focuseds.retain((entity, _) => nodes.entities.is_alive(entity))
+  nodes.model.interactions.retain((entity, _) => nodes.entities.is_alive(entity))
+  nodes.model.scroll_positions.retain((entity, _) => {
+    nodes.entities.is_valid(entity)
+  })
 }
 
 ///|
 fn apply_layout_recursive(
-  world~ : @ecs.World,
+  nodes~ : UiNodes,
   entity : @ecs.Entity,
   chicle : @tree.ChicleTree[@ecs.Entity],
   layout_nodes : @ecs.EntityTable[UiLayoutNodeRuntime],
@@ -456,10 +462,10 @@ fn apply_layout_recursive(
   layout_space : UiLayoutSpace,
   projected : Set[@ecs.Entity],
 ) -> Unit {
-  let query_node : @ecs.Query[@ecs.Single[Node]] = world.query()
-  let query_ui_target_camera : @ecs.Query[@ecs.Single[UiTargetCamera]] = world.query()
-  let query_layout_config : @ecs.Query[@ecs.Single[LayoutConfig]] = world.query()
-  let query_override_clip : @ecs.Query[@ecs.Single[OverrideClip]] = world.query()
+  let query_node = nodes.node
+  let query_ui_target_camera = nodes.ui_target_camera
+  let query_layout_config = nodes.layout_config
+  let query_override_clip = nodes.override_clip
   guard layout_nodes.get(entity) is Some(runtime_node) else { return }
   let node_id = runtime_node.node_id
   guard query_node.get(entity).map(value => value.0) is Some(node) else {
@@ -467,7 +473,7 @@ fn apply_layout_recursive(
   }
   let effective_layout_space = match
     query_ui_target_camera.get(entity).map(value => value.0) {
-    Some(target) => ui_layout_space(world~, Some(target.camera))
+    Some(target) => nodes.ui_layout_space(Some(target.camera))
     None => layout_space
   }
   let effective_target_camera = effective_layout_space.target_camera
@@ -516,7 +522,7 @@ fn apply_layout_recursive(
     },
   )
   let mut effective_scroll_position = @math.Vec2::zero()
-  if scroll_positions().get(entity) is Some(scroll) {
+  if nodes.model.scroll_positions.get(entity) is Some(scroll) {
     scroll.x = @cmp.minimum(max_scroll_position.x, @cmp.maximum(0.0, scroll.x))
     scroll.y = @cmp.minimum(max_scroll_position.y, @cmp.maximum(0.0, scroll.y))
     effective_scroll_position = Vec2(scroll.x, scroll.y)
@@ -532,10 +538,16 @@ fn apply_layout_recursive(
     padding,
   }
   let screen_rect = screen_rect_for(
-    logical_rect, effective_layout_space, use_rounding,
+    nodes~,
+    logical_rect,
+    effective_layout_space,
+    use_rounding,
   )
   let screen_content_rect = screen_rect_for(
-    logical_content_rect, effective_layout_space, use_rounding,
+    nodes~,
+    logical_content_rect,
+    effective_layout_space,
+    use_rounding,
   )
   let global : GlobalUiNode = {
     logical_rect,
@@ -545,7 +557,7 @@ fn apply_layout_recursive(
     target_camera: effective_target_camera,
     target_viewport: effective_layout_space.viewport,
   }
-  ui_geometry().set(entity, { computed, global, })
+  nodes.model.geometry.set(entity, { computed, global, })
 
   let inherited_clip : @math.Rect? = if query_override_clip.contains(entity) {
     None
@@ -556,7 +568,13 @@ fn apply_layout_recursive(
     inherited_clip
   } else {
     let clip_rect = clip_rect_for_node(
-      logical_rect, logical_content_rect, border, node, effective_layout_space, use_rounding,
+      nodes~,
+      logical_rect,
+      logical_content_rect,
+      border,
+      node,
+      effective_layout_space,
+      use_rounding,
     )
     match inherited_clip {
       Some(parent) => rect_intersection(parent, clip_rect)
@@ -564,17 +582,17 @@ fn apply_layout_recursive(
     }
   }
   match current_clip {
-    Some(rect) => calculated_clips().set(entity, CalculatedClip(rect))
-    None => ignore(calculated_clips().remove(entity))
+    Some(rect) => nodes.model.calculated_clips.set(entity, CalculatedClip(rect))
+    None => ignore(nodes.model.calculated_clips.remove(entity))
   }
 
   let next_origin = @math.Vec2(
     logical_pos.x - effective_scroll_position.x,
     logical_pos.y - effective_scroll_position.y,
   )
-  for child in ui_children(world~, entity) {
+  for child in ui_children(nodes~, entity) {
     apply_layout_recursive(
-      world~,
+      nodes~,
       child,
       chicle,
       layout_nodes,

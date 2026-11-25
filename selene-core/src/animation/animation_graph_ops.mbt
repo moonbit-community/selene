@@ -4,20 +4,20 @@ let skinned_meshes_key : @ecs.ResourceKey[
 ] = ResourceKey()
 
 ///|
-fn skinned_meshes() -> @ecs.EntityTable[SkinnedMeshBinding3D] {
-  skinned_meshes_key.get_or_insert_with(@ecs.require_current_world(), world => {
-    EntityTable(world)
-  })
+fn skinned_meshes(
+  world~ : @ecs.World = @ecs.require_current_world(),
+) -> @ecs.EntityTable[SkinnedMeshBinding3D] {
+  skinned_meshes_key.get_or_insert_with(world, world => EntityTable(world))
 }
 
 ///|
 let morphed_meshes_key : @ecs.ResourceKey[@ecs.EntityTable[MorphMeshBinding3D]] = ResourceKey()
 
 ///|
-fn morphed_meshes() -> @ecs.EntityTable[MorphMeshBinding3D] {
-  morphed_meshes_key.get_or_insert_with(@ecs.require_current_world(), world => {
-    EntityTable(world)
-  })
+fn morphed_meshes(
+  world~ : @ecs.World = @ecs.require_current_world(),
+) -> @ecs.EntityTable[MorphMeshBinding3D] {
+  morphed_meshes_key.get_or_insert_with(world, world => EntityTable(world))
 }
 
 ///|

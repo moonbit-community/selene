@@ -8,7 +8,7 @@ import {
 }
 
 // Values
-pub fn a11y_sync_system(world~ : @ecs.World, Double) -> Unit
+pub fn a11y_sync_system(A11yTree) -> Unit
 
 pub fn blur() -> Unit
 
@@ -51,6 +51,11 @@ pub(all) enum A11yRole {
   TextInput
   Image
 }
+
+type A11yTree
+pub fn A11yTree::A11yTree(@ecs.World) -> Self
+pub fn A11yTree::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for A11yTree
 
 // Type aliases
 

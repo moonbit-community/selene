@@ -48,7 +48,11 @@ test "build_frame2d keeps clear-only camera passes" {
     )
     ignore(@ecs_test.spawn_draft(camera_entity_draft))
 
-    let (frame, _) = build_frame2d(@camera.active_camera2d_views(world~))
+    let (frame, _) = build_frame2d(
+      Frame2D(world),
+      Display(world),
+      @camera.active_camera2d_views(world~)[:],
+    )
     inspect(frame.passes.length(), content="1")
     inspect(
       match frame.passes[0].load_op {
@@ -84,7 +88,7 @@ test "build_frame2d keeps clear-only camera passes" {
 test "build_frame2d normalizes offscreen viewport and command coordinates" {
   with_render_submit_test_world(fn(world) raise {
     @window.configure_display(200.0, 120.0, 1.0)
-    @render2d.begin_frame2d_system()
+    @render2d.begin_frame2d_system(Frame2D(@ecs.require_current_world()))
     let camera_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     camera_entity_draft.add(
       (
@@ -111,7 +115,11 @@ test "build_frame2d normalizes offscreen viewport and command coordinates" {
       entity_id=Some(7U),
     )
 
-    let (frame, _) = build_frame2d(@camera.active_camera2d_views(world~))
+    let (frame, _) = build_frame2d(
+      Frame2D(world),
+      Display(world),
+      @camera.active_camera2d_views(world~)[:],
+    )
     inspect(
       frame.passes[0].viewport.position.x == 0.0 &&
       frame.passes[0].viewport.position.y == 0.0 &&
@@ -136,7 +144,7 @@ test "build_frame2d normalizes offscreen viewport and command coordinates" {
 test "build_frame2d batches camera ui commands with clip barriers" {
   with_render_submit_test_world(fn(world) raise {
     @window.configure_display(200.0, 120.0, 1.0)
-    @render2d.begin_frame2d_system()
+    @render2d.begin_frame2d_system(Frame2D(@ecs.require_current_world()))
     let camera_entity_draft = @ecs.commands(@ecs.require_current_world()).draft()
     camera_entity_draft.add((Camera() : @camera.Camera))
     camera_entity_draft.add((Camera2d() : @camera.Camera2d))
@@ -165,7 +173,11 @@ test "build_frame2d batches camera ui commands with clip barriers" {
       test_rect_command(Vec2(3.0, 3.0)),
     )
 
-    let (frame, _) = build_frame2d(@camera.active_camera2d_views(world~))
+    let (frame, _) = build_frame2d(
+      Frame2D(world),
+      Display(world),
+      @camera.active_camera2d_views(world~)[:],
+    )
     inspect(frame.passes.length(), content="1")
     inspect(frame.passes[0].ui_batches.length(), content="4")
     inspect(frame.passes[0].ui_batches[0].length(), content="1")
@@ -198,7 +210,11 @@ test "build_frame2d maps camera offscreen pass target" {
     )
     ignore(@ecs_test.spawn_draft(camera_entity_draft))
 
-    let (frame, _) = build_frame2d(@camera.active_camera2d_views(world~))
+    let (frame, _) = build_frame2d(
+      Frame2D(world),
+      Display(world),
+      @camera.active_camera2d_views(world~)[:],
+    )
     inspect(frame.passes.length(), content="1")
     inspect(
       match frame.passes[0].target {

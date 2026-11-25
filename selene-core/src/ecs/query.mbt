@@ -31,6 +31,7 @@ priv struct QueryComponent {
 /// A World-bound query over one row shape, backed by separate component columns.
 /// It retains columns rather than its World so World-local caches cannot form a cycle.
 struct Query[T] {
+  include_inactive : Bool
   world_id : UInt32
   storage : ArchetypeWorld
   order : ComponentOrder
@@ -47,8 +48,18 @@ fn[T] Query::Query(
   order : ComponentOrder,
   bind : (Int32) -> QueryColumn[T]?,
   components : Array[QueryComponent],
+  include_inactive~ : Bool = false,
 ) -> Query[T] {
-  { world_id, storage, order, bind, components, columns: [], matches: [], }
+  {
+    include_inactive,
+    world_id,
+    storage,
+    order,
+    bind,
+    components,
+    columns: [],
+    matches: [],
+  }
 }
 
 ///|
@@ -65,7 +76,7 @@ fn[T] Query::refresh(self : Query[T]) -> Unit {
 ///|
 fn[T] Query::for_each_table(
   self : Query[T],
-  visit : (Array[Entity], Int32, QueryColumn[T]) -> Unit,
+  visit : (Array[Entity], Int32, QueryColumn[T], Int32) -> Unit,
 ) -> Unit {
   self.refresh()
   enter_query()
@@ -76,8 +87,9 @@ fn[T] Query::for_each_table(
   }
   for (id, column) in self.matches {
     let entities = self.storage.tables[id].entities
-    if !entities.is_empty() {
-      visit(entities, id, column)
+    let length = self.row_count(id)
+    if length > 0 {
+      visit(entities, id, column, length)
     }
   }
 }
@@ -105,14 +117,16 @@ pub fn[T] Query::with_filters(
       (self.bind)(id)
     },
     self.components,
+    include_inactive=self.include_inactive,
   )
 }
 
 ///|
-/// Reads one row. Missing, foreign, and deleted entities return None.
+/// Reads one row. Missing, foreign, deleted, and excluded disabled entities return None.
 pub fn[T] Query::get(self : Query[T], entity : Entity) -> T? {
   guard entity.world_id == self.world_id else { None }
   guard self.storage.location(entity) is Some((id, row)) else { None }
+  guard row < self.row_count(id) else { None }
   self.refresh()
   guard self.columns[id] is Some(column) else { None }
   Some((column.read)(row))
@@ -120,12 +134,16 @@ pub fn[T] Query::get(self : Query[T], entity : Entity) -> T? {
 
 ///|
 /// Replaces the existing row selected by this query, without changing its layout.
-/// Aborts for missing, foreign, deleted, or filtered-out entities.
+/// Aborts for missing, foreign, deleted, disabled, or filtered-out entities.
+/// The including_inactive view permits writes to disabled entities.
 pub fn[T] Query::set(self : Query[T], entity : Entity, value : T) -> Unit {
   guard entity.world_id == self.world_id else {
     abort("entity does not match this query")
   }
   guard self.storage.location(entity) is Some((id, row)) else {
+    abort("entity does not match this query")
+  }
+  guard row < self.row_count(id) else {
     abort("entity does not match this query")
   }
   self.refresh()
@@ -138,7 +156,8 @@ pub fn[T] Query::set(self : Query[T], entity : Entity, value : T) -> Unit {
 ///|
 pub fn[T] Query::contains(self : Query[T], entity : Entity) -> Bool {
   guard entity.world_id == self.world_id else { false }
-  guard self.storage.location(entity) is Some((id, _)) else { false }
+  guard self.storage.location(entity) is Some((id, row)) else { false }
+  guard row < self.row_count(id) else { false }
   self.refresh()
   self.columns[id] is Some(_)
 }
@@ -186,7 +205,7 @@ pub fn[T] Query::iter2(self : Query[T]) -> Iter2[Entity, T] {
     while table < self.matches.length() {
       let (id, column) = self.matches[table]
       let entities = self.storage.tables[id].entities
-      if row < entities.length() {
+      if row < self.row_count(id) {
         let entry = (entities[row], (column.read)(row))
         row += 1
         return Some(entry)
@@ -205,7 +224,7 @@ pub fn[T] Query::iter2(self : Query[T]) -> Iter2[Entity, T] {
 pub fn[T] Query::keys(self : Query[T]) -> Iter[Entity] {
   let version = self.storage.structural_version
   let mut next = self.order.head
-  Iter::new(() => {
+  Iter(() => {
     guard next is Some(_) else { return None }
     self.storage.check_iteration(version)
     while next is Some(index) {
@@ -222,7 +241,7 @@ pub fn[T] Query::keys(self : Query[T]) -> Iter[Entity] {
 ///|
 pub fn[T] Query::values(self : Query[T]) -> Iter[T] {
   let entries = self.iter2()
-  Iter::new(() => entries.next().map(entry => entry.1))
+  Iter(() => entries.next().map(entry => entry.1))
 }
 
 ///|
@@ -230,7 +249,7 @@ pub fn[T] Query::length(self : Query[T]) -> Int32 {
   self.refresh()
   let mut length = 0
   for (id, _) in self.matches {
-    length += self.storage.tables[id].entities.length()
+    length += self.row_count(id)
   }
   length
 }
@@ -285,4 +304,28 @@ pub fn[T] Without::to_filter(self : Without[T]) -> EntityFilter {
     world_id: self.storage.world_id,
     accepts: id => self.storage.column(id) is None,
   }
+}
+
+///|
+fn[T] Query::row_count(self : Query[T], table : Int32) -> Int32 {
+  let table = self.storage.tables[table]
+  if self.include_inactive {
+    table.entities.length()
+  } else {
+    table.active_count
+  }
+}
+
+///|
+/// Returns a separately cached view that also includes disabled entities.
+/// Component filters, World ownership and generation checks remain unchanged.
+pub fn[T] Query::including_inactive(self : Query[T]) -> Query[T] {
+  Query(
+    self.world_id,
+    self.storage,
+    self.order,
+    self.bind,
+    self.components,
+    include_inactive=true,
+  )
 }

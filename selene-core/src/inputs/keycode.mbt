@@ -317,7 +317,7 @@ let just_release_keys : Set[Code] = Set([])
 ///
 /// ```moonbit nocheck
 /// // This function is typically called once per frame by the game engine
-/// @inputs.advanced_key_system() // 60 FPS = ~16ms per frame
+/// @inputs.advanced_key_system(events : InputEvents) // 60 FPS = ~16ms per frame
 ///
 /// // After calling advanced_key_system, you can check for just-pressed keys
 /// if @inputs.is_just_pressed(@inputs.KeyW) {
@@ -329,16 +329,16 @@ let just_release_keys : Set[Code] = Set([])
 /// }
 /// ```
 ///
-pub fn advanced_key_system() -> Unit {
+pub fn advanced_key_system(events : InputEvents) -> Unit {
   just_pressed_keys.clear()
   for code in pressed_keys.difference(last_pressed_keys) {
     just_pressed_keys.add(code)
-    key_input_event_bus.send({ key: code, state: Pressed, })
+    events.keys.send({ key: code, state: Pressed, })
   }
   just_release_keys.clear()
   for code in last_pressed_keys.difference(pressed_keys) {
     just_release_keys.add(code)
-    key_input_event_bus.send({ key: code, state: Released, })
+    events.keys.send({ key: code, state: Released, })
   }
   last_pressed_keys.clear()
   for code in pressed_keys {

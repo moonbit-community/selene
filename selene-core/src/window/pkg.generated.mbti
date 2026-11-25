@@ -2,6 +2,7 @@
 package "Milky2018/selene/window"
 
 import {
+  "Milky2018/selene/ecs",
   "Milky2018/selene/math",
 }
 
@@ -28,7 +29,7 @@ pub fn scale_vec2(@math.Vec2) -> @math.Vec2
 
 pub fn screen_to_ui_virtual(@math.Vec2) -> @math.Vec2
 
-pub fn sync_mouse_lock_system() -> Unit
+pub fn sync_mouse_lock_system(MouseLock) -> Unit
 
 pub fn ui_virtual_to_screen(@math.Vec2) -> @math.Vec2
 
@@ -39,6 +40,16 @@ pub fn unscale_vec2(@math.Vec2) -> @math.Vec2
 // Errors
 
 // Types and methods
+type Display
+pub fn Display::Display(@ecs.World) -> Self
+pub fn Display::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub fn Display::screen_size(Self) -> @math.Vec2
+pub fn Display::zoom(Self) -> Double
+pub impl @ecs.SystemParam for Display
+
+type MouseLock
+pub fn MouseLock::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for MouseLock
 
 // Type aliases
 

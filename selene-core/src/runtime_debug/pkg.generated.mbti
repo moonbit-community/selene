@@ -311,6 +311,13 @@ pub(all) enum InputInjectionEvent {
   GamepadAxis(@inputs.GamepadAxisInput, Double)
 }
 
+type RenderCapture
+pub fn RenderCapture::RenderCapture(@ecs.World) -> Self
+pub fn RenderCapture::decorate(Self, @render_pipeline.RenderFrame, Array[@render2d.DrawCommandWithDepth2D]) -> @render_pipeline.RenderFrame
+pub fn RenderCapture::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub fn RenderCapture::record(Self, @render_pipeline.RenderFrame, Array[@render2d.DrawCommandWithDepth2D]) -> Unit
+pub impl @ecs.SystemParam for RenderCapture
+
 pub(all) struct RenderSubmissionDebug {
   frame_index : UInt32
   fixed_step_index : UInt32

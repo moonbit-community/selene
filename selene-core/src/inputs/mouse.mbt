@@ -294,17 +294,17 @@ pub let just_release_mouse : Mouse = {
 /// inspect(@inputs.is_mouse_pressed(Right), content="false")
 /// ```
 ///
-pub fn advanced_mouse_system() -> Unit {
+pub fn advanced_mouse_system(events : InputEvents) -> Unit {
   let positional_delta = mouse.pos - last_mouse.pos
   let delta = pending_mouse_relative_delta.val.unwrap_or(positional_delta)
   mouse_movement.movement = delta
   pending_mouse_relative_delta.val = None
   if delta.x != 0.0 || delta.y != 0.0 {
-    mouse_motion_event_bus.send({ position: mouse.pos, delta, })
+    events.mouse_motion.send({ position: mouse.pos, delta, })
   }
   let wheel_delta = mouse_wheel.delta
   if wheel_delta.x != 0.0 || wheel_delta.y != 0.0 {
-    mouse_wheel_event_bus.send({ delta: wheel_delta, })
+    events.mouse_wheel.send({ delta: wheel_delta, })
   }
 
   // Just pressed
@@ -314,21 +314,21 @@ pub fn advanced_mouse_system() -> Unit {
   just_pressed_mouse.middle_button = mouse.middle_button &&
     !last_mouse.middle_button
   if just_pressed_mouse.left_button {
-    mouse_button_event_bus.send({
+    events.mouse_buttons.send({
       button: Left,
       state: Pressed,
       position: mouse.pos,
     })
   }
   if just_pressed_mouse.right_button {
-    mouse_button_event_bus.send({
+    events.mouse_buttons.send({
       button: Right,
       state: Pressed,
       position: mouse.pos,
     })
   }
   if just_pressed_mouse.middle_button {
-    mouse_button_event_bus.send({
+    events.mouse_buttons.send({
       button: Middle,
       state: Pressed,
       position: mouse.pos,
@@ -342,21 +342,21 @@ pub fn advanced_mouse_system() -> Unit {
   just_release_mouse.middle_button = !mouse.middle_button &&
     last_mouse.middle_button
   if just_release_mouse.left_button {
-    mouse_button_event_bus.send({
+    events.mouse_buttons.send({
       button: Left,
       state: Released,
       position: mouse.pos,
     })
   }
   if just_release_mouse.right_button {
-    mouse_button_event_bus.send({
+    events.mouse_buttons.send({
       button: Right,
       state: Released,
       position: mouse.pos,
     })
   }
   if just_release_mouse.middle_button {
-    mouse_button_event_bus.send({
+    events.mouse_buttons.send({
       button: Middle,
       state: Released,
       position: mouse.pos,

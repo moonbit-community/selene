@@ -33,7 +33,7 @@ pub fn CameraExtract2dContext::CameraExtract2dContext(
 ///|
 pub fn CameraExtract2dContext::camera_views_for_bounds(
   self : CameraExtract2dContext,
-  world~ : @ecs.World,
+  layers : @ecs.Query[@ecs.Single[@visibility.RenderLayers]],
   world_bounds : @math.Rect,
   entity_layers : @visibility.RenderLayers,
   parallax_depends_on_camera : Bool,
@@ -52,7 +52,7 @@ pub fn CameraExtract2dContext::camera_views_for_bounds(
       continue
     }
     guard @visibility.matches(
-      @visibility.entity_render_layers(world~, camera_view.entity),
+      layers.get(camera_view.entity).map_or(RenderLayers(), value => value.0),
       entity_layers,
     ) else {
       continue

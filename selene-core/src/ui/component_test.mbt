@@ -12,7 +12,7 @@ test "typed UI queries stay bound to their explicit World" {
     found_by_accessor.val = (world.query() : @ecs.Query[@ecs.Single[@ui.Node]]).contains(
       entity,
     )
-    @ecs.commands(@ecs.require_current_world()).delete(entity)
+    @ecs.commands(@ecs.require_current_world()).despawn(entity)
   })
   .run(first)
 

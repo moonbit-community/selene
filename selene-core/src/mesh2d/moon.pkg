@@ -1,8 +1,6 @@
 import {
-  "Milky2018/selene/window",
   "moonbitlang/core/debug",
   "Milky2018/selene/camera",
-  "Milky2018/selene/culling2d",
   "Milky2018/selene/ecs",
   "Milky2018/selene/material2d",
   "Milky2018/selene/math",
@@ -10,7 +8,6 @@ import {
   "Milky2018/selene/render2d",
   "Milky2018/selene/render2d_types",
   "Milky2018/selene/transform",
-  "Milky2018/selene/visibility",
 }
 
 formatter(ignore: [ "mesh.g.mbt" ])

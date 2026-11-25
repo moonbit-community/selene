@@ -369,7 +369,7 @@ fn map_trigger_system(_world : @ecs.World) -> Unit {
       if session.volume_on {
         play_sfx(coin_sound, session.volume_on)
       }
-      @ecs.commands(world).delete(apple)
+      @ecs.commands(world).despawn(apple)
     }
   }
 }

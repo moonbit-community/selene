@@ -24,8 +24,10 @@ priv struct Render3DWorldState {
 let render3d_world_state_key : @ecs.ResourceKey[Render3DWorldState] = ResourceKey()
 
 ///|
-fn render3d_world_state() -> Render3DWorldState {
-  render3d_world_state_key.get_or_insert_with(@ecs.require_current_world(), _ => {
+fn render3d_world_state(
+  world~ : @ecs.World = @ecs.require_current_world(),
+) -> Render3DWorldState {
+  render3d_world_state_key.get_or_insert_with(world, _ => {
     ambient_light: None,
     directional_shadow_map: DirectionalLightShadowMap3D(),
     point_shadow_map: PointLightShadowMap3D(),
@@ -174,23 +176,22 @@ fn _is_visible_in_camera_frustum(
 }
 
 ///|
-pub fn render3d_extract_system(world~ : @ecs.World, _delta : Double) -> Unit {
-  let query_skybox3_d : @ecs.Query[@ecs.Single[Skybox3D]] = world.query()
-  let query_mesh3_d_renderer : @ecs.Query[@ecs.Single[Mesh3DRenderer]] = world.query()
-  let query_directional_light3_d : @ecs.Query[@ecs.Single[DirectionalLight3D]] = world.query()
-  let query_point_light3_d : @ecs.Query[@ecs.Single[PointLight3D]] = world.query()
-  let query_spot_light3_d : @ecs.Query[@ecs.Single[SpotLight3D]] = world.query()
-  let state = render3d_world_state()
+pub fn render3d_extract_system(
+  queries : Render3DQueries,
+  extracted : ExtractedFrame3D,
+  cameras : @camera3d.Camera3DState,
+  visibility : @visibility.VisibilityState,
+) -> Unit {
+  let state = extracted.state
   let frame = RenderFrame3D()
   let mut active_camera_layers = @visibility.RenderLayers()
-  if @camera3d.get_active_camera3d() is Some(camera) {
+  if cameras.get() is Some(camera) {
     frame.camera = Some(camera.camera)
     frame.clear_color = camera.camera.clear_color
-    active_camera_layers = @visibility.entity_render_layers(
-      world~,
-      camera.entity,
-    )
-    match query_skybox3_d.get(camera.entity).map(value => value.0) {
+    active_camera_layers = queries.layers
+      .get(camera.entity)
+      .map_or(RenderLayers(), value => value.0)
+    match queries.skyboxes.get(camera.entity).map(value => value.0) {
       Some(skybox) if cubemaps.get(skybox.cubemap) is Some(_) =>
         frame.skybox = Some(skybox)
       _ => ()
@@ -205,24 +206,19 @@ pub fn render3d_extract_system(world~ : @ecs.World, _delta : Double) -> Unit {
   }
 
   let items : Array[RenderItem3D] = []
-  for entity, Single(renderer) in query_mesh3_d_renderer {
-    if !entity.is_alive() ||
-      !renderer.visible ||
-      !@visibility.is_visible(entity) {
+  for entity, (renderer, spatial) in queries.meshes {
+    if !renderer.visible || !visibility.is_visible(entity) {
       continue
     }
     if !@visibility.matches(
-        @visibility.entity_render_layers(world~, entity),
+        queries.layers.get(entity).map_or(RenderLayers(), value => value.0),
         active_camera_layers,
       ) {
       continue
     }
     guard meshes.get(renderer.mesh) is Some(_) else { continue }
     guard materials.get(renderer.material) is Some(_) else { continue }
-    guard @transform.global_transform(world~, entity) is Some(global_transform) else {
-      continue
-    }
-    let transform = global_transform.affine
+    let transform = spatial.global().affine
     if camera_culling is Some(context) {
       if !is_visible_in_camera_culling_context(
           context,
@@ -243,83 +239,65 @@ pub fn render3d_extract_system(world~ : @ecs.World, _delta : Double) -> Unit {
   }
 
   let dir_lights : Array[DirectionalLight3D] = []
-  for entity, Single(light) in query_directional_light3_d {
-    if entity.is_alive() {
-      guard @transform.global_transform(world~, entity)
-        is Some(global_transform) else {
-        continue
-      }
-      let transform = global_transform.affine
-      let local_direction = if light.direction.length_squared() <= 0.0000001 {
-        @math.Vec3(0.0, 0.0, -1.0)
-      } else {
-        light.direction.normalize_or_zero()
-      }
-      dir_lights.push({
-        direction: transform
-        .transform_vector(local_direction)
-        .try_normalize()
-        .unwrap_or(local_direction),
-        color: light.color,
-        intensity: light.intensity,
-        shadows: light.shadows,
-        shadow_depth_bias: light.shadow_depth_bias,
-        shadow_normal_bias: light.shadow_normal_bias,
-        cascade_shadow_config: light.cascade_shadow_config,
-      })
+  for _, (light, spatial) in queries.directionals {
+    let transform = spatial.global().affine
+    let local_direction = if light.direction.length_squared() <= 0.0000001 {
+      @math.Vec3(0.0, 0.0, -1.0)
+    } else {
+      light.direction.normalize_or_zero()
     }
+    dir_lights.push({
+      direction: transform
+      .transform_vector(local_direction)
+      .try_normalize()
+      .unwrap_or(local_direction),
+      color: light.color,
+      intensity: light.intensity,
+      shadows: light.shadows,
+      shadow_depth_bias: light.shadow_depth_bias,
+      shadow_normal_bias: light.shadow_normal_bias,
+      cascade_shadow_config: light.cascade_shadow_config,
+    })
   }
   let point_lights : Array[FramePointLight3D] = []
-  for entity, Single(light) in query_point_light3_d {
-    if entity.is_alive() {
-      guard @transform.global_transform(world~, entity)
-        is Some(global_transform) else {
-        continue
-      }
-      let transform = global_transform.affine
-      point_lights.push({
-        position: transform.translation,
-        color: light.color,
-        intensity: light.intensity,
-        range: light.range,
-        shadows: light.shadows,
-        shadow_depth_bias: light.shadow_depth_bias,
-        shadow_normal_bias: light.shadow_normal_bias,
-        shadow_map_near_z: light.shadow_map_near_z,
-      })
-    }
+  for _, (light, spatial) in queries.points {
+    let transform = spatial.global().affine
+    point_lights.push({
+      position: transform.translation,
+      color: light.color,
+      intensity: light.intensity,
+      range: light.range,
+      shadows: light.shadows,
+      shadow_depth_bias: light.shadow_depth_bias,
+      shadow_normal_bias: light.shadow_normal_bias,
+      shadow_map_near_z: light.shadow_map_near_z,
+    })
   }
   let spot_lights : Array[FrameSpotLight3D] = []
-  for entity, Single(light) in query_spot_light3_d {
-    if entity.is_alive() {
-      guard @transform.global_transform(world~, entity)
-        is Some(global_transform) else {
-        continue
-      }
-      let transform = global_transform.affine
-      let local_direction = if light.direction.length_squared() <= 0.0000001 {
-        @math.Vec3(0.0, -1.0, 0.0)
-      } else {
-        light.direction.normalize_or_zero()
-      }
-      let world_direction = transform
-        .transform_vector(local_direction)
-        .try_normalize()
-        .unwrap_or(local_direction)
-      spot_lights.push({
-        position: transform.translation,
-        direction: world_direction,
-        color: light.color,
-        intensity: light.intensity,
-        range: light.range,
-        shadows: light.shadows,
-        shadow_depth_bias: light.shadow_depth_bias,
-        shadow_normal_bias: light.shadow_normal_bias,
-        shadow_map_near_z: light.shadow_map_near_z,
-        inner_angle: light.inner_angle,
-        outer_angle: light.outer_angle,
-      })
+  for _, (light, spatial) in queries.spots {
+    let transform = spatial.global().affine
+    let local_direction = if light.direction.length_squared() <= 0.0000001 {
+      @math.Vec3(0.0, -1.0, 0.0)
+    } else {
+      light.direction.normalize_or_zero()
     }
+    let world_direction = transform
+      .transform_vector(local_direction)
+      .try_normalize()
+      .unwrap_or(local_direction)
+    spot_lights.push({
+      position: transform.translation,
+      direction: world_direction,
+      color: light.color,
+      intensity: light.intensity,
+      range: light.range,
+      shadows: light.shadows,
+      shadow_depth_bias: light.shadow_depth_bias,
+      shadow_normal_bias: light.shadow_normal_bias,
+      shadow_map_near_z: light.shadow_map_near_z,
+      inner_angle: light.inner_angle,
+      outer_angle: light.outer_angle,
+    })
   }
 
   frame.items = items
@@ -332,4 +310,70 @@ pub fn render3d_extract_system(world~ : @ecs.World, _delta : Double) -> Unit {
 ///|
 pub fn get_extracted_frame3d() -> RenderFrame3D {
   render3d_world_state().extracted_frame
+}
+
+///|
+/// The extracted 3D frame owned by one World.
+struct ExtractedFrame3D {
+  state : Render3DWorldState
+}
+
+///|
+pub fn ExtractedFrame3D::ExtractedFrame3D(
+  world : @ecs.World,
+) -> ExtractedFrame3D {
+  { state: render3d_world_state(world~), }
+}
+
+///|
+pub fn ExtractedFrame3D::get(self : ExtractedFrame3D) -> RenderFrame3D {
+  self.state.extracted_frame
+}
+
+///|
+pub impl @ecs.SystemParam for ExtractedFrame3D with fn prepare(world) {
+  let frame = ExtractedFrame3D(world)
+  _ => frame
+}
+
+///|
+pub extend ExtractedFrame3D with @ecs.SystemParam::{prepare}
+
+///|
+struct Render3DQueries {
+  meshes : @ecs.Query[(Mesh3DRenderer, @transform.Spatial)]
+  directionals : @ecs.Query[(DirectionalLight3D, @transform.Spatial)]
+  points : @ecs.Query[(PointLight3D, @transform.Spatial)]
+  spots : @ecs.Query[(SpotLight3D, @transform.Spatial)]
+  skyboxes : @ecs.Query[@ecs.Single[Skybox3D]]
+  layers : @ecs.Query[@ecs.Single[@visibility.RenderLayers]]
+}
+
+///|
+pub fn Render3DQueries::Render3DQueries(world : @ecs.World) -> Render3DQueries {
+  {
+    meshes: world.query(),
+    directionals: world.query(),
+    points: world.query(),
+    spots: world.query(),
+    skyboxes: world.query(),
+    layers: world.query(),
+  }
+}
+
+///|
+pub impl @ecs.SystemParam for Render3DQueries with fn prepare(world) {
+  let queries = Render3DQueries(world)
+  _ => queries
+}
+
+///|
+pub extend Render3DQueries with @ecs.SystemParam::{prepare}
+
+///|
+pub fn ExtractedFrame3D::push_line(
+  self : ExtractedFrame3D,
+  line : RenderLine3D,
+) -> Unit {
+  self.state.extracted_frame.lines.push(line)
 }

@@ -9,6 +9,9 @@ import {
   "Milky2018/selene/ecs",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
+  "Milky2018/selene/render3d",
+  "Milky2018/selene/render3d_pipeline",
+  "Milky2018/selene/time",
   "moonbitlang/core/debug",
 }
 
@@ -23,7 +26,7 @@ pub let contact_force_event_bus : @event.Events[ContactForceEvent]
 
 pub fn context() -> RapierContext
 
-pub fn debug_colliders_system(world~ : @ecs.World, Double) -> Unit
+pub fn debug_colliders_system(PhysicsStep3D, @render3d.ExtractedFrame3D, @render3d_pipeline.PreparedFrame3D) -> Unit
 
 pub fn impulse_joint_handle(@ecs.Entity) -> @dynamics.JointHandle3DReal?
 
@@ -33,7 +36,7 @@ pub fn kinematic_character_controller_output(@ecs.Entity) -> KinematicCharacterC
 
 pub fn multibody_joint_handle(@ecs.Entity) -> @dynamics.MultibodyJointHandle?
 
-pub fn physics_step_system(world~ : @ecs.World, Double) -> Unit
+pub fn physics_step_system(PhysicsStep3D, @time.Time) -> Unit
 
 pub fn rigid_body_angular_velocity(@ecs.Entity) -> @math.Vec3?
 
@@ -308,6 +311,11 @@ pub impl @ecs.Component for MultibodyJoint
 pub(all) struct Physics3DConfig {
   mut gravity : @math.Vec3
 }
+
+type PhysicsStep3D
+pub fn PhysicsStep3D::PhysicsStep3D(@ecs.World) -> Self
+pub fn PhysicsStep3D::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for PhysicsStep3D
 
 #derive(Eq, @debug.Debug)
 pub(all) struct PointProjection {

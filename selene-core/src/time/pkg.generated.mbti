@@ -22,7 +22,7 @@ pub fn initialize(@ecs.World) -> Unit
 
 pub fn raw_delta() -> Double
 
-pub fn realtime_timer_system() -> Unit
+pub fn realtime_timer_system(Timers, Time) -> Unit
 
 pub fn scale() -> Double
 
@@ -32,9 +32,9 @@ pub fn set_scale(Double) -> Unit
 
 pub fn timeout(Double, () -> Unit, pausible? : Bool) -> TimerHandle
 
-pub fn timer_system(Double) -> Unit
+pub fn timer_system(Timers, Time) -> Unit
 
-pub fn timers_system(Double) -> Unit
+pub fn timers_system(Timers, Time) -> Unit
 
 pub fn use_fixed_delta(Double) -> Unit
 
@@ -44,6 +44,8 @@ pub fn use_frame_delta() -> Unit
 
 // Types and methods
 type Time
+pub fn Time::Time(@ecs.World) -> Self
+pub fn Time::begin_frame(Self, Double) -> Unit
 pub fn Time::delta(Self) -> Double
 pub fn Time::elapsed(Self) -> Double
 pub fn Time::elapsed_raw(Self) -> Double
@@ -52,10 +54,20 @@ pub fn Time::frame_delta(Self) -> Double
 pub fn Time::prepare(@ecs.World) -> (@ecs.World) -> Self
 pub fn Time::raw_delta(Self) -> Double
 pub fn Time::scale(Self) -> Double
+pub fn Time::set_delta(Self, Double) -> Unit
+pub fn Time::set_scale(Self, Double) -> Unit
+pub fn Time::use_fixed_delta(Self, Double) -> Unit
+pub fn Time::use_frame_delta(Self) -> Unit
 pub impl @ecs.SystemParam for Time
 
 type TimerHandle
 pub fn TimerHandle::cancel(Self) -> Bool
+
+type Timers
+pub fn Timers::Timers(@ecs.World) -> Self
+pub fn Timers::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub fn Timers::timeout(Self, Double, () -> Unit, pausible? : Bool) -> TimerHandle
+pub impl @ecs.SystemParam for Timers
 
 // Type aliases
 

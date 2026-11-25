@@ -264,8 +264,8 @@ fn handle_cards_touch_shortcuts(ctx~ : CardsGame) -> Bool {
   if !ctx.game().waiting_for_player {
     return false
   }
-  let screen = @window.get_screen_size()
-  for event in @ui.unconsumed_touch_changes_this_frame() {
+  let screen = ctx.display.screen_size()
+  for event in ctx.consumption.unconsumed_touch_changes() {
     if event.primary && event.phase == Ended {
       match touch_action_at(event.position, screen) {
         Some(action) => {
@@ -283,7 +283,7 @@ fn handle_cards_touch_shortcuts(ctx~ : CardsGame) -> Bool {
 fn cards_ui_pointer_system(ctx : CardsGame) -> Unit {
   let game = ctx.game()
   let mut handled_ui_click = false
-  for event in @ui.click_event_bus.read(ctx.runtime.click_reader) {
+  for event in ctx.clicks.read() {
     if event.entity == game.fold_button {
       on_fold_click(ctx~)
       handled_ui_click = true

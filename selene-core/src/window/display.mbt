@@ -23,8 +23,10 @@ priv struct DisplayState {
 let display_state_key : @ecs.ResourceKey[DisplayState] = ResourceKey()
 
 ///|
-fn display_state() -> DisplayState {
-  display_state_key.get_or_insert_with(@ecs.require_current_world(), _ => {
+fn display_state(
+  world~ : @ecs.World = @ecs.require_current_world(),
+) -> DisplayState {
+  display_state_key.get_or_insert_with(world, _ => {
     viewport_size: Vec2(512.0, 256.0),
     screen_size: Vec2(512.0, 256.0),
     zoom: 1.0,
@@ -101,4 +103,33 @@ pub fn ui_virtual_to_screen(pos : @math.Vec2) -> @math.Vec2 {
 ///|
 pub fn screen_to_ui_virtual(pos : @math.Vec2) -> @math.Vec2 {
   unscale_vec2(pos)
+}
+
+///|
+struct Display {
+  state : DisplayState
+}
+
+///|
+pub fn Display::Display(world : @ecs.World) -> Display {
+  { state: display_state(world~), }
+}
+
+///|
+pub fn Display::screen_size(self : Display) -> @math.Vec2 {
+  self.state.screen_size
+}
+
+///|
+pub impl @ecs.SystemParam for Display with fn prepare(world) {
+  let display = Display(world)
+  _ => display
+}
+
+///|
+pub extend Display with @ecs.SystemParam::{prepare}
+
+///|
+pub fn Display::zoom(self : Display) -> Double {
+  self.state.zoom
 }

@@ -182,20 +182,14 @@ pub fn replace_tiled_world(
   settings~ : TiledWorldSpawnSettings = TiledWorldSpawnSettings(),
 ) -> @ecs.Entity {
   let parent = root.get_parent()
-  @ecs.commands(world).delete(root)
+  @ecs.commands(world).despawn(root)
   spawn_tiled_world(world~, source_world, settings~, parent?)
 }
 
 ///|
-pub fn tiled_world_chunking_system(
-  world~ : @ecs.World,
-  _delta : Double,
-) -> Unit {
+pub fn tiled_world_chunking_system(world~ : @ecs.World) -> Unit {
   let query_tiled_world_instance : @ecs.Query[@ecs.Single[TiledWorldInstance]] = world.query()
   for entity in query_tiled_world_instance.to_array().map(pair => pair.0) {
-    if !entity.is_alive() {
-      continue
-    }
     guard query_tiled_world_instance.get(entity).map(value => value.0)
       is Some(instance) else {
       continue
@@ -247,7 +241,7 @@ fn tiled_world_update_chunking(
 
   for (idx, map_entity) in instance.spawned_maps.to_array() {
     if !visible.contains(idx) {
-      @ecs.commands(world).delete(map_entity)
+      @ecs.commands(world).despawn(map_entity)
       instance.spawned_maps.remove(idx)
     }
   }

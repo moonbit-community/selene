@@ -20,7 +20,7 @@ pub(all) struct CameraExtract2dContext {
   camera_grid : SpatialGrid2d
 }
 pub fn CameraExtract2dContext::CameraExtract2dContext(Array[@camera.Camera2dView]) -> Self
-pub fn CameraExtract2dContext::camera_views_for_bounds(Self, world~ : @ecs.World, @math.Rect, @visibility.RenderLayers, Bool) -> Array[@camera.Camera2dView]
+pub fn CameraExtract2dContext::camera_views_for_bounds(Self, @ecs.Query[@ecs.Single[@visibility.RenderLayers]], @math.Rect, @visibility.RenderLayers, Bool) -> Array[@camera.Camera2dView]
 
 pub(all) struct SpatialGrid2d {
   cell_size : Double

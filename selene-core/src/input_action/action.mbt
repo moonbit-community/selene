@@ -94,9 +94,9 @@ pub fn action_value(action : InputAction) -> Double {
 }
 
 ///|
-pub fn input_action_system() -> Unit {
-  for action, bindings in input_bindings {
-    let previous = action_states
+pub fn input_action_system(input : InputActions) -> Unit {
+  for action, bindings in input.bindings {
+    let previous = input.states
       .get(action)
       .unwrap_or({
         pressed: false,
@@ -106,7 +106,7 @@ pub fn input_action_system() -> Unit {
       })
     let mut value = 0.0
     for binding in bindings {
-      value = @cmp.maximum(value, binding_value(binding))
+      value = @cmp.maximum(value, binding_value(input.gamepads, binding))
     }
     let pressed = value > 0.0
     let just_pressed = pressed && !previous.pressed
@@ -117,17 +117,44 @@ pub fn input_action_system() -> Unit {
       just_released,
       value,
     }
-    action_states.set(action, next_state)
+    input.states.set(action, next_state)
     if just_pressed {
-      input_action_event_bus.send({ action, kind: Pressed, value, })
+      input.events.send({ action, kind: Pressed, value, })
     }
     if just_released {
-      input_action_event_bus.send({ action, kind: Released, value, })
+      input.events.send({ action, kind: Released, value, })
     }
     let delta = value - previous.value
     let absolute_delta = if delta < 0.0 { -delta } else { delta }
     if absolute_delta > 0.000001 {
-      input_action_event_bus.send({ action, kind: ValueChanged, value, })
+      input.events.send({ action, kind: ValueChanged, value, })
     }
   }
 }
+
+///|
+struct InputActions {
+  gamepads : @inputs.GamepadInput
+  bindings : Map[InputAction, Array[InputBinding]]
+  states : Map[InputAction, ActionState]
+  events : @event.EventWriter[ActionEvent]
+}
+
+///|
+pub fn InputActions::InputActions(world : @ecs.World) -> InputActions {
+  {
+    gamepads: GamepadInput(world),
+    bindings: input_bindings,
+    states: action_states,
+    events: input_action_event_bus.writer(world~),
+  }
+}
+
+///|
+pub impl @ecs.SystemParam for InputActions with fn prepare(world) {
+  let input = InputActions(world)
+  _ => input
+}
+
+///|
+pub extend InputActions with @ecs.SystemParam::{prepare}

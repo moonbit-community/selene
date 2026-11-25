@@ -48,7 +48,7 @@ fn remove_dead(
 ) -> Unit {
   for entity, (_, health) in enemies {
     if health.value <= 0 {
-      commands.delete(entity)
+      commands.despawn(entity)
     }
   }
 }
@@ -67,9 +67,81 @@ function. Registering the same description twice creates independent parameter
 state. `World` is deliberately not a `SystemParam`: use
 `app.add_exclusive_system(stage, callback)` when full World access is needed.
 This is an explicit access declaration; execution remains sequential.
-`@time.Time`, `@state.State[T]`, and `@state.NextState[T]` are additional
-parameters supplied by their respective packages. Time reads follow the active
-frame or fixed step; state requests remain deferred.
+`@time.Time`, `@time.Timers`, `@state.State[T]`, and `@state.NextState[T]`
+are additional parameters supplied by their respective packages. Time reads
+follow the active frame or fixed step; state requests remain deferred.
+
+Systems should declare the resources and queries they use. Pass these values
+through their helper functions as well. Named parameters can group a subsystem's
+fixed component queries and runtime state without retaining a World.
+
+Use `Entities` for entity validity and liveness, and `Hierarchy` for the fixed
+parent-child tree:
+
+```moonbit
+fn inspect_tree(hierarchy : @ecs.Hierarchy) -> Unit {
+  for root in hierarchy.roots() {
+    for child in hierarchy.children(root) {
+      inspect_child(root, child)
+    }
+  }
+}
+app.add_system(Update, inspect_tree)
+```
+
+Both parameters are read-only and bound to one World. They retain entity
+metadata, not the World, and expose no component access or structural changes.
+`Entities::is_valid` accepts a reserved handle before its spawn is flushed;
+`is_alive` requires a materialized, enabled entity. Disabled entities retain
+valid handles. `iter` and `count` include enabled entities only. Ordinary queries
+and `Hierarchy` traversal already exclude disabled entities; no extra liveness
+check is needed for their results. Use `Entities` to check independent handles
+such as cached or externally supplied entity references. `Hierarchy::children` returns an independent array; relationships
+become visible when deferred spawning completes. Foreign and stale handles
+return `false`, `None`, or an empty child array.
+
+Subsystem parameters include `@transform.Transforms`, `@visibility.VisibilityState`,
+`@physics2d.PhysicsMotion`, `@render2d.Frame2D`, and `@ui.UiGeometryView`.
+They provide the corresponding operations on their bound data. `Frame2D` stays
+valid across frame resets. Custom UI material callbacks submit commands through
+`context.frame`.
+
+Keep exclusive systems for operations that need the World itself, such as
+runtime-selected animation field types or data-driven importer factories.
+`current_world`, explicit World methods, and convenience calls such as
+`GamePhase::set(...)` and `timeout(...)` remain available. They are useful at
+application boundaries and callbacks, while ordinary systems receive their
+dependencies as parameters.
+
+Event buses may be declared globally; queues and reader cursors belong to each
+World. A prepared parameter can bind a writer with `events.writer(world=world)`
+and a cursor with `reader.bind(world, events)`. Pass the resulting
+`EventWriter[T]` and `EventReaderView[T]` to helpers and call `send` or `read`
+there. They remain bound when the active World changes; rebinding the same reader
+in the same World shares its cursor. Event maintenance uses an injected
+`@event.EventRegistry`.
+
+Ordinary queries visit enabled entities only. This applies consistently to
+`for`, `iter`/`iter2`, `keys`, `values`, `to_array`, `get`, `contains`, `set`,
+`length`, `single`, and `batches`. A disabled entity returns `None` from `get`
+and `false` from `contains`; point writes through the ordinary query abort.
+
+For explicit access to retained inactive state, derive a separate query view:
+
+```moonbit
+let active : @ecs.Query[@ecs.Single[Position]] = world.query1()
+let retained = active.including_inactive()
+commands.disable(player)
+try! @ecs.Schedule().run(world)
+// active.get(player) is None; retained.get(player) still reads its component.
+```
+
+`including_inactive()` preserves component filters and World/generation checks.
+Its batch columns include disabled rows as well. Each archetype keeps enabled
+rows in one contiguous prefix, so ordinary batches do not perform per-entity
+lifecycle lookups. Disabling and enabling exchange rows across that prefix at
+command synchronization; all component columns and entity locations move together.
+Direct World point access remains available to exclusive code for inactive data.
 
 There is one opaque `Query[Row]` type. `Single[T]` describes one component;
 flat tuples describe two to eight components. This uses the same single-value
@@ -229,10 +301,20 @@ let player = commands.spawn(
 ```
 
 `get_parent()` and `get_children()` read the hierarchy. Children are ordered by
-spawn. `commands.despawn(entity)` and `commands.respawn(entity)` preserve the
-subtree and its components. `commands.delete(entity)` invalidates its handles
-and recycles its slots when the command is applied. Spawn a
-replacement to change a node's parent or component layout.
+spawn. `commands.despawn(entity)` permanently removes the subtree, its component
+rows, and its handles; reusable slots receive new generations.
+
+Use `commands.disable(entity)` to suspend a subtree while preserving its
+components, handles, and fixed relationships. `commands.enable(entity)` restores
+the subtree; enabling a child beneath a disabled parent has no effect. Children
+spawned beneath a disabled parent start disabled. These operations change entity
+metadata and row activity, never the set of component types. There is no
+`Disabled` component and no dynamic component insertion or removal.
+
+All three operations are deferred until the schedule's frozen FIFO command batch
+is applied. Before that synchronization point, queries retain their previous
+visibility. Spawn a replacement to change a node's parent or component layout.
+The old `Commands::delete` and `Commands::respawn` entry points are removed.
 
 `Spatial` holds the local pose and the cached world transform. Use
 `@transform.set_local_transform(world~, entity, pose)` to update a pose and
@@ -291,8 +373,8 @@ Each iterator has its own cursor. Value writes before a row is visited are visib
 `values()` also reads lazily; `keys()` lazily follows the first component's insertion
 order. Row iterators use archetype order, which is not global spawn order.
 
-Adding or removing an archetype row in the owning World invalidates existing
-iterators, including before their first step. Their next advance aborts before
+Adding, removing, disabling, or enabling an archetype row in the owning World
+invalidates existing iterators, including before their first step. Their next advance aborts before
 reading a shifted row or a recycled entity slot. Changes in another World and
 schedules that only replace values do not invalidate them. Exhausted row iterators
 stay exhausted. Iterators hold no query lock between steps, so `break`, `return`,
@@ -431,8 +513,19 @@ ignore(handle.cancel())
 ```
 
 Timeouts use scaled frame time by default. Pass `pausible=false` for unscaled
-frame time. Custom loops can call `@time.timers_system(@time.delta())` after
-advancing the World's clock.
+frame time. Systems can receive `@time.Timers` and schedule through
+`timers.timeout(delay, callback)`. Custom loops use the same clock and schedule:
+
+```moonbit
+let time = @time.Time(world)
+let timers = @ecs.Schedule().add_system(@ecs.args2(@time.timers_system))
+time.begin_frame(raw_delta)
+try! timers.run(world)
+```
+
+Constructors `Time(world)` and `Timers(world)` preserve existing state. The
+free clock functions and `timeout(...)` select the active World for imperative
+code.
 
 ## Code generation
 

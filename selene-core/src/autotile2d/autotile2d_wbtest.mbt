@@ -263,7 +263,7 @@ test "runtime layer cell updates keep source state in sync" {
   try! @ecs.Schedule().run(@ecs.require_current_world())
   let source_after_remove = runtime_layer_source(layer).unwrap()
   inspect(source_after_remove.cells.length(), content="1")
-  @ecs_test.destroy(layer)
+  @ecs_test.disable(layer)
 }
 
 ///|
@@ -280,7 +280,7 @@ test "runtime tile visuals reuse registered images without path IO" {
     [AutoTileCell(0, 0, 1)],
   )
   let layer = @ecs_test.spawn(world, ())
-  defer @ecs_test.destroy(layer)
+  defer @ecs_test.disable(layer)
   register_runtime_layer(
     layer,
     source,

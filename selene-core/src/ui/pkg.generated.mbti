@@ -8,6 +8,7 @@ import {
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
+  "Milky2018/selene/render2d",
   "Milky2018/selene/render2d_types",
   "moonbitlang/core/debug",
 }
@@ -153,21 +154,21 @@ pub fn to_screen_rect(@math.Rect, UiLayoutSpace) -> @math.Rect
 
 pub fn transparent() -> @render.Color
 
-pub fn ui_extract_system() -> Unit
+pub fn ui_extract_system(UiExtraction) -> Unit
 
-pub fn ui_input_capture_system(world~ : @ecs.World, Double) -> Unit
+pub fn ui_input_capture_system(UiInput) -> Unit
 
-pub fn ui_interaction_system(world~ : @ecs.World, Double) -> Unit
+pub fn ui_interaction_system(UiInput) -> Unit
 
 pub fn ui_layout_root_size(UiLayoutSpace) -> @math.Vec2
 
 pub fn ui_layout_space(world~ : @ecs.World, @ecs.Entity?) -> UiLayoutSpace
 
-pub fn ui_layout_system(world~ : @ecs.World, Double) -> Unit
+pub fn ui_layout_system(UiNodes) -> Unit
 
 pub fn ui_material_asset(UiMaterialHandle) -> UiMaterialAsset?
 
-pub fn ui_prepare_system(world~ : @ecs.World, Double) -> Unit
+pub fn ui_prepare_system(@render2d.Frame2D, UiNodes) -> Unit
 
 pub fn unconsumed_pointer_changes_this_frame() -> Array[@inputs.PointerEvent]
 
@@ -556,6 +557,13 @@ pub fn OverrideClip::not_equal(Self, Self) -> Bool
 pub fn OverrideClip::to_repr(Self) -> @debug.Repr
 pub impl @ecs.Component for OverrideClip
 
+type PointerConsumption
+pub fn PointerConsumption::PointerConsumption(@ecs.World) -> Self
+pub fn PointerConsumption::consume_touch(Self, @inputs.TouchId) -> Unit
+pub fn PointerConsumption::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub fn PointerConsumption::unconsumed_touch_changes(Self) -> Array[@inputs.TouchEvent]
+pub impl @ecs.SystemParam for PointerConsumption
+
 #derive(Eq, @debug.Debug)
 pub(all) enum PositionType {
   Relative
@@ -666,6 +674,11 @@ pub(all) struct UiClickEvent {
   button : @inputs.MouseButton
 }
 
+type UiExtraction
+pub fn UiExtraction::UiExtraction(@ecs.World) -> Self
+pub fn UiExtraction::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for UiExtraction
+
 pub(all) struct UiFocusInEvent {
   entity : @ecs.Entity
 }
@@ -673,6 +686,13 @@ pub(all) struct UiFocusInEvent {
 pub(all) struct UiFocusOutEvent {
   entity : @ecs.Entity
 }
+
+type UiGeometryView
+pub fn UiGeometryView::UiGeometryView(@ecs.World) -> Self
+pub fn UiGeometryView::computed_node(Self, @ecs.Entity) -> ComputedUiNode?
+pub fn UiGeometryView::global_node(Self, @ecs.Entity) -> GlobalUiNode?
+pub fn UiGeometryView::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for UiGeometryView
 
 #derive(Eq, @debug.Debug)
 pub(all) struct UiGradient {
@@ -697,6 +717,14 @@ pub fn UiImage::from_image(@math.Vec2, @asset_types.Handle[@asset_types.Image], 
 pub fn UiImage::not_equal(Self, Self) -> Bool
 pub fn UiImage::to_repr(Self) -> @debug.Repr
 pub impl @ecs.Component for UiImage
+
+type UiInput
+pub fn UiInput::UiInput(@ecs.World) -> Self
+pub fn UiInput::blur(Self) -> Unit
+pub fn UiInput::focus(Self, @ecs.Entity) -> Unit
+pub fn UiInput::focused_entity(Self) -> @ecs.Entity?
+pub fn UiInput::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for UiInput
 
 #derive(Eq, @debug.Debug)
 pub(all) struct UiInsets {
@@ -727,13 +755,14 @@ pub fn UiMaterialAsset::gradient(@render.Color, @render.Color) -> Self
 pub fn UiMaterialAsset::solid(@render.Color) -> Self
 
 pub(all) struct UiMaterialContext {
+  frame : @render2d.Frame2D
   entity : @ecs.Entity
   rect : @math.Rect
   content_rect : @math.Rect
   border_radius : BorderRadius
   target_camera_entity_id : UInt32?
 }
-pub fn UiMaterialContext::UiMaterialContext(@ecs.Entity, @math.Rect, content_rect? : @math.Rect, border_radius? : BorderRadius, target_camera_entity_id? : UInt32?) -> Self
+pub fn UiMaterialContext::UiMaterialContext(@render2d.Frame2D, @ecs.Entity, @math.Rect, content_rect? : @math.Rect, border_radius? : BorderRadius, target_camera_entity_id? : UInt32?) -> Self
 
 #derive(Eq, Hash, @debug.Debug)
 pub(all) struct UiMaterialHandle(UInt32)
@@ -760,6 +789,11 @@ pub(all) struct UiNavigationEvent {
   entity : @ecs.Entity?
   direction : UiNavigationDirection
 }
+
+type UiNodes
+pub fn UiNodes::UiNodes(@ecs.World) -> Self
+pub fn UiNodes::prepare(@ecs.World) -> (@ecs.World) -> Self
+pub impl @ecs.SystemParam for UiNodes
 
 pub(all) struct UiPointerDownEvent {
   entity : @ecs.Entity

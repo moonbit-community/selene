@@ -3,7 +3,11 @@ pub fn rigid_body_rotation(
   world~ : @ecs.World,
   entity : @ecs.Entity,
 ) -> Double? {
-  entity_physics_snapshot(world~, entity).map(fn(snapshot) { snapshot.rotation })
+  entity_physics_snapshot(physics=PhysicsStep2D(world), entity).map(fn(
+    snapshot,
+  ) {
+    snapshot.rotation
+  })
 }
 
 ///|
@@ -12,10 +16,10 @@ pub fn set_rigid_body_rotation(
   entity : @ecs.Entity,
   rotation : Double,
 ) -> Unit {
-  set_entity_rotation(world~, entity, rotation)
+  set_entity_rotation(physics=PhysicsStep2D(world), entity, rotation)
   if physics_world().entity_bodies.get(entity) is Some(handle) &&
     physics_world().bodies.get_mut(handle) is Some(body) {
-    match entity_rigid_body(world~, entity).body_type {
+    match entity_rigid_body(physics=PhysicsStep2D(world), entity).body_type {
       KinematicPositionBased => {
         body.set_rotation(to_physics_rotation(rotation), true) |> ignore
         body.set_next_kinematic_rotation(to_physics_rotation(rotation))
@@ -33,7 +37,9 @@ pub fn rigid_body_linear_velocity(
   world~ : @ecs.World,
   entity : @ecs.Entity,
 ) -> @math.Vec2? {
-  entity_physics_snapshot(world~, entity).map(fn(snapshot) {
+  entity_physics_snapshot(physics=PhysicsStep2D(world), entity).map(fn(
+    snapshot,
+  ) {
     snapshot.linear_velocity.unwrap_or(@math.Vec2::zero())
   })
 }
@@ -45,7 +51,7 @@ pub fn set_rigid_body_linear_velocity(
   linear_velocity : @math.Vec2,
 ) -> Unit {
   let query_velocity : @ecs.Query[@ecs.Single[@velocity.Velocity]] = world.query()
-  let body_type = entity_rigid_body(world~, entity).body_type
+  let body_type = entity_rigid_body(physics=PhysicsStep2D(world), entity).body_type
   match body_type {
     Fixed => {
       if query_velocity.contains(entity) {
@@ -84,7 +90,9 @@ pub fn rigid_body_angular_velocity(
   world~ : @ecs.World,
   entity : @ecs.Entity,
 ) -> Double? {
-  entity_physics_snapshot(world~, entity).map(fn(snapshot) {
+  entity_physics_snapshot(physics=PhysicsStep2D(world), entity).map(fn(
+    snapshot,
+  ) {
     snapshot.angular_velocity.unwrap_or(0.0)
   })
 }
@@ -95,7 +103,7 @@ pub fn set_rigid_body_angular_velocity(
   entity : @ecs.Entity,
   angular_velocity : Double,
 ) -> Unit {
-  match entity_rigid_body(world~, entity).body_type {
+  match entity_rigid_body(physics=PhysicsStep2D(world), entity).body_type {
     Dynamic | KinematicVelocityBased =>
       if physics_world().entity_bodies.get(entity) is Some(handle) &&
         physics_world().bodies.get_mut(handle) is Some(body) {
@@ -122,7 +130,12 @@ pub fn add_force(
   if vec2_length_squared(force) <= EPSILON {
     return
   }
-  if !apply_force_now(entity, force, wake_up) {
+  if !apply_force_now(
+      physics=PhysicsStep2D(@ecs.require_current_world()),
+      entity,
+      force,
+      wake_up,
+    ) {
     accumulate_pending_vec2(pending_body_forces(), entity, force)
   }
 }
@@ -137,7 +150,13 @@ pub fn add_force_at_point(
   if vec2_length_squared(force) <= EPSILON {
     return
   }
-  if !apply_force_at_point_now(entity, force, point, wake_up) {
+  if !apply_force_at_point_now(
+      physics=PhysicsStep2D(@ecs.require_current_world()),
+      entity,
+      force,
+      point,
+      wake_up,
+    ) {
     push_pending_force_point(
       pending_body_force_points(),
       entity,
@@ -155,7 +174,12 @@ pub fn add_torque(
   if torque.abs() <= EPSILON {
     return
   }
-  if !apply_torque_now(entity, torque, wake_up) {
+  if !apply_torque_now(
+      physics=PhysicsStep2D(@ecs.require_current_world()),
+      entity,
+      torque,
+      wake_up,
+    ) {
     accumulate_pending_scalar(pending_body_torques(), entity, torque)
   }
 }
@@ -169,7 +193,12 @@ pub fn apply_impulse(
   if vec2_length_squared(impulse) <= EPSILON {
     return
   }
-  if !apply_impulse_now(entity, impulse, wake_up) {
+  if !apply_impulse_now(
+      physics=PhysicsStep2D(@ecs.require_current_world()),
+      entity,
+      impulse,
+      wake_up,
+    ) {
     accumulate_pending_vec2(pending_body_impulses(), entity, impulse)
   }
 }
@@ -184,7 +213,13 @@ pub fn apply_impulse_at_point(
   if vec2_length_squared(impulse) <= EPSILON {
     return
   }
-  if !apply_impulse_at_point_now(entity, impulse, point, wake_up) {
+  if !apply_impulse_at_point_now(
+      physics=PhysicsStep2D(@ecs.require_current_world()),
+      entity,
+      impulse,
+      point,
+      wake_up,
+    ) {
     push_pending_force_point(
       pending_body_impulse_points(),
       entity,
@@ -202,7 +237,12 @@ pub fn apply_torque_impulse(
   if impulse.abs() <= EPSILON {
     return
   }
-  if !apply_torque_impulse_now(entity, impulse, wake_up) {
+  if !apply_torque_impulse_now(
+      physics=PhysicsStep2D(@ecs.require_current_world()),
+      entity,
+      impulse,
+      wake_up,
+    ) {
     accumulate_pending_scalar(pending_body_torque_impulses(), entity, impulse)
   }
 }

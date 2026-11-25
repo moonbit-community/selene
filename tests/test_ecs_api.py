@@ -65,7 +65,7 @@ class EcsPublicApiTests(unittest.TestCase):
   ignore(commands.spawn_draft(draft))
   try! @ecs.Schedule().add_exclusive_system(world => {
     ignore(world.id())
-    commands.delete(entity)
+    commands.despawn(entity)
   }).run(world)
 """)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -155,6 +155,8 @@ fn main {
             "key_current_store": ("ignore(position_key.store())", "store"),
             "key_get": ("ignore(position_key.get(@ecs.commands(world).spawn(())))", "get"),
             "key_set": ("position_key.set(@ecs.commands(world).spawn(()), Position(1))", "set"),
+            "entity_metadata_storage": ("ignore(@ecs.Entities(world).store)", "abstract type"),
+            "hierarchy_storage": ("ignore(@ecs.Hierarchy(world).store)", "abstract type"),
             "query_storage": ("let query : @ecs.Query[@ecs.Single[Position]] = world.query()\n  ignore(query.storage)", "abstract type"),
             "joined_constructor": ("ignore(@ecs.Query2(world.query(), world.query()))", "Query2"),
             "draft_store": ("@ecs.commands(world).draft().add_to(world.query(), Position(1))", "add_to"),
@@ -166,6 +168,10 @@ fn main {
             "immediate_delete": ("ignore(@ecs.commands(world).spawn(()).delete())", "delete"),
             "immediate_destroy": ("@ecs.commands(world).spawn(()).destroy()", "destroy"),
             "immediate_respawn": ("@ecs.commands(world).spawn(()).respawn()", "respawn"),
+            "old_delete_command": ("@ecs.commands(world).delete(@ecs.commands(world).spawn(()))", "delete"),
+            "old_respawn_command": ("@ecs.commands(world).respawn(@ecs.commands(world).spawn(()))", "respawn"),
+            "immediate_disable": ("@ecs.commands(world).spawn(()).disable()", "disable"),
+            "immediate_enable": ("@ecs.commands(world).spawn(()).enable()", "enable"),
             "raw_flush": ("@ecs.flush_commands(world)", "flush_commands"),
             "lifecycle_flush": ("@ecs.flush_entity_lifecycle(world)", "flush_entity_lifecycle"),
             "world_storage": ("ignore(world.storage)", "storage"),
@@ -275,7 +281,7 @@ fn main {
   let mut visited = 0
   for entity, Single(position) in query {
     visited += 1
-    commands.delete(entity)
+    commands.despawn(entity)
     ignore(commands.spawn1(Position(position.0 + 10)))
   }
   guard visited == 2 && query.length() == 2 else { abort("commands changed rows") }
@@ -285,7 +291,7 @@ fn main {
     let values : @ecs.ReadColumn[Position] = batch.read_column()
     for row in 0..<batch.length() {
       sum += values[row].0
-      commands.delete(batch.entity(row))
+      commands.despawn(batch.entity(row))
     }
   })
   guard sum == 23 && query.length() == 2 else { abort("batch changed rows") }
@@ -314,10 +320,12 @@ fn main {
 
     def test_query_iterators_reject_structural_invalidation(self):
         for iterator in ("iter", "iter2"):
-            for operation in (
-                "ignore(commands.spawn1(Position(3)))",
-                "ignore(commands.spawn((Position(3), Speed(4))))",
-                "commands.delete(first); app.run_frames(1); ignore(commands.spawn1(Position(3)))",
+            for setup, operation in (
+                ("", "ignore(commands.spawn1(Position(3)))"),
+                ("", "ignore(commands.spawn((Position(3), Speed(4))))"),
+                ("", "commands.despawn(first); app.run_frames(1); ignore(commands.spawn1(Position(3)))"),
+                ("", "commands.disable(first)"),
+                ("commands.disable(first); app.run_frames(1)", "commands.enable(first)"),
             ):
                 with self.subTest(iterator=iterator, operation=operation):
                     result = self.run_program("""
@@ -335,6 +343,7 @@ fn main {
   let app = @app.App().with_world(world)
   app.run_frames(1)
   let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
+  """ + setup + """
   let entries = query.""" + iterator + """()
   ignore(entries.next())
   """ + operation + """
@@ -370,6 +379,31 @@ fn main {
         self.assertIn("entered query callback", output)
         self.assertIn("component is not declared in this query", output)
 
+
+    def test_normal_batch_views_cannot_access_disabled_rows(self):
+        setup = """
+fn main {
+  let world = @ecs.World()
+  let commands = @ecs.commands(world)
+  let active = commands.spawn1(Position(1))
+  let inactive = commands.spawn1(Position(2))
+  try! @ecs.Schedule().run(world)
+  commands.disable(inactive)
+  try! @ecs.Schedule().run(world)
+  let query : @ecs.Query[@ecs.Single[Position]] = world.query1()
+  ignore(active)
+"""
+        cases = {
+            "point_write": ('query.set(inactive, Single(Position(3)))', "entity does not match this query"),
+            "row_read": ('query.batches(batch => ignore(batch.get(batch.length())))', "query batch row out of bounds"),
+            "column_read": ('query.batches(batch => { let values : @ecs.ReadColumn[Position] = batch.read_column(); ignore(values[values.length()]) })', "query batch row out of bounds"),
+            "column_write": ('query.batches(batch => { let values : @ecs.WriteColumn[Position] = batch.write_column(); values[values.length()] = Position(3) })', "query batch row out of bounds"),
+        }
+        for name, (operation, expected) in cases.items():
+            with self.subTest(name=name):
+                result = self.run_program(setup + operation + "\n}\n")
+                self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn(expected, result.stdout + result.stderr)
 
 if __name__ == "__main__":
     unittest.main()

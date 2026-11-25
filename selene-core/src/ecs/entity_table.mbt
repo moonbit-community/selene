@@ -206,13 +206,13 @@ pub fn[T] EntityTable::iter2(self : EntityTable[T]) -> Iter2[Entity, T] {
 ///|
 pub fn[T] EntityTable::iter(self : EntityTable[T]) -> Iter[(Entity, T)] {
   let entries = self.iter2()
-  Iter::new(() => entries.next())
+  Iter(() => entries.next())
 }
 
 ///|
 pub fn[T] EntityTable::keys(self : EntityTable[T]) -> Iter[Entity] {
   let mut next = self.head
-  Iter::new(
+  Iter(
     () => {
       guard next is Some(index) && self.entries[index] is Some(entry) else {
         None
@@ -227,7 +227,7 @@ pub fn[T] EntityTable::keys(self : EntityTable[T]) -> Iter[Entity] {
 ///|
 pub fn[T] EntityTable::values(self : EntityTable[T]) -> Iter[T] {
   let mut next = self.head
-  Iter::new(
+  Iter(
     () => {
       guard next is Some(index) && self.entries[index] is Some(entry) else {
         None

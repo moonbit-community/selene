@@ -86,13 +86,13 @@ pub enum JointMotor {
     stiffness~ : Double,
     damping~ : Double,
     max_force~ : Double?,
-    model~ : JointMotorModel
+    model~ : JointMotorModel,
   )
   Velocity(
     target_velocity~ : Double,
     damping~ : Double,
     max_force~ : Double?,
-    model~ : JointMotorModel
+    model~ : JointMotorModel,
   )
 }
 
@@ -133,18 +133,18 @@ pub enum JointKind {
     local_anchor2~ : @math.Vec2,
     limits~ : JointLimits?,
     motor~ : JointMotor?,
-    softness~ : JointSoftness?
+    softness~ : JointSoftness?,
   )
   Prismatic(
     axis~ : @math.Vec2,
     local_anchor1~ : @math.Vec2,
     local_anchor2~ : @math.Vec2,
-    limits~ : JointLimits?
+    limits~ : JointLimits?,
   )
   Rope(
     max_distance~ : Double,
     local_anchor1~ : @math.Vec2,
-    local_anchor2~ : @math.Vec2
+    local_anchor2~ : @math.Vec2,
   )
   Spring(
     rest_length~ : Double,
@@ -152,7 +152,7 @@ pub enum JointKind {
     damping~ : Double,
     local_anchor1~ : @math.Vec2,
     local_anchor2~ : @math.Vec2,
-    model~ : JointMotorModel
+    model~ : JointMotorModel,
   )
 }
 
@@ -193,7 +193,7 @@ pub enum MultibodyJointKind {
     local_anchor2~ : @math.Vec2,
     limits~ : JointLimits?,
     motor~ : JointMotor?,
-    softness~ : JointSoftness?
+    softness~ : JointSoftness?,
   )
 }
 

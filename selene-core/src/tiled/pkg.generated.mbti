@@ -46,7 +46,7 @@ pub let tiled_object_spawned_event_bus : @event.Events[TiledObjectSpawnedEvent]
 
 pub let tiled_tile_spawned_event_bus : @event.Events[TiledTileSpawnedEvent]
 
-pub fn tiled_world_chunking_system(world~ : @ecs.World, Double) -> Unit
+pub fn tiled_world_chunking_system(world~ : @ecs.World) -> Unit
 
 pub let tiled_world_map_spawned_event_bus : @event.Events[TiledWorldMapSpawnedEvent]
 

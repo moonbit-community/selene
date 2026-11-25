@@ -46,7 +46,7 @@ fn rgba(r : Int32, g : Int32, b : Int32, a : Double) -> @render.Color {
 
 ///|
 fn parse_uint(text : StringView, base : Int32) -> UInt32? {
-  Some(@string.parse_uint(text, base~)) catch {
+  Some(@string.parse_uint(text, radix=base)) catch {
     _ => None
   }
 }

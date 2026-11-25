@@ -7,6 +7,8 @@ import {
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
+  "Milky2018/selene/render2d",
+  "Milky2018/selene/time",
   "Milky2018/selene/velocity",
   "moonbitlang/core/set",
 }
@@ -30,7 +32,7 @@ pub fn configure_physics(gravity? : @math.Vec2, pixels_per_meter? : Double, max_
 
 pub let contact_event_bus : @event.Events[@Milky2018/selene/collision.ContactEvent]
 
-pub fn debug_colliders_system(world~ : @ecs.World, Double) -> Unit
+pub fn debug_colliders_system(@render2d.Frame2D, @Milky2018/selene/collision.CollisionQueries) -> Unit
 
 pub fn emit_pickable_just_pressed(@ecs.Entity, button? : @inputs.MouseButton) -> Unit
 
@@ -46,7 +48,7 @@ pub fn is_grounded(@ecs.Entity) -> Bool
 
 pub fn joint_handle(@ecs.Entity) -> @dynamics.ImpulseJointHandle?
 
-pub fn move_system(world~ : @ecs.World, Double) -> Unit
+pub fn move_system(@Milky2018/selene/collision.PhysicsStep2D, @time.Time) -> Unit
 
 pub fn multibody_joint_handle(@ecs.Entity) -> @dynamics.MultibodyJointHandle?
 
@@ -54,9 +56,9 @@ pub fn multibody_link(@ecs.Entity) -> @dynamics.MultibodyLinkId?
 
 pub let physics_config : @Milky2018/selene/collision.PhysicsConfig
 
-pub fn physics_step_system(world~ : @ecs.World, Double) -> Unit
+pub fn physics_step_system(@Milky2018/selene/collision.PhysicsStep2D, @time.Time) -> Unit
 
-pub fn pickable_click_system(world~ : @ecs.World, Double) -> Unit
+pub fn pickable_click_system(@Milky2018/selene/collision.CollisionQueries) -> Unit
 
 pub let pointer_event_bus : @event.Events[@Milky2018/selene/collision.PointerEvent]
 
@@ -111,6 +113,8 @@ pub using @Milky2018/selene/collision {type CollisionGroup}
 
 pub using @Milky2018/selene/collision {type CollisionFilter as CollisionLayers}
 
+pub using @Milky2018/selene/collision {type CollisionQueries}
+
 pub using @Milky2018/selene/collision {type CollisionShape}
 
 pub using @Milky2018/selene/collision {type ContactEvent}
@@ -140,6 +144,10 @@ pub using @Milky2018/selene/collision {type MultibodyJointKind}
 pub using @dynamics {type MultibodyLinkId}
 
 pub using @Milky2018/selene/collision {type PhysicsConfig}
+
+pub using @Milky2018/selene/collision {type PhysicsMotion}
+
+pub using @Milky2018/selene/collision {type PhysicsStep2D}
 
 pub using @Milky2018/selene/collision {type Pickable}
 

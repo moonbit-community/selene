@@ -31,17 +31,17 @@ pub fn spawn_draft(
 }
 
 ///|
-pub fn delete(entity : @ecs.Entity) -> Bool {
+pub fn despawn(entity : @ecs.Entity) -> Bool {
   let world = @ecs.require_current_world()
   let valid = entity.is_valid_in(world)
-  @ecs.commands(world).delete(entity)
+  @ecs.commands(world).despawn(entity)
   try! @ecs.Schedule().run(world)
   valid
 }
 
 ///|
-pub fn destroy(entity : @ecs.Entity) -> Unit {
+pub fn disable(entity : @ecs.Entity) -> Unit {
   let world = @ecs.require_current_world()
-  @ecs.commands(world).despawn(entity)
+  @ecs.commands(world).disable(entity)
   try! @ecs.Schedule().run(world)
 }

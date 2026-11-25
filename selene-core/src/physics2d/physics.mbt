@@ -58,13 +58,19 @@ pub fn multibody_link(entity : @ecs.Entity) -> MultibodyLinkId? {
 }
 
 ///|
-pub fn physics_step_system(world~ : @ecs.World, delta : Double) -> Unit {
-  @collision.move_system(world~, delta)
+pub fn physics_step_system(
+  physics : @collision.PhysicsStep2D,
+  time : @time.Time,
+) -> Unit {
+  @collision.move_system(physics, time)
 }
 
 ///|
-pub fn move_system(world~ : @ecs.World, delta : Double) -> Unit {
-  @collision.move_system(world~, delta)
+pub fn move_system(
+  physics : @collision.PhysicsStep2D,
+  time : @time.Time,
+) -> Unit {
+  @collision.move_system(physics, time)
 }
 
 ///|
@@ -93,11 +99,14 @@ pub fn emit_pickable_just_pressed(
 }
 
 ///|
-pub fn pickable_click_system(world~ : @ecs.World, delta : Double) -> Unit {
-  @collision.pickable_click_system(world~, delta)
+pub fn pickable_click_system(scene : @collision.CollisionQueries) -> Unit {
+  @collision.pickable_click_system(scene)
 }
 
 ///|
-pub fn debug_colliders_system(world~ : @ecs.World, delta : Double) -> Unit {
-  @collision.debug_collide_system(world~, delta)
+pub fn debug_colliders_system(
+  frame : @render2d.Frame2D,
+  scene : @collision.CollisionQueries,
+) -> Unit {
+  @collision.debug_collide_system(frame, scene)
 }

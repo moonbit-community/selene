@@ -1,5 +1,4 @@
 import {
-  "Milky2018/selene/ecs",
   "Milky2018/selene/window",
   "Milky2018/selene/camera",
   "Milky2018/selene/math",
@@ -14,10 +13,13 @@ import {
 }
 
 import {
-  "Milky2018/selene/ecs",
   "Milky2018/selene/transform",
 } for "wbtest"
 
 import {
   "Milky2018/selene/internal/ecs_test",
+} for "wbtest"
+
+import {
+  "Milky2018/selene/ecs",
 } for "wbtest"

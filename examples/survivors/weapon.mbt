@@ -162,6 +162,7 @@ fn player_bullet_visual() -> @sprite.Sprite {
 ///|
 fn update_weapon_timers(
   runtime : SurvivorsRuntime,
+  timers : @time.Timers,
   commands : @ecs.Commands,
   enemies : @ecs.Query[(Enemy, @transform.Spatial)],
   weapon_instances : Array[WeaponType],
@@ -202,7 +203,7 @@ fn update_weapon_timers(
           )
           let total_penetration = weapon_data.penetration + player_penetration
           shoot_weapon_bullet(
-            runtime, commands, player_pos, enemy_pos, weapon_data, weapon_damage,
+            runtime, timers, commands, player_pos, enemy_pos, weapon_data, weapon_damage,
             total_penetration,
           )
         }
@@ -215,6 +216,7 @@ fn update_weapon_timers(
 ///|
 fn shoot_weapon_bullet(
   runtime : SurvivorsRuntime,
+  timers : @time.Timers,
   commands : @ecs.Commands,
   player_pos : @math.Vec2,
   target_pos : @math.Vec2,
@@ -267,8 +269,8 @@ fn shoot_weapon_bullet(
   // Calculate bullet duration based on weapon range
   let weapon_range = calculate_weapon_range(weapon_data, 0.0)
   let bullet_duration = weapon_range / weapon_data.bullet_speed
-  survivors_timeout(bullet_duration, fn() {
-    @ecs.commands(@ecs.require_current_world()).delete(bullet_entity)
+  survivors_timeout(runtime, timers, bullet_duration, fn() {
+    commands.despawn(bullet_entity)
   })
 }
 
@@ -282,7 +284,7 @@ fn start_bullet_despawn(
     return
   }
   bullet.alive = false
-  commands.delete(bullet_entity)
+  commands.despawn(bullet_entity)
 }
 
 ///|
@@ -291,10 +293,7 @@ fn player_bullet_trigger_system(
   enemies : @ecs.Query[@ecs.Single[Enemy]],
   ui : SurvivorsUi,
 ) -> Unit {
-  for
-    event in @physics2d.trigger_event_bus.read(
-      ui.runtime.player_bullet_trigger_event_reader,
-    ) {
+  for event in ui.bullet_triggers.read() {
     guard event.entered else { continue }
     guard bullets.get(event.area).map(value => value.0) is Some(bullet) else {
       continue
@@ -304,7 +303,7 @@ fn player_bullet_trigger_system(
       enemy.health -= bullet.damage
       bullet.penetration_count += 1
       if enemy.health <= 0.0 {
-        ui.commands.delete(event.other)
+        ui.commands.despawn(event.other)
         let data = get_enemy_data(enemy.enemy_type)
         set_score(ui~, ui.game().score + data.points)
         add_exp(ui~, data.points)

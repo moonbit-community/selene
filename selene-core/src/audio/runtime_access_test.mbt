@@ -13,7 +13,11 @@ test "audio control handles are read per entity without exposing sink storage" {
   )
   assert_true(@audio.audio_sink(entity) is None)
   try! @ecs.Schedule().run(@ecs.require_current_world())
-  @audio.audio_playback_system(first.query(), first.query())
+  @audio.audio_playback_system(
+    first.query(),
+    first.query(),
+    AudioPlayback(first),
+  )
   let sink = @audio.audio_sink(entity).unwrap()
   sink.set_volume(0.25)
   sink.pause()
@@ -24,6 +28,6 @@ test "audio control handles are read per entity without exposing sink storage" {
   @ecs.set_current_world(first)
   @audio.stop_audio(entity)
   assert_true(@audio.audio_sink(entity) is None)
-  assert_true(@ecs_test.delete(entity))
+  assert_true(@ecs_test.despawn(entity))
   assert_true(@audio.audio_sink(entity) is None)
 }

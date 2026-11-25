@@ -127,9 +127,6 @@ pub fn ldtk_worldly_entity(
 ) -> @ecs.Entity? {
   let query_ldtk_worldly : @ecs.Query[@ecs.Single[LdtkWorldly]] = world.query()
   for (entity, Single(worldly)) in query_ldtk_worldly.to_array() {
-    if !entity.is_alive() {
-      continue
-    }
     if worldly.world_entity == world_entity && worldly.entity_iid == entity_iid {
       return Some(entity)
     }
@@ -148,9 +145,6 @@ pub fn ldtk_entity_by_iid(
   ] = world.query()
   let query_ldtk_entity_iid : @ecs.Query[@ecs.Single[LdtkEntityIid]] = world.query()
   for (entity, Single(iid_instance)) in query_ldtk_entity_iid.to_array() {
-    if !entity.is_alive() {
-      continue
-    }
     if iid_instance.iid != entity_iid {
       continue
     }
@@ -166,15 +160,12 @@ pub fn ldtk_entity_by_iid(
 }
 
 ///|
-pub fn ldtk_world_sync_system(world~ : @ecs.World, _delta : Double) -> Unit {
+pub fn ldtk_world_sync_system(world~ : @ecs.World) -> Unit {
   let query_ldtk_world_instance : @ecs.Query[@ecs.Single[LdtkWorldInstance]] = world.query()
   ldtk_emit_pending_transformed_events()
   ldtk_cleanup_dead_runtime_entries()
   let world_entities = query_ldtk_world_instance.to_array().map(pair => pair.0)
   for world_entity in world_entities {
-    if !world_entity.is_alive() {
-      continue
-    }
     guard query_ldtk_world_instance.get(world_entity).map(value => value.0)
       is Some(instance) else {
       continue
@@ -265,7 +256,7 @@ fn ldtk_queue_level_set(
     !ldtk_respawns().contains(world_entity) {
     let worldly_query : @ecs.Query[@ecs.Single[LdtkWorldly]] = world.query1()
     for entity, Single(worldly) in worldly_query {
-      if worldly.world_entity == world_entity && world.is_alive(entity) {
+      if worldly.world_entity == world_entity {
         worldly_entities.set(worldly.entity_iid, entity)
       }
     }

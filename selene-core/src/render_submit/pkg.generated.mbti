@@ -2,11 +2,14 @@
 package "Milky2018/selene/render_submit"
 
 import {
-  "Milky2018/selene/ecs",
+  "Milky2018/selene/render2d",
+  "Milky2018/selene/render3d_pipeline",
+  "Milky2018/selene/runtime_debug",
+  "Milky2018/selene/window",
 }
 
 // Values
-pub fn render_submit_system(world~ : @ecs.World, Double) -> Unit
+pub fn render_submit_system(@render2d.Frame2D, @render2d.RenderView2D, @render3d_pipeline.PreparedFrame3D, @runtime_debug.RenderCapture, @window.Display) -> Unit
 
 // Errors
 

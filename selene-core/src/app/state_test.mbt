@@ -171,7 +171,7 @@ test "exit commands flush before entry and entry commands before Update" {
     .with_world(world)
     .init_state(Phase::Menu)
     .add_exclusive_on_exit(Phase::Menu, world => {
-      @ecs.commands(world).delete(old)
+      @ecs.commands(world).despawn(old)
     })
     .add_exclusive_on_enter(Phase::Playing, world => {
       try! assert_false(old.is_valid_in(world))

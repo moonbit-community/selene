@@ -48,5 +48,4 @@ fn run_schedule(
   }
   run(world)
   flush_commands(world)
-  flush_entity_lifecycle(world)
 }

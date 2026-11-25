@@ -4,6 +4,11 @@
 
 ### Added
 
+- Add read-only `Entities` and `Hierarchy` system parameters for World-bound
+  lifecycle and fixed-tree queries, including generation checks.
+- Add bound event reader views and writers, explicit timer queues, physics
+  results, UI geometry, and render frame parameters for system helpers.
+
 - Add typed `Assets[T]` collections and `Handle[T]`, with independent resource
   construction, registration, replacement, and removal. Embedded images, fonts,
   and audio are used directly without hand-maintained path catalogues.
@@ -51,13 +56,30 @@
 - Added `parent=` to deferred spawns. The World keeps the
   relationship and sibling order with each entity slot.
 - Added permanent entity deletion with generation-checked slot recycling,
-  including through deferred commands. Destroyed entities remain recoverable
-  through respawn until permanently deleted. Public entity IDs remain unique
+  including through deferred commands. Disabled entities retain their handles
+  and component values until re-enabled or despawned. Public entity IDs remain unique
   within a World as storage slots are reused. Handles from earlier generations
   cannot access the current occupant. Added benchmarks for churn and component
   updates in long-running Worlds with a fixed live population.
 
 ### Changed
+
+- Make `Commands::despawn` permanently remove an entity subtree and recycle its
+  slots; replace recoverable destruction with deferred `disable` / `enable`.
+  Activity is entity metadata and never changes component layouts.
+- Exclude disabled entities from every ordinary Query operation and its batch
+  columns. Add `Query::including_inactive()` for explicit retained-state access.
+  Keep enabled rows contiguous within each archetype and remove redundant
+  liveness checks and metadata parameters from systems.
+- Upgrade the codegen parser to 0.4.9 and adjust iterator/string parsing syntax
+  and test imports for the latest MoonBit toolchain.
+
+- Migrate engine and example systems to injected queries and resources,
+  including their input, UI, physics, audio, animation, and rendering helpers.
+  Retain explicit World access for dynamic animation fields and importers,
+  along with existing active-World convenience APIs.
+- Keep prepared 2D frame buffers stable across resets and bind event maintenance
+  to each World's registry.
 
 - Keep the complete Pages site in `page/`, with each example loading an
   adjacent `web.js`. Build and copy the three game bundles, then deploy `page/`
@@ -237,8 +259,8 @@
 - Run workspace tests in CI with MoonBit's default target selection.
 
 - An entity's component types are fixed at spawn. `ComponentStore::set`
-  overwrites an existing value. Permanent deletion removes the row, while
-  recoverable destruction retains component values and hierarchy.
+  overwrites an existing value. Permanent despawning removes the row, while
+  disabling retains component values and fixed hierarchy metadata.
 - Spawn `Spatial(Transform)` for an entity with a pose. It holds the local
   `Transform` and propagated `GlobalTransform`. Sprite extraction joins the
   `Sprite` and `Spatial` columns directly.
@@ -292,6 +314,9 @@
 - Isolated entity identity, deferred commands, and query snapshots across Worlds.
 
 ### Removed
+
+- Remove `Commands::delete`, `Commands::respawn`, and the separate retained
+  destruction lifecycle; use `despawn`, `disable`, and `enable` instead.
 
 - Remove the MoonBit pre-release CI compatibility job; CI uses the latest toolchain.
 

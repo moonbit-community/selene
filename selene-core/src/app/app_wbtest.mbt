@@ -61,14 +61,14 @@ test "app: add_message registers buses to final world" {
 
   @ecs.set_current_world(world_b)
   events.send(1)
-  @event.event_frame_update_system()
-  @event.event_frame_update_system()
+  @event.event_frame_update_system(EventRegistry(@ecs.require_current_world()))
+  @event.event_frame_update_system(EventRegistry(@ecs.require_current_world()))
   inspect(events.read(reader_b).length(), content="0")
 
   @ecs.set_current_world(world_a)
   events.send(2)
-  @event.event_frame_update_system()
-  @event.event_frame_update_system()
+  @event.event_frame_update_system(EventRegistry(@ecs.require_current_world()))
+  @event.event_frame_update_system(EventRegistry(@ecs.require_current_world()))
   let reader_events = events.read(reader_a)
   inspect(reader_events.length(), content="1")
   inspect(reader_events[0], content="2")

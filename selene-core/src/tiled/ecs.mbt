@@ -282,7 +282,7 @@ pub fn replace_tiled_map(
   let query_tiled_world_instance : @ecs.Query[@ecs.Single[TiledWorldInstance]] = world.query()
   let parent = root.get_parent()
   let world_map = query_tiled_world_map_instance.get(root).map(value => value.0)
-  @ecs.commands(world).delete(root)
+  @ecs.commands(world).despawn(root)
   let replacement = spawn_tiled_map_root(
     world~,
     map,

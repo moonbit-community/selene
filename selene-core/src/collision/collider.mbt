@@ -58,8 +58,10 @@ fn ColliderWorldStore::ColliderWorldStore(
 }
 
 ///|
-fn collider_world_store() -> ColliderWorldStore {
-  collider_world_store_key.get_or_insert_with(@ecs.require_current_world(), world => {
+fn collider_world_store(
+  world~ : @ecs.World = @ecs.require_current_world(),
+) -> ColliderWorldStore {
+  collider_world_store_key.get_or_insert_with(world, world => {
     ColliderWorldStore(world)
   })
 }
@@ -90,8 +92,8 @@ pub fn grounded_entities() -> Set[@ecs.Entity] {
 }
 
 ///|
-fn push_contact_event(event : ContactEvent) -> Unit {
-  contact_event_bus.send(event)
+fn push_contact_event(physics~ : PhysicsStep2D, event : ContactEvent) -> Unit {
+  physics.contact_event_bus.send(event)
 }
 
 ///|
@@ -100,8 +102,12 @@ pub fn is_grounded(entity : @ecs.Entity) -> Bool {
 }
 
 ///|
-fn set_grounded(entity : @ecs.Entity, grounded : Bool) -> Unit {
-  let grounded_entities = grounded_entities()
+fn set_grounded(
+  physics~ : PhysicsStep2D,
+  entity : @ecs.Entity,
+  grounded : Bool,
+) -> Unit {
+  let grounded_entities = physics.collisions.grounded_entities
   if grounded {
     grounded_entities.add(entity)
   } else {
@@ -114,3 +120,39 @@ fn set_grounded(entity : @ecs.Entity, grounded : Bool) -> Unit {
 pub fn resolved_velocity(entity : @ecs.Entity) -> @velocity.Velocity? {
   resolved_velocities().get(entity)
 }
+
+///|
+/// Read-only results of the latest fixed physics step in one World.
+struct PhysicsMotion {
+  state : ColliderWorldStore
+}
+
+///|
+pub fn PhysicsMotion::PhysicsMotion(world : @ecs.World) -> PhysicsMotion {
+  { state: collider_world_store(world~), }
+}
+
+///|
+pub fn PhysicsMotion::resolved_velocity(
+  self : PhysicsMotion,
+  entity : @ecs.Entity,
+) -> @velocity.Velocity? {
+  self.state.resolved_velocities.get(entity)
+}
+
+///|
+pub fn PhysicsMotion::is_grounded(
+  self : PhysicsMotion,
+  entity : @ecs.Entity,
+) -> Bool {
+  self.state.grounded_entities.contains(entity)
+}
+
+///|
+pub impl @ecs.SystemParam for PhysicsMotion with fn prepare(world) {
+  let motion = PhysicsMotion(world)
+  _ => motion
+}
+
+///|
+pub extend PhysicsMotion with @ecs.SystemParam::{prepare}

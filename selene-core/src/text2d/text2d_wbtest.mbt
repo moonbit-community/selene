@@ -27,12 +27,27 @@ test "text2d layout cache reuses identical inputs" {
     let layout = @ui.TextLayout(wrap=WordWrap, overflow=Ellipsis)
     let bounds = Some(TextBounds(60.0, 100.0))
 
-    let first = cached_text_layout(entity, "hello world", style, layout, bounds)
+    let first = cached_text_layout(
+      TextLayoutData(@ecs.require_current_world()).caches,
+      entity,
+      "hello world",
+      style,
+      layout,
+      bounds,
+    )
     let second = cached_text_layout(
-      entity, "hello world", style, layout, bounds,
+      TextLayoutData(@ecs.require_current_world()).caches,
+      entity,
+      "hello world",
+      style,
+      layout,
+      bounds,
     )
 
-    inspect(text_layout_caches().length(), content="1")
+    inspect(
+      TextLayoutData(@ecs.require_current_world()).caches.length(),
+      content="1",
+    )
     inspect(first.key == second.key, content="true")
     inspect(first.lines == second.lines, content="true")
   })
@@ -46,15 +61,27 @@ test "text2d layout cache invalidates when text changes" {
     let layout = @ui.TextLayout(wrap=WordWrap, overflow=Ellipsis)
     let bounds = Some(TextBounds(60.0, 100.0))
 
-    let first = cached_text_layout(entity, "hello world", style, layout, bounds)
+    let first = cached_text_layout(
+      TextLayoutData(@ecs.require_current_world()).caches,
+      entity,
+      "hello world",
+      style,
+      layout,
+      bounds,
+    )
     let second = cached_text_layout(
-      entity, "different text", style, layout, bounds,
+      TextLayoutData(@ecs.require_current_world()).caches,
+      entity,
+      "different text",
+      style,
+      layout,
+      bounds,
     )
 
     inspect(first.key == second.key, content="false")
     inspect(first.lines == second.lines, content="false")
     inspect(
-      text_layout_caches()
+      TextLayoutData(@ecs.require_current_world()).caches
       .get(entity)
       .map(fn(cached) { cached.key == second.key })
       .unwrap_or(false),

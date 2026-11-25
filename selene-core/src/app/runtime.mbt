@@ -1,6 +1,7 @@
 ///|
 priv struct RuntimePlan {
   world : @ecs.World
+  time : @time.Time
   fixed_dt : Double
   max_fixed_steps : Int32
   startup : @ecs.Schedule
@@ -67,20 +68,21 @@ fn build_runtime_plan(
       candidate == stage
     })
   }
-  let frame_events = @ecs.Schedule().add_exclusive_system(_ => {
-    @event.event_frame_update_system()
-  })
-  let fixed_events = @ecs.Schedule().add_exclusive_system(_ => {
-    @event.event_fixed_update_system()
-  })
-  let observers = @ecs.Schedule().add_exclusive_system(_ => {
-    @event.event_observer_dispatch_system()
-  })
-  let render_events = @ecs.Schedule().add_exclusive_system(_ => {
-    @event.event_render_update_system()
-  })
+  let frame_events = @ecs.Schedule().add_system(
+    @event.event_frame_update_system,
+  )
+  let fixed_events = @ecs.Schedule().add_system(
+    @event.event_fixed_update_system,
+  )
+  let observers = @ecs.Schedule().add_system(
+    @event.event_observer_dispatch_system,
+  )
+  let render_events = @ecs.Schedule().add_system(
+    @event.event_render_update_system,
+  )
   {
     world: app.world,
+    time: Time(app.world),
     fixed_dt,
     max_fixed_steps: app.max_fixed_steps_per_frame.reinterpret_as_int(),
     startup: stage(Startup),
@@ -119,7 +121,7 @@ fn build_runtime_plan(
 ///|
 fn startup_runtime(plan : RuntimePlan) -> Unit {
   @ecs.set_current_world(plan.world)
-  @time.set_delta(0.0)
+  plan.time.set_delta(0.0)
   try! plan.startup.run(plan.world)
   for validate in plan.state_validations {
     validate(plan.world)
@@ -139,8 +141,8 @@ fn resolved_frame_delta(raw_delta : Double) -> Double {
 fn run_fixed_step_once(plan : RuntimePlan) -> Unit {
   @ecs.set_current_world(plan.world)
   plan.world.advance_fixed_step()
-  @time.use_fixed_delta(plan.fixed_dt)
-  let fixed_delta = @time.delta()
+  plan.time.use_fixed_delta(plan.fixed_dt)
+  let fixed_delta = plan.time.delta()
   try! plan.fixed.run(plan.world)
   @runtime_debug.note_fixed_step(fixed_delta)
 }
@@ -157,7 +159,7 @@ fn run_game_frame(
   @runtime_debug.begin_frame_metrics()
 
   let used_delta = resolved_frame_delta(raw_delta)
-  @time.begin_frame(used_delta)
+  plan.time.begin_frame(used_delta)
   let injected_or_polled = match input_override {
     Some(snapshot) => snapshot
     None =>
@@ -166,7 +168,7 @@ fn run_game_frame(
       })
   }
   @inputs.apply_input_snapshot(injected_or_polled)
-  accumulator.val += @time.delta()
+  accumulator.val += plan.time.delta()
 
   try! plan.frame_input.run(plan.world)
   run_state_transitions(plan)
@@ -181,8 +183,8 @@ fn run_game_frame(
     accumulator.val = 0.0
   }
 
-  @time.use_frame_delta()
-  let delta = @time.delta()
+  plan.time.use_frame_delta()
+  let delta = plan.time.delta()
   try! plan.frame_update.run(plan.world)
 
   @runtime_debug.note_update(delta, @ecs.alive_entity_count())
@@ -197,9 +199,9 @@ fn service_platform_frame(service_frame : () -> Unit) -> Unit {
 fn run_render_frame(plan : RuntimePlan, raw_delta : Double) -> Unit {
   @ecs.set_current_world(plan.world)
   let used_delta = resolved_frame_delta(raw_delta)
-  @time.set_delta(used_delta)
-  @time.use_frame_delta()
-  let delta = @time.delta()
+  plan.time.set_delta(used_delta)
+  plan.time.use_frame_delta()
+  let delta = plan.time.delta()
   try! plan.render.run(plan.world)
   let (draw2d_count, draw3d_count) = match
     @runtime_debug.latest_render_submission() {

@@ -13,21 +13,42 @@
 // limitations under the License.
 
 ///|
-let prepared_frame3d_key : @ecs.ResourceKey[@render3d.RenderFrame3D] = ResourceKey()
+let prepared_frame3d_key : @ecs.ResourceKey[Ref[@render3d.RenderFrame3D]] = ResourceKey()
 
 ///|
-fn prepared_frame3d() -> @render3d.RenderFrame3D {
-  prepared_frame3d_key.get_or_insert_with(@ecs.require_current_world(), _ => {
-    RenderFrame3D()
-  })
+struct PreparedFrame3D {
+  frame : Ref[@render3d.RenderFrame3D]
 }
 
 ///|
-pub fn render3d_prepare_system() -> Unit {
-  prepared_frame3d_key.insert_in(
-    @ecs.require_current_world(),
-    @render3d.get_extracted_frame3d(),
-  )
+pub fn PreparedFrame3D::PreparedFrame3D(world : @ecs.World) -> PreparedFrame3D {
+  {
+    frame: prepared_frame3d_key.get_or_insert_with(world, _ => {
+      Ref(RenderFrame3D())
+    }),
+  }
+}
+
+///|
+pub impl @ecs.SystemParam for PreparedFrame3D with fn prepare(world) {
+  let frame = PreparedFrame3D(world)
+  _ => frame
+}
+
+///|
+pub extend PreparedFrame3D with @ecs.SystemParam::{prepare}
+
+///|
+fn prepared_frame3d() -> @render3d.RenderFrame3D {
+  PreparedFrame3D(@ecs.require_current_world()).frame.val
+}
+
+///|
+pub fn render3d_prepare_system(
+  extracted : @render3d.ExtractedFrame3D,
+  prepared : PreparedFrame3D,
+) -> Unit {
+  prepared.frame.val = extracted.get()
 }
 
 ///|
@@ -39,4 +60,17 @@ pub fn push_line3d(line : @render3d.RenderLine3D) -> Unit {
 ///|
 pub fn get_prepared_frame3d() -> @render3d.RenderFrame3D {
   prepared_frame3d()
+}
+
+///|
+pub fn PreparedFrame3D::get(self : PreparedFrame3D) -> @render3d.RenderFrame3D {
+  self.frame.val
+}
+
+///|
+pub fn PreparedFrame3D::push_line(
+  self : PreparedFrame3D,
+  line : @render3d.RenderLine3D,
+) -> Unit {
+  self.frame.val.lines.push(line)
 }

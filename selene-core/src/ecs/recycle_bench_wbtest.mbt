@@ -12,7 +12,7 @@ fn spawn_recycled_population(
 ///|
 fn delete_population(population : Array[Entity]) -> Unit {
   for entity in population {
-    ignore(entity.delete())
+    ignore(entity.despawn())
   }
   population.clear()
 }
@@ -60,7 +60,7 @@ fn bench_steady_population(b : @bench.T, replacements : Int32) -> Unit raise {
   // Keep 1024 long-lived entities and rotate the remaining 3072 in place.
   for step in 0..<replacements {
     let index = 1024 + step * 1103 % 3072
-    ignore(population[index].delete())
+    ignore(population[index].despawn())
     population[index] = bundle.spawn(index)
   }
   assert_eq(alive_entity_count(), population.length())

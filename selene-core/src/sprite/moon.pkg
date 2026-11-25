@@ -1,9 +1,7 @@
 import {
-  "Milky2018/selene/window",
   "moonbitlang/core/debug",
   "Milky2018/selene/asset",
   "Milky2018/selene/ecs",
-  "Milky2018/selene/culling2d",
   "Milky2018/selene/math",
   "Milky2018/selene/parallax2d",
   "Milky2018/selene/transform",
@@ -11,7 +9,6 @@ import {
   "Milky2018/selene/render2d",
   "Milky2018/selene/render2d_types",
   "Milky2018/selene/render",
-  "Milky2018/selene/visibility",
   "moonbitlang/core/cmp",
   "moonbitlang/core/string",
 }
@@ -28,4 +25,14 @@ import {
 
 import {
   "Milky2018/selene/internal/ecs_test",
+} for "wbtest"
+
+import {
+  "Milky2018/selene/window",
+  "Milky2018/selene/visibility",
+} for "test"
+
+import {
+  "Milky2018/selene/window",
+  "Milky2018/selene/visibility",
 } for "wbtest"

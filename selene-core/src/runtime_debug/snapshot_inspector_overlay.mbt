@@ -160,9 +160,6 @@ pub fn world_snapshot(world~ : @ecs.World) -> WorldSnapshot {
   let query_linear_velocity : @ecs.Query[@ecs.Single[@physics2d.LinearVelocity]] = world.query()
   let entities : Array[EntitySnapshot] = []
   for entity in @ecs.iter_entities() {
-    if !entity.is_alive() {
-      continue
-    }
     entities.push({
       entity_id: entity.id(),
       name: @name.name_of(world~, entity),
@@ -253,9 +250,6 @@ pub fn sprite_inspector_entries(
   let query_sprite : @ecs.Query[@ecs.Single[@sprite.Sprite]] = world.query()
   let entries : Array[SpriteInspectorEntry] = []
   for entity, Single(sprite) in query_sprite {
-    if !entity.is_alive() {
-      continue
-    }
     let image_path = match sprite.image {
       Some(image) => @asset.image_path(image)
       None => None
@@ -357,11 +351,12 @@ fn atlas_overlay_from_draw_command(
 }
 
 ///|
-pub fn decorate_frame_for_debug(
+fn decorate_frame(
+  enabled : Bool,
   frame : @render_pipeline.RenderFrame,
   world_commands : Array[@render2d.DrawCommandWithDepth2D],
 ) -> @render_pipeline.RenderFrame {
-  if !atlas_overlay_enabled() {
+  if !enabled {
     return frame
   }
   let overlays : Array[@render2d_types.DrawCommand2D] = []
@@ -390,4 +385,12 @@ pub fn decorate_frame_for_debug(
     }
   }
   { ..frame, frame2d: { ..frame.frame2d, passes, ui_commands, }, }
+}
+
+///|
+pub fn decorate_frame_for_debug(
+  frame : @render_pipeline.RenderFrame,
+  world_commands : Array[@render2d.DrawCommandWithDepth2D],
+) -> @render_pipeline.RenderFrame {
+  decorate_frame(atlas_overlay_enabled(), frame, world_commands)
 }

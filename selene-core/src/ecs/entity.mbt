@@ -34,9 +34,7 @@ pub extend Entity with Hash::{hash, hash_combine}
 priv enum EntityLifecycleState {
   Alive
   PendingSpawn
-  PendingDespawn
-  PendingRespawn
-  Destroyed
+  Disabled
 }
 
 ///|
@@ -56,7 +54,6 @@ priv struct EntityWorldStore {
   all_entities : @set.Set[Entity]
   archetypes : ArchetypeWorld
   free_slots : Array[Int32]
-  pending_state_changes : @set.Set[Entity]
 }
 
 ///|
@@ -70,7 +67,6 @@ fn EntityWorldStore::EntityWorldStore() -> EntityWorldStore {
     all_entities: Set([]),
     archetypes: ArchetypeWorld([]),
     free_slots: [],
-    pending_state_changes: Set([]),
   }
 }
 
@@ -81,7 +77,8 @@ fn entity_store(world~ : World = require_current_world()) -> EntityWorldStore {
 
 ///|
 pub fn iter_entities() -> Iter[Entity] {
-  entity_store().all_entities.iter()
+  let store = entity_store()
+  store.all_entities.iter().filter(entity => store.is_alive(entity))
 }
 
 ///|
@@ -99,8 +96,7 @@ pub fn Entity::is_alive(e : Entity) -> Bool {
 ///|
 fn EntityWorldStore::is_alive(self : EntityWorldStore, entity : Entity) -> Bool {
   guard self.archetypes.slot(entity) is Some(slot) else { false }
-  slot.materialized &&
-  (slot.state is Some(Alive) || slot.state is Some(PendingRespawn))
+  slot.materialized && slot.state is Some(Alive)
 }
 
 ///|
@@ -108,13 +104,7 @@ fn EntityWorldStore::accepts_deferred_child(
   self : EntityWorldStore,
   parent : Entity,
 ) -> Bool {
-  guard self.archetypes.slot(parent) is Some(slot) && slot.materialized else {
-    false
-  }
-  match slot.state {
-    Some(Alive | PendingSpawn | PendingRespawn) => true
-    _ => false
-  }
+  self.archetypes.slot(parent).map_or(false, slot => slot.materialized)
 }
 
 ///|
@@ -189,7 +179,6 @@ fn EntityWorldStore::release_slot(
   entity : Entity,
   slot : EntitySlot,
 ) -> Unit {
-  self.pending_state_changes.remove(entity)
   slot.state = None
   slot.materialized = false
   slot.parent = None
@@ -220,81 +209,59 @@ fn queue_entity_spawn(
     initialize(entity)
     store.link_child(entity, parent)
     slot.materialized = true
-    store.pending_state_changes.add(entity)
+    store.all_entities.add(entity)
+    if parent is None || (parent is Some(parent) && store.is_alive(parent)) {
+      slot.state = Some(Alive)
+      store.archetypes.set_active(entity, true)
+      store.alive_count += 1
+    } else {
+      slot.state = Some(Disabled)
+    }
   })
   entity
 }
 
 ///|
-/// Despawns this entity while retaining its slot and components for respawn.
-fn Entity::destroy(e : Entity) -> Unit {
+fn Entity::disable(self : Entity) -> Unit {
   let world = require_current_world()
-  guard e.belongs_to(world) else { return }
+  guard self.belongs_to(world) else { return }
   let store = entity_store(world~)
-  guard store.archetypes.slot(e) is Some(slot) else { return }
-  match slot.state.unwrap() {
-    Destroyed | PendingDespawn => ()
-    PendingSpawn | Alive | PendingRespawn => {
-      if store.all_entities.contains(e) && store.alive_count > 0 {
-        store.alive_count -= 1
-      }
-      slot.state = Some(PendingDespawn)
-      store.pending_state_changes.add(e)
-      if slot.children is Some(children) {
-        for c in children {
-          c.destroy()
-        }
-      }
-    }
-  }
-}
-
-///|
-fn Entity::respawn(e : Entity) -> Unit {
-  let world = require_current_world()
-  guard e.belongs_to(world) else { return }
-  let store = entity_store(world~)
-  guard store.archetypes.slot(e) is Some(slot) else { return }
-  if slot.parent is Some(parent) && !store.accepts_deferred_child(parent) {
+  guard store.archetypes.slot(self) is Some(slot) && slot.materialized else {
     return
   }
-  match slot.state.unwrap() {
-    Alive | PendingRespawn => ()
-    Destroyed | PendingDespawn | PendingSpawn => {
-      if slot.state is Some(PendingDespawn) && store.all_entities.contains(e) {
-        store.alive_count += 1
-      }
-      slot.state = Some(PendingRespawn)
-      store.pending_state_changes.add(e)
-      if slot.children is Some(children) {
-        for c in children {
-          c.respawn()
-        }
-      }
+  store.archetypes.require_no_query()
+  if slot.state is Some(Alive) {
+    store.archetypes.set_active(self, false)
+    store.alive_count -= 1
+    slot.state = Some(Disabled)
+  }
+  if slot.children is Some(children) {
+    for child in children {
+      child.disable()
     }
   }
 }
 
 ///|
-fn flush_entity_lifecycle(world : World) -> Unit {
+fn Entity::enable(self : Entity) -> Unit {
+  let world = require_current_world()
+  guard self.belongs_to(world) else { return }
   let store = entity_store(world~)
-  for entity in store.pending_state_changes.to_array() {
-    store.pending_state_changes.remove(entity)
-    guard store.archetypes.slot(entity) is Some(slot) else { continue }
-    match slot.state.unwrap() {
-      PendingSpawn | PendingRespawn => {
-        guard slot.materialized else { continue }
-        if !store.all_entities.contains(entity) {
-          store.all_entities.add(entity)
-          store.alive_count += 1
-        }
-        slot.state = Some(Alive)
-      }
-      PendingDespawn => {
-        store.all_entities.remove(entity)
-        slot.state = Some(Destroyed)
-      }
-      Alive | Destroyed => ()
+  guard store.archetypes.slot(self) is Some(slot) && slot.materialized else {
+    return
+  }
+  store.archetypes.require_no_query()
+  if slot.parent is Some(parent) && !store.is_alive(parent) {
+    return
+  }
+  if slot.state is Some(Disabled) {
+    store.archetypes.set_active(self, true)
+    store.alive_count += 1
+    slot.state = Some(Alive)
+  }
+  if slot.children is Some(children) {
+    for child in children {
+      child.enable()
     }
   }
 }
@@ -303,4 +270,11 @@ fn flush_entity_lifecycle(world : World) -> Unit {
 /// Tests live state in this World without consulting the active schedule.
 pub fn World::is_alive(self : World, entity : Entity) -> Bool {
   entity.belongs_to(self) && entity_store(world=self).is_alive(entity)
+}
+
+///|
+/// Visits the entities tracked by this World without consulting the active schedule.
+pub fn World::iter_entities(self : World) -> Iter[Entity] {
+  let store = entity_store(world=self)
+  store.all_entities.iter().filter(entity => store.is_alive(entity))
 }

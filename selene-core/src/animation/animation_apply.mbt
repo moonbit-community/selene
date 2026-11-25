@@ -286,7 +286,7 @@ fn entity_name_path(
   while current is Some(node) {
     guard @name.name_of(world~, node) is Some(name) else { return None }
     segments.push(name)
-    current = node.get_parent()
+    current = world.get_parent(node)
   }
   let output : Array[String] = []
   let mut index = segments.length() - 1

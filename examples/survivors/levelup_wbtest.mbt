@@ -12,9 +12,9 @@ test "level up shows panel and buttons" {
 
   add_exp(ui=SurvivorsUi(world), 16)
   flush_test_commands(world)
-  @ui.ui_layout_system(world~, 0.0)
-  @ui.ui_extract_system()
-  @ui.ui_prepare_system(world~, 0.0)
+  @ui.ui_layout_system(UiNodes(world))
+  @ui.ui_extract_system(UiExtraction(@ecs.require_current_world()))
+  @ui.ui_prepare_system(Frame2D(world), UiNodes(world))
 
   inspect(@time.scale(), content="0")
   inspect(

@@ -9,23 +9,27 @@ fn alpha_mode(color : @render.Color) -> @render.AlphaMode2D {
 
 ///|
 fn push_circle(
+  frame : @render2d.Frame2D,
   center : @math.Vec2,
   radius : Double,
   color : @render.Color,
 ) -> Unit {
-  @render2d.push_ui_circle({
-    center,
-    radius,
-    transform: @math.Affine2::identity(),
-    alpha_mode: alpha_mode(color),
-    blend_mode: Alpha,
-    fill_color: color,
-    stroke_color: None,
-  })
+  frame.push_ui(
+    Circle({
+      center,
+      radius,
+      transform: @math.Affine2::identity(),
+      alpha_mode: alpha_mode(color),
+      blend_mode: Alpha,
+      fill_color: color,
+      stroke_color: None,
+    }),
+  )
 }
 
 ///|
 fn push_label(
+  frame : @render2d.Frame2D,
   text : String,
   center : @math.Vec2,
   color : @render.Color,
@@ -34,20 +38,22 @@ fn push_label(
   if text == "" {
     return
   }
-  @render2d.push_ui_text({
-    text,
-    position: center,
-    transform: @math.Affine2::identity(),
-    blend_mode: Alpha,
-    style: {
-      font: None,
-      family: "sans-serif",
-      size,
-      color,
-      align: Center,
-      baseline: Center,
-    },
-  })
+  frame.push_ui(
+    Text({
+      text,
+      position: center,
+      transform: @math.Affine2::identity(),
+      blend_mode: Alpha,
+      style: {
+        font: None,
+        family: "sans-serif",
+        size,
+        color,
+        align: Center,
+        baseline: Center,
+      },
+    }),
+  )
 }
 
 ///|
@@ -60,11 +66,12 @@ fn stick_knob_center(
 
 ///|
 fn render_sticks(
+  frame : @render2d.Frame2D,
   runtime : TouchControlsWorldStore,
   screen : @math.Vec2,
 ) -> Unit {
   for _, stick in runtime.sticks {
-    let stick_state = stick_runtime_for(runtime, stick)
+    let stick_state = stick_runtime_for(runtime, stick, screen)
     if stick_state.touch_id is None {
       stick_state.center = resolved_placement(
         stick.placement,
@@ -78,8 +85,9 @@ fn render_sticks(
     } else {
       stick.style.base_color
     }
-    push_circle(stick_state.center, stick.radius, base_color)
+    push_circle(frame, stick_state.center, stick.radius, base_color)
     push_circle(
+      frame,
       stick_knob_center(stick, stick_state),
       stick.radius * 0.42,
       stick.style.knob_color,
@@ -89,6 +97,7 @@ fn render_sticks(
 
 ///|
 fn render_buttons(
+  frame : @render2d.Frame2D,
   runtime : TouchControlsWorldStore,
   screen : @math.Vec2,
 ) -> Unit {
@@ -100,18 +109,22 @@ fn render_buttons(
     } else {
       button.style.base_color
     }
-    push_circle(center, button.radius, fill)
-    push_label(button.label, center, button.style.label_color)
+    push_circle(frame, center, button.radius, fill)
+    push_label(frame, button.label, center, button.style.label_color)
   }
 }
 
 ///|
-pub fn touch_controls_render_system() -> Unit {
-  let runtime = store()
+pub fn touch_controls_render_system(
+  controls : TouchControls,
+  frame : @render2d.Frame2D,
+  display : @window.Display,
+) -> Unit {
+  let runtime = controls.state
   if !runtime.visible {
     return
   }
-  let screen = @window.get_screen_size()
-  render_sticks(runtime, screen)
-  render_buttons(runtime, screen)
+  let screen = display.screen_size()
+  render_sticks(frame, runtime, screen)
+  render_buttons(frame, runtime, screen)
 }

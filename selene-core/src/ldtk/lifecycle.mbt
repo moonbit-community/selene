@@ -10,5 +10,5 @@ pub fn despawn_ldtk_tree(world~ : @ecs.World, root : @ecs.Entity) -> Unit {
   if query_ldtk_level_iid.get(root).map(value => value.0) is Some(level) {
     ldtk_pending_transformed_level_iids().remove(level.iid)
   }
-  @ecs.commands(world).delete(root)
+  @ecs.commands(world).despawn(root)
 }
